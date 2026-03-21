@@ -1,0 +1,23 @@
+.codeContainer {
+  margin: 1rem 0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--clr-bg-secondary);
+  border: 1px solid var(--clr-border);
+}
+
+.codeContainer :global(pre) {
+  margin: 0;
+  padding: 1rem;
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.inlineCode {
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  font-size: 1.1em;
+  font-weight: bold;
+  background: var(--clr-bg-code-inline);
+  color: var(--clr-text-code-inline);
+}

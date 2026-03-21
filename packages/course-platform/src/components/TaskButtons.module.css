@@ -1,0 +1,66 @@
+.container {
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.taskWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.button {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.buttonActive {
+  background: var(--clr-accent);
+  color: #fff;
+  border-color: var(--clr-accent);
+  font-weight: 600;
+}
+
+.buttonActive:hover {
+  background: var(--clr-accent-hover);
+  border-color: var(--clr-accent-hover);
+  color: #fff;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px var(--clr-shadow-accent);
+}
+
+.buttonInactive {
+  background: var(--clr-bg-surface);
+  color: var(--clr-text);
+  border-color: var(--clr-border-strong);
+  font-weight: 400;
+}
+
+.buttonInactive:hover {
+  background: var(--clr-bg-tertiary);
+  border-color: var(--clr-accent);
+  color: var(--clr-accent);
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px var(--clr-shadow);
+}
+
+/* Completed task styling */
+.buttonCompleted {
+  opacity: 0.7;
+  text-decoration: line-through;
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--clr-accent);
+}

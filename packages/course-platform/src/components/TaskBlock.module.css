@@ -1,0 +1,49 @@
+.container {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 2px solid var(--clr-border);
+  background: var(--clr-bg-surface);
+  box-shadow: 0 2px 8px var(--clr-shadow);
+  color: var(--clr-text);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--clr-border);
+}
+
+.taskNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  background: linear-gradient(135deg, var(--clr-badge-from) 0%, var(--clr-badge-to) 100%);
+  color: #fff;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.taskTitle {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--clr-text);
+}
+
+.content {
+  line-height: 1.7;
+}
+
+.footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--clr-border);
+}

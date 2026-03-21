@@ -1,0 +1,18 @@
+.requirements {
+  margin-bottom: 1.25rem;
+}
+
+.requirementsTitle {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--clr-text-secondary);
+}
+
+.requirementsList {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--clr-text);
+}

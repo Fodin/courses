@@ -1,0 +1,17 @@
+.interfaceDef {
+  margin-bottom: 1rem;
+}
+
+.interfaceDefTitle {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--clr-text-secondary);
+}
+
+.interfaceDefTitle code {
+  background: var(--clr-bg-code-inline);
+  color: var(--clr-text);
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+}

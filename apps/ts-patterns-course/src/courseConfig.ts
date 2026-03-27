@@ -1,0 +1,13 @@
+import type { CourseConfig } from '@courses/platform'
+
+import { exercises } from './exercises/exercisesConfig'
+import { translations } from './translations'
+
+export const courseConfig: CourseConfig = {
+  courseId: 'ts-patterns-course',
+  title: 'Architectural Patterns in TypeScript',
+  defaultLanguage: 'ru',
+  defaultRoute: '/task/0.1',
+  exercises,
+  translations,
+}

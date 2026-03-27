@@ -1,0 +1,2 @@
+- [project_ts_patterns_course.md](project_ts_patterns_course.md) — Курс ts-patterns-course: прогресс создания контента (уровни 0-5 готовы, 6-8 не начаты)
+- [project_yup_course.md](project_yup_course.md) — Курс yup-course: уровни 0-2 готовы, 3-8 не начаты

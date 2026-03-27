@@ -4,7 +4,7 @@ import { useLanguage } from '../hooks/useLanguage'
 import { useProgress } from '../hooks/useProgress'
 import { useExerciseNavigation } from '../hooks/useExerciseNavigation'
 import type { LevelConfig } from '../types'
-import { FormContainer } from './FormContainer'
+import { DynamicStudentTask } from './DynamicStudentTask'
 import { TaskDescription } from './TaskDescription'
 import { TheoryBlock } from './TheoryBlock'
 
@@ -80,9 +80,7 @@ export function ExerciseLayout({ config }: ExerciseLayoutProps) {
       {showSolution ? (
         currentTaskEntry?.solution
       ) : (
-        <FormContainer taskFile={`Task${currentTask.replace('.', '_')}.tsx`}>
-          {currentTaskEntry?.component}
-        </FormContainer>
+        <DynamicStudentTask folder={config.folder} taskId={currentTask} />
       )}
 
       <TaskDescription taskNumber={currentTask} level={levelId} />

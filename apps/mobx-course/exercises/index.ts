@@ -46,9 +46,11 @@ export * from './07-async/Task7_3'
 export * from './07-async/Task7_4'
 export * from './07-async/Task7_5'
 
-// 08-advanced
-export * from './08-advanced/Task8_1'
-export * from './08-advanced/Task8_2'
-export * from './08-advanced/Task8_3'
-export * from './08-advanced/Task8_4'
-export * from './08-advanced/Task8_5'
+// 08-optimization
+export * from './08-optimization/Task8_1'
+export * from './08-optimization/Task8_2'
+
+// 09-integration
+export * from './09-integration/Task9_1'
+export * from './09-integration/Task9_2'
+export * from './09-integration/Task9_3'

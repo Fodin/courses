@@ -8,7 +8,8 @@ import * as Level4 from './04-reactions'
 import * as Level5 from './05-react'
 import * as Level6 from './06-patterns'
 import * as Level7 from './07-async'
-import * as Level8 from './08-advanced'
+import * as Level8 from './08-optimization'
+import * as Level9 from './09-integration'
 
 export const exercises: LevelConfig[] = [
   {
@@ -109,15 +110,23 @@ export const exercises: LevelConfig[] = [
   },
   {
     levelId: '8',
-    folder: '08-advanced',
-    navKey: 'nav.advanced',
+    folder: '08-optimization',
+    navKey: 'nav.optimization',
     descKey: 'level.8.desc',
     tasks: [
       task('8.1', <Level8.Task8_1_Solution />),
       task('8.2', <Level8.Task8_2_Solution />),
-      task('8.3', <Level8.Task8_3_Solution />),
-      task('8.4', <Level8.Task8_4_Solution />),
-      task('8.5', <Level8.Task8_5_Solution />),
+    ],
+  },
+  {
+    levelId: '9',
+    folder: '09-integration',
+    navKey: 'nav.integration',
+    descKey: 'level.9.desc',
+    tasks: [
+      task('9.1', <Level9.Task9_1_Solution />),
+      task('9.2', <Level9.Task9_2_Solution />),
+      task('9.3', <Level9.Task9_3_Solution />),
     ],
   },
 ]

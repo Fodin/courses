@@ -17,7 +17,8 @@ export const translations: Translations = {
     'nav.react': 'React интеграция',
     'nav.patterns': 'Паттерны сторов',
     'nav.async': 'Асинхронность',
-    'nav.advanced': 'Продвинутые техники',
+    'nav.optimization': 'Оптимизация',
+    'nav.integration': 'Интеграция',
 
     'task.0.1': 'Первый стор',
     'task.0.2': 'Стор + React',
@@ -61,9 +62,10 @@ export const translations: Translations = {
 
     'task.8.1': 'Гранулярный observer',
     'task.8.2': 'intercept и observe',
-    'task.8.3': 'Сериализация',
-    'task.8.4': 'Тестирование сторов',
-    'task.8.5': 'Финальный проект',
+
+    'task.9.1': 'Сериализация',
+    'task.9.2': 'Тестирование сторов',
+    'task.9.3': 'Финальный проект',
 
     'task.title': 'Задание',
     'task.description': '📋 Описание задания',
@@ -106,7 +108,8 @@ export const translations: Translations = {
     'level.5.desc': 'observer, useLocalObservable, context',
     'level.6.desc': 'Domain store, UI store, Root store',
     'level.7.desc': 'Async actions, flow, loading states',
-    'level.8.desc': 'Performance, intercept, сериализация, тесты',
+    'level.8.desc': 'Granular observer, intercept, observe',
+    'level.9.desc': 'Сериализация, тестирование, финальный проект',
   },
   en: {
     'common.loading': 'Loading...',
@@ -123,7 +126,8 @@ export const translations: Translations = {
     'nav.react': 'React Integration',
     'nav.patterns': 'Store Patterns',
     'nav.async': 'Async',
-    'nav.advanced': 'Advanced',
+    'nav.optimization': 'Optimization',
+    'nav.integration': 'Integration',
 
     'task.0.1': 'First Store',
     'task.0.2': 'Store + React',
@@ -167,9 +171,10 @@ export const translations: Translations = {
 
     'task.8.1': 'Granular Observer',
     'task.8.2': 'intercept & observe',
-    'task.8.3': 'Serialization',
-    'task.8.4': 'Testing Stores',
-    'task.8.5': 'Final Project',
+
+    'task.9.1': 'Serialization',
+    'task.9.2': 'Testing Stores',
+    'task.9.3': 'Final Project',
 
     'task.title': 'Task',
     'task.description': '📋 Task Description',
@@ -212,6 +217,7 @@ export const translations: Translations = {
     'level.5.desc': 'observer, useLocalObservable, context',
     'level.6.desc': 'Domain store, UI store, Root store',
     'level.7.desc': 'Async actions, flow, loading states',
-    'level.8.desc': 'Performance, intercept, serialization, tests',
+    'level.8.desc': 'Granular observer, intercept, observe',
+    'level.9.desc': 'Serialization, testing, final project',
   },
 }

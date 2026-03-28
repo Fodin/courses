@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(*)",
+      "Read(*)",
+      "Write(*)",
+      "Edit(*)",
+      "mcp__context7__resolve-library-id",
+      "mcp__context7__query-docs",
+      "mcp__openwrt-ssh__ssh_exec",
+      "mcp__openwrt-ssh__ssh_read_file",
+      "mcp__openwrt-ssh__ssh_write_file"
+    ]
+  }
+}

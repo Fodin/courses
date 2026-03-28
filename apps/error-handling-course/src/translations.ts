@@ -13,7 +13,8 @@ export const translations: Translations = {
     'nav.level': 'Уровень',
     'nav.basics': 'Основы',
     'nav.errorTypes': 'Типы ошибок',
-    'nav.async': 'Асинхронность',
+    'nav.promises': 'Promise ошибки',
+    'nav.asyncAwait': 'async/await',
     'nav.tsPatterns': 'TS паттерны',
     'nav.boundaries': 'Error Boundaries',
     'nav.dataFetching': 'Загрузка данных',
@@ -33,44 +34,46 @@ export const translations: Translations = {
 
     // Задания уровня 2
     'task.2.1': 'Promise rejection',
-    'task.2.2': 'async/await обработка',
-    'task.2.3': 'Promise.allSettled',
-    'task.2.4': 'Retry паттерн',
+    'task.2.2': 'Promise.allSettled',
 
     // Задания уровня 3
-    'task.3.1': 'Result тип',
-    'task.3.2': 'Discriminated unions',
-    'task.3.3': 'Type-safe ошибки',
-    'task.3.4': 'Exhaustive handling',
+    'task.3.1': 'async/await обработка',
+    'task.3.2': 'Retry паттерн',
 
     // Задания уровня 4
-    'task.4.1': 'Базовый Error Boundary',
-    'task.4.2': 'Fallback UI',
-    'task.4.3': 'Восстановление после ошибки',
-    'task.4.4': 'Вложенные Boundaries',
+    'task.4.1': 'Result тип',
+    'task.4.2': 'Discriminated unions',
+    'task.4.3': 'Type-safe ошибки',
+    'task.4.4': 'Exhaustive handling',
 
     // Задания уровня 5
-    'task.5.1': 'Ошибки fetch',
-    'task.5.2': 'API ошибки',
-    'task.5.3': 'Loading/Error/Success',
-    'task.5.4': 'Восстановление загрузки',
+    'task.5.1': 'Базовый Error Boundary',
+    'task.5.2': 'Fallback UI',
+    'task.5.3': 'Восстановление после ошибки',
+    'task.5.4': 'Вложенные Boundaries',
 
     // Задания уровня 6
-    'task.6.1': 'Ошибки валидации',
-    'task.6.2': 'Серверные ошибки',
-    'task.6.3': 'Отображение ошибок',
-    'task.6.4': 'Доступность ошибок',
+    'task.6.1': 'Ошибки fetch',
+    'task.6.2': 'API ошибки',
+    'task.6.3': 'Loading/Error/Success',
+    'task.6.4': 'Восстановление загрузки',
 
     // Задания уровня 7
-    'task.7.1': 'window.onerror',
-    'task.7.2': 'Сервис логирования',
-    'task.7.3': 'React Error Context',
-    'task.7.4': 'Мониторинг ошибок',
+    'task.7.1': 'Ошибки валидации',
+    'task.7.2': 'Серверные ошибки',
+    'task.7.3': 'Отображение ошибок',
+    'task.7.4': 'Доступность ошибок',
 
     // Задания уровня 8
-    'task.8.1': 'Функциональная обработка',
-    'task.8.2': 'Тестирование ошибок',
-    'task.8.3': 'Финальный проект',
+    'task.8.1': 'window.onerror',
+    'task.8.2': 'Сервис логирования',
+    'task.8.3': 'React Error Context',
+    'task.8.4': 'Мониторинг ошибок',
+
+    // Задания уровня 9
+    'task.9.1': 'Функциональная обработка',
+    'task.9.2': 'Тестирование ошибок',
+    'task.9.3': 'Финальный проект',
 
     // Задания
     'task.title': 'Задание',
@@ -114,13 +117,14 @@ export const translations: Translations = {
     // Уровни (описания)
     'level.0.desc': 'try/catch и объект Error',
     'level.1.desc': 'TypeError, RangeError, custom errors',
-    'level.2.desc': 'Promises, async/await, retry',
-    'level.3.desc': 'Result, discriminated unions, never',
-    'level.4.desc': 'Error Boundary, fallback, recovery',
-    'level.5.desc': 'fetch, API, loading states',
-    'level.6.desc': 'Валидация, серверные ошибки, a11y',
-    'level.7.desc': 'window.onerror, логирование, мониторинг',
-    'level.8.desc': 'Функциональный подход и тесты',
+    'level.2.desc': 'Promise rejection, комбинаторы',
+    'level.3.desc': 'try/catch + await, retry паттерн',
+    'level.4.desc': 'Result, discriminated unions, never',
+    'level.5.desc': 'Error Boundary, fallback, recovery',
+    'level.6.desc': 'fetch, API, loading states',
+    'level.7.desc': 'Валидация, серверные ошибки, a11y',
+    'level.8.desc': 'window.onerror, логирование, мониторинг',
+    'level.9.desc': 'Функциональный подход и тесты',
   },
   en: {
     // Common
@@ -133,7 +137,8 @@ export const translations: Translations = {
     'nav.level': 'Level',
     'nav.basics': 'Basics',
     'nav.errorTypes': 'Error Types',
-    'nav.async': 'Async Errors',
+    'nav.promises': 'Promise Errors',
+    'nav.asyncAwait': 'async/await',
     'nav.tsPatterns': 'TS Patterns',
     'nav.boundaries': 'Error Boundaries',
     'nav.dataFetching': 'Data Fetching',
@@ -153,44 +158,46 @@ export const translations: Translations = {
 
     // Tasks Level 2
     'task.2.1': 'Promise Rejection',
-    'task.2.2': 'async/await Handling',
-    'task.2.3': 'Promise.allSettled',
-    'task.2.4': 'Retry Pattern',
+    'task.2.2': 'Promise.allSettled',
 
     // Tasks Level 3
-    'task.3.1': 'Result Type',
-    'task.3.2': 'Discriminated Unions',
-    'task.3.3': 'Type-safe Errors',
-    'task.3.4': 'Exhaustive Handling',
+    'task.3.1': 'async/await Handling',
+    'task.3.2': 'Retry Pattern',
 
     // Tasks Level 4
-    'task.4.1': 'Basic Error Boundary',
-    'task.4.2': 'Fallback UI',
-    'task.4.3': 'Error Recovery',
-    'task.4.4': 'Nested Boundaries',
+    'task.4.1': 'Result Type',
+    'task.4.2': 'Discriminated Unions',
+    'task.4.3': 'Type-safe Errors',
+    'task.4.4': 'Exhaustive Handling',
 
     // Tasks Level 5
-    'task.5.1': 'Fetch Errors',
-    'task.5.2': 'API Errors',
-    'task.5.3': 'Loading/Error/Success',
-    'task.5.4': 'Fetch Recovery',
+    'task.5.1': 'Basic Error Boundary',
+    'task.5.2': 'Fallback UI',
+    'task.5.3': 'Error Recovery',
+    'task.5.4': 'Nested Boundaries',
 
     // Tasks Level 6
-    'task.6.1': 'Validation Errors',
-    'task.6.2': 'Server Errors',
-    'task.6.3': 'Error Display',
-    'task.6.4': 'Error Accessibility',
+    'task.6.1': 'Fetch Errors',
+    'task.6.2': 'API Errors',
+    'task.6.3': 'Loading/Error/Success',
+    'task.6.4': 'Fetch Recovery',
 
     // Tasks Level 7
-    'task.7.1': 'window.onerror',
-    'task.7.2': 'Logging Service',
-    'task.7.3': 'React Error Context',
-    'task.7.4': 'Error Monitoring',
+    'task.7.1': 'Validation Errors',
+    'task.7.2': 'Server Errors',
+    'task.7.3': 'Error Display',
+    'task.7.4': 'Error Accessibility',
 
     // Tasks Level 8
-    'task.8.1': 'Functional Error Handling',
-    'task.8.2': 'Testing Errors',
-    'task.8.3': 'Final Project',
+    'task.8.1': 'window.onerror',
+    'task.8.2': 'Logging Service',
+    'task.8.3': 'React Error Context',
+    'task.8.4': 'Error Monitoring',
+
+    // Tasks Level 9
+    'task.9.1': 'Functional Error Handling',
+    'task.9.2': 'Testing Errors',
+    'task.9.3': 'Final Project',
 
     // Tasks
     'task.title': 'Task',
@@ -234,12 +241,13 @@ export const translations: Translations = {
     // Levels (descriptions)
     'level.0.desc': 'try/catch and the Error object',
     'level.1.desc': 'TypeError, RangeError, custom errors',
-    'level.2.desc': 'Promises, async/await, retry',
-    'level.3.desc': 'Result, discriminated unions, never',
-    'level.4.desc': 'Error Boundary, fallback, recovery',
-    'level.5.desc': 'fetch, API, loading states',
-    'level.6.desc': 'Validation, server errors, a11y',
-    'level.7.desc': 'window.onerror, logging, monitoring',
-    'level.8.desc': 'Functional approach and testing',
+    'level.2.desc': 'Promise rejection, combinators',
+    'level.3.desc': 'try/catch + await, retry pattern',
+    'level.4.desc': 'Result, discriminated unions, never',
+    'level.5.desc': 'Error Boundary, fallback, recovery',
+    'level.6.desc': 'fetch, API, loading states',
+    'level.7.desc': 'Validation, server errors, a11y',
+    'level.8.desc': 'window.onerror, logging, monitoring',
+    'level.9.desc': 'Functional approach and testing',
   },
 }

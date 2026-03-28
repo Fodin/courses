@@ -14,11 +14,17 @@ export const translations: Translations = {
     'nav.setup': 'Setup',
     'nav.basics': 'Основы',
     'nav.validation': 'Валидация',
-    'nav.schemas': 'Схемы',
+    'nav.zodBasics': 'Zod: Основы',
+    'nav.zodAdvanced': 'Zod: Продвинутое',
+    'nav.yupComparison': 'Yup и сравнение',
     'nav.complex': 'Сложные поля',
+    'nav.filesDates': 'Файлы и даты',
     'nav.dynamic': 'Динамические формы',
-    'nav.ux': 'UX',
-    'nav.async': 'Асинхронность',
+    'nav.formState': 'Состояние формы',
+    'nav.focusA11y': 'Фокус и A11y',
+    'nav.performance': 'Производительность',
+    'nav.asyncValidation': 'Async валидация',
+    'nav.submissionAutosave': 'Отправка и автосохранение',
     'nav.advanced': 'Продвинутые техники',
 
     // Задания уровня 0
@@ -39,47 +45,59 @@ export const translations: Translations = {
 
     // Задания уровня 3
     'task.3.1': 'Валидация с Zod',
-    'task.3.2': 'Валидация с Yup',
-    'task.3.3': 'Сложные схемы',
-    'task.3.4': 'refine и сообщения',
-    'task.3.5': 'Zod vs Yup',
-    'task.3.6': 'superRefine',
+    'task.3.2': 'Сложные схемы',
 
     // Задания уровня 4
-    'task.4.1': 'Controller',
-    'task.4.2': 'Radio и Select',
-    'task.4.3': 'Checkbox',
-    'task.4.4': 'Загрузка файлов',
-    'task.4.5': 'Дата и время',
+    'task.4.1': 'refine и сообщения',
+    'task.4.2': 'superRefine и discriminatedUnion',
 
     // Задания уровня 5
-    'task.5.1': 'useFieldArray',
-    'task.5.2': 'Условные поля',
-    'task.5.3': 'Зависимые поля',
-    'task.5.4': 'Wizard',
+    'task.5.1': 'Валидация с Yup',
+    'task.5.2': 'Zod vs Yup',
 
     // Задания уровня 6
-    'task.6.1': 'Dirty / Touched',
-    'task.6.2': 'Reset',
-    'task.6.3': 'Focus management',
-    'task.6.4': 'Accessibility',
-    'task.6.5': 'Performance',
-    'task.6.6': 'setFocus и resetField',
+    'task.6.1': 'Controller',
+    'task.6.2': 'Radio и Select',
+    'task.6.3': 'Checkbox',
 
     // Задания уровня 7
-    'task.7.1': 'Async валидация',
-    'task.7.2': 'Загрузка данных',
-    'task.7.3': 'Submit loading',
-    'task.7.4': 'Debounce',
-    'task.7.5': 'Async defaultValues',
+    'task.7.1': 'Загрузка файлов',
+    'task.7.2': 'Дата и время',
 
     // Задания уровня 8
-    'task.8.1': 'UI библиотека',
-    'task.8.2': 'Кастомные хуки',
-    'task.8.3': 'FormContext',
-    'task.8.4': 'localStorage',
-    'task.8.5': 'Финальный проект',
-    'task.8.6': 'useFormState и тесты',
+    'task.8.1': 'useFieldArray',
+    'task.8.2': 'Условные поля',
+    'task.8.3': 'Зависимые поля',
+    'task.8.4': 'Wizard',
+
+    // Задания уровня 9
+    'task.9.1': 'Dirty / Touched',
+    'task.9.2': 'Reset',
+
+    // Задания уровня 10
+    'task.10.1': 'Focus management',
+    'task.10.2': 'Accessibility',
+
+    // Задания уровня 11
+    'task.11.1': 'Performance',
+    'task.11.2': 'setFocus и resetField',
+
+    // Задания уровня 12
+    'task.12.1': 'Async валидация',
+    'task.12.2': 'Загрузка данных',
+    'task.12.3': 'Async defaultValues',
+
+    // Задания уровня 13
+    'task.13.1': 'Submit loading',
+    'task.13.2': 'Debounce',
+
+    // Задания уровня 14
+    'task.14.1': 'UI библиотека',
+    'task.14.2': 'Кастомные хуки',
+    'task.14.3': 'FormContext',
+    'task.14.4': 'localStorage',
+    'task.14.5': 'Финальный проект',
+    'task.14.6': 'useFormState и тесты',
 
     // Задания
     'task.title': 'Задание',
@@ -124,12 +142,18 @@ export const translations: Translations = {
     'level.0.desc': 'Настройка и первая форма',
     'level.1.desc': 'useForm, register, handleSubmit',
     'level.2.desc': 'Built-in и custom валидация',
-    'level.3.desc': 'Zod и Yup валидация',
-    'level.4.desc': 'Controller, file upload',
-    'level.5.desc': 'useFieldArray, wizard',
-    'level.6.desc': 'Dirty, reset, a11y, performance',
-    'level.7.desc': 'Async validation, API',
-    'level.8.desc': 'Интеграции и финальный проект',
+    'level.3.desc': 'Базовые и сложные схемы Zod',
+    'level.4.desc': 'refine, superRefine, discriminatedUnion',
+    'level.5.desc': 'Yup валидация и сравнение с Zod',
+    'level.6.desc': 'Controller, radio, select, checkbox',
+    'level.7.desc': 'File upload, date, datetime',
+    'level.8.desc': 'useFieldArray, условные поля, wizard',
+    'level.9.desc': 'Dirty, touched, reset',
+    'level.10.desc': 'Focus management, ARIA',
+    'level.11.desc': 'Performance, setFocus, resetField',
+    'level.12.desc': 'Async validation, data loading',
+    'level.13.desc': 'Submit loading, debounce autosave',
+    'level.14.desc': 'Интеграции и финальный проект',
   },
   en: {
     // Common
@@ -143,11 +167,17 @@ export const translations: Translations = {
     'nav.setup': 'Setup',
     'nav.basics': 'Basics',
     'nav.validation': 'Validation',
-    'nav.schemas': 'Schemas',
+    'nav.zodBasics': 'Zod: Basics',
+    'nav.zodAdvanced': 'Zod: Advanced',
+    'nav.yupComparison': 'Yup & Comparison',
     'nav.complex': 'Complex Fields',
+    'nav.filesDates': 'Files & Dates',
     'nav.dynamic': 'Dynamic Forms',
-    'nav.ux': 'UX',
-    'nav.async': 'Async',
+    'nav.formState': 'Form State',
+    'nav.focusA11y': 'Focus & A11y',
+    'nav.performance': 'Performance',
+    'nav.asyncValidation': 'Async Validation',
+    'nav.submissionAutosave': 'Submission & Autosave',
     'nav.advanced': 'Advanced',
 
     // Tasks Level 0
@@ -168,47 +198,59 @@ export const translations: Translations = {
 
     // Tasks Level 3
     'task.3.1': 'Zod Validation',
-    'task.3.2': 'Yup Validation',
-    'task.3.3': 'Complex Schemas',
-    'task.3.4': 'refine and Messages',
-    'task.3.5': 'Zod vs Yup',
-    'task.3.6': 'superRefine',
+    'task.3.2': 'Complex Schemas',
 
     // Tasks Level 4
-    'task.4.1': 'Controller',
-    'task.4.2': 'Radio and Select',
-    'task.4.3': 'Checkbox',
-    'task.4.4': 'File Upload',
-    'task.4.5': 'Date and Time',
+    'task.4.1': 'refine and Messages',
+    'task.4.2': 'superRefine and discriminatedUnion',
 
     // Tasks Level 5
-    'task.5.1': 'useFieldArray',
-    'task.5.2': 'Conditional Fields',
-    'task.5.3': 'Dependent Fields',
-    'task.5.4': 'Wizard',
+    'task.5.1': 'Yup Validation',
+    'task.5.2': 'Zod vs Yup',
 
     // Tasks Level 6
-    'task.6.1': 'Dirty / Touched',
-    'task.6.2': 'Reset',
-    'task.6.3': 'Focus Management',
-    'task.6.4': 'Accessibility',
-    'task.6.5': 'Performance',
-    'task.6.6': 'setFocus & resetField',
+    'task.6.1': 'Controller',
+    'task.6.2': 'Radio and Select',
+    'task.6.3': 'Checkbox',
 
     // Tasks Level 7
-    'task.7.1': 'Async Validation',
-    'task.7.2': 'Data Loading',
-    'task.7.3': 'Submit Loading',
-    'task.7.4': 'Debounce',
-    'task.7.5': 'Async defaultValues',
+    'task.7.1': 'File Upload',
+    'task.7.2': 'Date and Time',
 
     // Tasks Level 8
-    'task.8.1': 'UI Library',
-    'task.8.2': 'Custom Hooks',
-    'task.8.3': 'FormContext',
-    'task.8.4': 'localStorage',
-    'task.8.5': 'Final Project',
-    'task.8.6': 'useFormState & Tests',
+    'task.8.1': 'useFieldArray',
+    'task.8.2': 'Conditional Fields',
+    'task.8.3': 'Dependent Fields',
+    'task.8.4': 'Wizard',
+
+    // Tasks Level 9
+    'task.9.1': 'Dirty / Touched',
+    'task.9.2': 'Reset',
+
+    // Tasks Level 10
+    'task.10.1': 'Focus Management',
+    'task.10.2': 'Accessibility',
+
+    // Tasks Level 11
+    'task.11.1': 'Performance',
+    'task.11.2': 'setFocus & resetField',
+
+    // Tasks Level 12
+    'task.12.1': 'Async Validation',
+    'task.12.2': 'Data Loading',
+    'task.12.3': 'Async defaultValues',
+
+    // Tasks Level 13
+    'task.13.1': 'Submit Loading',
+    'task.13.2': 'Debounce',
+
+    // Tasks Level 14
+    'task.14.1': 'UI Library',
+    'task.14.2': 'Custom Hooks',
+    'task.14.3': 'FormContext',
+    'task.14.4': 'localStorage',
+    'task.14.5': 'Final Project',
+    'task.14.6': 'useFormState & Tests',
 
     // Tasks
     'task.title': 'Task',
@@ -253,11 +295,17 @@ export const translations: Translations = {
     'level.0.desc': 'Setup and first form',
     'level.1.desc': 'useForm, register, handleSubmit',
     'level.2.desc': 'Built-in and custom validation',
-    'level.3.desc': 'Zod and Yup validation',
-    'level.4.desc': 'Controller, file upload',
-    'level.5.desc': 'useFieldArray, wizard',
-    'level.6.desc': 'Dirty, reset, a11y, performance',
-    'level.7.desc': 'Async validation, API',
-    'level.8.desc': 'Integrations and final project',
+    'level.3.desc': 'Basic and complex Zod schemas',
+    'level.4.desc': 'refine, superRefine, discriminatedUnion',
+    'level.5.desc': 'Yup validation and comparison with Zod',
+    'level.6.desc': 'Controller, radio, select, checkbox',
+    'level.7.desc': 'File upload, date, datetime',
+    'level.8.desc': 'useFieldArray, conditional fields, wizard',
+    'level.9.desc': 'Dirty, touched, reset',
+    'level.10.desc': 'Focus management, ARIA',
+    'level.11.desc': 'Performance, setFocus, resetField',
+    'level.12.desc': 'Async validation, data loading',
+    'level.13.desc': 'Submit loading, debounce autosave',
+    'level.14.desc': 'Integrations and final project',
   },
 }

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How does TypedEventEmitter link event name to payload type?",
+    "type": "single",
+    "options": [
+      { "text": "Through generic parameter K extends keyof TEvents, where TEvents[K] defines the payload type", "correct": true },
+      { "text": "Through function overloads for each event", "correct": false, "explanation": "Overloads would require creating a separate signature for each event. The generic approach scales automatically when new events are added to the map" },
+      { "text": "Through runtime event name checking in switch/case", "correct": false, "explanation": "Runtime checking doesn't provide compile-time type safety. The generic parameter allows TypeScript to check correspondence statically" },
+      { "text": "Through decorators attached to the class", "correct": false, "explanation": "Decorators don't participate in type inference. The link is provided through indexed access types: TEvents[K]" }
+    ]
+  },
+  {
+    "question": "Why does the on() method return an unsubscribe function instead of using off()?",
+    "type": "single",
+    "options": [
+      { "text": "To prevent memory leaks — cleanup function is easy to use in useEffect and destructors", "correct": true },
+      { "text": "Because off() is impossible to implement with generic types", "correct": false, "explanation": "off() is implementable with the same generic types. Returning an unsubscribe function is a convenience: no need to store a handler reference" },
+      { "text": "To improve performance through closures", "correct": false, "explanation": "Performance isn't the reason. The main advantage is ergonomics: cleanup function pairs perfectly with React useEffect and the RAII pattern" },
+      { "text": "It's a mandatory TypeScript requirement for generic classes", "correct": false, "explanation": "TypeScript doesn't require this. It's an architectural decision for subscription management convenience" }
+    ]
+  },
+  {
+    "question": "How does Extract<TEvent, { type: K }> work in the getByType method?",
+    "type": "single",
+    "options": [
+      { "text": "Extracts from the union type TEvent only the variant whose type field matches K", "correct": true },
+      { "text": "Creates a new type based on TEvent and K", "correct": false, "explanation": "Extract doesn't create new types; it selects existing union members that are assignable to { type: K }" },
+      { "text": "Converts TEvent into an array of elements of type K", "correct": false, "explanation": "Extract is a conditional type for filtering unions, not for creating arrays" },
+      { "text": "Removes the type field from TEvent", "correct": false, "explanation": "That describes Omit, not Extract. Extract selects matching variants from a union" }
+    ]
+  },
+  {
+    "question": "Which of the following properties are characteristic of Event Sourcing?",
+    "type": "multiple",
+    "options": [
+      { "text": "All changes are stored as immutable events", "correct": true },
+      { "text": "State is reconstructed through replaying the event sequence", "correct": true },
+      { "text": "Events are overwritten with each update", "correct": false, "explanation": "In Event Sourcing, events are immutable (append-only). Overwriting violates the audit trail principle and time-travel capability" },
+      { "text": "Time-travel is supported through replay up to a specific point", "correct": true }
+    ]
+  },
+  {
+    "question": "What happens if a middleware in Event Bus doesn't call next()?",
+    "type": "single",
+    "options": [
+      { "text": "The event will be blocked — subscribers won't receive notifications", "correct": true },
+      { "text": "A runtime error will occur because the middleware chain was interrupted", "correct": false, "explanation": "Chain interruption is normal behavior. Middleware can intentionally block events, for example, for validation" },
+      { "text": "The event will be sent to subscribers directly, bypassing remaining middlewares", "correct": false, "explanation": "Without calling next(), remaining middlewares and final dispatch don't execute. This is the core control mechanism in the middleware pattern" },
+      { "text": "TypeScript will produce a compile error", "correct": false, "explanation": "next() is an optional call. TypeScript cannot track whether a function will be called at runtime" }
+    ]
+  }
+]

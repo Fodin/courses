@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Which fs API style is recommended for server code?",
+    "type": "single",
+    "options": [
+      { "text": "fs/promises (await fs.readFile(...))", "correct": true },
+      { "text": "fs.readFileSync(...)", "correct": false, "explanation": "Synchronous methods block the Event Loop and should not be used in server code. They are only acceptable in CLI scripts or during initialization" },
+      { "text": "fs.readFile(..., callback)", "correct": false, "explanation": "The callback API works but leads to callback hell. The Promise API (fs/promises) is the modern, recommended approach" },
+      { "text": "All three styles are equally good", "correct": false, "explanation": "Sync blocks the Event Loop, callbacks lead to nesting. fs/promises is the cleanest and most maintainable approach" }
+    ]
+  },
+  {
+    "question": "What does fs.readFile return without specifying encoding?",
+    "type": "single",
+    "options": [
+      { "text": "Buffer", "correct": true },
+      { "text": "UTF-8 string", "correct": false, "explanation": "Without encoding, Node.js returns a raw Buffer. To get a string, specify encoding: 'utf8' or call buf.toString('utf8')" },
+      { "text": "Uint8Array", "correct": false, "explanation": "Node.js returns a Buffer, which inherits from Uint8Array but is specifically a Buffer with additional methods" },
+      { "text": "null", "correct": false, "explanation": "readFile always returns file data — either Buffer (without encoding) or string (with encoding)" }
+    ]
+  },
+  {
+    "question": "Why is path.join() preferred over string concatenation for paths?",
+    "type": "single",
+    "options": [
+      { "text": "path.join() normalizes separators and works cross-platform", "correct": true },
+      { "text": "path.join() is faster than string concatenation", "correct": false, "explanation": "Speed is not the main reason. The key benefit is that path.join() correctly handles separators ('/' vs '\\'), removes duplicates, and processes '..'" },
+      { "text": "path.join() checks if the file exists", "correct": false, "explanation": "path.join() only builds paths — it does not access the file system or check existence" },
+      { "text": "String concatenation is forbidden in strict mode", "correct": false, "explanation": "strict mode does not forbid string concatenation. The problem is that '/' doesn't work on Windows, while path.join() uses the correct separator" }
+    ]
+  },
+  {
+    "question": "Which statements about fs.watch() and fs.watchFile() are true?",
+    "type": "multiple",
+    "options": [
+      { "text": "fs.watch() uses OS notifications and is more efficient", "correct": true },
+      { "text": "fs.watchFile() uses polling and works on network drives", "correct": true },
+      { "text": "fs.watch() can generate duplicate events", "correct": true },
+      { "text": "fs.watchFile() supports recursive directory watching", "correct": false, "explanation": "fs.watchFile() only works with a single file. Recursive watching is supported by fs.watch() (on macOS and Windows)" }
+    ]
+  },
+  {
+    "question": "What happens when calling fs.writeFile() if the directory doesn't exist?",
+    "type": "single",
+    "options": [
+      { "text": "An ENOENT error is thrown", "correct": true },
+      { "text": "The directory is created automatically", "correct": false, "explanation": "writeFile does not create directories. You need to call mkdir({ recursive: true }) beforehand to create the required structure" },
+      { "text": "The file is created in the current directory", "correct": false, "explanation": "Node.js doesn't change the path — if the specified directory doesn't exist, the operation fails with ENOENT" },
+      { "text": "writeFile returns null without error", "correct": false, "explanation": "writeFile always throws an error if the path is invalid. A missing directory results in an ENOENT error" }
+    ]
+  }
+]

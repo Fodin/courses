@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What is the main purpose of the Adapter pattern?",
+    "type": "single",
+    "options": [
+      { "text": "To convert an incompatible interface to the target one without changing the wrapped object's source code", "correct": true },
+      { "text": "To add new functionality to an object through a wrapper", "correct": false, "explanation": "Adding functionality is the Decorator's job. Adapter only translates calls between incompatible interfaces" },
+      { "text": "To control access to an object (caching, logging)", "correct": false, "explanation": "Access control is the Proxy's job. Adapter solves interface incompatibility" },
+      { "text": "To simplify a complex system of multiple subsystems", "correct": false, "explanation": "Simplifying complex systems is the Facade's job. Adapter works with a single object, converting its interface" }
+    ]
+  },
+  {
+    "question": "Why must a Decorator preserve the signature of the wrapped function?",
+    "type": "single",
+    "options": [
+      { "text": "So the calling code doesn't know about the decorator's existence — the decorator must be transparent", "correct": true },
+      { "text": "Because TypeScript doesn't allow changing signatures", "correct": false, "explanation": "TypeScript allows returning a function with a different signature — but this violates the decorator contract" },
+      { "text": "For compatibility with TC39 class decorators", "correct": false, "explanation": "Functional decorators (wrappers) and TC39 class decorators (@decorator) are different things" },
+      { "text": "To avoid runtime errors", "correct": false, "explanation": "Preserving the signature is primarily for compile-time safety and contract compliance. Runtime errors are a consequence, not the cause" }
+    ]
+  },
+  {
+    "question": "How does a Facade differ from a God Object?",
+    "type": "single",
+    "options": [
+      { "text": "Facade delegates work to subsystems and coordinates them, while a God Object implements all logic internally", "correct": true },
+      { "text": "Facade has fewer methods than a God Object", "correct": false, "explanation": "Number of methods is not the defining factor. The key difference is that Facade delegates rather than implementing logic itself" },
+      { "text": "A God Object is a Facade with more than 5 subsystems", "correct": false, "explanation": "A God Object is an anti-pattern where one class does everything itself. The number of subsystems doesn't turn a Facade into a God Object" },
+      { "text": "Facade is a God Object with an interface", "correct": false, "explanation": "Facade is fundamentally different: it coordinates rather than containing business logic" }
+    ]
+  },
+  {
+    "question": "Which types of Proxy are described in the theory?",
+    "type": "multiple",
+    "options": [
+      { "text": "Caching — stores call results", "correct": true },
+      { "text": "Logging — records all accesses", "correct": true },
+      { "text": "Protection — checks access rights", "correct": true },
+      { "text": "Virtual — defers creation of heavy objects", "correct": true },
+      { "text": "Transforming — converts data between formats", "correct": false, "explanation": "Converting data between formats is the Adapter's job, not Proxy's" }
+    ]
+  },
+  {
+    "question": "Why is it important to use generics instead of `any` when creating Proxy in TypeScript?",
+    "type": "single",
+    "options": [
+      { "text": "To preserve type safety — TypeScript will know the types of methods and properties of the proxied object", "correct": true },
+      { "text": "Because the Proxy API doesn't accept the any parameter type", "correct": false, "explanation": "JavaScript Proxy accepts any object. Generics are needed for TypeScript typing, not runtime restrictions" },
+      { "text": "To improve Proxy performance", "correct": false, "explanation": "Generics are erased at compilation and don't affect runtime performance" },
+      { "text": "It's a mandatory ESLint requirement", "correct": false, "explanation": "While ESLint may warn about using any, this is a matter of architectural choice, not a linter requirement" }
+    ]
+  }
+]

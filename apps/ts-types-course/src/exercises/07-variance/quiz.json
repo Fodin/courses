@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Если Dog extends Animal, какое присваивание безопасно?",
+    "type": "single",
+    "options": [
+      { "text": "Producer<Dog> -> Producer<Animal> (ковариантность output position)", "correct": true },
+      { "text": "Producer<Animal> -> Producer<Dog> (ковариантность работает в обе стороны)", "correct": false, "explanation": "Ковариантность работает только от подтипа к супертипу. Producer<Animal> может вернуть Animal без breed, что нарушит ожидания Producer<Dog>" },
+      { "text": "Consumer<Dog> -> Consumer<Animal> (контравариантность input position)", "correct": false, "explanation": "Контравариантность инвертирует направление: Consumer<Animal> -> Consumer<Dog>, а не наоборот. Consumer<Dog> использует dog.breed, а Animal не имеет этого поля" },
+      { "text": "Box<Dog> -> Box<Animal> (read+write совместимы)", "correct": false, "explanation": "Box<T> с get() и set() инвариантен — T используется и в input, и в output позиции, поэтому присваивание невозможно ни в одну сторону" }
+    ]
+  },
+  {
+    "question": "Почему TypeScript разрешает method syntax быть бивариантным?",
+    "type": "single",
+    "options": [
+      { "text": "Для совместимости с DOM API, где addEventListener принимает handlers для подтипов Event", "correct": true },
+      { "text": "Потому что методы всегда безопасны в обоих направлениях", "correct": false, "explanation": "Бивариантность методов НЕ безопасна — она допускает unsound присваивания. Это сознательный компромисс ради совместимости" },
+      { "text": "Method syntax и property syntax компилируются в одинаковый код", "correct": false, "explanation": "Оба синтаксиса компилируются одинаково в runtime, но TypeScript по-разному проверяет типы для них" },
+      { "text": "Бивариантность — это баг TypeScript, который планируют исправить", "correct": false, "explanation": "Это осознанное решение дизайна. Флаг strictFunctionTypes делает property syntax строгим, но method syntax остаётся бивариантным намеренно" }
+    ]
+  },
+  {
+    "question": "Какой паттерн обеспечивает максимальную гибкость при работе с generic коллекциями?",
+    "type": "single",
+    "options": [
+      { "text": "Разделить на ReadRepo<out T> (ковариантный) и WriteRepo<in T> (контравариантный)", "correct": true },
+      { "text": "Использовать один Repository<T> с get() и save() — он автоматически ковариантен", "correct": false, "explanation": "Repository<T> с методами чтения и записи инвариантен, потому что T используется и в input, и в output позициях одновременно" },
+      { "text": "Всегда использовать any вместо generic параметров", "correct": false, "explanation": "any отключает проверку типов полностью, теряя все преимущества TypeScript. Вариантность решается через дизайн интерфейсов" },
+      { "text": "Сделать все generic типы бивариантными через method syntax", "correct": false, "explanation": "Бивариантность — unsound. Она допускает небезопасные присваивания. Правильное разделение read/write интерфейсов безопаснее" }
+    ]
+  },
+  {
+    "question": "Что делают аннотации in и out в TypeScript 4.7+?",
+    "type": "multiple",
+    "options": [
+      { "text": "out T объявляет T ковариантным — T может использоваться только в output (return) позициях", "correct": true },
+      { "text": "in T объявляет T контравариантным — T может использоваться только в input (parameter) позициях", "correct": true },
+      { "text": "TypeScript выдаёт ошибку, если T используется в позиции, несовместимой с объявленной вариантностью", "correct": true },
+      { "text": "in и out изменяют runtime-поведение generic типов", "correct": false, "explanation": "Аннотации in/out — чисто compile-time проверки. Они не влияют на сгенерированный JavaScript код" },
+      { "text": "Без этих аннотаций TypeScript не может определить вариантность", "correct": false, "explanation": "TypeScript определяет вариантность автоматически по использованию T. Аннотации in/out — это дополнительная явная проверка и документация" }
+    ]
+  },
+  {
+    "question": "Тип Mapper<A, B> = (a: A) => B. Какова вариантность A и B?",
+    "type": "single",
+    "options": [
+      { "text": "A — контравариантен (input), B — ковариантен (output)", "correct": true },
+      { "text": "Оба ковариантны, потому что это generic параметры", "correct": false, "explanation": "Вариантность зависит не от того, что это generic, а от позиции использования. A в позиции параметра — контравариантен, B в позиции возвращаемого типа — ковариантен" },
+      { "text": "Оба инвариантны, потому что используются в функции", "correct": false, "explanation": "Инвариантность возникает, когда один параметр используется и в input, и в output. Здесь A только в input, B только в output" },
+      { "text": "A — ковариантен (input), B — контравариантен (output)", "correct": false, "explanation": "Наоборот: input позиция (параметры) — контравариантна, output позиция (return) — ковариантна" }
+    ]
+  }
+]

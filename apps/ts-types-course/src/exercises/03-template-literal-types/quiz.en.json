@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How many members will the union type `${A}-${B}` have if type A = 'x' | 'y' | 'z' and type B = '1' | '2'?",
+    "type": "single",
+    "options": [
+      { "text": "6 (Cartesian product: 3 * 2)", "correct": true },
+      { "text": "5 (sum: 3 + 2)", "correct": false, "explanation": "Template literals create a Cartesian product (all combinations), not a sum. Each A variant is combined with each B variant" },
+      { "text": "3 (takes the maximum of the two unions)", "correct": false, "explanation": "TypeScript doesn't take the maximum — it creates all possible combinations: 'x-1', 'x-2', 'y-1', 'y-2', 'z-1', 'z-2'" },
+      { "text": "2 (takes the minimum of the two unions)", "correct": false, "explanation": "Template literal types always create the full Cartesian product of all union members" }
+    ]
+  },
+  {
+    "question": "What does Capitalize<'hello' | 'world'> return?",
+    "type": "single",
+    "options": [
+      { "text": "'Hello' | 'World' — Capitalize distributes over the union", "correct": true },
+      { "text": "'Hello' — applies only to the first member", "correct": false, "explanation": "Built-in string manipulation types distribute over union types, applying to each member separately" },
+      { "text": "'HELLO' | 'WORLD' — converts the entire string to uppercase", "correct": false, "explanation": "Capitalize only capitalizes the first letter. Use Uppercase for converting the entire string" },
+      { "text": "string — loses the literal type", "correct": false, "explanation": "Capitalize preserves the literal type, transforming only the first character of each union member" }
+    ]
+  },
+  {
+    "question": "What happens with the type `${number}px`?",
+    "type": "single",
+    "options": [
+      { "text": "Creates a type accepting any string of the format '<number>px'", "correct": true },
+      { "text": "Compile error — number cannot be used in template literals", "correct": false, "explanation": "TypeScript allows number, string, boolean, bigint, and null/undefined in template literal types. number creates a pattern for any number" },
+      { "text": "Creates a union of all possible numbers with the px suffix", "correct": false, "explanation": "TypeScript doesn't enumerate all numbers — number in a template literal creates a pattern, not a finite union" },
+      { "text": "Creates type string", "correct": false, "explanation": "The type preserves the template structure. '100px' will be compatible, but '100' or 'px' won't be" }
+    ]
+  },
+  {
+    "question": "How does infer work in a template literal: S extends `${infer Head}-${infer Tail}` ? [Head, Tail] : [S]?",
+    "type": "single",
+    "options": [
+      { "text": "Head captures everything before the first '-', Tail captures everything after the first '-'", "correct": true },
+      { "text": "Head captures the first character, Tail captures the last", "correct": false, "explanation": "infer in template literals captures substrings relative to the delimiter. Head = everything before the first '-', Tail = everything after" },
+      { "text": "Head and Tail split the string in half", "correct": false, "explanation": "The split happens at the delimiter '-', not at a position. For 'a-b-c': Head = 'a', Tail = 'b-c'" },
+      { "text": "Error — you can't use two infers in a template literal", "correct": false, "explanation": "Multiple infers can be used in a template literal. Each captures its portion of the string" }
+    ]
+  },
+  {
+    "question": "Why do you need to write K & string when using Capitalize in a mapped type with keyof?",
+    "type": "single",
+    "options": [
+      { "text": "keyof T can contain number and symbol, but Capitalize only works with string", "correct": true },
+      { "text": "It's a TypeScript bug that will be fixed in future versions", "correct": false, "explanation": "This is not a bug but a consequence of object keys being string, number, or symbol. The intersection K & string filters out non-string keys" },
+      { "text": "Without & string, Capitalize returns never", "correct": false, "explanation": "Without & string you get a compile error (Type 'K' does not satisfy the constraint 'string'), not never" },
+      { "text": "& string converts number keys to string keys", "correct": false, "explanation": "& string doesn't convert, it intersects. Numeric keys (number) don't intersect with string, so they are simply excluded from the result" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что произойдёт, если в switch по union type добавить default с assertNever, а затем расширить union новым вариантом?",
+    "type": "single",
+    "options": [
+      { "text": "Компилятор покажет ошибку типов в assertNever, так как новый вариант не обработан", "correct": true },
+      { "text": "Код скомпилируется без ошибок, assertNever выбросит исключение в runtime", "correct": false, "explanation": "assertNever принимает параметр типа never. Если остались необработанные варианты, тип не сужается до never, и компилятор сообщит об ошибке" },
+      { "text": "TypeScript автоматически добавит обработку нового варианта", "correct": false, "explanation": "TypeScript не генерирует код автоматически. Он только указывает на ошибку типов, чтобы разработчик добавил обработку вручную" },
+      { "text": "Произойдёт ошибка компиляции в самом определении union type", "correct": false, "explanation": "Ошибка будет не в определении типа, а в месте использования — в assertNever, куда передаётся значение, не являющееся never" }
+    ]
+  },
+  {
+    "question": "Какой тип TypeScript использует для обозначения 'невозможного значения' после исчерпывающей проверки всех вариантов?",
+    "type": "single",
+    "options": [
+      { "text": "never", "correct": true },
+      { "text": "void", "correct": false, "explanation": "void означает 'функция ничего не возвращает'. never означает 'эта точка кода недостижима' — это принципиально разные концепции" },
+      { "text": "undefined", "correct": false, "explanation": "undefined — это конкретное значение. never означает, что значение вообще не может существовать" },
+      { "text": "unknown", "correct": false, "explanation": "unknown — это тип 'что угодно, но нужна проверка'. never — противоположность: 'ничего, ни одно значение не подходит'" }
+    ]
+  },
+  {
+    "question": "Почему match expression предпочтительнее switch для обработки union types?",
+    "type": "multiple",
+    "options": [
+      { "text": "Match — это выражение, возвращающее значение, а switch — инструкция", "correct": true },
+      { "text": "Match не имеет проблемы fall-through (забытый break)", "correct": true },
+      { "text": "Match с mapped types гарантирует обработку всех вариантов без assertNever", "correct": true },
+      { "text": "Match работает быстрее switch в runtime", "correct": false, "explanation": "Производительность match и switch практически идентична. Преимущества match — в типобезопасности и удобстве, а не в скорости" }
+    ]
+  },
+  {
+    "question": "Что делает тип Extract<T, { kind: K }> в контексте tagged union?",
+    "type": "single",
+    "options": [
+      { "text": "Извлекает из union T только тот вариант, где kind равен K", "correct": true },
+      { "text": "Удаляет из union T вариант с kind === K", "correct": false, "explanation": "Удаление варианта — это Exclude<T, { kind: K }>. Extract наоборот оставляет только совпадающий вариант" },
+      { "text": "Создаёт новый тип с полем kind типа K", "correct": false, "explanation": "Extract не создаёт новые типы. Он фильтрует существующий union, оставляя только подходящие члены" },
+      { "text": "Преобразует union T в объект с ключами kind", "correct": false, "explanation": "Extract фильтрует union по условию, а не преобразует его в другую структуру" }
+    ]
+  },
+  {
+    "question": "Зачем использовать readonly для поля _tag в Variant типе?",
+    "type": "single",
+    "options": [
+      { "text": "Чтобы предотвратить изменение дискриминатора после создания, что сломало бы паттерн-матчинг", "correct": true },
+      { "text": "Для улучшения производительности — readonly объекты быстрее", "correct": false, "explanation": "readonly — это только ограничение на уровне типов. В runtime разницы в производительности нет" },
+      { "text": "TypeScript требует readonly для полей в discriminated unions", "correct": false, "explanation": "TypeScript не требует readonly для discriminated unions. Но это лучшая практика для предотвращения логических ошибок" },
+      { "text": "Без readonly TypeScript не сможет выполнить control flow analysis", "correct": false, "explanation": "Control flow analysis работает и с мутабельными полями. Но мутация дискриминатора может привести к рассогласованию типа и данных" }
+    ]
+  }
+]

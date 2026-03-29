@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему запуск контейнера с флагом --privileged опасен?",
+    "type": "single",
+    "options": [
+      { "text": "Контейнер получает все capabilities и доступ к устройствам хоста, что позволяет \"сбежать\" на хост", "correct": true },
+      { "text": "Контейнер начинает потреблять больше ресурсов", "correct": false, "explanation": "--privileged не влияет на потребление ресурсов. Опасность в том, что контейнер получает полный доступ к хост-системе" },
+      { "text": "Контейнер становится видимым в интернете", "correct": false, "explanation": "--privileged не влияет на сетевую видимость. Он даёт контейнеру все Linux capabilities и доступ к устройствам хоста" },
+      { "text": "Docker автоматически отключает --privileged для безопасности", "correct": false, "explanation": "Docker НЕ отключает --privileged автоматически. Ответственность за безопасность лежит на пользователе" }
+    ]
+  },
+  {
+    "question": "Какие меры безопасности рекомендуется применять для production-контейнеров?",
+    "type": "multiple",
+    "options": [
+      { "text": "Запускать процессы от непривилегированного пользователя (USER в Dockerfile)", "correct": true },
+      { "text": "Использовать read-only файловую систему (--read-only)", "correct": true },
+      { "text": "Сбрасывать ненужные Linux capabilities (--cap-drop ALL)", "correct": true },
+      { "text": "Монтировать Docker socket (/var/run/docker.sock) для мониторинга", "correct": false, "explanation": "Монтирование Docker socket даёт полный контроль над Docker daemon — это один из главных векторов атаки, а не мера безопасности" }
+    ]
+  },
+  {
+    "question": "Что такое supply chain attack в контексте Docker?",
+    "type": "single",
+    "options": [
+      { "text": "Атака через скомпрометированный базовый образ или зависимость, содержащую вредоносный код", "correct": true },
+      { "text": "DDoS-атака на Docker Hub", "correct": false, "explanation": "DDoS на Docker Hub — это атака на инфраструктуру, а не supply chain attack. Supply chain — это внедрение вредоносного кода через зависимости" },
+      { "text": "Атака на сеть между контейнерами", "correct": false, "explanation": "Это сетевая атака. Supply chain attack — это компрометация образов или зависимостей в цепочке поставок" },
+      { "text": "Утечка переменных окружения из контейнера", "correct": false, "explanation": "Утечка ENV — это другой тип уязвимости. Supply chain attack — это использование заражённых образов или пакетов" }
+    ]
+  },
+  {
+    "question": "Какие инструменты используются для сканирования уязвимостей в Docker-образах?",
+    "type": "multiple",
+    "options": [
+      { "text": "Trivy (Aqua Security)", "correct": true },
+      { "text": "Docker Scout (встроен в Docker Desktop)", "correct": true },
+      { "text": "Snyk Container", "correct": true },
+      { "text": "Hadolint", "correct": false, "explanation": "Hadolint — линтер для Dockerfile, проверяющий best practices. Для сканирования уязвимостей используются Trivy, Docker Scout, Snyk" }
+    ]
+  },
+  {
+    "question": "Почему образы distroless безопаснее Alpine?",
+    "type": "single",
+    "options": [
+      { "text": "Distroless не содержит shell, пакетного менеджера и утилит — у атакующего нет инструментов внутри контейнера", "correct": true },
+      { "text": "Distroless шифрует все файлы внутри образа", "correct": false, "explanation": "Distroless не шифрует файлы. Безопасность обеспечивается минимальностью: нет shell, нет apt/apk, нет утилит для атаки" },
+      { "text": "Distroless автоматически обновляет все зависимости", "correct": false, "explanation": "Distroless не обновляет зависимости автоматически. Его преимущество в минимальной поверхности атаки" },
+      { "text": "Distroless работает в отдельном namespace от других контейнеров", "correct": false, "explanation": "Все контейнеры работают в отдельных namespaces. Преимущество distroless — отсутствие инструментов, которые может использовать атакующий" }
+    ]
+  }
+]

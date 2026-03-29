@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Сколько байт в UTF-8 занимает строка 'Привет' (6 кириллических символов)?",
+    "type": "single",
+    "options": [
+      { "text": "12 байт", "correct": true },
+      { "text": "6 байт", "correct": false, "explanation": "6 — это длина строки в символах (String.length). Каждый кириллический символ в UTF-8 занимает 2 байта, итого 12" },
+      { "text": "24 байта", "correct": false, "explanation": "24 байта было бы для UTF-32 (4 байта на символ). В UTF-8 кириллица занимает 2 байта" },
+      { "text": "18 байт", "correct": false, "explanation": "18 байт было бы при 3 байтах на символ. Кириллица в UTF-8 занимает ровно 2 байта на символ" }
+    ]
+  },
+  {
+    "question": "Чем опасен Buffer.allocUnsafe()?",
+    "type": "single",
+    "options": [
+      { "text": "Буфер может содержать данные из ранее освобождённой памяти", "correct": true },
+      { "text": "Он работает медленнее Buffer.alloc()", "correct": false, "explanation": "Наоборот, allocUnsafe быстрее — он не тратит время на обнуление памяти. Опасность в том, что старые данные остаются" },
+      { "text": "Он создаёт буфер вне кучи V8", "correct": false, "explanation": "Маленькие буферы allocUnsafe выделяются из пула в куче V8. Опасность не в расположении, а в неочищенной памяти" },
+      { "text": "Он не поддерживает UTF-8 кодировку", "correct": false, "explanation": "allocUnsafe поддерживает все те же кодировки. Опасность в неинициализированной памяти" }
+    ]
+  },
+  {
+    "question": "Что делает Buffer.slice()?",
+    "type": "single",
+    "options": [
+      { "text": "Создаёт view на ту же память — изменения видны в оригинале", "correct": true },
+      { "text": "Создаёт независимую копию данных", "correct": false, "explanation": "slice() возвращает view (представление) на ту же память. Для копии используйте Buffer.from(buf.slice())" },
+      { "text": "Удаляет часть буфера", "correct": false, "explanation": "Buffer неизменяем по размеру. slice() создаёт новый Buffer-view на часть исходной памяти" },
+      { "text": "Разбивает буфер на массив меньших буферов", "correct": false, "explanation": "slice() возвращает один Buffer — view на часть исходного. Для разбиения нужна своя функция" }
+    ]
+  },
+  {
+    "question": "Для чего используется DataView?",
+    "type": "single",
+    "options": [
+      { "text": "Для чтения/записи чисел с явным указанием endianness", "correct": true },
+      { "text": "Для отображения данных в UI", "correct": false, "explanation": "DataView — это низкоуровневый API для работы с бинарными данными в ArrayBuffer с контролем порядка байтов" },
+      { "text": "Для создания иммутабельного представления Buffer", "correct": false, "explanation": "DataView не иммутабельный — через него можно записывать данные. Его цель — контроль endianness" },
+      { "text": "Для конвертации между кодировками", "correct": false, "explanation": "DataView работает с числовыми типами (int, float), не с кодировками текста. Для текста используйте TextEncoder/TextDecoder" }
+    ]
+  },
+  {
+    "question": "Какой порядок байтов используется в сетевых протоколах?",
+    "type": "single",
+    "options": [
+      { "text": "Big-endian (Network Byte Order)", "correct": true },
+      { "text": "Little-endian", "correct": false, "explanation": "Little-endian используется в x86/ARM процессорах. Сетевые протоколы (TCP, IP, HTTP) используют big-endian" },
+      { "text": "Зависит от протокола", "correct": false, "explanation": "Стандарт RFC 1700 определяет big-endian как Network Byte Order для всех интернет-протоколов" },
+      { "text": "Зависит от архитектуры сервера", "correct": false, "explanation": "Именно для независимости от архитектуры был принят стандарт Network Byte Order (big-endian)" }
+    ]
+  }
+]

@@ -1,0 +1,43 @@
+[
+  {
+    "question": "Which built-in validation rules does register support in React Hook Form?",
+    "type": "multiple",
+    "options": [
+      { "text": "required", "correct": true },
+      { "text": "minLength / maxLength", "correct": true },
+      { "text": "pattern", "correct": true },
+      { "text": "unique", "correct": false, "explanation": "unique is not a built-in rule — use validate with a custom function to check uniqueness" },
+      { "text": "min / max", "correct": true }
+    ]
+  },
+  {
+    "question": "How do you correctly pass an error message to the required rule?",
+    "type": "single",
+    "options": [
+      { "text": "required: { message: 'Required' }", "correct": false, "explanation": "required accepts a string or boolean, not an object with message (unlike min/max/pattern)" },
+      { "text": "required: 'Required'", "correct": true },
+      { "text": "required: true, message: 'Required'", "correct": false, "explanation": "message is not a standalone property — the message is passed as the value of required" },
+      { "text": "required: ['Required']", "correct": false, "explanation": "required does not accept an array" }
+    ]
+  },
+  {
+    "question": "What does a custom validate function return when validation passes?",
+    "type": "single",
+    "options": [
+      { "text": "undefined", "correct": false, "explanation": "undefined is not the expected value for a successful validation" },
+      { "text": "true", "correct": true },
+      { "text": "null", "correct": false, "explanation": "null is not the standard response for a successful validation" },
+      { "text": "An empty string ''", "correct": false, "explanation": "An empty string is interpreted as no error, but the standard return value is true" }
+    ]
+  },
+  {
+    "question": "How does the pattern rule specify a regular expression and an error message?",
+    "type": "single",
+    "options": [
+      { "text": "pattern: /regex/", "correct": false, "explanation": "Passing only a RegExp will use a default error message with no custom text" },
+      { "text": "pattern: { value: /regex/, message: 'Error' }", "correct": true },
+      { "text": "pattern: { regex: /regex/, error: 'Error' }", "correct": false, "explanation": "The correct keys are value and message, not regex and error" },
+      { "text": "pattern: [/regex/, 'Error']", "correct": false, "explanation": "pattern does not accept an array — use an object with value and message" }
+    ]
+  }
+]

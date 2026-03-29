@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Зачем нужен correlation ID (request ID) в логах?",
+    "type": "single",
+    "options": [
+      { "text": "Чтобы связать все логи одного HTTP-запроса -- при параллельных запросах от разных пользователей логи перемешиваются, и без ID невозможно отследить цепочку", "correct": true },
+      { "text": "Для аутентификации запросов -- request ID подтверждает подлинность", "correct": false, "explanation": "Request ID не связан с аутентификацией. Это уникальный идентификатор для трекинга: все логи одного запроса (middleware, service, DB) содержат один requestId" },
+      { "text": "Для подсчёта количества запросов в секунду", "correct": false, "explanation": "Для RPS используют метрики (Prometheus), не логи. Correlation ID связывает логи одного запроса. Один запрос может генерировать 10-50 строк лога" },
+      { "text": "Это требование GDPR для трекинга пользовательских данных", "correct": false, "explanation": "GDPR не требует request ID. Correlation ID -- engineering practice для отладки. Без него невозможно найти все логи конкретного неудачного запроса" }
+    ]
+  },
+  {
+    "question": "В чём разница между liveness и readiness health check?",
+    "type": "single",
+    "options": [
+      { "text": "Liveness -- 'процесс жив?' (перезапустить при deadlock), Readiness -- 'может принимать трафик?' (убрать из LB при недоступной БД)", "correct": true },
+      { "text": "Liveness проверяет CPU, readiness проверяет RAM", "correct": false, "explanation": "Оба не связаны напрямую с системными ресурсами. Liveness отвечает 'не завис ли процесс', readiness -- 'работают ли зависимости (DB, Redis, etc.)'" },
+      { "text": "Liveness для Kubernetes, readiness для Docker", "correct": false, "explanation": "Оба используются в Kubernetes (и в Docker health checks). Разница в действии: failed liveness → restart pod, failed readiness → убрать из Service (не получает трафик)" },
+      { "text": "Liveness запускается раз в минуту, readiness постоянно", "correct": false, "explanation": "Интервал настраивается (periodSeconds). Типично оба проверяются каждые 10-30 секунд. Разница не в частоте, а в последствиях failure" }
+    ]
+  },
+  {
+    "question": "Почему Pino быстрее Winston?",
+    "type": "single",
+    "options": [
+      { "text": "Pino использует минимальный JSON-сериализатор и асинхронную запись -- до 5x быстрее Winston благодаря отсутствию синхронных transform", "correct": true },
+      { "text": "Pino написан на C++, а Winston на JavaScript", "correct": false, "explanation": "Оба написаны на JavaScript. Pino быстрее благодаря архитектуре: минимальный overhead, нет цепочки transforms, используется быстрый JSON.stringify" },
+      { "text": "Winston логирует больше данных, поэтому медленнее", "correct": false, "explanation": "Объём данных зависит от конфигурации, не от библиотеки. Pino быстрее из-за внутренней архитектуры: прямая запись JSON vs цепочка transform в Winston" },
+      { "text": "Pino не поддерживает множественные transports, поэтому быстрее", "correct": false, "explanation": "Pino поддерживает transports через pino-transport (streams). Но основной подход -- один stdout поток, а routing делается внешне (pino-pretty, pino-file)" }
+    ]
+  },
+  {
+    "question": "Зачем нужна redaction в логгере?",
+    "type": "single",
+    "options": [
+      { "text": "Чтобы автоматически скрывать чувствительные данные (пароли, токены, номера карт) -- они заменяются на [Redacted] и не попадают в лог-файлы", "correct": true },
+      { "text": "Для сжатия логов -- redaction уменьшает размер файлов", "correct": false, "explanation": "Redaction не сжимает данные. Она заменяет значение на '[Redacted]', что может быть даже длиннее оригинала. Цель -- безопасность, не размер" },
+      { "text": "Для соответствия формату JSON -- некоторые значения нельзя сериализовать", "correct": false, "explanation": "JSON-сериализация работает для любых строк. Redaction -- про безопасность: если лог-файл утечёт, пароли и токены не будут скомпрометированы" },
+      { "text": "Redaction ускоряет логирование, пропуская длинные значения", "correct": false, "explanation": "Redaction добавляет overhead (нужно проверять пути). Она не ускоряет логирование. Цель -- предотвратить утечку чувствительных данных через логи" }
+    ]
+  },
+  {
+    "question": "Что должен возвращать readiness endpoint, когда БД недоступна?",
+    "type": "single",
+    "options": [
+      { "text": "503 с деталями: какая именно зависимость упала, responseTime проверки, текущий uptime", "correct": true },
+      { "text": "200 -- сервис запущен, просто БД временно недоступна", "correct": false, "explanation": "200 от readiness говорит LB: 'можно слать трафик'. Но без БД запросы будут падать с 500. Readiness должен вернуть 503, чтобы LB перестал слать трафик" },
+      { "text": "500 -- Internal Server Error", "correct": false, "explanation": "500 означает ошибку сервера. Readiness probe ожидает 200 (healthy) или не-200 (unhealthy). 503 Service Unavailable -- семантически правильный статус для 'не готов'" },
+      { "text": "404 -- endpoint не найден, отключить проверку", "correct": false, "explanation": "404 -- неправильный статус. Readiness endpoint должен всегда отвечать: 200 = здоров, 503 = не готов. Kubernetes интерпретирует не-200 как unhealthy" }
+    ]
+  }
+]

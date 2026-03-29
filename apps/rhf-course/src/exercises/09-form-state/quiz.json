@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Когда поле получает статус touched?",
+    "type": "single",
+    "options": [
+      { "text": "При изменении значения поля", "correct": false, "explanation": "Изменение значения делает поле dirty, а не touched" },
+      { "text": "При потере фокуса (blur)", "correct": true },
+      { "text": "При клике на поле", "correct": false, "explanation": "Клик устанавливает фокус, но touched срабатывает при потере фокуса" },
+      { "text": "При отправке формы", "correct": false, "explanation": "Отправка формы не меняет touchedFields напрямую" }
+    ]
+  },
+  {
+    "question": "В чём разница между dirty и touched?",
+    "type": "single",
+    "options": [
+      { "text": "dirty — поле затронуто, touched — поле изменено", "correct": false, "explanation": "Наоборот: dirty — поле изменено, touched — поле затронуто (потеряло фокус)" },
+      { "text": "dirty — значение поля изменено, touched — поле потеряло фокус хотя бы раз", "correct": true },
+      { "text": "Они означают одно и то же", "correct": false, "explanation": "Это разные состояния: dirty отслеживает изменение значения, touched — потерю фокуса" },
+      { "text": "dirty — для всей формы, touched — для отдельных полей", "correct": false, "explanation": "Оба состояния существуют для отдельных полей (dirtyFields, touchedFields) и для формы (isDirty)" }
+    ]
+  },
+  {
+    "question": "Что делает метод reset() без аргументов?",
+    "type": "single",
+    "options": [
+      { "text": "Очищает все поля до пустых строк", "correct": false, "explanation": "reset() без аргументов сбрасывает к defaultValues, а не к пустым строкам" },
+      { "text": "Сбрасывает форму к значениям из defaultValues", "correct": true },
+      { "text": "Удаляет все зарегистрированные поля", "correct": false, "explanation": "reset() не удаляет поля — только сбрасывает значения и состояния" },
+      { "text": "Перезагружает страницу", "correct": false, "explanation": "reset() работает только с формой, не затрагивает страницу" }
+    ]
+  },
+  {
+    "question": "Какие опции можно передать в reset() для частичного сброса?",
+    "type": "multiple",
+    "options": [
+      { "text": "keepErrors — сохранить ошибки валидации", "correct": true },
+      { "text": "keepDirty — сохранить флаги dirty", "correct": true },
+      { "text": "keepTouched — сохранить флаги touched", "correct": true },
+      { "text": "keepFocus — сохранить текущий фокус", "correct": false, "explanation": "keepFocus не является опцией reset() — фокус не управляется через reset" }
+    ]
+  }
+]

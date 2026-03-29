@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What is FormProvider and useFormContext used for?",
+    "type": "single",
+    "options": [
+      { "text": "For globally storing data from all forms in the application", "correct": false, "explanation": "FormProvider works for a single form, not for the entire application" },
+      { "text": "For passing form methods to deeply nested components without prop drilling", "correct": true },
+      { "text": "For creating multiple forms on the same page", "correct": false, "explanation": "Multiple forms can be created simply by using multiple useForm instances" },
+      { "text": "For saving the form to Redux", "correct": false, "explanation": "FormProvider uses React Context, not Redux" }
+    ]
+  },
+  {
+    "question": "How do you correctly integrate a Material-UI TextField with React Hook Form?",
+    "type": "single",
+    "options": [
+      { "text": "Via register directly", "correct": false, "explanation": "Material-UI components are controlled — they require Controller" },
+      { "text": "Via Controller with a render prop", "correct": true },
+      { "text": "Via useState + onChange", "correct": false, "explanation": "This does not integrate with RHF — use Controller" },
+      { "text": "Via useRef", "correct": false, "explanation": "useRef does not provide integration with RHF validation and form state" }
+    ]
+  },
+  {
+    "question": "What problems do custom hooks on top of useForm solve?",
+    "type": "multiple",
+    "options": [
+      { "text": "Encapsulating form logic in a reusable hook", "correct": true },
+      { "text": "Combining useForm with business logic (API, navigation)", "correct": true },
+      { "text": "Mandatory replacement of the standard useForm", "correct": false, "explanation": "Custom hooks are an addition, not a replacement for useForm" },
+      { "text": "Adding default values and a validation schema", "correct": true }
+    ]
+  },
+  {
+    "question": "How do you persist form data in localStorage for restoration on page reload?",
+    "type": "single",
+    "options": [
+      { "text": "RHF automatically saves data to localStorage", "correct": false, "explanation": "RHF has no built-in localStorage integration — this must be implemented manually" },
+      { "text": "watch() to track changes + save to localStorage + defaultValues to restore", "correct": true },
+      { "text": "Via sessionStorage (not localStorage)", "correct": false, "explanation": "sessionStorage is cleared when the tab is closed — localStorage is better for persistence" },
+      { "text": "Via Redux Persist", "correct": false, "explanation": "Redux Persist is a separate ecosystem; RHF does not require Redux" }
+    ]
+  }
+]

@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What can server components NOT do?",
+    "type": "multiple",
+    "options": [
+      { "text": "Use useState and useEffect", "correct": true },
+      { "text": "Handle onClick and onChange events", "correct": true },
+      { "text": "Access the database directly", "correct": false, "explanation": "Server components can directly access databases, the file system, and server APIs — this is one of their key advantages." },
+      { "text": "Use async/await in the component body", "correct": false, "explanation": "Server components can be async functions — this allows loading data directly in the render." },
+      { "text": "Use browser APIs (window, localStorage)", "correct": true }
+    ]
+  },
+  {
+    "question": "Where should the 'use client' directive be placed?",
+    "type": "single",
+    "options": [
+      { "text": "On the first line of the file, before imports", "correct": true },
+      { "text": "Before the component export", "correct": false, "explanation": "The directive must be the first line of the file. Placing it before the export will not work." },
+      { "text": "Inside the component body", "correct": false, "explanation": "The directive is a file-level marker, not an expression inside a function." },
+      { "text": "In a separate configuration file", "correct": false, "explanation": "The directive is placed directly in the component file, not in a config." }
+    ]
+  },
+  {
+    "question": "Which directive marks a function as a Server Action?",
+    "type": "single",
+    "options": [
+      { "text": "'use client'", "correct": false, "explanation": "'use client' marks client components. 'use server' is used for server functions." },
+      { "text": "'use server'", "correct": true },
+      { "text": "'server-only'", "correct": false, "explanation": "server-only is an npm package to protect server code from being imported on the client, not a directive." },
+      { "text": "'use action'", "correct": false, "explanation": "The 'use action' directive does not exist in React. Server functions are marked with 'use server'." }
+    ]
+  },
+  {
+    "question": "Can a server component render a client component?",
+    "type": "single",
+    "options": [
+      { "text": "Yes, a server component can render a client component", "correct": true },
+      { "text": "No, this will cause an error", "correct": false, "explanation": "A server component can import and render client components — this is the main composition pattern." },
+      { "text": "Only through a special adapter", "correct": false, "explanation": "No adapter is needed. A server component simply imports and uses the client component." },
+      { "text": "Only if the client component is exported with 'use client'", "correct": false, "explanation": "The 'use client' directive is required, but this is a standard requirement, not a rendering restriction." }
+    ]
+  },
+  {
+    "question": "How do you pass server content inside a client component?",
+    "type": "single",
+    "options": [
+      { "text": "Through the children prop — a server component is passed as children to the client component", "correct": true },
+      { "text": "This is impossible — a client component cannot contain a server component", "correct": false, "explanation": "A client component cannot import a server component directly, but it can accept one as children or any other prop with ReactNode." },
+      { "text": "Through JSON serialization of the server component", "correct": false, "explanation": "Server components are passed through the React tree (children/props), not through manual JSON serialization." },
+      { "text": "Through a global store", "correct": false, "explanation": "Global store is a client-side concept. Server content is passed through props." }
+    ]
+  }
+]

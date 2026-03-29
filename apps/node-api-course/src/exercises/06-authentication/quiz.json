@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему refresh token нужно хранить в httpOnly cookie, а не в localStorage?",
+    "type": "single",
+    "options": [
+      { "text": "httpOnly cookie недоступна из JavaScript -- XSS-атака не сможет украсть refresh token", "correct": true },
+      { "text": "localStorage работает медленнее, чем cookies", "correct": false, "explanation": "Скорость не причина. Проблема localStorage -- XSS: любой JavaScript-код (включая вредоносный) может прочитать localStorage. httpOnly cookie защищена от чтения из JS" },
+      { "text": "Cookies автоматически шифруются браузером", "correct": false, "explanation": "Cookies не шифруются автоматически (Secure -- это HTTPS, не шифрование содержимого). httpOnly означает, что cookie невидима для document.cookie и других JS API" },
+      { "text": "localStorage не поддерживается в Safari", "correct": false, "explanation": "localStorage поддерживается во всех современных браузерах. Причина использования httpOnly cookie -- защита от XSS: скрипт не может прочитать httpOnly cookie через document.cookie" }
+    ]
+  },
+  {
+    "question": "Зачем в OAuth 2.0 нужен параметр state при редиректе на провайдер?",
+    "type": "single",
+    "options": [
+      { "text": "Для защиты от CSRF: state сохраняется в сессии и проверяется при callback -- это гарантирует, что callback инициирован тем же пользователем", "correct": true },
+      { "text": "Чтобы запомнить, на какую страницу редиректить после логина", "correct": false, "explanation": "Для редиректа после логина обычно используют отдельный параметр или сессию. state -- это случайная строка для CSRF-защиты: если state не совпадает, callback отклоняется" },
+      { "text": "Это идентификатор сессии на стороне провайдера", "correct": false, "explanation": "state не связан с сессией провайдера -- он генерируется нашим сервером. Провайдер просто возвращает его в callback без изменений, а мы проверяем совпадение" },
+      { "text": "OAuth не работает без state -- это обязательный параметр", "correct": false, "explanation": "Формально state необязателен, но без него callback уязвим для CSRF: злоумышленник может подставить свой authorization code в URL callback жертвы" }
+    ]
+  },
+  {
+    "question": "Как Token Rotation помогает обнаружить кражу refresh token?",
+    "type": "single",
+    "options": [
+      { "text": "При каждом refresh старый токен отзывается -- если кто-то использует отозванный токен, это означает кражу, и все токены семейства отзываются", "correct": true },
+      { "text": "Rotation шифрует токен по-разному каждый раз", "correct": false, "explanation": "Rotation не связана с шифрованием. Суть: каждый refresh создаёт новый токен и отзывает старый. Если старый (отозванный) токен используется повторно -- это сигнал кражи" },
+      { "text": "Rotation проверяет IP-адрес при каждом обновлении", "correct": false, "explanation": "Rotation не проверяет IP (мобильные устройства часто меняют IP). Обнаружение основано на повторном использовании: отозванный токен = украденный" },
+      { "text": "Rotation ограничивает количество refresh операций", "correct": false, "explanation": "Rotation не ограничивает количество. Она создаёт цепочку: каждый refresh порождает новый токен. Если используется токен не из конца цепочки -- кража обнаружена" }
+    ]
+  },
+  {
+    "question": "Какие cookie-флаги критически важны для безопасности сессии?",
+    "type": "multiple",
+    "options": [
+      { "text": "HttpOnly -- cookie недоступна из JavaScript (защита от XSS)", "correct": true },
+      { "text": "Secure -- cookie отправляется только по HTTPS", "correct": true },
+      { "text": "SameSite=Lax или Strict -- защита от CSRF-атак", "correct": true },
+      { "text": "Path=/ -- cookie доступна для всех путей сайта", "correct": false, "explanation": "Path=/ -- это значение по умолчанию для большинства фреймворков. Оно не является мерой безопасности -- HttpOnly, Secure и SameSite критически важны для защиты" }
+    ]
+  },
+  {
+    "question": "В чём разница между аутентификацией и авторизацией в контексте RBAC?",
+    "type": "single",
+    "options": [
+      { "text": "Аутентификация -- это КТО ты (проверка identity), авторизация -- это ЧТО тебе разрешено (проверка permissions)", "correct": true },
+      { "text": "Аутентификация проверяет роль, а авторизация -- пароль", "correct": false, "explanation": "Наоборот: аутентификация проверяет identity (логин/пароль/JWT), а авторизация -- роль и permissions. Сначала узнаём КТО, потом проверяем ЧТО разрешено" },
+      { "text": "Это одно и то же, разные названия для проверки доступа", "correct": false, "explanation": "Это разные этапы: аутентификация (WHO) идёт первой -- проверяет identity. Авторизация (WHAT) идёт после -- проверяет, что аутентифицированный пользователь имеет нужные права" },
+      { "text": "Аутентификация для API, авторизация для веб-страниц", "correct": false, "explanation": "Оба механизма используются и в API, и в веб. Аутентификация -- проверка identity (JWT/session), авторизация -- проверка прав (role/permissions)" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why can't you continue working after uncaughtException?",
+    "type": "single",
+    "options": [
+      { "text": "The process is in an undefined state — data may be corrupted", "correct": true },
+      { "text": "Node.js automatically terminates the process after this event", "correct": false, "explanation": "Node.js does NOT auto-terminate when there's an uncaughtException handler. But continuing is dangerous" },
+      { "text": "The Event Loop completely stops", "correct": false, "explanation": "The Event Loop continues after uncaughtException. The problem is that app state may be corrupted" },
+      { "text": "All promises are automatically rejected", "correct": false, "explanation": "uncaughtException doesn't affect promises. The issue is unstable app state from the unhandled error" }
+    ]
+  },
+  {
+    "question": "What happens when emitter.emit('error', new Error('fail')) is called without a handler?",
+    "type": "single",
+    "options": [
+      { "text": "An exception is thrown, leading to uncaughtException", "correct": true },
+      { "text": "The error is silently ignored", "correct": false, "explanation": "EventEmitter specially handles the 'error' event — without a listener it THROWS the error" },
+      { "text": "The error goes to unhandledRejection", "correct": false, "explanation": "unhandledRejection is for rejected Promises. emit('error') is synchronous, leading to uncaughtException" },
+      { "text": "Node.js logs the error to stderr", "correct": false, "explanation": "Node.js doesn't log it — it throws an exception. Without uncaughtException handler, the process crashes" }
+    ]
+  },
+  {
+    "question": "Which statements about pipe() and pipeline() are true?",
+    "type": "multiple",
+    "options": [
+      { "text": "pipe() does NOT propagate errors from source to destination", "correct": true },
+      { "text": "pipeline() automatically destroys all streams on error", "correct": true },
+      { "text": "pipe() automatically closes destination on source error", "correct": false, "explanation": "pipe() does NOT close destination on source error — this leads to resource leaks" },
+      { "text": "pipeline() is available in both callback and Promise versions", "correct": true }
+    ]
+  },
+  {
+    "question": "What is error.cause (ES2022) used for?",
+    "type": "single",
+    "options": [
+      { "text": "Preserving the original error when wrapping in a new one — error chaining", "correct": true },
+      { "text": "Indicating the line of code where the error occurred", "correct": false, "explanation": "The code line is shown by stack trace. cause stores the original error that caused the current one" },
+      { "text": "Automatic operation retry on error", "correct": false, "explanation": "cause is not related to retry — it's simply a property for storing the causal error" },
+      { "text": "Sending the error to a monitoring system", "correct": false, "explanation": "cause is a standard Error property for storing the reason. Sending to monitoring is separate logic" }
+    ]
+  },
+  {
+    "question": "Why won't throw inside an fs.readFile callback be caught by an outer try/catch?",
+    "type": "single",
+    "options": [
+      { "text": "The callback runs asynchronously in a different Event Loop iteration — the call stack no longer contains try/catch", "correct": true },
+      { "text": "fs.readFile catches all errors and passes them as the first callback argument", "correct": false, "explanation": "fs.readFile catches errors from the read operation itself, but NOT throws inside the user callback" },
+      { "text": "throw doesn't work inside callback functions", "correct": false, "explanation": "throw works everywhere, but with async execution the call stack doesn't contain the outer try/catch" },
+      { "text": "Node.js intercepts all throws and converts them to warnings", "correct": false, "explanation": "Node.js doesn't auto-intercept throws. An unhandled throw leads to uncaughtException" }
+    ]
+  }
+]

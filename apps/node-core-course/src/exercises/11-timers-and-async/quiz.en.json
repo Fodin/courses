@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does the timer.unref() method do?",
+    "type": "single",
+    "options": [
+      { "text": "Allows the Node.js process to exit even if the timer is still active", "correct": true },
+      { "text": "Removes the timer from memory", "correct": false, "explanation": "unref() doesn't remove the timer — it will still fire if the process is alive. unref() just won't keep the process running" },
+      { "text": "Pauses the timer until ref() is called", "correct": false, "explanation": "unref() doesn't pause the timer. It only affects whether the timer keeps the process from exiting" },
+      { "text": "Lowers the timer's priority in the Event Loop", "correct": false, "explanation": "unref() doesn't affect execution priority. It only manages the process lifecycle" }
+    ]
+  },
+  {
+    "question": "Why is AbortSignal.timeout(5000) better than manual setTimeout + abort?",
+    "type": "single",
+    "options": [
+      { "text": "Creates a signal that auto-aborts after 5 seconds without manual AbortController and timer management", "correct": true },
+      { "text": "It's faster because it uses native code", "correct": false, "explanation": "Performance is roughly the same. The advantage is convenience and no manual resource management" },
+      { "text": "It allows cancelling the timeout early", "correct": false, "explanation": "AbortSignal.timeout() cannot be cancelled — you need AbortController for that. Its advantage is simplicity for one-shot timeouts" },
+      { "text": "It automatically retries the operation on timeout", "correct": false, "explanation": "AbortSignal.timeout() doesn't implement retry. It simply cancels the operation when time expires" }
+    ]
+  },
+  {
+    "question": "Which of the following implement Symbol.asyncIterator in Node.js?",
+    "type": "multiple",
+    "options": [
+      { "text": "Readable streams (fs.createReadStream)", "correct": true },
+      { "text": "readline.Interface", "correct": true },
+      { "text": "Result of events.on(emitter, event)", "correct": true },
+      { "text": "Regular arrays", "correct": false, "explanation": "Arrays implement Symbol.iterator (synchronous), not Symbol.asyncIterator" }
+    ]
+  },
+  {
+    "question": "Why can setInterval with an async callback cause problems?",
+    "type": "single",
+    "options": [
+      { "text": "If the operation takes longer than the interval, calls will overlap", "correct": true },
+      { "text": "Async callbacks are not supported in setInterval", "correct": false, "explanation": "setInterval accepts async callbacks but doesn't await them before the next invocation" },
+      { "text": "setInterval automatically cancels on promise rejection", "correct": false, "explanation": "setInterval doesn't track promises — a rejected Promise becomes an unhandled rejection while the interval continues" },
+      { "text": "V8 cannot optimize async callbacks in timers", "correct": false, "explanation": "V8 optimizes async functions the same as regular ones. The issue is setInterval semantics, not performance" }
+    ]
+  },
+  {
+    "question": "What does timer.refresh() do?",
+    "type": "single",
+    "options": [
+      { "text": "Resets the timer, restarting the countdown without recreating the object", "correct": true },
+      { "text": "Updates the timer's callback function", "correct": false, "explanation": "refresh() doesn't change the callback — it only resets the time until firing" },
+      { "text": "Restarts the timer with a new interval", "correct": false, "explanation": "refresh() preserves the original interval. A new timer is needed to change the interval" },
+      { "text": "Force-invokes the timer's callback", "correct": false, "explanation": "refresh() doesn't invoke the callback — it only restarts the countdown" }
+    ]
+  }
+]

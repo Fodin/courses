@@ -1,0 +1,42 @@
+[
+  {
+    "question": "В чём разница между refine и superRefine в Zod?",
+    "type": "single",
+    "options": [
+      { "text": "refine быстрее работает", "correct": false, "explanation": "Разница не в скорости, а в возможностях: superRefine позволяет добавлять несколько ошибок за один проход" },
+      { "text": "superRefine позволяет добавлять несколько ошибок через ctx.addIssue", "correct": true },
+      { "text": "refine поддерживает async, а superRefine — нет", "correct": false, "explanation": "Оба метода поддерживают async-функции" },
+      { "text": "Они полностью идентичны", "correct": false, "explanation": "superRefine даёт доступ к ctx с методом addIssue, что позволяет добавлять множество ошибок" }
+    ]
+  },
+  {
+    "question": "Как в refine указать, к какому полю привязать ошибку?",
+    "type": "single",
+    "options": [
+      { "text": "Через параметр field в options", "correct": false, "explanation": "Параметр называется path, а не field" },
+      { "text": "Через параметр path в options", "correct": true },
+      { "text": "Ошибка всегда привязывается к корню формы", "correct": false, "explanation": "По умолчанию — да, но можно указать path для привязки к конкретному полю" },
+      { "text": "Через второй аргумент refine", "correct": false, "explanation": "Второй аргумент — это объект options, внутри которого есть path" }
+    ]
+  },
+  {
+    "question": "Для чего используется discriminatedUnion в Zod?",
+    "type": "single",
+    "options": [
+      { "text": "Для объединения нескольких схем с общим дискриминантным полем", "correct": true },
+      { "text": "Для создания enum-типов", "correct": false, "explanation": "Для enum используется z.enum() — discriminatedUnion работает с объектами" },
+      { "text": "Для валидации массивов", "correct": false, "explanation": "Для массивов используется z.array() — discriminatedUnion для условных схем объектов" },
+      { "text": "Для преобразования типов данных", "correct": false, "explanation": "Для преобразования используется .transform() — discriminatedUnion для условных форм" }
+    ]
+  },
+  {
+    "question": "Какие возможности есть у superRefine, но нет у refine?",
+    "type": "multiple",
+    "options": [
+      { "text": "Доступ к объекту ctx", "correct": true },
+      { "text": "Метод ctx.addIssue для добавления нескольких ошибок", "correct": true },
+      { "text": "Поддержка async валидации", "correct": false, "explanation": "Async валидация поддерживается обоими методами" },
+      { "text": "Указание path для ошибки", "correct": false, "explanation": "path можно указать и в refine через объект options" }
+    ]
+  }
+]

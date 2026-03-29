@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why is running a container with the --privileged flag dangerous?",
+    "type": "single",
+    "options": [
+      { "text": "The container gets all capabilities and access to host devices, enabling container escape", "correct": true },
+      { "text": "The container starts consuming more resources", "correct": false, "explanation": "--privileged doesn't affect resource consumption. The danger is that the container gets full access to the host system" },
+      { "text": "The container becomes visible on the internet", "correct": false, "explanation": "--privileged doesn't affect network visibility. It gives the container all Linux capabilities and access to host devices" },
+      { "text": "Docker automatically disables --privileged for security", "correct": false, "explanation": "Docker does NOT disable --privileged automatically. The user is responsible for security" }
+    ]
+  },
+  {
+    "question": "What security measures are recommended for production containers?",
+    "type": "multiple",
+    "options": [
+      { "text": "Run processes as a non-privileged user (USER in Dockerfile)", "correct": true },
+      { "text": "Use read-only filesystem (--read-only)", "correct": true },
+      { "text": "Drop unnecessary Linux capabilities (--cap-drop ALL)", "correct": true },
+      { "text": "Mount Docker socket (/var/run/docker.sock) for monitoring", "correct": false, "explanation": "Mounting Docker socket gives full control over the Docker daemon — this is one of the main attack vectors, not a security measure" }
+    ]
+  },
+  {
+    "question": "What is a supply chain attack in the Docker context?",
+    "type": "single",
+    "options": [
+      { "text": "An attack through a compromised base image or dependency containing malicious code", "correct": true },
+      { "text": "A DDoS attack on Docker Hub", "correct": false, "explanation": "DDoS on Docker Hub is an infrastructure attack, not a supply chain attack. Supply chain means injecting malicious code through dependencies" },
+      { "text": "An attack on the network between containers", "correct": false, "explanation": "That's a network attack. Supply chain attack is compromising images or dependencies in the supply chain" },
+      { "text": "Leaking environment variables from a container", "correct": false, "explanation": "ENV leakage is a different type of vulnerability. Supply chain attack means using infected images or packages" }
+    ]
+  },
+  {
+    "question": "What tools are used for scanning vulnerabilities in Docker images?",
+    "type": "multiple",
+    "options": [
+      { "text": "Trivy (Aqua Security)", "correct": true },
+      { "text": "Docker Scout (built into Docker Desktop)", "correct": true },
+      { "text": "Snyk Container", "correct": true },
+      { "text": "Hadolint", "correct": false, "explanation": "Hadolint is a Dockerfile linter checking best practices. For vulnerability scanning use Trivy, Docker Scout, Snyk" }
+    ]
+  },
+  {
+    "question": "Why are distroless images more secure than Alpine?",
+    "type": "single",
+    "options": [
+      { "text": "Distroless contains no shell, package manager, or utilities — an attacker has no tools inside the container", "correct": true },
+      { "text": "Distroless encrypts all files inside the image", "correct": false, "explanation": "Distroless doesn't encrypt files. Security comes from minimalism: no shell, no apt/apk, no attack utilities" },
+      { "text": "Distroless automatically updates all dependencies", "correct": false, "explanation": "Distroless doesn't auto-update dependencies. Its advantage is the minimal attack surface" },
+      { "text": "Distroless runs in a separate namespace from other containers", "correct": false, "explanation": "All containers run in separate namespaces. Distroless advantage is the absence of tools an attacker could use" }
+    ]
+  }
+]

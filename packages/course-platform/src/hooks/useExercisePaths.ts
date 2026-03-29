@@ -14,5 +14,10 @@ export function useExercisePaths() {
       if (!config) return ''
       return `/src/exercises/${config.folder}/README.md`
     },
+    getQuizPath(levelId: string): string {
+      const config = configMap.get(levelId)
+      if (!config) return ''
+      return `/src/exercises/${config.folder}/quiz.json`
+    },
   }
 }

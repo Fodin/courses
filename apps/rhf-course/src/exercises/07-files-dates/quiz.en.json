@@ -1,0 +1,32 @@
+[
+  {
+    "question": "What does register return for input type=\"file\"?",
+    "type": "single",
+    "options": [
+      { "text": "File — a single file", "correct": false, "explanation": "register returns a FileList even when only one file is selected" },
+      { "text": "FileList — a list of files", "correct": true },
+      { "text": "string — the file path", "correct": false, "explanation": "For security reasons the browser does not expose the file path" },
+      { "text": "Blob — binary data", "correct": false, "explanation": "A FileList is returned, not a Blob" }
+    ]
+  },
+  {
+    "question": "How do you validate the size of an uploaded file in Zod?",
+    "type": "single",
+    "options": [
+      { "text": "z.file().maxSize(2_000_000)", "correct": false, "explanation": "Zod has no built-in z.file() type — use z.instanceof(FileList) with refine" },
+      { "text": "z.instanceof(FileList).refine(files => files[0]?.size < 2_000_000, 'Max 2MB')", "correct": true },
+      { "text": "z.string().max(2_000_000)", "correct": false, "explanation": "z.string().max() checks string length, not file size" },
+      { "text": "z.any().fileSize(2_000_000)", "correct": false, "explanation": "No such method exists — use refine for custom validation" }
+    ]
+  },
+  {
+    "question": "Which approach is used to create a preview of an uploaded image?",
+    "type": "single",
+    "options": [
+      { "text": "Reading the file via fs.readFile()", "correct": false, "explanation": "fs.readFile() is a Node.js API and is not available in the browser" },
+      { "text": "URL.createObjectURL(file)", "correct": true },
+      { "text": "file.toDataURL()", "correct": false, "explanation": "File has no toDataURL method — use URL.createObjectURL() or FileReader" },
+      { "text": "Uploading the file to the server and getting back a URL", "correct": false, "explanation": "This is unnecessary — a preview can be created on the client without a server" }
+    ]
+  }
+]

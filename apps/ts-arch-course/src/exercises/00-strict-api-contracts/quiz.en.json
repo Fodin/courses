@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What are phantom types and why are they used in API contracts?",
+    "type": "single",
+    "options": [
+      { "text": "Types attached to interface fields that exist only for TypeScript and have no runtime values", "correct": true },
+      { "text": "Types that are automatically removed during compilation and don't affect type checking", "correct": false, "explanation": "All types are removed during compilation, but phantom types actively participate in type checking — they're needed to pass type information through generics" },
+      { "text": "Special TypeScript syntax for creating virtual interfaces", "correct": false, "explanation": "Phantom types are a design pattern, not language syntax. They're implemented through regular optional fields" },
+      { "text": "Types that can only be null or undefined", "correct": false, "explanation": "Phantom types can be anything. Their essence is that the field is declared as optional (?) and never populated, while the type is used only for inference via infer" }
+    ]
+  },
+  {
+    "question": "Which pattern is used to make body required only for POST/PUT endpoints?",
+    "type": "single",
+    "options": [
+      { "text": "Conditional type in rest parameters: ...args: TBody extends never ? [] : [body: TBody]", "correct": true },
+      { "text": "Function overloading with different parameter counts", "correct": false, "explanation": "Overloads work, but conditional type in rest parameters is more elegant — one generic covers all cases without duplicating signatures" },
+      { "text": "Two separate methods: fetchWithBody() and fetchWithoutBody()", "correct": false, "explanation": "This breaks API uniformity. A conditional type allows using one function that adapts to the endpoint type" },
+      { "text": "Runtime check typeof body !== 'undefined'", "correct": false, "explanation": "A runtime check doesn't give a compile error. The goal is to detect problems before running the program" }
+    ]
+  },
+  {
+    "question": "Why is DTO -> domain type mapping performed at the boundary, not inside components?",
+    "type": "single",
+    "options": [
+      { "text": "So that API contract changes only affect one layer, not the entire application code", "correct": true },
+      { "text": "Because TypeScript doesn't allow transforming types inside components", "correct": false, "explanation": "TypeScript allows mapping anywhere. It's an architectural decision: boundary mapping isolates changes" },
+      { "text": "To improve performance through single-pass mapping", "correct": false, "explanation": "Performance isn't the main reason. The key benefit is change isolation and a single source of truth for transformations" },
+      { "text": "To use snake_case throughout the application", "correct": false, "explanation": "On the contrary: mapping converts snake_case (API) to camelCase (domain), so all application code works with a convenient format" }
+    ]
+  },
+  {
+    "question": "Which of the following approaches provide runtime safety when working with API responses?",
+    "type": "multiple",
+    "options": [
+      { "text": "Type guards (isUser, isString) with instanceof/typeof checks", "correct": true },
+      { "text": "Type casting via as (data as User)", "correct": false, "explanation": "as is only a compiler hint, it performs no runtime checks. If data doesn't match the type, the error will occur later" },
+      { "text": "Validation through composable type guards (isObject, isArray)", "correct": true },
+      { "text": "Declaring return type as Promise<User>", "correct": false, "explanation": "Return type declaration is a compile-time check. At runtime, fetch still returns any, and the declared type won't protect against incorrect data" }
+    ]
+  },
+  {
+    "question": "What happens when using satisfies with a query schema?",
+    "type": "single",
+    "options": [
+      { "text": "TypeScript checks that the object conforms to QuerySchema but preserves literal value types", "correct": true },
+      { "text": "The object will be cast to QuerySchema type with loss of literal types", "correct": false, "explanation": "This describes the behavior of a type annotation (: QuerySchema). satisfies checks conformance but preserves narrowed literal types" },
+      { "text": "TypeScript will create a new type based on the object and QuerySchema", "correct": false, "explanation": "satisfies doesn't create new types. It checks compatibility and preserves the inferred object type" },
+      { "text": "An error will occur because satisfies can't be used with interfaces", "correct": false, "explanation": "satisfies works with any types, including interfaces. It's a compatibility check operator" }
+    ]
+  }
+]

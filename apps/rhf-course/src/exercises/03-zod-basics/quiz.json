@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Как подключить Zod-схему к useForm?",
+    "type": "single",
+    "options": [
+      { "text": "useForm({ schema: mySchema })", "correct": false, "explanation": "useForm не имеет параметра schema — нужно использовать resolver" },
+      { "text": "useForm({ resolver: zodResolver(mySchema) })", "correct": true },
+      { "text": "useForm({ validation: mySchema })", "correct": false, "explanation": "validation не является параметром useForm" },
+      { "text": "useForm({ zod: mySchema })", "correct": false, "explanation": "zod не является параметром useForm — библиотеки подключаются через resolver" }
+    ]
+  },
+  {
+    "question": "Как вывести TypeScript-тип из Zod-схемы?",
+    "type": "single",
+    "options": [
+      { "text": "type FormData = typeof schema", "correct": false, "explanation": "typeof schema даст тип самой Zod-схемы, а не данных" },
+      { "text": "type FormData = z.infer<typeof schema>", "correct": true },
+      { "text": "type FormData = z.type(schema)", "correct": false, "explanation": "z.type() не существует — используйте z.infer<>" },
+      { "text": "type FormData = schema.type", "correct": false, "explanation": "schema.type не даёт TypeScript-тип данных" }
+    ]
+  },
+  {
+    "question": "Какие преимущества даёт валидация по схемам по сравнению со встроенной?",
+    "type": "multiple",
+    "options": [
+      { "text": "Все правила валидации в одном месте", "correct": true },
+      { "text": "Полная типобезопасность", "correct": true },
+      { "text": "Легкая кросс-полевая валидация", "correct": true },
+      { "text": "Меньший размер бандла", "correct": false, "explanation": "Zod добавляет дополнительный вес к бандлу — преимущество в организации кода и типобезопасности, а не в размере" }
+    ]
+  },
+  {
+    "question": "Как в Zod сделать поле опциональным?",
+    "type": "single",
+    "options": [
+      { "text": "z.string().required(false)", "correct": false, "explanation": "В Zod нет метода required() — строки обязательны по умолчанию" },
+      { "text": "z.string().optional()", "correct": true },
+      { "text": "z.string().nullable()", "correct": false, "explanation": "nullable() позволяет значение null, но поле всё ещё обязательно" },
+      { "text": "z.optional(z.string())", "correct": false, "explanation": "Хотя z.optional() существует, идиоматический подход — цепочечный вызов .optional()" }
+    ]
+  }
+]

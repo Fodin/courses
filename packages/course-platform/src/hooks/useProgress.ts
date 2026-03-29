@@ -6,6 +6,10 @@ export interface TaskProgress {
   }
 }
 
+export interface QuizProgress {
+  [levelId: string]: boolean
+}
+
 export interface ProgressContextValue {
   progress: TaskProgress
   toggleTask: (levelId: string, taskId: string) => void
@@ -13,6 +17,9 @@ export interface ProgressContextValue {
   getLevelProgress: (levelId: string, totalTasks: number) => number
   getTotalProgress: (levels: { id: string; tasks: number }[]) => number
   resetProgress: () => void
+  quizProgress: QuizProgress
+  isQuizComplete: (levelId: string) => boolean
+  setQuizComplete: (levelId: string, complete: boolean) => void
 }
 
 export const ProgressContext = createContext<ProgressContextValue | null>(null)

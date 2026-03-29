@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Какая команда запускает полный рецепт автоматической миграции на React 19?",
+    "type": "single",
+    "options": [
+      { "text": "npx codemod@latest react/19/migration-recipe", "correct": true },
+      { "text": "npx react-upgrade@19", "correct": false, "explanation": "Такого пакета не существует. Официальный инструмент — codemod CLI." },
+      { "text": "npm install react@19 --migrate", "correct": false, "explanation": "Флаг --migrate не существует в npm. Установка пакета и миграция кода — разные шаги." },
+      { "text": "npx create-react-app --upgrade 19", "correct": false, "explanation": "create-react-app не имеет функции миграции и больше не рекомендуется." }
+    ]
+  },
+  {
+    "question": "Какие API были удалены в React 19?",
+    "type": "multiple",
+    "options": [
+      { "text": "defaultProps для функциональных компонентов", "correct": true },
+      { "text": "ReactDOM.render()", "correct": true },
+      { "text": "useState()", "correct": false, "explanation": "useState — основной хук React, он не был удалён." },
+      { "text": "propTypes", "correct": true },
+      { "text": "String refs (ref=\"myRef\")", "correct": true }
+    ]
+  },
+  {
+    "question": "Чем заменяется ReactDOM.render() в React 19?",
+    "type": "single",
+    "options": [
+      { "text": "createRoot().render()", "correct": true },
+      { "text": "ReactDOM.mount()", "correct": false, "explanation": "Метод mount() не существует в React. Новый API использует createRoot из react-dom/client." },
+      { "text": "React.render()", "correct": false, "explanation": "Метод render() не является частью пакета react. Рендеринг осуществляется через react-dom/client." },
+      { "text": "document.render()", "correct": false, "explanation": "Это браузерный API, не связанный с React." }
+    ]
+  },
+  {
+    "question": "Что codemod НЕ делает автоматически при миграции на React 19?",
+    "type": "single",
+    "options": [
+      { "text": "Переписывает формы с onSubmit на Actions", "correct": true },
+      { "text": "Заменяет ReactDOM.render на createRoot", "correct": false, "explanation": "Это одна из стандартных трансформаций codemod." },
+      { "text": "Заменяет forwardRef на ref как prop", "correct": false, "explanation": "Codemod автоматически убирает обёртку forwardRef." },
+      { "text": "Заменяет defaultProps на default parameters", "correct": false, "explanation": "Это стандартная трансформация codemod для функциональных компонентов." }
+    ]
+  },
+  {
+    "question": "Какой тип React больше не включает children по умолчанию в React 19?",
+    "type": "single",
+    "options": [
+      { "text": "FC (FunctionComponent)", "correct": true },
+      { "text": "Component", "correct": false, "explanation": "Классовые компоненты всегда требовали явного указания children в типах." },
+      { "text": "ReactElement", "correct": false, "explanation": "ReactElement — это тип возвращаемого значения, не компонента. Он не содержит children в своей типизации." },
+      { "text": "HTMLAttributes", "correct": false, "explanation": "HTMLAttributes — это типы DOM-элементов, они всегда содержали children через React.DOMAttributes." }
+    ]
+  }
+]

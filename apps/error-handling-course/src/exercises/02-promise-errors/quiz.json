@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что происходит, когда ошибка возникает в середине цепочки .then()?",
+    "type": "single",
+    "options": [
+      { "text": "Она «проваливается» до ближайшего .catch()", "correct": true },
+      { "text": "Выполняются все последующие .then(), а потом .catch()", "correct": false, "explanation": "Последующие .then() пропускаются — управление сразу переходит к ближайшему .catch()" },
+      { "text": "Промис зависает навсегда", "correct": false, "explanation": "Промис переходит в состояние rejected и ищет обработчик .catch()" },
+      { "text": "JavaScript автоматически исправляет ошибку", "correct": false, "explanation": "JavaScript не исправляет ошибки автоматически — их нужно обрабатывать явно" }
+    ]
+  },
+  {
+    "question": "В чём ключевое отличие Promise.all от Promise.allSettled?",
+    "type": "single",
+    "options": [
+      { "text": "Promise.all отклоняется при первой ошибке, allSettled всегда возвращает результат каждого промиса", "correct": true },
+      { "text": "Promise.allSettled быстрее, потому что не ждёт все промисы", "correct": false, "explanation": "allSettled всегда ждёт завершения всех промисов, он не быстрее" },
+      { "text": "Promise.all возвращает массив, а allSettled — объект", "correct": false, "explanation": "Оба возвращают массив, но allSettled возвращает массив объектов с полем status" },
+      { "text": "Promise.allSettled не поддерживает обработку ошибок", "correct": false, "explanation": "allSettled как раз предоставляет информацию об ошибках через status: 'rejected' и reason" }
+    ]
+  },
+  {
+    "question": "Какой тип ошибки выбросит Promise.any, если все промисы отклонены?",
+    "type": "single",
+    "options": [
+      { "text": "AggregateError", "correct": true },
+      { "text": "TypeError", "correct": false, "explanation": "TypeError возникает при операции с неподходящим типом, а не при отклонении промисов" },
+      { "text": "Error", "correct": false, "explanation": "Promise.any выбрасывает специализированный AggregateError, содержащий массив всех ошибок" },
+      { "text": "RejectionError", "correct": false, "explanation": "Такого типа ошибки не существует в JavaScript" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при вызове async-функции без await и без .catch()?",
+    "type": "single",
+    "options": [
+      { "text": "UnhandledPromiseRejection, в Node.js 15+ процесс завершится", "correct": true },
+      { "text": "Ошибка будет молча проглочена", "correct": false, "explanation": "Среда выполнения обнаружит необработанное отклонение и сгенерирует событие unhandledrejection" },
+      { "text": "Программа продолжит работу без каких-либо последствий", "correct": false, "explanation": "В браузере будет ошибка в консоли, в Node.js 15+ — аварийное завершение процесса" },
+      { "text": "JavaScript автоматически добавит .catch()", "correct": false, "explanation": "JavaScript не добавляет обработчики автоматически" }
+    ]
+  },
+  {
+    "question": "Когда лучше использовать Promise.allSettled вместо Promise.all?",
+    "type": "multiple",
+    "options": [
+      { "text": "Когда запросы независимы друг от друга", "correct": true },
+      { "text": "Когда нужно получить результат каждой операции, даже если часть упала", "correct": true },
+      { "text": "Когда все запросы зависят друг от друга и один без другого бесполезен", "correct": false, "explanation": "Для зависимых запросов лучше Promise.all — если один упал, остальные бесполезны" },
+      { "text": "Когда нужно показать пользователю частичные данные", "correct": true }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Какое главное преимущество типа Result<T, E> перед throw?",
+    "type": "single",
+    "options": [
+      { "text": "Ошибка становится частью сигнатуры функции и видна в типах", "correct": true },
+      { "text": "Result работает быстрее, чем throw", "correct": false, "explanation": "Result не связан с производительностью — его преимущество в типобезопасности" },
+      { "text": "Result автоматически логирует ошибки", "correct": false, "explanation": "Result — это тип данных, он не выполняет никаких побочных эффектов" },
+      { "text": "throw нельзя использовать в TypeScript", "correct": false, "explanation": "throw полностью поддерживается в TypeScript" }
+    ]
+  },
+  {
+    "question": "Что делает функция assertNever?",
+    "type": "single",
+    "options": [
+      { "text": "Гарантирует на этапе компиляции, что все варианты union type обработаны", "correct": true },
+      { "text": "Предотвращает использование значения null", "correct": false, "explanation": "assertNever работает с типом never в switch/if, а не с null" },
+      { "text": "Проверяет, что переменная не undefined", "correct": false, "explanation": "assertNever не связан с undefined — он проверяет exhaustiveness union типов" },
+      { "text": "Бросает ошибку при каждом вызове", "correct": false, "explanation": "assertNever бросает ошибку в рантайме, но главная цель — ошибка компиляции при пропущенном варианте" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если добавить новый вариант в union type, но забыть его обработать в switch с assertNever?",
+    "type": "single",
+    "options": [
+      { "text": "TypeScript покажет ошибку компиляции в ветке default", "correct": true },
+      { "text": "Код скомпилируется, но упадёт в рантайме", "correct": false, "explanation": "В том и суть assertNever — ошибка будет на этапе компиляции, до запуска кода" },
+      { "text": "Новый вариант будет автоматически обработан", "correct": false, "explanation": "TypeScript не обрабатывает варианты автоматически — нужно явно добавить case" },
+      { "text": "Ничего не произойдёт, код будет работать как раньше", "correct": false, "explanation": "Без обработки нового варианта assertNever получит не-never тип, и компиляция провалится" }
+    ]
+  },
+  {
+    "question": "Какие поля доступны в AsyncState<T> при status === 'success'?",
+    "type": "single",
+    "options": [
+      { "text": "status и data", "correct": true },
+      { "text": "status, data и error", "correct": false, "explanation": "При status === 'success' поле error не существует — это отдельный вариант union" },
+      { "text": "Только data", "correct": false, "explanation": "Поле status всегда доступно — это дискриминант union type" },
+      { "text": "status, data, error и loading", "correct": false, "explanation": "Discriminated union предоставляет только поля конкретного варианта, не все сразу" }
+    ]
+  },
+  {
+    "question": "Почему возврат any или null вместо Result — антипаттерн?",
+    "type": "multiple",
+    "options": [
+      { "text": "Компилятор не заставляет проверять результат", "correct": true },
+      { "text": "Вызывающий код не знает, что функция может вернуть ошибочное значение", "correct": true },
+      { "text": "Ошибка проявится только в рантайме (например, null.property)", "correct": true },
+      { "text": "any и null запрещены в TypeScript", "correct": false, "explanation": "Они не запрещены, но их использование теряет преимущества типизации" }
+    ]
+  }
+]

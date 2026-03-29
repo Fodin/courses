@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему нельзя продолжать работу после uncaughtException?",
+    "type": "single",
+    "options": [
+      { "text": "Процесс находится в неопределённом состоянии — данные могут быть повреждены", "correct": true },
+      { "text": "Node.js автоматически завершает процесс после этого события", "correct": false, "explanation": "Node.js НЕ завершает процесс автоматически при наличии обработчика uncaughtException. Но продолжать работу опасно" },
+      { "text": "Event Loop полностью останавливается", "correct": false, "explanation": "Event Loop продолжает работать после uncaughtException. Проблема в том, что состояние приложения может быть повреждено" },
+      { "text": "Все промисы автоматически отклоняются", "correct": false, "explanation": "uncaughtException не влияет на промисы. Проблема в нестабильном состоянии приложения из-за необработанной ошибки" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при вызове emitter.emit('error', new Error('fail')) без обработчика?",
+    "type": "single",
+    "options": [
+      { "text": "Будет выброшено исключение, которое приведёт к uncaughtException", "correct": true },
+      { "text": "Ошибка будет проигнорирована", "correct": false, "explanation": "EventEmitter специально обрабатывает событие 'error' — без listener он БРОСАЕТ ошибку" },
+      { "text": "Ошибка попадёт в unhandledRejection", "correct": false, "explanation": "unhandledRejection — для rejected Promise. emit('error') — синхронная операция, приводящая к uncaughtException" },
+      { "text": "Node.js залогирует ошибку в stderr", "correct": false, "explanation": "Node.js не логирует ошибку — он бросает исключение. Без обработчика uncaughtException процесс упадёт" }
+    ]
+  },
+  {
+    "question": "Какие утверждения о pipe() и pipeline() верны?",
+    "type": "multiple",
+    "options": [
+      { "text": "pipe() НЕ передаёт ошибки от source к destination", "correct": true },
+      { "text": "pipeline() автоматически уничтожает все потоки при ошибке", "correct": true },
+      { "text": "pipe() автоматически закрывает destination при ошибке source", "correct": false, "explanation": "pipe() НЕ закрывает destination при ошибке source — это приводит к утечкам ресурсов" },
+      { "text": "pipeline() доступен как в callback, так и в Promise-версии", "correct": true }
+    ]
+  },
+  {
+    "question": "Для чего используется error.cause (ES2022)?",
+    "type": "single",
+    "options": [
+      { "text": "Для сохранения оригинальной ошибки при оборачивании в новую — цепочка ошибок", "correct": true },
+      { "text": "Для указания строки кода, где произошла ошибка", "correct": false, "explanation": "Строку кода показывает stack trace. cause хранит оригинальную ошибку, которая была причиной текущей" },
+      { "text": "Для автоматического retry операции при ошибке", "correct": false, "explanation": "cause не связан с retry — это просто свойство для хранения причинной ошибки" },
+      { "text": "Для отправки ошибки в систему мониторинга", "correct": false, "explanation": "cause — стандартное свойство Error для хранения причины. Отправка в мониторинг — отдельная логика" }
+    ]
+  },
+  {
+    "question": "Почему throw внутри callback fs.readFile не будет пойман внешним try/catch?",
+    "type": "single",
+    "options": [
+      { "text": "Callback выполняется асинхронно, в другой итерации Event Loop — стек вызовов уже не содержит try/catch", "correct": true },
+      { "text": "fs.readFile ловит все ошибки и передаёт их в первый аргумент callback", "correct": false, "explanation": "fs.readFile ловит ошибки самой операции чтения, но НЕ ловит throw внутри пользовательского callback" },
+      { "text": "throw не работает внутри callback-функций", "correct": false, "explanation": "throw работает везде, но при асинхронном выполнении стек вызовов не содержит внешний try/catch" },
+      { "text": "Node.js перехватывает все throw и превращает их в warning", "correct": false, "explanation": "Node.js не перехватывает throw автоматически. Необработанный throw приведёт к uncaughtException" }
+    ]
+  }
+]

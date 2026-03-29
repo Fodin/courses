@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why is it no longer necessary to write import React from 'react' in every JSX file in React 19?",
+    "type": "single",
+    "options": [
+      { "text": "The new JSX transform automatically inserts the import from react/jsx-runtime", "correct": true },
+      { "text": "React 19 became a global variable and doesn't require imports", "correct": false, "explanation": "React did not become a global variable. The compiler now automatically adds the required import from react/jsx-runtime." },
+      { "text": "JSX was replaced with regular function calls", "correct": false, "explanation": "JSX is still compiled into function calls, but now it's jsx() from react/jsx-runtime instead of React.createElement()." },
+      { "text": "In React 19, JSX is handled natively by browsers", "correct": false, "explanation": "Browsers do not support JSX natively. JSX still requires compilation." }
+    ]
+  },
+  {
+    "question": "How do you pass a ref to a child function component in React 19?",
+    "type": "single",
+    "options": [
+      { "text": "Wrap the component in forwardRef", "correct": false, "explanation": "forwardRef is no longer needed in React 19. ref is now a regular prop." },
+      { "text": "Pass ref as a regular prop", "correct": true },
+      { "text": "Use a special innerRef prop", "correct": false, "explanation": "innerRef is a legacy pattern from older libraries. In React 19, ref is a standard prop." },
+      { "text": "useImperativeHandle is mandatory", "correct": false, "explanation": "useImperativeHandle is only needed to customize the ref value, not for simple forwarding." }
+    ]
+  },
+  {
+    "question": "What does a ref cleanup function return in React 19?",
+    "type": "single",
+    "options": [
+      { "text": "A function that is called when the element is unmounted", "correct": true },
+      { "text": "null to clear the reference to the DOM element", "correct": false, "explanation": "In React 19, cleanup is implemented by returning a function, not through null. The null pattern was the React 18 approach." },
+      { "text": "A Promise for asynchronous cleanup", "correct": false, "explanation": "Ref cleanup is a synchronous function, just like cleanup in useEffect." },
+      { "text": "An object with a dispose() method", "correct": false, "explanation": "React does not use the Disposable pattern for ref cleanup. A regular function is used." }
+    ]
+  },
+  {
+    "question": "What jsx value should be set in tsconfig.json for React 19?",
+    "type": "single",
+    "options": [
+      { "text": "\"react\"", "correct": false, "explanation": "The value \"react\" uses the old transform via React.createElement, which is not supported in React 19." },
+      { "text": "\"react-jsx\"", "correct": true },
+      { "text": "\"react-jsxdev\"", "correct": false, "explanation": "react-jsxdev is only used for development builds. For production, react-jsx is needed." },
+      { "text": "\"preserve\"", "correct": false, "explanation": "preserve leaves JSX untransformed. For React 19, react-jsx is needed." }
+    ]
+  },
+  {
+    "question": "What advantages does ref as a regular prop provide in React 19?",
+    "type": "multiple",
+    "options": [
+      { "text": "No need for forwardRef wrapper", "correct": true },
+      { "text": "No need for displayName", "correct": true },
+      { "text": "ref is automatically passed through multiple levels of nesting", "correct": false, "explanation": "ref still needs to be explicitly passed through each level, just like any other prop." },
+      { "text": "Simpler TypeScript typing", "correct": true }
+    ]
+  }
+]

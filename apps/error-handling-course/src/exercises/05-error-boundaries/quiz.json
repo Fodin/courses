@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Какие ошибки НЕ ловит Error Boundary?",
+    "type": "multiple",
+    "options": [
+      { "text": "Ошибки в обработчиках событий (onClick, onChange)", "correct": true },
+      { "text": "Ошибки в асинхронном коде (setTimeout, fetch)", "correct": true },
+      { "text": "Ошибки в самом Error Boundary", "correct": true },
+      { "text": "Ошибки в методе render() дочерних компонентов", "correct": false, "explanation": "Ошибки в render() дочерних компонентов — это именно то, что Error Boundary ловит" },
+      { "text": "Ошибки в конструкторах дочерних компонентов", "correct": false, "explanation": "Ошибки в конструкторах дочерних компонентов перехватываются Error Boundary" }
+    ]
+  },
+  {
+    "question": "Какой метод жизненного цикла обновляет состояние Error Boundary при ошибке?",
+    "type": "single",
+    "options": [
+      { "text": "static getDerivedStateFromError", "correct": true },
+      { "text": "componentDidCatch", "correct": false, "explanation": "componentDidCatch используется для побочных эффектов (логирование), но не для обновления состояния" },
+      { "text": "componentDidUpdate", "correct": false, "explanation": "componentDidUpdate вызывается при обычных обновлениях, не связан с обработкой ошибок" },
+      { "text": "shouldComponentUpdate", "correct": false, "explanation": "shouldComponentUpdate контролирует перерисовку, а не обработку ошибок" }
+    ]
+  },
+  {
+    "question": "Почему один Error Boundary на всё приложение — плохая практика?",
+    "type": "single",
+    "options": [
+      { "text": "Ошибка в одном компоненте обрушит весь UI вместо локальной части", "correct": true },
+      { "text": "Один Error Boundary не может поймать несколько ошибок", "correct": false, "explanation": "Количество перехватываемых ошибок не ограничено — проблема в гранулярности" },
+      { "text": "React запрещает один Error Boundary на приложение", "correct": false, "explanation": "React не запрещает это, но это плохая практика для UX" },
+      { "text": "Один Error Boundary не работает с вложенными компонентами", "correct": false, "explanation": "Error Boundary ловит ошибки на любой глубине вложенности" }
+    ]
+  },
+  {
+    "question": "Как обработать ошибку в обработчике onClick, если Error Boundary её не ловит?",
+    "type": "single",
+    "options": [
+      { "text": "Обернуть код в try/catch и сохранить ошибку в useState", "correct": true },
+      { "text": "Использовать специальный пропс onError у Error Boundary", "correct": false, "explanation": "Такого пропса нет — Error Boundary ловит только ошибки рендера" },
+      { "text": "Добавить .catch() после onClick", "correct": false, "explanation": "onClick — синхронный обработчик, .catch() к нему не применим напрямую" },
+      { "text": "Ошибки в обработчиках событий невозможно обработать", "correct": false, "explanation": "Ошибки в обработчиках событий обрабатываются обычным try/catch" }
+    ]
+  },
+  {
+    "question": "Зачем в fallback UI нужна кнопка восстановления (retry)?",
+    "type": "single",
+    "options": [
+      { "text": "Многие ошибки временные и решаются повторной попыткой, иначе пользователь в тупике", "correct": true },
+      { "text": "React требует кнопку восстановления в каждом fallback", "correct": false, "explanation": "React не требует кнопку восстановления — это рекомендация для хорошего UX" },
+      { "text": "Без кнопки восстановления Error Boundary не работает", "correct": false, "explanation": "Error Boundary работает и без кнопки, но пользователь не сможет ничего предпринять" },
+      { "text": "Кнопка восстановления автоматически исправляет ошибку", "correct": false, "explanation": "Кнопка сбрасывает состояние ошибки и пересоздаёт дерево компонентов, но не исправляет причину ошибки" }
+    ]
+  }
+]

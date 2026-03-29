@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why must error-handling middleware in Express have exactly 4 arguments (err, req, res, next)?",
+    "type": "single",
+    "options": [
+      { "text": "Express identifies middleware type by argument count -- 4 arguments means error handler", "correct": true },
+      { "text": "TypeScript requires 4 arguments for error typing", "correct": false, "explanation": "This is Express behavior, not TypeScript. Express checks function.length (parameter count) -- if 4, it's error middleware" },
+      { "text": "Without the 4th argument, next() won't work", "correct": false, "explanation": "next() works in regular middleware with 3 arguments. Express uses the argument count (4) as a signal that it's error-handling middleware" },
+      { "text": "It's a convention that can be violated without consequences", "correct": false, "explanation": "It's not just a convention -- Express literally checks fn.length === 4 to identify error middleware. If there aren't 4 arguments, Express won't pass errors to this middleware" }
+    ]
+  },
+  {
+    "question": "What happens if you throw an error in an Express async handler without asyncHandler?",
+    "type": "single",
+    "options": [
+      { "text": "An unhandled promise rejection occurs -- the error won't reach error middleware, the client gets a hanging request", "correct": true },
+      { "text": "Express automatically catches the error and passes it to error middleware", "correct": false, "explanation": "Express (pre-v5) doesn't intercept rejected promises from async handlers. The error becomes an unhandled rejection, and the client receives no response" },
+      { "text": "Node.js will stop the process with exit code 1", "correct": false, "explanation": "In newer Node.js versions, unhandled rejections produce a warning but don't stop the process by default. The problem is the client receives no response and the error doesn't reach error middleware" },
+      { "text": "The client will receive a 500 Internal Server Error response", "correct": false, "explanation": "Without asyncHandler, Express doesn't know about the error and can't send 500. The client simply receives no response -- the request hangs until timeout" }
+    ]
+  },
+  {
+    "question": "In what order should middleware be registered in an Express application?",
+    "type": "single",
+    "options": [
+      { "text": "Parsers (json, urlencoded) -> CORS -> logging -> authentication -> routes -> error handler", "correct": true },
+      { "text": "Routes -> CORS -> parsers -> logging -> error handler", "correct": false, "explanation": "Routes should come after parsers and middleware, otherwise req.body will be undefined, CORS headers won't be set, and logging won't work" },
+      { "text": "Error handler -> parsers -> CORS -> routes -> logging", "correct": false, "explanation": "Error handler must be last -- it handles errors from all preceding middleware and routes. If placed first, it won't catch anything" },
+      { "text": "Order doesn't matter -- Express automatically optimizes the chain", "correct": false, "explanation": "Order is critical! Express executes middleware strictly in the order registered via app.use(). Wrong order leads to bugs (undefined body, missing CORS, etc.)" }
+    ]
+  },
+  {
+    "question": "How does express.Router() differ from defining routes directly via app.get()?",
+    "type": "single",
+    "options": [
+      { "text": "Router is a mini-application for modular route organization with a shared prefix via app.use('/prefix', router)", "correct": true },
+      { "text": "Router is faster because it uses an optimized search algorithm", "correct": false, "explanation": "Performance is identical -- Router uses the same routing mechanism. Its advantage is modularity: routes can be extracted to separate files and mounted with a prefix" },
+      { "text": "Router supports middleware, but app.get() doesn't", "correct": false, "explanation": "Both Router and app support middleware. The difference is modularity: Router lets you group routes and mount them as a plugin with a shared prefix" },
+      { "text": "Router is only needed for TypeScript route typing", "correct": false, "explanation": "Router isn't TypeScript-related -- it's an Express modularity mechanism. It lets you extract route groups into separate files and mount them with a prefix" }
+    ]
+  },
+  {
+    "question": "What scopes can middleware have in Express?",
+    "type": "multiple",
+    "options": [
+      { "text": "Global: app.use(middleware) -- applies to all routes", "correct": true },
+      { "text": "Route group: app.use('/api', middleware) -- only for paths starting with /api", "correct": true },
+      { "text": "Specific route: app.get('/path', middleware, handler)", "correct": true },
+      { "text": "File-level: middleware applies to all routes in a file automatically", "correct": false, "explanation": "Express has no file-level scope for middleware. Scope is determined only through app.use() and its first argument (path), not file structure" }
+    ]
+  }
+]

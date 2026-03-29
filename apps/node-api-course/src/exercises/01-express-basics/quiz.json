@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему error-handling middleware в Express должен иметь именно 4 аргумента (err, req, res, next)?",
+    "type": "single",
+    "options": [
+      { "text": "Express определяет тип middleware по количеству аргументов -- 4 аргумента означают обработчик ошибок", "correct": true },
+      { "text": "TypeScript требует 4 аргумента для типизации ошибок", "correct": false, "explanation": "Это поведение Express, а не TypeScript. Express проверяет function.length (количество параметров) -- если 4, то это error middleware" },
+      { "text": "Без 4-го аргумента next() не будет работать", "correct": false, "explanation": "next() работает и в обычном middleware с 3 аргументами. Express использует количество аргументов (4) как сигнал, что это error-handling middleware" },
+      { "text": "Это конвенция, которую можно нарушить без последствий", "correct": false, "explanation": "Это не просто конвенция -- Express буквально проверяет fn.length === 4 для определения error middleware. Если аргументов не 4, Express не передаст ошибку в этот middleware" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если в async-обработчике Express выбросить ошибку без asyncHandler?",
+    "type": "single",
+    "options": [
+      { "text": "Произойдёт unhandled promise rejection -- ошибка не попадёт в error middleware, клиент получит зависший запрос", "correct": true },
+      { "text": "Express автоматически поймает ошибку и передаст в error middleware", "correct": false, "explanation": "Express (до v5) не перехватывает rejected promises из async-обработчиков. Ошибка станет unhandled rejection, а клиент не получит ответа" },
+      { "text": "Node.js остановит процесс с кодом выхода 1", "correct": false, "explanation": "В новых версиях Node.js unhandled rejections выдают предупреждение, но не останавливают процесс по умолчанию. Проблема в том, что клиент не получит ответа, а ошибка не попадёт в error middleware" },
+      { "text": "Клиент получит ответ 500 Internal Server Error", "correct": false, "explanation": "Без asyncHandler Express не знает об ошибке и не может отправить 500. Клиент просто не получит ответа -- запрос зависнет до таймаута" }
+    ]
+  },
+  {
+    "question": "В каком порядке нужно подключать middleware в Express-приложении?",
+    "type": "single",
+    "options": [
+      { "text": "Парсеры (json, urlencoded) -> CORS -> логирование -> аутентификация -> маршруты -> error handler", "correct": true },
+      { "text": "Маршруты -> CORS -> парсеры -> логирование -> error handler", "correct": false, "explanation": "Маршруты должны идти после парсеров и middleware, иначе req.body будет undefined, CORS-заголовки не установлены, логирование не сработает" },
+      { "text": "Error handler -> парсеры -> CORS -> маршруты -> логирование", "correct": false, "explanation": "Error handler должен быть последним -- он обрабатывает ошибки из всех предшествующих middleware и маршрутов. Если поставить его первым, он ничего не поймает" },
+      { "text": "Порядок не важен -- Express автоматически оптимизирует цепочку", "correct": false, "explanation": "Порядок критически важен! Express выполняет middleware строго в порядке подключения через app.use(). Неправильный порядок приводит к багам (undefined body, отсутствие CORS и т.д.)" }
+    ]
+  },
+  {
+    "question": "Чем express.Router() отличается от прямого определения маршрутов через app.get()?",
+    "type": "single",
+    "options": [
+      { "text": "Router -- это мини-приложение для модульной организации маршрутов с общим префиксом через app.use('/prefix', router)", "correct": true },
+      { "text": "Router работает быстрее, так как использует оптимизированный алгоритм поиска", "correct": false, "explanation": "Производительность одинакова -- Router использует тот же механизм маршрутизации. Его преимущество -- модульность: маршруты можно выносить в отдельные файлы и подключать с префиксом" },
+      { "text": "Router поддерживает middleware, а app.get() -- нет", "correct": false, "explanation": "И Router, и app поддерживают middleware. Разница в модульности: Router позволяет группировать маршруты и подключать их как плагин с общим префиксом" },
+      { "text": "Router нужен только для TypeScript-типизации маршрутов", "correct": false, "explanation": "Router не связан с TypeScript -- это модульный механизм Express. Он позволяет выносить группы маршрутов в отдельные файлы и подключать с префиксом" }
+    ]
+  },
+  {
+    "question": "Какие области действия (scope) может иметь middleware в Express?",
+    "type": "multiple",
+    "options": [
+      { "text": "Глобальный: app.use(middleware) -- применяется ко всем маршрутам", "correct": true },
+      { "text": "На группу маршрутов: app.use('/api', middleware) -- только для путей, начинающихся с /api", "correct": true },
+      { "text": "На конкретный маршрут: app.get('/path', middleware, handler)", "correct": true },
+      { "text": "На уровне файла: middleware применяется ко всем маршрутам в файле автоматически", "correct": false, "explanation": "Express не имеет файлового scope для middleware. Область действия определяется только через app.use() и его первый аргумент (путь), а не файловой структурой" }
+    ]
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "question": "How does RHF automatically manage the isSubmitting state?",
+    "type": "single",
+    "options": [
+      { "text": "You need to set isSubmitting manually via setState", "correct": false, "explanation": "RHF manages isSubmitting automatically if onSubmit returns a Promise" },
+      { "text": "isSubmitting = true until the Promise from onSubmit completes", "correct": true },
+      { "text": "isSubmitting is always true after the first submission", "correct": false, "explanation": "isSubmitting returns to false after the Promise completes" },
+      { "text": "isSubmitting is managed via formState.setSubmitting()", "correct": false, "explanation": "This method does not exist — RHF manages this automatically" }
+    ]
+  },
+  {
+    "question": "How do you set a server error for a specific field after a failed submit?",
+    "type": "single",
+    "options": [
+      { "text": "formState.errors.email = 'Error'", "correct": false, "explanation": "formState.errors is read-only and cannot be assigned to directly" },
+      { "text": "setError('email', { message: 'Email is already taken' })", "correct": true },
+      { "text": "register('email', { error: 'Email is already taken' })", "correct": false, "explanation": "register does not accept an error parameter" },
+      { "text": "throw new Error('Email is already taken')", "correct": false, "explanation": "throw will interrupt execution but will not attach the error to a specific field" }
+    ]
+  },
+  {
+    "question": "How do you set a form-level error (not tied to a specific field)?",
+    "type": "single",
+    "options": [
+      { "text": "setError('root', { message: 'Submission error' })", "correct": true },
+      { "text": "setError('form', { message: 'Error' })", "correct": false, "explanation": "The key for a form-level error is 'root', not 'form'" },
+      { "text": "setGlobalError('Error')", "correct": false, "explanation": "The method setGlobalError does not exist — use setError('root', ...)" },
+      { "text": "formState.error = 'Error'", "correct": false, "explanation": "formState cannot be modified directly" }
+    ]
+  },
+  {
+    "question": "Which approach is used to implement debounced autosave?",
+    "type": "single",
+    "options": [
+      { "text": "watch() + setTimeout/debounce to send data", "correct": true },
+      { "text": "Submit the form on every onChange", "correct": false, "explanation": "Without debounce this will generate too many requests to the server" },
+      { "text": "The built-in useForm.autoSave() method", "correct": false, "explanation": "RHF has no built-in autoSave — it is implemented via watch + debounce" },
+      { "text": "localStorage without server requests", "correct": false, "explanation": "localStorage saves locally, but autosave usually implies syncing with the server" }
+    ]
+  }
+]

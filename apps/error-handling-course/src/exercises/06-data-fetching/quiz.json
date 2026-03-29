@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Какое поведение fetch при HTTP 404 или 500 является главной ловушкой?",
+    "type": "single",
+    "options": [
+      { "text": "fetch НЕ кидает ошибку — промис успешно резолвится, нужно проверять response.ok", "correct": true },
+      { "text": "fetch кидает HttpError с кодом статуса", "correct": false, "explanation": "fetch не кидает ошибку при HTTP 4xx/5xx — это главное отличие от axios и других библиотек" },
+      { "text": "fetch возвращает null при ошибке сервера", "correct": false, "explanation": "fetch возвращает объект Response даже при ошибочных статусах" },
+      { "text": "fetch автоматически повторяет запрос при 5xx", "correct": false, "explanation": "fetch не имеет встроенного механизма повторных попыток" }
+    ]
+  },
+  {
+    "question": "Какие ситуации вызывают реальное отклонение промиса fetch?",
+    "type": "multiple",
+    "options": [
+      { "text": "Отсутствие сети (TypeError)", "correct": true },
+      { "text": "DNS не найден (TypeError)", "correct": true },
+      { "text": "Отмена через AbortController (AbortError)", "correct": true },
+      { "text": "HTTP 404 Not Found", "correct": false, "explanation": "HTTP 404 не отклоняет промис — response.ok будет false, но промис зарезолвится" },
+      { "text": "HTTP 500 Internal Server Error", "correct": false, "explanation": "HTTP 500 не отклоняет промис — это поведение-ловушка fetch API" }
+    ]
+  },
+  {
+    "question": "Почему нельзя делать retry для HTTP ошибок 4xx?",
+    "type": "single",
+    "options": [
+      { "text": "4xx — клиентские ошибки, повторный запрос ничего не изменит", "correct": true },
+      { "text": "Retry для 4xx вызовет ошибку компиляции", "correct": false, "explanation": "Retry для 4xx технически возможен, но бессмысленен — сервер ответит тем же" },
+      { "text": "Сервер заблокирует клиента при повторных 4xx запросах", "correct": false, "explanation": "Блокировка — побочный эффект, но не главная причина. Главное — запрос заведомо неуспешный" },
+      { "text": "4xx ошибки не перехватываются catch", "correct": false, "explanation": "4xx ошибки могут быть перехвачены, если вы проверяете response.ok и бросаете ошибку" }
+    ]
+  },
+  {
+    "question": "Зачем нужен AbortController при загрузке данных в useEffect?",
+    "type": "single",
+    "options": [
+      { "text": "Для отмены запроса при размонтировании компонента, чтобы не обновлять состояние размонтированного компонента", "correct": true },
+      { "text": "Для ускорения загрузки данных", "correct": false, "explanation": "AbortController не ускоряет загрузку — он отменяет ненужные запросы" },
+      { "text": "Для автоматического retry при ошибке", "correct": false, "explanation": "AbortController отменяет запросы, а не повторяет их" },
+      { "text": "React не работает без AbortController", "correct": false, "explanation": "React работает без AbortController, но без него могут быть утечки памяти и ошибки" }
+    ]
+  },
+  {
+    "question": "Что нужно делать с AbortError при использовании AbortController?",
+    "type": "single",
+    "options": [
+      { "text": "Фильтровать и игнорировать — это не настоящая ошибка, а ожидаемая отмена", "correct": true },
+      { "text": "Показывать пользователю сообщение об ошибке", "correct": false, "explanation": "AbortError при размонтировании — ожидаемое поведение, пользователю не нужно его видеть" },
+      { "text": "Логировать в сервис мониторинга", "correct": false, "explanation": "AbortError — штатная ситуация при навигации, она не требует мониторинга" },
+      { "text": "Повторить запрос автоматически", "correct": false, "explanation": "Если компонент размонтирован, повторный запрос бессмысленен и вызовет утечку" }
+    ]
+  }
+]

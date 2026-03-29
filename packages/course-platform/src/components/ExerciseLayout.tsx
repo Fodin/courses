@@ -7,6 +7,7 @@ import type { LevelConfig } from '../types'
 import { DynamicStudentTask } from './DynamicStudentTask'
 import { TaskDescription } from './TaskDescription'
 import { TheoryBlock } from './TheoryBlock'
+import { QuizBlock } from './QuizBlock'
 
 import solutionStyles from './SolutionButton.module.css'
 import taskStyles from './TaskButtons.module.css'
@@ -86,6 +87,8 @@ export function ExerciseLayout({ config }: ExerciseLayoutProps) {
       <TaskDescription taskNumber={currentTask} level={levelId} />
 
       <TheoryBlock level={levelId} />
+
+      <QuizBlock level={levelId} />
     </div>
   )
 }

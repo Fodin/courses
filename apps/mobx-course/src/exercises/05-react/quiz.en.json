@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How does the observer HOC determine when to re-render a component?",
+    "type": "single",
+    "options": [
+      { "text": "It wraps the render function in tracking and remembers which observables were read during render", "correct": true },
+      { "text": "It compares component props on each update", "correct": false, "explanation": "observer doesn't compare props. It tracks access to observable properties inside the render function and re-renders when they change." },
+      { "text": "It subscribes to all observables in all application stores", "correct": false, "explanation": "observer subscribes only to those observables that were read in a specific render, not all stores." },
+      { "text": "It uses React.memo to compare previous and current state", "correct": false, "explanation": "observer uses MobX's own tracking mechanism, not React.memo. It tracks specific observable properties read during render." }
+    ]
+  },
+  {
+    "question": "When should you use useLocalObservable instead of useState?",
+    "type": "single",
+    "options": [
+      { "text": "When there are multiple related state fields with computed values inside a single component", "correct": true },
+      { "text": "Always — useLocalObservable is better than useState in all cases", "correct": false, "explanation": "For simple state (one or two unrelated fields) useState is simpler and sufficient. useLocalObservable is useful for complex local state with computed values." },
+      { "text": "Only when you need to pass state to child components", "correct": false, "explanation": "Both useState and useLocalObservable can pass state to children. The choice depends on state complexity, not the need to pass it down." },
+      { "text": "Only in class components", "correct": false, "explanation": "useLocalObservable is a hook that works only in functional components." }
+    ]
+  },
+  {
+    "question": "Why does destructuring primitives from a store inside an observer component break reactivity?",
+    "type": "single",
+    "options": [
+      { "text": "When destructuring, the primitive is copied to a local variable and MobX can't track access to it", "correct": true },
+      { "text": "observer doesn't support destructuring", "correct": false, "explanation": "observer doesn't prohibit destructuring. The issue is that MobX tracks property access on objects (store.count), not reading local variables." },
+      { "text": "Destructuring creates a copy of the store", "correct": false, "explanation": "Destructuring doesn't copy the store. It extracts property values into local variables. For objects this is a reference (reactivity preserved), for primitives it's a value copy." },
+      { "text": "MobX only tracks properties declared in the constructor", "correct": false, "explanation": "MobX tracks all observable properties, not only those from the constructor. The destructuring problem is about losing the connection between a local variable and an observable property." }
+    ]
+  },
+  {
+    "question": "What is the correct pattern for passing a MobX store through the component tree?",
+    "type": "single",
+    "options": [
+      { "text": "Create a React Context, wrap the root component in Provider, access the store via useContext", "correct": true },
+      { "text": "Import a global store instance in each component", "correct": false, "explanation": "Direct import works but creates testing problems (can't substitute the store) and makes it impossible to create isolated instances." },
+      { "text": "Pass the store through props of every intermediate component", "correct": false, "explanation": "Prop drilling (passing through every level) is an anti-pattern. React Context solves this by providing the store directly to any component in the tree." },
+      { "text": "Use window.__store__ as a global variable", "correct": false, "explanation": "Global variables are an anti-pattern. They're untyped, untestable, and create implicit dependencies." }
+    ]
+  },
+  {
+    "question": "Why split a list into separate observer components for each item?",
+    "type": "single",
+    "options": [
+      { "text": "So that when one item changes, only it re-renders, not the entire list", "correct": true },
+      { "text": "So that MobX can track array elements", "correct": false, "explanation": "MobX tracks array elements regardless. Splitting into separate observer components is needed to optimize React re-renders." },
+      { "text": "Because observer doesn't work with map()", "correct": false, "explanation": "observer works perfectly with map(). Splitting is needed not for functionality but for granular re-renders." },
+      { "text": "For code readability", "correct": false, "explanation": "Readability is a side benefit. The main reason is re-render optimization: without splitting, the entire list re-renders when one item changes." }
+    ]
+  }
+]

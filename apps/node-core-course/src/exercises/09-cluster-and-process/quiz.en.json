@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What type do all process.env values have?",
+    "type": "single",
+    "options": [
+      { "text": "string — all values are strings", "correct": true },
+      { "text": "Depends on value: numbers will be number, strings — string", "correct": false, "explanation": "All process.env values are strings. PORT=3000 will be \"3000\" (string), not 3000 (number)" },
+      { "text": "unknown — type must be checked", "correct": false, "explanation": "Type is always string (or undefined if not set). TypeScript types it as string | undefined" },
+      { "text": "any — depends on OS", "correct": false, "explanation": "Environment variables are always strings regardless of OS" }
+    ]
+  },
+  {
+    "question": "How does process.exit(1) differ from process.exitCode = 1?",
+    "type": "single",
+    "options": [
+      { "text": "exit() immediately terminates, exitCode waits for event loop to drain", "correct": true },
+      { "text": "They're aliases — no difference", "correct": false, "explanation": "exit() is hard immediate termination. exitCode is soft: Node.js exits when event loop empties" },
+      { "text": "exitCode throws an exception, exit() doesn't", "correct": false, "explanation": "exitCode simply sets the return code, no exceptions" },
+      { "text": "exit() only works in the main thread", "correct": false, "explanation": "process.exit() works in any context and immediately terminates the entire process" }
+    ]
+  },
+  {
+    "question": "Which signal CANNOT be caught in Node.js?",
+    "type": "single",
+    "options": [
+      { "text": "SIGKILL", "correct": true },
+      { "text": "SIGTERM", "correct": false, "explanation": "SIGTERM can and should be caught for graceful shutdown" },
+      { "text": "SIGINT", "correct": false, "explanation": "SIGINT (Ctrl+C) is caught via process.on('SIGINT', handler)" },
+      { "text": "SIGHUP", "correct": false, "explanation": "SIGHUP is catchable. Often used for config reload" }
+    ]
+  },
+  {
+    "question": "What must be included in graceful shutdown?",
+    "type": "multiple",
+    "options": [
+      { "text": "Timeout for force termination", "correct": true },
+      { "text": "Stop accepting new connections (server.close)", "correct": true },
+      { "text": "Close database connections", "correct": true },
+      { "text": "Immediate process.exit(0) call", "correct": false, "explanation": "Immediate exit doesn't wait for current operations — that's NOT graceful" },
+      { "text": "Restart process via fork", "correct": false, "explanation": "Restart is the process manager's job (PM2, systemd), not shutdown's" }
+    ]
+  },
+  {
+    "question": "Why can't you store sessions in worker memory when using cluster?",
+    "type": "single",
+    "options": [
+      { "text": "Each worker is a separate process with its own memory, sessions aren't visible to other workers", "correct": true },
+      { "text": "Cluster automatically clears worker memory", "correct": false, "explanation": "Cluster doesn't touch worker memory. The issue is different requests go to different workers" },
+      { "text": "Workers restart too frequently", "correct": false, "explanation": "Workers don't restart without reason. The issue is memory isolation between processes" },
+      { "text": "Node.js prohibits storing objects in cluster workers", "correct": false, "explanation": "Storing objects in worker memory is allowed. But other workers can't access them" }
+    ]
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Как RHF автоматически управляет состоянием isSubmitting?",
+    "type": "single",
+    "options": [
+      { "text": "Нужно вручную устанавливать isSubmitting через setState", "correct": false, "explanation": "RHF управляет isSubmitting автоматически, если onSubmit возвращает Promise" },
+      { "text": "isSubmitting = true пока Promise из onSubmit не завершится", "correct": true },
+      { "text": "isSubmitting всегда true после первой отправки", "correct": false, "explanation": "isSubmitting возвращается в false после завершения Promise" },
+      { "text": "isSubmitting управляется через formState.setSubmitting()", "correct": false, "explanation": "Такого метода нет — RHF управляет этим автоматически" }
+    ]
+  },
+  {
+    "question": "Как установить серверную ошибку для конкретного поля после неуспешного submit?",
+    "type": "single",
+    "options": [
+      { "text": "formState.errors.email = 'Ошибка'", "correct": false, "explanation": "formState.errors — только для чтения, нельзя присваивать напрямую" },
+      { "text": "setError('email', { message: 'Email уже занят' })", "correct": true },
+      { "text": "register('email', { error: 'Email уже занят' })", "correct": false, "explanation": "register не принимает параметр error" },
+      { "text": "throw new Error('Email уже занят')", "correct": false, "explanation": "throw прервёт выполнение, но не привяжет ошибку к конкретному полю" }
+    ]
+  },
+  {
+    "question": "Как установить общую ошибку формы (не привязанную к полю)?",
+    "type": "single",
+    "options": [
+      { "text": "setError('root', { message: 'Ошибка отправки' })", "correct": true },
+      { "text": "setError('form', { message: 'Ошибка' })", "correct": false, "explanation": "Для общей ошибки используется ключ 'root', а не 'form'" },
+      { "text": "setGlobalError('Ошибка')", "correct": false, "explanation": "Метода setGlobalError не существует — используйте setError('root', ...)" },
+      { "text": "formState.error = 'Ошибка'", "correct": false, "explanation": "formState нельзя изменять напрямую" }
+    ]
+  },
+  {
+    "question": "Какой подход используется для реализации debounce-автосохранения?",
+    "type": "single",
+    "options": [
+      { "text": "watch() + setTimeout/debounce для отправки данных", "correct": true },
+      { "text": "Отправка формы на каждый onChange", "correct": false, "explanation": "Без debounce это создаст слишком много запросов к серверу" },
+      { "text": "Встроенный метод useForm.autoSave()", "correct": false, "explanation": "В RHF нет встроенного autoSave — это реализуется через watch + debounce" },
+      { "text": "localStorage без серверных запросов", "correct": false, "explanation": "localStorage сохраняет локально, но автосохранение обычно подразумевает синхронизацию с сервером" }
+    ]
+  }
+]

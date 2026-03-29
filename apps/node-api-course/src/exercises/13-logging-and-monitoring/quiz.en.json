@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why do you need a correlation ID (request ID) in logs?",
+    "type": "single",
+    "options": [
+      { "text": "To link all logs of one HTTP request -- with parallel requests from different users, logs get interleaved, making it impossible to trace the chain without an ID", "correct": true },
+      { "text": "For request authentication -- request ID confirms authenticity", "correct": false, "explanation": "Request ID isn't related to authentication. It's a unique identifier for tracking: all logs of one request (middleware, service, DB) contain the same requestId" },
+      { "text": "To count requests per second", "correct": false, "explanation": "RPS is measured with metrics (Prometheus), not logs. Correlation ID links logs of one request. A single request can generate 10-50 log lines" },
+      { "text": "It's a GDPR requirement for tracking user data", "correct": false, "explanation": "GDPR doesn't require request IDs. Correlation ID is an engineering practice for debugging. Without it, finding all logs of a specific failed request is impossible" }
+    ]
+  },
+  {
+    "question": "What's the difference between liveness and readiness health checks?",
+    "type": "single",
+    "options": [
+      { "text": "Liveness -- 'is the process alive?' (restart on deadlock), Readiness -- 'can it serve traffic?' (remove from LB when DB is down)", "correct": true },
+      { "text": "Liveness checks CPU, readiness checks RAM", "correct": false, "explanation": "Neither is directly related to system resources. Liveness answers 'is the process stuck', readiness -- 'are dependencies working (DB, Redis, etc.)'" },
+      { "text": "Liveness for Kubernetes, readiness for Docker", "correct": false, "explanation": "Both are used in Kubernetes (and Docker health checks). The difference is in action: failed liveness → restart pod, failed readiness → remove from Service (no traffic)" },
+      { "text": "Liveness runs once per minute, readiness continuously", "correct": false, "explanation": "Interval is configurable (periodSeconds). Typically both check every 10-30 seconds. The difference isn't frequency but consequences of failure" }
+    ]
+  },
+  {
+    "question": "Why is Pino faster than Winston?",
+    "type": "single",
+    "options": [
+      { "text": "Pino uses a minimal JSON serializer and async writing -- up to 5x faster than Winston due to no synchronous transforms", "correct": true },
+      { "text": "Pino is written in C++, Winston in JavaScript", "correct": false, "explanation": "Both are written in JavaScript. Pino is faster due to architecture: minimal overhead, no transform chains, uses fast JSON.stringify" },
+      { "text": "Winston logs more data, so it's slower", "correct": false, "explanation": "Data volume depends on configuration, not the library. Pino is faster due to internal architecture: direct JSON write vs transform chain in Winston" },
+      { "text": "Pino doesn't support multiple transports, so it's faster", "correct": false, "explanation": "Pino supports transports via pino-transport (streams). But the main approach is one stdout stream with external routing (pino-pretty, pino-file)" }
+    ]
+  },
+  {
+    "question": "Why is redaction needed in a logger?",
+    "type": "single",
+    "options": [
+      { "text": "To automatically hide sensitive data (passwords, tokens, card numbers) -- they're replaced with [Redacted] and don't end up in log files", "correct": true },
+      { "text": "For log compression -- redaction reduces file size", "correct": false, "explanation": "Redaction doesn't compress data. It replaces values with '[Redacted]', which might even be longer than the original. The goal is security, not size" },
+      { "text": "For JSON format compliance -- some values can't be serialized", "correct": false, "explanation": "JSON serialization works for any strings. Redaction is about security: if log files leak, passwords and tokens won't be compromised" },
+      { "text": "Redaction speeds up logging by skipping long values", "correct": false, "explanation": "Redaction adds overhead (needs to check paths). It doesn't speed up logging. The goal is preventing sensitive data leaks through logs" }
+    ]
+  },
+  {
+    "question": "What should the readiness endpoint return when the DB is unavailable?",
+    "type": "single",
+    "options": [
+      { "text": "503 with details: which dependency failed, check responseTime, current uptime", "correct": true },
+      { "text": "200 -- service is running, DB is just temporarily unavailable", "correct": false, "explanation": "200 from readiness tells LB: 'send traffic'. But without DB, requests will fail with 500. Readiness should return 503 so LB stops sending traffic" },
+      { "text": "500 -- Internal Server Error", "correct": false, "explanation": "500 means server error. Readiness probe expects 200 (healthy) or non-200 (unhealthy). 503 Service Unavailable is the semantically correct status for 'not ready'" },
+      { "text": "404 -- endpoint not found, disable the check", "correct": false, "explanation": "404 is the wrong status. Readiness endpoint should always respond: 200 = healthy, 503 = not ready. Kubernetes interprets non-200 as unhealthy" }
+    ]
+  }
+]

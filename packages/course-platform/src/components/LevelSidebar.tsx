@@ -15,14 +15,24 @@ interface LevelSidebarProps {
 export function LevelSidebar({ currentLevel }: LevelSidebarProps) {
   const exercises = useExercisesConfig()
   const { t } = useLanguage()
-  const { getLevelProgress } = useProgress()
+  const { getLevelProgress, isQuizComplete } = useProgress()
 
   return (
     <div>
       <nav className={styles.nav}>
         {exercises.map(level => {
           const totalTasks = level.tasks.length
-          const isCompleted = totalTasks > 0 && getLevelProgress(level.levelId, totalTasks) === 100
+          const tasksComplete = totalTasks > 0 && getLevelProgress(level.levelId, totalTasks) === 100
+          const quizComplete = isQuizComplete(level.levelId)
+
+          let badge: { text: string; className: string } | null = null
+          if (tasksComplete && quizComplete) {
+            badge = { text: '✓✓', className: styles.checkmarkDouble }
+          } else if (tasksComplete) {
+            badge = { text: '✓', className: styles.checkmark }
+          } else if (quizComplete) {
+            badge = { text: '🧪', className: styles.checkmarkQuiz }
+          }
 
           return (
             <Link
@@ -33,7 +43,7 @@ export function LevelSidebar({ currentLevel }: LevelSidebarProps) {
                 ${currentLevel === level.levelId ? styles.buttonActive : styles.buttonInactive}
               `}
             >
-              {isCompleted && <span className={styles.checkmark}>✓</span>}
+              {badge && <span className={badge.className}>{badge.text}</span>}
               <div className={styles.buttonTitle}>
                 {t('nav.level')} {level.levelId}: {t(level.navKey)}
               </div>

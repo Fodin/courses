@@ -18,6 +18,18 @@ export interface LevelConfig {
   tasks: TaskEntry[]
 }
 
+export interface QuizOption {
+  text: string
+  correct: boolean
+  explanation?: string
+}
+
+export interface QuizQuestion {
+  question: string
+  type: 'single' | 'multiple'
+  options: QuizOption[]
+}
+
 export interface CourseConfig {
   courseId: string
   title: string

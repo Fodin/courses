@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What type of stream does the req (IncomingMessage) object represent in http.createServer?",
+    "type": "single",
+    "options": [
+      { "text": "Readable Stream -- request body data arrives in chunks via data/end events", "correct": true },
+      { "text": "Writable Stream -- the server response is written to it", "correct": false, "explanation": "Writable Stream is the res (ServerResponse) object. The req object is a Readable Stream from which the request body is read" },
+      { "text": "Duplex Stream -- reads and writes data simultaneously", "correct": false, "explanation": "req is only a Readable Stream. Duplex Streams are used in WebSocket and TCP connections, not in HTTP requests" },
+      { "text": "Transform Stream -- transforms data on the fly", "correct": false, "explanation": "Transform Streams are used for data transformation (e.g., compression). req is a Readable Stream for reading incoming data" }
+    ]
+  },
+  {
+    "question": "Why should you use fs.createReadStream().pipe(res) instead of fs.readFileSync() for serving large files?",
+    "type": "single",
+    "options": [
+      { "text": "readFileSync loads the entire file into RAM, while pipe transfers data in chunks (~64 KB), saving memory", "correct": true },
+      { "text": "readFileSync doesn't support binary files", "correct": false, "explanation": "readFileSync works perfectly with binary files. The problem is that for a 500 MB file, readFileSync loads all 500 MB into RAM simultaneously" },
+      { "text": "pipe is faster because it skips access permission checks", "correct": false, "explanation": "pipe doesn't skip any checks. Its advantage is streaming data in chunks with backpressure management, which is critical under high load" },
+      { "text": "readFileSync blocks the event loop, but pipe also blocks -- there's no difference", "correct": false, "explanation": "readFileSync does block the event loop. But pipe works asynchronously without blocking the event loop, plus saves memory through chunked transfer" }
+    ]
+  },
+  {
+    "question": "How do you properly protect against path traversal attacks (../../etc/passwd) when serving static files?",
+    "type": "single",
+    "options": [
+      { "text": "Use path.resolve() and verify the resulting path starts with publicDir", "correct": true },
+      { "text": "Check that the URL doesn't contain '..' characters", "correct": false, "explanation": "A simple '..' check is insufficient -- attackers can use URL encoding (%2e%2e), double encoding, or other bypasses. path.resolve() normalizes the path, and a startsWith check guarantees safety" },
+      { "text": "Use encodeURIComponent for the URL", "correct": false, "explanation": "encodeURIComponent encodes URLs for sending but doesn't protect against path traversal. You need path.resolve() + checking the path is within the allowed directory" },
+      { "text": "Reject requests longer than 100 characters", "correct": false, "explanation": "URL length limits don't protect against path traversal -- the attack ../../etc/passwd fits within 100 characters. You need path.resolve() + startsWith(publicDir)" }
+    ]
+  },
+  {
+    "question": "What happens if you don't call res.end() in the http.createServer handler?",
+    "type": "single",
+    "options": [
+      { "text": "The connection will hang until the client disconnects by timeout -- the browser will wait indefinitely", "correct": true },
+      { "text": "Node.js will automatically end the response after 30 seconds", "correct": false, "explanation": "Node.js doesn't auto-end responses. Without res.end(), the connection stays open until the client closes it by timeout or the user cancels the request" },
+      { "text": "The server will crash with ERR_RESPONSE_NOT_ENDED", "correct": false, "explanation": "No such error exists. Without res.end(), the connection simply remains open -- it's a resource leak, not a server crash" },
+      { "text": "The client will receive an empty response with code 200", "correct": false, "explanation": "Without res.end(), the client receives nothing -- the connection stays open waiting for data. An empty response is only sent with an explicit res.end() call" }
+    ]
+  },
+  {
+    "question": "Which Content-Type headers should be specified for different request body types?",
+    "type": "multiple",
+    "options": [
+      { "text": "application/json for JSON data", "correct": true },
+      { "text": "application/x-www-form-urlencoded for HTML forms", "correct": true },
+      { "text": "multipart/form-data for file uploads", "correct": true },
+      { "text": "text/html for all POST requests", "correct": false, "explanation": "text/html is a Content-Type for HTML pages in server responses. For POST requests, use application/json, application/x-www-form-urlencoded, or multipart/form-data depending on the data" }
+    ]
+  }
+]

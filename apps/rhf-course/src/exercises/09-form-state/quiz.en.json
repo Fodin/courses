@@ -1,0 +1,42 @@
+[
+  {
+    "question": "When does a field receive the touched status?",
+    "type": "single",
+    "options": [
+      { "text": "When the field value changes", "correct": false, "explanation": "Changing a value makes the field dirty, not touched" },
+      { "text": "When the field loses focus (blur)", "correct": true },
+      { "text": "When the field is clicked", "correct": false, "explanation": "Clicking sets focus, but touched fires when focus is lost" },
+      { "text": "When the form is submitted", "correct": false, "explanation": "Form submission does not directly update touchedFields" }
+    ]
+  },
+  {
+    "question": "What is the difference between dirty and touched?",
+    "type": "single",
+    "options": [
+      { "text": "dirty — field was interacted with, touched — field value was changed", "correct": false, "explanation": "It is the other way around: dirty means the value was changed, touched means the field lost focus" },
+      { "text": "dirty — the field value has been changed, touched — the field has lost focus at least once", "correct": true },
+      { "text": "They mean the same thing", "correct": false, "explanation": "These are different states: dirty tracks value changes, touched tracks focus loss" },
+      { "text": "dirty — for the whole form, touched — for individual fields", "correct": false, "explanation": "Both states exist at the field level (dirtyFields, touchedFields) and at the form level (isDirty)" }
+    ]
+  },
+  {
+    "question": "What does the reset() method do when called without arguments?",
+    "type": "single",
+    "options": [
+      { "text": "Clears all fields to empty strings", "correct": false, "explanation": "reset() without arguments resets to defaultValues, not to empty strings" },
+      { "text": "Resets the form to the values from defaultValues", "correct": true },
+      { "text": "Removes all registered fields", "correct": false, "explanation": "reset() does not remove fields — it only resets values and states" },
+      { "text": "Reloads the page", "correct": false, "explanation": "reset() only affects the form and does not touch the page" }
+    ]
+  },
+  {
+    "question": "Which options can be passed to reset() for a partial reset?",
+    "type": "multiple",
+    "options": [
+      { "text": "keepErrors — keep validation errors", "correct": true },
+      { "text": "keepDirty — keep dirty flags", "correct": true },
+      { "text": "keepTouched — keep touched flags", "correct": true },
+      { "text": "keepFocus — keep the current focus", "correct": false, "explanation": "keepFocus is not an option of reset() — focus is not managed through reset" }
+    ]
+  }
+]

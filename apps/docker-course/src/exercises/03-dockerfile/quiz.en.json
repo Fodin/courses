@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the key difference between ENV and ARG in Dockerfile?",
+    "type": "single",
+    "options": [
+      { "text": "ENV is available both during build and in the running container, while ARG is only available during build", "correct": true },
+      { "text": "ARG is available in the container, while ENV is only available during build", "correct": false, "explanation": "It's the opposite: ARG is only available during build (docker build), while ENV is available during both build and runtime" },
+      { "text": "No difference — they are synonyms", "correct": false, "explanation": "These are different instructions with different scopes. ARG is for build-time, ENV is for runtime" },
+      { "text": "ENV can be overridden with --build-arg, and ARG with -e", "correct": false, "explanation": "It's the opposite: ARG is overridden with --build-arg, and ENV with -e during docker run" }
+    ]
+  },
+  {
+    "question": "Why is the exec form of CMD recommended over the shell form?",
+    "type": "single",
+    "options": [
+      { "text": "In exec form, the process gets PID 1 and correctly handles signals (SIGTERM)", "correct": true },
+      { "text": "Shell form is not supported in modern Docker versions", "correct": false, "explanation": "Shell form is supported, but has a drawback: the process runs via /bin/sh which gets PID 1 and doesn't forward signals to the child process" },
+      { "text": "Exec form is faster", "correct": false, "explanation": "The speed difference is minimal. The main advantage is correct signal handling for graceful shutdown" },
+      { "text": "Shell form doesn't support arguments", "correct": false, "explanation": "Shell form supports arguments, but the issue is signal handling, not arguments" }
+    ]
+  },
+  {
+    "question": "What is a multi-stage build and what problem does it solve?",
+    "type": "single",
+    "options": [
+      { "text": "Using multiple FROM instructions in a Dockerfile to separate build stages and reduce the final image size", "correct": true },
+      { "text": "Building multiple images in parallel", "correct": false, "explanation": "Multi-stage build uses multiple stages in one Dockerfile, not parallel builds of different images" },
+      { "text": "Building an image for multiple operating systems", "correct": false, "explanation": "That's multi-platform build (buildx). Multi-stage is a multi-step build in one Dockerfile for size optimization" },
+      { "text": "Automatically updating the base image on every build", "correct": false, "explanation": "Multi-stage build doesn't update base images. It allows copying artifacts from one stage to another" }
+    ]
+  },
+  {
+    "question": "When should you use ADD instead of COPY?",
+    "type": "single",
+    "options": [
+      { "text": "Only when you need automatic extraction of local tar archives", "correct": true },
+      { "text": "Always — ADD is more functional than COPY", "correct": false, "explanation": "Docker recommends using COPY by default as it's more predictable. ADD has non-obvious side effects (extraction, URL download)" },
+      { "text": "For downloading files from the internet", "correct": false, "explanation": "Although ADD supports URLs, it's better to use RUN curl or RUN wget — it's more explicit and controllable" },
+      { "text": "For copying files with specific permissions", "correct": false, "explanation": "Both COPY and ADD support --chown for ownership. Use COPY for changing permissions" }
+    ]
+  },
+  {
+    "question": "What happens if you define ARG before FROM but use it after?",
+    "type": "single",
+    "options": [
+      { "text": "The variable will be empty — ARG before FROM is only accessible in the FROM instruction", "correct": true },
+      { "text": "Everything will work correctly", "correct": false, "explanation": "ARG before FROM has scope only up to the first FROM. After FROM a new stage begins, and ARG must be redeclared" },
+      { "text": "Docker will throw a build error", "correct": false, "explanation": "There won't be an error — the variable will simply be empty, which can lead to non-obvious issues" },
+      { "text": "ARG is automatically converted to ENV", "correct": false, "explanation": "No automatic conversion happens. To pass ARG to ENV you must explicitly write ENV VAR=${ARG_VAR}" }
+    ]
+  }
+]

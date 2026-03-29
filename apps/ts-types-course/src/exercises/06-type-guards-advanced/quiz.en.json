@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What is the difference between a type predicate (is) and an assertion function (asserts)?",
+    "type": "single",
+    "options": [
+      { "text": "Type predicate returns boolean and is used in if, assertion throws an error or narrows the type after the call", "correct": true },
+      { "text": "Type predicate only works with primitives, assertion — with objects", "correct": false, "explanation": "Both mechanisms work with any types — primitives and objects. The difference is in usage pattern (if vs throw)" },
+      { "text": "Assertion functions are faster because they don't return a value", "correct": false, "explanation": "The difference isn't in performance but in semantics: predicate is a check (is?), assertion is a guarantee (must be!)" },
+      { "text": "Type predicate narrows the type only in the true branch, assertion narrows in both branches", "correct": false, "explanation": "Assertion doesn't have 'branches' — after a successful call the type is narrowed, on error an exception is thrown" }
+    ]
+  },
+  {
+    "question": "Why doesn't TypeScript narrow the type when using Array.filter without a type predicate?",
+    "type": "single",
+    "options": [
+      { "text": "filter takes a callback with boolean return type, and TypeScript cannot infer narrowing from an arbitrary boolean expression", "correct": true },
+      { "text": "filter always returns an array of the same type by specification", "correct": false, "explanation": "TypeScript has a filter overload with type predicate that returns an array of the narrowed type. But an explicit predicate is needed" },
+      { "text": "This is a TypeScript bug that will be fixed in future versions", "correct": false, "explanation": "This isn't a bug — TypeScript correctly handles type predicates. Without an explicit predicate, the compiler cannot guarantee narrowing" },
+      { "text": "filter only works with primitive types", "correct": false, "explanation": "filter works with any types. Narrowing depends on the type predicate in the callback, not on the element type" }
+    ]
+  },
+  {
+    "question": "What happens if a type predicate promises a type but the runtime check is incomplete?",
+    "type": "single",
+    "options": [
+      { "text": "TypeScript will trust the predicate and narrow the type, but a runtime error may occur due to the mismatch", "correct": true },
+      { "text": "TypeScript will produce a compilation error", "correct": false, "explanation": "TypeScript doesn't verify the correctness of runtime checks inside a type guard — it trusts the return type annotation" },
+      { "text": "The program won't compile", "correct": false, "explanation": "TypeScript fully trusts the type predicate. The responsibility for check correctness lies with the developer" },
+      { "text": "TypeScript will automatically add the missing checks", "correct": false, "explanation": "TypeScript doesn't modify runtime code. A type predicate is the developer's promise to the compiler" }
+    ]
+  },
+  {
+    "question": "Which of the following statements about assertion functions are true?",
+    "type": "multiple",
+    "options": [
+      { "text": "An assertion function must either throw an error or return void", "correct": true },
+      { "text": "After a successful assertion function call, TypeScript narrows the variable's type", "correct": true },
+      { "text": "Assertion functions cannot be async", "correct": true },
+      { "text": "Assertion functions can return boolean instead of void", "correct": false, "explanation": "asserts functions always return void. If you need boolean — use a type predicate (is)" },
+      { "text": "Assertion functions only work with the unknown type", "correct": false, "explanation": "Assertion functions work with any types: unknown, union types, generic parameters, etc." }
+    ]
+  },
+  {
+    "question": "How do you create a generic type guard that checks for a property on an unknown object?",
+    "type": "single",
+    "options": [
+      { "text": "function hasProperty<K extends string>(obj: unknown, key: K): obj is Record<K, unknown> with check typeof obj === 'object' && obj !== null && key in obj", "correct": true },
+      { "text": "function hasProperty(obj: unknown, key: string): boolean with check obj[key] !== undefined", "correct": false, "explanation": "Without a type predicate (is), the function doesn't narrow the type. Also obj[key] causes a TypeScript error since unknown can't be indexed" },
+      { "text": "function hasProperty<K>(obj: Record<K, unknown>, key: K): boolean", "correct": false, "explanation": "This variant doesn't accept unknown — it already requires Record, which defeats the purpose of checking unknown data" },
+      { "text": "function hasProperty(obj: object, key: string): obj is { [key]: unknown }", "correct": false, "explanation": "Computed properties can't be used in a type predicate this way. You need Record<K, unknown> with generic K" }
+    ]
+  }
+]

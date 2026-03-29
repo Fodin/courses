@@ -1,0 +1,54 @@
+[
+  {
+    "question": "What is the main difference between exec and execFile?",
+    "type": "single",
+    "options": [
+      { "text": "exec runs commands through a shell, execFile runs directly", "correct": true },
+      { "text": "exec is synchronous, execFile is asynchronous", "correct": false, "explanation": "Both methods are asynchronous. Synchronous versions are execSync and execFileSync" },
+      { "text": "exec returns a Promise, execFile does not", "correct": false, "explanation": "Both use callbacks. Promise versions are available via util.promisify" },
+      { "text": "execFile cannot run binary files", "correct": false, "explanation": "execFile runs binary files directly, without a shell" }
+    ]
+  },
+  {
+    "question": "What happens when maxBuffer is exceeded in exec?",
+    "type": "single",
+    "options": [
+      { "text": "callback receives Error with 'stdout maxBuffer length exceeded' message", "correct": true },
+      { "text": "Output is truncated to maxBuffer and callback receives partial stdout", "correct": false, "explanation": "exec does not truncate output — it terminates the process with an error when the limit is exceeded" },
+      { "text": "Node.js crashes with out of memory", "correct": false, "explanation": "maxBuffer prevents OOM — it triggers a controlled error before memory runs out" },
+      { "text": "Process continues but stdout is empty", "correct": false, "explanation": "The child process is forcefully terminated when the limit is exceeded" }
+    ]
+  },
+  {
+    "question": "What are the advantages of spawn over exec?",
+    "type": "multiple",
+    "options": [
+      { "text": "Streaming data output via stdout/stderr streams", "correct": true },
+      { "text": "No maxBuffer limitation", "correct": true },
+      { "text": "Suitable for long processes with large output", "correct": true },
+      { "text": "Automatically creates an IPC channel", "correct": false, "explanation": "IPC is only created automatically in fork. In spawn you must explicitly specify stdio: ['pipe', 'pipe', 'pipe', 'ipc']" },
+      { "text": "Always faster than exec", "correct": false, "explanation": "For short commands exec can be more convenient and not slower — the difference is in streaming, not startup speed" }
+    ]
+  },
+  {
+    "question": "What does child.unref() do together with detached: true?",
+    "type": "single",
+    "options": [
+      { "text": "Allows the parent process to exit without waiting for the child", "correct": true },
+      { "text": "Kills the child process", "correct": false, "explanation": "unref() does not kill the process — it removes it from the parent's event loop reference count" },
+      { "text": "Disconnects the IPC channel", "correct": false, "explanation": "Use child.disconnect() to disconnect IPC, not unref()" },
+      { "text": "Puts the process into OS background mode", "correct": false, "explanation": "detached: true creates a new process group. unref() simply allows the parent not to wait for this process" }
+    ]
+  },
+  {
+    "question": "What cannot be sent through IPC in fork?",
+    "type": "multiple",
+    "options": [
+      { "text": "Functions", "correct": true },
+      { "text": "Objects with circular references", "correct": true },
+      { "text": "Strings and numbers", "correct": false, "explanation": "Primitive types serialize to JSON perfectly and are transmitted through IPC" },
+      { "text": "Nested objects", "correct": false, "explanation": "Nested objects serialize to JSON without issues as long as there are no circular references" },
+      { "text": "Symbol and WeakMap", "correct": true }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Сколько членов будет в union-типе `${A}-${B}`, если type A = 'x' | 'y' | 'z' и type B = '1' | '2'?",
+    "type": "single",
+    "options": [
+      { "text": "6 (декартово произведение: 3 * 2)", "correct": true },
+      { "text": "5 (сумма: 3 + 2)", "correct": false, "explanation": "Template literals создают декартово произведение (все комбинации), а не сумму. Каждый вариант A комбинируется с каждым вариантом B" },
+      { "text": "3 (берётся максимум из двух union)", "correct": false, "explanation": "TypeScript не берёт максимум — он создаёт все возможные комбинации. 'x-1', 'x-2', 'y-1', 'y-2', 'z-1', 'z-2'" },
+      { "text": "2 (берётся минимум из двух union)", "correct": false, "explanation": "Template literal types всегда создают полное декартово произведение всех union-членов" }
+    ]
+  },
+  {
+    "question": "Что вернёт тип Capitalize<'hello' | 'world'>?",
+    "type": "single",
+    "options": [
+      { "text": "'Hello' | 'World' — Capitalize распределяется по union", "correct": true },
+      { "text": "'Hello' — применяется только к первому члену", "correct": false, "explanation": "Встроенные string manipulation types распределяются по union-типам, применяясь к каждому члену отдельно" },
+      { "text": "'HELLO' | 'WORLD' — переводит всю строку в верхний регистр", "correct": false, "explanation": "Capitalize делает заглавной только первую букву. Для верхнего регистра всей строки используется Uppercase" },
+      { "text": "string — теряет литеральный тип", "correct": false, "explanation": "Capitalize сохраняет литеральный тип, трансформируя только первый символ каждого члена union" }
+    ]
+  },
+  {
+    "question": "Что произойдёт с типом `${number}px`?",
+    "type": "single",
+    "options": [
+      { "text": "Создаст тип, принимающий любую строку формата '<число>px'", "correct": true },
+      { "text": "Ошибка компиляции — number нельзя использовать в template literal", "correct": false, "explanation": "TypeScript допускает number, string, boolean, bigint и null/undefined в template literal types. number создаёт шаблон для любого числа" },
+      { "text": "Создаст union из всех возможных чисел с суффиксом px", "correct": false, "explanation": "TypeScript не перечисляет все числа — number в template literal создаёт паттерн, а не конечный union" },
+      { "text": "Создаст тип string", "correct": false, "explanation": "Тип сохраняет структуру шаблона. '100px' будет совместим, а '100' или 'px' — нет" }
+    ]
+  },
+  {
+    "question": "Как работает infer в template literal: S extends `${infer Head}-${infer Tail}` ? [Head, Tail] : [S]?",
+    "type": "single",
+    "options": [
+      { "text": "Head захватывает всё до первого '-', Tail — всё после первого '-'", "correct": true },
+      { "text": "Head захватывает первый символ, Tail — последний", "correct": false, "explanation": "infer в template literal захватывает подстроки относительно разделителя. Head = всё до первого '-', Tail = всё после него" },
+      { "text": "Head и Tail делят строку пополам", "correct": false, "explanation": "Разделение происходит по разделителю '-', а не по позиции. Для 'a-b-c': Head = 'a', Tail = 'b-c'" },
+      { "text": "Ошибка — в template literal нельзя использовать два infer", "correct": false, "explanation": "В template literal можно использовать несколько infer. Каждый захватывает свою часть строки" }
+    ]
+  },
+  {
+    "question": "Почему нужно писать K & string при использовании Capitalize в mapped type с keyof?",
+    "type": "single",
+    "options": [
+      { "text": "keyof T может содержать number и symbol, а Capitalize работает только со string", "correct": true },
+      { "text": "Это TypeScript-баг, который будет исправлен в будущих версиях", "correct": false, "explanation": "Это не баг, а следствие того, что ключи объекта могут быть string, number или symbol. Intersection K & string отфильтровывает нестроковые ключи" },
+      { "text": "Без & string Capitalize вернёт never", "correct": false, "explanation": "Без & string произойдёт ошибка компиляции (Type 'K' does not satisfy the constraint 'string'), а не never" },
+      { "text": "& string конвертирует number-ключи в строковые", "correct": false, "explanation": "& string не конвертирует, а пересекает. Числовые ключи (number) не пересекаются со string, поэтому они просто исключаются из результата" }
+    ]
+  }
+]

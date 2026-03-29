@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What happens when emitter.emit('error', new Error('boom')) is called without an error handler?",
+    "type": "single",
+    "options": [
+      { "text": "The Node.js process crashes with an unhandled error", "correct": true },
+      { "text": "The error is silently ignored", "correct": false, "explanation": "Unlike regular events, 'error' without a handler causes a process crash. This is intentional for safety" },
+      { "text": "The error goes to process.on('uncaughtException')", "correct": false, "explanation": "The error from emit('error') is thrown, but doesn't necessarily reach uncaughtException — depends on context" },
+      { "text": "emit() returns false and continues", "correct": false, "explanation": "For regular events, emit() returns false with no listeners. But for 'error', it throws an exception" }
+    ]
+  },
+  {
+    "question": "How are EventEmitter listeners called during emit()?",
+    "type": "single",
+    "options": [
+      { "text": "Synchronously, in registration order", "correct": true },
+      { "text": "Asynchronously, via microtask queue", "correct": false, "explanation": "emit() calls listeners synchronously. Code after emit() executes only after all listeners complete" },
+      { "text": "In parallel in the thread pool", "correct": false, "explanation": "Listeners execute in the main thread sequentially, not in parallel" },
+      { "text": "In random order", "correct": false, "explanation": "Order is strictly defined — FIFO (First In, First Out), in the order added via on()" }
+    ]
+  },
+  {
+    "question": "What is MaxListenersExceededWarning?",
+    "type": "single",
+    "options": [
+      { "text": "A warning about possible memory leak when >10 listeners on one event", "correct": true },
+      { "text": "An error that stops program execution", "correct": false, "explanation": "It's a warning, not an error. The program continues. The limit can be changed via setMaxListeners()" },
+      { "text": "A limit on the total number of events in an emitter", "correct": false, "explanation": "It limits listeners per event, not the number of different events" },
+      { "text": "A warning that only appears in development mode", "correct": false, "explanation": "The warning appears in any mode. Use setMaxListeners() to suppress it" }
+    ]
+  },
+  {
+    "question": "How does events.once() differ from emitter.once()?",
+    "type": "single",
+    "options": [
+      { "text": "events.once() returns a Promise, emitter.once() takes a callback", "correct": true },
+      { "text": "They are functionally identical", "correct": false, "explanation": "events.once() is a Promise-based API from the events module. It enables await and automatically handles errors" },
+      { "text": "events.once() can listen to multiple events", "correct": false, "explanation": "events.once() also listens to a single event, but returns a Promise instead of using a callback" },
+      { "text": "emitter.once() only works with error events", "correct": false, "explanation": "emitter.once() works with any event, not just error" }
+    ]
+  }
+]

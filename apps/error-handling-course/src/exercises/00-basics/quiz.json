@@ -1,0 +1,54 @@
+[
+  {
+    "question": "Что произойдёт, если в блоке try не возникнет ошибки?",
+    "type": "single",
+    "options": [
+      { "text": "Блок catch будет пропущен", "correct": true },
+      { "text": "Блок catch выполнится с error равным null", "correct": false, "explanation": "catch выполняется только при возникновении ошибки, он не вызывается с null" },
+      { "text": "Программа выбросит ошибку, потому что catch ожидает ошибку", "correct": false, "explanation": "catch — это необязательный обработчик, он просто пропускается при отсутствии ошибки" },
+      { "text": "Блок finally не выполнится", "correct": false, "explanation": "Блок finally выполняется всегда — и при успехе, и при ошибке" }
+    ]
+  },
+  {
+    "question": "Почему плохо бросать строку вместо объекта Error?",
+    "type": "multiple",
+    "options": [
+      { "text": "Теряется стек вызовов (stack trace)", "correct": true },
+      { "text": "instanceof Error вернёт false", "correct": true },
+      { "text": "JavaScript не позволяет бросать строки", "correct": false, "explanation": "JavaScript позволяет бросать throw с любым значением, включая строки и числа" },
+      { "text": "Невозможно определить, где произошла ошибка", "correct": true },
+      { "text": "Строка автоматически преобразуется в объект Error", "correct": false, "explanation": "Строка не преобразуется автоматически — она остаётся строкой в catch" }
+    ]
+  },
+  {
+    "question": "Какие свойства есть у объекта Error?",
+    "type": "multiple",
+    "options": [
+      { "text": "name", "correct": true },
+      { "text": "message", "correct": true },
+      { "text": "stack", "correct": true },
+      { "text": "code", "correct": false, "explanation": "Свойство code не является стандартным свойством объекта Error — его можно добавить в кастомном классе" },
+      { "text": "type", "correct": false, "explanation": "Свойство type не входит в стандартный объект Error" }
+    ]
+  },
+  {
+    "question": "Какой тип имеет параметр error в блоке catch в TypeScript?",
+    "type": "single",
+    "options": [
+      { "text": "Error", "correct": false, "explanation": "TypeScript не может гарантировать, что в catch попадёт именно экземпляр Error — может быть любое значение" },
+      { "text": "unknown", "correct": true },
+      { "text": "any", "correct": false, "explanation": "С TypeScript 4.0+ параметр catch по умолчанию имеет тип unknown, а не any" },
+      { "text": "string", "correct": false, "explanation": "В catch может попасть значение любого типа, не обязательно строка" }
+    ]
+  },
+  {
+    "question": "Что не так с пустым блоком catch?",
+    "type": "single",
+    "options": [
+      { "text": "Это синтаксическая ошибка", "correct": false, "explanation": "Пустой catch — валидный синтаксис JavaScript" },
+      { "text": "Ошибка полностью скрывается, баги становятся невидимыми", "correct": true },
+      { "text": "Программа автоматически завершится", "correct": false, "explanation": "Пустой catch не завершает программу — наоборот, он позволяет ей продолжить работу с невалидным состоянием" },
+      { "text": "Блок finally перестаёт работать", "correct": false, "explanation": "Пустой catch никак не влияет на работу finally — он выполнится в любом случае" }
+    ]
+  }
+]

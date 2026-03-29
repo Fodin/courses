@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Как реализовать async-валидацию поля в React Hook Form?",
+    "type": "single",
+    "options": [
+      { "text": "Через параметр asyncValidate в register", "correct": false, "explanation": "Такого параметра нет — используйте validate с async-функцией" },
+      { "text": "Через validate с async-функцией в register", "correct": true },
+      { "text": "Через отдельный useEffect", "correct": false, "explanation": "useEffect можно использовать, но стандартный путь — async validate в register" },
+      { "text": "Async-валидация невозможна в RHF", "correct": false, "explanation": "RHF полностью поддерживает async-валидацию" }
+    ]
+  },
+  {
+    "question": "Как загрузить данные в форму для редактирования?",
+    "type": "single",
+    "options": [
+      { "text": "Через setValue для каждого поля вручную", "correct": false, "explanation": "Хотя это работает, более правильный подход — использовать reset() или async defaultValues" },
+      { "text": "Через reset() с данными или async defaultValues в useForm", "correct": true },
+      { "text": "Через localStorage", "correct": false, "explanation": "localStorage — для сохранения черновиков, а не для загрузки данных с сервера" },
+      { "text": "Через props компонента формы", "correct": false, "explanation": "Props не интегрируются напрямую с useForm — используйте reset() или defaultValues" }
+    ]
+  },
+  {
+    "question": "Что происходит с formState.isLoading при использовании async defaultValues?",
+    "type": "single",
+    "options": [
+      { "text": "isLoading всегда false", "correct": false, "explanation": "При async defaultValues isLoading становится true до завершения загрузки" },
+      { "text": "isLoading становится true пока Promise defaultValues не разрешится", "correct": true },
+      { "text": "isLoading не существует в formState", "correct": false, "explanation": "isLoading — валидное свойство formState" },
+      { "text": "isLoading управляется только вручную", "correct": false, "explanation": "RHF автоматически управляет isLoading при async defaultValues" }
+    ]
+  },
+  {
+    "question": "Какие методы RHF используются для ручного управления ошибками при async-операциях?",
+    "type": "multiple",
+    "options": [
+      { "text": "setError — установить ошибку для поля", "correct": true },
+      { "text": "clearErrors — очистить ошибки", "correct": true },
+      { "text": "removeError — удалить конкретную ошибку", "correct": false, "explanation": "Метода removeError не существует — используйте clearErrors()" },
+      { "text": "trigger — запустить валидацию вручную", "correct": true }
+    ]
+  }
+]

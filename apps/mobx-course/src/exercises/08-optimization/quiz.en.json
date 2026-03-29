@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Why is rendering all list items in a single observer component inefficient?",
+    "type": "single",
+    "options": [
+      { "text": "When one item changes, the entire list re-renders, not just the changed item", "correct": true },
+      { "text": "MobX can't track array elements inside a single observer", "correct": false, "explanation": "MobX tracks array elements regardless. The issue is that React re-renders the entire component, including all list items." },
+      { "text": "observer doesn't work with the map() method", "correct": false, "explanation": "observer works perfectly with map(). The problem isn't map() but that one observer component = one re-render block." },
+      { "text": "The list can only contain 100 elements", "correct": false, "explanation": "MobX doesn't limit the number of elements. The issue is re-render performance with a large number of elements." }
+    ]
+  },
+  {
+    "question": "What does intercept do when the handler returns null?",
+    "type": "single",
+    "options": [
+      { "text": "Cancels the change — the observable is not updated", "correct": true },
+      { "text": "Sets the value to null", "correct": false, "explanation": "Returning null from an intercept handler means 'cancel the change', not 'set to null'. The observable keeps its previous value." },
+      { "text": "Removes the property from the object", "correct": false, "explanation": "intercept doesn't remove properties. Returning null is a signal to cancel the change." },
+      { "text": "Throws a MobX error", "correct": false, "explanation": "Returning null is a legitimate way to cancel a change in intercept. There will be no error." }
+    ]
+  },
+  {
+    "question": "What is the key difference between intercept and observe?",
+    "type": "single",
+    "options": [
+      { "text": "intercept fires BEFORE the change is applied and can cancel it, observe fires AFTER and cannot", "correct": true },
+      { "text": "intercept works synchronously, observe works asynchronously", "correct": false, "explanation": "Both work synchronously. The difference is the timing: intercept before application, observe after." },
+      { "text": "intercept is for arrays, observe is for objects", "correct": false, "explanation": "Both work with arrays, objects, and individual properties. The difference is in timing and capabilities." },
+      { "text": "observe replaces autorun, and intercept replaces reaction", "correct": false, "explanation": "observe and intercept don't replace autorun/reaction. They're low-level APIs for intercepting (intercept) and observing (observe) changes to specific properties." }
+    ]
+  },
+  {
+    "question": "Why shouldn't you mutate other observables inside intercept?",
+    "type": "single",
+    "options": [
+      { "text": "Mutations inside intercept can lead to unpredictable update ordering and infinite loops", "correct": true },
+      { "text": "MobX will throw an error on any mutation inside intercept", "correct": false, "explanation": "MobX doesn't always throw an error, but mutations inside intercept are an anti-pattern because intercept is called before applying the current change, and mutations to other observables break predictability." },
+      { "text": "intercept doesn't have access to other observables", "correct": false, "explanation": "intercept is a regular JavaScript function with closure access. Technically you can access any observable, but mutating them inside intercept is dangerous." },
+      { "text": "This is a TypeScript limitation", "correct": false, "explanation": "TypeScript doesn't restrict mutations inside intercept. This is an architectural rule of MobX: intercept is intended only for validating and modifying the current change object." }
+    ]
+  },
+  {
+    "question": "What tasks is observe best suited for?",
+    "type": "multiple",
+    "options": [
+      { "text": "Logging changes", "correct": true },
+      { "text": "Auditing — recording change history", "correct": true },
+      { "text": "Sending analytics when a specific property changes", "correct": true },
+      { "text": "Validating data before changes", "correct": false, "explanation": "For validation before changes, use intercept, not observe. observe fires AFTER the change — it can't be cancelled." },
+      { "text": "Blocking invalid values", "correct": false, "explanation": "observe can't block changes — it fires after they're applied. Use intercept for blocking." }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Какой тип монтирования рекомендуется для хранения данных базы данных в production?",
+    "type": "single",
+    "options": [
+      { "text": "Named volumes (именованные тома)", "correct": true },
+      { "text": "Bind mounts", "correct": false, "explanation": "Bind mounts привязаны к конкретному пути на хосте и рекомендуются для разработки, а не для production-данных" },
+      { "text": "tmpfs", "correct": false, "explanation": "tmpfs хранит данные только в RAM — при остановке контейнера все данные будут потеряны" },
+      { "text": "Запись в writable layer контейнера", "correct": false, "explanation": "Данные в writable layer теряются при удалении контейнера. Это не подходит для персистентных данных" }
+    ]
+  },
+  {
+    "question": "Чем отличается синтаксис -v от --mount?",
+    "type": "multiple",
+    "options": [
+      { "text": "--mount более явный и самодокументирующийся", "correct": true },
+      { "text": "--mount возвращает ошибку, если путь не существует, а -v тихо создаёт директорию", "correct": true },
+      { "text": "-v не поддерживает именованные тома", "correct": false, "explanation": "-v поддерживает и именованные тома (-v mydata:/data), и bind mounts (-v /host/path:/container/path)" },
+      { "text": "--mount рекомендуется для скриптов и CI/CD", "correct": true }
+    ]
+  },
+  {
+    "question": "Для чего используется tmpfs-монтирование?",
+    "type": "multiple",
+    "options": [
+      { "text": "Для хранения секретов, которые не должны попадать на диск", "correct": true },
+      { "text": "Для временных файлов с высокой скоростью I/O", "correct": true },
+      { "text": "Для долгосрочного хранения данных базы", "correct": false, "explanation": "tmpfs хранит данные только в оперативной памяти. При остановке контейнера все данные исчезают" },
+      { "text": "Для кэша и сессий, которые не нужно сохранять между перезапусками", "correct": true }
+    ]
+  },
+  {
+    "question": "Что делает флаг :ro при монтировании тома?",
+    "type": "single",
+    "options": [
+      { "text": "Делает монтирование доступным только для чтения внутри контейнера", "correct": true },
+      { "text": "Включает ротацию данных тома", "correct": false, "explanation": ":ro означает read-only — контейнер не сможет записывать данные в этот том" },
+      { "text": "Создаёт том в режиме root-only", "correct": false, "explanation": ":ro означает read-only (только чтение), а не root-only" },
+      { "text": "Автоматически создаёт бэкап тома", "correct": false, "explanation": ":ro просто запрещает запись. Бэкапы нужно создавать вручную через docker run с tar" }
+    ]
+  },
+  {
+    "question": "Почему docker run -v ./src:/app/src может не работать как ожидалось?",
+    "type": "single",
+    "options": [
+      { "text": "Docker может интерпретировать относительный путь как имя тома, а не как bind mount", "correct": true },
+      { "text": "Флаг -v не поддерживает bind mounts", "correct": false, "explanation": "-v поддерживает bind mounts, но требует абсолютного пути. Используйте $(pwd)/src вместо ./src" },
+      { "text": "Директория src должна быть пустой", "correct": false, "explanation": "Bind mount работает с любым содержимым директории. Проблема в синтаксисе пути" },
+      { "text": "Нужно предварительно создать том командой docker volume create", "correct": false, "explanation": "Для bind mount том не нужен. Проблема в том, что Docker различает тома и bind mounts по формату пути" }
+    ]
+  }
+]

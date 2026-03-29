@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что произойдёт при компиляции: function getLength<T>(val: T) { return val.length }?",
+    "type": "single",
+    "options": [
+      { "text": "Ошибка: Property 'length' does not exist on type 'T'", "correct": true },
+      { "text": "Код скомпилируется, length будет undefined для типов без length", "correct": false, "explanation": "TypeScript не позволяет обращаться к свойствам, которые не гарантированы типом. Без constraint T может быть любым типом" },
+      { "text": "Код скомпилируется, TypeScript автоматически добавит constraint HasLength", "correct": false, "explanation": "TypeScript никогда автоматически не добавляет constraints. Нужно явно указать T extends { length: number }" },
+      { "text": "Код скомпилируется с warning", "correct": false, "explanation": "TypeScript не имеет warnings — только ошибки. Обращение к несуществующему свойству — всегда ошибка" }
+    ]
+  },
+  {
+    "question": "Какой тип вернёт вызов getProperty(user, 'age'), если user: { name: string, age: number } и getProperty<T, K extends keyof T>(obj: T, key: K): T[K]?",
+    "type": "single",
+    "options": [
+      { "text": "number", "correct": true },
+      { "text": "string | number", "correct": false, "explanation": "T[K] — это indexed access type. Когда K = 'age', T['age'] = number. TypeScript не расширяет тип до объединения всех свойств" },
+      { "text": "unknown", "correct": false, "explanation": "T[K] точно соответствует типу конкретного свойства, а не unknown. В данном случае K конкретизируется как 'age'" },
+      { "text": "string | number | undefined", "correct": false, "explanation": "TypeScript знает, что 'age' — существующий ключ (благодаря K extends keyof T), поэтому undefined не добавляется" }
+    ]
+  },
+  {
+    "question": "Какие из следующих объявлений generic-типов корректны?",
+    "type": "multiple",
+    "options": [
+      { "text": "interface A<T, U = string> {}", "correct": true },
+      { "text": "interface B<T extends object, U extends keyof T = keyof T> {}", "correct": true },
+      { "text": "interface C<T = string, U> {}", "correct": false, "explanation": "Обязательные (без дефолта) параметры не могут следовать за необязательными (с дефолтом). U без дефолта идёт после T с дефолтом" },
+      { "text": "interface D<T extends U, U = object> {}", "correct": false, "explanation": "Параметр T ссылается на U в constraint, но U объявлен позже. Хотя технически TS это разрешает в некоторых случаях, это приводит к непредсказуемому поведению" }
+    ]
+  },
+  {
+    "question": "Когда НЕ нужно использовать generic-параметр?",
+    "type": "single",
+    "options": [
+      { "text": "Когда параметр используется только в одной позиции (только в аргументе или только в возврате)", "correct": true },
+      { "text": "Когда функция принимает объект с известной структурой", "correct": false, "explanation": "Generic может быть полезен даже для объектов с известной структурой, если нужно сохранить точный тип (например, для builder-паттерна)" },
+      { "text": "Когда функция возвращает void", "correct": false, "explanation": "Функция с void может всё ещё нуждаться в generic для связи типов нескольких параметров между собой" },
+      { "text": "Когда тип можно заменить на any", "correct": false, "explanation": "Замена generic на any — это антипаттерн, который теряет типобезопасность. Если generic не нужен, лучше использовать unknown" }
+    ]
+  },
+  {
+    "question": "Что делает конструкция new (...args: TArgs) => T в generic-контексте?",
+    "type": "single",
+    "options": [
+      { "text": "Описывает тип конструктора, принимающего аргументы типа TArgs и создающего экземпляр типа T", "correct": true },
+      { "text": "Создаёт новый экземпляр функции T с аргументами TArgs", "correct": false, "explanation": "Это не вызов конструктора, а описание типа. new в позиции типа означает конструктор-сигнатуру" },
+      { "text": "Описывает обычную функцию, возвращающую T", "correct": false, "explanation": "Ключевое слово new в типе отличает конструктор от обычной функции. Без new это была бы обычная callable-сигнатура" },
+      { "text": "Является синтаксическим сахаром для typeof T", "correct": false, "explanation": "Это совершенно разные конструкции. typeof T возвращает тип значения, а new () => T описывает конструктор" }
+    ]
+  }
+]

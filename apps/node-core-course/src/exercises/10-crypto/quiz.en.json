@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why can't you use MD5 for password hashing?",
+    "type": "single",
+    "options": [
+      { "text": "MD5 is cryptographically broken and too fast for passwords", "correct": true },
+      { "text": "MD5 is not supported in Node.js", "correct": false, "explanation": "MD5 is supported via crypto.createHash('md5'), but should not be used for security" },
+      { "text": "MD5 generates a hash that is too short", "correct": false, "explanation": "Hash length (128 bits) is not the main problem. The key issue is MD5 vulnerability to collisions and brute-force" },
+      { "text": "MD5 only works with ASCII characters", "correct": false, "explanation": "MD5 works with any binary data. The problem is the cryptographic weakness of the algorithm" }
+    ]
+  },
+  {
+    "question": "What IV (Initialization Vector) size is needed for AES-256-GCM?",
+    "type": "single",
+    "options": [
+      { "text": "12 bytes", "correct": true },
+      { "text": "16 bytes", "correct": false, "explanation": "16 bytes is the IV size for AES-CBC. For GCM, 12 bytes (96 bits) is recommended" },
+      { "text": "32 bytes", "correct": false, "explanation": "32 bytes is the AES-256 key size, not the IV" },
+      { "text": "64 bytes", "correct": false, "explanation": "This IV size is not used in standard AES modes" }
+    ]
+  },
+  {
+    "question": "Why is timingSafeEqual needed when comparing HMAC signatures?",
+    "type": "single",
+    "options": [
+      { "text": "It prevents timing attacks — attackers cannot determine correct bytes by measuring comparison time", "correct": true },
+      { "text": "It is faster than regular string comparison", "correct": false, "explanation": "timingSafeEqual is slower than ===, but provides security through constant-time execution" },
+      { "text": "Regular comparison doesn't work with Buffers", "correct": false, "explanation": "Buffers can be compared with equals() or converted to strings. timingSafeEqual is specifically for security" },
+      { "text": "It automatically decodes base64", "correct": false, "explanation": "timingSafeEqual compares Buffers byte-by-byte. Decoding must be done before the call" }
+    ]
+  },
+  {
+    "question": "Which statements about generateKeyPairSync are true?",
+    "type": "multiple",
+    "options": [
+      { "text": "Can generate RSA and EC keys", "correct": true },
+      { "text": "Private key can be protected with a password via cipher + passphrase", "correct": true },
+      { "text": "RSA-2048 can encrypt data of any size", "correct": false, "explanation": "RSA-2048 with OAEP can encrypt at most ~214 bytes. Hybrid encryption is needed for larger data" },
+      { "text": "Supports PEM and DER formats", "correct": true }
+    ]
+  },
+  {
+    "question": "What is authTag in AES-GCM and why is it important?",
+    "type": "single",
+    "options": [
+      { "text": "An authentication tag ensuring data was not modified after encryption", "correct": true },
+      { "text": "A label indicating which algorithm was used", "correct": false, "explanation": "authTag is a cryptographic integrity tag (MAC), not algorithm metadata" },
+      { "text": "An additional key for double encryption", "correct": false, "explanation": "authTag does not participate in encryption. It provides data integrity verification (authentication)" },
+      { "text": "A hash of the original text for decryption verification", "correct": false, "explanation": "authTag is computed during encryption, not from the original text. It protects both ciphertext and additional authenticated data (AAD)" }
+    ]
+  }
+]

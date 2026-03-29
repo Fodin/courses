@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What happens when compiling: function getLength<T>(val: T) { return val.length }?",
+    "type": "single",
+    "options": [
+      { "text": "Error: Property 'length' does not exist on type 'T'", "correct": true },
+      { "text": "Code compiles, length will be undefined for types without length", "correct": false, "explanation": "TypeScript doesn't allow accessing properties that aren't guaranteed by the type. Without a constraint, T can be any type" },
+      { "text": "Code compiles, TypeScript automatically adds a HasLength constraint", "correct": false, "explanation": "TypeScript never automatically adds constraints. You need to explicitly specify T extends { length: number }" },
+      { "text": "Code compiles with a warning", "correct": false, "explanation": "TypeScript doesn't have warnings — only errors. Accessing a non-existent property is always an error" }
+    ]
+  },
+  {
+    "question": "What type does getProperty(user, 'age') return if user: { name: string, age: number } and getProperty<T, K extends keyof T>(obj: T, key: K): T[K]?",
+    "type": "single",
+    "options": [
+      { "text": "number", "correct": true },
+      { "text": "string | number", "correct": false, "explanation": "T[K] is an indexed access type. When K = 'age', T['age'] = number. TypeScript doesn't widen the type to a union of all properties" },
+      { "text": "unknown", "correct": false, "explanation": "T[K] exactly corresponds to the type of the specific property, not unknown. In this case K is narrowed to 'age'" },
+      { "text": "string | number | undefined", "correct": false, "explanation": "TypeScript knows 'age' is an existing key (thanks to K extends keyof T), so undefined is not added" }
+    ]
+  },
+  {
+    "question": "Which of the following generic type declarations are correct?",
+    "type": "multiple",
+    "options": [
+      { "text": "interface A<T, U = string> {}", "correct": true },
+      { "text": "interface B<T extends object, U extends keyof T = keyof T> {}", "correct": true },
+      { "text": "interface C<T = string, U> {}", "correct": false, "explanation": "Required (no default) parameters cannot follow optional (with default) parameters. U without a default comes after T with a default" },
+      { "text": "interface D<T extends U, U = object> {}", "correct": false, "explanation": "Parameter T references U in its constraint, but U is declared later. While TS may allow this in some cases technically, it leads to unpredictable behavior" }
+    ]
+  },
+  {
+    "question": "When should you NOT use a generic parameter?",
+    "type": "single",
+    "options": [
+      { "text": "When the parameter is used in only one position (only in argument or only in return)", "correct": true },
+      { "text": "When the function accepts an object with a known structure", "correct": false, "explanation": "A generic can be useful even for objects with known structure if you need to preserve the exact type (e.g., for a builder pattern)" },
+      { "text": "When the function returns void", "correct": false, "explanation": "A void-returning function may still need a generic to relate the types of multiple parameters to each other" },
+      { "text": "When the type can be replaced with any", "correct": false, "explanation": "Replacing a generic with any is an anti-pattern that loses type safety. If a generic isn't needed, use unknown instead" }
+    ]
+  },
+  {
+    "question": "What does the construct new (...args: TArgs) => T do in a generic context?",
+    "type": "single",
+    "options": [
+      { "text": "Describes a constructor type that takes arguments of type TArgs and creates an instance of type T", "correct": true },
+      { "text": "Creates a new instance of function T with arguments TArgs", "correct": false, "explanation": "This is not a constructor call but a type description. 'new' in a type position means a constructor signature" },
+      { "text": "Describes a regular function returning T", "correct": false, "explanation": "The 'new' keyword in a type distinguishes a constructor from a regular function. Without 'new' it would be a regular callable signature" },
+      { "text": "Is syntactic sugar for typeof T", "correct": false, "explanation": "These are completely different constructs. typeof T returns the type of a value, while new () => T describes a constructor" }
+    ]
+  }
+]

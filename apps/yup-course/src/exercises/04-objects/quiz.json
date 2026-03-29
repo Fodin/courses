@@ -1,0 +1,43 @@
+[
+  {
+    "question": "Чем отличаются yup.object({...}) и yup.object().shape({...})?",
+    "type": "single",
+    "options": [
+      { "text": "Ничем — это два эквивалентных способа описания полей объекта", "correct": true },
+      { "text": "shape() позволяет добавлять поля к уже существующей схеме, а конструктор — нет", "correct": false, "explanation": "Оба варианта функционально эквивалентны и создают одинаковую схему" },
+      { "text": "shape() поддерживает вложенные объекты, а конструктор — нет", "correct": false, "explanation": "Оба варианта полностью поддерживают вложенные объекты" },
+      { "text": "Конструктор быстрее, shape() медленнее", "correct": false, "explanation": "Разницы в производительности нет — это синтаксический сахар" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если вызвать noUnknown() без strict: true?",
+    "type": "single",
+    "options": [
+      { "text": "Лишние поля будут удалены перед проверкой, и noUnknown() не найдёт их", "correct": true },
+      { "text": "Будет выброшена ошибка для каждого неизвестного поля", "correct": false, "explanation": "Без strict: true Yup сначала удаляет неизвестные поля, а потом проверяет — noUnknown() ничего не находит" },
+      { "text": "noUnknown() будет проигнорирован", "correct": false, "explanation": "noUnknown() не игнорируется, но лишние поля уже удалены до его проверки в нестрогом режиме" },
+      { "text": "Будет ошибка компиляции TypeScript", "correct": false, "explanation": "Это рантайм-поведение, не связанное с TypeScript" }
+    ]
+  },
+  {
+    "question": "Какие методы позволяют создать новую схему на основе существующей?",
+    "type": "multiple",
+    "options": [
+      { "text": "pick() — выбрать только указанные поля", "correct": true },
+      { "text": "omit() — исключить указанные поля", "correct": true },
+      { "text": "partial() — сделать все поля необязательными", "correct": true },
+      { "text": "extend() — добавить новые поля к схеме", "correct": false, "explanation": "Метода extend() нет в Yup. Для добавления полей используйте shape() или concat()" },
+      { "text": "clone() — создать точную копию схемы", "correct": false, "explanation": "Метода clone() нет в Yup. Но pick/omit/partial создают новые схемы, не изменяя оригинал" }
+    ]
+  },
+  {
+    "question": "Как выглядит путь ошибки для вложенного поля address.city при использовании abortEarly: false?",
+    "type": "single",
+    "options": [
+      { "text": "err.inner содержит ошибку с path: 'address.city'", "correct": true },
+      { "text": "err.inner содержит ошибку с path: 'city'", "correct": false, "explanation": "Для вложенных объектов Yup указывает полный путь через точку: 'address.city'" },
+      { "text": "err.inner содержит ошибку с path: ['address', 'city']", "correct": false, "explanation": "Путь — это строка с точечной нотацией, не массив" },
+      { "text": "Вложенные ошибки доступны только через err.address.city", "correct": false, "explanation": "Все ошибки находятся в плоском массиве err.inner с точечными путями" }
+    ]
+  }
+]

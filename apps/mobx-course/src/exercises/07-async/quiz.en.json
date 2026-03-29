@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What are the key advantages of flow over async/await + runInAction?",
+    "type": "multiple",
+    "options": [
+      { "text": "Code between yields is automatically wrapped in action context", "correct": true },
+      { "text": "Ability to cancel via promise.cancel()", "correct": true },
+      { "text": "Less boilerplate: no need to write runInAction after every yield", "correct": true },
+      { "text": "flow is faster than async/await in terms of performance", "correct": false, "explanation": "There's no performance difference. Flow's advantages are in convenience (automatic action context) and functionality (cancellation)." }
+    ]
+  },
+  {
+    "question": "What happens when promise.cancel() is called on a flow?",
+    "type": "multiple",
+    "options": [
+      { "text": "The generator is interrupted", "correct": true },
+      { "text": "The finally block executes", "correct": true },
+      { "text": "The promise rejects with FLOW_CANCELLED", "correct": true },
+      { "text": "All mutations made before cancel are rolled back", "correct": false, "explanation": "MobX doesn't roll back already-executed mutations. cancel() only stops further generator execution. Changes made before cancel remain." }
+    ]
+  },
+  {
+    "question": "Why is it important to reset isLoading in the finally block rather than in try?",
+    "type": "single",
+    "options": [
+      { "text": "finally always executes — on success, on error, and on flow cancellation", "correct": true },
+      { "text": "finally executes faster than code in try", "correct": false, "explanation": "Speed is irrelevant here. The advantage of finally is the guarantee of execution in any scenario: success, error, or cancellation." },
+      { "text": "MobX requires resetting state only in finally", "correct": false, "explanation": "MobX doesn't require this. But if isLoading is reset in try (after yield), the code won't execute on cancel, and the UI will be stuck in loading state." },
+      { "text": "You can't modify observables in try", "correct": false, "explanation": "You can modify observables in try. The issue is that code after yield in try won't execute on cancel(), while finally always executes." }
+    ]
+  },
+  {
+    "question": "Which pattern describes an optimistic update?",
+    "type": "single",
+    "options": [
+      { "text": "Save previous state, update UI immediately, send to server, roll back on error", "correct": true },
+      { "text": "Send request to server, wait for response, update UI", "correct": false, "explanation": "This is a regular (pessimistic) update. Optimistic update first updates the UI, then waits for the server response." },
+      { "text": "Update UI and server simultaneously via Promise.all", "correct": false, "explanation": "Promise.all doesn't describe optimistic update. The key point is instant UI update with rollback capability on server error." },
+      { "text": "Cache data and don't send requests to the server", "correct": false, "explanation": "This describes caching, not optimistic update. Optimistic update always sends a request to the server but doesn't wait for the response to update UI." }
+    ]
+  },
+  {
+    "question": "What happens if you use await instead of yield inside a flow?",
+    "type": "single",
+    "options": [
+      { "text": "The action context is lost after await — as if flow isn't being used", "correct": true },
+      { "text": "MobX will throw a syntax error", "correct": false, "explanation": "await inside a generator function is valid JavaScript (though meaningless in the flow context). There won't be an error, but the action context will be lost." },
+      { "text": "The code will work normally — await and yield are interchangeable in flow", "correct": false, "explanation": "await and yield are NOT interchangeable in flow. yield is intercepted by MobX for automatic action context, while await works normally and loses context." },
+      { "text": "The promise won't be awaited, code will continue synchronously", "correct": false, "explanation": "await works normally — the promise will be awaited. The issue is that MobX can't intercept await, so code after it runs outside the action." }
+    ]
+  }
+]

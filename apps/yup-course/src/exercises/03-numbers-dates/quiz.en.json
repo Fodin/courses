@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the difference between positive() and min(0) in Yup?",
+    "type": "single",
+    "options": [
+      { "text": "positive() rejects zero, min(0) allows it", "correct": true },
+      { "text": "They work the same way", "correct": false, "explanation": "positive() is equivalent to moreThan(0) — strictly greater than zero. min(0) allows zero (greater than or equal)" },
+      { "text": "min(0) rejects zero, positive() allows it", "correct": false, "explanation": "It's the opposite: positive() = moreThan(0) rejects zero, while min(0) allows it" },
+      { "text": "positive() only works with integers", "correct": false, "explanation": "positive() works with any number, including decimals like 0.5" }
+    ]
+  },
+  {
+    "question": "What does the integer() method do in Yup?",
+    "type": "single",
+    "options": [
+      { "text": "Rounds the number to an integer", "correct": false, "explanation": "integer() is a validation, not a transformation. Use round() or truncate() for rounding" },
+      { "text": "Checks that the number is an integer and throws an error for decimals", "correct": true },
+      { "text": "Converts a string to an integer via parseInt", "correct": false, "explanation": "integer() doesn't transform data. Use truncate() to discard the decimal part" },
+      { "text": "Sets the field type as integer in TypeScript", "correct": false, "explanation": "integer() only affects runtime validation. The TypeScript type remains number" }
+    ]
+  },
+  {
+    "question": "Which statements about date validation in Yup are correct?",
+    "type": "multiple",
+    "options": [
+      { "text": "Yup automatically converts ISO strings to Date objects", "correct": true },
+      { "text": "min() and max() for dates accept Date objects or strings", "correct": true },
+      { "text": "yup.ref() can be used to compare two date fields", "correct": true },
+      { "text": "new Date() in min/max is re-evaluated on each validation", "correct": false, "explanation": "new Date() is evaluated once when the schema is created. For dynamic dates, use context ($) or recreate the schema" }
+    ]
+  },
+  {
+    "question": "What happens when calling yup.number().validate('')?",
+    "type": "single",
+    "options": [
+      { "text": "Returns 0", "correct": false, "explanation": "An empty string is converted to NaN, not 0" },
+      { "text": "Returns the empty string ''", "correct": false, "explanation": "number() tries to convert the value to a number. An empty string produces NaN" },
+      { "text": "Validation error — empty string converts to NaN", "correct": true },
+      { "text": "Returns undefined", "correct": false, "explanation": "An empty string converts to NaN via Number(''), which fails the number type check" }
+    ]
+  },
+  {
+    "question": "How does truncate() differ from round() in Yup?",
+    "type": "single",
+    "options": [
+      { "text": "truncate() always discards the decimal part, round() lets you choose the rounding strategy", "correct": true },
+      { "text": "truncate() is a validation, round() is a transformation", "correct": false, "explanation": "Both methods are transformations, not validations" },
+      { "text": "round() only works with positive numbers", "correct": false, "explanation": "round() works with any numbers, including negative ones" },
+      { "text": "truncate() removes trailing zeros", "correct": false, "explanation": "truncate() discards the decimal part (like Math.trunc), it doesn't remove trailing zeros" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему для доступа к this.createError() в test() нужно использовать обычную функцию, а не стрелочную?",
+    "type": "single",
+    "options": [
+      { "text": "Стрелочная функция наследует this из внешнего контекста, а не из контекста Yup-теста", "correct": true },
+      { "text": "Стрелочные функции не поддерживают return", "correct": false, "explanation": "Стрелочные функции поддерживают return. Проблема в привязке this" },
+      { "text": "Yup не поддерживает стрелочные функции", "correct": false, "explanation": "Yup поддерживает стрелочные функции в test(), но this в них не указывает на контекст теста" },
+      { "text": "createError доступен только в синхронных функциях", "correct": false, "explanation": "createError доступен и в async функциях. Проблема именно в привязке this через стрелочную функцию" }
+    ]
+  },
+  {
+    "question": "В каком порядке Yup выполняет transform() и test() в цепочке?",
+    "type": "single",
+    "options": [
+      { "text": "Все трансформации выполняются первыми (слева направо), затем все валидации", "correct": true },
+      { "text": "Каждый вызов выполняется в порядке объявления, чередуя transform и test", "correct": false, "explanation": "Yup собирает все трансформации и выполняет их до валидаций, независимо от порядка в цепочке" },
+      { "text": "Сначала все тесты, потом все трансформации", "correct": false, "explanation": "Наоборот: сначала трансформации (cast), потом тесты (validate)" },
+      { "text": "Порядок случайный", "correct": false, "explanation": "Порядок строго определён: трансформации всегда перед валидациями" }
+    ]
+  },
+  {
+    "question": "Что нужно сделать, чтобы TypeScript распознал метод, добавленный через addMethod?",
+    "type": "single",
+    "options": [
+      { "text": "Расширить интерфейс через declare module 'yup'", "correct": true },
+      { "text": "Добавить тип в generic параметр addMethod", "correct": false, "explanation": "addMethod не принимает generic параметр для типизации. Нужно расширить интерфейс схемы" },
+      { "text": "Использовать as any при вызове метода", "correct": false, "explanation": "as any — это обход типизации, а не решение. Правильный подход — declare module" },
+      { "text": "Ничего — TypeScript автоматически выведет тип", "correct": false, "explanation": "TypeScript не знает о динамически добавленных методах. Нужно явно расширить интерфейс" }
+    ]
+  },
+  {
+    "question": "Как правильно обрабатывать null и undefined в кастомном test()?",
+    "type": "single",
+    "options": [
+      { "text": "Возвращать true для null/undefined — пусть required() отвечает за обязательность", "correct": true },
+      { "text": "Всегда возвращать false для null/undefined", "correct": false, "explanation": "Это приведёт к двойным ошибкам: и от test(), и от required(). Пусть required() решает вопрос обязательности" },
+      { "text": "Выбрасывать исключение для null/undefined", "correct": false, "explanation": "Не нужно выбрасывать исключения — достаточно вернуть true и делегировать проверку required()" },
+      { "text": "Игнорировать null/undefined — Yup их не передаёт в test()", "correct": false, "explanation": "Yup передаёт null/undefined в test(). Нужно обрабатывать их явно" }
+    ]
+  },
+  {
+    "question": "Какие утверждения о transform() верны?",
+    "type": "multiple",
+    "options": [
+      { "text": "transform() получает текущее значение и оригинальное значение как аргументы", "correct": true },
+      { "text": "transform() применяется при вызове как cast(), так и validate()", "correct": true },
+      { "text": "Несколько transform() выполняются в порядке объявления", "correct": true },
+      { "text": "transform() может возвращать Promise для асинхронных преобразований", "correct": false, "explanation": "transform() — синхронная операция. Для асинхронной логики используйте test() с async" }
+    ]
+  }
+]

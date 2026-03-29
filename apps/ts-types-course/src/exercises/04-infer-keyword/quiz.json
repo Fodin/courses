@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Где можно использовать ключевое слово infer?",
+    "type": "single",
+    "options": [
+      { "text": "Только в true-ветке условного типа (после extends ... ?)", "correct": true },
+      { "text": "В любом месте определения типа", "correct": false, "explanation": "infer — это специальный синтаксис, работающий только внутри условных типов в паттерне extends" },
+      { "text": "В интерфейсах и классах", "correct": false, "explanation": "infer нельзя использовать в интерфейсах или классах — только в условных типах" },
+      { "text": "В обеих ветках условного типа (true и false)", "correct": false, "explanation": "Переменная, объявленная через infer, доступна только в true-ветке условного типа" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если два infer с одинаковым именем встречаются в ковариантных позициях?",
+    "type": "single",
+    "options": [
+      { "text": "Получится union (объединение) выведенных типов", "correct": true },
+      { "text": "Получится intersection (пересечение) выведенных типов", "correct": false, "explanation": "Intersection получается в контравариантных позициях (например, параметры функций). В ковариантных позициях TypeScript создаёт union" },
+      { "text": "TypeScript выдаст ошибку компиляции", "correct": false, "explanation": "Два infer с одним именем — валидный синтаксис, TypeScript объединит выведенные типы" },
+      { "text": "Второй infer будет проигнорирован", "correct": false, "explanation": "Оба infer учитываются — результат зависит от позиции (ковариантная/контравариантная)" }
+    ]
+  },
+  {
+    "question": "Какой тип получится: type R = UnwrapPromise<string>, если UnwrapPromise<T> = T extends Promise<infer U> ? U : T?",
+    "type": "single",
+    "options": [
+      { "text": "string", "correct": true },
+      { "text": "never", "correct": false, "explanation": "never возвращается только если false-ветка возвращает never. Здесь false-ветка возвращает T, то есть string" },
+      { "text": "unknown", "correct": false, "explanation": "Тип string не является Promise, поэтому сработает false-ветка, возвращающая T (то есть string)" },
+      { "text": "Promise<string>", "correct": false, "explanation": "string не матчит паттерн Promise<infer U>, поэтому возвращается исходный T = string" }
+    ]
+  },
+  {
+    "question": "Как извлечь тип последнего параметра функции с помощью infer?",
+    "type": "single",
+    "options": [
+      { "text": "T extends (...args: [...infer _, infer L]) => unknown ? L : never", "correct": true },
+      { "text": "T extends (...args: infer P) => unknown ? P[P.length - 1] : never", "correct": false, "explanation": "На уровне типов нельзя использовать арифметику вроде P.length - 1. Нужен паттерн с variadic tuples" },
+      { "text": "T extends (last: infer L) => unknown ? L : never", "correct": false, "explanation": "Этот паттерн сработает только для функций с одним параметром, а не для любого количества" },
+      { "text": "T extends (...args: infer _, last: infer L) => unknown ? L : never", "correct": false, "explanation": "Синтаксис rest-параметров не позволяет так разделять аргументы. Нужен паттерн [...infer _, infer L] внутри кортежа" }
+    ]
+  },
+  {
+    "question": "Что делает constrained infer в TypeScript 4.7+?",
+    "type": "multiple",
+    "options": [
+      { "text": "Позволяет добавить extends-ограничение прямо в позиции infer", "correct": true },
+      { "text": "Упрощает код, заменяя вложенные условные типы", "correct": true },
+      { "text": "Автоматически сужает тип в true-ветке до указанного ограничения", "correct": true },
+      { "text": "Работает только с примитивными типами (string, number, boolean)", "correct": false, "explanation": "Constrained infer работает с любыми типами, не только примитивными — можно ограничить интерфейсом, классом, union и т.д." },
+      { "text": "Заменяет необходимость использования conditional types", "correct": false, "explanation": "Constrained infer по-прежнему используется внутри conditional types — он не заменяет их, а упрощает" }
+    ]
+  }
+]

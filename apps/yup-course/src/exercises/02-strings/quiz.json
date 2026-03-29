@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Почему не стоит использовать matches() с регулярным выражением для проверки email?",
+    "type": "single",
+    "options": [
+      { "text": "matches() не поддерживает регулярные выражения для email", "correct": false, "explanation": "matches() поддерживает любые регулярные выражения, но проблема в другом" },
+      { "text": "Встроенный метод email() уже содержит проверенный паттерн, а свой regex легко написать неправильно", "correct": true },
+      { "text": "matches() работает медленнее, чем email()", "correct": false, "explanation": "Производительность не является основной причиной. Главное — надёжность проверки" },
+      { "text": "matches() не работает с unicode-символами в email", "correct": false, "explanation": "matches() работает с unicode. Проблема в том, что самописный regex для email часто содержит ошибки" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при выполнении yup.string().trim().min(3).validate('  ab  ')?",
+    "type": "single",
+    "options": [
+      { "text": "Вернёт 'ab' — trim обрежет пробелы, min(3) не проверяется", "correct": false, "explanation": "min(3) проверяется после trim. Строка 'ab' имеет длину 2, что меньше 3" },
+      { "text": "Ошибка: после trim строка 'ab' имеет длину 2, что меньше min(3)", "correct": true },
+      { "text": "Вернёт '  ab  ' — trim не применяется при validate", "correct": false, "explanation": "trim() — это трансформация, она применяется перед валидацией в любом случае" },
+      { "text": "Ошибка: пробелы недопустимы", "correct": false, "explanation": "trim() не генерирует ошибку при наличии пробелов — он их удаляет. Ошибку вызывает min(3)" }
+    ]
+  },
+  {
+    "question": "Какие утверждения верны о трансформациях trim(), lowercase(), uppercase() в Yup?",
+    "type": "multiple",
+    "options": [
+      { "text": "Трансформации применяются перед валидацией", "correct": true },
+      { "text": "В strict-режиме трансформации не применяются", "correct": true },
+      { "text": "Порядок трансформаций в цепочке влияет на результат", "correct": false, "explanation": "В Yup все трансформации выполняются до всех валидаций, независимо от порядка в цепочке. Но для читаемости лучше писать трансформации первыми" },
+      { "text": "trim() вызывает ошибку, если строка содержит пробелы по краям", "correct": false, "explanation": "trim() — это трансформация, а не валидация. Она убирает пробелы, но не генерирует ошибку" }
+    ]
+  },
+  {
+    "question": "Для чего используется опция excludeEmptyString в matches()?",
+    "type": "single",
+    "options": [
+      { "text": "Чтобы пустая строка не вызывала ошибку валидации regex", "correct": true },
+      { "text": "Чтобы удалить пустые строки из массива", "correct": false, "explanation": "excludeEmptyString работает только с matches() и влияет на проверку пустой строки регулярным выражением" },
+      { "text": "Чтобы считать пустую строку невалидной", "correct": false, "explanation": "Наоборот — excludeEmptyString: true пропускает пустую строку мимо проверки regex" },
+      { "text": "Чтобы trim() удалял пустые строки", "correct": false, "explanation": "excludeEmptyString не связан с trim(). Это опция только для matches()" }
+    ]
+  }
+]

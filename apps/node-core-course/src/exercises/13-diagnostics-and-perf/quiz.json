@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Чем performance.now() лучше Date.now() для замеров производительности?",
+    "type": "multiple",
+    "options": [
+      { "text": "Имеет точность до микросекунд, а не миллисекунд", "correct": true },
+      { "text": "Монотонный — не зависит от изменений системного времени", "correct": true },
+      { "text": "Работает быстрее Date.now()", "correct": false, "explanation": "performance.now() не обязательно быстрее. Его преимущество в точности и монотонности" },
+      { "text": "Автоматически логирует результаты", "correct": false, "explanation": "performance.now() просто возвращает число. Для автоматического логирования нужен PerformanceObserver" }
+    ]
+  },
+  {
+    "question": "Какие поля возвращает process.memoryUsage()?",
+    "type": "multiple",
+    "options": [
+      { "text": "rss — полный объём RAM процесса", "correct": true },
+      { "text": "heapUsed — использованный V8 heap", "correct": true },
+      { "text": "external — память C++ объектов (Buffer)", "correct": true },
+      { "text": "cpuUsage — использование процессора", "correct": false, "explanation": "Использование CPU возвращает отдельная функция process.cpuUsage(), а не memoryUsage()" }
+    ]
+  },
+  {
+    "question": "Какой алгоритм сжатия лучше всего подходит для статических web-ресурсов?",
+    "type": "single",
+    "options": [
+      { "text": "Brotli — лучший коэффициент сжатия для статики", "correct": true },
+      { "text": "Gzip — самый быстрый и универсальный", "correct": false, "explanation": "Gzip быстрее, но brotli даёт лучшее сжатие. Для статики скорость сжатия не критична — оно делается один раз" },
+      { "text": "Deflate — без обёртки, минимальный overhead", "correct": false, "explanation": "Deflate — внутренний алгоритм gzip. Для web используют gzip или brotli" },
+      { "text": "LZ4 — самый быстрый алгоритм", "correct": false, "explanation": "LZ4 не поддерживается в модуле zlib и не используется в HTTP Content-Encoding" }
+    ]
+  },
+  {
+    "question": "Что делает util.promisify()?",
+    "type": "single",
+    "options": [
+      { "text": "Преобразует функцию с error-first callback в функцию, возвращающую Promise", "correct": true },
+      { "text": "Оборачивает синхронную функцию в Promise.resolve()", "correct": false, "explanation": "promisify работает с асинхронными callback-функциями, а не с синхронными. Для синхронных оборачивание не нужно" },
+      { "text": "Добавляет timeout к любой Promise-функции", "correct": false, "explanation": "promisify не добавляет timeout. Для таймаутов используйте AbortSignal.timeout() или Promise.race()" },
+      { "text": "Конвертирует генератор в async функцию", "correct": false, "explanation": "promisify не работает с генераторами. Он предназначен для callback-функций формата (err, result)" }
+    ]
+  },
+  {
+    "question": "Какой признак указывает на утечку памяти в Node.js?",
+    "type": "single",
+    "options": [
+      { "text": "heapUsed постоянно растёт без снижения даже после GC", "correct": true },
+      { "text": "heapUsed увеличивается при обработке запросов", "correct": false, "explanation": "Рост при обработке запросов — нормальное поведение. Утечка — когда память НЕ освобождается после завершения обработки" },
+      { "text": "rss больше heapTotal", "correct": false, "explanation": "rss всегда больше heapTotal — он включает стек, код и другие области памяти помимо V8 heap" },
+      { "text": "external > 0", "correct": false, "explanation": "Ненулевой external — нормально. Это память C++ объектов (Buffer и т.д.)" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does docker logs capture?",
+    "type": "single",
+    "options": [
+      { "text": "Only STDOUT and STDERR of the container", "correct": true },
+      { "text": "All logs including file-based ones (/var/log/app.log)", "correct": false, "explanation": "docker logs only captures standard output streams. Logs written to files inside the container are invisible to docker logs" },
+      { "text": "Only STDOUT, STDERR is ignored", "correct": false, "explanation": "docker logs captures both streams — STDOUT and STDERR" },
+      { "text": "Docker daemon system logs", "correct": false, "explanation": "docker logs shows logs of a specific container, not Docker daemon. Use journalctl for daemon logs" }
+    ]
+  },
+  {
+    "question": "Why is configuring log rotation mandatory in production?",
+    "type": "single",
+    "options": [
+      { "text": "Without rotation, log files grow indefinitely and can fill up the entire disk", "correct": true },
+      { "text": "Without rotation, docker logs stops working", "correct": false, "explanation": "docker logs works without rotation, but the log file can grow to tens of GB and fill the disk" },
+      { "text": "Rotation speeds up log writing", "correct": false, "explanation": "Rotation doesn't affect write speed. It limits the size of stored logs" },
+      { "text": "Docker requires rotation by default", "correct": false, "explanation": "By default the json-file driver does NOT limit size — this is the problem that must be solved manually" }
+    ]
+  },
+  {
+    "question": "What does exit code 137 mean for a container?",
+    "type": "single",
+    "options": [
+      { "text": "The container was killed by SIGKILL (128 + 9), possibly due to OOM", "correct": true },
+      { "text": "Normal container shutdown", "correct": false, "explanation": "Normal exit is code 0. Code 137 means forced termination via SIGKILL" },
+      { "text": "Network configuration error in the container", "correct": false, "explanation": "Exit code 137 = 128 + 9 (SIGKILL). It's not network-related — usually OOM or docker kill" },
+      { "text": "Command not found in the container", "correct": false, "explanation": "Code 127 means 'command not found'. 137 = SIGKILL (forced termination)" }
+    ]
+  },
+  {
+    "question": "What is the most effective algorithm for debugging a non-working container?",
+    "type": "single",
+    "options": [
+      { "text": "docker ps -a → docker logs → docker inspect → docker exec → docker events → docker stats", "correct": true },
+      { "text": "Immediately docker restart to restart the container", "correct": false, "explanation": "Restarting without diagnostics hides the root cause. First understand what happened" },
+      { "text": "Delete the container and create a new one", "correct": false, "explanation": "Recreating won't fix the issue if the cause is in configuration, resources, or code. Diagnose first" },
+      { "text": "Only check docker logs", "correct": false, "explanation": "Logs are an important step, but not the only one. You also need to check exit code, OOM, resources, and events" }
+    ]
+  },
+  {
+    "question": "How do you redirect nginx file logs to STDOUT for docker logs?",
+    "type": "single",
+    "options": [
+      { "text": "Create symbolic links: ln -sf /dev/stdout /var/log/nginx/access.log", "correct": true },
+      { "text": "Add the --log-file=stdout flag when starting the container", "correct": false, "explanation": "Docker has no such flag. Redirection is done inside the image using symbolic links to /dev/stdout and /dev/stderr" },
+      { "text": "Configure the logging driver to read files from the container", "correct": false, "explanation": "Logging drivers only capture STDOUT/STDERR. For file-based logs, you need redirection via symlinks" },
+      { "text": "Use docker cp to copy logs out", "correct": false, "explanation": "docker cp is a manual operation. The correct solution is to redirect logs to STDOUT via symbolic links" }
+    ]
+  }
+]

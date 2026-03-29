@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Как TypedEventEmitter связывает имя события с типом payload?",
+    "type": "single",
+    "options": [
+      { "text": "Через generic-параметр K extends keyof TEvents, где TEvents[K] определяет тип payload", "correct": true },
+      { "text": "Через перегрузки функций для каждого события", "correct": false, "explanation": "Перегрузки требовали бы создания отдельной сигнатуры для каждого события. Generic-подход масштабируется автоматически при добавлении новых событий в карту" },
+      { "text": "Через runtime-проверку имени события в switch/case", "correct": false, "explanation": "Runtime-проверка не обеспечивает типобезопасность на этапе компиляции. Generic-параметр позволяет TypeScript проверять соответствие статически" },
+      { "text": "Через декораторы, привязанные к классу", "correct": false, "explanation": "Декораторы не участвуют в выводе типов. Связь обеспечивается через indexed access types: TEvents[K]" }
+    ]
+  },
+  {
+    "question": "Зачем метод on() возвращает функцию отписки вместо использования off()?",
+    "type": "single",
+    "options": [
+      { "text": "Для предотвращения утечек памяти — cleanup-функцию легко использовать в useEffect и деструкторах", "correct": true },
+      { "text": "Потому что off() невозможно реализовать с generic-типами", "correct": false, "explanation": "off() реализуем с теми же generic-типами. Возврат функции отписки — это удобство: не нужно хранить ссылку на handler" },
+      { "text": "Для повышения производительности за счёт замыкания", "correct": false, "explanation": "Производительность не является причиной. Главное преимущество — ergonomics: cleanup-функция идеально сочетается с React useEffect и паттерном RAII" },
+      { "text": "Это обязательное требование TypeScript для generic-классов", "correct": false, "explanation": "TypeScript не требует этого. Это архитектурное решение для удобства управления подписками" }
+    ]
+  },
+  {
+    "question": "Как Extract<TEvent, { type: K }> работает в методе getByType?",
+    "type": "single",
+    "options": [
+      { "text": "Извлекает из union-типа TEvent только тот вариант, у которого поле type совпадает с K", "correct": true },
+      { "text": "Создаёт новый тип на основе TEvent и K", "correct": false, "explanation": "Extract не создаёт новых типов, а выбирает существующие члены union, которые assignable к { type: K }" },
+      { "text": "Преобразует TEvent в массив элементов типа K", "correct": false, "explanation": "Extract — это conditional type для фильтрации union-ов, а не для создания массивов" },
+      { "text": "Удаляет поле type из TEvent", "correct": false, "explanation": "Это описание Omit, а не Extract. Extract выбирает из union-а подходящие варианты" }
+    ]
+  },
+  {
+    "question": "Какие из перечисленных свойств характерны для Event Sourcing?",
+    "type": "multiple",
+    "options": [
+      { "text": "Все изменения хранятся как неизменяемые события", "correct": true },
+      { "text": "Состояние восстанавливается через replay последовательности событий", "correct": true },
+      { "text": "События перезаписываются при каждом обновлении", "correct": false, "explanation": "В Event Sourcing события неизменяемы (append-only). Перезапись нарушает принцип аудита и возможность time-travel" },
+      { "text": "Поддерживается time-travel через replay до определённого момента", "correct": true }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если middleware в Event Bus не вызовет next()?",
+    "type": "single",
+    "options": [
+      { "text": "Событие будет заблокировано — подписчики не получат уведомлений", "correct": true },
+      { "text": "Произойдёт ошибка runtime, так как цепочка middleware прервана", "correct": false, "explanation": "Прерывание цепочки — это штатное поведение. Middleware может намеренно блокировать событие, например, для валидации" },
+      { "text": "Событие будет отправлено подписчикам напрямую, минуя оставшиеся middleware", "correct": false, "explanation": "Без вызова next() остальные middleware и финальная отправка не выполняются. Это основной механизм контроля в middleware-паттерне" },
+      { "text": "TypeScript выдаст ошибку компиляции", "correct": false, "explanation": "next() — необязательный вызов. TypeScript не может отследить, будет ли функция вызвана в рантайме" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему тяжёлые задачи (email, PDF, resize) нужно выносить в очередь, а не выполнять в request handler?",
+    "type": "multiple",
+    "options": [
+      { "text": "Пользователь получает ответ мгновенно, не ожидая завершения длительной операции", "correct": true },
+      { "text": "При ошибке задача retry с exponential backoff, а не теряется", "correct": true },
+      { "text": "Очередь ограничивает нагрузку на внешние сервисы (SMTP, S3) через rate limiter", "correct": true },
+      { "text": "Очередь ускоряет выполнение задачи в 10 раз", "correct": false, "explanation": "Очередь не ускоряет саму задачу. Она убирает задачу из critical path запроса. Задача выполняется с той же скоростью, но асинхронно, не блокируя пользователя" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если не реализовать graceful shutdown при деплое?",
+    "type": "single",
+    "options": [
+      { "text": "In-flight запросы оборвутся (клиенты получат ошибки), соединения с БД не закроются (утечка), задачи в worker потеряются", "correct": true },
+      { "text": "Ничего -- Node.js автоматически завершает все операции", "correct": false, "explanation": "Node.js НЕ завершает in-flight запросы автоматически. При SIGTERM процесс завершается немедленно. Все открытые соединения обрываются, данные теряются" },
+      { "text": "Kubernetes автоматически дожидается завершения всех запросов", "correct": false, "explanation": "K8s отправляет SIGTERM и ждёт terminationGracePeriodSeconds (30с по умолчанию). Но если приложение не обрабатывает SIGTERM, оно получит SIGKILL и завершится немедленно" },
+      { "text": "Запросы перенаправятся на другой pod автоматически", "correct": false, "explanation": "Новые запросы перенаправятся (если readiness вернул 503), но in-flight запросы на текущем pod оборвутся. Graceful shutdown позволяет их завершить до exit" }
+    ]
+  },
+  {
+    "question": "Зачем в BullMQ указывать maxRetriesPerRequest: null в IORedis?",
+    "type": "single",
+    "options": [
+      { "text": "BullMQ использует blocking commands (BRPOPLPUSH), которые могут ждать бесконечно -- без null IORedis ошибочно считает их таймаутами", "correct": true },
+      { "text": "Для увеличения количества retry при ошибках Redis", "correct": false, "explanation": "maxRetriesPerRequest -- не количество retry задач (это attempts в job options). Это настройка IORedis клиента для blocking commands, которые BullMQ использует для ожидания новых задач" },
+      { "text": "Для отключения retry, чтобы задачи не выполнялись повторно", "correct": false, "explanation": "null НЕ отключает retry. Наоборот, он разрешает бесконечное ожидание blocking commands. Retry задач настраивается через attempts при добавлении job в очередь" },
+      { "text": "Это опциональная настройка для production окружения", "correct": false, "explanation": "Это ОБЯЗАТЕЛЬНАЯ настройка для BullMQ. Без неё IORedis считает blocking commands зависшими и бросает MaxRetriesPerRequestError. BullMQ документация требует эту настройку" }
+    ]
+  },
+  {
+    "question": "Как GraphQL предотвращает over-fetching и under-fetching?",
+    "type": "single",
+    "options": [
+      { "text": "Клиент запрашивает только нужные поля в query -- сервер возвращает именно то, что запрошено, не больше и не меньше", "correct": true },
+      { "text": "GraphQL автоматически кэширует данные и отдаёт из кэша", "correct": false, "explanation": "Кэширование -- отдельная задача (Apollo Client кэширует на клиенте, Redis на сервере). GraphQL решает проблему гибкости запросов, а не кэширования" },
+      { "text": "GraphQL быстрее REST, поэтому может загрузить больше данных за то же время", "correct": false, "explanation": "GraphQL не обязательно быстрее REST. Его преимущество в том, что один запрос заменяет несколько REST-запросов, и клиент получает только нужные поля" },
+      { "text": "GraphQL использует WebSocket для потоковой передачи данных", "correct": false, "explanation": "GraphQL по умолчанию работает через HTTP POST. WebSocket используется только для Subscriptions. Основное преимущество -- гибкость запросов, а не транспорт" }
+    ]
+  },
+  {
+    "question": "Зачем overlap prevention в cron-задачах?",
+    "type": "single",
+    "options": [
+      { "text": "Если задача выполняется дольше интервала cron, без проверки запустится вторая копия -- это приведёт к дублированию данных или конфликтам", "correct": true },
+      { "text": "Для экономии CPU -- одна задача потребляет меньше ресурсов", "correct": false, "explanation": "Экономия CPU -- побочный эффект. Главная проблема -- дублирование: если отчёт генерируется 7 минут, а cron запускает каждые 5 минут, два отчёта будут генерироваться параллельно" },
+      { "text": "node-cron требует это как обязательную настройку", "correct": false, "explanation": "node-cron НЕ требует overlap prevention. Это ответственность разработчика. Без проверки isRunning cron просто запустит callback повторно по расписанию" },
+      { "text": "Для обеспечения порядка выполнения задач", "correct": false, "explanation": "Overlap prevention не про порядок, а про предотвращение параллельного запуска. Без него отчёт за вчера может генерироваться одновременно в двух процессах, создавая дубликаты" }
+    ]
+  }
+]

@@ -1,0 +1,53 @@
+[
+  {
+    "question": "If Dog extends Animal, which assignment is safe?",
+    "type": "single",
+    "options": [
+      { "text": "Producer<Dog> -> Producer<Animal> (covariance in output position)", "correct": true },
+      { "text": "Producer<Animal> -> Producer<Dog> (covariance works both ways)", "correct": false, "explanation": "Covariance only works from subtype to supertype. Producer<Animal> might return an Animal without breed, violating Producer<Dog> expectations" },
+      { "text": "Consumer<Dog> -> Consumer<Animal> (contravariance in input position)", "correct": false, "explanation": "Contravariance inverts direction: Consumer<Animal> -> Consumer<Dog>, not the other way. Consumer<Dog> uses dog.breed, and Animal doesn't have that field" },
+      { "text": "Box<Dog> -> Box<Animal> (read+write are compatible)", "correct": false, "explanation": "Box<T> with get() and set() is invariant — T is used in both input and output positions, so assignment is impossible in either direction" }
+    ]
+  },
+  {
+    "question": "Why does TypeScript allow method syntax to be bivariant?",
+    "type": "single",
+    "options": [
+      { "text": "For compatibility with DOM API, where addEventListener accepts handlers for Event subtypes", "correct": true },
+      { "text": "Because methods are always safe in both directions", "correct": false, "explanation": "Method bivariance is NOT safe — it allows unsound assignments. This is a deliberate trade-off for compatibility" },
+      { "text": "Method syntax and property syntax compile to identical code", "correct": false, "explanation": "Both syntaxes compile identically at runtime, but TypeScript checks types differently for them" },
+      { "text": "Bivariance is a TypeScript bug that they plan to fix", "correct": false, "explanation": "This is a deliberate design decision. strictFunctionTypes makes property syntax strict, but method syntax remains bivariant intentionally" }
+    ]
+  },
+  {
+    "question": "Which pattern provides maximum flexibility when working with generic collections?",
+    "type": "single",
+    "options": [
+      { "text": "Split into ReadRepo<out T> (covariant) and WriteRepo<in T> (contravariant)", "correct": true },
+      { "text": "Use a single Repository<T> with get() and save() — it's automatically covariant", "correct": false, "explanation": "Repository<T> with read and write methods is invariant because T is used in both input and output positions simultaneously" },
+      { "text": "Always use any instead of generic parameters", "correct": false, "explanation": "any disables type checking entirely, losing all TypeScript benefits. Variance is solved through interface design" },
+      { "text": "Make all generic types bivariant through method syntax", "correct": false, "explanation": "Bivariance is unsound. It allows unsafe assignments. Proper read/write interface splitting is safer" }
+    ]
+  },
+  {
+    "question": "What do the in and out annotations do in TypeScript 4.7+?",
+    "type": "multiple",
+    "options": [
+      { "text": "out T declares T as covariant — T can only be used in output (return) positions", "correct": true },
+      { "text": "in T declares T as contravariant — T can only be used in input (parameter) positions", "correct": true },
+      { "text": "TypeScript reports an error if T is used in a position incompatible with its declared variance", "correct": true },
+      { "text": "in and out change the runtime behavior of generic types", "correct": false, "explanation": "in/out annotations are purely compile-time checks. They don't affect the generated JavaScript code" },
+      { "text": "Without these annotations TypeScript cannot determine variance", "correct": false, "explanation": "TypeScript determines variance automatically from how T is used. in/out annotations are additional explicit checks and documentation" }
+    ]
+  },
+  {
+    "question": "Type Mapper<A, B> = (a: A) => B. What is the variance of A and B?",
+    "type": "single",
+    "options": [
+      { "text": "A is contravariant (input), B is covariant (output)", "correct": true },
+      { "text": "Both are covariant because they are generic parameters", "correct": false, "explanation": "Variance depends not on being generic but on usage position. A in parameter position is contravariant, B in return position is covariant" },
+      { "text": "Both are invariant because they are used in a function", "correct": false, "explanation": "Invariance occurs when one parameter is used in both input and output. Here A is only in input, B only in output" },
+      { "text": "A is covariant (input), B is contravariant (output)", "correct": false, "explanation": "It's the opposite: input position (parameters) is contravariant, output position (return) is covariant" }
+    ]
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Что произойдёт при emitter.emit('error', new Error('boom')) без обработчика error?",
+    "type": "single",
+    "options": [
+      { "text": "Процесс Node.js завершится с необработанной ошибкой", "correct": true },
+      { "text": "Ошибка будет тихо проигнорирована", "correct": false, "explanation": "В отличие от обычных событий, 'error' без обработчика приводит к краху процесса. Это сделано намеренно для безопасности" },
+      { "text": "Ошибка попадёт в process.on('uncaughtException')", "correct": false, "explanation": "Ошибка из emit('error') выбрасывается как throw, но не обязательно попадёт в uncaughtException — зависит от контекста" },
+      { "text": "emit() вернёт false и продолжит работу", "correct": false, "explanation": "Для обычных событий emit() вернёт false без слушателей. Но для 'error' — выбросит исключение" }
+    ]
+  },
+  {
+    "question": "Как слушатели EventEmitter вызываются при emit()?",
+    "type": "single",
+    "options": [
+      { "text": "Синхронно, в порядке регистрации", "correct": true },
+      { "text": "Асинхронно, через microtask queue", "correct": false, "explanation": "emit() вызывает слушателей синхронно. Это важная особенность — код после emit() выполнится только после всех слушателей" },
+      { "text": "Параллельно в thread pool", "correct": false, "explanation": "Слушатели выполняются в основном потоке последовательно, а не параллельно" },
+      { "text": "В случайном порядке", "correct": false, "explanation": "Порядок строго определён — FIFO (First In, First Out), т.е. в порядке добавления через on()" }
+    ]
+  },
+  {
+    "question": "Что такое MaxListenersExceededWarning?",
+    "type": "single",
+    "options": [
+      { "text": "Предупреждение о возможной утечке памяти при > 10 слушателях на одно событие", "correct": true },
+      { "text": "Ошибка, которая прерывает выполнение программы", "correct": false, "explanation": "Это предупреждение (warning), а не ошибка. Программа продолжает работу. Предел можно изменить через setMaxListeners()" },
+      { "text": "Ограничение на общее количество событий в emitter", "correct": false, "explanation": "Ограничение на количество слушателей одного события, а не на количество разных событий" },
+      { "text": "Предупреждение, которое появляется только в development-режиме", "correct": false, "explanation": "Предупреждение появляется в любом режиме. Для его подавления используйте setMaxListeners()" }
+    ]
+  },
+  {
+    "question": "Чем events.once() отличается от emitter.once()?",
+    "type": "single",
+    "options": [
+      { "text": "events.once() возвращает Promise, emitter.once() принимает колбэк", "correct": true },
+      { "text": "Они идентичны по функциональности", "correct": false, "explanation": "events.once() — это Promise-based API из модуля events. Он позволяет использовать await и автоматически обрабатывает ошибки" },
+      { "text": "events.once() может слушать несколько событий", "correct": false, "explanation": "events.once() также слушает одно событие, но возвращает Promise вместо использования колбэка" },
+      { "text": "emitter.once() работает только с error событиями", "correct": false, "explanation": "emitter.once() работает с любыми событиями, не только с error" }
+    ]
+  }
+]

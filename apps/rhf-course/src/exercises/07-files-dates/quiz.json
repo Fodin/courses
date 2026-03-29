@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Что возвращает register для input type=\"file\"?",
+    "type": "single",
+    "options": [
+      { "text": "File — один файл", "correct": false, "explanation": "register возвращает FileList, даже если выбран один файл" },
+      { "text": "FileList — список файлов", "correct": true },
+      { "text": "string — путь к файлу", "correct": false, "explanation": "По соображениям безопасности браузер не предоставляет путь к файлу" },
+      { "text": "Blob — бинарные данные", "correct": false, "explanation": "Возвращается FileList, а не Blob" }
+    ]
+  },
+  {
+    "question": "Как в Zod проверить размер загружаемого файла?",
+    "type": "single",
+    "options": [
+      { "text": "z.file().maxSize(2_000_000)", "correct": false, "explanation": "В Zod нет встроенного типа z.file() — используйте z.instanceof(FileList) с refine" },
+      { "text": "z.instanceof(FileList).refine(files => files[0]?.size < 2_000_000, 'Макс 2MB')", "correct": true },
+      { "text": "z.string().max(2_000_000)", "correct": false, "explanation": "z.string().max() проверяет длину строки, а не размер файла" },
+      { "text": "z.any().fileSize(2_000_000)", "correct": false, "explanation": "Такого метода не существует — используйте refine для кастомной проверки" }
+    ]
+  },
+  {
+    "question": "Какой подход используется для создания превью загруженного изображения?",
+    "type": "single",
+    "options": [
+      { "text": "Чтение файла через fs.readFile()", "correct": false, "explanation": "fs.readFile() — это Node.js API, недоступный в браузере" },
+      { "text": "URL.createObjectURL(file)", "correct": true },
+      { "text": "file.toDataURL()", "correct": false, "explanation": "У File нет метода toDataURL — используйте URL.createObjectURL() или FileReader" },
+      { "text": "Отправка файла на сервер и получение URL", "correct": false, "explanation": "Это избыточно — превью можно создать на клиенте без сервера" }
+    ]
+  }
+]

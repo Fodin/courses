@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Что делает опция shouldFocusError в useForm?",
+    "type": "single",
+    "options": [
+      { "text": "Показывает сообщение об ошибке рядом с полем", "correct": false, "explanation": "shouldFocusError управляет фокусом, а не отображением сообщений" },
+      { "text": "Автоматически устанавливает фокус на первое поле с ошибкой при submit", "correct": true },
+      { "text": "Подсвечивает ошибочные поля красным цветом", "correct": false, "explanation": "Стилизация ошибок — ответственность разработчика, не shouldFocusError" },
+      { "text": "Предотвращает отправку формы при наличии ошибок", "correct": false, "explanation": "Предотвращение отправки — стандартное поведение handleSubmit, не зависит от shouldFocusError" }
+    ]
+  },
+  {
+    "question": "Какой метод React Hook Form используется для программной установки фокуса на поле?",
+    "type": "single",
+    "options": [
+      { "text": "focus()", "correct": false, "explanation": "focus() — это метод DOM-элементов, а не React Hook Form" },
+      { "text": "setFocus()", "correct": true },
+      { "text": "focusField()", "correct": false, "explanation": "Такого метода нет в RHF — используйте setFocus()" },
+      { "text": "trigger()", "correct": false, "explanation": "trigger() запускает валидацию, а не устанавливает фокус" }
+    ]
+  },
+  {
+    "question": "Какие ARIA-атрибуты важны для доступности полей форм?",
+    "type": "multiple",
+    "options": [
+      { "text": "aria-invalid — указывает на невалидное поле", "correct": true },
+      { "text": "aria-describedby — связывает поле с описанием ошибки", "correct": true },
+      { "text": "aria-required — указывает обязательность поля", "correct": true },
+      { "text": "aria-style — стилизует поле для скринридеров", "correct": false, "explanation": "aria-style не существует — ARIA-атрибуты описывают семантику, а не стили" }
+    ]
+  }
+]

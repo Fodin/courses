@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why is performance.now() better than Date.now() for performance measurements?",
+    "type": "multiple",
+    "options": [
+      { "text": "Has microsecond precision instead of milliseconds", "correct": true },
+      { "text": "Monotonic — not affected by system time changes", "correct": true },
+      { "text": "Runs faster than Date.now()", "correct": false, "explanation": "performance.now() is not necessarily faster. Its advantage is precision and monotonicity" },
+      { "text": "Automatically logs results", "correct": false, "explanation": "performance.now() simply returns a number. For automatic logging you need PerformanceObserver" }
+    ]
+  },
+  {
+    "question": "Which fields does process.memoryUsage() return?",
+    "type": "multiple",
+    "options": [
+      { "text": "rss — total RAM used by the process", "correct": true },
+      { "text": "heapUsed — used V8 heap", "correct": true },
+      { "text": "external — memory of C++ objects (Buffer)", "correct": true },
+      { "text": "cpuUsage — CPU utilization", "correct": false, "explanation": "CPU usage is returned by a separate function process.cpuUsage(), not memoryUsage()" }
+    ]
+  },
+  {
+    "question": "Which compression algorithm is best for static web resources?",
+    "type": "single",
+    "options": [
+      { "text": "Brotli — best compression ratio for static content", "correct": true },
+      { "text": "Gzip — fastest and most universal", "correct": false, "explanation": "Gzip is faster, but brotli provides better compression. For static content, compression speed doesn't matter — it's done once" },
+      { "text": "Deflate — no wrapper, minimal overhead", "correct": false, "explanation": "Deflate is the internal algorithm of gzip. For web, gzip or brotli are used" },
+      { "text": "LZ4 — the fastest algorithm", "correct": false, "explanation": "LZ4 is not supported in the zlib module and not used in HTTP Content-Encoding" }
+    ]
+  },
+  {
+    "question": "What does util.promisify() do?",
+    "type": "single",
+    "options": [
+      { "text": "Converts an error-first callback function into a function returning a Promise", "correct": true },
+      { "text": "Wraps a synchronous function in Promise.resolve()", "correct": false, "explanation": "promisify works with async callback functions, not synchronous ones. Wrapping sync functions isn't needed" },
+      { "text": "Adds a timeout to any Promise function", "correct": false, "explanation": "promisify doesn't add timeouts. Use AbortSignal.timeout() or Promise.race() for that" },
+      { "text": "Converts a generator to an async function", "correct": false, "explanation": "promisify doesn't work with generators. It's designed for callback functions of the (err, result) format" }
+    ]
+  },
+  {
+    "question": "What indicates a memory leak in Node.js?",
+    "type": "single",
+    "options": [
+      { "text": "heapUsed constantly grows without decreasing even after GC", "correct": true },
+      { "text": "heapUsed increases during request processing", "correct": false, "explanation": "Growth during request processing is normal. A leak is when memory is NOT freed after processing completes" },
+      { "text": "rss is larger than heapTotal", "correct": false, "explanation": "rss is always larger than heapTotal — it includes the stack, code, and other memory areas besides V8 heap" },
+      { "text": "external > 0", "correct": false, "explanation": "Non-zero external is normal. It's the memory of C++ objects (Buffer, etc.)" }
+    ]
+  }
+]

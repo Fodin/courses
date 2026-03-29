@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Почему рендеринг всех элементов списка в одном observer-компоненте неэффективен?",
+    "type": "single",
+    "options": [
+      { "text": "При изменении одного элемента ререндерится весь список, а не только изменённый элемент", "correct": true },
+      { "text": "MobX не может отслеживать элементы массива внутри одного observer", "correct": false, "explanation": "MobX отслеживает элементы массива в любом случае. Проблема в том, что React ререндерит весь компонент целиком, включая все элементы списка." },
+      { "text": "observer не работает с методом map()", "correct": false, "explanation": "observer отлично работает с map(). Проблема не в map(), а в том, что один observer-компонент = один блок ререндера." },
+      { "text": "Список может содержать только 100 элементов", "correct": false, "explanation": "MobX не ограничивает количество элементов. Проблема — в производительности ререндеров при большом количестве элементов." }
+    ]
+  },
+  {
+    "question": "Что делает intercept при возврате null из handler?",
+    "type": "single",
+    "options": [
+      { "text": "Отменяет изменение — observable не обновляется", "correct": true },
+      { "text": "Устанавливает значение в null", "correct": false, "explanation": "Возврат null из intercept handler означает 'отменить изменение', а не 'установить null'. Observable остаётся с предыдущим значением." },
+      { "text": "Удаляет свойство из объекта", "correct": false, "explanation": "intercept не удаляет свойства. Возврат null — это сигнал отмены изменения." },
+      { "text": "Выбрасывает ошибку MobX", "correct": false, "explanation": "Возврат null — легитимный способ отменить изменение в intercept. Ошибки не будет." }
+    ]
+  },
+  {
+    "question": "В чём ключевая разница между intercept и observe?",
+    "type": "single",
+    "options": [
+      { "text": "intercept срабатывает ДО применения изменения и может его отменить, observe — ПОСЛЕ и не может", "correct": true },
+      { "text": "intercept работает синхронно, observe — асинхронно", "correct": false, "explanation": "Оба работают синхронно. Разница — в моменте срабатывания: intercept до применения, observe после." },
+      { "text": "intercept для массивов, observe для объектов", "correct": false, "explanation": "Оба работают и с массивами, и с объектами, и с отдельными свойствами. Разница — во времени срабатывания и возможностях." },
+      { "text": "observe заменяет autorun, а intercept заменяет reaction", "correct": false, "explanation": "observe и intercept не заменяют autorun/reaction. Это низкоуровневые API для перехвата (intercept) и наблюдения (observe) за изменениями конкретных свойств." }
+    ]
+  },
+  {
+    "question": "Почему нельзя мутировать другие observable внутри intercept?",
+    "type": "single",
+    "options": [
+      { "text": "Мутация внутри intercept может привести к непредсказуемому порядку обновлений и бесконечным циклам", "correct": true },
+      { "text": "MobX выбросит ошибку при любой мутации внутри intercept", "correct": false, "explanation": "MobX не всегда выбрасывает ошибку, но мутации внутри intercept — антипаттерн, потому что intercept вызывается до применения текущего изменения, и мутации других observable нарушают предсказуемость." },
+      { "text": "intercept не имеет доступа к другим observable", "correct": false, "explanation": "intercept — обычная JavaScript-функция с доступом к замыканию. Технически вы можете обратиться к любому observable, но мутировать их внутри intercept опасно." },
+      { "text": "Это ограничение TypeScript", "correct": false, "explanation": "TypeScript не ограничивает мутации внутри intercept. Это архитектурное правило MobX: intercept предназначен только для валидации и модификации текущего change-объекта." }
+    ]
+  },
+  {
+    "question": "Для каких задач лучше всего подходит observe?",
+    "type": "multiple",
+    "options": [
+      { "text": "Логирование изменений", "correct": true },
+      { "text": "Аудит — запись истории изменений", "correct": true },
+      { "text": "Отправка аналитики при изменении конкретного свойства", "correct": true },
+      { "text": "Валидация данных перед изменением", "correct": false, "explanation": "Для валидации перед изменением используйте intercept, а не observe. observe срабатывает ПОСЛЕ изменения — отменить его уже нельзя." },
+      { "text": "Блокировка невалидных значений", "correct": false, "explanation": "observe не может блокировать изменения — он срабатывает после их применения. Для блокировки используйте intercept." }
+    ]
+  }
+]

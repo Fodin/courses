@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему TCP socket может получить часть сообщения в одном событии 'data'?",
+    "type": "single",
+    "options": [
+      { "text": "TCP — потоковый протокол, он не гарантирует границы сообщений", "correct": true },
+      { "text": "Node.js разбивает сообщения для оптимизации", "correct": false, "explanation": "Node.js не разбивает данные намеренно. TCP — потоковый протокол (stream-oriented), а не пакетный. Данные могут приходить в произвольных чанках" },
+      { "text": "Это происходит только при медленном соединении", "correct": false, "explanation": "Фрагментация TCP-данных происходит независимо от скорости. Размер чанков зависит от MSS, буферов ОС и сетевых условий" },
+      { "text": "Это баг в модуле net", "correct": false, "explanation": "Это не баг, а фундаментальное свойство TCP. Для разграничения сообщений нужен фрейминг (newline-delimited, length-prefix и т.д.)" }
+    ]
+  },
+  {
+    "question": "Чем IncomingMessage (req) в HTTP сервере является с точки зрения стримов?",
+    "type": "single",
+    "options": [
+      { "text": "Readable Stream", "correct": true },
+      { "text": "Writable Stream", "correct": false, "explanation": "req — это Readable Stream (можно читать тело запроса). Writable Stream — это ServerResponse (res), в который записывается ответ" },
+      { "text": "Duplex Stream", "correct": false, "explanation": "req — только Readable. Для чтения тела запроса используйте for await...of или событие 'data'" },
+      { "text": "Transform Stream", "correct": false, "explanation": "req — Readable, он только предоставляет данные для чтения. Transform одновременно читает и пишет с преобразованием" }
+    ]
+  },
+  {
+    "question": "Почему dns.lookup() может стать узким местом в highload приложении?",
+    "type": "single",
+    "options": [
+      { "text": "lookup() использует thread pool libuv, который по умолчанию имеет 4 потока", "correct": true },
+      { "text": "lookup() делает запросы медленнее, чем resolve()", "correct": false, "explanation": "Скорость самого DNS-запроса может быть одинаковой. Проблема в том, что lookup() блокирует поток из thread pool, а их всего 4 по умолчанию" },
+      { "text": "lookup() не кеширует результаты", "correct": false, "explanation": "OS resolver, используемый lookup(), имеет свой кеш. Проблема не в кешировании, а в использовании ограниченного thread pool" },
+      { "text": "lookup() не поддерживает IPv6", "correct": false, "explanation": "lookup() поддерживает и IPv4, и IPv6. Проблема — в блокировке thread pool при множестве одновременных вызовов" }
+    ]
+  },
+  {
+    "question": "Какие утверждения о TLS в Node.js верны?",
+    "type": "multiple",
+    "options": [
+      { "text": "Минимальная рекомендуемая версия — TLS 1.2", "correct": true },
+      { "text": "rejectUnauthorized: false отключает проверку сертификата", "correct": true },
+      { "text": "socket.getProtocol() возвращает используемую версию TLS", "correct": true },
+      { "text": "HTTPS работает поверх UDP, а не TCP", "correct": false, "explanation": "HTTPS работает поверх TCP (через модуль net). HTTP/3 использует QUIC (поверх UDP), но стандартный HTTPS — это TCP + TLS" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если не вызвать res.end() в HTTP handler?",
+    "type": "single",
+    "options": [
+      { "text": "Клиент будет ожидать ответ бесконечно (timeout)", "correct": true },
+      { "text": "Node.js автоматически вызовет end() через 30 секунд", "correct": false, "explanation": "Node.js не вызывает end() автоматически. Сервер по умолчанию имеет timeout (2 минуты), после которого соединение закроется, но это не нормальное поведение" },
+      { "text": "Ответ будет отправлен с пустым телом", "correct": false, "explanation": "Без end() заголовки ответа могут быть отправлены (если был writeHead), но соединение останется открытым, и клиент будет ждать завершения" },
+      { "text": "Сервер упадёт с ошибкой", "correct": false, "explanation": "Сервер не упадёт — он просто оставит соединение открытым. Это приводит к утечке ресурсов и зависанию клиента" }
+    ]
+  }
+]

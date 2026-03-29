@@ -1,0 +1,54 @@
+[
+  {
+    "question": "What happens if no error occurs inside the try block?",
+    "type": "single",
+    "options": [
+      { "text": "The catch block is skipped", "correct": true },
+      { "text": "The catch block runs with error equal to null", "correct": false, "explanation": "catch only executes when an error occurs, it is not called with null" },
+      { "text": "The program throws an error because catch expects one", "correct": false, "explanation": "catch is an optional handler that is simply skipped when there is no error" },
+      { "text": "The finally block will not execute", "correct": false, "explanation": "The finally block always executes — both on success and on error" }
+    ]
+  },
+  {
+    "question": "Why is it bad to throw a string instead of an Error object?",
+    "type": "multiple",
+    "options": [
+      { "text": "The stack trace is lost", "correct": true },
+      { "text": "instanceof Error returns false", "correct": true },
+      { "text": "JavaScript does not allow throwing strings", "correct": false, "explanation": "JavaScript allows throwing any value, including strings and numbers" },
+      { "text": "It becomes impossible to determine where the error occurred", "correct": true },
+      { "text": "The string is automatically converted to an Error object", "correct": false, "explanation": "The string is not automatically converted — it remains a string in catch" }
+    ]
+  },
+  {
+    "question": "Which properties does the Error object have?",
+    "type": "multiple",
+    "options": [
+      { "text": "name", "correct": true },
+      { "text": "message", "correct": true },
+      { "text": "stack", "correct": true },
+      { "text": "code", "correct": false, "explanation": "The code property is not a standard Error property — it can be added in a custom class" },
+      { "text": "type", "correct": false, "explanation": "The type property is not part of the standard Error object" }
+    ]
+  },
+  {
+    "question": "What type does the error parameter have in a catch block in TypeScript?",
+    "type": "single",
+    "options": [
+      { "text": "Error", "correct": false, "explanation": "TypeScript cannot guarantee that catch will receive an Error instance — it could be any value" },
+      { "text": "unknown", "correct": true },
+      { "text": "any", "correct": false, "explanation": "Since TypeScript 4.0+, the catch parameter defaults to unknown, not any" },
+      { "text": "string", "correct": false, "explanation": "A value of any type can end up in catch, not necessarily a string" }
+    ]
+  },
+  {
+    "question": "What is wrong with an empty catch block?",
+    "type": "single",
+    "options": [
+      { "text": "It is a syntax error", "correct": false, "explanation": "An empty catch is valid JavaScript syntax" },
+      { "text": "The error is completely hidden, making bugs invisible", "correct": true },
+      { "text": "The program will automatically terminate", "correct": false, "explanation": "An empty catch does not terminate the program — on the contrary, it lets it continue with invalid state" },
+      { "text": "The finally block stops working", "correct": false, "explanation": "An empty catch does not affect the finally block — it will execute regardless" }
+    ]
+  }
+]

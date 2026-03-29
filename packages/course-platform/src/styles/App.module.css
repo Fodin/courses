@@ -1,6 +1,6 @@
 .container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1340px;
   display: flex;
   gap: 2rem;
   margin: 0 auto;
@@ -14,7 +14,7 @@
 }
 
 .sidebar {
-  width: 280px;
+  width: 420px;
   flex-shrink: 0;
   position: sticky;
   top: 2rem;

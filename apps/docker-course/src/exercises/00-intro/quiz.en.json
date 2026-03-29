@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What is the fundamental difference between containers and virtual machines?",
+    "type": "single",
+    "options": [
+      { "text": "Containers share the host OS kernel, while VMs have their own kernel", "correct": true },
+      { "text": "Containers only work on Linux, while VMs work on any OS", "correct": false, "explanation": "Containers run on macOS/Windows via Docker Desktop. The difference is in the isolation mechanism, not supported OSes" },
+      { "text": "Containers provide no isolation at all", "correct": false, "explanation": "Containers provide isolation through namespaces and cgroups, though less strict than VMs" },
+      { "text": "Virtual machines are faster than containers", "correct": false, "explanation": "The opposite: containers start in seconds with near-native performance, while VMs take minutes to boot" }
+    ]
+  },
+  {
+    "question": "Which Linux mechanisms are used to isolate containers?",
+    "type": "multiple",
+    "options": [
+      { "text": "namespaces — for process, network, and filesystem isolation", "correct": true },
+      { "text": "cgroups — for resource limits (CPU, RAM)", "correct": true },
+      { "text": "hypervisor — for hardware emulation", "correct": false, "explanation": "Hypervisor is used for virtual machines, not containers" },
+      { "text": "BIOS — for booting the guest OS", "correct": false, "explanation": "BIOS/UEFI is used for booting physical or virtual machines; containers have no bootloader" }
+    ]
+  },
+  {
+    "question": "What is the correct interaction chain of Docker components?",
+    "type": "single",
+    "options": [
+      { "text": "Docker CLI → Docker Daemon → containerd → runc → Container", "correct": true },
+      { "text": "Docker CLI → containerd → Docker Daemon → runc → Container", "correct": false, "explanation": "Docker Daemon (dockerd) receives requests from CLI and delegates to containerd, not the other way around" },
+      { "text": "Docker CLI → runc → containerd → Docker Daemon → Container", "correct": false, "explanation": "runc is the low-level runtime called by containerd at the final step, not first" },
+      { "text": "Docker CLI → Docker Registry → Docker Daemon → Container", "correct": false, "explanation": "Registry is used for storing images, not as a middleware for running containers" }
+    ]
+  },
+  {
+    "question": "What happens to data when a container is removed without using volumes?",
+    "type": "single",
+    "options": [
+      { "text": "Data is lost permanently", "correct": true },
+      { "text": "Data is preserved in the image", "correct": false, "explanation": "The image is a read-only template. Container changes are stored in the writable layer, which is deleted with the container" },
+      { "text": "Docker automatically creates a backup", "correct": false, "explanation": "Docker does not create automatic backups. You must explicitly use volumes to persist data" },
+      { "text": "Data remains in the Docker Daemon", "correct": false, "explanation": "Docker Daemon manages containers but does not preserve data from removed containers" }
+    ]
+  }
+]

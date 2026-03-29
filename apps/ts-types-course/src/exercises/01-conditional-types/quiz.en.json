@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does ToArray<string | number> return if type ToArray<T> = T extends unknown ? T[] : never?",
+    "type": "single",
+    "options": [
+      { "text": "string[] | number[] — distributive result", "correct": true },
+      { "text": "(string | number)[] — single array", "correct": false, "explanation": "A conditional type with a naked type parameter distributes over unions. ToArray is applied to string and number separately, yielding string[] | number[]" },
+      { "text": "never — condition is not met", "correct": false, "explanation": "string extends unknown = true, number extends unknown = true, so both union members pass the check" },
+      { "text": "unknown[] — generalized array", "correct": false, "explanation": "TypeScript doesn't generalize types to unknown. Distributivity creates a separate array for each union member" }
+    ]
+  },
+  {
+    "question": "How do you prevent distributivity of a conditional type?",
+    "type": "single",
+    "options": [
+      { "text": "Wrap T in a tuple: [T] extends [U] ? X : Y", "correct": true },
+      { "text": "Use T & {} instead of T", "correct": false, "explanation": "T & {} doesn't prevent distributivity. It's an intersection type that behaves differently but doesn't block distribution" },
+      { "text": "Add a constraint: <T extends unknown>", "correct": false, "explanation": "A constraint doesn't affect distributivity. Distribution happens for any naked type parameter in the extends position" },
+      { "text": "Use never instead of unknown in extends", "correct": false, "explanation": "Replacing unknown with never makes the condition always false (except T = never), completely changing the type's semantics" }
+    ]
+  },
+  {
+    "question": "What does type IsNever<T> = T extends never ? true : false return for IsNever<never>?",
+    "type": "single",
+    "options": [
+      { "text": "never — because never is an empty union and distributivity returns never", "correct": true },
+      { "text": "true — because never extends never = true", "correct": false, "explanation": "Intuitively it seems like it should, but distributivity changes the behavior. never is an empty union with nothing to distribute over, so the result is never" },
+      { "text": "false — because never doesn't extend never", "correct": false, "explanation": "never extends never is indeed true, but due to distributivity the check isn't even performed — there are no union members to process" },
+      { "text": "boolean — because TypeScript can't determine the result", "correct": false, "explanation": "TypeScript doesn't return boolean for indeterminate cases. The result is always concrete for conditional types" }
+    ]
+  },
+  {
+    "question": "Which utility types are distributive conditional types?",
+    "type": "multiple",
+    "options": [
+      { "text": "Extract<T, U> = T extends U ? T : never", "correct": true },
+      { "text": "Exclude<T, U> = T extends U ? never : T", "correct": true },
+      { "text": "NonNullable<T> = T extends null | undefined ? never : T", "correct": true },
+      { "text": "Readonly<T> = { readonly [K in keyof T]: T[K] }", "correct": false, "explanation": "Readonly is a mapped type, not a conditional type. It doesn't use extends with a ternary operator" }
+    ]
+  },
+  {
+    "question": "Where can you use the infer keyword?",
+    "type": "single",
+    "options": [
+      { "text": "Only in the extends clause of a conditional type (the inferred variable is available in the true branch)", "correct": true },
+      { "text": "Anywhere a type can be used", "correct": false, "explanation": "infer is special syntax available only in the extends position of a conditional type. Outside this context it causes an error" },
+      { "text": "In function arguments for automatic type inference", "correct": false, "explanation": "Generic parameters are used for type inference in functions, not infer. infer works exclusively at the type level" },
+      { "text": "In both branches of a conditional type (true and false)", "correct": false, "explanation": "A variable declared via infer is only available in the true branch. In the false branch it's undefined" }
+    ]
+  }
+]

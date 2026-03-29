@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что делает модификатор -? в mapped type: { [K in keyof T]-?: T[K] }?",
+    "type": "single",
+    "options": [
+      { "text": "Убирает optional-модификатор (?), делая все свойства обязательными", "correct": true },
+      { "text": "Добавляет optional-модификатор, делая все свойства необязательными", "correct": false, "explanation": "Знак минус (-) перед ? означает удаление модификатора. Для добавления используется просто ? без минуса" },
+      { "text": "Убирает undefined из типа значения", "correct": false, "explanation": "-? убирает синтаксический модификатор опциональности, а не тип undefined из значения. Хотя результат похож, механизм другой" },
+      { "text": "Удаляет свойства, значение которых undefined", "correct": false, "explanation": "-? не фильтрует свойства — он преобразует все ключи, убирая у них опциональность" }
+    ]
+  },
+  {
+    "question": "Как работает key remapping через as в mapped type: [K in keyof T as `get${Capitalize<K & string>}`]?",
+    "type": "single",
+    "options": [
+      { "text": "Переименовывает каждый ключ, добавляя префикс get и делая первую букву заглавной", "correct": true },
+      { "text": "Фильтрует ключи, оставляя только те, что начинаются с get", "correct": false, "explanation": "as-clause трансформирует ключи, а не фильтрует. Фильтрация происходит только когда as разрешается в never" },
+      { "text": "Создаёт дополнительные ключи, сохраняя оригинальные", "correct": false, "explanation": "as-clause заменяет ключи, а не добавляет новые. Оригинальные ключи не сохраняются в результирующем типе" },
+      { "text": "Добавляет runtime-метод get для каждого свойства", "correct": false, "explanation": "Mapped types работают исключительно на уровне типов. Они не создают runtime-код или методы" }
+    ]
+  },
+  {
+    "question": "Почему при создании DeepPartial важно проверять T[K] extends unknown[]?",
+    "type": "single",
+    "options": [
+      { "text": "Без проверки массив будет развёрнут как объект с числовыми ключами (0?, 1?, length? и т.д.)", "correct": true },
+      { "text": "Массивы не поддерживают рекурсивные типы", "correct": false, "explanation": "Массивы поддерживают рекурсивные типы. Проблема в том, что Array extends object = true, и без проверки mapped type обработает массив как объект" },
+      { "text": "TypeScript выдаст ошибку компиляции при рекурсии в массив", "correct": false, "explanation": "Ошибки компиляции не будет — массив просто потеряет свой тип и превратится в объект с числовыми ключами" },
+      { "text": "Массивы не имеют свойства keyof", "correct": false, "explanation": "У массивов есть keyof — это union числовых индексов и методов (push, pop, length и т.д.). Именно поэтому mapped type развернёт массив как объект" }
+    ]
+  },
+  {
+    "question": "Какие из следующих mapped types являются гомоморфными (сохраняющими модификаторы исходного типа)?",
+    "type": "multiple",
+    "options": [
+      { "text": "{ [K in keyof T]: T[K] } — итерация через keyof T", "correct": true },
+      { "text": "{ readonly [K in keyof T]: T[K] } — добавление readonly", "correct": true },
+      { "text": "{ [K in 'a' | 'b']: string } — итерация по литеральному union", "correct": false, "explanation": "Это не гомоморфный mapped type, так как итерация идёт по явному union, а не по keyof T. Гомоморфность требует связи с исходным типом через keyof" },
+      { "text": "{ [K in keyof T as `get${K & string}`]: T[K] } — с key remapping", "correct": false, "explanation": "Key remapping через as нарушает гомоморфность. Модификаторы исходного типа (readonly, optional) не переносятся при использовании as-clause" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если as-выражение разрешится в never?",
+    "type": "single",
+    "options": [
+      { "text": "Ключ будет исключён из результирующего типа", "correct": true },
+      { "text": "Значение по ключу станет never", "correct": false, "explanation": "Когда as разрешается в never, весь ключ пропускается, а не только его значение. Это основной механизм фильтрации ключей в mapped types" },
+      { "text": "Произойдёт ошибка компиляции", "correct": false, "explanation": "never в as-позиции — это штатный механизм TypeScript для фильтрации ключей, не ошибка" },
+      { "text": "Ключ останется с типом unknown", "correct": false, "explanation": "never в as-позиции означает полное исключение ключа, а не замену типа на unknown" }
+    ]
+  }
+]

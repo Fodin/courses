@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What does the validate() method return in Yup?",
+    "type": "single",
+    "options": [
+      { "text": "A Promise with validated data or an error", "correct": true },
+      { "text": "A boolean value true/false", "correct": false, "explanation": "A boolean value is returned by isValid(), not validate()" },
+      { "text": "An object with valid and errors fields", "correct": false, "explanation": "validate() returns a Promise that resolves with data or rejects with a ValidationError" },
+      { "text": "A string with an error message or null", "correct": false, "explanation": "validate() returns a Promise and throws a ValidationError on failure, not a string" }
+    ]
+  },
+  {
+    "question": "What is the purpose of the abortEarly: false option when calling validate()?",
+    "type": "single",
+    "options": [
+      { "text": "To make validation faster", "correct": false, "explanation": "This option actually slows validation down since all fields are checked, not just until the first error" },
+      { "text": "To collect all validation errors instead of just the first one", "correct": true },
+      { "text": "To disable type casting", "correct": false, "explanation": "Type casting is disabled via the strict: true option" },
+      { "text": "To prevent validation from throwing exceptions", "correct": false, "explanation": "validate() always throws a ValidationError on failure. Use isValid() for a boolean result" }
+    ]
+  },
+  {
+    "question": "Which properties does the ValidationError object have in Yup?",
+    "type": "multiple",
+    "options": [
+      { "text": "message — the first error message text", "correct": true },
+      { "text": "errors — an array of all error messages", "correct": true },
+      { "text": "inner — an array of ValidationError objects per field", "correct": true },
+      { "text": "fields — an object with invalid fields and their values", "correct": false, "explanation": "This property does not exist. Use err.inner and the path property of each element to get field paths" },
+      { "text": "isValid — a boolean value false", "correct": false, "explanation": "ValidationError does not have this property. Use the schema.isValid() method to check validity" }
+    ]
+  },
+  {
+    "question": "What does the cast() method do in Yup?",
+    "type": "single",
+    "options": [
+      { "text": "Validates data and returns errors", "correct": false, "explanation": "Use validate() for validation. cast() only transforms data without checking validation rules" },
+      { "text": "Transforms data to the required type without checking validation rules", "correct": true },
+      { "text": "Creates a copy of the schema with new settings", "correct": false, "explanation": "cast() works with data, not the schema. It coerces the value to the schema's type" },
+      { "text": "Checks whether data can be coerced to the required type", "correct": false, "explanation": "cast() doesn't check — it performs the transformation. Use isValid() for checking" }
+    ]
+  },
+  {
+    "question": "Which method should you use if you only need to know whether data is valid, without error details?",
+    "type": "single",
+    "options": [
+      { "text": "validate()", "correct": false, "explanation": "validate() returns data or throws a ValidationError — this is excessive if you only need a boolean" },
+      { "text": "isValid()", "correct": true },
+      { "text": "cast()", "correct": false, "explanation": "cast() transforms data but does not check validation rules" },
+      { "text": "check()", "correct": false, "explanation": "The check() method does not exist in Yup" }
+    ]
+  }
+]

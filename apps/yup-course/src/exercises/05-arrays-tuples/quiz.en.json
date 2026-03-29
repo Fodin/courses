@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What happens if you create yup.array() without calling .of()?",
+    "type": "single",
+    "options": [
+      { "text": "Yup only checks that the value is an array but does not validate elements", "correct": true },
+      { "text": "Error — of() is required for array()", "correct": false, "explanation": "of() is not required, but without it Yup doesn't check array contents" },
+      { "text": "Each element will be validated as mixed()", "correct": false, "explanation": "Without of(), elements are not validated at all — only the value being an array is checked" },
+      { "text": "The array will be converted to an empty array", "correct": false, "explanation": "array() without of() accepts any array with any elements without conversion" }
+    ]
+  },
+  {
+    "question": "Why does yup.array().of(yup.string()).required().validate([]) pass successfully?",
+    "type": "single",
+    "options": [
+      { "text": "Because required() checks that the array is not null/undefined, and an empty array is a valid value", "correct": true },
+      { "text": "It's a bug in Yup", "correct": false, "explanation": "This is expected behavior: an empty array [] is not null or undefined" },
+      { "text": "required() doesn't work with arrays", "correct": false, "explanation": "required() works with arrays but only checks for null/undefined, not emptiness" },
+      { "text": "of() cancels the effect of required()", "correct": false, "explanation": "of() and required() are independent checks. To reject empty arrays, add min(1)" }
+    ]
+  },
+  {
+    "question": "Which statements about tuple() in Yup are correct?",
+    "type": "multiple",
+    "options": [
+      { "text": "Each tuple element can have its own type", "correct": true },
+      { "text": "label() helps make error messages more understandable", "correct": true },
+      { "text": "tuple() takes an array of schemas, one for each position", "correct": true },
+      { "text": "tuple() automatically coerces element types like array()", "correct": false, "explanation": "Tuples do not have automatic type coercion by default, unlike array()" }
+    ]
+  },
+  {
+    "question": "What does the ensure() method do for arrays?",
+    "type": "single",
+    "options": [
+      { "text": "Guarantees the value becomes an array: null -> [], undefined -> [], single value -> [value]", "correct": true },
+      { "text": "Checks that the array is not empty", "correct": false, "explanation": "Use min(1) to check non-emptiness. ensure() is a transformation that wraps non-arrays into an array" },
+      { "text": "Removes duplicates from the array", "correct": false, "explanation": "ensure() does not remove duplicates. It guarantees the value will be an array" },
+      { "text": "Checks that all elements are unique", "correct": false, "explanation": "ensure() is a transformation for coercing values to arrays, not a uniqueness validation" }
+    ]
+  }
+]

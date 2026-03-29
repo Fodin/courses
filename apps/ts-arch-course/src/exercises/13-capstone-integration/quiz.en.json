@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why does a Value Object (Email, Money) use a private constructor and a create() factory method returning Result?",
+    "type": "single",
+    "options": [
+      { "text": "A private constructor guarantees that an invalid Value Object cannot be created — validation happens in create(), and the result is typed as Result (success or error)", "correct": true },
+      { "text": "A private constructor speeds up object creation through V8 optimizations", "correct": false, "explanation": "A private constructor is a TypeScript compile-time restriction with no runtime impact. The goal is to ensure objects are only created through the validating factory method" },
+      { "text": "Result type is needed for asynchronous object creation", "correct": false, "explanation": "Result is not related to asynchronicity (that's Promise). Result is used to explicitly represent success/error without throw, making errors part of the contract" },
+      { "text": "The factory method is needed to implement the Singleton pattern", "correct": false, "explanation": "Value Objects are not Singletons (many instances can exist). The factory method is for encapsulating validation and data normalization" }
+    ]
+  },
+  {
+    "question": "What are the advantages of CQS (Command-Query Separation) when typing handlers?",
+    "type": "multiple",
+    "options": [
+      { "text": "Commands and queries are typed separately — the compiler verifies that each handler receives the correct command/query type", "correct": true },
+      { "text": "Extract<Command, { type: 'CreateOrder' }> automatically narrows the handler's argument type to the specific command", "correct": true },
+      { "text": "CQS speeds up query execution by separating reads and writes at the TypeScript level", "correct": false, "explanation": "TypeScript doesn't affect runtime performance. CQS is an architectural pattern for separation of concerns, not speed optimization" },
+      { "text": "Queries can be cached while commands cannot, which TypeScript checks statically", "correct": false, "explanation": "TypeScript cannot statically verify cacheability. CQS helps architecturally, but caching is a runtime decision" }
+    ]
+  },
+  {
+    "question": "Why does Repository<T, ID> in the Infrastructure Layer return Result instead of throwing exceptions?",
+    "type": "single",
+    "options": [
+      { "text": "Result makes possible errors part of the function type — calling code must handle both cases (ok/error), preventing unhandled errors", "correct": true },
+      { "text": "Because TypeScript doesn't support typing exceptions in a throws clause", "correct": false, "explanation": "It's true TypeScript lacks a throws clause, but that's not the main reason. Result explicitly models possible errors in the signature, making the contract transparent" },
+      { "text": "Result is faster than try/catch due to no stack trace", "correct": false, "explanation": "Performance difference is minimal for database operations. Result's advantage is in type safety and explicit contracts, not speed" },
+      { "text": "Exceptions are incompatible with generic types in TypeScript", "correct": false, "explanation": "Exceptions are compatible with generic types. Result is chosen for architectural reasons: explicit contracts, composability, and forcing error handling" }
+    ]
+  },
+  {
+    "question": "How does TypedContainer with TokenMap ensure DI type safety?",
+    "type": "single",
+    "options": [
+      { "text": "TokenMap maps string keys to specific types, and resolve<K extends keyof TokenMap>(token: K): TokenMap[K] returns the exact type for each token", "correct": true },
+      { "text": "TypedContainer checks service types at runtime on every resolve", "correct": false, "explanation": "TokenMap is a compile-time construct. TypedContainer doesn't add runtime type checks. Type safety is ensured by the generic parameter K in resolve" },
+      { "text": "TokenMap is automatically generated from registered services", "correct": false, "explanation": "TokenMap is defined manually. This is a deliberate choice: the type mapping serves as documentation of all available services and their types" },
+      { "text": "TypedContainer prevents registering services with incorrect types", "correct": false, "explanation": "Registration happens in the generic Container without TokenMap binding. TypedContainer is a wrapper ensuring type safety at resolve time, not at register time" }
+    ]
+  },
+  {
+    "question": "Why is mapping domain objects to DTOs (toOrderResponse) critically important in the API Layer?",
+    "type": "multiple",
+    "options": [
+      { "text": "Domain objects (Money, Specification) contain methods and internal logic that shouldn't leak into API responses", "correct": true },
+      { "text": "DTOs guarantee a stable API format even when internal domain types change", "correct": true },
+      { "text": "Mapping speeds up JSON serialization by simplifying the structure", "correct": false, "explanation": "Serialization speedup is a side effect, not the goal. The main reason is encapsulating domain logic and API contract stability" },
+      { "text": "Type conversions (Money.toString(), timestamp to ISO) make responses convenient for clients", "correct": true }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Which event catches unhandled promise rejections?",
+    "type": "single",
+    "options": [
+      { "text": "unhandledrejection", "correct": true },
+      { "text": "error", "correct": false, "explanation": "The error event catches synchronous errors and resource loading errors, but not promise rejections" },
+      { "text": "rejectionhandled", "correct": false, "explanation": "rejectionhandled fires when a previously unhandled rejection gets a handler — it's the reverse event" },
+      { "text": "promiseerror", "correct": false, "explanation": "No such event exists in JavaScript" }
+    ]
+  },
+  {
+    "question": "Why should a logger never throw errors?",
+    "type": "single",
+    "options": [
+      { "text": "The global handler will catch the logger's error and call the logger again — infinite loop", "correct": true },
+      { "text": "JavaScript forbids throw inside network requests", "correct": false, "explanation": "JavaScript doesn't forbid throw in network requests — the problem is an architectural cycle" },
+      { "text": "A logger error will automatically terminate the process", "correct": false, "explanation": "The process won't necessarily terminate, but there will be an infinite loop or stack overflow" },
+      { "text": "The logger runs in a separate thread and can't throw errors", "correct": false, "explanation": "The logger runs in the main JavaScript thread, like all other code" }
+    ]
+  },
+  {
+    "question": "Why is a global error handler a safety net, not the primary strategy?",
+    "type": "multiple",
+    "options": [
+      { "text": "The global handler doesn't know the error context", "correct": true },
+      { "text": "It can't show the error next to the relevant UI element", "correct": true },
+      { "text": "It can't offer retry or rollback of the operation", "correct": true },
+      { "text": "The global handler is slower than local try/catch", "correct": false, "explanation": "Speed is not the issue — it's about context and ability to respond" }
+    ]
+  },
+  {
+    "question": "Why is Date.now() a poor choice for a unique error ID?",
+    "type": "single",
+    "options": [
+      { "text": "Two calls in the same millisecond will produce the same ID", "correct": true },
+      { "text": "Date.now() returns a string but a number is needed", "correct": false, "explanation": "Date.now() returns a number — the problem is potential collisions, not the type" },
+      { "text": "Date.now() only works in Node.js", "correct": false, "explanation": "Date.now() works in both browser and Node.js" },
+      { "text": "Date.now() is not defined in TypeScript", "correct": false, "explanation": "Date.now() is fully supported in TypeScript" }
+    ]
+  },
+  {
+    "question": "What happens if you subscribe to the error event but forget about unhandledrejection?",
+    "type": "single",
+    "options": [
+      { "text": "Unhandled promise rejections will remain completely invisible to monitoring", "correct": true },
+      { "text": "The error event will automatically catch promises too", "correct": false, "explanation": "The error event doesn't catch promise rejections — a separate handler is needed" },
+      { "text": "JavaScript will show a warning about the missing handler", "correct": false, "explanation": "The browser will show a console error, but your monitoring won't know about it" },
+      { "text": "All promises will be automatically resolved", "correct": false, "explanation": "The absence of a handler doesn't affect promise execution — they still reject" }
+    ]
+  }
+]

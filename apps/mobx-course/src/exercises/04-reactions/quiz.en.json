@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How does reaction differ from autorun?",
+    "type": "multiple",
+    "options": [
+      { "text": "reaction doesn't fire the effect on initialization, autorun fires immediately", "correct": true },
+      { "text": "reaction tracks only the data function return value, autorun tracks all read observables", "correct": true },
+      { "text": "reaction provides access to the previous value, autorun doesn't", "correct": true },
+      { "text": "reaction works asynchronously, autorun works synchronously", "correct": false, "explanation": "Both reactions fire synchronously when observed data changes. The difference is how they determine dependencies and when they first trigger." }
+    ]
+  },
+  {
+    "question": "What happens if you don't call a reaction's disposer when a component unmounts?",
+    "type": "single",
+    "options": [
+      { "text": "Memory leak — the reaction keeps running and holding references to closures and the store", "correct": true },
+      { "text": "React will automatically clean up the reaction", "correct": false, "explanation": "React knows nothing about MobX reactions. Cleanup is the developer's responsibility via the useEffect cleanup function." },
+      { "text": "MobX will automatically disable the reaction after 60 seconds of inactivity", "correct": false, "explanation": "MobX has no timeout for reactions. autorun and reaction run indefinitely until the disposer is called." },
+      { "text": "Nothing bad — the reaction will simply stop working", "correct": false, "explanation": "The reaction will NOT stop working — it continues tracking observables and executing callbacks, causing memory leaks and potential errors." }
+    ]
+  },
+  {
+    "question": "When is it better to use when instead of reaction?",
+    "type": "single",
+    "options": [
+      { "text": "When you need to perform an action once when a condition is met", "correct": true },
+      { "text": "When you need to track changes continuously", "correct": false, "explanation": "For continuous tracking, use reaction or autorun. when fires once and automatically disposes itself." },
+      { "text": "When you need access to the previous value", "correct": false, "explanation": "when doesn't provide access to the previous value. Use reaction for that." },
+      { "text": "When the condition can become true multiple times", "correct": false, "explanation": "when fires only on the first time the condition is met. For repeated conditions, use reaction." }
+    ]
+  },
+  {
+    "question": "Why is it dangerous to modify observables inside autorun?",
+    "type": "single",
+    "options": [
+      { "text": "It can cause an infinite loop if autorun tracks the same observable it modifies", "correct": true },
+      { "text": "MobX forbids mutations inside reactions", "correct": false, "explanation": "MobX doesn't completely forbid mutations inside reactions, but with enforceActions: 'always' it will throw an error. The main danger is infinite loops." },
+      { "text": "Changes inside autorun are not tracked by MobX", "correct": false, "explanation": "Changes are tracked, and that's exactly why an infinite loop can occur: autorun modifies an observable, which triggers autorun again, which modifies the observable again." },
+      { "text": "autorun doesn't have access to the store's this", "correct": false, "explanation": "autorun is a regular function with closure, it has access to all variables from the outer scope." }
+    ]
+  },
+  {
+    "question": "Which form of when returns a Promise?",
+    "type": "single",
+    "options": [
+      { "text": "when with a single argument (only predicate, no callback)", "correct": true },
+      { "text": "when with two arguments (predicate + callback)", "correct": false, "explanation": "When passing two arguments, when returns a disposer (cancel function), not a Promise." },
+      { "text": "Both forms return a Promise", "correct": false, "explanation": "The callback form returns a disposer, while the no-callback form returns a Promise. These are two different APIs." },
+      { "text": "when never returns a Promise", "correct": false, "explanation": "when(predicate) without a callback returns a Promise that can be used with await." }
+    ]
+  }
+]

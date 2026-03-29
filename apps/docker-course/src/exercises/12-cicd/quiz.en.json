@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the difference between Continuous Delivery and Continuous Deployment?",
+    "type": "single",
+    "options": [
+      { "text": "Continuous Delivery requires manual approval for production deploy, Continuous Deployment deploys automatically", "correct": true },
+      { "text": "Continuous Delivery is only testing, Continuous Deployment is only deploying", "correct": false, "explanation": "Both approaches include testing. The difference is whether manual approval is needed before production deploy" },
+      { "text": "No difference — they are synonyms", "correct": false, "explanation": "These are different approaches: Delivery means code is always release-ready (manual deploy), Deployment means every commit automatically goes to production" },
+      { "text": "Continuous Deployment only works with Docker, while Delivery works with any technology", "correct": false, "explanation": "Both approaches are technology-agnostic. The difference is in the degree of deploy automation" }
+    ]
+  },
+  {
+    "question": "What image tagging strategy is recommended for CI/CD?",
+    "type": "multiple",
+    "options": [
+      { "text": "Semantic versioning (1.2.3) for production releases", "correct": true },
+      { "text": "Git commit hash for unique build identification", "correct": true },
+      { "text": "latest for all environments", "correct": false, "explanation": "latest is an unpredictable tag that can point to any version. CI/CD needs specific, reproducible tags" },
+      { "text": "Branch and hash combination (main-abc123f) for intermediate builds", "correct": true }
+    ]
+  },
+  {
+    "question": "Why use layer caching when building Docker in CI/CD?",
+    "type": "single",
+    "options": [
+      { "text": "To speed up builds — unchanged layers (dependencies) are not rebuilt", "correct": true },
+      { "text": "To reduce image size", "correct": false, "explanation": "Caching doesn't affect final image size. It speeds up the build process by skipping unchanged layers" },
+      { "text": "To improve build security", "correct": false, "explanation": "Caching is not related to security. Its purpose is to accelerate CI/CD pipelines" },
+      { "text": "CI/CD systems require mandatory caching", "correct": false, "explanation": "Caching is optional but recommended for faster pipelines" }
+    ]
+  },
+  {
+    "question": "What is a multi-platform build (docker buildx)?",
+    "type": "single",
+    "options": [
+      { "text": "Building one image for multiple architectures (amd64, arm64) from a single Dockerfile", "correct": true },
+      { "text": "Building an image for both Docker and Podman simultaneously", "correct": false, "explanation": "buildx is not related to Podman. It's a tool for cross-platform builds targeting different CPU architectures" },
+      { "text": "Running one container on multiple servers simultaneously", "correct": false, "explanation": "That's an orchestrator's job (Kubernetes, Swarm). buildx builds images for different architectures" },
+      { "text": "A synonym for multi-stage build", "correct": false, "explanation": "Multi-stage is multi-step build for optimization. Multi-platform is building for different CPU architectures (ARM, x86)" }
+    ]
+  },
+  {
+    "question": "What problems does CI/CD automation solve for Docker applications?",
+    "type": "multiple",
+    "options": [
+      { "text": "Human error — forgotten tests, wrong branches, missed migrations", "correct": true },
+      { "text": "Build reproducibility — the same image for all environments", "correct": true },
+      { "text": "Image version control — knowing exactly what's deployed in production", "correct": true },
+      { "text": "Complete replacement of DevOps engineers — CI/CD manages infrastructure by itself", "correct": false, "explanation": "CI/CD automates routine processes but requires setup and maintenance by DevOps specialists" }
+    ]
+  }
+]

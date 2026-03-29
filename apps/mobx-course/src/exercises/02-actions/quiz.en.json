@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Why does code after await inside an async MobX store method stop being part of the action?",
+    "type": "single",
+    "options": [
+      { "text": "After await, execution continues in a different event loop tick, and MobX loses the action context", "correct": true },
+      { "text": "MobX doesn't support async/await", "correct": false, "explanation": "MobX supports async methods, but code after await executes outside the action context. That's why runInAction and flow exist." },
+      { "text": "await automatically terminates the current action", "correct": false, "explanation": "await doesn't explicitly terminate an action. Code after await simply executes in the next microtask where the action context is no longer active." },
+      { "text": "You need to manually mark the method as an async action", "correct": false, "explanation": "There's no special async action annotation. The solution is to use runInAction to wrap mutations after await, or use flow generators." }
+    ]
+  },
+  {
+    "question": "What does the autoBind: true option do in makeAutoObservable?",
+    "type": "single",
+    "options": [
+      { "text": "Automatically binds this to all methods so they work as callbacks", "correct": true },
+      { "text": "Automatically invokes all actions when the store is created", "correct": false, "explanation": "autoBind doesn't invoke methods — it binds the this context so methods can be safely passed as callbacks." },
+      { "text": "Binds the store to a React component", "correct": false, "explanation": "autoBind is not related to React. It's a this-binding option for class methods." },
+      { "text": "Automatically wraps all methods in runInAction", "correct": false, "explanation": "autoBind doesn't add runInAction. It simply binds this via .bind() so that the context is preserved when passing methods as callbacks." }
+    ]
+  },
+  {
+    "question": "What advantage does batching in actions provide?",
+    "type": "single",
+    "options": [
+      { "text": "Multiple observable changes within a single action cause only one re-render", "correct": true },
+      { "text": "Action executes faster due to parallelism", "correct": false, "explanation": "Batching doesn't speed up action execution. It groups subscriber notifications so re-rendering happens only once after the action completes." },
+      { "text": "MobX caches the action result and doesn't re-execute it", "correct": false, "explanation": "Caching is a property of computed values, not actions. Batching in actions means grouping change notifications." },
+      { "text": "Multiple actions are combined into a single database transaction", "correct": false, "explanation": "MobX doesn't work with databases. Batching means all observable mutations within one action are grouped, and subscribers are notified only once." }
+    ]
+  },
+  {
+    "question": "Which of the following are valid values for the enforceActions setting?",
+    "type": "multiple",
+    "options": [
+      { "text": "'never' — no restrictions", "correct": true },
+      { "text": "'observed' — action required only for observed observables", "correct": true },
+      { "text": "'always' — action required for any observable changes", "correct": true },
+      { "text": "'strict' — forbids any mutations", "correct": false, "explanation": "The value 'strict' doesn't exist. Valid values are 'never', 'observed', and 'always'." },
+      { "text": "'warn' — shows a warning instead of an error", "correct": false, "explanation": "The value 'warn' doesn't exist. enforceActions only accepts 'never', 'observed', and 'always'." }
+    ]
+  },
+  {
+    "question": "When do you need to use runInAction?",
+    "type": "single",
+    "options": [
+      { "text": "To wrap observable mutations after await in async methods", "correct": true },
+      { "text": "For any change to an observable property", "correct": false, "explanation": "If the mutation happens inside an action method (before the first await), runInAction is not needed. It's only necessary after await." },
+      { "text": "To create a new action on the fly", "correct": false, "explanation": "runInAction is a one-time anonymous action, but its primary purpose is wrapping mutations after async operations, not creating named actions." },
+      { "text": "Only when using enforceActions: 'always'", "correct": false, "explanation": "runInAction is useful always: without it, not only does an error occur with enforceActions: 'always', but batching is also lost, leading to unnecessary re-renders." }
+    ]
+  }
+]

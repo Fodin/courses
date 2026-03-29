@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Какой тип имеют все значения в process.env?",
+    "type": "single",
+    "options": [
+      { "text": "string — все значения являются строками", "correct": true },
+      { "text": "Зависит от значения: числа будут number, строки — string", "correct": false, "explanation": "Все значения process.env — строки. PORT=3000 будет \"3000\" (string), не 3000 (number)" },
+      { "text": "unknown — нужно проверять тип", "correct": false, "explanation": "Тип всегда string (или undefined если переменная не задана). TypeScript типизирует как string | undefined" },
+      { "text": "any — зависит от ОС", "correct": false, "explanation": "Переменные окружения — это всегда строки, независимо от ОС" }
+    ]
+  },
+  {
+    "question": "Чем process.exit(1) отличается от process.exitCode = 1?",
+    "type": "single",
+    "options": [
+      { "text": "exit() немедленно завершает процесс, exitCode ждёт опустошения event loop", "correct": true },
+      { "text": "Ничем — это алиасы", "correct": false, "explanation": "exit() — жёсткое немедленное завершение. exitCode — мягкое: Node.js завершится когда event loop опустеет" },
+      { "text": "exitCode выбрасывает исключение, exit() — нет", "correct": false, "explanation": "exitCode просто устанавливает код возврата, никаких исключений" },
+      { "text": "exit() работает только в главном потоке", "correct": false, "explanation": "process.exit() работает в любом контексте и немедленно завершает весь процесс" }
+    ]
+  },
+  {
+    "question": "Какой сигнал НЕЛЬЗЯ перехватить в Node.js?",
+    "type": "single",
+    "options": [
+      { "text": "SIGKILL", "correct": true },
+      { "text": "SIGTERM", "correct": false, "explanation": "SIGTERM можно и нужно перехватывать для graceful shutdown" },
+      { "text": "SIGINT", "correct": false, "explanation": "SIGINT (Ctrl+C) перехватывается через process.on('SIGINT', handler)" },
+      { "text": "SIGHUP", "correct": false, "explanation": "SIGHUP перехватывается. Часто используется для перечитывания конфигурации" }
+    ]
+  },
+  {
+    "question": "Что обязательно нужно включить в graceful shutdown?",
+    "type": "multiple",
+    "options": [
+      { "text": "Таймаут для принудительного завершения", "correct": true },
+      { "text": "Прекращение приёма новых соединений (server.close)", "correct": true },
+      { "text": "Закрытие подключений к базам данных", "correct": true },
+      { "text": "Немедленный вызов process.exit(0)", "correct": false, "explanation": "Немедленный exit не дожидается завершения текущих операций — это НЕ graceful" },
+      { "text": "Перезапуск процесса через fork", "correct": false, "explanation": "Перезапуск — это задача менеджера процессов (PM2, systemd), а не самого shutdown" }
+    ]
+  },
+  {
+    "question": "Почему при использовании cluster нельзя хранить сессии в памяти worker?",
+    "type": "single",
+    "options": [
+      { "text": "Каждый worker — отдельный процесс со своей памятью, сессия не видна другим workers", "correct": true },
+      { "text": "Cluster автоматически очищает память workers", "correct": false, "explanation": "Cluster не трогает память workers. Проблема в том, что разные запросы попадают в разные workers" },
+      { "text": "Workers перезапускаются слишком часто", "correct": false, "explanation": "Workers не перезапускаются без причины. Проблема в изоляции памяти между процессами" },
+      { "text": "Node.js запрещает хранение объектов в cluster workers", "correct": false, "explanation": "Хранение объектов в памяти worker разрешено. Но другие workers не имеют к ним доступа" }
+    ]
+  }
+]

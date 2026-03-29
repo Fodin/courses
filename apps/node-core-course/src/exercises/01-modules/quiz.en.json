@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What happens if you write exports = { hello: 'world' } in a CommonJS module?",
+    "type": "single",
+    "options": [
+      { "text": "require() returns an empty object {}, because exports is unlinked from module.exports", "correct": true },
+      { "text": "require() returns { hello: 'world' }", "correct": false, "explanation": "Reassigning exports doesn't affect module.exports. require() always returns module.exports, not exports" },
+      { "text": "Node.js throws a SyntaxError", "correct": false, "explanation": "This is valid JavaScript. exports just points to a new object while module.exports remains empty" },
+      { "text": "The module won't be cached", "correct": false, "explanation": "Caching doesn't depend on how you export. The module is always cached after the first require()" }
+    ]
+  },
+  {
+    "question": "How do live bindings in ESM differ from CommonJS?",
+    "type": "single",
+    "options": [
+      { "text": "ESM imports are live references to exported values, CJS creates copies at require time", "correct": true },
+      { "text": "ESM and CJS work the same — both create copies", "correct": false, "explanation": "ESM creates live bindings — when the exported value changes, the import automatically updates" },
+      { "text": "CJS creates live bindings, ESM creates copies", "correct": false, "explanation": "It's the opposite: ESM creates live bindings, CJS creates value copies" },
+      { "text": "Live bindings only work for objects, not primitives", "correct": false, "explanation": "In ESM, live bindings work for primitives too (let count = 0). In CJS, even objects are destructured as reference copies" }
+    ]
+  },
+  {
+    "question": "What happens with a circular dependency A → B → A in CommonJS?",
+    "type": "single",
+    "options": [
+      { "text": "B receives a partially filled module.exports from A", "correct": true },
+      { "text": "Node.js throws a circular dependency error", "correct": false, "explanation": "Node.js doesn't throw an error — it returns partially filled exports. This can lead to undefined values" },
+      { "text": "The program enters an infinite loop and hangs", "correct": false, "explanation": "Node.js detects the cycle via require.cache and returns the current exports state without looping" },
+      { "text": "Both modules load fully and correctly", "correct": false, "explanation": "Module B gets A in an incomplete state — only properties exported before the require('./b') call" }
+    ]
+  },
+  {
+    "question": "Which conditions does the exports field in package.json support?",
+    "type": "multiple",
+    "options": [
+      { "text": "import — for loading via import/import()", "correct": true },
+      { "text": "require — for loading via require()", "correct": true },
+      { "text": "types — for TypeScript type definitions", "correct": true },
+      { "text": "eval — for loading via eval()", "correct": false, "explanation": "There is no eval condition. Supported: import, require, node, browser, types, default, and custom conditions" }
+    ]
+  },
+  {
+    "question": "How do you get __dirname in an ESM module?",
+    "type": "single",
+    "options": [
+      { "text": "import { dirname } from 'path'; dirname(fileURLToPath(import.meta.url))", "correct": true },
+      { "text": "Use __dirname directly — it's available in ESM", "correct": false, "explanation": "__dirname is only available in CommonJS. In ESM you need import.meta.url" },
+      { "text": "import { __dirname } from 'module'", "correct": false, "explanation": "No such export exists in the 'module' module. Use import.meta.url + fileURLToPath + dirname" },
+      { "text": "process.cwd() — it's equivalent to __dirname", "correct": false, "explanation": "process.cwd() returns the process working directory, __dirname returns the current file's directory. These are different" }
+    ]
+  }
+]

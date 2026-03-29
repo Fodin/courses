@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How do you represent the number 5 at the TypeScript type level for arithmetic operations?",
+    "type": "single",
+    "options": [
+      { "text": "As a tuple of length 5: [unknown, unknown, unknown, unknown, unknown]", "correct": true },
+      { "text": "As the literal type 5", "correct": false, "explanation": "The literal type 5 is just a type constant. For arithmetic you need a representation that supports operations (concatenation, destructuring). Tuples enable this via spread and infer" },
+      { "text": "As an enum with 5 values", "correct": false, "explanation": "Enums are a runtime construct, not a tool for type-level computation. Tuples allow using spread (...) for addition and infer for subtraction" },
+      { "text": "As a recursive type Succ<Succ<Succ<Succ<Succ<Zero>>>>>", "correct": false, "explanation": "While this is the classic Peano approach, it's impractical in TypeScript due to difficulty extracting a numeric literal. Tuples let you get the number via T['length']" }
+    ]
+  },
+  {
+    "question": "Why might type Add<A, B> = [...BuildTuple<A>, ...BuildTuple<B>]['length'] not return a literal number type?",
+    "type": "single",
+    "options": [
+      { "text": "Because without infer extends, T['length'] may produce type number instead of a literal", "correct": true },
+      { "text": "Because spread doesn't work with tuples", "correct": false, "explanation": "Spread works perfectly with tuples in TypeScript. The issue is that ['length'] without additional handling may return the widened type number" },
+      { "text": "Because TypeScript doesn't support type arithmetic", "correct": false, "explanation": "TypeScript supports type-level arithmetic via tuples. The issue is in the specific syntax — you need infer extends number to narrow the result" },
+      { "text": "Because BuildTuple returns never for large numbers", "correct": false, "explanation": "BuildTuple works for numbers up to ~999. The issue isn't BuildTuple but how TypeScript handles the indexed access ['length']" }
+    ]
+  },
+  {
+    "question": "Which of the following type-level string operations are correct?",
+    "type": "multiple",
+    "options": [
+      { "text": "type Split<S, D> = S extends `${infer H}${D}${infer T}` ? [H, ...Split<T, D>] : [S]", "correct": true },
+      { "text": "type Trim<S> = S extends `${' '}${infer R}` ? Trim<R> : S", "correct": true },
+      { "text": "type Replace<S, F, T> = S extends `${infer A}${F}${infer B}` ? `${A}${T}${B}` : S", "correct": true },
+      { "text": "type Length<S> = S['length']", "correct": false, "explanation": "S['length'] for a string literal type returns type number, not a specific number. To get string length at the type level, you need recursive conversion to a tuple" }
+    ]
+  },
+  {
+    "question": "What happens with type Match<42, [PatternCase<_, 'default'>, PatternCase<42, 'found'>]>?",
+    "type": "single",
+    "options": [
+      { "text": "Result is 'default' because wildcard _ is first and matches everything", "correct": true },
+      { "text": "Result is 'found' because exact match takes priority", "correct": false, "explanation": "In type-level pattern matching, pattern order matters. Match checks patterns left to right (like switch without break), so wildcard _ first will catch any value" },
+      { "text": "Compile error", "correct": false, "explanation": "The code compiles without errors, the wildcard pattern simply catches the value before the exact match" },
+      { "text": "Result is never", "correct": false, "explanation": "The wildcard pattern _ matches any value, so the result is 'default', not never" }
+    ]
+  },
+  {
+    "question": "What is the maximum recursion depth TypeScript supports for type-level computation?",
+    "type": "single",
+    "options": [
+      { "text": "Approximately 999 levels (depends on TypeScript version)", "correct": true },
+      { "text": "Unlimited — TypeScript will unroll any recursion", "correct": false, "explanation": "TypeScript has a hard limit on type recursion depth to prevent infinite computation and compiler hangs" },
+      { "text": "Exactly 50 levels", "correct": false, "explanation": "50 levels was the limit for conditional types in older versions. Modern TypeScript supports significantly deeper recursion" },
+      { "text": "Exactly 100 levels", "correct": false, "explanation": "The actual limit is significantly higher — around 999 levels, though the exact value depends on TypeScript version and type complexity" }
+    ]
+  }
+]

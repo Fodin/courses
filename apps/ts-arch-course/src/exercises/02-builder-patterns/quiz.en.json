@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Which Builder pattern is best when method call order matters?",
+    "type": "single",
+    "options": [
+      { "text": "Step Builder — each step returns the next step's interface", "correct": true },
+      { "text": "Accumulating Builder — tracks set fields in the generic parameter", "correct": false, "explanation": "Accumulating Builder doesn't fix order — it tracks WHICH fields are set, not in what sequence" },
+      { "text": "Conditional Builder — restricts methods by current state", "correct": false, "explanation": "Conditional Builder restricts available methods by configuration type but doesn't enforce strict call sequence" },
+      { "text": "Regular Builder with runtime validation in build()", "correct": false, "explanation": "Runtime validation discovers errors only during execution. Step Builder catches them at compile time" }
+    ]
+  },
+  {
+    "question": "How does Accumulating Builder prevent calling build() without required fields?",
+    "type": "single",
+    "options": [
+      { "text": "Through a this-parameter in build() requiring a specific generic type", "correct": true },
+      { "text": "Through instanceof check at runtime", "correct": false, "explanation": "instanceof check is a runtime approach. Accumulating Builder uses the type system for compile-time checking" },
+      { "text": "Through a private isReady flag", "correct": false, "explanation": "A private flag isn't detected by TypeScript at compile time. This-parameter works statically" },
+      { "text": "Through build() overloads for each field combination", "correct": false, "explanation": "Number of overloads grows exponentially with field count. This-parameter is an elegant solution for any number of fields" }
+    ]
+  },
+  {
+    "question": "What does this-parameter typing do in a conditional builder method?",
+    "type": "single",
+    "options": [
+      { "text": "Restricts on which instances (with which generic type) the method can be called", "correct": true },
+      { "text": "Creates a new builder instance with a different type", "correct": false, "explanation": "This-parameter doesn't create new instances. It declares a requirement for the object type on which the method is called" },
+      { "text": "Transforms the return value type", "correct": false, "explanation": "This-parameter affects method invocation, not its return value. The return type is determined separately" },
+      { "text": "Adds a runtime type check", "correct": false, "explanation": "This-parameter is a purely compile-time mechanism. In JavaScript it doesn't exist and generates no code" }
+    ]
+  },
+  {
+    "question": "Which statements about Step Builder are true?",
+    "type": "multiple",
+    "options": [
+      { "text": "Each method returns an interface defining valid next calls", "correct": true },
+      { "text": "Number of steps should be fixed and small (2-5)", "correct": true },
+      { "text": "Step Builder allows calling methods in arbitrary order", "correct": false, "explanation": "Arbitrary order is a property of Accumulating Builder. Step Builder strictly fixes the sequence" },
+      { "text": "Methods on the same step can be called repeatedly (header -> header -> header)", "correct": true }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "В чём разница между .env файлом и env_file в Docker Compose?",
+    "type": "single",
+    "options": [
+      { "text": ".env подставляет значения ${VAR} в docker-compose.yml, а env_file передаёт переменные внутрь контейнера", "correct": true },
+      { "text": "Разницы нет — оба механизма передают переменные в контейнер", "correct": false, "explanation": "Это разные механизмы: .env — интерполяция в YAML-файле, env_file — передача переменных непосредственно в контейнер" },
+      { "text": ".env работает только с Docker CLI, а env_file — только с Compose", "correct": false, "explanation": "docker run --env-file тоже существует. Разница в том, что .env в Compose подставляет значения в YAML" },
+      { "text": "env_file загружается только при сборке, а .env — при запуске", "correct": false, "explanation": ".env подставляется при парсинге docker-compose.yml, а env_file передаёт переменные при создании контейнера" }
+    ]
+  },
+  {
+    "question": "Что означает синтаксис ${DB_PASSWORD:?DB_PASSWORD is required}?",
+    "type": "single",
+    "options": [
+      { "text": "Если DB_PASSWORD не задан или пуст, Compose выдаст ошибку с указанным сообщением", "correct": true },
+      { "text": "Установит значение DB_PASSWORD равным строке 'DB_PASSWORD is required'", "correct": false, "explanation": "Синтаксис :? вызывает ошибку, а не устанавливает значение. Для значения по умолчанию используется :-" },
+      { "text": "Создаст переменную только если она ещё не существует", "correct": false, "explanation": "Синтаксис :? проверяет наличие переменной и вызывает ошибку, если она отсутствует или пуста" },
+      { "text": "Зашифрует значение переменной", "correct": false, "explanation": "Docker Compose не шифрует переменные. Синтаксис :? — это валидация обязательности переменной" }
+    ]
+  },
+  {
+    "question": "Почему нельзя хранить секреты в ARG Dockerfile?",
+    "type": "single",
+    "options": [
+      { "text": "Значения ARG видны через docker history и сохраняются в метаданных образа", "correct": true },
+      { "text": "ARG не поддерживает специальные символы в паролях", "correct": false, "explanation": "ARG поддерживает любые строковые значения. Проблема в том, что значения сохраняются в слоях образа и видны всем" },
+      { "text": "ARG автоматически логирует значения в STDOUT", "correct": false, "explanation": "ARG не логирует значения автоматически, но они видны через docker history и docker inspect" },
+      { "text": "Значения ARG передаются всем контейнерам на хосте", "correct": false, "explanation": "ARG доступен только при сборке одного образа, но его значение сохраняется в истории слоёв" }
+    ]
+  },
+  {
+    "question": "Каков правильный приоритет переменных окружения в Docker Compose (от высшего к низшему)?",
+    "type": "single",
+    "options": [
+      { "text": "environment в compose.yml → Shell-переменные хоста → env_file → .env → ENV в Dockerfile", "correct": true },
+      { "text": "ENV в Dockerfile → environment в compose.yml → .env → Shell-переменные хоста", "correct": false, "explanation": "ENV из Dockerfile имеет наименьший приоритет. environment в compose.yml и переменные хоста перезаписывают его" },
+      { "text": ".env → env_file → environment → Shell-переменные → ENV в Dockerfile", "correct": false, "explanation": ".env имеет низкий приоритет. Явные значения в environment и shell-переменные хоста перезаписывают .env" },
+      { "text": "Все источники имеют одинаковый приоритет", "correct": false, "explanation": "Есть чёткая иерархия: явное environment > shell > env_file > .env > Dockerfile ENV" }
+    ]
+  },
+  {
+    "question": "Как Docker Secrets безопаснее переменных окружения?",
+    "type": "multiple",
+    "options": [
+      { "text": "Секреты хранятся в файлах (/run/secrets/), а не в переменных окружения", "correct": true },
+      { "text": "Секреты не видны через docker inspect", "correct": true },
+      { "text": "Секреты не попадают в логи через console.log(process.env)", "correct": true },
+      { "text": "Секреты автоматически шифруются при передаче между хостом и контейнером", "correct": false, "explanation": "В Docker Compose (без Swarm) секреты передаются как bind mounts файлов, без дополнительного шифрования. Шифрование есть только в Docker Swarm" }
+    ]
+  }
+]

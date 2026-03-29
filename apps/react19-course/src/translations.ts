@@ -79,6 +79,11 @@ export const translations: Translations = {
     'theory.title': '📚 Теория',
     'theory.loading': 'Загрузка теории...',
 
+    'quiz.title': '🧪 Тест по теории',
+    'quiz.submit': 'Ответить',
+    'quiz.correct': '✅ Правильно!',
+    'quiz.wrong': '❌ Неправильно',
+
     'solution.show': '💡 Показать решение',
     'solution.hide': '🙈 Скрыть решение',
 
@@ -138,6 +143,11 @@ export const translations: Translations = {
 
     'theory.title': '📚 Theory',
     'theory.loading': 'Loading theory...',
+
+    'quiz.title': '🧪 Theory Quiz',
+    'quiz.submit': 'Submit',
+    'quiz.correct': '✅ Correct!',
+    'quiz.wrong': '❌ Incorrect',
 
     'solution.show': '💡 Show Solution',
     'solution.hide': '🙈 Hide Solution',

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "В каком порядке выполнятся колбэки: setTimeout(fn, 0), process.nextTick(fn), Promise.resolve().then(fn)?",
+    "type": "single",
+    "options": [
+      { "text": "nextTick → Promise → setTimeout", "correct": true },
+      { "text": "setTimeout → nextTick → Promise", "correct": false, "explanation": "setTimeout — макротаск, он выполняется после всех микротасок. nextTick и Promise — микротаски, но nextTick имеет приоритет" },
+      { "text": "Promise → nextTick → setTimeout", "correct": false, "explanation": "process.nextTick имеет собственную очередь с более высоким приоритетом, чем Promise microtask queue" },
+      { "text": "Порядок не определён", "correct": false, "explanation": "Порядок чётко определён: nextTick queue дренируется первой, затем Promise queue, затем макротаски" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если рекурсивно вызывать process.nextTick?",
+    "type": "single",
+    "options": [
+      { "text": "Event Loop заблокируется — I/O и таймеры не будут выполняться", "correct": true },
+      { "text": "Node.js автоматически ограничит глубину рекурсии", "correct": false, "explanation": "В современных версиях Node.js нет ограничения на глубину nextTick. Флаг --max-tick-depth был удалён в v0.12" },
+      { "text": "Колбэки будут выполняться параллельно в thread pool", "correct": false, "explanation": "nextTick колбэки выполняются в основном потоке, а не в thread pool. Node.js однопоточен для JavaScript-кода" },
+      { "text": "Node.js выбросит ошибку Maximum call stack size exceeded", "correct": false, "explanation": "nextTick не вызывает рекурсию стека — каждый колбэк выполняется отдельно. Проблема в том, что очередь бесконечно растёт" }
+    ]
+  },
+  {
+    "question": "Какой порядок setTimeout(fn, 0) и setImmediate(fn) внутри колбэка fs.readFile?",
+    "type": "single",
+    "options": [
+      { "text": "setImmediate всегда первый, setTimeout второй", "correct": true },
+      { "text": "setTimeout всегда первый, setImmediate второй", "correct": false, "explanation": "Внутри I/O колбэка (Poll фаза) следующей идёт Check фаза (setImmediate), а не Timers" },
+      { "text": "Порядок не определён", "correct": false, "explanation": "В main module порядок не определён, но внутри I/O колбэка — всегда: setImmediate → setTimeout" },
+      { "text": "Они выполняются одновременно", "correct": false, "explanation": "JavaScript однопоточен — два колбэка не могут выполняться одновременно" }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений о фазе Poll верны?",
+    "type": "multiple",
+    "options": [
+      { "text": "В ней обрабатываются колбэки I/O операций (fs.readFile, net)", "correct": true },
+      { "text": "Она может блокироваться в ожидании новых I/O событий", "correct": true },
+      { "text": "В ней выполняются колбэки setTimeout", "correct": false, "explanation": "setTimeout выполняется в фазе Timers, а не Poll" },
+      { "text": "При наличии setImmediate она переходит к фазе Check", "correct": true }
+    ]
+  },
+  {
+    "question": "Почему setTimeout(fn, 0) на самом деле имеет задержку >= 1ms?",
+    "type": "single",
+    "options": [
+      { "text": "Node.js устанавливает минимальную задержку 1ms для setTimeout", "correct": true },
+      { "text": "V8 движок не поддерживает нулевую задержку", "correct": false, "explanation": "V8 не управляет таймерами — это делает libuv. Минимум в 1ms — архитектурное решение Node.js" },
+      { "text": "Операционная система не позволяет задержку менее 1ms", "correct": false, "explanation": "ОС может поддерживать более точные таймеры. Ограничение в 1ms — решение Node.js/libuv" },
+      { "text": "Это баг в Node.js, который планируют исправить", "correct": false, "explanation": "Это намеренное поведение. В спецификации HTML минимум 4ms (после 5 вложенных вызовов), в Node.js — 1ms" }
+    ]
+  }
+]

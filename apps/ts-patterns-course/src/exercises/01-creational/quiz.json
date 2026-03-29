@@ -1,0 +1,53 @@
+[
+  {
+    "question": "В чём ключевое отличие Factory Method от Abstract Factory?",
+    "type": "single",
+    "options": [
+      { "text": "Factory Method создаёт один объект, Abstract Factory — семейство связанных объектов", "correct": true },
+      { "text": "Factory Method использует классы, а Abstract Factory — функции", "correct": false, "explanation": "Оба паттерна могут быть реализованы как через классы, так и через функции. Отличие в количестве создаваемых объектов" },
+      { "text": "Abstract Factory работает быстрее в runtime", "correct": false, "explanation": "Производительность не является отличительной чертой этих паттернов — разница в их назначении и структуре" },
+      { "text": "Factory Method — устаревший паттерн, заменённый Abstract Factory", "correct": false, "explanation": "Оба паттерна актуальны и решают разные задачи. Factory Method — для одного типа продуктов, Abstract Factory — для семейств" }
+    ]
+  },
+  {
+    "question": "Почему фабричная функция должна возвращать интерфейс, а не конкретный класс?",
+    "type": "single",
+    "options": [
+      { "text": "Чтобы клиентский код не зависел от конкретных реализаций и при добавлении нового типа не нужно было менять потребителей", "correct": true },
+      { "text": "Потому что TypeScript не поддерживает возврат конкретных классов из функций", "correct": false, "explanation": "TypeScript отлично поддерживает возврат конкретных типов. Но возврат интерфейса — осознанное архитектурное решение для снижения связности" },
+      { "text": "Для экономии памяти при создании объектов", "correct": false, "explanation": "Возвращаемый тип не влияет на использование памяти — это чисто compile-time информация" },
+      { "text": "Интерфейсы быстрее классов в JavaScript", "correct": false, "explanation": "Интерфейсы TypeScript не существуют в runtime — они полностью стираются при компиляции" }
+    ]
+  },
+  {
+    "question": "Какие проблемы решает паттерн Builder?",
+    "type": "multiple",
+    "options": [
+      { "text": "Длинные конструкторы с множеством параметров, где легко перепутать порядок аргументов", "correct": true },
+      { "text": "Необходимость пошагового создания сложного объекта с читаемым fluent API", "correct": true },
+      { "text": "Контроль обязательных шагов создания объекта на уровне типов (type-safe builder)", "correct": true },
+      { "text": "Автоматическая сериализация объектов в JSON", "correct": false, "explanation": "Сериализация — отдельная задача, не связанная с паттерном Builder" },
+      { "text": "Замена наследования классов композицией", "correct": false, "explanation": "Для замены наследования композицией используются другие подходы (mixins, delegation). Builder решает проблему создания объектов" }
+    ]
+  },
+  {
+    "question": "Почему конструктор Singleton должен быть `private`?",
+    "type": "single",
+    "options": [
+      { "text": "Чтобы TypeScript не позволил создать экземпляр через new, минуя getInstance()", "correct": true },
+      { "text": "Для повышения производительности при создании объекта", "correct": false, "explanation": "Модификатор private не влияет на runtime — это compile-time ограничение доступа" },
+      { "text": "Чтобы скрыть внутренние поля класса", "correct": false, "explanation": "Для скрытия полей используется private на полях. Private на конструкторе запрещает вызов new извне класса" },
+      { "text": "Это требование TypeScript для всех классов с static методами", "correct": false, "explanation": "Классы с static методами не обязаны иметь private конструктор. Это осознанный выбор для паттерна Singleton" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при вызове `create('emial')`, если параметр типизирован как `type: string`?",
+    "type": "single",
+    "options": [
+      { "text": "TypeScript скомпилирует без ошибок, опечатка обнаружится только в runtime", "correct": true },
+      { "text": "TypeScript подчеркнёт ошибку красным", "correct": false, "explanation": "При типе string любая строка допустима — TypeScript не может проверить корректность значения" },
+      { "text": "IDE автоматически исправит опечатку", "correct": false, "explanation": "IDE не знает, какие значения допустимы для string. Для автокоррекции нужен union type" },
+      { "text": "JavaScript выбросит TypeError", "correct": false, "explanation": "JavaScript не знает о типах — ошибка будет в бизнес-логике, а не TypeError" }
+    ]
+  }
+]

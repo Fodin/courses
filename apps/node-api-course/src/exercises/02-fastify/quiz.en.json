@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Why does Fastify use JSON Schema for validation instead of runtime libraries like Zod?",
+    "type": "single",
+    "options": [
+      { "text": "JSON Schema is compiled into optimized code at startup -- validation and serialization are many times faster than runtime checks", "correct": true },
+      { "text": "JSON Schema is the only standard that supports TypeScript", "correct": false, "explanation": "TypeScript isn't tied to JSON Schema. Zod, Joi, and other libraries work perfectly with TS. JSON Schema's advantage is compilation into fast code via Ajv/fast-json-stringify" },
+      { "text": "Zod and Joi can't validate nested objects", "correct": false, "explanation": "Zod and Joi handle nested objects perfectly. Fastify chose JSON Schema for performance: Ajv compiles schemas into native JS code" },
+      { "text": "JSON Schema is simpler to write than Zod", "correct": false, "explanation": "JSON Schema is often more verbose. The advantage is performance: Ajv compiles the schema once at startup, and subsequent validation runs as optimized if/else code" }
+    ]
+  },
+  {
+    "question": "What happens when a Fastify plugin is wrapped in fastify-plugin (fp)?",
+    "type": "single",
+    "options": [
+      { "text": "The plugin breaks encapsulation -- its decorators and hooks become available in the parent context and sibling plugins", "correct": true },
+      { "text": "The plugin loads before all others", "correct": false, "explanation": "fastify-plugin doesn't affect load order. It removes encapsulation -- decorators (e.g., request.db) become visible outside the plugin" },
+      { "text": "The plugin gets access to Fastify's private API", "correct": false, "explanation": "fp doesn't grant private API access. It removes the scope boundary so decorators and hooks are available in parent and sibling contexts" },
+      { "text": "The plugin becomes a singleton and loads only once", "correct": false, "explanation": "Plugins already load once. fp breaks encapsulation -- without it, each register() creates an isolated context" }
+    ]
+  },
+  {
+    "question": "Which Fastify lifecycle hook is best for performing authorization (access control checks)?",
+    "type": "single",
+    "options": [
+      { "text": "preHandler -- request body is parsed, validation passed, permissions can be checked before business logic", "correct": true },
+      { "text": "onRequest -- the earliest hook, check immediately", "correct": false, "explanation": "onRequest is good for authentication (token verification) but not authorization. In onRequest, the body isn't parsed and params aren't validated yet -- there may not be enough data for permission checks" },
+      { "text": "preSerialization -- check before sending the response", "correct": false, "explanation": "preSerialization is too late -- business logic has already executed. Authorization should be checked BEFORE the handler to avoid unnecessary work" },
+      { "text": "onSend -- last chance to block the response", "correct": false, "explanation": "onSend is even later -- the response is already serialized. Authorization should be in preHandler, before business logic execution" }
+    ]
+  },
+  {
+    "question": "How does response schema in Fastify protect against leaking sensitive data?",
+    "type": "single",
+    "options": [
+      { "text": "fast-json-stringify serializes only fields specified in response schema -- password_hash and other internal fields are automatically dropped", "correct": true },
+      { "text": "Fastify automatically detects fields named password and removes them", "correct": false, "explanation": "Fastify doesn't analyze field names. The response schema determines which fields appear in the response -- everything else is dropped during serialization" },
+      { "text": "Response schema encrypts sensitive fields before sending", "correct": false, "explanation": "Schema doesn't encrypt data -- it defines the response structure. Fields not specified in the schema are simply not included in the JSON response" },
+      { "text": "Fastify throws an error if there are extra fields in the response", "correct": false, "explanation": "Fastify doesn't throw an error -- it silently drops fields not specified in response schema. This is safe default behavior" }
+    ]
+  }
+]

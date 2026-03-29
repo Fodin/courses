@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What happens when an error occurs in the middle of a .then() chain?",
+    "type": "single",
+    "options": [
+      { "text": "It falls through to the nearest .catch()", "correct": true },
+      { "text": "All subsequent .then() calls execute, then .catch()", "correct": false, "explanation": "Subsequent .then() calls are skipped — control passes directly to the nearest .catch()" },
+      { "text": "The promise hangs forever", "correct": false, "explanation": "The promise transitions to rejected state and looks for a .catch() handler" },
+      { "text": "JavaScript automatically fixes the error", "correct": false, "explanation": "JavaScript does not fix errors automatically — they must be handled explicitly" }
+    ]
+  },
+  {
+    "question": "What is the key difference between Promise.all and Promise.allSettled?",
+    "type": "single",
+    "options": [
+      { "text": "Promise.all rejects on the first error, allSettled always returns the result of each promise", "correct": true },
+      { "text": "Promise.allSettled is faster because it doesn't wait for all promises", "correct": false, "explanation": "allSettled always waits for all promises to complete, it's not faster" },
+      { "text": "Promise.all returns an array while allSettled returns an object", "correct": false, "explanation": "Both return arrays, but allSettled returns an array of objects with a status field" },
+      { "text": "Promise.allSettled doesn't support error handling", "correct": false, "explanation": "allSettled provides error information through status: 'rejected' and reason" }
+    ]
+  },
+  {
+    "question": "What type of error does Promise.any throw when all promises are rejected?",
+    "type": "single",
+    "options": [
+      { "text": "AggregateError", "correct": true },
+      { "text": "TypeError", "correct": false, "explanation": "TypeError occurs with type mismatches, not with promise rejections" },
+      { "text": "Error", "correct": false, "explanation": "Promise.any throws a specialized AggregateError containing an array of all errors" },
+      { "text": "RejectionError", "correct": false, "explanation": "No such error type exists in JavaScript" }
+    ]
+  },
+  {
+    "question": "What happens when calling an async function without await and without .catch()?",
+    "type": "single",
+    "options": [
+      { "text": "UnhandledPromiseRejection, in Node.js 15+ the process terminates", "correct": true },
+      { "text": "The error is silently swallowed", "correct": false, "explanation": "The runtime detects the unhandled rejection and generates an unhandledrejection event" },
+      { "text": "The program continues without any consequences", "correct": false, "explanation": "In the browser there will be a console error, in Node.js 15+ — process termination" },
+      { "text": "JavaScript automatically adds a .catch()", "correct": false, "explanation": "JavaScript does not add handlers automatically" }
+    ]
+  },
+  {
+    "question": "When is it better to use Promise.allSettled instead of Promise.all?",
+    "type": "multiple",
+    "options": [
+      { "text": "When requests are independent of each other", "correct": true },
+      { "text": "When you need the result of each operation, even if some failed", "correct": true },
+      { "text": "When all requests depend on each other and one without the other is useless", "correct": false, "explanation": "For dependent requests, Promise.all is better — if one fails, the others are useless" },
+      { "text": "When you need to show partial data to the user", "correct": true }
+    ]
+  }
+]

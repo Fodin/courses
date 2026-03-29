@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What happens when you run docker run nginx?",
+    "type": "multiple",
+    "options": [
+      { "text": "Docker looks for the image locally, and pulls from registry if not found", "correct": true },
+      { "text": "A writable layer is created on top of the image layers", "correct": true },
+      { "text": "Namespaces and cgroups are configured for isolation", "correct": true },
+      { "text": "A full virtual machine with a guest OS is started", "correct": false, "explanation": "Docker doesn't create a virtual machine. A container uses the host OS kernel and is isolated via namespaces and cgroups" }
+    ]
+  },
+  {
+    "question": "What is the difference between docker stop and docker kill?",
+    "type": "single",
+    "options": [
+      { "text": "docker stop sends SIGTERM and waits for graceful shutdown, docker kill sends SIGKILL immediately", "correct": true },
+      { "text": "docker stop removes the container, docker kill only stops it", "correct": false, "explanation": "Both commands only stop the container. docker rm is used for removal" },
+      { "text": "No difference — both do the same thing", "correct": false, "explanation": "docker stop gives the process time for graceful shutdown (10 sec by default), while docker kill terminates immediately" },
+      { "text": "docker kill only works with privileged containers", "correct": false, "explanation": "docker kill works with any container, sending the SIGKILL signal" }
+    ]
+  },
+  {
+    "question": "Why does docker run -d ubuntu stop immediately?",
+    "type": "single",
+    "options": [
+      { "text": "Because Ubuntu has no long-running process — the default CMD (bash) exits without interactive input", "correct": true },
+      { "text": "Because the Ubuntu image is corrupted", "correct": false, "explanation": "The Ubuntu image works fine. The issue is that bash without a TTY exits immediately, and the container lives as long as PID 1 runs" },
+      { "text": "Because the -d flag is incompatible with Ubuntu", "correct": false, "explanation": "The -d (detached) flag works with any image. The issue is the lack of a long-running process" },
+      { "text": "Because Ubuntu requires more memory than allocated by default", "correct": false, "explanation": "Ubuntu doesn't need much memory. The container stops because its main process exits" }
+    ]
+  },
+  {
+    "question": "What is docker exec used for?",
+    "type": "single",
+    "options": [
+      { "text": "To execute a command in an already running container", "correct": true },
+      { "text": "To start a new container from an image", "correct": false, "explanation": "docker run is used to start new containers. docker exec works with already running containers" },
+      { "text": "To create a new image from a container", "correct": false, "explanation": "docker commit is used for that. docker exec runs commands inside a container" },
+      { "text": "To copy files between host and container", "correct": false, "explanation": "docker cp is used for copying files. docker exec runs commands inside a container" }
+    ]
+  },
+  {
+    "question": "Which flags are needed to start an interactive shell in a container?",
+    "type": "single",
+    "options": [
+      { "text": "-it (interactive + TTY)", "correct": true },
+      { "text": "-d (detached)", "correct": false, "explanation": "The -d flag runs the container in background mode, which is the opposite of interactive mode" },
+      { "text": "--rm (auto-remove)", "correct": false, "explanation": "--rm removes the container after stopping, but doesn't provide interactive mode" },
+      { "text": "-p (port mapping)", "correct": false, "explanation": "-p is used for port mapping, not for interactive mode" }
+    ]
+  }
+]

@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What is the main advantage of Result<T, E> over throw/try-catch?",
+    "type": "single",
+    "options": [
+      { "text": "The compiler forces you to handle the error — it's encoded directly in the return type", "correct": true },
+      { "text": "Result is faster than throw at runtime", "correct": false, "explanation": "Performance is not the main advantage. The key benefit is compile-time guarantee of error handling" },
+      { "text": "Result allows throwing multiple errors simultaneously", "correct": false, "explanation": "Result holds a single error. Validation is used for collecting multiple errors" },
+      { "text": "Result automatically logs all errors", "correct": false, "explanation": "Result doesn't include logging — it's a wrapper for type-safe representation of success or failure" }
+    ]
+  },
+  {
+    "question": "When should Validation be used instead of Result?",
+    "type": "single",
+    "options": [
+      { "text": "When you need to collect ALL errors at once (e.g., form validation), rather than stopping at the first one", "correct": true },
+      { "text": "When there can be at most one error", "correct": false, "explanation": "For a single error, Result is sufficient. Validation is needed specifically when there can be multiple errors that all need to be shown" },
+      { "text": "When data comes from an external API", "correct": false, "explanation": "The data source doesn't determine the choice. It depends on whether you need to show all errors at once or the first one is enough" },
+      { "text": "Validation is a newer version of Result that should always be preferred", "correct": false, "explanation": "Validation and Result solve different problems. Result is for operation chains, Validation is for collecting all errors" }
+    ]
+  },
+  {
+    "question": "What is the difference between map and flatMap for Result?",
+    "type": "single",
+    "options": [
+      { "text": "map takes a pure function (T -> U), flatMap takes a function returning Result (T -> Result<U, E>) and unwraps the nesting", "correct": true },
+      { "text": "map works with Ok, flatMap works with Err", "correct": false, "explanation": "Both methods work with Ok. The difference is the accepted function type: map for pure functions, flatMap for Result-returning functions" },
+      { "text": "flatMap is faster than map for large objects", "correct": false, "explanation": "Performance doesn't differ. flatMap's distinction is preventing Result<Result<...>> nesting" },
+      { "text": "map creates a new Result, flatMap mutates the existing one", "correct": false, "explanation": "Both create a new Result. flatMap differs by unwrapping nested Results" }
+    ]
+  },
+  {
+    "question": "Why is Option not suitable for operations where knowing the reason for absence is important?",
+    "type": "single",
+    "options": [
+      { "text": "Option only contains Some(value) or None — the reason for absence (not found, no permissions, network error) is lost", "correct": true },
+      { "text": "Option doesn't support map/flatMap chains", "correct": false, "explanation": "Option fully supports map/flatMap. The issue is the lack of information about why None occurred" },
+      { "text": "Option only works with primitive types", "correct": false, "explanation": "Option works with any types. The issue is semantic — None carries no information about the reason" },
+      { "text": "Option is deprecated and replaced by Result", "correct": false, "explanation": "Option is not deprecated — it's ideal for cases where absence doesn't require explanation (searching in a collection)" }
+    ]
+  },
+  {
+    "question": "What mistakes do beginners make when working with Result?",
+    "type": "multiple",
+    "options": [
+      { "text": "Checking via if (result.value) instead of if (result._tag === 'ok') — falsy values (0, '') break the logic", "correct": true },
+      { "text": "Using map instead of flatMap, resulting in nested Result<Result<...>>", "correct": true },
+      { "text": "Using Result instead of Validation for forms — user sees errors one at a time", "correct": true },
+      { "text": "Wrapping every line of code in Result", "correct": false, "explanation": "While overusing Result is possible, it's not described as a typical beginner mistake in the theory" },
+      { "text": "Creating Result via constructor instead of ok() and err() functions", "correct": false, "explanation": "Both approaches are correct — using the constructor is not a mistake" }
+    ]
+  }
+]

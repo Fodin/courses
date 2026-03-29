@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What is the difference between refine and superRefine in Zod?",
+    "type": "single",
+    "options": [
+      { "text": "refine is faster", "correct": false, "explanation": "The difference is not in speed but in capability: superRefine allows adding multiple errors in a single pass" },
+      { "text": "superRefine allows adding multiple errors via ctx.addIssue", "correct": true },
+      { "text": "refine supports async, while superRefine does not", "correct": false, "explanation": "Both methods support async functions" },
+      { "text": "They are completely identical", "correct": false, "explanation": "superRefine gives access to ctx with the addIssue method, enabling multiple errors to be added" }
+    ]
+  },
+  {
+    "question": "How do you specify which field an error should be attached to in refine?",
+    "type": "single",
+    "options": [
+      { "text": "Via the field parameter in options", "correct": false, "explanation": "The parameter is called path, not field" },
+      { "text": "Via the path parameter in options", "correct": true },
+      { "text": "The error is always attached to the form root", "correct": false, "explanation": "By default it is, but you can specify path to attach the error to a specific field" },
+      { "text": "Via the second argument of refine", "correct": false, "explanation": "The second argument is an options object, inside which path lives" }
+    ]
+  },
+  {
+    "question": "What is discriminatedUnion used for in Zod?",
+    "type": "single",
+    "options": [
+      { "text": "To combine multiple schemas with a shared discriminant field", "correct": true },
+      { "text": "To create enum types", "correct": false, "explanation": "Use z.enum() for enums — discriminatedUnion works with objects" },
+      { "text": "To validate arrays", "correct": false, "explanation": "Use z.array() for arrays — discriminatedUnion is for conditional object schemas" },
+      { "text": "To transform data types", "correct": false, "explanation": "Use .transform() for transformations — discriminatedUnion is for conditional forms" }
+    ]
+  },
+  {
+    "question": "What capabilities does superRefine have that refine does not?",
+    "type": "multiple",
+    "options": [
+      { "text": "Access to the ctx object", "correct": true },
+      { "text": "The ctx.addIssue method for adding multiple errors", "correct": true },
+      { "text": "Support for async validation", "correct": false, "explanation": "Async validation is supported by both methods" },
+      { "text": "Specifying path for an error", "correct": false, "explanation": "path can also be specified in refine via the options object" }
+    ]
+  }
+]

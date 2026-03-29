@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why is MockOf<T> better than manually creating mocks with as any?",
+    "type": "single",
+    "options": [
+      { "text": "When interface T changes, TypeScript shows an error in the mock, preventing mock/real code divergence", "correct": true },
+      { "text": "MockOf<T> runs faster at runtime due to TypeScript optimizations", "correct": false, "explanation": "MockOf is a type-level construct erased at compilation. Runtime behavior is identical. The advantage is TypeScript detecting mismatches when the interface changes" },
+      { "text": "as any is forbidden in TypeScript strict mode", "correct": false, "explanation": "as any is allowed in any TypeScript mode. The problem is it disables type checking, and the mock may not match the interface" },
+      { "text": "MockOf automatically generates implementation of all methods", "correct": false, "explanation": "MockOf only defines types. createMock creates the implementation, but not automatically — defaults must be provided. The main advantage is compile-time interface conformance checking" }
+    ]
+  },
+  {
+    "question": "How does DeepPartial<T> differ from the built-in Partial<T> for fixtures?",
+    "type": "single",
+    "options": [
+      { "text": "DeepPartial recursively makes nested objects optional too, allowing you to override settings.theme without specifying settings.notifications", "correct": true },
+      { "text": "DeepPartial works with arrays, while Partial doesn't", "correct": false, "explanation": "Partial works with arrays too. The difference is recursiveness: Partial makes only top-level fields optional, while DeepPartial applies at all nesting levels" },
+      { "text": "DeepPartial automatically merges objects, while Partial replaces them", "correct": false, "explanation": "DeepPartial is just a type. Object merging is done by the deepMerge function. DeepPartial allows typing the override argument as partial at any level" },
+      { "text": "DeepPartial removes readonly modifiers from nested objects", "correct": false, "explanation": "DeepPartial doesn't remove readonly. It only makes fields optional (adds ?). Removing readonly requires a separate utility type" }
+    ]
+  },
+  {
+    "question": "Why should each contract test call clear() at the beginning?",
+    "type": "single",
+    "options": [
+      { "text": "For test isolation — each test starts with a clean state that doesn't depend on execution order", "correct": true },
+      { "text": "Because TypeScript requires calling clear() before using StorageContract", "correct": false, "explanation": "TypeScript doesn't require calling clear(). This is a test design concern: without clear(), test results may depend on which tests ran earlier" },
+      { "text": "To save memory when running a large number of tests", "correct": false, "explanation": "Memory savings are not the main goal. The primary reason is isolation: if test A adds data, test B shouldn't see it" },
+      { "text": "clear() resets the internal call counter of the contract suite", "correct": false, "explanation": "clear() is a StorageContract method that clears the storage. The contract suite has no call counter. The purpose is a clean initial state for each test" }
+    ]
+  },
+  {
+    "question": "What do contract tests guarantee when there are multiple implementations of an interface?",
+    "type": "multiple",
+    "options": [
+      { "text": "All implementations behave identically for core operations", "correct": true },
+      { "text": "A new implementation can be substituted for an existing one without changing client code", "correct": true },
+      { "text": "All implementations have identical performance", "correct": false, "explanation": "Contract tests verify behavior, not performance. MapStorage and ObjectStorage may differ in speed, but both correctly implement the contract" },
+      { "text": "Behavioral discrepancies are caught before reaching production", "correct": true }
+    ]
+  },
+  {
+    "question": "How does the MockFunction<TArgs, TReturn> type ensure mockReturnValue safety?",
+    "type": "single",
+    "options": [
+      { "text": "mockReturnValue(value: TReturn) only accepts a value of type TReturn, matching the original method's return type", "correct": true },
+      { "text": "mockReturnValue checks the value type at runtime using typeof", "correct": false, "explanation": "mockReturnValue doesn't perform runtime checks. Type safety is ensured by TypeScript at compile time through the generic TReturn" },
+      { "text": "mockReturnValue automatically converts the value to the required type", "correct": false, "explanation": "There is no automatic conversion. If a value of the wrong type is passed, TypeScript will show a compile error" },
+      { "text": "mockReturnValue uses a type guard to check the value", "correct": false, "explanation": "No type guard is used. Safety is ensured by the generic parameter TReturn, which is fixed when creating the MockFunction" }
+    ]
+  }
+]

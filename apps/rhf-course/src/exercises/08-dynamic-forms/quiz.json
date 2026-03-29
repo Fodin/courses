@@ -1,0 +1,43 @@
+[
+  {
+    "question": "Какой хук используется для работы с динамическими массивами полей?",
+    "type": "single",
+    "options": [
+      { "text": "useForm", "correct": false, "explanation": "useForm — основной хук для формы, но для массивов полей нужен useFieldArray" },
+      { "text": "useFieldArray", "correct": true },
+      { "text": "useWatch", "correct": false, "explanation": "useWatch используется для подписки на значения полей, а не для управления массивами" },
+      { "text": "useState", "correct": false, "explanation": "useState не интегрирован с React Hook Form — используйте useFieldArray" }
+    ]
+  },
+  {
+    "question": "Какие методы предоставляет useFieldArray?",
+    "type": "multiple",
+    "options": [
+      { "text": "append — добавить в конец", "correct": true },
+      { "text": "remove — удалить по индексу", "correct": true },
+      { "text": "swap — поменять местами", "correct": true },
+      { "text": "sort — отсортировать", "correct": false, "explanation": "useFieldArray не имеет метода sort — для сортировки используйте swap или move" },
+      { "text": "prepend — добавить в начало", "correct": true }
+    ]
+  },
+  {
+    "question": "Какой ключ нужно использовать при рендеринге элементов fields.map()?",
+    "type": "single",
+    "options": [
+      { "text": "index", "correct": false, "explanation": "Индекс не стабилен при удалении/добавлении элементов, что приведёт к багам" },
+      { "text": "field.id", "correct": true },
+      { "text": "field.name", "correct": false, "explanation": "field.id — уникальный идентификатор, генерируемый RHF для каждого элемента массива" },
+      { "text": "Math.random()", "correct": false, "explanation": "Случайный ключ будет меняться при каждом рендере, вызывая проблемы с производительностью" }
+    ]
+  },
+  {
+    "question": "Как реализуется паттерн Wizard (многошаговая форма) с React Hook Form?",
+    "type": "single",
+    "options": [
+      { "text": "Используя несколько отдельных useForm для каждого шага", "correct": false, "explanation": "Несколько useForm усложняют объединение данных — лучше использовать один useForm" },
+      { "text": "Один useForm + условный рендеринг шагов + trigger для валидации текущего шага", "correct": true },
+      { "text": "Используя useFieldArray для каждого шага", "correct": false, "explanation": "useFieldArray предназначен для динамических массивов, а не для многошаговых форм" },
+      { "text": "Отправляя форму на каждом шаге", "correct": false, "explanation": "Множественные отправки избыточны — данные собираются в одной форме и отправляются в конце" }
+    ]
+  }
+]

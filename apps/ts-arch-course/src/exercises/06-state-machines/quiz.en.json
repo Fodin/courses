@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why is a discriminated union better than an object with optional fields for modeling states?",
+    "type": "single",
+    "options": [
+      { "text": "Each state has strictly its own data set, TypeScript narrows the type when checking the discriminator and prevents access to non-existent fields", "correct": true },
+      { "text": "Discriminated union uses less memory than an object with optional fields", "correct": false, "explanation": "Memory difference is minimal. The advantage is in type safety: with optional fields, data and error can be undefined in any state, leading to bugs" },
+      { "text": "TypeScript doesn't support optional fields in interfaces", "correct": false, "explanation": "TypeScript fully supports optional fields (?:). The problem is they're not tied to a specific state, and the compiler can't guarantee their presence" },
+      { "text": "Objects with optional fields cannot be used in switch", "correct": false, "explanation": "Objects with optional fields can be used in switch. But without a discriminator, TypeScript can't narrow the type and give access to state-specific data" }
+    ]
+  },
+  {
+    "question": "How does TypeScript narrow types in switch branches for a discriminated union discriminator?",
+    "type": "single",
+    "options": [
+      { "text": "Through control flow analysis: in each case, the compiler subtracts handled variants from the union, leaving the specific type", "correct": true },
+      { "text": "Through runtime type checking using typeof", "correct": false, "explanation": "typeof only works with primitives (string, number, boolean). For objects, TypeScript uses control flow analysis on the discriminator value" },
+      { "text": "TypeScript adds runtime type casting in each case", "correct": false, "explanation": "TypeScript adds nothing at runtime. Type narrowing is purely a compile-time mechanism using control flow analysis" },
+      { "text": "Through instanceof method for each union variant", "correct": false, "explanation": "instanceof only works with classes. Discriminated unions are plain objects distinguished by discriminator field values" }
+    ]
+  },
+  {
+    "question": "What happens if you dispatch a CONNECTED action in the phase: 'offline' state?",
+    "type": "single",
+    "options": [
+      { "text": "The reducer returns the current state unchanged, since CONNECTED only applies to online", "correct": true },
+      { "text": "TypeScript prevents calling dispatch with CONNECTED in offline state", "correct": false, "explanation": "The reducer accepts any AppAction regardless of current state. Applicability check is inside the reducer via if (state.phase !== 'online')" },
+      { "text": "A runtime error occurs when accessing state.connection", "correct": false, "explanation": "If the reducer is properly implemented, it checks phase before accessing connection and returns state unchanged for inapplicable actions" },
+      { "text": "TypeScript automatically transforms the state to online", "correct": false, "explanation": "TypeScript doesn't perform automatic data transformations. State transitions are defined by reducer logic" }
+    ]
+  },
+  {
+    "question": "How does the isInState() function provide type narrowing in TypeScript?",
+    "type": "single",
+    "options": [
+      { "text": "Through return type 'value is Extract<State, { status: S }>' — a type predicate that narrows the type after the check", "correct": true },
+      { "text": "Through type casting (as) inside the function", "correct": false, "explanation": "Type casting (as) only works inside the function and doesn't affect the type in calling code. A type predicate (is) is a special mechanism that informs TypeScript about type narrowing" },
+      { "text": "Through generic constraints that restrict allowed parameters", "correct": false, "explanation": "Generic constraints restrict input types but don't narrow the variable type after function call. For that, a type predicate is needed" },
+      { "text": "TypeScript automatically determines type narrowing for all functions with checks", "correct": false, "explanation": "TypeScript narrows types automatically only for direct checks (typeof, ===, in). For custom functions, you need to explicitly specify a type predicate via 'param is Type' syntax" }
+    ]
+  },
+  {
+    "question": "What advantages does typing transition functions via Extract provide (e.g., approve accepts only Extract<DocumentState, { status: 'review' }>)?",
+    "type": "multiple",
+    "options": [
+      { "text": "Invalid transitions are caught at compile time, not at runtime", "correct": true },
+      { "text": "Inside the function, all data for the specific state is accessible without additional checks", "correct": true },
+      { "text": "Transition functions become faster due to compiler optimizations", "correct": false, "explanation": "Extract is a purely type-level construct, erased at compilation. There's no impact on runtime performance" },
+      { "text": "Documenting allowed transitions directly in the function signature", "correct": true }
+    ]
+  }
+]

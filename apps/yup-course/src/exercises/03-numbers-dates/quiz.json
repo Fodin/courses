@@ -1,0 +1,52 @@
+[
+  {
+    "question": "В чём разница между positive() и min(0) в Yup?",
+    "type": "single",
+    "options": [
+      { "text": "positive() отклоняет ноль, min(0) — разрешает", "correct": true },
+      { "text": "Они работают одинаково", "correct": false, "explanation": "positive() эквивалентен moreThan(0) — строго больше нуля. min(0) допускает ноль (больше или равно)" },
+      { "text": "min(0) отклоняет ноль, positive() — разрешает", "correct": false, "explanation": "Наоборот: positive() = moreThan(0) отклоняет ноль, а min(0) его разрешает" },
+      { "text": "positive() работает только с целыми числами", "correct": false, "explanation": "positive() работает с любыми числами, включая дробные, например 0.5" }
+    ]
+  },
+  {
+    "question": "Что делает метод integer() в Yup?",
+    "type": "single",
+    "options": [
+      { "text": "Округляет число до целого", "correct": false, "explanation": "integer() — это валидация, не трансформация. Для округления используйте round() или truncate()" },
+      { "text": "Проверяет, что число целое, и выбрасывает ошибку для дробных", "correct": true },
+      { "text": "Преобразует строку в целое число через parseInt", "correct": false, "explanation": "integer() не трансформирует данные. Для отбрасывания дробной части используйте truncate()" },
+      { "text": "Устанавливает тип поля как integer в TypeScript", "correct": false, "explanation": "integer() влияет только на рантайм-валидацию. В TypeScript тип остаётся number" }
+    ]
+  },
+  {
+    "question": "Какие утверждения о валидации дат в Yup верны?",
+    "type": "multiple",
+    "options": [
+      { "text": "Yup автоматически преобразует ISO-строки в объекты Date", "correct": true },
+      { "text": "min() и max() для дат принимают объекты Date или строки", "correct": true },
+      { "text": "yup.ref() можно использовать для сравнения двух полей с датами", "correct": true },
+      { "text": "new Date() в min/max вычисляется заново при каждой валидации", "correct": false, "explanation": "new Date() вычисляется один раз при создании схемы. Для динамической даты используйте контекст ($) или пересоздавайте схему" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при вызове yup.number().validate('')?",
+    "type": "single",
+    "options": [
+      { "text": "Вернёт 0", "correct": false, "explanation": "Пустая строка преобразуется в NaN, а не в 0" },
+      { "text": "Вернёт пустую строку ''", "correct": false, "explanation": "number() пытается преобразовать значение в число. Пустая строка даёт NaN" },
+      { "text": "Ошибка валидации — пустая строка преобразуется в NaN", "correct": true },
+      { "text": "Вернёт undefined", "correct": false, "explanation": "Пустая строка преобразуется в NaN через Number(''), что не проходит проверку на тип number" }
+    ]
+  },
+  {
+    "question": "Чем отличается truncate() от round() в Yup?",
+    "type": "single",
+    "options": [
+      { "text": "truncate() всегда отбрасывает дробную часть, round() позволяет выбрать стратегию округления", "correct": true },
+      { "text": "truncate() — валидация, round() — трансформация", "correct": false, "explanation": "Оба метода являются трансформациями, а не валидациями" },
+      { "text": "round() работает только с положительными числами", "correct": false, "explanation": "round() работает с любыми числами, включая отрицательные" },
+      { "text": "truncate() удаляет нули в конце числа", "correct": false, "explanation": "truncate() отбрасывает дробную часть (аналог Math.trunc), а не удаляет нули" }
+    ]
+  }
+]

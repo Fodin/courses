@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why is mocking the DB in integration tests a bad practice?",
+    "type": "single",
+    "options": [
+      { "text": "Mocks hide real errors: incorrect SQL, migration issues, and constraint violations go undetected", "correct": true },
+      { "text": "Mocks are slower than a real DB", "correct": false, "explanation": "Mocks are faster since they don't do I/O. The problem isn't speed but that mocks always return expected results -- even if the actual query is broken" },
+      { "text": "Vitest doesn't support database mocking", "correct": false, "explanation": "Vitest mocks any dependencies via vi.fn() and vi.mock(). The problem is that mocked tests pass even with a broken DB" },
+      { "text": "Mocking requires too much code", "correct": false, "explanation": "Code volume isn't the main issue. The main issue is false confidence. A mocked test passes even if the SQL query is incorrect or migration is broken" }
+    ]
+  },
+  {
+    "question": "Why clean the DB in beforeEach instead of afterEach?",
+    "type": "single",
+    "options": [
+      { "text": "If a test crashes, afterEach might not run -- the next test gets dirty data. beforeEach guarantees a clean state", "correct": true },
+      { "text": "beforeEach is faster than afterEach", "correct": false, "explanation": "Speed is the same. The difference is reliability: if a test crashes, afterEach might not execute (depends on runner), while beforeEach guarantees a clean start" },
+      { "text": "afterEach runs after describe, not after it", "correct": false, "explanation": "afterEach runs after each it, just like beforeEach. The issue is that on test process crash, afterEach might not execute" },
+      { "text": "It's just a stylistic preference", "correct": false, "explanation": "It's a reliability pattern, not style. 'Clean before' guarantees a clean state regardless of what happened in the previous test" }
+    ]
+  },
+  {
+    "question": "What does supertest test that unit tests don't cover?",
+    "type": "multiple",
+    "options": [
+      { "text": "Middleware chain: CORS, auth, validation, error handling", "correct": true },
+      { "text": "Routing: correct handler called for the correct URL", "correct": true },
+      { "text": "Serialization: JSON response has correct structure", "correct": true },
+      { "text": "Performance: response time < 100ms", "correct": false, "explanation": "Supertest isn't designed for performance testing. Use k6, Artillery, or autocannon for that. Supertest verifies correctness, not speed" }
+    ]
+  },
+  {
+    "question": "Why use randomUUID() in factory functions instead of fixed data?",
+    "type": "single",
+    "options": [
+      { "text": "Unique data prevents unique constraint conflicts between tests and makes tests truly independent", "correct": true },
+      { "text": "randomUUID() generates more realistic data", "correct": false, "explanation": "UUIDs aren't more realistic than fixed data (alice@test.com is more realistic). The goal is uniqueness so tests don't conflict on unique fields (email, username)" },
+      { "text": "Fixed data can cause caching issues", "correct": false, "explanation": "Caching isn't a problem in tests. The problem is if two tests create users with email 'test@test.com', the second fails with unique violation" },
+      { "text": "For testing with different input data (property-based testing)", "correct": false, "explanation": "That's closer to property-based testing (fast-check). Factory with UUID is about test isolation, not testing different inputs" }
+    ]
+  },
+  {
+    "question": "Which API testing approach is better: testing results or verifying mock calls?",
+    "type": "single",
+    "options": [
+      { "text": "Test results (behavior): verify HTTP status and response body, not internal calls -- this makes tests resilient to refactoring", "correct": true },
+      { "text": "Verify mock calls -- tests are more precise that way", "correct": false, "explanation": "Checking calls ties tests to implementation. During refactoring (changing ORM, modifying SQL), tests break even though behavior hasn't changed. Results are more stable" },
+      { "text": "Both approaches are equally good", "correct": false, "explanation": "Behavior testing (results) is objectively better for APIs: res.status and res.body are the public contract. Mock calls are implementation details that may change" },
+      { "text": "No need to test APIs -- E2E tests are sufficient", "correct": false, "explanation": "E2E tests are slow and brittle. Integration tests via supertest are the sweet spot: fast, test real HTTP, but without UI and external dependencies" }
+    ]
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "question": "How do you connect a Zod schema to useForm?",
+    "type": "single",
+    "options": [
+      { "text": "useForm({ schema: mySchema })", "correct": false, "explanation": "useForm has no schema parameter — you must use resolver" },
+      { "text": "useForm({ resolver: zodResolver(mySchema) })", "correct": true },
+      { "text": "useForm({ validation: mySchema })", "correct": false, "explanation": "validation is not a parameter of useForm" },
+      { "text": "useForm({ zod: mySchema })", "correct": false, "explanation": "zod is not a parameter of useForm — libraries are connected via resolver" }
+    ]
+  },
+  {
+    "question": "How do you derive a TypeScript type from a Zod schema?",
+    "type": "single",
+    "options": [
+      { "text": "type FormData = typeof schema", "correct": false, "explanation": "typeof schema gives the type of the Zod schema itself, not of the data" },
+      { "text": "type FormData = z.infer<typeof schema>", "correct": true },
+      { "text": "type FormData = z.type(schema)", "correct": false, "explanation": "z.type() does not exist — use z.infer<>" },
+      { "text": "type FormData = schema.type", "correct": false, "explanation": "schema.type does not produce a TypeScript data type" }
+    ]
+  },
+  {
+    "question": "What advantages does schema-based validation offer over built-in validation?",
+    "type": "multiple",
+    "options": [
+      { "text": "All validation rules in one place", "correct": true },
+      { "text": "Full type safety", "correct": true },
+      { "text": "Easy cross-field validation", "correct": true },
+      { "text": "Smaller bundle size", "correct": false, "explanation": "Zod adds extra weight to the bundle — the advantage is in code organization and type safety, not size" }
+    ]
+  },
+  {
+    "question": "How do you make a field optional in Zod?",
+    "type": "single",
+    "options": [
+      { "text": "z.string().required(false)", "correct": false, "explanation": "Zod has no required() method — strings are required by default" },
+      { "text": "z.string().optional()", "correct": true },
+      { "text": "z.string().nullable()", "correct": false, "explanation": "nullable() allows a null value, but the field is still required" },
+      { "text": "z.optional(z.string())", "correct": false, "explanation": "Although z.optional() exists, the idiomatic approach is the chained .optional() call" }
+    ]
+  }
+]

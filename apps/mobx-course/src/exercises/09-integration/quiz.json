@@ -1,0 +1,54 @@
+[
+  {
+    "question": "Почему при гидратации из localStorage необходимо оборачивать JSON.parse в try/catch?",
+    "type": "single",
+    "options": [
+      { "text": "Данные в localStorage могут быть повреждены, удалены или иметь устаревший формат, что вызовет crash", "correct": true },
+      { "text": "JSON.parse всегда выбрасывает ошибку при работе с localStorage", "correct": false, "explanation": "JSON.parse выбрасывает ошибку только при невалидном JSON. Если данные корректны, ошибки не будет. Но в production нельзя гарантировать целостность данных в localStorage." },
+      { "text": "Это требование TypeScript для строгого режима", "correct": false, "explanation": "TypeScript не требует try/catch вокруг JSON.parse. Это практика безопасного программирования — защита от повреждённых данных." },
+      { "text": "localStorage работает асинхронно и может вернуть undefined", "correct": false, "explanation": "localStorage работает синхронно. getItem возвращает null (не undefined) для отсутствующих ключей. try/catch нужен для защиты от невалидного JSON." }
+    ]
+  },
+  {
+    "question": "Почему нельзя включать computed-свойства в toJSON при сериализации стора?",
+    "type": "single",
+    "options": [
+      { "text": "Computed вычисляется автоматически из observable — сохранять его означает дублировать данные с риском рассинхронизации", "correct": true },
+      { "text": "JSON.stringify не может сериализовать computed-свойства", "correct": false, "explanation": "JSON.stringify может сериализовать любое значение, включая результат computed. Проблема не техническая, а архитектурная — дублирование данных." },
+      { "text": "Computed-свойства возвращают функции, а не значения", "correct": false, "explanation": "Computed-свойства возвращают значения (числа, строки, массивы и т.д.), а не функции. Они определяются как get-аксессоры." },
+      { "text": "MobX запрещает сериализацию computed через JSON", "correct": false, "explanation": "MobX не имеет такого ограничения. Рекомендация не сохранять computed — это архитектурный принцип: сохранять только source-данные." }
+    ]
+  },
+  {
+    "question": "Какое главное преимущество тестирования MobX-сторов как обычных классов?",
+    "type": "single",
+    "options": [
+      { "text": "Не нужен React — тесты работают без рендеринга компонентов, быстрее и проще", "correct": true },
+      { "text": "MobX-сторы нельзя тестировать через React Testing Library", "correct": false, "explanation": "Технически можно тестировать через рендеринг компонентов, но это медленнее и сложнее. Прямое тестирование стора как класса — эффективнее." },
+      { "text": "Тесты сторов не требуют assertion-библиотек", "correct": false, "explanation": "Assertion-библиотеки (expect, assert) нужны в любых тестах, включая тесты сторов." },
+      { "text": "MobX автоматически генерирует тесты для сторов", "correct": false, "explanation": "MobX не генерирует тесты. Тесты пишутся вручную, но для сторов они просты: создать инстанс, вызвать action, проверить state." }
+    ]
+  },
+  {
+    "question": "Что нужно тестировать в MobX-сторе?",
+    "type": "multiple",
+    "options": [
+      { "text": "Actions — вызвать метод и проверить изменение состояния", "correct": true },
+      { "text": "Computed — создать состояние и проверить вычисленное значение", "correct": true },
+      { "text": "Граничные случаи — пустой стор, дубликаты, невалидные данные", "correct": true },
+      { "text": "Внутреннюю реализацию MobX (proxy, interceptors)", "correct": false, "explanation": "Тестировать внутреннюю реализацию MobX не нужно — это ответственность авторов библиотеки. Тестируйте поведение вашего стора." },
+      { "text": "Количество ререндеров React-компонентов", "correct": false, "explanation": "Ререндеры — это интеграционный тест компонента + стора. При юнит-тестировании стора тестируйте его логику независимо от React." }
+    ]
+  },
+  {
+    "question": "Какие концепции MobX объединяет паттерн канбан-доски?",
+    "type": "multiple",
+    "options": [
+      { "text": "observable — колонки и карточки как наблюдаемые данные", "correct": true },
+      { "text": "action — методы addCard, removeCard, moveCard", "correct": true },
+      { "text": "computed — вычисление totalCards из колонок", "correct": true },
+      { "text": "observer — гранулярный рендеринг каждой колонки отдельно", "correct": true },
+      { "text": "flow — обязательный для всех действий канбан-доски", "correct": false, "explanation": "flow нужен для асинхронных операций (например, сохранение на сервер). Для синхронных действий (addCard, moveCard) достаточно обычных action." }
+    ]
+  }
+]

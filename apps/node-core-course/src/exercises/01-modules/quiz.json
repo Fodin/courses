@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что произойдёт, если написать exports = { hello: 'world' } в CommonJS-модуле?",
+    "type": "single",
+    "options": [
+      { "text": "require() вернёт пустой объект {}, так как exports отвязан от module.exports", "correct": true },
+      { "text": "require() вернёт { hello: 'world' }", "correct": false, "explanation": "Переприсвоение exports не влияет на module.exports. require() всегда возвращает module.exports, а не exports" },
+      { "text": "Node.js выбросит SyntaxError", "correct": false, "explanation": "Это валидный JavaScript. Просто exports теперь указывает на новый объект, а module.exports остаётся пустым" },
+      { "text": "Модуль не будет кэшироваться", "correct": false, "explanation": "Кэширование не зависит от того, как вы экспортируете. Модуль всегда кэшируется после первого require()" }
+    ]
+  },
+  {
+    "question": "Чем live bindings в ESM отличаются от CommonJS?",
+    "type": "single",
+    "options": [
+      { "text": "ESM импорты — живые ссылки на экспортированные значения, CJS — копии на момент require", "correct": true },
+      { "text": "ESM и CJS работают одинаково — оба создают копии", "correct": false, "explanation": "ESM создаёт live bindings — при изменении экспортированного значения импорт автоматически обновляется" },
+      { "text": "CJS создаёт live bindings, а ESM — копии", "correct": false, "explanation": "Наоборот: ESM создаёт live bindings, а CJS — копии значений" },
+      { "text": "Live bindings работают только для объектов, не для примитивов", "correct": false, "explanation": "В ESM live bindings работают и для примитивов (let count = 0). В CJS даже объекты деструктурируются как копии ссылок" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при циклической зависимости A → B → A в CommonJS?",
+    "type": "single",
+    "options": [
+      { "text": "B получит частично заполненный module.exports из A", "correct": true },
+      { "text": "Node.js выбросит ошибку циклической зависимости", "correct": false, "explanation": "Node.js не выбрасывает ошибку — он возвращает частично заполненный exports. Это может привести к undefined значениям" },
+      { "text": "Программа зациклится и зависнет", "correct": false, "explanation": "Node.js обнаруживает цикл через require.cache и возвращает текущее состояние exports, не зацикливаясь" },
+      { "text": "Оба модуля загрузятся полностью и корректно", "correct": false, "explanation": "Модуль B получит A в незавершённом состоянии — те свойства, которые были экспортированы до вызова require('./b'), но не после" }
+    ]
+  },
+  {
+    "question": "Какие условия поддерживает поле exports в package.json?",
+    "type": "multiple",
+    "options": [
+      { "text": "import — для загрузки через import/import()", "correct": true },
+      { "text": "require — для загрузки через require()", "correct": true },
+      { "text": "types — для TypeScript определений типов", "correct": true },
+      { "text": "eval — для загрузки через eval()", "correct": false, "explanation": "Условия eval не существует. Поддерживаются: import, require, node, browser, types, default и пользовательские" }
+    ]
+  },
+  {
+    "question": "Как получить __dirname в ESM-модуле?",
+    "type": "single",
+    "options": [
+      { "text": "import { dirname } from 'path'; dirname(fileURLToPath(import.meta.url))", "correct": true },
+      { "text": "Использовать __dirname напрямую — он доступен в ESM", "correct": false, "explanation": "__dirname доступен только в CommonJS. В ESM его нет, нужно использовать import.meta.url" },
+      { "text": "import { __dirname } from 'module'", "correct": false, "explanation": "Такого экспорта в модуле 'module' не существует. Нужно использовать import.meta.url + fileURLToPath + dirname" },
+      { "text": "process.cwd() — это полный аналог __dirname", "correct": false, "explanation": "process.cwd() возвращает рабочую директорию процесса, а __dirname — директорию текущего файла. Это разные вещи" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why does WebSocket start with an HTTP request instead of using its own protocol from the beginning?",
+    "type": "single",
+    "options": [
+      { "text": "HTTP Upgrade allows passing through existing proxies, firewalls, and load balancers that understand HTTP", "correct": true },
+      { "text": "WebSocket is an HTTP extension, so it always runs on top of HTTP", "correct": false, "explanation": "WebSocket is a separate protocol (ws://). HTTP is only used for the handshake (Upgrade). After connection establishment, HTTP is no longer involved -- WebSocket frames are transmitted" },
+      { "text": "To transmit cookies and authentication headers", "correct": false, "explanation": "Cookies and headers can be sent during handshake, but that's not the main reason. The primary one is compatibility with existing HTTP infrastructure (proxies, LB, CDN)" },
+      { "text": "Because WebSocket cannot work without an HTTP server", "correct": false, "explanation": "WebSocket can work on plain TCP. HTTP Upgrade is a compatibility mechanism, not a technical limitation. In practice, ws:// works over TCP after handshake" }
+    ]
+  },
+  {
+    "question": "What's the difference between Socket.io rooms and namespaces?",
+    "type": "single",
+    "options": [
+      { "text": "Namespaces are logical separations (separate endpoints: /chat, /admin), rooms are client groups within a namespace for targeted broadcasts", "correct": true },
+      { "text": "Namespaces and rooms are the same thing, just different names", "correct": false, "explanation": "These are different concepts. Namespaces create separate channels with their own middleware and handlers. Rooms are dynamic client groups for emit within a namespace" },
+      { "text": "Rooms are server-side, namespaces are client-side", "correct": false, "explanation": "Both rooms and namespaces are managed on the server. Clients connect to namespaces (io('/chat')), and the server manages rooms (socket.join('room'))" },
+      { "text": "Namespaces for scaling, rooms for authorization", "correct": false, "explanation": "Namespaces aren't related to scaling, and rooms aren't for authorization. Namespaces separate functionality, rooms group clients for targeted broadcasting" }
+    ]
+  },
+  {
+    "question": "Why is SSE better than WebSocket for notifications and news feeds?",
+    "type": "multiple",
+    "options": [
+      { "text": "SSE auto-reconnects with Last-Event-ID -- the client doesn't miss events", "correct": true },
+      { "text": "SSE works over regular HTTP -- no special proxy/LB configuration needed", "correct": true },
+      { "text": "SSE is faster than WebSocket for data transmission", "correct": false, "explanation": "SSE isn't faster than WebSocket. WebSocket has less overhead (2-14 bytes vs HTTP). SSE wins with simplicity and auto-reconnect, not speed" },
+      { "text": "SSE is simpler to implement on the server -- regular HTTP response with streaming", "correct": true }
+    ]
+  },
+  {
+    "question": "Why are sticky sessions mandatory for Socket.io behind a Load Balancer?",
+    "type": "single",
+    "options": [
+      { "text": "Socket.io handshake (HTTP polling) and WebSocket upgrade must hit the same instance, otherwise the session is lost", "correct": true },
+      { "text": "Without sticky sessions Socket.io can't establish a WebSocket connection", "correct": false, "explanation": "WebSocket can establish, but Socket.io defaults to HTTP long-polling first then upgrades to WebSocket. If polling requests hit different instances, the session breaks" },
+      { "text": "Sticky sessions are needed to store room data on one server", "correct": false, "explanation": "Rooms are stored in each instance's memory, but Redis Adapter syncs them. Sticky sessions are needed for handshake/transport upgrade, not rooms" },
+      { "text": "It's a performance recommendation, not a requirement", "correct": false, "explanation": "It's a hard requirement. Without sticky sessions, Socket.io returns 400 Bad Request for polling requests hitting a different instance. Alternative: disable polling and use WebSocket transport only" }
+    ]
+  },
+  {
+    "question": "Why does a WebSocket server need heartbeat (ping/pong)?",
+    "type": "single",
+    "options": [
+      { "text": "To detect zombie connections -- clients that disconnected without a close frame (network loss, crash)", "correct": true },
+      { "text": "To keep the TCP connection alive through NAT routers", "correct": false, "explanation": "TCP keepalive is a separate OS-level mechanism. Application-level WebSocket heartbeat is specifically for detecting dead connections, not for NAT traversal" },
+      { "text": "To measure latency between client and server", "correct": false, "explanation": "While ping/pong can be used for latency measurement, the primary purpose is detecting zombie connections. Without heartbeat, the server won't know a client disconnected" },
+      { "text": "To synchronize time between client and server", "correct": false, "explanation": "Ping/pong isn't related to time synchronization. Its purpose is connection liveness checking. If a client doesn't respond to ping, the server calls terminate()" }
+    ]
+  }
+]

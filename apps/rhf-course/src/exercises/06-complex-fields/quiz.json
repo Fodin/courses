@@ -1,0 +1,43 @@
+[
+  {
+    "question": "Когда нужно использовать Controller вместо register?",
+    "type": "multiple",
+    "options": [
+      { "text": "Для сторонних UI-компонентов (Material-UI, Ant Design)", "correct": true },
+      { "text": "Для кастомных компонентов, которые не принимают ref", "correct": true },
+      { "text": "Для обычных HTML input элементов", "correct": false, "explanation": "Для стандартных HTML input используйте register — Controller не нужен" },
+      { "text": "Для контролируемых компонентов", "correct": true }
+    ]
+  },
+  {
+    "question": "Какой проп Controller получает объект control?",
+    "type": "single",
+    "options": [
+      { "text": "form", "correct": false, "explanation": "Проп называется control, а не form" },
+      { "text": "control", "correct": true },
+      { "text": "register", "correct": false, "explanation": "register — это функция для регистрации полей, а не проп Controller" },
+      { "text": "ref", "correct": false, "explanation": "ref передаётся внутри field-объекта в render-функции, а не как проп Controller" }
+    ]
+  },
+  {
+    "question": "Что содержит объект field, передаваемый в render-функцию Controller?",
+    "type": "multiple",
+    "options": [
+      { "text": "onChange", "correct": true },
+      { "text": "onBlur", "correct": true },
+      { "text": "value", "correct": true },
+      { "text": "ref", "correct": true },
+      { "text": "error", "correct": false, "explanation": "error находится в fieldState, а не в field" }
+    ]
+  },
+  {
+    "question": "Как React Hook Form обрабатывает множественные чекбоксы с одним именем?",
+    "type": "single",
+    "options": [
+      { "text": "Сохраняет только последнее значение", "correct": false, "explanation": "RHF автоматически собирает отмеченные значения в массив" },
+      { "text": "Собирает отмеченные value в массив", "correct": true },
+      { "text": "Создаёт объект с ключами-значениями", "correct": false, "explanation": "RHF собирает значения в массив строк, а не в объект" },
+      { "text": "Вызывает ошибку из-за дублирования имён", "correct": false, "explanation": "Дублирование имён — это правильный паттерн для множественного выбора в RHF" }
+    ]
+  }
+]

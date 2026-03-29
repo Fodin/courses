@@ -1,0 +1,43 @@
+[
+  {
+    "question": "Какие встроенные правила валидации поддерживает register в React Hook Form?",
+    "type": "multiple",
+    "options": [
+      { "text": "required", "correct": true },
+      { "text": "minLength / maxLength", "correct": true },
+      { "text": "pattern", "correct": true },
+      { "text": "unique", "correct": false, "explanation": "unique не является встроенным правилом — для проверки уникальности используйте validate с кастомной функцией" },
+      { "text": "min / max", "correct": true }
+    ]
+  },
+  {
+    "question": "Как правильно передать сообщение об ошибке в правило required?",
+    "type": "single",
+    "options": [
+      { "text": "required: { message: 'Обязательно' }", "correct": false, "explanation": "required принимает строку или boolean, а не объект с message (в отличие от min/max/pattern)" },
+      { "text": "required: 'Обязательно'", "correct": true },
+      { "text": "required: true, message: 'Обязательно'", "correct": false, "explanation": "message не является отдельным свойством — сообщение передаётся как значение required" },
+      { "text": "required: ['Обязательно']", "correct": false, "explanation": "required не принимает массив" }
+    ]
+  },
+  {
+    "question": "Что возвращает кастомная функция validate, если валидация прошла успешно?",
+    "type": "single",
+    "options": [
+      { "text": "undefined", "correct": false, "explanation": "undefined не является ожидаемым значением для успешной валидации" },
+      { "text": "true", "correct": true },
+      { "text": "null", "correct": false, "explanation": "null не является стандартным ответом для успешной валидации" },
+      { "text": "Пустую строку ''", "correct": false, "explanation": "Пустая строка будет интерпретирована как отсутствие ошибки, но стандарт — true" }
+    ]
+  },
+  {
+    "question": "Как pattern правило указывает регулярное выражение и сообщение об ошибке?",
+    "type": "single",
+    "options": [
+      { "text": "pattern: /regex/", "correct": false, "explanation": "Если передать только RegExp, сообщение об ошибке будет стандартным, без кастомного текста" },
+      { "text": "pattern: { value: /regex/, message: 'Ошибка' }", "correct": true },
+      { "text": "pattern: { regex: /regex/, error: 'Ошибка' }", "correct": false, "explanation": "Правильные ключи — value и message, а не regex и error" },
+      { "text": "pattern: [/regex/, 'Ошибка']", "correct": false, "explanation": "pattern не принимает массив — используйте объект с value и message" }
+    ]
+  }
+]

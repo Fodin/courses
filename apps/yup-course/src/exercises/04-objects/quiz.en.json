@@ -1,0 +1,43 @@
+[
+  {
+    "question": "What is the difference between yup.object({...}) and yup.object().shape({...})?",
+    "type": "single",
+    "options": [
+      { "text": "Nothing — they are two equivalent ways to describe object fields", "correct": true },
+      { "text": "shape() allows adding fields to an existing schema, the constructor does not", "correct": false, "explanation": "Both variants are functionally equivalent and create the same schema" },
+      { "text": "shape() supports nested objects, the constructor does not", "correct": false, "explanation": "Both variants fully support nested objects" },
+      { "text": "The constructor is faster, shape() is slower", "correct": false, "explanation": "There is no performance difference — it's syntactic sugar" }
+    ]
+  },
+  {
+    "question": "What happens when calling noUnknown() without strict: true?",
+    "type": "single",
+    "options": [
+      { "text": "Extra fields are stripped before the check, so noUnknown() won't find them", "correct": true },
+      { "text": "An error is thrown for each unknown field", "correct": false, "explanation": "Without strict: true, Yup strips unknown fields first, then checks — noUnknown() finds nothing" },
+      { "text": "noUnknown() is ignored", "correct": false, "explanation": "noUnknown() is not ignored, but extra fields are already removed before its check in non-strict mode" },
+      { "text": "A TypeScript compilation error occurs", "correct": false, "explanation": "This is runtime behavior, not related to TypeScript" }
+    ]
+  },
+  {
+    "question": "Which methods allow creating a new schema based on an existing one?",
+    "type": "multiple",
+    "options": [
+      { "text": "pick() — select only specified fields", "correct": true },
+      { "text": "omit() — exclude specified fields", "correct": true },
+      { "text": "partial() — make all fields optional", "correct": true },
+      { "text": "extend() — add new fields to the schema", "correct": false, "explanation": "The extend() method does not exist in Yup. Use shape() or concat() to add fields" },
+      { "text": "clone() — create an exact copy of the schema", "correct": false, "explanation": "The clone() method does not exist in Yup. But pick/omit/partial create new schemas without modifying the original" }
+    ]
+  },
+  {
+    "question": "What does the error path look like for a nested field address.city when using abortEarly: false?",
+    "type": "single",
+    "options": [
+      { "text": "err.inner contains an error with path: 'address.city'", "correct": true },
+      { "text": "err.inner contains an error with path: 'city'", "correct": false, "explanation": "For nested objects, Yup specifies the full path using dot notation: 'address.city'" },
+      { "text": "err.inner contains an error with path: ['address', 'city']", "correct": false, "explanation": "The path is a string with dot notation, not an array" },
+      { "text": "Nested errors are only accessible via err.address.city", "correct": false, "explanation": "All errors are in a flat array err.inner with dotted paths" }
+    ]
+  }
+]

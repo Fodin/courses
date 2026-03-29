@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Which SOLID principle is violated by passing a string identifier for an algorithm instead of a strategy object?",
+    "type": "single",
+    "options": [
+      { "text": "Open/Closed Principle — adding a new algorithm requires changing existing code (adding a new if/else)", "correct": true },
+      { "text": "Single Responsibility Principle — the function does too much", "correct": false, "explanation": "SRP concerns the number of reasons for a class to change. The problem here is extensibility — code must change when adding a new algorithm" },
+      { "text": "Liskov Substitution Principle — strings are not interchangeable", "correct": false, "explanation": "LSP concerns subtypes and inheritance. String identifiers violate OCP, not LSP" },
+      { "text": "Interface Segregation Principle — the interface is too wide", "correct": false, "explanation": "ISP concerns interface splitting. The problem with a string identifier is the inability to extend without modifying code" }
+    ]
+  },
+  {
+    "question": "Why is it important to provide an unsubscribe method (off/unsubscribe) in the Observer pattern?",
+    "type": "single",
+    "options": [
+      { "text": "Without unsubscribing, handlers remain in memory causing leaks — especially critical in React with useEffect", "correct": true },
+      { "text": "So TypeScript doesn't show warnings about unused variables", "correct": false, "explanation": "TypeScript doesn't link subscriptions to variables. Unsubscribing is needed for memory management and lifecycle" },
+      { "text": "Because without off you can't subscribe again", "correct": false, "explanation": "Resubscribing is possible without off — the problem is specifically memory leaks from unremoved handlers" },
+      { "text": "It's a requirement of the EventEmitter interface in Node.js", "correct": false, "explanation": "We're creating our own typed EventEmitter. Unsubscribing is an architectural necessity, not a Node.js requirement" }
+    ]
+  },
+  {
+    "question": "What must each Command save for undo to work correctly?",
+    "type": "single",
+    "options": [
+      { "text": "A snapshot of the previous state so changes can be rolled back", "correct": true },
+      { "text": "A reference to the next command in the chain", "correct": false, "explanation": "References to other commands are not the Command's responsibility. Each command must be self-sufficient for undo" },
+      { "text": "The command execution time for logging", "correct": false, "explanation": "Execution time is useful for logs but not required for undo. Undo needs a state snapshot" },
+      { "text": "A reference to the user who initiated the command", "correct": false, "explanation": "User information may be useful for auditing, but undo specifically needs a data snapshot" }
+    ]
+  },
+  {
+    "question": "What advantages does a typed EventEmitter with an event map provide?",
+    "type": "multiple",
+    "options": [
+      { "text": "TypeScript verifies that emit data matches the event type", "correct": true },
+      { "text": "Auto-completion of event names in the IDE", "correct": true },
+      { "text": "Cannot subscribe to a non-existent event", "correct": true },
+      { "text": "Automatic removal of listeners when a component is destroyed", "correct": false, "explanation": "Typing doesn't manage subscription lifecycle — unsubscribing must be implemented manually" },
+      { "text": "Guaranteed order of handler invocation", "correct": false, "explanation": "Typing doesn't determine invocation order — that's the implementation's job, not the type system's" }
+    ]
+  },
+  {
+    "question": "What should happen in a Chain of Responsibility if no handler processes the request?",
+    "type": "single",
+    "options": [
+      { "text": "The behavior should be defined in advance — e.g., return the request as-is or throw an error", "correct": true },
+      { "text": "The chain should automatically restart from the beginning", "correct": false, "explanation": "Restarting the chain could lead to an infinite loop. The end-of-chain behavior must be explicitly defined" },
+      { "text": "The request is ignored — this is normal behavior", "correct": false, "explanation": "Silently ignoring a request is a common mistake. It can lead to data loss and hard-to-find bugs" },
+      { "text": "TypeScript will automatically prevent this situation", "correct": false, "explanation": "TypeScript cannot guarantee at the type level that at least one handler will process the request — this is a system design concern" }
+    ]
+  }
+]

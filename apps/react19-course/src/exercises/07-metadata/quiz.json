@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Что React 19 автоматически делает с тегами <title>, <meta> и <link> в JSX?",
+    "type": "single",
+    "options": [
+      { "text": "Поднимает (hoists) их в <head> документа", "correct": true },
+      { "text": "Рендерит их в том месте, где они объявлены в JSX", "correct": false, "explanation": "React 19 автоматически находит эти теги и перемещает их в <head>, независимо от того, где они объявлены." },
+      { "text": "Конвертирует их в вызовы document.title и meta API", "correct": false, "explanation": "React использует DOM-операции для вставки тегов в <head>, а не JavaScript API." },
+      { "text": "Игнорирует их и выводит предупреждение", "correct": false, "explanation": "React 19 специально поддерживает Document Metadata. Теги обрабатываются и поднимаются в <head>." }
+    ]
+  },
+  {
+    "question": "Для чего используется атрибут precedence в теге <link rel=\"stylesheet\">?",
+    "type": "single",
+    "options": [
+      { "text": "Для задания приоритета загрузки и порядка стилей", "correct": true },
+      { "text": "Для указания версии CSS-файла", "correct": false, "explanation": "precedence управляет приоритетом загрузки и порядком применения стилей, а не версионированием." },
+      { "text": "Для условной загрузки стилей", "correct": false, "explanation": "precedence определяет приоритет, а не условия загрузки. Стили загружаются всегда, но в определённом порядке." },
+      { "text": "Для включения кэширования стилей", "correct": false, "explanation": "Кэширование управляется HTTP-заголовками, а не атрибутом precedence." }
+    ]
+  },
+  {
+    "question": "Какая функция из Preload API загружает ресурс И выполняет его?",
+    "type": "single",
+    "options": [
+      { "text": "preload()", "correct": false, "explanation": "preload() только загружает ресурс в кэш браузера, но не выполняет его." },
+      { "text": "preinit()", "correct": true },
+      { "text": "prefetchDNS()", "correct": false, "explanation": "prefetchDNS() только выполняет DNS-резолв домена, не загружая и не выполняя ресурс." },
+      { "text": "preconnect()", "correct": false, "explanation": "preconnect() устанавливает соединение (DNS + TCP + TLS), но не загружает ресурс." }
+    ]
+  },
+  {
+    "question": "Какие функции предзагрузки доступны в React 19?",
+    "type": "multiple",
+    "options": [
+      { "text": "prefetchDNS()", "correct": true },
+      { "text": "preconnect()", "correct": true },
+      { "text": "preload()", "correct": true },
+      { "text": "prefetch()", "correct": false, "explanation": "Функции prefetch() нет в React 19 Preload API. Для предзагрузки модулей используйте preloadModule()." },
+      { "text": "preinit()", "correct": true }
+    ]
+  },
+  {
+    "question": "Какое преимущество Document Metadata в React 19 даёт по сравнению с react-helmet?",
+    "type": "single",
+    "options": [
+      { "text": "Метаданные обновляются в реальном времени и не требуют сторонних библиотек", "correct": true },
+      { "text": "Метаданные доступны для поисковых роботов без SSR", "correct": false, "explanation": "Для SEO по-прежнему нужен SSR или SSG. Клиентский рендеринг метаданных не помогает поисковым роботам." },
+      { "text": "Метаданные кэшируются между перезагрузками страницы", "correct": false, "explanation": "Метаданные в React 19 живут в памяти и не кэшируются между перезагрузками." },
+      { "text": "Можно использовать произвольные HTML-теги в <head>", "correct": false, "explanation": "React 19 поддерживает конкретные теги: title, meta, link. Произвольные теги не обрабатываются." }
+    ]
+  }
+]

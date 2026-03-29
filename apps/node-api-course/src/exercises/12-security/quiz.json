@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Как Content Security Policy (CSP) защищает от XSS?",
+    "type": "single",
+    "options": [
+      { "text": "CSP контролирует, откуда браузер может загружать скрипты -- инлайн-скрипты и скрипты с неразрешённых доменов блокируются", "correct": true },
+      { "text": "CSP шифрует скрипты перед выполнением в браузере", "correct": false, "explanation": "CSP не шифрует ничего. Он говорит браузеру: 'выполняй скрипты только с этих доменов'. Если XSS внедряет <script> -- он блокируется, т.к. inline-скрипты запрещены" },
+      { "text": "CSP удаляет опасные HTML-теги из ответа сервера", "correct": false, "explanation": "CSP не модифицирует HTML. Это заголовок-директива для браузера. Санитизация HTML -- задача серверного кода (DOMPurify, xss). CSP -- последний рубеж обороны" },
+      { "text": "CSP блокирует все JavaScript на странице", "correct": false, "explanation": "CSP не блокирует весь JS. Он разрешает скрипты из whitelist (script-src 'self' cdn.com). Только скрипты с неразрешённых источников и inline-скрипты блокируются" }
+    ]
+  },
+  {
+    "question": "Почему SameSite cookies -- лучшая защита от CSRF для современных API?",
+    "type": "single",
+    "options": [
+      { "text": "SameSite: strict/lax запрещает браузеру отправлять cookie с cross-origin запросов -- evil.com не получит cookie bank.com", "correct": true },
+      { "text": "SameSite шифрует cookie, поэтому злоумышленник не может её прочитать", "correct": false, "explanation": "SameSite не шифрует (для этого есть Secure flag + HTTPS). SameSite контролирует, КОГДА cookie отправляется -- не с cross-origin запросов" },
+      { "text": "SameSite автоматически генерирует CSRF-токен", "correct": false, "explanation": "SameSite не генерирует токены. Он заменяет необходимость в CSRF-токенах, просто не отправляя cookie при cross-origin запросах" },
+      { "text": "SameSite делает cookie невидимой для JavaScript", "correct": false, "explanation": "Это делает httpOnly flag, не SameSite. SameSite контролирует отправку cookie в cross-origin запросах. httpOnly защищает от XSS (document.cookie)" }
+    ]
+  },
+  {
+    "question": "Что такое NoSQL injection и как от неё защититься?",
+    "type": "single",
+    "options": [
+      { "text": "Передача MongoDB-операторов ($gt, $ne) через input -- защита: express-mongo-sanitize (удаляет $ и .) + Zod валидация", "correct": true },
+      { "text": "SQL injection в MongoDB -- защита такая же, как для SQL баз", "correct": false, "explanation": "MongoDB не использует SQL. NoSQL injection -- это передача MongoDB-операторов через JSON. { email: { $gt: '' } } вернёт первого пользователя вместо конкретного" },
+      { "text": "Внедрение JavaScript в MongoDB через eval", "correct": false, "explanation": "Хотя $where и eval опасны, типичная NoSQL injection -- передача операторов ($gt, $ne, $exists) через непроверенный input. express-mongo-sanitize решает эту проблему" },
+      { "text": "NoSQL injection невозможна, потому что MongoDB не использует SQL", "correct": false, "explanation": "Отсутствие SQL не означает безопасность. MongoDB-операторы ($gt, $ne, $regex) позволяют обходить фильтры. { password: { $ne: '' } } обойдёт проверку пароля" }
+    ]
+  },
+  {
+    "question": "Почему регулярное выражение /^(a+)+$/ опасно (ReDoS)?",
+    "type": "single",
+    "options": [
+      { "text": "Вложенные квантификаторы (a+)+ создают экспоненциальное количество путей отката (backtracking) на строках вроде 'aaaaab'", "correct": true },
+      { "text": "Это бесконечный цикл -- regex никогда не завершится", "correct": false, "explanation": "Это не бесконечный цикл -- regex завершится, но на строке из 25 символов это займёт минуты/часы. Количество откатов растёт экспоненциально: 2^n" },
+      { "text": "Regex потребляет много RAM при обработке длинных строк", "correct": false, "explanation": "ReDoS -- проблема CPU, не RAM. Regex engine перебирает экспоненциальное количество путей, нагружая процессор. Это позволяет DoS-атаку через одну HTTP-строку" },
+      { "text": "Только в Node.js -- другие языки не подвержены ReDoS", "correct": false, "explanation": "ReDoS затрагивает все языки с backtracking regex engine: JavaScript, Python, Java, Ruby, .NET. Только RE2 (Go, Rust) использует линейный алгоритм" }
+    ]
+  },
+  {
+    "question": "Какие заголовки Helmet устанавливает по умолчанию?",
+    "type": "multiple",
+    "options": [
+      { "text": "X-Content-Type-Options: nosniff -- запрет MIME-sniffing", "correct": true },
+      { "text": "X-Frame-Options: SAMEORIGIN -- защита от clickjacking", "correct": true },
+      { "text": "Authorization: Bearer -- автоматическая JWT-аутентификация", "correct": false, "explanation": "Helmet не управляет аутентификацией. Authorization -- заголовок запроса от клиента, не ответа сервера. Helmet устанавливает security-заголовки в ответах" },
+      { "text": "Strict-Transport-Security -- принудительный HTTPS", "correct": true }
+    ]
+  }
+]

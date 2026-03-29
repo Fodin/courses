@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why is it better to use a Result type ({ ok, value } | { ok, errors }) for loading configuration instead of throwing exceptions?",
+    "type": "single",
+    "options": [
+      { "text": "Result type allows collecting all configuration errors in a single pass instead of failing on the first one — this saves time when setting up an environment", "correct": true },
+      { "text": "Result type is faster than throw/catch due to no stack unwinding", "correct": false, "explanation": "Performance difference is minimal for configuration that loads once at startup. The main advantage is the ability to return a list of all errors" },
+      { "text": "TypeScript doesn't support try/catch for custom error types", "correct": false, "explanation": "TypeScript fully supports try/catch. The issue is that catch receives unknown, losing type information. Result type preserves error types" },
+      { "text": "Exceptions can't be used inside generics", "correct": false, "explanation": "Exceptions can be used in any context. The advantage of Result type is compile-time error handling verification and collecting all errors" }
+    ]
+  },
+  {
+    "question": "What does satisfies ConfigSchema do in a configuration definition?",
+    "type": "single",
+    "options": [
+      { "text": "Checks that the object conforms to ConfigSchema while preserving literal types for InferConfig inference", "correct": true },
+      { "text": "Casts the object to ConfigSchema type, similar to as ConfigSchema", "correct": false, "explanation": "satisfies doesn't cast types. Unlike 'as', it checks compatibility while preserving original literal types — this is critical for InferConfig" },
+      { "text": "Adds runtime type checking when the object is created", "correct": false, "explanation": "satisfies is a purely compile-time operator that adds no code at runtime. Type checking happens only during compilation" },
+      { "text": "Makes all object fields required", "correct": false, "explanation": "satisfies doesn't change object structure. It only checks that the object is compatible with the specified type while preserving the exact type of the expression" }
+    ]
+  },
+  {
+    "question": "Why is the string 'false' from process.env.DEBUG truthy in JavaScript?",
+    "type": "single",
+    "options": [
+      { "text": "All non-empty strings in JavaScript are truthy, including 'false', '0', 'null' — that's why explicit boolean conversion is needed", "correct": true },
+      { "text": "Because JavaScript doesn't distinguish between boolean and string types", "correct": false, "explanation": "JavaScript does distinguish types. The problem is that environment variables are always strings, and the string 'false' is non-empty, therefore truthy" },
+      { "text": "This is a Node.js bug that wasn't fixed for backward compatibility", "correct": false, "explanation": "This is not a bug but standard JavaScript behavior: empty string '' is falsy, any other string (including 'false') is truthy" },
+      { "text": "Because process.env automatically converts all values to true", "correct": false, "explanation": "process.env doesn't convert values. All values are stored as strings. The problem is implicit boolean coercion when using a string in a condition" }
+    ]
+  },
+  {
+    "question": "How does envEnum ensure type safety for allowed environment variable values?",
+    "type": "single",
+    "options": [
+      { "text": "Accepts a readonly tuple with as const, preserving literal types, and returns EnvVarDef<T> where T is a union of those literals", "correct": true },
+      { "text": "Adds a runtime instanceof check for each allowed value", "correct": false, "explanation": "instanceof only works with classes. envEnum checks value inclusion in the allowed array via includes, while TypeScript provides compile-time typing through as const" },
+      { "text": "Uses TypeScript enum instead of string literals", "correct": false, "explanation": "The example uses string literals with as const, not TypeScript enums. This provides better type inference and compatibility with runtime values from env" },
+      { "text": "Restricts allowed values only through runtime validation, without compile-time checks", "correct": false, "explanation": "envEnum provides both levels: compile-time through generic T extends string and as const, and runtime through includes check in transform" }
+    ]
+  },
+  {
+    "question": "What are the advantages of the 'fail fast' pattern when loading configuration?",
+    "type": "multiple",
+    "options": [
+      { "text": "Configuration errors are discovered immediately at startup, not when the incorrect value is first used", "correct": true },
+      { "text": "The application won't start processing requests with invalid configuration", "correct": true },
+      { "text": "Fail fast makes the application more resilient to failures during operation", "correct": false, "explanation": "Fail fast doesn't improve resilience to runtime failures. It prevents launching with invalid configuration, but failures from external dependencies remain possible" },
+      { "text": "The developer gets a complete list of configuration issues in a single run", "correct": true }
+    ]
+  }
+]

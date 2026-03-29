@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Почему нельзя использовать Access-Control-Allow-Origin: * вместе с credentials: true?",
+    "type": "single",
+    "options": [
+      { "text": "Спецификация CORS запрещает wildcard с credentials -- браузер требует указать конкретный origin для безопасности cookies", "correct": true },
+      { "text": "Wildcard origin не работает в Chrome", "correct": false, "explanation": "Allow-Origin: * работает во всех браузерах, но только без credentials. С credentials: true нужен конкретный origin -- это требование спецификации CORS, а не браузера" },
+      { "text": "Cookies не отправляются при wildcard из-за бага в fetch API", "correct": false, "explanation": "Это не баг, а намеренное ограничение безопасности. Если бы wildcard работал с cookies, любой сайт мог бы отправить запрос с cookies пользователя к вашему API" },
+      { "text": "Wildcard origin не поддерживает HTTPS", "correct": false, "explanation": "Wildcard origin работает и с HTTPS. Ограничение связано с безопасностью: с credentials: true сервер должен явно указать доверенный origin, чтобы предотвратить CSRF" }
+    ]
+  },
+  {
+    "question": "Зачем в заголовках rate limiting отправлять X-RateLimit-Reset (Unix timestamp)?",
+    "type": "single",
+    "options": [
+      { "text": "Клиент может рассчитать, когда отправить следующий запрос, и реализовать exponential backoff или ожидание", "correct": true },
+      { "text": "Это стандарт HTTP, без него запрос будет отклонён", "correct": false, "explanation": "X-RateLimit-* не являются стандартом HTTP -- это конвенция. Запрос не будет отклонён без этого заголовка, но клиент не сможет умно планировать повторные запросы" },
+      { "text": "Браузер автоматически повторяет запрос после Reset", "correct": false, "explanation": "Браузер не обрабатывает X-RateLimit-Reset автоматически. Это информация для клиентского кода, чтобы реализовать retry-логику с правильным таймингом" },
+      { "text": "Без этого заголовка CDN не будет кэшировать ответ", "correct": false, "explanation": "CDN-кэширование зависит от Cache-Control, а не от X-RateLimit-Reset. Rate limit заголовки -- информация для клиента о лимитах, не для кэширования" }
+    ]
+  },
+  {
+    "question": "Чем алгоритм Token Bucket отличается от Fixed Window для rate limiting?",
+    "type": "single",
+    "options": [
+      { "text": "Token Bucket позволяет burst-трафик (серия запросов подряд), постепенно пополняя токены, а Fixed Window считает в жёстком окне", "correct": true },
+      { "text": "Token Bucket быстрее, потому что не хранит историю запросов", "correct": false, "explanation": "Fixed Window тоже не хранит историю -- только счётчик. Разница в поведении: Token Bucket позволяет burst до maxTokens, а потом ограничивает до refillRate" },
+      { "text": "Fixed Window точнее, а Token Bucket -- приблизительный", "correct": false, "explanation": "Fixed Window менее точен из-за проблемы на границе окон (2x burst). Token Bucket обеспечивает более плавное ограничение с поддержкой легитимных burst-паттернов" },
+      { "text": "Token Bucket работает только с Redis, а Fixed Window -- в памяти", "correct": false, "explanation": "Оба алгоритма можно реализовать и в памяти, и в Redis. Разница в модели: Token Bucket -- токены + refill, Fixed Window -- счётчик + сброс" }
+    ]
+  },
+  {
+    "question": "Когда сервер должен вернуть 304 Not Modified?",
+    "type": "single",
+    "options": [
+      { "text": "Когда клиент отправил If-None-Match с ETag, совпадающим с текущим -- данные не изменились, тело отправлять не нужно", "correct": true },
+      { "text": "Когда клиент повторяет тот же запрос в течение max-age", "correct": false, "explanation": "В пределах max-age браузер использует кэш и вообще не делает запрос к серверу. 304 возвращается при conditional request с If-None-Match или If-Modified-Since" },
+      { "text": "Когда запрос идемпотентный (GET)", "correct": false, "explanation": "Идемпотентность не связана с 304. Сервер возвращает 304 только когда клиент присылает ETag (If-None-Match) или дату (If-Modified-Since), и данные не изменились" },
+      { "text": "Автоматически для всех GET-запросов после первого", "correct": false, "explanation": "304 не автоматический -- клиент должен послать conditional headers (If-None-Match/If-Modified-Since). Без них сервер возвращает полный 200 ответ" }
+    ]
+  }
+]

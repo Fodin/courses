@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What does React 19 automatically do with <title>, <meta>, and <link> tags in JSX?",
+    "type": "single",
+    "options": [
+      { "text": "Hoists them into the document <head>", "correct": true },
+      { "text": "Renders them at the location where they are declared in JSX", "correct": false, "explanation": "React 19 automatically finds these tags and moves them to <head>, regardless of where they are declared." },
+      { "text": "Converts them to document.title and meta API calls", "correct": false, "explanation": "React uses DOM operations to insert tags into <head>, not JavaScript APIs." },
+      { "text": "Ignores them and outputs a warning", "correct": false, "explanation": "React 19 specifically supports Document Metadata. Tags are processed and hoisted to <head>." }
+    ]
+  },
+  {
+    "question": "What is the precedence attribute used for in the <link rel=\"stylesheet\"> tag?",
+    "type": "single",
+    "options": [
+      { "text": "To set the loading priority and style order", "correct": true },
+      { "text": "To specify the CSS file version", "correct": false, "explanation": "precedence controls the loading priority and order of style application, not versioning." },
+      { "text": "For conditional style loading", "correct": false, "explanation": "precedence determines the priority, not loading conditions. Styles are always loaded, but in a specific order." },
+      { "text": "To enable style caching", "correct": false, "explanation": "Caching is managed by HTTP headers, not the precedence attribute." }
+    ]
+  },
+  {
+    "question": "Which Preload API function loads a resource AND executes it?",
+    "type": "single",
+    "options": [
+      { "text": "preload()", "correct": false, "explanation": "preload() only loads the resource into the browser cache but does not execute it." },
+      { "text": "preinit()", "correct": true },
+      { "text": "prefetchDNS()", "correct": false, "explanation": "prefetchDNS() only performs DNS resolution for a domain, without loading or executing the resource." },
+      { "text": "preconnect()", "correct": false, "explanation": "preconnect() establishes a connection (DNS + TCP + TLS) but does not load the resource." }
+    ]
+  },
+  {
+    "question": "Which preloading functions are available in React 19?",
+    "type": "multiple",
+    "options": [
+      { "text": "prefetchDNS()", "correct": true },
+      { "text": "preconnect()", "correct": true },
+      { "text": "preload()", "correct": true },
+      { "text": "prefetch()", "correct": false, "explanation": "The prefetch() function does not exist in React 19 Preload API. Use preloadModule() for module preloading." },
+      { "text": "preinit()", "correct": true }
+    ]
+  },
+  {
+    "question": "What advantage does Document Metadata in React 19 provide compared to react-helmet?",
+    "type": "single",
+    "options": [
+      { "text": "Metadata updates in real-time and requires no third-party libraries", "correct": true },
+      { "text": "Metadata is accessible to search crawlers without SSR", "correct": false, "explanation": "SSR or SSG is still needed for SEO. Client-side rendering of metadata does not help search crawlers." },
+      { "text": "Metadata is cached between page reloads", "correct": false, "explanation": "Metadata in React 19 lives in memory and is not cached between reloads." },
+      { "text": "You can use arbitrary HTML tags in <head>", "correct": false, "explanation": "React 19 supports specific tags: title, meta, link. Arbitrary tags are not processed." }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что произойдёт, если не проверять возвращаемое значение writable.write()?",
+    "type": "single",
+    "options": [
+      { "text": "Данные будут копиться в памяти, возможен OOM crash", "correct": true },
+      { "text": "Node.js автоматически поставит readable на паузу", "correct": false, "explanation": "Автоматическая пауза работает только при использовании pipe() или pipeline(). При ручном вызове write() нужно самостоятельно проверять возврат и вызывать pause()" },
+      { "text": "write() выбросит исключение", "correct": false, "explanation": "write() никогда не выбрасывает исключение при переполнении буфера — он возвращает false. Данные всё равно будут записаны, но буфер будет расти бесконтрольно" },
+      { "text": "Данные будут потеряны", "correct": false, "explanation": "Данные не теряются — они все попадут в буфер Writable stream. Проблема в том, что буфер растёт без ограничений и может исчерпать память" }
+    ]
+  },
+  {
+    "question": "Какой способ чтения Readable Stream рекомендуется в современном Node.js?",
+    "type": "single",
+    "options": [
+      { "text": "for await (const chunk of readable)", "correct": true },
+      { "text": "readable.on('data', callback)", "correct": false, "explanation": "Событие data работает, но async iterator автоматически обрабатывает end, error и backpressure. Это более чистый и безопасный подход" },
+      { "text": "readable.on('readable', () => readable.read())", "correct": false, "explanation": "Paused mode с read() даёт полный контроль, но в большинстве случаев async iterator проще и безопаснее" },
+      { "text": "readable.pipe(writable)", "correct": false, "explanation": "pipe() удобен для перенаправления в Writable, но для обработки данных async iterator предпочтительнее" }
+    ]
+  },
+  {
+    "question": "Чем pipeline() отличается от pipe()?",
+    "type": "multiple",
+    "options": [
+      { "text": "pipeline() автоматически уничтожает все стримы при ошибке", "correct": true },
+      { "text": "pipeline() поддерживает AbortSignal для отмены", "correct": true },
+      { "text": "pipeline() имеет callback/promise API для отслеживания завершения", "correct": true },
+      { "text": "pipeline() работает быстрее, чем pipe()", "correct": false, "explanation": "Скорость передачи данных одинакова. pipeline() добавляет безопасность (обработка ошибок, уничтожение стримов), а не производительность" }
+    ]
+  },
+  {
+    "question": "Для чего нужен objectMode в Transform stream?",
+    "type": "single",
+    "options": [
+      { "text": "Для передачи JS-объектов вместо Buffer/string через стрим", "correct": true },
+      { "text": "Для сериализации объектов в JSON автоматически", "correct": false, "explanation": "objectMode не сериализует данные — он просто позволяет push() и read() работать с произвольными JS-объектами вместо Buffer" },
+      { "text": "Для увеличения производительности при работе с объектами", "correct": false, "explanation": "objectMode не влияет на производительность. Он меняет тип данных в стриме: вместо Buffer/string передаются JS-объекты" },
+      { "text": "Для автоматической валидации данных", "correct": false, "explanation": "objectMode не добавляет валидацию. Он только позволяет передавать произвольные JS-значения через стрим" }
+    ]
+  },
+  {
+    "question": "Что делает cork() и uncork() в Writable stream?",
+    "type": "single",
+    "options": [
+      { "text": "cork() буферизует все write() в памяти, uncork() отправляет всё одним системным вызовом", "correct": true },
+      { "text": "cork() приостанавливает стрим, uncork() возобновляет", "correct": false, "explanation": "cork/uncork — это оптимизация записи (батчинг), а не управление потоком. Для паузы/возобновления используются pause()/resume()" },
+      { "text": "cork() шифрует данные, uncork() расшифровывает", "correct": false, "explanation": "cork/uncork не связаны с шифрованием. Для шифрования используется crypto.createCipheriv()" },
+      { "text": "cork() сжимает данные, uncork() распаковывает", "correct": false, "explanation": "cork/uncork не связаны со сжатием. Для сжатия используется zlib (createGzip, createDeflate)" }
+    ]
+  }
+]

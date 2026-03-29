@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Какой статус-код должен возвращать endpoint DELETE /api/users/:id при успешном удалении?",
+    "type": "single",
+    "options": [
+      { "text": "204 No Content -- успешное удаление, тело ответа не нужно", "correct": true },
+      { "text": "200 OK с телом { deleted: true }", "correct": false, "explanation": "200 OK допустим, но 204 No Content -- стандартная практика для DELETE. Клиенту не нужно тело ответа: он знает, что ресурс удалён по статус-коду" },
+      { "text": "202 Accepted -- удаление принято к обработке", "correct": false, "explanation": "202 используется для асинхронных операций (поставлено в очередь). Для синхронного удаления правильный ответ -- 204 No Content" },
+      { "text": "410 Gone -- ресурс больше не существует", "correct": false, "explanation": "410 Gone означает, что ресурс существовал, но навсегда удалён. Это не код успешного ответа на DELETE, а информационный статус для будущих GET-запросов" }
+    ]
+  },
+  {
+    "question": "Почему cursor-based пагинация стабильнее offset-based при одновременных вставках?",
+    "type": "single",
+    "options": [
+      { "text": "Cursor ссылается на конкретную запись (WHERE id > N), а offset считает от начала -- вставка сдвигает все следующие страницы", "correct": true },
+      { "text": "Cursor-based пагинация блокирует таблицу от вставок", "correct": false, "explanation": "Cursor-based не блокирует таблицу. Стабильность достигается за счёт привязки к конкретному значению (id > 40), а не к порядковому номеру (OFFSET 40)" },
+      { "text": "Cursor кэширует результат на сервере", "correct": false, "explanation": "Cursor не кэширует результат -- он хранит позицию (обычно ID). Стабильность в том, что WHERE id > 40 вернёт те же следующие записи независимо от вставок в начало" },
+      { "text": "Offset-based работает медленнее и поэтому пропускает записи", "correct": false, "explanation": "Скорость не причина пропусков. Проблема в том, что OFFSET 40 при вставке новой записи сдвигается: запись #40 становится #41, и пользователь увидит её дважды или пропустит" }
+    ]
+  },
+  {
+    "question": "Как правильно реализовать сортировку по нескольким полям в REST API?",
+    "type": "single",
+    "options": [
+      { "text": "?sort=-createdAt,name -- поля через запятую, минус означает DESC", "correct": true },
+      { "text": "?sortBy=createdAt&sortOrder=DESC&sortBy2=name&sortOrder2=ASC", "correct": false, "explanation": "Нумерованные параметры (sortBy2, sortOrder2) неудобны и не масштабируются. Стандартная конвенция: sort=-field1,field2 -- компактно и расширяемо" },
+      { "text": "?sort={\"createdAt\":\"desc\",\"name\":\"asc\"}", "correct": false, "explanation": "JSON в query params сложно читать, кодировать и кэшировать. Конвенция sort=-field1,field2 проще и широко поддерживается" },
+      { "text": "?orderBy=createdAt DESC, name ASC (SQL-синтаксис)", "correct": false, "explanation": "SQL-синтаксис в query params опасен (SQL injection), неудобен для парсинга и нестандартен. Используйте sort=-createdAt,name" }
+    ]
+  },
+  {
+    "question": "Какой подход к версионированию API самый популярный и почему?",
+    "type": "single",
+    "options": [
+      { "text": "URL versioning (/api/v1/) -- простой, понятный, легко кэшировать и проксировать", "correct": true },
+      { "text": "Header versioning (X-API-Version) -- не загрязняет URL", "correct": false, "explanation": "Header versioning валиден, но менее популярен: версию не видно в URL, сложнее тестировать в браузере и документировать. URL versioning проще для большинства команд" },
+      { "text": "Content negotiation (Accept header) -- следует HTTP-стандартам", "correct": false, "explanation": "Content negotiation наиболее корректен по спецификации, но сложен в использовании: трудный заголовок Accept, сложнее отлаживать. URL versioning побеждает простотой" },
+      { "text": "Не нужно версионировать -- достаточно обратной совместимости", "correct": false, "explanation": "Обратная совместимость идеальна, но нереалистична при серьёзных изменениях (переименование полей, изменение структуры). Версионирование -- необходимый инструмент" }
+    ]
+  },
+  {
+    "question": "Какие заголовки нужно отправлять при устаревании (deprecation) версии API?",
+    "type": "multiple",
+    "options": [
+      { "text": "Deprecation: true -- сигнал, что версия устаре��а", "correct": true },
+      { "text": "Sunset: <date> -- дата, после которой версия перестанет работать", "correct": true },
+      { "text": "Link: </api/v2/users>; rel=\"successor-version\" -- ссылка на новую версию", "correct": true },
+      { "text": "X-Deprecated-Since: <date> -- нестандартный заголовок с датой", "correct": false, "explanation": "X-Deprecated-Since -- нестандартный заголовок. Используйте стандартные: Deprecation (RFC 8594) и Sunset (RFC 8594) для уведомления клиентов" }
+    ]
+  }
+]

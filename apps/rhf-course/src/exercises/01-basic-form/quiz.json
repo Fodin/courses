@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Какой режим валидации используется в useForm по умолчанию?",
+    "type": "single",
+    "options": [
+      { "text": "onChange", "correct": false, "explanation": "onChange запускает валидацию при каждом изменении поля, что может быть навязчивым для пользователя" },
+      { "text": "onBlur", "correct": false, "explanation": "onBlur запускает валидацию при потере фокуса" },
+      { "text": "onSubmit", "correct": true },
+      { "text": "all", "correct": false, "explanation": "all запускает валидацию и при изменении, и при потере фокуса" }
+    ]
+  },
+  {
+    "question": "Чем watch отличается от getValues?",
+    "type": "single",
+    "options": [
+      { "text": "watch быстрее работает", "correct": false, "explanation": "Скорость не является отличием — разница в подписке на изменения" },
+      { "text": "watch вызывает ререндер при изменении значения, getValues — нет", "correct": true },
+      { "text": "getValues работает только с зарегистрированными полями", "correct": false, "explanation": "Оба метода работают с зарегистрированными полями" },
+      { "text": "Они идентичны по поведению", "correct": false, "explanation": "watch подписывается на изменения и вызывает ререндер, getValues просто читает текущее значение" }
+    ]
+  },
+  {
+    "question": "Почему formState нужно деструктуризировать сразу при получении из useForm?",
+    "type": "single",
+    "options": [
+      { "text": "Это требование TypeScript", "correct": false, "explanation": "TypeScript не требует деструктуризации — это связано с Proxy-механизмом RHF" },
+      { "text": "formState — это Proxy, и деструктуризация обеспечивает правильную подписку на изменения", "correct": true },
+      { "text": "Без деструктуризации formState будет undefined", "correct": false, "explanation": "formState не будет undefined — но Proxy не сможет корректно отследить, какие свойства вы используете" },
+      { "text": "Это просто код-стайл без технической причины", "correct": false, "explanation": "Это техническое требование: Proxy отслеживает обращения к свойствам для оптимизации ререндеров" }
+    ]
+  },
+  {
+    "question": "Какие из этих методов/свойств возвращает useForm?",
+    "type": "multiple",
+    "options": [
+      { "text": "register", "correct": true },
+      { "text": "handleSubmit", "correct": true },
+      { "text": "useFieldArray", "correct": false, "explanation": "useFieldArray — это отдельный хук, импортируемый из react-hook-form, а не свойство useForm" },
+      { "text": "setValue", "correct": true },
+      { "text": "formState", "correct": true }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если использовать <input type=\"number\"> без valueAsNumber: true?",
+    "type": "single",
+    "options": [
+      { "text": "Будет ошибка компиляции TypeScript", "correct": false, "explanation": "TypeScript не выдаст ошибку — значение просто будет строкой вместо числа" },
+      { "text": "Значение будет строкой, а не числом", "correct": true },
+      { "text": "Поле не будет работать", "correct": false, "explanation": "Поле будет работать, но значение будет типа string" },
+      { "text": "RHF автоматически преобразует значение в число", "correct": false, "explanation": "RHF не преобразует автоматически — нужно явно указать valueAsNumber: true" }
+    ]
+  }
+]

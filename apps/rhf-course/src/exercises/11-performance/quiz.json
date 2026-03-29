@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Почему watch() без аргументов плох для производительности?",
+    "type": "single",
+    "options": [
+      { "text": "Он делает HTTP-запрос на каждое изменение", "correct": false, "explanation": "watch() не делает HTTP-запросов — проблема в ререндерах" },
+      { "text": "Он подписывается на все поля и вызывает ререндер всего компонента при любом изменении", "correct": true },
+      { "text": "Он блокирует основной поток", "correct": false, "explanation": "watch() не блокирует поток — проблема в избыточных ререндерах" },
+      { "text": "Он потребляет много памяти", "correct": false, "explanation": "Основная проблема — не память, а количество ререндеров" }
+    ]
+  },
+  {
+    "question": "Чем useWatch отличается от watch?",
+    "type": "multiple",
+    "options": [
+      { "text": "useWatch подписывается только на указанные поля", "correct": true },
+      { "text": "useWatch можно использовать в дочерних компонентах через control", "correct": true },
+      { "text": "useWatch не вызывает ререндер", "correct": false, "explanation": "useWatch вызывает ререндер, но только того компонента, в котором используется, и только при изменении указанных полей" },
+      { "text": "useWatch изолирует ререндеры от остальной формы", "correct": true }
+    ]
+  },
+  {
+    "question": "Какой подход помогает изолировать ререндеры в больших формах?",
+    "type": "single",
+    "options": [
+      { "text": "Использовать watch() для всех полей и shouldComponentUpdate", "correct": false, "explanation": "watch() подписывается на всё — это противоположность изоляции" },
+      { "text": "Вынести части формы в отдельные компоненты с memo и useWatch", "correct": true },
+      { "text": "Использовать useCallback для всех обработчиков", "correct": false, "explanation": "useCallback мемоизирует функции, но не предотвращает ререндеры от watch()" },
+      { "text": "Увеличить debounce для onChange", "correct": false, "explanation": "Debounce уменьшит частоту, но не изолирует ререндеры" }
+    ]
+  }
+]

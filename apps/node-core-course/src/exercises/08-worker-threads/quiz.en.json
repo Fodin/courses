@@ -1,0 +1,43 @@
+[
+  {
+    "question": "How do Worker Threads differ from child_process.fork?",
+    "type": "multiple",
+    "options": [
+      { "text": "Workers run in the same process, fork creates a separate one", "correct": true },
+      { "text": "Workers can share memory via SharedArrayBuffer", "correct": true },
+      { "text": "Workers consume less memory (~5-10 MB vs ~30 MB)", "correct": true },
+      { "text": "Workers are safer — a crash doesn't affect the process", "correct": false, "explanation": "The opposite: a worker crash in the same process can damage the entire process. fork is more isolated" },
+      { "text": "Workers automatically use IPC for communication", "correct": false, "explanation": "Workers use postMessage (structured clone), not IPC. IPC is a fork mechanism" }
+    ]
+  },
+  {
+    "question": "What happens with worker.postMessage(data, [arrayBuffer])?",
+    "type": "single",
+    "options": [
+      { "text": "ArrayBuffer is transferred — becomes unavailable in the sender", "correct": true },
+      { "text": "ArrayBuffer is copied — both threads get their own copy", "correct": false, "explanation": "Without transferList data is copied. With transferList it's transferred — that's the whole point" },
+      { "text": "Error — ArrayBuffer cannot be passed to Worker", "correct": false, "explanation": "ArrayBuffer can be both copied and transferred" },
+      { "text": "ArrayBuffer is shared between threads like SharedArrayBuffer", "correct": false, "explanation": "Transfer moves data, not shares it. Use SharedArrayBuffer for sharing" }
+    ]
+  },
+  {
+    "question": "Why can't Atomics.wait be called on the main thread?",
+    "type": "single",
+    "options": [
+      { "text": "It blocks the event loop, making the application unresponsive", "correct": true },
+      { "text": "The main thread doesn't have access to SharedArrayBuffer", "correct": false, "explanation": "The main thread can work with SharedArrayBuffer. The limitation is only on blocking wait" },
+      { "text": "Atomics only work in Worker threads", "correct": false, "explanation": "Most Atomics operations work in any thread. Only wait is blocking" },
+      { "text": "It causes deadlock between threads", "correct": false, "explanation": "The issue isn't deadlock but event loop blocking. Use Atomics.waitAsync for non-blocking waiting" }
+    ]
+  },
+  {
+    "question": "What is the optimal Worker Pool size?",
+    "type": "single",
+    "options": [
+      { "text": "Equal to CPU core count (os.cpus().length)", "correct": true },
+      { "text": "2x CPU cores for better utilization", "correct": false, "explanation": "For CPU-bound tasks, more threads than cores provides no benefit — threads compete for CPU" },
+      { "text": "Always 4 threads — universal value", "correct": false, "explanation": "Optimal count depends on core count. On a 16-core server, 4 threads underutilize resources" },
+      { "text": "1 thread per task in the queue", "correct": false, "explanation": "Creating a thread costs ~5-30ms and ~5-10 MB RAM. With 1000 tasks that's 10 GB RAM" }
+    ]
+  }
+]

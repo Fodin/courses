@@ -1,0 +1,54 @@
+[
+  {
+    "question": "Why is assertNever(value: never) needed in a switch?",
+    "type": "single",
+    "options": [
+      { "text": "It guarantees all union variants are handled — adding a new variant causes a compilation error", "correct": true },
+      { "text": "It improves switch statement performance", "correct": false, "explanation": "assertNever doesn't affect performance — it's a compile-time completeness checking tool" },
+      { "text": "It automatically handles unknown variants without errors", "correct": false, "explanation": "On the contrary: assertNever throws a runtime error and creates a compilation error if not all variants are handled" },
+      { "text": "It allows using switch without a default branch", "correct": false, "explanation": "assertNever is specifically used IN the default branch to verify handling completeness" }
+    ]
+  },
+  {
+    "question": "What is an algebraic data type (ADT) in the TypeScript context?",
+    "type": "single",
+    "options": [
+      { "text": "A tagged union with a discriminant field and constructor functions", "correct": true },
+      { "text": "Any type defined via a type alias", "correct": false, "explanation": "Not every type alias is an ADT — ADT implies a sum type (tagged union) structure with discriminants" },
+      { "text": "A class with abstract methods", "correct": false, "explanation": "ADTs in TypeScript are implemented via tagged unions, not through classes and inheritance" },
+      { "text": "A type that supports arithmetic operations", "correct": false, "explanation": "'Algebraic' refers to type algebra (sum and product), not arithmetic" }
+    ]
+  },
+  {
+    "question": "How does Extract<AppEvent, { type: 'USER_LOGIN' }> extract the needed variant from a union?",
+    "type": "single",
+    "options": [
+      { "text": "It keeps only those union members that are assignable to the specified shape", "correct": true },
+      { "text": "It creates a new type by merging AppEvent with { type: 'USER_LOGIN' }", "correct": false, "explanation": "Extract filters, not merges — it removes incompatible variants" },
+      { "text": "It removes the type field from the resulting type", "correct": false, "explanation": "Extract doesn't remove fields — it returns the full variant type including all its properties" },
+      { "text": "It checks types only at runtime", "correct": false, "explanation": "Extract works entirely at the type level, producing no runtime code" }
+    ]
+  },
+  {
+    "question": "What requirements must a discriminant in a discriminated union satisfy?",
+    "type": "multiple",
+    "options": [
+      { "text": "Be a literal type (string or numeric literal)", "correct": true },
+      { "text": "Be present in all union variants", "correct": true },
+      { "text": "Have a unique value in each variant", "correct": true },
+      { "text": "Be exclusively a string type", "correct": false, "explanation": "A discriminant can be a numeric literal, boolean, or even an enum value — not only a string" },
+      { "text": "Be declared with the readonly modifier", "correct": false, "explanation": "readonly is recommended as a best practice but is not a mandatory requirement for the discriminant to work" }
+    ]
+  },
+  {
+    "question": "How is Option<T> better than null/undefined for representing an absent value?",
+    "type": "multiple",
+    "options": [
+      { "text": "Forces explicit handling of both cases (value present / value absent)", "correct": true },
+      { "text": "Enables building operation chains via map/flatMap", "correct": true },
+      { "text": "Runs faster than null checks", "correct": false, "explanation": "Option creates an additional wrapper object, which is slower than direct null checks. The advantage is type safety, not performance" },
+      { "text": "Automatically throws an error when accessing an absent value", "correct": false, "explanation": "Option does NOT throw errors — it forces you to explicitly handle the none case, instead of getting a runtime null reference error" },
+      { "text": "Makes the possibility of absence an explicit part of the type signature", "correct": true }
+    ]
+  }
+]

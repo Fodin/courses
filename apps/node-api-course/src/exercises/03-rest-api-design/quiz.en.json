@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What status code should DELETE /api/users/:id return on successful deletion?",
+    "type": "single",
+    "options": [
+      { "text": "204 No Content -- successful deletion, no response body needed", "correct": true },
+      { "text": "200 OK with body { deleted: true }", "correct": false, "explanation": "200 OK is acceptable but 204 No Content is standard practice for DELETE. The client doesn't need a response body: it knows the resource is deleted from the status code" },
+      { "text": "202 Accepted -- deletion accepted for processing", "correct": false, "explanation": "202 is for asynchronous operations (queued). For synchronous deletion, the correct response is 204 No Content" },
+      { "text": "410 Gone -- the resource no longer exists", "correct": false, "explanation": "410 Gone means a resource existed but is permanently removed. It's not a successful DELETE response code, but an informational status for future GET requests" }
+    ]
+  },
+  {
+    "question": "Why is cursor-based pagination more stable than offset-based with concurrent inserts?",
+    "type": "single",
+    "options": [
+      { "text": "Cursor references a specific record (WHERE id > N), while offset counts from the beginning -- inserts shift all subsequent pages", "correct": true },
+      { "text": "Cursor-based pagination locks the table from inserts", "correct": false, "explanation": "Cursor-based doesn't lock the table. Stability comes from binding to a specific value (id > 40), not an ordinal number (OFFSET 40)" },
+      { "text": "Cursor caches the result on the server", "correct": false, "explanation": "Cursor doesn't cache results -- it stores a position (usually an ID). Stability lies in WHERE id > 40 returning the same next records regardless of inserts at the beginning" },
+      { "text": "Offset-based is slower and therefore skips records", "correct": false, "explanation": "Speed isn't the cause of skips. The problem is that OFFSET 40 shifts when a new record is inserted: record #40 becomes #41, and the user sees it twice or misses it" }
+    ]
+  },
+  {
+    "question": "How should multi-field sorting be implemented in a REST API?",
+    "type": "single",
+    "options": [
+      { "text": "?sort=-createdAt,name -- comma-separated fields, minus means DESC", "correct": true },
+      { "text": "?sortBy=createdAt&sortOrder=DESC&sortBy2=name&sortOrder2=ASC", "correct": false, "explanation": "Numbered parameters (sortBy2, sortOrder2) are unwieldy and don't scale. The standard convention: sort=-field1,field2 -- compact and extensible" },
+      { "text": "?sort={\"createdAt\":\"desc\",\"name\":\"asc\"}", "correct": false, "explanation": "JSON in query params is hard to read, encode, and cache. The sort=-field1,field2 convention is simpler and widely supported" },
+      { "text": "?orderBy=createdAt DESC, name ASC (SQL syntax)", "correct": false, "explanation": "SQL syntax in query params is dangerous (SQL injection), inconvenient to parse, and non-standard. Use sort=-createdAt,name" }
+    ]
+  },
+  {
+    "question": "What is the most popular API versioning approach and why?",
+    "type": "single",
+    "options": [
+      { "text": "URL versioning (/api/v1/) -- simple, clear, easy to cache and proxy", "correct": true },
+      { "text": "Header versioning (X-API-Version) -- doesn't pollute the URL", "correct": false, "explanation": "Header versioning is valid but less popular: version isn't visible in the URL, harder to test in browsers and document. URL versioning is simpler for most teams" },
+      { "text": "Content negotiation (Accept header) -- follows HTTP standards", "correct": false, "explanation": "Content negotiation is most spec-correct but complex to use: difficult Accept header, harder to debug. URL versioning wins on simplicity" },
+      { "text": "No versioning needed -- backward compatibility is sufficient", "correct": false, "explanation": "Backward compatibility is ideal but unrealistic for major changes (field renames, structure changes). Versioning is a necessary tool" }
+    ]
+  },
+  {
+    "question": "What headers should be sent when deprecating an API version?",
+    "type": "multiple",
+    "options": [
+      { "text": "Deprecation: true -- signal that the version is deprecated", "correct": true },
+      { "text": "Sunset: <date> -- date after which the version will stop working", "correct": true },
+      { "text": "Link: </api/v2/users>; rel=\"successor-version\" -- link to the new version", "correct": true },
+      { "text": "X-Deprecated-Since: <date> -- non-standard header with date", "correct": false, "explanation": "X-Deprecated-Since is a non-standard header. Use standard ones: Deprecation (RFC 8594) and Sunset (RFC 8594) to notify clients" }
+    ]
+  }
+]

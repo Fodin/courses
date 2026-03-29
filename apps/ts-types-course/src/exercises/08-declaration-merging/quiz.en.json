@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What happens when merging two interfaces with the same property but different types?",
+    "type": "single",
+    "options": [
+      { "text": "TypeScript produces a compilation error — property types must match during merging", "correct": true },
+      { "text": "TypeScript automatically creates a union type from both declarations", "correct": false, "explanation": "TypeScript does NOT automatically create unions. Properties during merging must have identical types, otherwise it's an error" },
+      { "text": "The last declaration overwrites the property type", "correct": false, "explanation": "Interface merging doesn't overwrite properties — all declarations must be compatible. Overwriting is intersection (&) behavior, not merging" },
+      { "text": "TypeScript ignores the second declaration", "correct": false, "explanation": "TypeScript doesn't ignore repeated declarations — it tries to merge them. If types conflict, an error occurs" }
+    ]
+  },
+  {
+    "question": "How do you correctly extend third-party module types through module augmentation?",
+    "type": "single",
+    "options": [
+      { "text": "Create a file with import, then declare module 'library' { interface ExistingInterface { ... } }", "correct": true },
+      { "text": "Simply write declare module 'library' { ... } in any file without import", "correct": false, "explanation": "A file without import/export is a global script, not a module. Module augmentation works correctly only from module files" },
+      { "text": "Use a type alias with intersection: type Extended = Original & { newProp: string }", "correct": false, "explanation": "Intersection creates a new type but doesn't extend the original. Other code using Original won't see newProp" },
+      { "text": "Edit the file in node_modules directly", "correct": false, "explanation": "Changes in node_modules are lost on npm install. Module augmentation is the proper way to extend types without modifying source" }
+    ]
+  },
+  {
+    "question": "Which declarations can merge with each other in TypeScript?",
+    "type": "multiple",
+    "options": [
+      { "text": "Interface + Interface", "correct": true },
+      { "text": "Namespace + Namespace", "correct": true },
+      { "text": "Class + Namespace", "correct": true },
+      { "text": "Type Alias + Type Alias", "correct": false, "explanation": "Type aliases (type X = ...) never merge. Redeclaring is a Duplicate identifier error. Use interface for merging" },
+      { "text": "Class + Class", "correct": false, "explanation": "Two classes with the same name in the same scope is an error. Classes don't merge, unlike interface + interface" }
+    ]
+  },
+  {
+    "question": "What is the overload order when merging two blocks of the same interface?",
+    "type": "single",
+    "options": [
+      { "text": "Later block overloads have higher priority, but string literals are hoisted to the top", "correct": true },
+      { "text": "First block overloads always have higher priority", "correct": false, "explanation": "It's the opposite: later blocks have higher priority. TypeScript considers later definitions more specific" },
+      { "text": "TypeScript sorts overloads by parameter count", "correct": false, "explanation": "Order doesn't depend on parameter count. It's determined by block order and presence of string literals" },
+      { "text": "Overloads are merged in random order", "correct": false, "explanation": "Order is strictly defined: within a block — original order, between blocks — later has priority, literals — hoisted" }
+    ]
+  },
+  {
+    "question": "Why is declare global needed in a file with import/export?",
+    "type": "single",
+    "options": [
+      { "text": "To extend global types (Window, Array, etc.) from a module file", "correct": true },
+      { "text": "To create global variables accessible in all files", "correct": false, "explanation": "declare global doesn't create runtime variables — it only describes types. Runtime globals require a different approach" },
+      { "text": "To disable strict mode for a code block", "correct": false, "explanation": "declare global doesn't affect strict mode. It's used exclusively for extending the global type namespace" },
+      { "text": "To export types to all project files without import", "correct": false, "explanation": "declare global extends already existing global interfaces. For regular type exports, use export" }
+    ]
+  }
+]

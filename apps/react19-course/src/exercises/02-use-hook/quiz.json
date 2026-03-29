@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Чем use() отличается от обычных хуков React?",
+    "type": "single",
+    "options": [
+      { "text": "use() можно вызывать внутри условий и циклов", "correct": true },
+      { "text": "use() работает только в серверных компонентах", "correct": false, "explanation": "use() работает и в клиентских компонентах. Его главное отличие — возможность условного вызова." },
+      { "text": "use() не вызывает ре-рендер компонента", "correct": false, "explanation": "use() интегрирован с Suspense и вызывает повторный рендер, когда промис разрешается." },
+      { "text": "use() заменяет все остальные хуки", "correct": false, "explanation": "use() работает только с Promise и Context. useState, useEffect и другие хуки по-прежнему необходимы." }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если создать промис внутри рендер-функции компонента и передать его в use()?",
+    "type": "single",
+    "options": [
+      { "text": "Компонент отрендерится корректно один раз", "correct": false, "explanation": "Каждый рендер будет создавать новый промис, что приведёт к бесконечному циклу приостановок." },
+      { "text": "Произойдёт бесконечный цикл рендеров", "correct": true },
+      { "text": "React выбросит ошибку компиляции", "correct": false, "explanation": "Это ошибка времени выполнения, а не компиляции. Компилятор не может отследить стабильность промиса." },
+      { "text": "Промис будет автоматически закэширован React", "correct": false, "explanation": "React не кэширует произвольные промисы. Стабильность промиса — ответственность разработчика." }
+    ]
+  },
+  {
+    "question": "Как записывается провайдер контекста в React 19?",
+    "type": "single",
+    "options": [
+      { "text": "<ThemeContext.Provider value=\"dark\">", "correct": false, "explanation": "Это синтаксис React 18. В React 19 можно использовать упрощённый синтаксис без .Provider." },
+      { "text": "<ThemeContext value=\"dark\">", "correct": true },
+      { "text": "<Provider context={ThemeContext} value=\"dark\">", "correct": false, "explanation": "Такого API не существует. Контекст используется как JSX-элемент напрямую." },
+      { "text": "useProvider(ThemeContext, \"dark\")", "correct": false, "explanation": "Хук useProvider не существует в React. Провайдер — это JSX-элемент." }
+    ]
+  },
+  {
+    "question": "Какие типы значений принимает use()?",
+    "type": "multiple",
+    "options": [
+      { "text": "Promise", "correct": true },
+      { "text": "Context", "correct": true },
+      { "text": "Observable", "correct": false, "explanation": "React не поддерживает Observable в use(). Только Promise и Context." },
+      { "text": "Ref", "correct": false, "explanation": "Для работы с рефами используется useRef, а не use()." }
+    ]
+  },
+  {
+    "question": "Какой компонент обязательно должен быть выше в дереве при использовании use(Promise)?",
+    "type": "single",
+    "options": [
+      { "text": "ErrorBoundary", "correct": false, "explanation": "ErrorBoundary рекомендуется, но не обязателен. Без него ошибка промиса всплывёт выше." },
+      { "text": "Suspense", "correct": true },
+      { "text": "StrictMode", "correct": false, "explanation": "StrictMode — инструмент разработки, он не связан с работой use(Promise)." },
+      { "text": "Fragment", "correct": false, "explanation": "Fragment — обёртка для группировки элементов, не имеющая отношения к Suspense." }
+    ]
+  }
+]

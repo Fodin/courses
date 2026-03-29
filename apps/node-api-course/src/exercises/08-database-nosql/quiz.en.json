@@ -1,0 +1,52 @@
+[
+  {
+    "question": "When should you use embedding (nested documents) vs references in MongoDB?",
+    "type": "single",
+    "options": [
+      { "text": "Embedding -- for data read together that doesn't grow unboundedly; References -- for growing collections and independently accessed data", "correct": true },
+      { "text": "Always embedding, since MongoDB is a document DB and JOINs aren't needed", "correct": false, "explanation": "Embedding doesn't work for unboundedly growing arrays -- MongoDB documents are limited to 16 MB. If a user has thousands of orders, embedding will overflow the document" },
+      { "text": "Always references, like in relational DBs -- it's more reliable", "correct": false, "explanation": "References require additional queries ($lookup or populate). If data is always read together (e.g., shipping address in an order), embedding is more efficient -- one query instead of two" },
+      { "text": "Embedding only for primitives, references for objects", "correct": false, "explanation": "Data type doesn't determine the choice. You can embed entire objects (shipping address in order). The criteria are read patterns and data growth" }
+    ]
+  },
+  {
+    "question": "Why does Redis Pub/Sub require a separate connection for the subscriber?",
+    "type": "single",
+    "options": [
+      { "text": "After subscribing, the connection enters subscription mode and cannot execute other commands (GET, SET, etc.)", "correct": true },
+      { "text": "For increased throughput -- two connections are faster than one", "correct": false, "explanation": "The reason isn't performance but the Redis protocol. In subscription mode, the client can only subscribe/unsubscribe and receive messages. Any other command returns an error" },
+      { "text": "Redis doesn't support pub/sub and regular commands on the same port", "correct": false, "explanation": "Redis supports all commands on the same port. The restriction is at the connection level: after SUBSCRIBE, it's blocked for other commands" },
+      { "text": "It's a recommendation but you can use one connection", "correct": false, "explanation": "It's a protocol requirement, not a recommendation. After SUBSCRIBE, the client enters subscriber mode and cannot execute GET/SET. Attempting to do so will cause an error" }
+    ]
+  },
+  {
+    "question": "What does COLLSCAN in MongoDB's explain() indicate and how do you fix it?",
+    "type": "single",
+    "options": [
+      { "text": "COLLSCAN means full collection scan (O(n)) -- create an index on filter fields to get IXSCAN (O(log n))", "correct": true },
+      { "text": "COLLSCAN is normal for small collections in MongoDB", "correct": false, "explanation": "Even for small collections, COLLSCAN is suboptimal. MongoDB uses IXSCAN automatically when a suitable index exists. For growing collections, COLLSCAN becomes a bottleneck" },
+      { "text": "COLLSCAN means an error -- the collection is corrupted", "correct": false, "explanation": "COLLSCAN is not an error but a scan method. It means MongoDB checks every document. It works but is slow on large collections" },
+      { "text": "Restart MongoDB to recalculate query plans", "correct": false, "explanation": "Restarting won't help -- MongoDB chooses COLLSCAN because there's no suitable index. The solution is createIndex() on fields used in find()" }
+    ]
+  },
+  {
+    "question": "What happens to a Redis key if you don't set a TTL?",
+    "type": "single",
+    "options": [
+      { "text": "The key lives forever until explicitly deleted -- this causes memory leaks when using Redis as a cache", "correct": true },
+      { "text": "Redis automatically deletes the key after 24 hours", "correct": false, "explanation": "Redis does NOT auto-delete keys without TTL. A key without expiration exists until explicit DEL or Redis restart (if no persistence)" },
+      { "text": "The key is removed on memory overflow thanks to LRU", "correct": false, "explanation": "LRU eviction only works if maxmemory-policy is configured (default is noeviction). Without configuration, Redis returns OOM error. Always set TTL" },
+      { "text": "Nothing bad -- Redis manages memory automatically", "correct": false, "explanation": "Redis doesn't magically manage memory. Without TTL and maxmemory-policy, keys accumulate indefinitely. When using as cache, always set TTL via setEx" }
+    ]
+  },
+  {
+    "question": "What advantages do Mongoose middleware (hooks) provide?",
+    "type": "multiple",
+    "options": [
+      { "text": "Automatic password hashing in pre('save') -- no need to remember in every controller", "correct": true },
+      { "text": "Soft-delete via pre(/^find/) -- automatic filtering of deleted documents in all queries", "correct": true },
+      { "text": "Mongoose middleware speeds up MongoDB queries by 10x", "correct": false, "explanation": "Middleware doesn't affect MongoDB query performance. It executes additional logic before/after operations, adding overhead rather than speeding things up" },
+      { "text": "Cascade deletion of related documents in pre('deleteOne')", "correct": true }
+    ]
+  }
+]

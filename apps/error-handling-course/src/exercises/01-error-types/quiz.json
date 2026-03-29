@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Какая ошибка возникнет при выполнении null.toString()?",
+    "type": "single",
+    "options": [
+      { "text": "TypeError", "correct": true },
+      { "text": "ReferenceError", "correct": false, "explanation": "ReferenceError возникает при обращении к несуществующей переменной, а null — это значение, не переменная" },
+      { "text": "SyntaxError", "correct": false, "explanation": "SyntaxError возникает при парсинге кода с некорректным синтаксисом, а не при вызове метода" },
+      { "text": "RangeError", "correct": false, "explanation": "RangeError возникает при числовых значениях вне допустимого диапазона" }
+    ]
+  },
+  {
+    "question": "Что обязательно нужно сделать при создании custom Error класса?",
+    "type": "multiple",
+    "options": [
+      { "text": "Вызвать super(message) в конструкторе", "correct": true },
+      { "text": "Установить this.name", "correct": true },
+      { "text": "Наследовать от Error", "correct": true },
+      { "text": "Определить метод toString()", "correct": false, "explanation": "Метод toString() наследуется от Error и использует name и message автоматически" },
+      { "text": "Определить свойство code", "correct": false, "explanation": "Свойство code — это необязательное дополнение, а не обязательное требование" }
+    ]
+  },
+  {
+    "question": "Почему проверка error.name === 'ValidationError' хуже, чем error instanceof ValidationError?",
+    "type": "multiple",
+    "options": [
+      { "text": "Опечатка в строке не вызовет ошибку компиляции", "correct": true },
+      { "text": "Не проверяет цепочку наследования", "correct": true },
+      { "text": "Рефакторинг имени класса не будет отловлен TypeScript", "correct": true },
+      { "text": "Проверка по строке работает медленнее", "correct": false, "explanation": "Производительность здесь не основная проблема — ключевая проблема в надёжности и типобезопасности" }
+    ]
+  },
+  {
+    "question": "Что делает свойство cause (ES2022) в объекте Error?",
+    "type": "single",
+    "options": [
+      { "text": "Хранит оригинальную ошибку, которая стала причиной текущей", "correct": true },
+      { "text": "Автоматически логирует причину ошибки в консоль", "correct": false, "explanation": "cause просто хранит ссылку на оригинальную ошибку, логирование нужно делать вручную" },
+      { "text": "Заменяет stack trace новой ошибки на stack trace оригинальной", "correct": false, "explanation": "cause не заменяет stack — обе ошибки сохраняют свои stack trace" },
+      { "text": "Предотвращает всплытие ошибки выше по стеку", "correct": false, "explanation": "cause не влияет на механизм распространения ошибок — она по-прежнему всплывает" }
+    ]
+  },
+  {
+    "question": "Для чего нужны type guards при работе с ошибками в TypeScript?",
+    "type": "single",
+    "options": [
+      { "text": "Для безопасного сужения типа unknown в catch-блоке", "correct": true },
+      { "text": "Для автоматической конвертации ошибки в нужный тип", "correct": false, "explanation": "Type guards не конвертируют значения — они только сужают тип для компилятора" },
+      { "text": "Для предотвращения возникновения ошибок", "correct": false, "explanation": "Type guards не предотвращают ошибки — они помогают безопасно работать с уже пойманными ошибками" },
+      { "text": "Для замены try/catch на более безопасную конструкцию", "correct": false, "explanation": "Type guards дополняют try/catch, а не заменяют его" }
+    ]
+  }
+]

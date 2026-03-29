@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the key rule for a Domain Store?",
+    "type": "single",
+    "options": [
+      { "text": "It operates in domain terms and knows nothing about the UI", "correct": true },
+      { "text": "It contains the state of filters, modals, and tabs", "correct": false, "explanation": "Filters, modals, and tabs are UI state that belongs to UI Store, not Domain Store." },
+      { "text": "It must be the only store in the application", "correct": false, "explanation": "An application can have many Domain Stores (TodoStore, UserStore, OrderStore) — one for each domain area." },
+      { "text": "It should directly import other stores", "correct": false, "explanation": "Direct imports between stores create circular dependencies. Root Store is used to connect stores." }
+    ]
+  },
+  {
+    "question": "What problem does Root Store solve?",
+    "type": "single",
+    "options": [
+      { "text": "It eliminates circular dependencies between stores by acting as a mediator", "correct": true },
+      { "text": "It speeds up MobX by centralizing observables", "correct": false, "explanation": "Root Store doesn't affect MobX performance. Its purpose is organizing connections between stores without direct imports." },
+      { "text": "It automatically wraps all child stores in observer", "correct": false, "explanation": "Root Store is not related to observer. observer is a HOC for React components, while Root Store is a store organization pattern." },
+      { "text": "It replaces React Context for passing data", "correct": false, "explanation": "Root Store is typically passed via React Context. It doesn't replace Context but complements it as a single access point to stores." }
+    ]
+  },
+  {
+    "question": "When should you use model classes instead of plain objects in a store's array?",
+    "type": "multiple",
+    "options": [
+      { "text": "When the entity has its own behavior (methods)", "correct": true },
+      { "text": "When computed properties are needed at the individual item level", "correct": true },
+      { "text": "When the entity is complex with nested data", "correct": true },
+      { "text": "Always — plain objects can't be used in MobX", "correct": false, "explanation": "MobX works perfectly with plain objects. Models are needed when entities have behavior or computed properties. If the object is just data, plain objects suffice." }
+    ]
+  },
+  {
+    "question": "Why shouldn't you store derived data as observable instead of computed?",
+    "type": "single",
+    "options": [
+      { "text": "Observable needs manual updates in every action, which risks desynchronization", "correct": true },
+      { "text": "MobX doesn't allow storing numbers and strings as observable", "correct": false, "explanation": "MobX can store any type as observable. The issue isn't about types but about data duplication and manual synchronization." },
+      { "text": "Computed values are faster than observable in terms of performance", "correct": false, "explanation": "Performance isn't the main point here. The key issue is reliability: computed automatically derives from sources, while a manually updated observable can get out of sync." },
+      { "text": "TypeScript doesn't allow having an observable property and computed with the same name", "correct": false, "explanation": "This isn't a TypeScript limitation. The problem is architectural: a manually updated observable property duplicates data and can become stale." }
+    ]
+  },
+  {
+    "question": "What happens if you forget to call makeAutoObservable in a model class (e.g., Todo)?",
+    "type": "single",
+    "options": [
+      { "text": "Model properties won't be tracked by MobX, and observer components won't react to their changes", "correct": true },
+      { "text": "The application will crash with a runtime error", "correct": false, "explanation": "The app won't crash — the code will work, but changes to model properties (e.g., todo.completed) won't trigger re-renders in observer components." },
+      { "text": "TypeScript will show a compilation error", "correct": false, "explanation": "TypeScript doesn't know about MobX reactivity and won't show an error. The problem manifests only at runtime — components won't update." },
+      { "text": "The collection store won't be able to add the model instance to the array", "correct": false, "explanation": "JavaScript allows adding any object to an array. Without makeAutoObservable, the model simply won't be reactive." }
+    ]
+  }
+]

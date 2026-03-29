@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Что произойдёт при слиянии двух interface с одинаковым свойством, но разными типами?",
+    "type": "single",
+    "options": [
+      { "text": "TypeScript выдаст ошибку компиляции — типы свойств при слиянии должны совпадать", "correct": true },
+      { "text": "TypeScript автоматически создаст union тип из обоих объявлений", "correct": false, "explanation": "TypeScript НЕ создаёт union автоматически. Свойства при слиянии обязаны иметь идентичный тип, иначе — ошибка" },
+      { "text": "Последнее объявление перезапишет тип свойства", "correct": false, "explanation": "Interface merging не перезаписывает свойства — все объявления должны быть совместимы. Перезапись — это поведение intersection (&), но не merging" },
+      { "text": "TypeScript проигнорирует второе объявление", "correct": false, "explanation": "TypeScript не игнорирует повторные объявления — он пытается их слить. Если типы конфликтуют, возникает ошибка" }
+    ]
+  },
+  {
+    "question": "Как правильно расширить типы стороннего модуля через module augmentation?",
+    "type": "single",
+    "options": [
+      { "text": "Создать файл с import, затем declare module 'library' { interface ExistingInterface { ... } }", "correct": true },
+      { "text": "Просто написать declare module 'library' { ... } в любом файле без import", "correct": false, "explanation": "Файл без import/export является глобальным скриптом, а не модулем. Module augmentation работает корректно только из файлов-модулей" },
+      { "text": "Использовать type alias с intersection: type Extended = Original & { newProp: string }", "correct": false, "explanation": "Intersection создаёт новый тип, но не расширяет оригинальный. Другие части кода, использующие Original, не увидят newProp" },
+      { "text": "Отредактировать файл в node_modules напрямую", "correct": false, "explanation": "Изменения в node_modules теряются при npm install. Module augmentation — правильный способ расширения типов без модификации исходников" }
+    ]
+  },
+  {
+    "question": "Какие объявления могут сливаться друг с другом в TypeScript?",
+    "type": "multiple",
+    "options": [
+      { "text": "Interface + Interface", "correct": true },
+      { "text": "Namespace + Namespace", "correct": true },
+      { "text": "Class + Namespace", "correct": true },
+      { "text": "Type Alias + Type Alias", "correct": false, "explanation": "Type aliases (type X = ...) никогда не сливаются. Повторное объявление — ошибка Duplicate identifier. Используйте interface для слияния" },
+      { "text": "Class + Class", "correct": false, "explanation": "Два class с одним именем в одной области видимости — ошибка. Классы не сливаются, в отличие от interface + interface" }
+    ]
+  },
+  {
+    "question": "Каков порядок перегрузок при слиянии двух блоков одного interface?",
+    "type": "single",
+    "options": [
+      { "text": "Перегрузки из поздних блоков приоритетнее, но строковые литералы поднимаются наверх", "correct": true },
+      { "text": "Перегрузки из первого блока всегда приоритетнее", "correct": false, "explanation": "Наоборот: поздние блоки имеют более высокий приоритет. TypeScript считает более позднее определение более специфичным" },
+      { "text": "TypeScript сортирует перегрузки по количеству параметров", "correct": false, "explanation": "Порядок не зависит от количества параметров. Определяется порядком блоков и наличием строковых литералов" },
+      { "text": "Перегрузки объединяются в случайном порядке", "correct": false, "explanation": "Порядок строго определён: внутри блока — исходный порядок, между блоками — поздние приоритетнее, литералы — наверх" }
+    ]
+  },
+  {
+    "question": "Зачем нужен declare global в файле с import/export?",
+    "type": "single",
+    "options": [
+      { "text": "Чтобы расширить глобальные типы (Window, Array и др.) из файла-модуля", "correct": true },
+      { "text": "Чтобы создать глобальные переменные, доступные во всех файлах", "correct": false, "explanation": "declare global не создаёт runtime переменные — он только описывает типы. Для runtime глобалов нужен другой подход" },
+      { "text": "Чтобы отключить strict mode для блока кода", "correct": false, "explanation": "declare global не влияет на strict mode. Он используется исключительно для расширения глобального пространства типов" },
+      { "text": "Чтобы экспортировать типы во все файлы проекта без import", "correct": false, "explanation": "declare global расширяет уже существующие глобальные интерфейсы. Для обычного экспорта типов используйте export" }
+    ]
+  }
+]

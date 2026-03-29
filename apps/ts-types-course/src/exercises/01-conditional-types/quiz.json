@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что вернёт тип ToArray<string | number>, если type ToArray<T> = T extends unknown ? T[] : never?",
+    "type": "single",
+    "options": [
+      { "text": "string[] | number[] — дистрибутивный результат", "correct": true },
+      { "text": "(string | number)[] — единый массив", "correct": false, "explanation": "Conditional type с naked type parameter распределяется по union. ToArray применяется к string и number по отдельности, давая string[] | number[]" },
+      { "text": "never — условие не выполняется", "correct": false, "explanation": "string extends unknown = true, number extends unknown = true, поэтому оба члена union проходят проверку" },
+      { "text": "unknown[] — обобщённый массив", "correct": false, "explanation": "TypeScript не обобщает типы до unknown. Дистрибутивность создаёт отдельный массив для каждого члена union" }
+    ]
+  },
+  {
+    "question": "Как предотвратить дистрибутивность условного типа?",
+    "type": "single",
+    "options": [
+      { "text": "Обернуть T в tuple: [T] extends [U] ? X : Y", "correct": true },
+      { "text": "Использовать T & {} вместо T", "correct": false, "explanation": "T & {} не предотвращает дистрибутивность. Это intersection type, который ведёт себя иначе, но не блокирует распределение" },
+      { "text": "Добавить constraint: <T extends unknown>", "correct": false, "explanation": "Constraint не влияет на дистрибутивность. Распределение происходит для любого naked type parameter в extends-позиции" },
+      { "text": "Использовать never вместо unknown в extends", "correct": false, "explanation": "Замена unknown на never сделает условие всегда false (кроме T = never), что совершенно меняет семантику типа" }
+    ]
+  },
+  {
+    "question": "Что возвращает тип IsNever<T> = T extends never ? true : false при IsNever<never>?",
+    "type": "single",
+    "options": [
+      { "text": "never — потому что never является пустым union и дистрибутивность возвращает never", "correct": true },
+      { "text": "true — потому что never extends never = true", "correct": false, "explanation": "Интуитивно кажется, что так и должно быть, но дистрибутивность меняет поведение. never — пустой union, по которому нечего распределять, результат — never" },
+      { "text": "false — потому что never не extends never", "correct": false, "explanation": "never extends never действительно true, но из-за дистрибутивности проверка даже не выполняется — нет членов union для обработки" },
+      { "text": "boolean — потому что TypeScript не может определить результат", "correct": false, "explanation": "TypeScript не возвращает boolean при неопределённости. Результат всегда конкретен для conditional types" }
+    ]
+  },
+  {
+    "question": "Какие утилитные типы являются дистрибутивными условными типами?",
+    "type": "multiple",
+    "options": [
+      { "text": "Extract<T, U> = T extends U ? T : never", "correct": true },
+      { "text": "Exclude<T, U> = T extends U ? never : T", "correct": true },
+      { "text": "NonNullable<T> = T extends null | undefined ? never : T", "correct": true },
+      { "text": "Readonly<T> = { readonly [K in keyof T]: T[K] }", "correct": false, "explanation": "Readonly — это mapped type, а не conditional type. Он не использует extends с тернарным оператором" }
+    ]
+  },
+  {
+    "question": "Где можно использовать ключевое слово infer?",
+    "type": "single",
+    "options": [
+      { "text": "Только в extends-части условного типа (в true-ветке доступна выведенная переменная)", "correct": true },
+      { "text": "В любом месте, где можно использовать тип", "correct": false, "explanation": "infer — специальный синтаксис, доступный только в extends-позиции conditional type. Вне этого контекста он вызовет ошибку" },
+      { "text": "В аргументах функций для автоматического вывода типа", "correct": false, "explanation": "Для вывода типов в функциях используются generic-параметры, а не infer. infer работает исключительно на уровне типов" },
+      { "text": "В обеих ветках условного типа (true и false)", "correct": false, "explanation": "Переменная, объявленная через infer, доступна только в true-ветке. В false-ветке она не определена" }
+    ]
+  }
+]

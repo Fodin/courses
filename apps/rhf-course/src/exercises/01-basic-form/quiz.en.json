@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Which validation mode does useForm use by default?",
+    "type": "single",
+    "options": [
+      { "text": "onChange", "correct": false, "explanation": "onChange triggers validation on every field change, which can feel intrusive to the user" },
+      { "text": "onBlur", "correct": false, "explanation": "onBlur triggers validation when a field loses focus" },
+      { "text": "onSubmit", "correct": true },
+      { "text": "all", "correct": false, "explanation": "all triggers validation both on change and on blur" }
+    ]
+  },
+  {
+    "question": "How does watch differ from getValues?",
+    "type": "single",
+    "options": [
+      { "text": "watch is faster", "correct": false, "explanation": "Speed is not the difference — the distinction is in subscribing to changes" },
+      { "text": "watch triggers a re-render when the value changes; getValues does not", "correct": true },
+      { "text": "getValues only works with registered fields", "correct": false, "explanation": "Both methods work with registered fields" },
+      { "text": "They behave identically", "correct": false, "explanation": "watch subscribes to changes and triggers re-renders; getValues simply reads the current value" }
+    ]
+  },
+  {
+    "question": "Why should formState be destructured immediately when retrieved from useForm?",
+    "type": "single",
+    "options": [
+      { "text": "It is a TypeScript requirement", "correct": false, "explanation": "TypeScript does not require destructuring — this is related to RHF's Proxy mechanism" },
+      { "text": "formState is a Proxy, and destructuring ensures correct subscription to changes", "correct": true },
+      { "text": "Without destructuring, formState will be undefined", "correct": false, "explanation": "formState will not be undefined — but the Proxy won't be able to track which properties you're accessing" },
+      { "text": "It is just a code style convention with no technical reason", "correct": false, "explanation": "This is a technical requirement: the Proxy tracks property access to optimize re-renders" }
+    ]
+  },
+  {
+    "question": "Which of these methods/properties does useForm return?",
+    "type": "multiple",
+    "options": [
+      { "text": "register", "correct": true },
+      { "text": "handleSubmit", "correct": true },
+      { "text": "useFieldArray", "correct": false, "explanation": "useFieldArray is a separate hook imported from react-hook-form, not a property of useForm" },
+      { "text": "setValue", "correct": true },
+      { "text": "formState", "correct": true }
+    ]
+  },
+  {
+    "question": "What happens if you use <input type=\"number\"> without valueAsNumber: true?",
+    "type": "single",
+    "options": [
+      { "text": "There will be a TypeScript compilation error", "correct": false, "explanation": "TypeScript will not throw an error — the value will simply be a string instead of a number" },
+      { "text": "The value will be a string, not a number", "correct": true },
+      { "text": "The field will not work", "correct": false, "explanation": "The field will work, but the value will be of type string" },
+      { "text": "RHF will automatically convert the value to a number", "correct": false, "explanation": "RHF does not convert automatically — you must explicitly set valueAsNumber: true" }
+    ]
+  }
+]

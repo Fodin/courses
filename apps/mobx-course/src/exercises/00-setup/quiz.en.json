@@ -1,0 +1,43 @@
+[
+  {
+    "question": "What does calling makeAutoObservable(this) in a class constructor do?",
+    "type": "multiple",
+    "options": [
+      { "text": "Class properties become observable", "correct": true },
+      { "text": "Getters become computed", "correct": true },
+      { "text": "Methods become actions", "correct": true },
+      { "text": "The class is automatically wrapped in observer", "correct": false, "explanation": "observer is a HOC from mobx-react-lite for React components, not for store classes. makeAutoObservable makes data observable but does not connect the store to React." }
+    ]
+  },
+  {
+    "question": "Why does destructuring const { count } = store lose reactivity?",
+    "type": "single",
+    "options": [
+      { "text": "MobX tracks property access on objects, not local variables", "correct": true },
+      { "text": "Destructuring removes the property from the store", "correct": false, "explanation": "Destructuring does not modify the source object — it copies the value into a local variable." },
+      { "text": "MobX does not support primitive types", "correct": false, "explanation": "MobX works perfectly with primitives (number, string, boolean) inside observable objects. The issue is that destructuring copies the primitive and loses its connection to the observable property." },
+      { "text": "You need to use a special useDestructure hook", "correct": false, "explanation": "No such hook exists. Simply access properties via dot notation: store.count." }
+    ]
+  },
+  {
+    "question": "What happens if a React component reads data from a MobX store but is not wrapped in observer?",
+    "type": "single",
+    "options": [
+      { "text": "The component shows initial data and never updates when data changes", "correct": true },
+      { "text": "There will be a TypeScript compilation error", "correct": false, "explanation": "TypeScript doesn't know about MobX reactivity — the code compiles without errors, but the component won't react to changes." },
+      { "text": "The component will update, but with a delay", "correct": false, "explanation": "Without observer the component won't know about store changes at all — there's no delay, updates simply won't happen." },
+      { "text": "MobX will throw a runtime error", "correct": false, "explanation": "MobX doesn't throw an error — the component silently renders initial data and won't update." }
+    ]
+  },
+  {
+    "question": "Which of the following are the three pillars of MobX?",
+    "type": "multiple",
+    "options": [
+      { "text": "Observable State", "correct": true },
+      { "text": "Actions", "correct": true },
+      { "text": "Derivations (computed and reactions)", "correct": true },
+      { "text": "Reducers", "correct": false, "explanation": "Reducers are a Redux concept. In MobX, state is modified directly through actions, without reducers." },
+      { "text": "Selectors", "correct": false, "explanation": "Selectors are a Redux/Reselect concept. In MobX, computed values serve a similar role." }
+    ]
+  }
+]

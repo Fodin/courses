@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How many bytes does the string 'Привет' (6 Cyrillic characters) take in UTF-8?",
+    "type": "single",
+    "options": [
+      { "text": "12 bytes", "correct": true },
+      { "text": "6 bytes", "correct": false, "explanation": "6 is the string length in characters (String.length). Each Cyrillic character takes 2 bytes in UTF-8, totaling 12" },
+      { "text": "24 bytes", "correct": false, "explanation": "24 bytes would be UTF-32 (4 bytes per character). Cyrillic in UTF-8 takes 2 bytes" },
+      { "text": "18 bytes", "correct": false, "explanation": "18 bytes would be 3 bytes per character. Cyrillic in UTF-8 takes exactly 2 bytes per character" }
+    ]
+  },
+  {
+    "question": "What is dangerous about Buffer.allocUnsafe()?",
+    "type": "single",
+    "options": [
+      { "text": "The buffer may contain data from previously freed memory", "correct": true },
+      { "text": "It's slower than Buffer.alloc()", "correct": false, "explanation": "Actually, allocUnsafe is faster — it skips zeroing memory. The danger is that old data remains" },
+      { "text": "It creates a buffer outside V8 heap", "correct": false, "explanation": "Small allocUnsafe buffers are allocated from a pool in V8 heap. The danger is uncleared memory" },
+      { "text": "It doesn't support UTF-8 encoding", "correct": false, "explanation": "allocUnsafe supports all the same encodings. The danger is uninitialized memory" }
+    ]
+  },
+  {
+    "question": "What does Buffer.slice() do?",
+    "type": "single",
+    "options": [
+      { "text": "Creates a view on the same memory — changes are visible in the original", "correct": true },
+      { "text": "Creates an independent copy of data", "correct": false, "explanation": "slice() returns a view on the same memory. For a copy use Buffer.from(buf.slice())" },
+      { "text": "Removes part of the buffer", "correct": false, "explanation": "Buffer has fixed size. slice() creates a new Buffer view on part of the original memory" },
+      { "text": "Splits the buffer into an array of smaller buffers", "correct": false, "explanation": "slice() returns a single Buffer — a view on part of the original. Splitting requires custom code" }
+    ]
+  },
+  {
+    "question": "What is DataView used for?",
+    "type": "single",
+    "options": [
+      { "text": "Reading/writing numbers with explicit endianness", "correct": true },
+      { "text": "Displaying data in UI", "correct": false, "explanation": "DataView is a low-level API for binary data in ArrayBuffer with byte order control" },
+      { "text": "Creating immutable Buffer views", "correct": false, "explanation": "DataView is not immutable — you can write through it. Its purpose is endianness control" },
+      { "text": "Converting between text encodings", "correct": false, "explanation": "DataView works with numeric types (int, float), not text encodings. Use TextEncoder/TextDecoder for text" }
+    ]
+  },
+  {
+    "question": "What byte order is used in network protocols?",
+    "type": "single",
+    "options": [
+      { "text": "Big-endian (Network Byte Order)", "correct": true },
+      { "text": "Little-endian", "correct": false, "explanation": "Little-endian is used by x86/ARM CPUs. Network protocols (TCP, IP, HTTP) use big-endian" },
+      { "text": "Depends on the protocol", "correct": false, "explanation": "RFC 1700 defines big-endian as Network Byte Order for all internet protocols" },
+      { "text": "Depends on server architecture", "correct": false, "explanation": "Network Byte Order (big-endian) was adopted precisely for architecture independence" }
+    ]
+  }
+]

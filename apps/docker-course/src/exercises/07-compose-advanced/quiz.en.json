@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What conditions can be used in the extended form of depends_on?",
+    "type": "multiple",
+    "options": [
+      { "text": "service_healthy — wait until healthcheck passes", "correct": true },
+      { "text": "service_started — enough that the container is started", "correct": true },
+      { "text": "service_completed_successfully — wait for successful completion (exit code 0)", "correct": true },
+      { "text": "service_ready — wait until the service opens a port", "correct": false, "explanation": "The service_ready condition doesn't exist. To check port readiness, use healthcheck with curl or wget" }
+    ]
+  },
+  {
+    "question": "What happens when using condition: service_healthy if the target service has no healthcheck?",
+    "type": "single",
+    "options": [
+      { "text": "Docker Compose will throw an error on startup", "correct": true },
+      { "text": "Compose will skip the check and start the service immediately", "correct": false, "explanation": "Compose strictly validates the healthcheck presence on the target service and won't start the dependent service without it" },
+      { "text": "The service will be considered always healthy", "correct": false, "explanation": "Compose can't determine health status without a healthcheck and will throw an error" },
+      { "text": "Compose will automatically add a default healthcheck", "correct": false, "explanation": "Compose doesn't add healthchecks automatically. They must be explicitly defined for each service" }
+    ]
+  },
+  {
+    "question": "What are profiles used for in Docker Compose?",
+    "type": "single",
+    "options": [
+      { "text": "For conditional service startup — e.g., dev tools only during debugging", "correct": true },
+      { "text": "For limiting CPU and RAM resources for services", "correct": false, "explanation": "Resource limits are configured via deploy.resources.limits, not profiles" },
+      { "text": "For specifying service startup order", "correct": false, "explanation": "Startup order is determined by depends_on. Profiles determine which services are included" },
+      { "text": "For selecting a Docker network for each service", "correct": false, "explanation": "Networks are defined via the networks key in service configuration, not profiles" }
+    ]
+  },
+  {
+    "question": "How do lists (ports, volumes) behave when merging docker-compose.yml and an override file?",
+    "type": "single",
+    "options": [
+      { "text": "Lists are concatenated — elements from override are added to existing ones", "correct": true },
+      { "text": "Override lists completely replace lists from the main file", "correct": false, "explanation": "Lists are appended, not replaced. If the main file has '3000:3000' and override has '9229:9229', both will be present" },
+      { "text": "Docker Compose merges duplicates and keeps only unique entries", "correct": false, "explanation": "Compose doesn't deduplicate — all elements are concatenated. Duplicating a port will cause 'port already allocated' error" },
+      { "text": "Only the override file determines the final list", "correct": false, "explanation": "The override file supplements, not replaces. Elements from the main file are preserved" }
+    ]
+  },
+  {
+    "question": "Which Compose Watch action is appropriate for package.json changes?",
+    "type": "single",
+    "options": [
+      { "text": "rebuild — rebuilds the image and recreates the container", "correct": true },
+      { "text": "sync — copies the file to the container without restart", "correct": false, "explanation": "sync only copies files. Installing new dependencies from package.json requires a full image rebuild" },
+      { "text": "sync+restart — copies the file and restarts the container", "correct": false, "explanation": "sync+restart will restart the container but won't reinstall dependencies. A full rebuild is needed" },
+      { "text": "Compose Watch doesn't support tracking package.json", "correct": false, "explanation": "Watch can track any files. For package.json, use action: rebuild" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why should heavy tasks (email, PDF, resize) be moved to a queue instead of running in the request handler?",
+    "type": "multiple",
+    "options": [
+      { "text": "Users get an instant response without waiting for the long operation to complete", "correct": true },
+      { "text": "On failure, the task retries with exponential backoff instead of being lost", "correct": true },
+      { "text": "The queue limits load on external services (SMTP, S3) via rate limiter", "correct": true },
+      { "text": "The queue makes the task execute 10x faster", "correct": false, "explanation": "A queue doesn't speed up the task itself. It removes the task from the request's critical path. The task runs at the same speed but asynchronously, not blocking the user" }
+    ]
+  },
+  {
+    "question": "What happens if you don't implement graceful shutdown during deployment?",
+    "type": "single",
+    "options": [
+      { "text": "In-flight requests abort (clients get errors), DB connections don't close (leak), worker tasks are lost", "correct": true },
+      { "text": "Nothing -- Node.js automatically finishes all operations", "correct": false, "explanation": "Node.js does NOT automatically finish in-flight requests. On SIGTERM, the process exits immediately. All open connections are severed, data is lost" },
+      { "text": "Kubernetes automatically waits for all requests to finish", "correct": false, "explanation": "K8s sends SIGTERM and waits terminationGracePeriodSeconds (30s default). But if the app doesn't handle SIGTERM, it gets SIGKILL and exits immediately" },
+      { "text": "Requests are automatically redirected to another pod", "correct": false, "explanation": "New requests redirect (if readiness returned 503), but in-flight requests on the current pod abort. Graceful shutdown lets them complete before exit" }
+    ]
+  },
+  {
+    "question": "Why must you set maxRetriesPerRequest: null in IORedis for BullMQ?",
+    "type": "single",
+    "options": [
+      { "text": "BullMQ uses blocking commands (BRPOPLPUSH) that can wait indefinitely -- without null, IORedis erroneously treats them as timeouts", "correct": true },
+      { "text": "To increase the number of retries on Redis errors", "correct": false, "explanation": "maxRetriesPerRequest isn't about job retries (that's attempts in job options). It's an IORedis client setting for blocking commands that BullMQ uses to wait for new jobs" },
+      { "text": "To disable retries so tasks aren't re-executed", "correct": false, "explanation": "null does NOT disable retries. It allows infinite waiting for blocking commands. Job retries are configured via attempts when adding jobs to the queue" },
+      { "text": "It's an optional setting for production environments", "correct": false, "explanation": "It's a REQUIRED setting for BullMQ. Without it, IORedis treats blocking commands as stuck and throws MaxRetriesPerRequestError. BullMQ docs require this setting" }
+    ]
+  },
+  {
+    "question": "How does GraphQL prevent over-fetching and under-fetching?",
+    "type": "single",
+    "options": [
+      { "text": "The client requests only needed fields in the query -- the server returns exactly what's requested, no more and no less", "correct": true },
+      { "text": "GraphQL automatically caches data and serves from cache", "correct": false, "explanation": "Caching is a separate concern (Apollo Client caches on client, Redis on server). GraphQL solves query flexibility, not caching" },
+      { "text": "GraphQL is faster than REST, so it can load more data in the same time", "correct": false, "explanation": "GraphQL isn't necessarily faster than REST. Its advantage is that one request replaces multiple REST requests, and the client gets only needed fields" },
+      { "text": "GraphQL uses WebSocket for streaming data", "correct": false, "explanation": "GraphQL defaults to HTTP POST. WebSocket is only used for Subscriptions. The main advantage is query flexibility, not transport" }
+    ]
+  },
+  {
+    "question": "Why is overlap prevention needed in cron jobs?",
+    "type": "single",
+    "options": [
+      { "text": "If a task runs longer than the cron interval, without checking, a second instance starts -- leading to data duplication or conflicts", "correct": true },
+      { "text": "To save CPU -- one task consumes fewer resources", "correct": false, "explanation": "CPU savings are a side effect. The main problem is duplication: if a report takes 7 minutes to generate and cron fires every 5, two reports generate in parallel" },
+      { "text": "node-cron requires it as a mandatory setting", "correct": false, "explanation": "node-cron does NOT require overlap prevention. It's the developer's responsibility. Without isRunning check, cron simply fires the callback again on schedule" },
+      { "text": "To ensure task execution order", "correct": false, "explanation": "Overlap prevention isn't about ordering but preventing parallel execution. Without it, yesterday's report might generate simultaneously in two processes, creating duplicates" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему MockOf<T> лучше, чем ручное создание моков с as any?",
+    "type": "single",
+    "options": [
+      { "text": "При изменении интерфейса T TypeScript покажет ошибку в моке, предотвращая расхождение мока и реального кода", "correct": true },
+      { "text": "MockOf<T> работает быстрее в runtime благодаря оптимизациям TypeScript", "correct": false, "explanation": "MockOf — type-level конструкция, стираемая при компиляции. Runtime-поведение одинаковое. Преимущество в том, что TypeScript обнаруживает расхождения при изменении интерфейса" },
+      { "text": "as any запрещён в strict mode TypeScript", "correct": false, "explanation": "as any разрешён в любом режиме TypeScript. Проблема в том, что он отключает проверку типов, и мок может не соответствовать интерфейсу" },
+      { "text": "MockOf автоматически генерирует реализацию всех методов", "correct": false, "explanation": "MockOf определяет только типы. Реализацию создаёт createMock, но не автоматически — нужно задать defaults. Главное преимущество — compile-time проверка соответствия интерфейсу" }
+    ]
+  },
+  {
+    "question": "Чем DeepPartial<T> отличается от встроенного Partial<T> для фикстур?",
+    "type": "single",
+    "options": [
+      { "text": "DeepPartial рекурсивно делает опциональными и вложенные объекты, позволяя переопределить settings.theme без указания settings.notifications", "correct": true },
+      { "text": "DeepPartial работает с массивами, а Partial нет", "correct": false, "explanation": "Partial работает и с массивами. Разница в рекурсивности: Partial делает опциональными только верхнеуровневые поля, а DeepPartial — на всех уровнях вложенности" },
+      { "text": "DeepPartial автоматически мержит объекты, а Partial заменяет", "correct": false, "explanation": "DeepPartial — это только тип. Мерж объектов выполняет функция deepMerge. DeepPartial позволяет типизировать аргумент override как частичный на любом уровне" },
+      { "text": "DeepPartial удаляет readonly модификаторы с вложенных объектов", "correct": false, "explanation": "DeepPartial не удаляет readonly. Он только делает поля опциональными (добавляет ?). Для удаления readonly нужен отдельный utility type" }
+    ]
+  },
+  {
+    "question": "Почему каждый контрактный тест должен вызывать clear() в начале?",
+    "type": "single",
+    "options": [
+      { "text": "Для изоляции тестов друг от друга — каждый тест начинает с чистого состояния, не зависящего от порядка выполнения", "correct": true },
+      { "text": "Потому что TypeScript требует вызова clear() перед использованием StorageContract", "correct": false, "explanation": "TypeScript не требует вызова clear(). Это вопрос test design: без clear() результат теста может зависеть от того, какие тесты выполнились раньше" },
+      { "text": "Для экономии памяти при запуске большого количества тестов", "correct": false, "explanation": "Экономия памяти не является основной целью. Главная причина — изоляция: если тест A добавляет данные, тест B не должен их видеть" },
+      { "text": "clear() сбрасывает внутренний счётчик вызовов контрактного suite", "correct": false, "explanation": "clear() — метод StorageContract, очищающий хранилище. Контрактный suite не имеет счётчика вызовов. Цель — чистое начальное состояние для каждого теста" }
+    ]
+  },
+  {
+    "question": "Что гарантируют контрактные тесты при наличии нескольких реализаций интерфейса?",
+    "type": "multiple",
+    "options": [
+      { "text": "Все реализации ведут себя одинаково для основных операций", "correct": true },
+      { "text": "Новую реализацию можно подставить вместо существующей без изменения клиентского кода", "correct": true },
+      { "text": "Все реализации имеют одинаковую производительность", "correct": false, "explanation": "Контрактные тесты проверяют поведение, а не производительность. MapStorage и ObjectStorage могут отличаться по скорости, но обе корректно реализуют контракт" },
+      { "text": "Поведенческие расхождения обнаруживаются до попадания в production", "correct": true }
+    ]
+  },
+  {
+    "question": "Как тип MockFunction<TArgs, TReturn> обеспечивает безопасность mockReturnValue?",
+    "type": "single",
+    "options": [
+      { "text": "mockReturnValue(value: TReturn) принимает только значение типа TReturn, совпадающего с возвращаемым типом оригинального метода", "correct": true },
+      { "text": "mockReturnValue проверяет тип значения в runtime через typeof", "correct": false, "explanation": "mockReturnValue не выполняет runtime-проверок. Типобезопасность обеспечивается TypeScript на этапе компиляции через generic TReturn" },
+      { "text": "mockReturnValue автоматически преобразует значение к нужному типу", "correct": false, "explanation": "Никакого автоматического преобразования нет. Если передать значение неправильного типа, TypeScript покажет ошибку компиляции" },
+      { "text": "mockReturnValue использует type guard для проверки значения", "correct": false, "explanation": "Type guard не используется. Безопасность обеспечивается generic-параметром TReturn, который фиксируется при создании MockFunction" }
+    ]
+  }
+]

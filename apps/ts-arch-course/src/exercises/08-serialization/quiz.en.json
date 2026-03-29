@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How does the InferSchema type derive a TypeScript type from a runtime schema?",
+    "type": "single",
+    "options": [
+      { "text": "Through mapped types and conditional types: it maps schema keys, converting the field's string literal type to the corresponding TypeScript type", "correct": true },
+      { "text": "Through special TypeScript syntax for runtime type inference", "correct": false, "explanation": "TypeScript has no special syntax for runtime inference. InferSchema uses standard mapped types and conditional types for type-level transformation" },
+      { "text": "Through decorators that generate types at runtime", "correct": false, "explanation": "Decorators work at runtime and don't affect type inference. InferSchema is a purely compile-time construct using conditional types" },
+      { "text": "Through generating .d.ts files from the schema", "correct": false, "explanation": "InferSchema works without file generation. It's a regular conditional mapped type that TypeScript evaluates at compile time" }
+    ]
+  },
+  {
+    "question": "Why does the codec's pipe method have the signature pipe<TFinal>(other: Codec<TEncoded, TFinal>)?",
+    "type": "single",
+    "options": [
+      { "text": "To guarantee that the first codec's output type matches the second's input type — otherwise the transformation chain would be incorrect", "correct": true },
+      { "text": "So TypeScript can automatically convert types between codecs", "correct": false, "explanation": "TypeScript doesn't convert types automatically. pipe checks compatibility: the first codec's TEncoded must match the other parameter's TEncoded" },
+      { "text": "Because TypeScript doesn't support function composition any other way", "correct": false, "explanation": "TypeScript supports many ways of composition. pipe uses generics to guarantee type compatibility in the chain" },
+      { "text": "For performance optimization by merging encode functions", "correct": false, "explanation": "Performance isn't pipe's goal. Its purpose is type-safe composition, guaranteeing data correctly passes through all transformation stages" }
+    ]
+  },
+  {
+    "question": "What is a codec's roundtrip property and why is it important?",
+    "type": "single",
+    "options": [
+      { "text": "decode(encode(x)) should return a value equivalent to x — this guarantees the transformation doesn't lose data", "correct": true },
+      { "text": "encode and decode must execute in equal time — for predictable performance", "correct": false, "explanation": "Roundtrip isn't about performance, but correctness: data shouldn't be distorted when passing through the encode -> decode chain" },
+      { "text": "A codec must support both encode and decode simultaneously — you can't implement just one", "correct": false, "explanation": "Having both functions is the codec's definition, not roundtrip. Roundtrip is the property that decode(encode(x)) ≈ x" },
+      { "text": "A codec can be applied in a loop an unlimited number of times", "correct": false, "explanation": "This is a consequence of roundtrip, not its definition. Roundtrip guarantees that each encode/decode cycle doesn't distort data" }
+    ]
+  },
+  {
+    "question": "What problems arise when skipping an intermediate version in a migration chain?",
+    "type": "multiple",
+    "options": [
+      { "text": "Data gets stuck at the version that has no migration to the next one", "correct": true },
+      { "text": "Intermediate version transformations aren't applied and data loses fields", "correct": true },
+      { "text": "TypeScript shows a compile error when registering migrations", "correct": false, "explanation": "The pipeline registers migrations dynamically — skipping a version doesn't cause a compile-time error. This is a runtime issue that must be caught by tests" },
+      { "text": "The pipeline automatically generates the missing migration", "correct": false, "explanation": "The pipeline doesn't generate migrations automatically. Each migration must be explicitly defined by the developer" }
+    ]
+  },
+  {
+    "question": "Why should data migrations be immutable (create new objects instead of mutating old ones)?",
+    "type": "single",
+    "options": [
+      { "text": "Immutability guarantees source data isn't corrupted and allows safe migration rollback", "correct": true },
+      { "text": "TypeScript doesn't allow mutating objects with generic types", "correct": false, "explanation": "TypeScript allows mutation via as any or index access. Immutability is an architectural decision, not a language limitation" },
+      { "text": "Mutating objects causes memory leaks in JavaScript", "correct": false, "explanation": "Mutation doesn't cause memory leaks. The issue is that mutation can corrupt source data, break rollback functionality, and complicate debugging" },
+      { "text": "Browsers optimize immutable objects for better performance", "correct": false, "explanation": "Browsers don't specially optimize immutable objects. The reason for immutability is data safety and migration predictability" }
+    ]
+  }
+]

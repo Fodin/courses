@@ -1,0 +1,52 @@
+[
+  {
+    "question": "When does TypeScript NOT check excess properties?",
+    "type": "single",
+    "options": [
+      { "text": "When assigning through an intermediate variable (indirect assignment)", "correct": true },
+      { "text": "When directly assigning an object literal", "correct": false, "explanation": "Direct assignment is precisely the case where TypeScript checks excess properties and reports an error" },
+      { "text": "When using interfaces instead of type aliases", "correct": false, "explanation": "Excess property checking doesn't depend on interfaces vs type aliases. It depends on the assignment method (direct vs indirect)" },
+      { "text": "When using strict mode", "correct": false, "explanation": "Strict mode doesn't affect excess property checks. This check works the same in strict and non-strict modes" }
+    ]
+  },
+  {
+    "question": "How does the Without<T, U> type work in the XOR implementation?",
+    "type": "single",
+    "options": [
+      { "text": "Makes keys from T that are absent in U optional with type never", "correct": true },
+      { "text": "Removes all keys of T from U", "correct": false, "explanation": "Without doesn't remove keys, it makes 'foreign' keys optional with type never. This allows TypeScript to forbid their presence in the object" },
+      { "text": "Creates an intersection T & U", "correct": false, "explanation": "Without creates a type with keys from Exclude<keyof T, keyof U>, each with type never. This is the opposite of an intersection" },
+      { "text": "Returns never if T and U overlap", "correct": false, "explanation": "Without doesn't return never — it creates a mapped type with optional never properties, which forbids their presence in the object" }
+    ]
+  },
+  {
+    "question": "Which statements are true for branded (opaque) types?",
+    "type": "multiple",
+    "options": [
+      { "text": "Brand<number, 'UserId'> is incompatible with Brand<number, 'PostId'>", "correct": true },
+      { "text": "A branded type cannot be assigned from a plain number without an as-assertion", "correct": true },
+      { "text": "Branded types add runtime overhead", "correct": false, "explanation": "Branded types exist only at the type level. In compiled JavaScript the brand is completely erased — it's a zero-cost abstraction" },
+      { "text": "A smart constructor is required to create a branded type", "correct": false, "explanation": "Technically you can use as-assertion directly. But smart constructors are a best practice since they add runtime validation and a single point of creation" }
+    ]
+  },
+  {
+    "question": "What does DeepPick<User, 'profile.settings.theme'> produce for User = { id: number; profile: { settings: { theme: string; language: string } } }?",
+    "type": "single",
+    "options": [
+      { "text": "{ profile: { settings: { theme: string } } } — nested structure with one field at each level", "correct": true },
+      { "text": "{ theme: string } — only the leaf value", "correct": false, "explanation": "DeepPick preserves the entire nested path structure. The result is not a flat object but the full hierarchy from root to target property" },
+      { "text": "string — the type of the theme property itself", "correct": false, "explanation": "DeepPick returns an object type preserving the hierarchy, not the leaf value type. Getting the value type requires a different approach" },
+      { "text": "Pick<User, 'profile'> — regular Pick at the top level", "correct": false, "explanation": "DeepPick is not equivalent to Pick. Pick<User, 'profile'> returns the entire profile with all nested properties, while DeepPick returns only the path to theme" }
+    ]
+  },
+  {
+    "question": "Why is UnionToIntersection needed for DeepPick with multiple paths?",
+    "type": "single",
+    "options": [
+      { "text": "Because DeepPick for union paths creates a union of results, but an intersection is needed to access all fields", "correct": true },
+      { "text": "Because TypeScript doesn't support unions of string literals", "correct": false, "explanation": "TypeScript supports unions of string literals perfectly. The issue is that distributive conditional types turn union paths into union results, not intersections" },
+      { "text": "Because without intersection there would be a recursion error", "correct": false, "explanation": "Recursion works the same with union or intersection. The problem is semantic: union of results only allows access to common fields, while intersection allows access to all" },
+      { "text": "Because it's a compilation performance optimization", "correct": false, "explanation": "UnionToIntersection is not an optimization but a necessity. Without it, DeepPick<User, 'id' | 'profile.avatar'> returns {id: number} | {profile: {avatar: string}} — you can't access both fields" }
+    ]
+  }
+]

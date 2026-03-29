@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What happens if you add a default with assertNever in a switch over a union type, then extend the union with a new variant?",
+    "type": "single",
+    "options": [
+      { "text": "The compiler shows a type error at assertNever since the new variant is not handled", "correct": true },
+      { "text": "The code compiles without errors, assertNever throws an exception at runtime", "correct": false, "explanation": "assertNever accepts a parameter of type never. If unhandled variants remain, the type doesn't narrow to never, and the compiler reports an error" },
+      { "text": "TypeScript automatically adds handling for the new variant", "correct": false, "explanation": "TypeScript doesn't generate code automatically. It only points out the type error so the developer adds handling manually" },
+      { "text": "A compilation error occurs in the union type definition itself", "correct": false, "explanation": "The error appears at the usage site — in assertNever where a non-never value is passed — not in the type definition" }
+    ]
+  },
+  {
+    "question": "Which TypeScript type represents an 'impossible value' after exhaustively checking all variants?",
+    "type": "single",
+    "options": [
+      { "text": "never", "correct": true },
+      { "text": "void", "correct": false, "explanation": "void means 'function returns nothing'. never means 'this code point is unreachable' — fundamentally different concepts" },
+      { "text": "undefined", "correct": false, "explanation": "undefined is a concrete value. never means no value can possibly exist" },
+      { "text": "unknown", "correct": false, "explanation": "unknown means 'anything, but needs checking'. never is the opposite: 'nothing, no value fits'" }
+    ]
+  },
+  {
+    "question": "Why is a match expression preferable to switch for handling union types?",
+    "type": "multiple",
+    "options": [
+      { "text": "Match is an expression that returns a value, while switch is a statement", "correct": true },
+      { "text": "Match doesn't have the fall-through problem (forgotten break)", "correct": true },
+      { "text": "Match with mapped types guarantees handling all variants without assertNever", "correct": true },
+      { "text": "Match runs faster than switch at runtime", "correct": false, "explanation": "Performance of match and switch is virtually identical. Match advantages are in type safety and ergonomics, not speed" }
+    ]
+  },
+  {
+    "question": "What does the type Extract<T, { kind: K }> do in the context of a tagged union?",
+    "type": "single",
+    "options": [
+      { "text": "Extracts from union T only the variant where kind equals K", "correct": true },
+      { "text": "Removes from union T the variant with kind === K", "correct": false, "explanation": "Removing a variant is Exclude<T, { kind: K }>. Extract does the opposite — keeps only the matching variant" },
+      { "text": "Creates a new type with a kind field of type K", "correct": false, "explanation": "Extract doesn't create new types. It filters an existing union, keeping only matching members" },
+      { "text": "Transforms union T into an object with kind keys", "correct": false, "explanation": "Extract filters a union by condition, it doesn't transform it into a different structure" }
+    ]
+  },
+  {
+    "question": "Why use readonly for the _tag field in a Variant type?",
+    "type": "single",
+    "options": [
+      { "text": "To prevent changing the discriminator after creation, which would break pattern matching", "correct": true },
+      { "text": "For better performance — readonly objects are faster", "correct": false, "explanation": "readonly is only a type-level constraint. There's no runtime performance difference" },
+      { "text": "TypeScript requires readonly for fields in discriminated unions", "correct": false, "explanation": "TypeScript doesn't require readonly for discriminated unions. But it's a best practice to prevent logical errors" },
+      { "text": "Without readonly TypeScript cannot perform control flow analysis", "correct": false, "explanation": "Control flow analysis works with mutable fields too. But mutating the discriminator can lead to type-data mismatch" }
+    ]
+  }
+]

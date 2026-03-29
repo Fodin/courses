@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Что возвращает метод validate() в Yup?",
+    "type": "single",
+    "options": [
+      { "text": "Promise с провалидированными данными или ошибкой", "correct": true },
+      { "text": "Булево значение true/false", "correct": false, "explanation": "Булево значение возвращает метод isValid(), а не validate()" },
+      { "text": "Объект с полями valid и errors", "correct": false, "explanation": "validate() возвращает Promise, который resolve-ится с данными или reject-ится с ValidationError" },
+      { "text": "Строку с сообщением об ошибке или null", "correct": false, "explanation": "validate() возвращает Promise, а при ошибке выбрасывает ValidationError, а не строку" }
+    ]
+  },
+  {
+    "question": "Для чего нужна опция abortEarly: false при вызове validate()?",
+    "type": "single",
+    "options": [
+      { "text": "Чтобы валидация работала быстрее", "correct": false, "explanation": "Эта опция наоборот замедляет валидацию, так как проверяются все поля, а не только до первой ошибки" },
+      { "text": "Чтобы собрать все ошибки валидации, а не только первую", "correct": true },
+      { "text": "Чтобы отключить приведение типов (casting)", "correct": false, "explanation": "Приведение типов отключается через опцию strict: true" },
+      { "text": "Чтобы валидация не выбрасывала исключения", "correct": false, "explanation": "validate() всегда выбрасывает ValidationError при ошибке. Для получения boolean используйте isValid()" }
+    ]
+  },
+  {
+    "question": "Какие свойства есть у объекта ValidationError в Yup?",
+    "type": "multiple",
+    "options": [
+      { "text": "message — текст первого сообщения об ошибке", "correct": true },
+      { "text": "errors — массив всех сообщений об ошибках", "correct": true },
+      { "text": "inner — массив ValidationError по каждому полю", "correct": true },
+      { "text": "fields — объект с невалидными полями и их значениями", "correct": false, "explanation": "Такого свойства нет. Для получения путей полей используйте err.inner и свойство path каждого элемента" },
+      { "text": "isValid — булево значение false", "correct": false, "explanation": "Такого свойства нет у ValidationError. Для проверки валидности используйте метод schema.isValid()" }
+    ]
+  },
+  {
+    "question": "Что делает метод cast() в Yup?",
+    "type": "single",
+    "options": [
+      { "text": "Валидирует данные и возвращает ошибки", "correct": false, "explanation": "Для валидации используется validate(). cast() только преобразует данные без проверки правил" },
+      { "text": "Преобразует данные к нужному типу без проверки правил валидации", "correct": true },
+      { "text": "Создаёт копию схемы с новыми настройками", "correct": false, "explanation": "cast() работает с данными, а не со схемой. Он приводит значение к типу схемы" },
+      { "text": "Проверяет, можно ли привести данные к нужному типу", "correct": false, "explanation": "cast() не проверяет, а выполняет преобразование. Для проверки используйте isValid()" }
+    ]
+  },
+  {
+    "question": "Какой метод использовать, если нужно только узнать, валидны ли данные, без деталей об ошибках?",
+    "type": "single",
+    "options": [
+      { "text": "validate()", "correct": false, "explanation": "validate() возвращает данные или выбрасывает ValidationError — это избыточно, если нужен только boolean" },
+      { "text": "isValid()", "correct": true },
+      { "text": "cast()", "correct": false, "explanation": "cast() преобразует данные, но не проверяет правила валидации" },
+      { "text": "check()", "correct": false, "explanation": "Метода check() не существует в Yup" }
+    ]
+  }
+]

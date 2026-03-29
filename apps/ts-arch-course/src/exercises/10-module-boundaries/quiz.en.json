@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why should a module return PublicUser instead of InternalUserRecord?",
+    "type": "single",
+    "options": [
+      { "text": "To hide internal details (passwordHash, _rev) and ensure public API stability when the internal structure changes", "correct": true },
+      { "text": "Because TypeScript doesn't allow exporting interfaces with private fields", "correct": false, "explanation": "TypeScript allows exporting any interfaces. The internal/public split is an architectural decision for encapsulation, not a language limitation" },
+      { "text": "To reduce JSON size during serialization", "correct": false, "explanation": "JSON size is a secondary benefit. The main point is encapsulation: external code shouldn't know about passwordHash, and internal structure changes shouldn't break consumers" },
+      { "text": "PublicUser is processed faster by the TypeScript compiler", "correct": false, "explanation": "Compiler performance doesn't depend on the number of fields in an interface. The reason is architectural: API stability and data security" }
+    ]
+  },
+  {
+    "question": "What is the Interface Segregation Principle as applied to cross-module dependencies?",
+    "type": "single",
+    "options": [
+      { "text": "A module should depend on the minimal interface — only the methods it actually needs", "correct": true },
+      { "text": "Each interface should contain only one method", "correct": false, "explanation": "ISP doesn't require one method per interface. It requires that a client shouldn't depend on methods it doesn't use. An interface with several related methods is fine" },
+      { "text": "Interfaces must be split into separate files", "correct": false, "explanation": "ISP is about semantic separation (depending on what's needed), not physical (files). Multiple interfaces in one file is acceptable" },
+      { "text": "Prohibition of interface inheritance", "correct": false, "explanation": "ISP doesn't prohibit inheritance. It's about clients depending on the minimally necessary set of methods, not the entire module" }
+    ]
+  },
+  {
+    "question": "How does the Dependency Inversion Principle help with testing?",
+    "type": "single",
+    "options": [
+      { "text": "Business logic depends on interfaces, so mock implementations of those same interfaces can be substituted for tests", "correct": true },
+      { "text": "DI automatically generates mocks for all dependencies", "correct": false, "explanation": "DI doesn't generate mocks automatically. It creates an architectural opportunity: since dependencies are interfaces, they can be replaced with any implementation, including mocks" },
+      { "text": "DI eliminates the need for tests because types are checked by the compiler", "correct": false, "explanation": "Types check contracts, while tests check behavior. DI doesn't replace tests — it makes them simpler and more isolated" },
+      { "text": "DI allows running tests without the TypeScript compiler", "correct": false, "explanation": "DI isn't related to compilation. Its advantage is the ability to swap Redis for in-memory cache, Postgres for Map, Sentry for an empty logger — without changing business logic" }
+    ]
+  },
+  {
+    "question": "Which of the following approaches are correct for defining module boundaries?",
+    "type": "multiple",
+    "options": [
+      { "text": "Barrel export (index.ts) as the single entry point", "correct": true },
+      { "text": "Mapping internal types to public ones at the module boundary", "correct": true },
+      { "text": "Direct import from internal module files for performance", "correct": false, "explanation": "Direct imports from internal files violate encapsulation. Performance isn't affected by barrel exports — it's an organizational pattern" },
+      { "text": "Defining ports (dependency interfaces) in the consumer module", "correct": true }
+    ]
+  },
+  {
+    "question": "Why does EventBus<TEvents> use a generic with Record<string, unknown> instead of separate methods for each event?",
+    "type": "single",
+    "options": [
+      { "text": "The generic allows one EventBus to serve different event sets with type-safe payload checking for each", "correct": true },
+      { "text": "Record<string, unknown> performs faster than separate methods at runtime", "correct": false, "explanation": "Performance is the same. The generic is needed for type safety: emit('product:created', payload) checks that payload contains a product field" },
+      { "text": "TypeScript doesn't support interfaces with a dynamic number of methods", "correct": false, "explanation": "TypeScript supports index signatures. Generic EventBus is chosen not due to limitations, but for an elegant solution: one type describes all events and their payloads" },
+      { "text": "So events can be serialized to JSON", "correct": false, "explanation": "Serialization isn't related to generics. The advantage is extensibility: each module defines its TEvents, and TypeScript checks the payload on emit" }
+    ]
+  }
+]

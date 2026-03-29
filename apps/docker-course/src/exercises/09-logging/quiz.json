@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что перехватывает docker logs?",
+    "type": "single",
+    "options": [
+      { "text": "Только STDOUT и STDERR контейнера", "correct": true },
+      { "text": "Все логи, включая файловые (/var/log/app.log)", "correct": false, "explanation": "docker logs перехватывает только стандартные потоки вывода. Логи, записанные в файлы внутри контейнера, невидимы для docker logs" },
+      { "text": "Только STDOUT, STDERR игнорируется", "correct": false, "explanation": "docker logs перехватывает оба потока — и STDOUT, и STDERR" },
+      { "text": "Системные логи Docker daemon", "correct": false, "explanation": "docker logs показывает логи конкретного контейнера, а не Docker daemon. Для логов daemon используется journalctl" }
+    ]
+  },
+  {
+    "question": "Почему обязательно настраивать ротацию логов в production?",
+    "type": "single",
+    "options": [
+      { "text": "Без ротации лог-файлы растут бесконечно и могут заполнить весь диск", "correct": true },
+      { "text": "Без ротации docker logs перестаёт работать", "correct": false, "explanation": "docker logs работает и без ротации, но лог-файл может занять десятки ГБ и заполнить диск" },
+      { "text": "Ротация ускоряет запись логов", "correct": false, "explanation": "Ротация не влияет на скорость записи. Она ограничивает размер хранимых логов" },
+      { "text": "Docker требует ротацию по умолчанию", "correct": false, "explanation": "По умолчанию json-file драйвер НЕ ограничивает размер — это и есть проблема, которую нужно решать вручную" }
+    ]
+  },
+  {
+    "question": "Что означает exit code 137 у контейнера?",
+    "type": "single",
+    "options": [
+      { "text": "Контейнер был убит сигналом SIGKILL (128 + 9), возможно из-за OOM", "correct": true },
+      { "text": "Нормальное завершение работы контейнера", "correct": false, "explanation": "Нормальное завершение — exit code 0. Код 137 означает принудительное завершение через SIGKILL" },
+      { "text": "Ошибка в конфигурации сети контейнера", "correct": false, "explanation": "Exit code 137 = 128 + 9 (SIGKILL). Это не связано с сетью — обычно это OOM или docker kill" },
+      { "text": "Команда не найдена в контейнере", "correct": false, "explanation": "Код 127 означает 'command not found'. 137 = SIGKILL (принудительное завершение)" }
+    ]
+  },
+  {
+    "question": "Какой алгоритм отладки неработающего контейнера наиболее эффективен?",
+    "type": "single",
+    "options": [
+      { "text": "docker ps -a → docker logs → docker inspect → docker exec → docker events → docker stats", "correct": true },
+      { "text": "Сразу docker restart для перезапуска контейнера", "correct": false, "explanation": "Перезапуск без диагностики скроет причину проблемы. Сначала нужно понять, что произошло" },
+      { "text": "Удалить контейнер и создать новый", "correct": false, "explanation": "Пересоздание не решит проблему, если причина в конфигурации, ресурсах или коде. Сначала диагностика" },
+      { "text": "Проверить только docker logs", "correct": false, "explanation": "Логи — важный шаг, но не единственный. Нужно также проверить exit code, OOM, ресурсы и события" }
+    ]
+  },
+  {
+    "question": "Как перенаправить файловые логи nginx в STDOUT для docker logs?",
+    "type": "single",
+    "options": [
+      { "text": "Создать символические ссылки: ln -sf /dev/stdout /var/log/nginx/access.log", "correct": true },
+      { "text": "Добавить флаг --log-file=stdout при запуске контейнера", "correct": false, "explanation": "Такого флага нет у Docker. Перенаправление делается внутри образа через символические ссылки на /dev/stdout и /dev/stderr" },
+      { "text": "Настроить logging driver на чтение файлов из контейнера", "correct": false, "explanation": "Logging driver перехватывает только STDOUT/STDERR. Для файловых логов нужно перенаправление через симлинки" },
+      { "text": "Использовать docker cp для копирования логов наружу", "correct": false, "explanation": "docker cp — ручная операция. Правильное решение — перенаправить логи в STDOUT через символические ссылки" }
+    ]
+  }
+]

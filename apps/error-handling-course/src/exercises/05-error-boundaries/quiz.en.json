@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Which errors does an Error Boundary NOT catch?",
+    "type": "multiple",
+    "options": [
+      { "text": "Errors in event handlers (onClick, onChange)", "correct": true },
+      { "text": "Errors in asynchronous code (setTimeout, fetch)", "correct": true },
+      { "text": "Errors in the Error Boundary itself", "correct": true },
+      { "text": "Errors in the render() method of child components", "correct": false, "explanation": "Errors in render() of child components are exactly what Error Boundaries catch" },
+      { "text": "Errors in constructors of child components", "correct": false, "explanation": "Errors in child component constructors are caught by Error Boundaries" }
+    ]
+  },
+  {
+    "question": "Which lifecycle method updates the Error Boundary state on error?",
+    "type": "single",
+    "options": [
+      { "text": "static getDerivedStateFromError", "correct": true },
+      { "text": "componentDidCatch", "correct": false, "explanation": "componentDidCatch is used for side effects (logging), not for updating state" },
+      { "text": "componentDidUpdate", "correct": false, "explanation": "componentDidUpdate is called on regular updates, not related to error handling" },
+      { "text": "shouldComponentUpdate", "correct": false, "explanation": "shouldComponentUpdate controls re-rendering, not error handling" }
+    ]
+  },
+  {
+    "question": "Why is having a single Error Boundary for the entire app a bad practice?",
+    "type": "single",
+    "options": [
+      { "text": "An error in one component crashes the entire UI instead of just a local part", "correct": true },
+      { "text": "A single Error Boundary cannot catch multiple errors", "correct": false, "explanation": "The number of caught errors is not limited — the problem is granularity" },
+      { "text": "React forbids a single Error Boundary for the app", "correct": false, "explanation": "React doesn't forbid this, but it's bad practice for UX" },
+      { "text": "A single Error Boundary doesn't work with nested components", "correct": false, "explanation": "Error Boundaries catch errors at any nesting depth" }
+    ]
+  },
+  {
+    "question": "How do you handle an error in an onClick handler if Error Boundary doesn't catch it?",
+    "type": "single",
+    "options": [
+      { "text": "Wrap the code in try/catch and save the error in useState", "correct": true },
+      { "text": "Use a special onError prop on the Error Boundary", "correct": false, "explanation": "No such prop exists — Error Boundaries only catch render errors" },
+      { "text": "Add .catch() after onClick", "correct": false, "explanation": "onClick is a synchronous handler, .catch() is not directly applicable to it" },
+      { "text": "Errors in event handlers cannot be handled", "correct": false, "explanation": "Errors in event handlers are handled with regular try/catch" }
+    ]
+  },
+  {
+    "question": "Why does fallback UI need a recovery (retry) button?",
+    "type": "single",
+    "options": [
+      { "text": "Many errors are temporary and can be resolved by retrying, otherwise the user is stuck", "correct": true },
+      { "text": "React requires a recovery button in every fallback", "correct": false, "explanation": "React doesn't require a recovery button — it's a recommendation for good UX" },
+      { "text": "Without a recovery button, Error Boundary doesn't work", "correct": false, "explanation": "Error Boundary works without a button, but the user can't take any action" },
+      { "text": "The recovery button automatically fixes the error", "correct": false, "explanation": "The button resets the error state and recreates the component tree, but doesn't fix the root cause" }
+    ]
+  }
+]

@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Почему в DeepReadonly<T> нужно исключать Function из рекурсии?",
+    "type": "single",
+    "options": [
+      { "text": "Потому что Function — это object, и без исключения TypeScript попытается сделать readonly все internal-свойства Function (call, apply, bind и т.д.)", "correct": true },
+      { "text": "Потому что функции нельзя сделать readonly в JavaScript", "correct": false, "explanation": "В JS функция — это объект, и его свойства можно заморозить. Но в контексте типов проблема в том, что рекурсия по свойствам Function искажает тип самой функции" },
+      { "text": "Потому что TypeScript не поддерживает readonly для функций", "correct": false, "explanation": "TypeScript поддерживает readonly для свойств-функций. Проблема в том, что Function extends object, и mapped type изменит сигнатуру функции" },
+      { "text": "Это необязательно — DeepReadonly работает корректно и без исключения Function", "correct": false, "explanation": "Без исключения Function тип будет применять readonly ко всем свойствам Function.prototype, что изменит тип и сделает функцию некорректной" }
+    ]
+  },
+  {
+    "question": "Что такое tail-recursive optimization в TypeScript 4.5+?",
+    "type": "single",
+    "options": [
+      { "text": "TypeScript оптимизирует conditional types, где рекурсивный вызов находится в последней позиции, увеличивая допустимую глубину до 1000+", "correct": true },
+      { "text": "TypeScript автоматически преобразует любую рекурсию в хвостовую", "correct": false, "explanation": "TypeScript НЕ преобразует рекурсию автоматически. Разработчик должен сам написать тип в хвостово-рекурсивной форме с аккумулятором" },
+      { "text": "Это runtime-оптимизация, которая ускоряет выполнение TypeScript кода", "correct": false, "explanation": "Это compile-time оптимизация для проверки типов. Она не влияет на runtime — TypeScript типы стираются при компиляции" },
+      { "text": "Это устраняет лимит рекурсии полностью для всех типов", "correct": false, "explanation": "Оптимизация работает только для хвосто-рекурсивных conditional types. Не-хвостовые типы по-прежнему ограничены ~50 уровнями" }
+    ]
+  },
+  {
+    "question": "Какой тип корректно реализует Split<'a.b.c', '.'> = ['a', 'b', 'c']?",
+    "type": "single",
+    "options": [
+      { "text": "S extends `${infer H}${D}${infer T}` ? [H, ...Split<T, D>] : S extends '' ? [] : [S]", "correct": true },
+      { "text": "S extends `${infer H}${D}${infer T}` ? [H, ...Split<T, D>] : [S]", "correct": false, "explanation": "Этот вариант вернёт [''] для пустой строки вместо []. Нужна дополнительная проверка S extends '' ? [] : [S]" },
+      { "text": "S extends `${infer H}${D}${infer T}` ? [...Split<H, D>, ...Split<T, D>] : [S]", "correct": false, "explanation": "Split<H, D> — избыточная рекурсия. H уже является частью до разделителя и не содержит D. Двойная рекурсия неэффективна" },
+      { "text": "S extends `${D}${infer T}` ? Split<T, D> : S extends `${infer H}${D}` ? [H] : [S]", "correct": false, "explanation": "Этот паттерн не обрабатывает разделитель в середине строки корректно и теряет части строки" }
+    ]
+  },
+  {
+    "question": "Какие утверждения о рекурсивных типах в TypeScript верны?",
+    "type": "multiple",
+    "options": [
+      { "text": "Рекурсивные интерфейсы (TreeNode<T> с children: TreeNode<T>[]) не имеют лимита глубины — ограничение есть только для conditional types", "correct": true },
+      { "text": "Паттерн аккумулятора (дополнительный generic параметр) позволяет сделать рекурсию хвостовой", "correct": true },
+      { "text": "Depth limiter через tuple [never, 0, 1, ...] декрементирует счётчик на каждом уровне рекурсии", "correct": true },
+      { "text": "Рекурсивные типы всегда медленнее обычных mapped types", "correct": false, "explanation": "Не всегда. Простые рекурсивные типы (DeepReadonly) обрабатываются эффективно. Медленность зависит от глубины и сложности, а не от факта рекурсии" },
+      { "text": "TypeScript запрещает рекурсивные type aliases — можно использовать только interface", "correct": false, "explanation": "С TypeScript 3.7+ рекурсивные type aliases полностью поддерживаются. Раньше было ограничение, но сейчас type JsonValue = string | JsonValue[] работает" }
+    ]
+  },
+  {
+    "question": "Чем отличается наивный Reverse от хвосто-рекурсивного?",
+    "type": "single",
+    "options": [
+      { "text": "Наивный: [...Reverse<Rest>, H] — рекурсия внутри spread, хвостовой: Reverse<Rest, [H, ...Acc]> — рекурсия в последней позиции", "correct": true },
+      { "text": "Наивный использует infer, хвостовой — extends", "correct": false, "explanation": "Оба используют и infer, и extends. Разница в том, ГДЕ находится рекурсивный вызов: внутри spread-операции vs в последней позиции conditional type" },
+      { "text": "Хвостовой Reverse работает только с числовыми массивами", "correct": false, "explanation": "Хвостовой Reverse работает с массивами любого типа. Оптимизация зависит от позиции рекурсивного вызова, а не от типа элементов" },
+      { "text": "Разницы нет — оба ограничены 50 уровнями рекурсии", "correct": false, "explanation": "Хвостово-рекурсивный вариант оптимизируется TypeScript 4.5+ и работает на 1000+ элементах, тогда как наивный падает на ~45" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что происходит при выполнении docker run nginx?",
+    "type": "multiple",
+    "options": [
+      { "text": "Docker ищет образ локально, а если не находит — скачивает из реестра", "correct": true },
+      { "text": "Создаётся записываемый слой (writable layer) поверх слоёв образа", "correct": true },
+      { "text": "Настраиваются namespaces и cgroups для изоляции", "correct": true },
+      { "text": "Запускается полноценная виртуальная машина с гостевой ОС", "correct": false, "explanation": "Docker не создаёт виртуальную машину. Контейнер использует ядро хост-ОС и изолируется через namespaces и cgroups" }
+    ]
+  },
+  {
+    "question": "Чем отличается docker stop от docker kill?",
+    "type": "single",
+    "options": [
+      { "text": "docker stop отправляет SIGTERM и ждёт graceful shutdown, docker kill сразу отправляет SIGKILL", "correct": true },
+      { "text": "docker stop удаляет контейнер, а docker kill только останавливает", "correct": false, "explanation": "Обе команды только останавливают контейнер. Для удаления используется docker rm" },
+      { "text": "Разницы нет — обе команды делают одно и то же", "correct": false, "explanation": "docker stop даёт процессу время на корректное завершение (10 сек по умолчанию), а docker kill завершает немедленно" },
+      { "text": "docker kill работает только с привилегированными контейнерами", "correct": false, "explanation": "docker kill работает с любыми контейнерами, отправляя сигнал SIGKILL" }
+    ]
+  },
+  {
+    "question": "Почему контейнер docker run -d ubuntu сразу останавливается?",
+    "type": "single",
+    "options": [
+      { "text": "Потому что у Ubuntu нет долгоживущего процесса — CMD по умолчанию (bash) завершается без интерактивного ввода", "correct": true },
+      { "text": "Потому что образ Ubuntu повреждён", "correct": false, "explanation": "Образ Ubuntu работает корректно. Проблема в том, что bash без TTY сразу завершается, и контейнер живёт пока работает PID 1" },
+      { "text": "Потому что флаг -d несовместим с Ubuntu", "correct": false, "explanation": "Флаг -d (detached) работает с любым образом. Проблема в отсутствии долгоживущего процесса" },
+      { "text": "Потому что Ubuntu требует больше памяти, чем выделено по умолчанию", "correct": false, "explanation": "Ubuntu не требует много памяти. Контейнер останавливается потому, что его главный процесс завершается" }
+    ]
+  },
+  {
+    "question": "Для чего используется docker exec?",
+    "type": "single",
+    "options": [
+      { "text": "Для выполнения команды в уже запущенном контейнере", "correct": true },
+      { "text": "Для запуска нового контейнера из образа", "correct": false, "explanation": "Для запуска нового контейнера используется docker run. docker exec работает с уже запущенным контейнером" },
+      { "text": "Для создания нового образа из контейнера", "correct": false, "explanation": "Для создания образа из контейнера используется docker commit. docker exec выполняет команды внутри контейнера" },
+      { "text": "Для копирования файлов между хостом и контейнером", "correct": false, "explanation": "Для копирования файлов используется docker cp. docker exec выполняет команды внутри контейнера" }
+    ]
+  },
+  {
+    "question": "Какие флаги нужны для запуска интерактивной оболочки в контейнере?",
+    "type": "single",
+    "options": [
+      { "text": "-it (interactive + TTY)", "correct": true },
+      { "text": "-d (detached)", "correct": false, "explanation": "Флаг -d запускает контейнер в фоновом режиме, что противоположно интерактивному режиму" },
+      { "text": "--rm (auto-remove)", "correct": false, "explanation": "--rm удаляет контейнер после остановки, но не обеспечивает интерактивный режим" },
+      { "text": "-p (port mapping)", "correct": false, "explanation": "-p используется для проброса портов, а не для интерактивного режима" }
+    ]
+  }
+]

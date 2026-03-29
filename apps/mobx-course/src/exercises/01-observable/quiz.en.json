@@ -1,0 +1,43 @@
+[
+  {
+    "question": "What is the main difference between makeAutoObservable and makeObservable?",
+    "type": "single",
+    "options": [
+      { "text": "makeAutoObservable automatically infers annotations, makeObservable requires explicit ones", "correct": true },
+      { "text": "makeAutoObservable works only with classes, makeObservable — only with objects", "correct": false, "explanation": "Both methods work with classes. makeObservable can also be used with plain objects, but the key difference is automatic vs manual annotation specification." },
+      { "text": "makeAutoObservable is faster in terms of performance", "correct": false, "explanation": "There is no runtime performance difference. The only difference is convenience: makeAutoObservable infers annotations automatically." },
+      { "text": "makeAutoObservable supports TypeScript, but makeObservable does not", "correct": false, "explanation": "Both methods fully support TypeScript." }
+    ]
+  },
+  {
+    "question": "What does observable.ref track?",
+    "type": "single",
+    "options": [
+      { "text": "Only full reference replacement, not mutations inside the object", "correct": true },
+      { "text": "All changes to nested object properties", "correct": false, "explanation": "Deep tracking is the behavior of regular observable (default). observable.ref only tracks reference replacement." },
+      { "text": "Only the first level of object nesting", "correct": false, "explanation": "Shallow first-level tracking is observable.shallow, not observable.ref." },
+      { "text": "DOM element references (like React ref)", "correct": false, "explanation": "observable.ref is not related to DOM. ref means 'reference tracking' — tracking object reference replacement." }
+    ]
+  },
+  {
+    "question": "Why won't properties added after calling makeAutoObservable be observable?",
+    "type": "single",
+    "options": [
+      { "text": "makeAutoObservable registers only properties that exist at the time of the call", "correct": true },
+      { "text": "JavaScript doesn't allow adding new properties to a class", "correct": false, "explanation": "JavaScript allows dynamically adding properties. The issue is that MobX won't know about them because registration already happened." },
+      { "text": "You need to call makeAutoObservable again", "correct": false, "explanation": "makeAutoObservable cannot be called again for the same object. All observable properties must be declared before the call." },
+      { "text": "This is a MobX bug that's been fixed in newer versions", "correct": false, "explanation": "This is not a bug but a design decision. MobX works with existing object properties at the time makeAutoObservable is called." }
+    ]
+  },
+  {
+    "question": "Which collections can MobX make observable by default?",
+    "type": "multiple",
+    "options": [
+      { "text": "Array", "correct": true },
+      { "text": "Map", "correct": true },
+      { "text": "Set", "correct": true },
+      { "text": "WeakMap", "correct": false, "explanation": "MobX doesn't support WeakMap as observable because WeakMap is not an enumerable collection — you can't track which keys it contains." },
+      { "text": "WeakSet", "correct": false, "explanation": "MobX doesn't support WeakSet as observable for the same reason — WeakSet is not enumerable." }
+    ]
+  }
+]

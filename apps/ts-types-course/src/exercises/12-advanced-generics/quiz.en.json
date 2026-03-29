@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How does the URI pattern simulate Higher-Kinded Types in TypeScript?",
+    "type": "single",
+    "options": [
+      { "text": "Through a URItoKind<A> registry where string keys map to type constructors, and Kind<F, A> = URItoKind<A>[F]", "correct": true },
+      { "text": "Through class inheritance and virtual methods", "correct": false, "explanation": "Inheritance is a runtime pattern. HKT simulation works entirely at the type level through indexed access and declaration merging" },
+      { "text": "Through conditional types and infer", "correct": false, "explanation": "Conditional types and infer are type-level programming tools but not the HKT simulation mechanism. The URI pattern uses an interface registry and indexed access types" },
+      { "text": "TypeScript natively supports HKT starting from version 5.0", "correct": false, "explanation": "TypeScript has no native HKT support in any version. The URI pattern (defunctionalization) is a workaround popularized by the fp-ts library" }
+    ]
+  },
+  {
+    "question": "What does const do in a generic parameter position: function f<const T extends string>(x: T)?",
+    "type": "single",
+    "options": [
+      { "text": "Forces TypeScript to infer the narrowest (literal) type for T", "correct": true },
+      { "text": "Makes T immutable (readonly)", "correct": false, "explanation": "const in generic position affects type inference, not mutability. For arrays it gives readonly, but the main purpose is preserving literal types instead of widening to string" },
+      { "text": "Forbids passing variables — only literals allowed", "correct": false, "explanation": "const T doesn't restrict calls — you can still pass variables. It affects how TypeScript infers the type: preferring literal types over widened ones" },
+      { "text": "Equivalent to as const for the argument", "correct": false, "explanation": "const in generic position is similar to as const but works at the generic inference level. as const applies to values, while const T applies to the type parameter" }
+    ]
+  },
+  {
+    "question": "Which statements are true for the \"Distributive Object Types\" pattern?",
+    "type": "multiple",
+    "options": [
+      { "text": "The pattern { [K in keyof T]: F<K, T[K]> }[keyof T] creates a union from a mapped type", "correct": true },
+      { "text": "Each union member preserves the exact association between key and value type", "correct": true },
+      { "text": "The result is always an intersection, not a union", "correct": false, "explanation": "Indexing a mapped type via [keyof T] creates a union, not an intersection. For an intersection you would need UnionToIntersection" },
+      { "text": "This pattern only works with interface, not type alias", "correct": false, "explanation": "The pattern works identically with interface and type alias. It's based on mapped types and indexed access, which don't depend on how the type is declared" }
+    ]
+  },
+  {
+    "question": "Why does TypedBuilder's field method return a new TypedBuilder<Schema & Record<K, V>> instead of this?",
+    "type": "single",
+    "options": [
+      { "text": "So the type progressively accumulates — each field call extends Schema with a new field", "correct": true },
+      { "text": "Because this cannot be used as a return type", "correct": false, "explanation": "In TypeScript this can be used as a return type. But when returning this, the Schema type doesn't change, and the new field is not added to the type" },
+      { "text": "For better compiler performance", "correct": false, "explanation": "It's not about performance but type safety. Returning this doesn't add the new field to Schema, so build() would return an incomplete type" },
+      { "text": "Because TypeScript doesn't support mutation of generic parameters", "correct": false, "explanation": "This is true but incomplete. Precisely because generics can't be mutated, we create a new TypedBuilder with an extended type via intersection" }
+    ]
+  },
+  {
+    "question": "What is NoInfer<T> (TypeScript 5.4+) used for?",
+    "type": "single",
+    "options": [
+      { "text": "To block type inference of T from a specific argument position — T is only inferred from other positions", "correct": true },
+      { "text": "To completely disable type inference", "correct": false, "explanation": "NoInfer doesn't disable inference entirely — it blocks inference only from a specific position. T is still inferred from other arguments" },
+      { "text": "To speed up compilation by skipping inference", "correct": false, "explanation": "NoInfer doesn't affect compilation speed. Its purpose is to control which argument positions TypeScript uses to infer the type" },
+      { "text": "To convert infer to never", "correct": false, "explanation": "NoInfer doesn't turn the type into never. It simply prevents that position from being used as a source for inferring type T" }
+    ]
+  }
+]

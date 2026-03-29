@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Что произойдёт при вызове yup.number().validate('42')?",
+    "type": "single",
+    "options": [
+      { "text": "Ошибка валидации — строка не является числом", "correct": false, "explanation": "Yup по умолчанию приводит типы: строка '42' будет преобразована в число 42" },
+      { "text": "Вернёт число 42 (после приведения типа)", "correct": true },
+      { "text": "Вернёт строку '42' без изменений", "correct": false, "explanation": "number() приводит строки к числам через parseFloat, поэтому результат будет числом 42" },
+      { "text": "Вернёт NaN", "correct": false, "explanation": "NaN получается из непарсируемых строк вроде 'abc'. Строка '42' корректно парсится в число" }
+    ]
+  },
+  {
+    "question": "В чём разница между nullable() и optional() в Yup?",
+    "type": "single",
+    "options": [
+      { "text": "nullable() разрешает null, optional() разрешает undefined", "correct": true },
+      { "text": "Это синонимы — оба разрешают null и undefined", "correct": false, "explanation": "Это разные методы: nullable() добавляет null к типу, optional() добавляет undefined" },
+      { "text": "nullable() отменяет required(), optional() — нет", "correct": false, "explanation": "Ни один из них не отменяет required(). nullable() влияет на допустимость null, optional() — на undefined" },
+      { "text": "optional() разрешает пустую строку, nullable() — нет", "correct": false, "explanation": "Пустая строка не связана ни с nullable(), ни с optional(). Пустую строку отклоняет required()" }
+    ]
+  },
+  {
+    "question": "Что вернёт yup.string().default('Guest').cast(undefined)?",
+    "type": "single",
+    "options": [
+      { "text": "undefined", "correct": false, "explanation": "default() заменяет undefined на указанное значение при cast" },
+      { "text": "'Guest'", "correct": true },
+      { "text": "null", "correct": false, "explanation": "default() подставляет значение по умолчанию вместо undefined" },
+      { "text": "Ошибка валидации", "correct": false, "explanation": "cast() не выполняет валидацию, он только преобразует данные" }
+    ]
+  },
+  {
+    "question": "Какие значения отклонит схема yup.string().required()?",
+    "type": "multiple",
+    "options": [
+      { "text": "undefined", "correct": true },
+      { "text": "null", "correct": true },
+      { "text": "Пустая строка ''", "correct": true },
+      { "text": "Строка из пробелов '   '", "correct": false, "explanation": "required() не считает строку из пробелов пустой. Она пройдёт проверку, так как это непустая строка" },
+      { "text": "Число 0", "correct": false, "explanation": "Число 0 будет приведено к строке '0' и пройдёт валидацию, так как '0' — непустая строка" }
+    ]
+  },
+  {
+    "question": "Чем отличается defined() от required()?",
+    "type": "single",
+    "options": [
+      { "text": "defined() запрещает только undefined, а required() запрещает undefined, null и пустую строку", "correct": true },
+      { "text": "Они работают одинаково", "correct": false, "explanation": "required() строже: он отклоняет undefined, null и пустые строки. defined() отклоняет только undefined" },
+      { "text": "defined() работает только с TypeScript, required() — с обоими", "correct": false, "explanation": "Оба метода работают в рантайме и влияют на валидацию. defined() проверяет только наличие значения (не undefined)" },
+      { "text": "required() используется для полей формы, defined() — для API", "correct": false, "explanation": "Оба метода можно использовать в любом контексте. Разница в том, какие значения они отклоняют" }
+    ]
+  }
+]

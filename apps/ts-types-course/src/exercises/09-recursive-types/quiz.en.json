@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Why does DeepReadonly<T> need to exclude Function from recursion?",
+    "type": "single",
+    "options": [
+      { "text": "Because Function is an object, and without exclusion TypeScript will try to make all internal Function properties (call, apply, bind, etc.) readonly", "correct": true },
+      { "text": "Because functions can't be made readonly in JavaScript", "correct": false, "explanation": "In JS a function is an object and its properties can be frozen. But in the types context, the problem is that recursion over Function properties distorts the function's type" },
+      { "text": "Because TypeScript doesn't support readonly for functions", "correct": false, "explanation": "TypeScript supports readonly for function properties. The problem is that Function extends object, and a mapped type will change the function's signature" },
+      { "text": "It's not necessary — DeepReadonly works correctly without excluding Function", "correct": false, "explanation": "Without excluding Function, the type will apply readonly to all Function.prototype properties, changing the type and making the function incorrect" }
+    ]
+  },
+  {
+    "question": "What is tail-recursive optimization in TypeScript 4.5+?",
+    "type": "single",
+    "options": [
+      { "text": "TypeScript optimizes conditional types where the recursive call is in the last position, increasing allowed depth to 1000+", "correct": true },
+      { "text": "TypeScript automatically converts any recursion to tail recursion", "correct": false, "explanation": "TypeScript does NOT convert recursion automatically. The developer must write the type in tail-recursive form with an accumulator" },
+      { "text": "It's a runtime optimization that speeds up TypeScript code execution", "correct": false, "explanation": "It's a compile-time optimization for type checking. It doesn't affect runtime — TypeScript types are erased during compilation" },
+      { "text": "It completely removes the recursion limit for all types", "correct": false, "explanation": "The optimization only works for tail-recursive conditional types. Non-tail types are still limited to ~50 levels" }
+    ]
+  },
+  {
+    "question": "Which type correctly implements Split<'a.b.c', '.'> = ['a', 'b', 'c']?",
+    "type": "single",
+    "options": [
+      { "text": "S extends `${infer H}${D}${infer T}` ? [H, ...Split<T, D>] : S extends '' ? [] : [S]", "correct": true },
+      { "text": "S extends `${infer H}${D}${infer T}` ? [H, ...Split<T, D>] : [S]", "correct": false, "explanation": "This variant returns [''] for an empty string instead of []. An additional check S extends '' ? [] : [S] is needed" },
+      { "text": "S extends `${infer H}${D}${infer T}` ? [...Split<H, D>, ...Split<T, D>] : [S]", "correct": false, "explanation": "Split<H, D> is redundant recursion. H is already the part before the delimiter and doesn't contain D. Double recursion is inefficient" },
+      { "text": "S extends `${D}${infer T}` ? Split<T, D> : S extends `${infer H}${D}` ? [H] : [S]", "correct": false, "explanation": "This pattern doesn't correctly handle the delimiter in the middle of the string and loses parts of the string" }
+    ]
+  },
+  {
+    "question": "Which statements about recursive types in TypeScript are true?",
+    "type": "multiple",
+    "options": [
+      { "text": "Recursive interfaces (TreeNode<T> with children: TreeNode<T>[]) have no depth limit — the limit only applies to conditional types", "correct": true },
+      { "text": "The accumulator pattern (additional generic parameter) enables tail recursion", "correct": true },
+      { "text": "Depth limiter via tuple [never, 0, 1, ...] decrements the counter at each recursion level", "correct": true },
+      { "text": "Recursive types are always slower than regular mapped types", "correct": false, "explanation": "Not always. Simple recursive types (DeepReadonly) are processed efficiently. Slowness depends on depth and complexity, not on the fact of recursion" },
+      { "text": "TypeScript forbids recursive type aliases — only interface can be used", "correct": false, "explanation": "Since TypeScript 3.7+, recursive type aliases are fully supported. There was a limitation before, but now type JsonValue = string | JsonValue[] works" }
+    ]
+  },
+  {
+    "question": "What's the difference between naive Reverse and tail-recursive Reverse?",
+    "type": "single",
+    "options": [
+      { "text": "Naive: [...Reverse<Rest>, H] — recursion inside spread; tail: Reverse<Rest, [H, ...Acc]> — recursion in last position", "correct": true },
+      { "text": "Naive uses infer, tail uses extends", "correct": false, "explanation": "Both use infer and extends. The difference is WHERE the recursive call is: inside a spread operation vs in the last position of the conditional type" },
+      { "text": "Tail-recursive Reverse only works with numeric arrays", "correct": false, "explanation": "Tail-recursive Reverse works with arrays of any type. The optimization depends on the position of the recursive call, not the element type" },
+      { "text": "There's no difference — both are limited to 50 levels of recursion", "correct": false, "explanation": "The tail-recursive variant is optimized by TypeScript 4.5+ and works with 1000+ elements, while the naive one fails at ~45" }
+    ]
+  }
+]

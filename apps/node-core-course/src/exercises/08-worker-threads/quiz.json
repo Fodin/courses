@@ -1,0 +1,43 @@
+[
+  {
+    "question": "Чем Worker Threads отличаются от child_process.fork?",
+    "type": "multiple",
+    "options": [
+      { "text": "Workers работают в одном процессе, fork создаёт отдельный", "correct": true },
+      { "text": "Workers могут разделять память через SharedArrayBuffer", "correct": true },
+      { "text": "Workers потребляют меньше памяти (~5-10 МБ vs ~30 МБ)", "correct": true },
+      { "text": "Workers безопаснее — падение worker не влияет на процесс", "correct": false, "explanation": "Наоборот: падение worker в том же процессе может повредить весь процесс. fork более изолирован" },
+      { "text": "Workers автоматически используют IPC для обмена", "correct": false, "explanation": "Workers используют postMessage (structured clone), а не IPC. IPC — это механизм fork" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при worker.postMessage(data, [arrayBuffer])?",
+    "type": "single",
+    "options": [
+      { "text": "ArrayBuffer будет перемещён (transfer) — в отправителе станет недоступен", "correct": true },
+      { "text": "ArrayBuffer будет скопирован — оба потока получат свою копию", "correct": false, "explanation": "Без transferList данные копируются. С transferList они перемещаются — это и есть смысл transfer" },
+      { "text": "Будет ошибка — ArrayBuffer нельзя передавать в Worker", "correct": false, "explanation": "ArrayBuffer можно и передавать (копия) и transfer (перемещение)" },
+      { "text": "ArrayBuffer будет разделён между потоками как SharedArrayBuffer", "correct": false, "explanation": "Transfer перемещает данные, а не разделяет. Для разделения нужен SharedArrayBuffer" }
+    ]
+  },
+  {
+    "question": "Почему Atomics.wait нельзя вызывать в главном потоке?",
+    "type": "single",
+    "options": [
+      { "text": "Он заблокирует event loop, сделав приложение неотзывчивым", "correct": true },
+      { "text": "Главный поток не имеет доступа к SharedArrayBuffer", "correct": false, "explanation": "Главный поток может работать с SharedArrayBuffer. Ограничение только на блокирующий wait" },
+      { "text": "Atomics работают только в Worker потоках", "correct": false, "explanation": "Большинство Atomics операций (store, load, add и т.д.) работают в любом потоке. Только wait блокирующий" },
+      { "text": "Это вызовет deadlock между потоками", "correct": false, "explanation": "Проблема не в deadlock, а в блокировке event loop. Используйте Atomics.waitAsync для неблокирующего ожидания" }
+    ]
+  },
+  {
+    "question": "Какой оптимальный размер Worker Pool?",
+    "type": "single",
+    "options": [
+      { "text": "Равный количеству CPU ядер (os.cpus().length)", "correct": true },
+      { "text": "В 2 раза больше CPU ядер для лучшей загрузки", "correct": false, "explanation": "Для CPU-bound задач больше потоков, чем ядер, не даёт прироста — потоки конкурируют за CPU" },
+      { "text": "Всегда 4 потока — универсальное значение", "correct": false, "explanation": "Оптимальное количество зависит от числа ядер. На 16-ядерном сервере 4 потока — недоиспользование" },
+      { "text": "1 поток на каждую задачу в очереди", "correct": false, "explanation": "Создание потока стоит ~5-30ms и ~5-10 МБ RAM. При 1000 задач это 10 ГБ RAM и 30 секунд на создание" }
+    ]
+  }
+]

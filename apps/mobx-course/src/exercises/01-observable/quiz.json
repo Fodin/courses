@@ -1,0 +1,43 @@
+[
+  {
+    "question": "В чём главное отличие makeAutoObservable от makeObservable?",
+    "type": "single",
+    "options": [
+      { "text": "makeAutoObservable автоматически определяет аннотации, makeObservable требует явного указания", "correct": true },
+      { "text": "makeAutoObservable работает только с классами, makeObservable — только с объектами", "correct": false, "explanation": "Оба метода работают с классами. makeObservable также можно использовать с plain-объектами, но главное отличие — в автоматическом vs ручном указании аннотаций." },
+      { "text": "makeAutoObservable быстрее по производительности", "correct": false, "explanation": "Разницы в runtime-производительности нет. Отличие только в удобстве: makeAutoObservable определяет аннотации автоматически." },
+      { "text": "makeAutoObservable поддерживает TypeScript, а makeObservable — нет", "correct": false, "explanation": "Оба метода полностью поддерживают TypeScript." }
+    ]
+  },
+  {
+    "question": "Что отслеживает observable.ref?",
+    "type": "single",
+    "options": [
+      { "text": "Только замену ссылки целиком, не мутации внутри объекта", "correct": true },
+      { "text": "Все изменения вложенных свойств объекта", "correct": false, "explanation": "Глубокое отслеживание — это поведение обычного observable (по умолчанию). observable.ref отслеживает только замену ссылки." },
+      { "text": "Только первый уровень вложенности объекта", "correct": false, "explanation": "Поверхностное отслеживание первого уровня — это observable.shallow, а не observable.ref." },
+      { "text": "Ссылки на DOM-элементы (аналог React ref)", "correct": false, "explanation": "observable.ref не связан с DOM. ref означает 'reference tracking' — отслеживание замены ссылки на объект." }
+    ]
+  },
+  {
+    "question": "Почему свойства, добавленные после вызова makeAutoObservable, не будут observable?",
+    "type": "single",
+    "options": [
+      { "text": "makeAutoObservable регистрирует только свойства, существующие в момент вызова", "correct": true },
+      { "text": "JavaScript не позволяет добавлять новые свойства в класс", "correct": false, "explanation": "JavaScript позволяет динамически добавлять свойства. Проблема в том, что MobX не узнает о них, потому что регистрация уже произошла." },
+      { "text": "Нужно вызвать makeAutoObservable повторно", "correct": false, "explanation": "makeAutoObservable нельзя вызывать повторно для одного объекта. Все observable-свойства должны быть объявлены до вызова." },
+      { "text": "Это баг MobX, который исправлен в новых версиях", "correct": false, "explanation": "Это не баг, а дизайн-решение. MobX работает с существующими свойствами объекта в момент вызова makeAutoObservable." }
+    ]
+  },
+  {
+    "question": "Какие коллекции MobX умеет делать observable по умолчанию?",
+    "type": "multiple",
+    "options": [
+      { "text": "Array", "correct": true },
+      { "text": "Map", "correct": true },
+      { "text": "Set", "correct": true },
+      { "text": "WeakMap", "correct": false, "explanation": "MobX не поддерживает WeakMap как observable, потому что WeakMap не является перечисляемой коллекцией — нельзя отследить, какие ключи в ней есть." },
+      { "text": "WeakSet", "correct": false, "explanation": "MobX не поддерживает WeakSet как observable по той же причине — WeakSet не перечисляем." }
+    ]
+  }
+]

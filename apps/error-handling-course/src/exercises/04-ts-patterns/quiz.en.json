@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the main advantage of the Result<T, E> type over throw?",
+    "type": "single",
+    "options": [
+      { "text": "The error becomes part of the function signature and is visible in types", "correct": true },
+      { "text": "Result is faster than throw", "correct": false, "explanation": "Result is not about performance — its advantage is type safety" },
+      { "text": "Result automatically logs errors", "correct": false, "explanation": "Result is a data type, it doesn't perform any side effects" },
+      { "text": "throw cannot be used in TypeScript", "correct": false, "explanation": "throw is fully supported in TypeScript" }
+    ]
+  },
+  {
+    "question": "What does the assertNever function do?",
+    "type": "single",
+    "options": [
+      { "text": "Guarantees at compile time that all union type variants are handled", "correct": true },
+      { "text": "Prevents the use of null values", "correct": false, "explanation": "assertNever works with the never type in switch/if, not with null" },
+      { "text": "Checks that a variable is not undefined", "correct": false, "explanation": "assertNever is not related to undefined — it checks exhaustiveness of union types" },
+      { "text": "Throws an error on every call", "correct": false, "explanation": "assertNever throws at runtime, but the main purpose is a compile error when a variant is missing" }
+    ]
+  },
+  {
+    "question": "What happens if you add a new variant to a union type but forget to handle it in a switch with assertNever?",
+    "type": "single",
+    "options": [
+      { "text": "TypeScript shows a compilation error in the default branch", "correct": true },
+      { "text": "The code compiles but crashes at runtime", "correct": false, "explanation": "That's the whole point of assertNever — the error occurs at compile time, before the code runs" },
+      { "text": "The new variant is automatically handled", "correct": false, "explanation": "TypeScript doesn't handle variants automatically — you need to explicitly add a case" },
+      { "text": "Nothing happens, the code works as before", "correct": false, "explanation": "Without handling the new variant, assertNever receives a non-never type, and compilation fails" }
+    ]
+  },
+  {
+    "question": "Which fields are available in AsyncState<T> when status === 'success'?",
+    "type": "single",
+    "options": [
+      { "text": "status and data", "correct": true },
+      { "text": "status, data, and error", "correct": false, "explanation": "When status === 'success', the error field doesn't exist — it's a separate union variant" },
+      { "text": "Only data", "correct": false, "explanation": "The status field is always available — it's the discriminant of the union type" },
+      { "text": "status, data, error, and loading", "correct": false, "explanation": "A discriminated union provides only the fields of the specific variant, not all at once" }
+    ]
+  },
+  {
+    "question": "Why is returning any or null instead of Result an anti-pattern?",
+    "type": "multiple",
+    "options": [
+      { "text": "The compiler doesn't force you to check the result", "correct": true },
+      { "text": "The calling code doesn't know the function can return an error value", "correct": true },
+      { "text": "The error only manifests at runtime (e.g., null.property)", "correct": true },
+      { "text": "any and null are forbidden in TypeScript", "correct": false, "explanation": "They're not forbidden, but using them loses the benefits of typing" }
+    ]
+  }
+]

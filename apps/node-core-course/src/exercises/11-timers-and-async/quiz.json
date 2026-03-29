@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что делает метод timer.unref()?",
+    "type": "single",
+    "options": [
+      { "text": "Позволяет процессу Node.js завершиться, даже если таймер ещё активен", "correct": true },
+      { "text": "Удаляет таймер из памяти", "correct": false, "explanation": "unref() не удаляет таймер — он продолжит срабатывать, если процесс жив. unref() просто не удерживает процесс" },
+      { "text": "Приостанавливает таймер до вызова ref()", "correct": false, "explanation": "unref() не приостанавливает таймер. Он влияет только на то, будет ли таймер удерживать процесс от завершения" },
+      { "text": "Уменьшает приоритет таймера в Event Loop", "correct": false, "explanation": "unref() не влияет на приоритет выполнения. Он управляет только жизненным циклом процесса" }
+    ]
+  },
+  {
+    "question": "Чем AbortSignal.timeout(5000) лучше ручного setTimeout + abort?",
+    "type": "single",
+    "options": [
+      { "text": "Создаёт signal, который автоматически abort через 5 секунд, без необходимости вручную управлять AbortController и таймером", "correct": true },
+      { "text": "Он работает быстрее, потому что использует нативный код", "correct": false, "explanation": "Производительность примерно одинакова. Преимущество в удобстве и отсутствии ручного управления ресурсами" },
+      { "text": "Он позволяет отменить timeout до истечения", "correct": false, "explanation": "AbortSignal.timeout() нельзя отменить — для этого нужен AbortController. Его преимущество в простоте для одноразовых таймаутов" },
+      { "text": "Он автоматически повторяет операцию при timeout", "correct": false, "explanation": "AbortSignal.timeout() не реализует retry. Он просто отменяет операцию при истечении времени" }
+    ]
+  },
+  {
+    "question": "Какие из следующих объектов реализуют Symbol.asyncIterator в Node.js?",
+    "type": "multiple",
+    "options": [
+      { "text": "Readable streams (fs.createReadStream)", "correct": true },
+      { "text": "readline.Interface", "correct": true },
+      { "text": "Результат events.on(emitter, event)", "correct": true },
+      { "text": "Обычные массивы", "correct": false, "explanation": "Массивы реализуют Symbol.iterator (синхронный), а не Symbol.asyncIterator" }
+    ]
+  },
+  {
+    "question": "Почему setInterval с async колбэком может вызвать проблемы?",
+    "type": "single",
+    "options": [
+      { "text": "Если операция длится дольше интервала, вызовы начнут накладываться друг на друга", "correct": true },
+      { "text": "async колбэки не поддерживаются в setInterval", "correct": false, "explanation": "setInterval принимает async колбэки, но не ждёт их завершения перед следующим вызовом" },
+      { "text": "setInterval автоматически отменится при reject промиса", "correct": false, "explanation": "setInterval не отслеживает промисы — rejected Promise станет unhandled rejection, а интервал продолжит работать" },
+      { "text": "V8 не может оптимизировать async колбэки в таймерах", "correct": false, "explanation": "V8 оптимизирует async функции так же, как обычные. Проблема в семантике setInterval, а не в производительности" }
+    ]
+  },
+  {
+    "question": "Что делает timer.refresh()?",
+    "type": "single",
+    "options": [
+      { "text": "Сбрасывает таймер, перезапуская отсчёт без пересоздания объекта", "correct": true },
+      { "text": "Обновляет callback-функцию таймера", "correct": false, "explanation": "refresh() не меняет callback — он только сбрасывает время до срабатывания" },
+      { "text": "Перезапускает таймер с новым интервалом", "correct": false, "explanation": "refresh() сохраняет исходный интервал. Для смены интервала нужно создать новый таймер" },
+      { "text": "Принудительно вызывает callback таймера", "correct": false, "explanation": "refresh() не вызывает callback — он только перезапускает отсчёт" }
+    ]
+  }
+]

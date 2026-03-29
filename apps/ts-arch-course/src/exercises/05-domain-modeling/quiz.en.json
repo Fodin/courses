@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is a Branded Type and what problem does it solve?",
+    "type": "single",
+    "options": [
+      { "text": "A type with an invisible tag that prevents accidental mixing of structurally identical types (e.g., UserId and Email)", "correct": true },
+      { "text": "A type for creating CSS brands in React components", "correct": false, "explanation": "Branded types have nothing to do with CSS or visual design. It's a typing technique for distinguishing structurally identical types" },
+      { "text": "A special TypeScript type built into the standard library", "correct": false, "explanation": "Branded types are not built into TypeScript. It's a pattern implemented via intersection type with unique symbol" },
+      { "text": "A type that automatically validates data on assignment", "correct": false, "explanation": "Branded types don't validate by themselves. Validation happens in factory functions that create branded type values" }
+    ]
+  },
+  {
+    "question": "What is the difference between Entity and Value Object in domain modeling?",
+    "type": "single",
+    "options": [
+      { "text": "Entity has a unique identifier and is compared by ID, Value Object is compared by value and is immutable", "correct": true },
+      { "text": "Entity is always stored in a database, while Value Object exists only in memory", "correct": false, "explanation": "Storage method doesn't define the object type. Value Objects can be stored in DB too, and an Entity can exist only in memory" },
+      { "text": "Entity is a class, while Value Object is an interface", "correct": false, "explanation": "Both Entity and Value Object can be implemented as classes, interfaces, or plain objects. The distinction is in identity semantics, not implementation" },
+      { "text": "Value Object can be mutated, while Entity cannot", "correct": false, "explanation": "It's the opposite: Value Object must be immutable (changing creates a new one). Entity can change its properties while maintaining identity by ID" }
+    ]
+  },
+  {
+    "question": "What advantages does the Specification pattern provide compared to plain conditions in if/filter?",
+    "type": "multiple",
+    "options": [
+      { "text": "Business rules are extracted into named, reusable objects", "correct": true },
+      { "text": "Specifications can be combined via and/or/not to create complex rules", "correct": true },
+      { "text": "Specifications run significantly faster than plain predicate functions", "correct": false, "explanation": "Specifications aren't faster than plain predicates — they add a layer of abstraction. The advantage is in code organization, not performance" },
+      { "text": "Specifications can be passed as parameters and stored", "correct": true }
+    ]
+  },
+  {
+    "question": "How does the type NonEmptyArray<T> = readonly [T, ...T[]] guarantee non-emptiness?",
+    "type": "single",
+    "options": [
+      { "text": "Tuple type [T, ...T[]] requires at least one element — the first element is mandatory, the rest are optional", "correct": true },
+      { "text": "readonly prevents removing elements from the array", "correct": false, "explanation": "readonly prevents mutation, but doesn't guarantee non-emptiness by itself. The tuple [T, ...T[]] sets the minimum length" },
+      { "text": "TypeScript automatically checks array length at runtime", "correct": false, "explanation": "TypeScript doesn't add runtime checks. The non-emptiness guarantee is at the type level: [T, ...T[]] means 'at least one T'" },
+      { "text": "It works through a conditional type checking length > 0", "correct": false, "explanation": "NonEmptyArray uses tuple syntax, not conditional types. Tuple [T, ...T[]] literally describes: 'first element T, then zero or more T'" }
+    ]
+  },
+  {
+    "question": "What does the principle 'Make illegal states unrepresentable' mean in the TypeScript context?",
+    "type": "single",
+    "options": [
+      { "text": "Design types so invalid states cannot be created — the compiler rejects incorrect code", "correct": true },
+      { "text": "Use runtime validation to reject all invalid input data", "correct": false, "explanation": "Runtime validation is important, but the principle is about the type system. The idea is that the type shouldn't allow creating invalid values, not checking them after creation" },
+      { "text": "Throw exceptions when attempting to create an invalid object", "correct": false, "explanation": "Exceptions are a runtime mechanism. The principle requires invalid states to be impossible at the type level, before the program runs" },
+      { "text": "Prohibit using the any type in the project", "correct": false, "explanation": "Avoiding any is good practice, but the principle is broader: types should be designed to accurately reflect the allowed domain states" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is new about startTransition in React 19 compared to React 18?",
+    "type": "single",
+    "options": [
+      { "text": "startTransition now accepts async functions", "correct": true },
+      { "text": "startTransition became synchronous", "correct": false, "explanation": "On the contrary, startTransition was extended to support asynchronicity. In React 18, it only accepted synchronous functions." },
+      { "text": "startTransition was removed and replaced with useDeferredValue", "correct": false, "explanation": "startTransition was not removed. It and useDeferredValue solve different problems and are used together." },
+      { "text": "startTransition now returns a Promise", "correct": false, "explanation": "startTransition does not return a Promise. isPending from useTransition tracks the transition status." }
+    ]
+  },
+  {
+    "question": "What new parameter did useDeferredValue receive in React 19?",
+    "type": "single",
+    "options": [
+      { "text": "timeout — maximum wait time", "correct": false, "explanation": "useDeferredValue does not accept timeout. React automatically adapts the delay to the device." },
+      { "text": "initialValue — initial value for the first render", "correct": true },
+      { "text": "priority — update priority level", "correct": false, "explanation": "Priority is managed automatically by React and cannot be set manually." },
+      { "text": "compareFn — value comparison function", "correct": false, "explanation": "useDeferredValue does not accept a comparison function. It works with any values automatically." }
+    ]
+  },
+  {
+    "question": "How does the Suspense fallback behave during navigation via useTransition?",
+    "type": "single",
+    "options": [
+      { "text": "Fallback is shown on every transition", "correct": false, "explanation": "During a transition, the old content remains visible with isPending; the fallback does not flash." },
+      { "text": "Fallback is shown only on initial load; during transitions the old content remains", "correct": true },
+      { "text": "Fallback is completely disabled", "correct": false, "explanation": "Fallback is not disabled; it shows on initial load. But during subsequent transitions, isPending is used." },
+      { "text": "Fallback is replaced by the isPending indicator", "correct": false, "explanation": "Fallback and isPending work in different scenarios: fallback for initial load, isPending for transitions." }
+    ]
+  },
+  {
+    "question": "How does useDeferredValue differ from debounce?",
+    "type": "multiple",
+    "options": [
+      { "text": "useDeferredValue adapts to device performance", "correct": true },
+      { "text": "useDeferredValue works at the rendering level, not the event level", "correct": true },
+      { "text": "useDeferredValue is interruptible (concurrent)", "correct": true },
+      { "text": "useDeferredValue is always faster than debounce", "correct": false, "explanation": "useDeferredValue is not always faster. Its advantage is adaptivity and integration with React concurrent mode, not absolute speed." }
+    ]
+  },
+  {
+    "question": "What does isPending === true mean when using useTransition with an async function?",
+    "type": "single",
+    "options": [
+      { "text": "Only the synchronous part of the transition is still executing", "correct": false, "explanation": "In React 19, isPending stays true throughout the entire async operation, including waiting for promises." },
+      { "text": "The async function in startTransition has not yet completed", "correct": true },
+      { "text": "The component is waiting to mount", "correct": false, "explanation": "isPending relates to the current transition, not the component lifecycle." },
+      { "text": "An error occurred during the transition", "correct": false, "explanation": "isPending does not signal errors. On error, isPending becomes false and the error is handled by ErrorBoundary." }
+    ]
+  }
+]

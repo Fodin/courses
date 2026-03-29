@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What is the main gotcha about fetch behavior with HTTP 404 or 500?",
+    "type": "single",
+    "options": [
+      { "text": "fetch does NOT throw an error — the promise resolves successfully, you must check response.ok", "correct": true },
+      { "text": "fetch throws an HttpError with the status code", "correct": false, "explanation": "fetch doesn't throw on HTTP 4xx/5xx — this is the key difference from axios and other libraries" },
+      { "text": "fetch returns null on server error", "correct": false, "explanation": "fetch returns a Response object even with error status codes" },
+      { "text": "fetch automatically retries the request on 5xx", "correct": false, "explanation": "fetch has no built-in retry mechanism" }
+    ]
+  },
+  {
+    "question": "Which situations cause the fetch promise to actually reject?",
+    "type": "multiple",
+    "options": [
+      { "text": "No network connection (TypeError)", "correct": true },
+      { "text": "DNS not found (TypeError)", "correct": true },
+      { "text": "Cancellation via AbortController (AbortError)", "correct": true },
+      { "text": "HTTP 404 Not Found", "correct": false, "explanation": "HTTP 404 doesn't reject the promise — response.ok will be false, but the promise resolves" },
+      { "text": "HTTP 500 Internal Server Error", "correct": false, "explanation": "HTTP 500 doesn't reject the promise — this is the gotcha behavior of the fetch API" }
+    ]
+  },
+  {
+    "question": "Why shouldn't you retry HTTP 4xx errors?",
+    "type": "single",
+    "options": [
+      { "text": "4xx are client errors, retrying won't change anything", "correct": true },
+      { "text": "Retrying 4xx causes a compilation error", "correct": false, "explanation": "Retrying 4xx is technically possible but pointless — the server will respond the same way" },
+      { "text": "The server will block the client on repeated 4xx requests", "correct": false, "explanation": "Blocking is a side effect, not the main reason. The key point is the request is guaranteed to fail" },
+      { "text": "4xx errors can't be caught by catch", "correct": false, "explanation": "4xx errors can be caught if you check response.ok and throw an error" }
+    ]
+  },
+  {
+    "question": "Why is AbortController needed when fetching data in useEffect?",
+    "type": "single",
+    "options": [
+      { "text": "To cancel the request when the component unmounts, preventing state updates on unmounted components", "correct": true },
+      { "text": "To speed up data loading", "correct": false, "explanation": "AbortController doesn't speed up loading — it cancels unnecessary requests" },
+      { "text": "For automatic retry on error", "correct": false, "explanation": "AbortController cancels requests, it doesn't retry them" },
+      { "text": "React doesn't work without AbortController", "correct": false, "explanation": "React works without AbortController, but without it there can be memory leaks and errors" }
+    ]
+  },
+  {
+    "question": "What should you do with an AbortError when using AbortController?",
+    "type": "single",
+    "options": [
+      { "text": "Filter and ignore it — it's not a real error, but an expected cancellation", "correct": true },
+      { "text": "Show the user an error message", "correct": false, "explanation": "AbortError on unmount is expected behavior, the user doesn't need to see it" },
+      { "text": "Log it to a monitoring service", "correct": false, "explanation": "AbortError is a normal situation during navigation, it doesn't require monitoring" },
+      { "text": "Automatically retry the request", "correct": false, "explanation": "If the component is unmounted, retrying is pointless and will cause a leak" }
+    ]
+  }
+]

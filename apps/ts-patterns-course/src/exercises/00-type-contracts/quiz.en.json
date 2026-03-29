@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What problem do Branded Types solve?",
+    "type": "single",
+    "options": [
+      { "text": "They prevent confusion between values of the same primitive type (e.g., Email and UserId are both strings)", "correct": true },
+      { "text": "They speed up program execution through type optimizations", "correct": false, "explanation": "Branded Types exist only at the TypeScript type system level and have no impact on runtime performance" },
+      { "text": "They allow storing values of different types in a single array", "correct": false, "explanation": "Union types or generics are used for that, not branded types" },
+      { "text": "They replace the need for data validation", "correct": false, "explanation": "Branded Types complement validation — constructor functions typically include validation before casting to a branded type" }
+    ]
+  },
+  {
+    "question": "What happens if a type guard function returns boolean instead of the predicate `x is Type`?",
+    "type": "single",
+    "options": [
+      { "text": "The function works at runtime, but TypeScript won't narrow the variable's type in conditional blocks", "correct": true },
+      { "text": "TypeScript will throw a compilation error", "correct": false, "explanation": "The code compiles without errors — the function simply returns boolean. But TypeScript won't automatically narrow the type in if/else" },
+      { "text": "The type will be narrowed, but only inside switch/case", "correct": false, "explanation": "Without the `x is Type` predicate, type narrowing won't occur in if/else or switch/case" },
+      { "text": "The program will crash at runtime", "correct": false, "explanation": "At runtime, a type guard with boolean works exactly the same — this is purely a compile-time distinction" }
+    ]
+  },
+  {
+    "question": "What is the purpose of the `const _never: never = value` pattern in the default branch of a switch?",
+    "type": "single",
+    "options": [
+      { "text": "To handle unexpected values at runtime", "correct": false, "explanation": "This pattern works at compile time — it forces TypeScript to verify that all union variants are handled" },
+      { "text": "To guarantee at compile time that all discriminated union variants are handled (exhaustive check)", "correct": true },
+      { "text": "To optimize memory when working with union types", "correct": false, "explanation": "The never type has no runtime impact — it's purely a type system tool" },
+      { "text": "To create a breakpoint for debugging", "correct": false, "explanation": "Exhaustive check is a compile-time completeness verification, not a debugging tool" }
+    ]
+  },
+  {
+    "question": "Which of the following are built-in type guards in TypeScript?",
+    "type": "multiple",
+    "options": [
+      { "text": "typeof x === 'string'", "correct": true },
+      { "text": "x instanceof Error", "correct": true },
+      { "text": "'key' in obj", "correct": true },
+      { "text": "x as Type", "correct": false, "explanation": "The as operator is a type assertion (type cast), not a type guard. It doesn't perform a runtime check" },
+      { "text": "x === null", "correct": false, "explanation": "Checking for null/undefined is narrowing, but not a type guard in the classic sense. Type guards are typeof, instanceof, in, and custom predicates" }
+    ]
+  },
+  {
+    "question": "Why is `as` used in a branded type constructor?",
+    "type": "single",
+    "options": [
+      { "text": "Because TypeScript cannot automatically cast string to Brand<string, 'Email'>, and `as` is the only way to create a branded value after validation", "correct": true },
+      { "text": "To improve performance when creating branded values", "correct": false, "explanation": "The as operator doesn't exist at runtime and has no performance impact — it's purely a compile-time operation" },
+      { "text": "Because without `as` the object would be immutable", "correct": false, "explanation": "The as operator doesn't affect mutability. Use readonly for immutability" },
+      { "text": "It's a temporary workaround that will be fixed in future TypeScript versions", "correct": false, "explanation": "This is intentional type system behavior — branded types by definition require explicit casting since the brand doesn't exist at runtime" }
+    ]
+  }
+]

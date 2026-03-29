@@ -1,0 +1,54 @@
+[
+  {
+    "question": "Why is it necessary to wrap JSON.parse in try/catch when hydrating from localStorage?",
+    "type": "single",
+    "options": [
+      { "text": "Data in localStorage can be corrupted, deleted, or have an outdated format, causing a crash", "correct": true },
+      { "text": "JSON.parse always throws an error when working with localStorage", "correct": false, "explanation": "JSON.parse throws an error only for invalid JSON. If the data is correct, there's no error. But in production, you can't guarantee data integrity in localStorage." },
+      { "text": "This is a TypeScript requirement for strict mode", "correct": false, "explanation": "TypeScript doesn't require try/catch around JSON.parse. This is a safe programming practice — protection against corrupted data." },
+      { "text": "localStorage works asynchronously and can return undefined", "correct": false, "explanation": "localStorage works synchronously. getItem returns null (not undefined) for missing keys. try/catch is needed to protect against invalid JSON." }
+    ]
+  },
+  {
+    "question": "Why shouldn't you include computed properties in toJSON when serializing a store?",
+    "type": "single",
+    "options": [
+      { "text": "Computed is automatically derived from observables — saving it duplicates data with risk of desynchronization", "correct": true },
+      { "text": "JSON.stringify can't serialize computed properties", "correct": false, "explanation": "JSON.stringify can serialize any value, including computed results. The issue isn't technical but architectural — data duplication." },
+      { "text": "Computed properties return functions, not values", "correct": false, "explanation": "Computed properties return values (numbers, strings, arrays, etc.), not functions. They're defined as get accessors." },
+      { "text": "MobX prohibits serializing computed via JSON", "correct": false, "explanation": "MobX has no such restriction. The recommendation not to save computed is an architectural principle: save only source data." }
+    ]
+  },
+  {
+    "question": "What is the main advantage of testing MobX stores as regular classes?",
+    "type": "single",
+    "options": [
+      { "text": "No React needed — tests run without rendering components, faster and simpler", "correct": true },
+      { "text": "MobX stores can't be tested through React Testing Library", "correct": false, "explanation": "Technically you can test through component rendering, but it's slower and more complex. Direct store testing as a class is more efficient." },
+      { "text": "Store tests don't require assertion libraries", "correct": false, "explanation": "Assertion libraries (expect, assert) are needed in any tests, including store tests." },
+      { "text": "MobX automatically generates tests for stores", "correct": false, "explanation": "MobX doesn't generate tests. Tests are written manually, but for stores they're simple: create instance, call action, check state." }
+    ]
+  },
+  {
+    "question": "What should you test in a MobX store?",
+    "type": "multiple",
+    "options": [
+      { "text": "Actions — call the method and verify state changes", "correct": true },
+      { "text": "Computed — set up state and verify the derived value", "correct": true },
+      { "text": "Edge cases — empty store, duplicates, invalid data", "correct": true },
+      { "text": "MobX internal implementation (proxies, interceptors)", "correct": false, "explanation": "Testing MobX internals isn't needed — that's the library authors' responsibility. Test your store's behavior." },
+      { "text": "Number of React component re-renders", "correct": false, "explanation": "Re-renders are an integration test of component + store. When unit-testing a store, test its logic independently of React." }
+    ]
+  },
+  {
+    "question": "Which MobX concepts does the kanban board pattern combine?",
+    "type": "multiple",
+    "options": [
+      { "text": "observable — columns and cards as observable data", "correct": true },
+      { "text": "action — methods addCard, removeCard, moveCard", "correct": true },
+      { "text": "computed — calculating totalCards from columns", "correct": true },
+      { "text": "observer — granular rendering of each column separately", "correct": true },
+      { "text": "flow — required for all kanban board actions", "correct": false, "explanation": "flow is needed for async operations (e.g., saving to server). For synchronous actions (addCard, moveCard), regular actions are sufficient." }
+    ]
+  }
+]

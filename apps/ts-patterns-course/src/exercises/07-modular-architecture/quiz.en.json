@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Why does a DI container use Token<T> instead of string keys?",
+    "type": "single",
+    "options": [
+      { "text": "Token<T> binds the key to a type — resolve() returns a typed value, not any", "correct": true },
+      { "text": "String keys are not supported in Map", "correct": false, "explanation": "Map works perfectly with string keys. Token<T> is needed for type safety during resolve" },
+      { "text": "Token<T> is faster than strings for container lookups", "correct": false, "explanation": "Performance is comparable. Token<T> is needed for compile-time guarantee of the correct type" },
+      { "text": "It's a mandatory TypeScript requirement for working with generics", "correct": false, "explanation": "TypeScript doesn't require Token — it's an architectural decision for type-safe DI" }
+    ]
+  },
+  {
+    "question": "What is the key idea of Ports & Adapters (hexagonal architecture)?",
+    "type": "single",
+    "options": [
+      { "text": "Business logic defines ports (interfaces), and the outside world provides adapters (implementations) — business logic doesn't know about DB, HTTP, etc.", "correct": true },
+      { "text": "Each module must have exactly one port and one adapter", "correct": false, "explanation": "A module can have any number of ports and adapters. The key is that business logic depends only on ports" },
+      { "text": "Ports must always be asynchronous to support remote services", "correct": false, "explanation": "Ports are defined by business logic needs, not by adapter implementation details" },
+      { "text": "Adapters must be written before ports", "correct": false, "explanation": "On the contrary — ports (interfaces) are defined first in business logic, then adapters are written" }
+    ]
+  },
+  {
+    "question": "What is the dependency rule in Clean Architecture?",
+    "type": "single",
+    "options": [
+      { "text": "Dependencies point inward: Infrastructure -> Application -> Domain. Domain depends on nothing", "correct": true },
+      { "text": "Dependencies point outward: Domain -> Application -> Infrastructure", "correct": false, "explanation": "It's the opposite — Domain doesn't depend on outer layers. Infrastructure depends on Application and Domain" },
+      { "text": "All layers depend on each other through interfaces", "correct": false, "explanation": "Dependencies are unidirectional — inward. Outer layers depend on inner ones, not vice versa" },
+      { "text": "Domain depends on Application, Application depends on Infrastructure", "correct": false, "explanation": "This is the reverse direction. Correct: Infrastructure -> Application -> Domain" }
+    ]
+  },
+  {
+    "question": "What problems do Module Contracts solve?",
+    "type": "multiple",
+    "options": [
+      { "text": "Isolation of module internals — other modules only see the public API", "correct": true },
+      { "text": "Freedom to refactor module internals as long as the contract is maintained", "correct": true },
+      { "text": "Preventing dependencies on internal utilities, constants, and helper functions of a module", "correct": true },
+      { "text": "Automatic generation of REST API from contracts", "correct": false, "explanation": "Module Contracts are a pattern for inter-module communication within a codebase, not for API generation" },
+      { "text": "Replacing TypeScript interfaces with runtime checks", "correct": false, "explanation": "Module contracts use TypeScript interfaces, not replace them" }
+    ]
+  },
+  {
+    "question": "Why shouldn't a port depend on adapter details (e.g., SQL or Postgres-specific types)?",
+    "type": "single",
+    "options": [
+      { "text": "Because a port is defined by business logic and must be abstract — this allows replacing the adapter without changing business logic", "correct": true },
+      { "text": "Because SQL queries can't be typed in TypeScript", "correct": false, "explanation": "SQL can be typed (Prisma, Drizzle). The problem is not SQL typing but violating the dependency direction" },
+      { "text": "Because Postgres types aren't exported from the pg package", "correct": false, "explanation": "Postgres types are available. The issue is that ports must be abstract so business logic doesn't depend on a specific storage" },
+      { "text": "To improve the performance of the abstract layer", "correct": false, "explanation": "Abstraction doesn't affect performance. The goal is architectural isolation of business logic from infrastructure" }
+    ]
+  }
+]

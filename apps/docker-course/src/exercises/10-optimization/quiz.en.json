@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Which base image is recommended for minimizing Node.js application size?",
+    "type": "single",
+    "options": [
+      { "text": "node:20-alpine — based on Alpine Linux (~50 MB instead of ~1 GB)", "correct": true },
+      { "text": "node:20 — full image based on Debian", "correct": false, "explanation": "The full node:20 image weighs about 1 GB. The Alpine variant is 10-20 times smaller" },
+      { "text": "ubuntu:latest with manual Node.js installation", "correct": false, "explanation": "Manual installation on Ubuntu creates an even larger image. Alpine variants are specifically optimized for size" },
+      { "text": "scratch — completely empty image", "correct": false, "explanation": "scratch is suitable for statically compiled binaries (Go, Rust), not for Node.js which needs a runtime" }
+    ]
+  },
+  {
+    "question": "Why does combining RUN commands with && reduce image size?",
+    "type": "single",
+    "options": [
+      { "text": "One RUN = one layer. Deleting files in the same RUN actually reduces the layer, in a separate RUN it doesn't", "correct": true },
+      { "text": "Docker automatically compresses combined commands", "correct": false, "explanation": "Docker doesn't compress commands. The point is that files deleted in a separate RUN still take space in the previous layer" },
+      { "text": "Combining speeds up command execution", "correct": false, "explanation": "Execution speed doesn't change. The benefit is size: files created and deleted in one layer take no space" },
+      { "text": "Docker limits the number of layers to 10", "correct": false, "explanation": "The layer limit is 127, not 10. Combining RUN reduces size, not just the number of layers" }
+    ]
+  },
+  {
+    "question": "What is the dive tool used for?",
+    "type": "single",
+    "options": [
+      { "text": "Interactive analysis of Docker image layers and finding wasted space", "correct": true },
+      { "text": "Automatic image optimization", "correct": false, "explanation": "dive analyzes images and shows what occupies space in each layer, but doesn't optimize automatically" },
+      { "text": "Scanning images for vulnerabilities", "correct": false, "explanation": "trivy, snyk, grype are used for vulnerability scanning. dive analyzes layer size and content" },
+      { "text": "Running containers in debug mode", "correct": false, "explanation": "dive is an image analysis tool, not a container runner" }
+    ]
+  },
+  {
+    "question": "How does multi-stage build reduce the production image size?",
+    "type": "single",
+    "options": [
+      { "text": "Only the last stage ends up in the final image — without source code, devDependencies, or build tools", "correct": true },
+      { "text": "Multi-stage automatically compresses all layers", "correct": false, "explanation": "Multi-stage doesn't compress layers. It lets you copy only needed artifacts from the build stage to the final image" },
+      { "text": "Multi-stage removes unused files from the base image", "correct": false, "explanation": "Multi-stage doesn't modify the base image. It creates a new stage with a minimal base image and only needed files" },
+      { "text": "Multi-stage caches all layers on Docker Hub", "correct": false, "explanation": "Multi-stage isn't related to Docker Hub. It separates the build into stages, keeping only the result in the final image" }
+    ]
+  },
+  {
+    "question": "What is Hadolint and why is it needed?",
+    "type": "single",
+    "options": [
+      { "text": "A Dockerfile linter that checks best practices and potential issues", "correct": true },
+      { "text": "A tool for automatic image size optimization", "correct": false, "explanation": "Hadolint only checks Dockerfiles for errors and best practice violations, but doesn't modify them" },
+      { "text": "An alternative to Docker Compose for orchestration", "correct": false, "explanation": "Hadolint is a linter, not an orchestration tool. It analyzes Dockerfiles for best practice compliance" },
+      { "text": "A logging driver for Docker", "correct": false, "explanation": "Hadolint is a lint tool for Dockerfiles, unrelated to logging" }
+    ]
+  }
+]

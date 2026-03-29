@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Why is multer.memoryStorage() dangerous for large file uploads?",
+    "type": "single",
+    "options": [
+      { "text": "The entire file is stored in RAM as a Buffer -- uploading a 500MB video causes OOM (Out of Memory)", "correct": true },
+      { "text": "Memory storage is slower than disk storage", "correct": false, "explanation": "Actually, memory storage is faster (RAM is faster than disk). The problem isn't speed but memory consumption. For 100 users uploading 100MB each = 10GB RAM" },
+      { "text": "Memory storage doesn't support multiple files", "correct": false, "explanation": "Memory storage supports single, array, and fields. The problem is each file is fully loaded into RAM. For small files (<5MB), this is fine" },
+      { "text": "Files are lost on server restart", "correct": false, "explanation": "True, but not the danger. Files in memory storage are always processed immediately (saved to disk/S3). The problem is RAM consumption during upload" }
+    ]
+  },
+  {
+    "question": "Why can't you trust file.originalname when saving a file?",
+    "type": "single",
+    "options": [
+      { "text": "The original name can contain path traversal (../../etc/passwd) and overwrite system files", "correct": true },
+      { "text": "The filename might be too long for the filesystem", "correct": false, "explanation": "Length is a secondary concern. The main threat is path traversal. The name '../../etc/passwd' allows writing files outside the uploads/ directory" },
+      { "text": "Non-ASCII characters in the filename can cause encoding errors", "correct": false, "explanation": "Encoding is a minor issue. The main concern is security. Always generate UUIDs for filenames and store the original name in DB metadata" },
+      { "text": "Two users might upload files with the same name", "correct": false, "explanation": "Name collision is a problem, but not the main one. Path traversal allows an attacker to overwrite any file on the server, including configuration files" }
+    ]
+  },
+  {
+    "question": "Why is magic byte checking better than file extension checking?",
+    "type": "single",
+    "options": [
+      { "text": "Magic bytes are signatures at the start of a file that can't be spoofed by simple renaming (.exe -> .jpg)", "correct": true },
+      { "text": "Magic bytes check files faster than extension checking", "correct": false, "explanation": "Extension checking is faster (simple string comparison). Magic bytes require reading the first bytes. The advantage is reliability, not speed" },
+      { "text": "File extensions aren't supported in Linux", "correct": false, "explanation": "Linux supports extensions, though it doesn't use them to determine type. The issue is that extensions are just part of the name that users can change" },
+      { "text": "Magic bytes only work for images", "correct": false, "explanation": "Magic bytes exist for most formats: PDF (%PDF), ZIP (PK), JPEG (FF D8 FF), PNG (89 50 4E 47). The file-type library recognizes hundreds of formats" }
+    ]
+  },
+  {
+    "question": "How does busboy save RAM compared to Multer when uploading files?",
+    "type": "single",
+    "options": [
+      { "text": "Busboy processes files in a streaming fashion (chunks of ~64KB), not loading the entire file into memory", "correct": true },
+      { "text": "Busboy compresses files before saving", "correct": false, "explanation": "Busboy doesn't compress files. It parses the multipart stream and passes chunks via Node.js Stream API. RAM savings come from not buffering the entire file" },
+      { "text": "Busboy uses a swap file instead of RAM", "correct": false, "explanation": "Busboy doesn't use swap. It pipes data from the request stream to the write stream. Only the current chunk (~64KB) is in memory" },
+      { "text": "Busboy is faster than Multer, so the file passes through RAM in less time", "correct": false, "explanation": "Speed doesn't affect RAM consumption. Multer memoryStorage holds the entire Buffer until processing. Busboy passes chunks as received -- only the current chunk is in RAM" }
+    ]
+  }
+]

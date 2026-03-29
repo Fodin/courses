@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Why shouldn't you use matches() with a regex to validate emails?",
+    "type": "single",
+    "options": [
+      { "text": "matches() doesn't support regular expressions for email", "correct": false, "explanation": "matches() supports any regular expression, but the issue is different" },
+      { "text": "The built-in email() method already has a proven pattern, and writing your own regex is error-prone", "correct": true },
+      { "text": "matches() is slower than email()", "correct": false, "explanation": "Performance is not the main reason. Reliability of the check is what matters" },
+      { "text": "matches() doesn't work with unicode characters in email", "correct": false, "explanation": "matches() works with unicode. The problem is that custom email regex often contains bugs" }
+    ]
+  },
+  {
+    "question": "What happens when executing yup.string().trim().min(3).validate('  ab  ')?",
+    "type": "single",
+    "options": [
+      { "text": "Returns 'ab' — trim removes spaces, min(3) is not checked", "correct": false, "explanation": "min(3) is checked after trim. The string 'ab' has length 2, which is less than 3" },
+      { "text": "Error: after trim the string 'ab' has length 2, which is less than min(3)", "correct": true },
+      { "text": "Returns '  ab  ' — trim is not applied during validate", "correct": false, "explanation": "trim() is a transformation and is applied before validation in any case" },
+      { "text": "Error: spaces are not allowed", "correct": false, "explanation": "trim() doesn't generate an error for spaces — it removes them. The error comes from min(3)" }
+    ]
+  },
+  {
+    "question": "Which statements about trim(), lowercase(), uppercase() transformations in Yup are correct?",
+    "type": "multiple",
+    "options": [
+      { "text": "Transformations are applied before validation", "correct": true },
+      { "text": "In strict mode, transformations are not applied", "correct": true },
+      { "text": "The order of transformations in the chain affects the result", "correct": false, "explanation": "In Yup, all transformations run before all validations regardless of chain order. But for readability, it's better to write transformations first" },
+      { "text": "trim() throws an error if the string has leading/trailing spaces", "correct": false, "explanation": "trim() is a transformation, not a validation. It removes spaces but doesn't generate an error" }
+    ]
+  },
+  {
+    "question": "What is the excludeEmptyString option used for in matches()?",
+    "type": "single",
+    "options": [
+      { "text": "To prevent empty strings from triggering a regex validation error", "correct": true },
+      { "text": "To remove empty strings from arrays", "correct": false, "explanation": "excludeEmptyString only works with matches() and affects how empty strings are handled by the regex check" },
+      { "text": "To make empty strings invalid", "correct": false, "explanation": "On the contrary — excludeEmptyString: true lets empty strings pass the regex check" },
+      { "text": "To make trim() remove empty strings", "correct": false, "explanation": "excludeEmptyString is not related to trim(). It's an option only for matches()" }
+    ]
+  }
+]

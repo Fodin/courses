@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What is the key difference between Factory Method and Abstract Factory?",
+    "type": "single",
+    "options": [
+      { "text": "Factory Method creates a single object, Abstract Factory creates families of related objects", "correct": true },
+      { "text": "Factory Method uses classes, while Abstract Factory uses functions", "correct": false, "explanation": "Both patterns can be implemented with classes or functions. The difference is in the number of objects created" },
+      { "text": "Abstract Factory is faster at runtime", "correct": false, "explanation": "Performance is not a distinguishing trait of these patterns — the difference lies in their purpose and structure" },
+      { "text": "Factory Method is a deprecated pattern replaced by Abstract Factory", "correct": false, "explanation": "Both patterns are relevant and solve different problems. Factory Method is for single product types, Abstract Factory is for families" }
+    ]
+  },
+  {
+    "question": "Why should a factory function return an interface rather than a concrete class?",
+    "type": "single",
+    "options": [
+      { "text": "So that client code doesn't depend on concrete implementations, and adding a new type doesn't require changing consumers", "correct": true },
+      { "text": "Because TypeScript doesn't support returning concrete classes from functions", "correct": false, "explanation": "TypeScript fully supports returning concrete types. But returning an interface is a deliberate architectural decision to reduce coupling" },
+      { "text": "To save memory when creating objects", "correct": false, "explanation": "The return type doesn't affect memory usage — it's purely compile-time information" },
+      { "text": "Interfaces are faster than classes in JavaScript", "correct": false, "explanation": "TypeScript interfaces don't exist at runtime — they are completely erased during compilation" }
+    ]
+  },
+  {
+    "question": "Which problems does the Builder pattern solve?",
+    "type": "multiple",
+    "options": [
+      { "text": "Long constructors with many parameters where argument order is easily confused", "correct": true },
+      { "text": "The need for step-by-step creation of complex objects with a readable fluent API", "correct": true },
+      { "text": "Compile-time control of required creation steps (type-safe builder)", "correct": true },
+      { "text": "Automatic object serialization to JSON", "correct": false, "explanation": "Serialization is a separate concern unrelated to the Builder pattern" },
+      { "text": "Replacing class inheritance with composition", "correct": false, "explanation": "Other approaches are used to replace inheritance with composition (mixins, delegation). Builder solves the object creation problem" }
+    ]
+  },
+  {
+    "question": "Why must the Singleton constructor be `private`?",
+    "type": "single",
+    "options": [
+      { "text": "So TypeScript prevents creating instances via new, bypassing getInstance()", "correct": true },
+      { "text": "To improve performance during object creation", "correct": false, "explanation": "The private modifier has no runtime impact — it's a compile-time access restriction" },
+      { "text": "To hide the internal fields of the class", "correct": false, "explanation": "Private on fields hides fields. Private on the constructor prevents calling new from outside the class" },
+      { "text": "It's a TypeScript requirement for all classes with static methods", "correct": false, "explanation": "Classes with static methods don't have to have a private constructor. This is a deliberate choice for the Singleton pattern" }
+    ]
+  },
+  {
+    "question": "What happens when calling `create('emial')` if the parameter is typed as `type: string`?",
+    "type": "single",
+    "options": [
+      { "text": "TypeScript compiles without errors, the typo is only discovered at runtime", "correct": true },
+      { "text": "TypeScript will underline the error in red", "correct": false, "explanation": "With a string type, any string is valid — TypeScript cannot check value correctness" },
+      { "text": "The IDE will automatically fix the typo", "correct": false, "explanation": "The IDE doesn't know which values are valid for string. Autocorrection requires a union type" },
+      { "text": "JavaScript will throw a TypeError", "correct": false, "explanation": "JavaScript doesn't know about types — the error will be in business logic, not a TypeError" }
+    ]
+  }
+]

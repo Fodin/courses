@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Какой паттерн Builder лучше подходит, когда порядок вызова методов важен?",
+    "type": "single",
+    "options": [
+      { "text": "Step Builder — каждый шаг возвращает интерфейс следующего шага", "correct": true },
+      { "text": "Accumulating Builder — отслеживает установленные поля в generic-параметре", "correct": false, "explanation": "Accumulating Builder не фиксирует порядок — он отслеживает, КАКИЕ поля заданы, а не в какой последовательности" },
+      { "text": "Conditional Builder — ограничивает методы по текущему состоянию", "correct": false, "explanation": "Conditional Builder ограничивает доступные методы по типу конфигурации, но не навязывает строгую последовательность вызовов" },
+      { "text": "Обычный Builder с runtime-валидацией в build()", "correct": false, "explanation": "Runtime-валидация обнаруживает ошибки только при выполнении. Step Builder ловит их на этапе компиляции" }
+    ]
+  },
+  {
+    "question": "Как Accumulating Builder предотвращает вызов build() без обязательных полей?",
+    "type": "single",
+    "options": [
+      { "text": "Через this-параметр в build(), требующий определённый generic-тип", "correct": true },
+      { "text": "Через проверку instanceof в рантайме", "correct": false, "explanation": "Проверка instanceof — это runtime-подход. Accumulating Builder использует систему типов для compile-time проверки" },
+      { "text": "Через приватный флаг isReady", "correct": false, "explanation": "Приватный флаг не обнаруживается TypeScript'ом на этапе компиляции. This-параметр работает статически" },
+      { "text": "Через перегрузку build() для каждой комбинации полей", "correct": false, "explanation": "Количество перегрузок растёт экспоненциально с числом полей. This-параметр — элегантное решение для любого количества полей" }
+    ]
+  },
+  {
+    "question": "Что делает this-parameter typing в методе conditional builder?",
+    "type": "single",
+    "options": [
+      { "text": "Ограничивает, на каких экземплярах (с каким generic-типом) метод может быть вызван", "correct": true },
+      { "text": "Создаёт новый экземпляр builder с другим типом", "correct": false, "explanation": "This-параметр не создаёт новых экземпляров. Он декларирует требование к типу объекта, на котором метод вызывается" },
+      { "text": "Преобразует тип возвращаемого значения", "correct": false, "explanation": "This-параметр влияет на вызов метода, а не на его возвращаемое значение. Тип возврата определяется отдельно" },
+      { "text": "Добавляет runtime-проверку типа", "correct": false, "explanation": "This-параметр — чисто compile-time механизм. В JavaScript он не существует и не генерирует никакого кода" }
+    ]
+  },
+  {
+    "question": "Какие из утверждений о Step Builder верны?",
+    "type": "multiple",
+    "options": [
+      { "text": "Каждый метод возвращает интерфейс, определяющий допустимые следующие вызовы", "correct": true },
+      { "text": "Количество шагов должно быть фиксировано и небольшо (2-5)", "correct": true },
+      { "text": "Step Builder позволяет вызывать методы в произвольном порядке", "correct": false, "explanation": "Произвольный порядок — это свойство Accumulating Builder. Step Builder строго фиксирует последовательность" },
+      { "text": "Методы на одном шаге можно вызывать повторно (header -> header -> header)", "correct": true }
+    ]
+  }
+]

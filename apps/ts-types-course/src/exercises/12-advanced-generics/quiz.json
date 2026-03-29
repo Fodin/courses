@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Как URI-паттерн имитирует Higher-Kinded Types в TypeScript?",
+    "type": "single",
+    "options": [
+      { "text": "Через реестр URItoKind<A>, где строковые ключи отображаются на конструкторы типов, и Kind<F, A> = URItoKind<A>[F]", "correct": true },
+      { "text": "Через наследование классов и виртуальные методы", "correct": false, "explanation": "Наследование — это runtime-паттерн. HKT-имитация работает исключительно на уровне типов через indexed access и declaration merging" },
+      { "text": "Через conditional types и infer", "correct": false, "explanation": "Conditional types и infer — это инструменты type-level программирования, но не механизм имитации HKT. URI-паттерн использует интерфейс-реестр и indexed access type" },
+      { "text": "TypeScript нативно поддерживает HKT начиная с версии 5.0", "correct": false, "explanation": "TypeScript не имеет нативной поддержки HKT ни в одной версии. URI-паттерн (дефункционализация) — это обходное решение, популяризированное библиотекой fp-ts" }
+    ]
+  },
+  {
+    "question": "Что делает const в позиции generic-параметра: function f<const T extends string>(x: T)?",
+    "type": "single",
+    "options": [
+      { "text": "Заставляет TypeScript выводить самый узкий (литеральный) тип для T", "correct": true },
+      { "text": "Делает T иммутабельным (readonly)", "correct": false, "explanation": "const в generic-позиции влияет на вывод типа, а не на мутабельность. Для массивов это даёт readonly, но главная цель — сохранение литерального типа вместо расширения до string" },
+      { "text": "Запрещает передачу переменных — только литералы", "correct": false, "explanation": "const T не ограничивает вызов — можно передавать и переменные. Он влияет на то, как TypeScript выводит тип: предпочитает литеральный тип вместо расширенного" },
+      { "text": "Эквивалентен as const для аргумента", "correct": false, "explanation": "const в generic-позиции похож на as const, но работает на уровне generic-вывода. as const применяется к значению, а const T — к параметру типа" }
+    ]
+  },
+  {
+    "question": "Какие утверждения верны для паттерна \"Distributive Object Types\"?",
+    "type": "multiple",
+    "options": [
+      { "text": "Паттерн { [K in keyof T]: F<K, T[K]> }[keyof T] создаёт union из mapped type", "correct": true },
+      { "text": "Каждый элемент union сохраняет точную связь между ключом и типом значения", "correct": true },
+      { "text": "Результат всегда будет intersection, а не union", "correct": false, "explanation": "Индексация mapped type через [keyof T] создаёт именно union, не intersection. Для intersection потребовался бы UnionToIntersection" },
+      { "text": "Этот паттерн работает только с interface, не с type alias", "correct": false, "explanation": "Паттерн работает одинаково с interface и type alias. Он основан на mapped types и indexed access, которые не зависят от способа объявления типа" }
+    ]
+  },
+  {
+    "question": "Почему в TypedBuilder метод field возвращает новый TypedBuilder<Schema & Record<K, V>>, а не this?",
+    "type": "single",
+    "options": [
+      { "text": "Чтобы тип прогрессивно накапливался — каждый вызов field расширяет Schema на новое поле", "correct": true },
+      { "text": "Потому что this нельзя использовать как возвращаемый тип", "correct": false, "explanation": "В TypeScript this можно использовать как возвращаемый тип. Но при возврате this тип Schema не меняется, и новое поле не добавляется в тип" },
+      { "text": "Для лучшей производительности компилятора", "correct": false, "explanation": "Дело не в производительности, а в типобезопасности. Возврат this не добавляет новое поле в Schema, поэтому build() вернёт неполный тип" },
+      { "text": "Потому что TypeScript не поддерживает мутацию generic-параметров", "correct": false, "explanation": "Это верно, но неполный ответ. Именно потому, что generic нельзя мутировать, мы создаём новый TypedBuilder с расширенным типом через intersection" }
+    ]
+  },
+  {
+    "question": "Для чего используется NoInfer<T> (TypeScript 5.4+)?",
+    "type": "single",
+    "options": [
+      { "text": "Для блокировки вывода типа T из определённой позиции аргумента — T выводится только из других позиций", "correct": true },
+      { "text": "Для запрета использования type inference полностью", "correct": false, "explanation": "NoInfer не запрещает inference полностью — он блокирует вывод только из конкретной позиции. T всё ещё выводится из других аргументов" },
+      { "text": "Для ускорения компиляции за счёт пропуска inference", "correct": false, "explanation": "NoInfer не влияет на скорость компиляции. Его цель — контролировать, из каких позиций аргументов TypeScript выводит тип" },
+      { "text": "Для преобразования infer в never", "correct": false, "explanation": "NoInfer не превращает тип в never. Он просто предотвращает использование этой позиции как источника для вывода типа T" }
+    ]
+  }
+]

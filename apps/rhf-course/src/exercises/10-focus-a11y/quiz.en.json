@@ -1,0 +1,32 @@
+[
+  {
+    "question": "What does the shouldFocusError option in useForm do?",
+    "type": "single",
+    "options": [
+      { "text": "Shows an error message next to the field", "correct": false, "explanation": "shouldFocusError controls focus, not the display of error messages" },
+      { "text": "Automatically focuses the first field with an error on submit", "correct": true },
+      { "text": "Highlights erroneous fields in red", "correct": false, "explanation": "Styling errors is the developer's responsibility, not shouldFocusError's" },
+      { "text": "Prevents form submission when there are errors", "correct": false, "explanation": "Preventing submission is the standard behavior of handleSubmit and is independent of shouldFocusError" }
+    ]
+  },
+  {
+    "question": "Which React Hook Form method is used to programmatically set focus on a field?",
+    "type": "single",
+    "options": [
+      { "text": "focus()", "correct": false, "explanation": "focus() is a DOM element method, not a React Hook Form method" },
+      { "text": "setFocus()", "correct": true },
+      { "text": "focusField()", "correct": false, "explanation": "This method does not exist in RHF — use setFocus()" },
+      { "text": "trigger()", "correct": false, "explanation": "trigger() runs validation, it does not set focus" }
+    ]
+  },
+  {
+    "question": "Which ARIA attributes are important for form field accessibility?",
+    "type": "multiple",
+    "options": [
+      { "text": "aria-invalid — marks a field as invalid", "correct": true },
+      { "text": "aria-describedby — links a field to its error description", "correct": true },
+      { "text": "aria-required — indicates a required field", "correct": true },
+      { "text": "aria-style — styles the field for screen readers", "correct": false, "explanation": "aria-style does not exist — ARIA attributes describe semantics, not styles" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Нужно ли указывать version в docker-compose.yml?",
+    "type": "single",
+    "options": [
+      { "text": "Нет — ключ version устарел в Compose V2 и может быть безопасно удалён", "correct": true },
+      { "text": "Да — без version Compose не запустится", "correct": false, "explanation": "Docker Compose V2 автоматически определяет формат файла. Ключ version игнорируется и является deprecated" },
+      { "text": "Да — version определяет доступные функции", "correct": false, "explanation": "В Compose V2 все функции доступны без указания version. Это было актуально только для устаревшего Compose V1" },
+      { "text": "Нужно указывать version: '4'", "correct": false, "explanation": "Версии 4 не существует. Ключ version вообще устарел в Docker Compose V2" }
+    ]
+  },
+  {
+    "question": "Почему значения ports в docker-compose.yml нужно оборачивать в кавычки?",
+    "type": "single",
+    "options": [
+      { "text": "YAML-парсер может интерпретировать 80:80 как число в формате base-60", "correct": true },
+      { "text": "Без кавычек Compose не поддерживает несколько портов", "correct": false, "explanation": "Compose поддерживает несколько портов и без кавычек, но YAML-парсер может неправильно обработать формат x:y" },
+      { "text": "Кавычки нужны только для UDP-портов", "correct": false, "explanation": "Кавычки рекомендуются для всех портов — и TCP, и UDP. Проблема в парсинге YAML, а не в протоколе" },
+      { "text": "Это просто конвенция, не влияющая на работу", "correct": false, "explanation": "Это не просто конвенция — без кавычек YAML может неправильно распарсить маппинг портов, что приведёт к ошибкам" }
+    ]
+  },
+  {
+    "question": "Что создаёт Docker Compose автоматически при docker compose up?",
+    "type": "multiple",
+    "options": [
+      { "text": "Сеть по умолчанию для проекта (project_default)", "correct": true },
+      { "text": "Контейнеры для всех сервисов", "correct": true },
+      { "text": "Именованные тома, указанные в секции volumes", "correct": true },
+      { "text": "Dockerfile для каждого сервиса", "correct": false, "explanation": "Compose не создаёт Dockerfile. Он использует существующие Dockerfile или готовые образы, указанные в конфигурации" }
+    ]
+  },
+  {
+    "question": "Чем docker compose down отличается от docker compose stop?",
+    "type": "single",
+    "options": [
+      { "text": "down останавливает и удаляет контейнеры и сети, stop только останавливает", "correct": true },
+      { "text": "Разницы нет — обе команды делают одно и то же", "correct": false, "explanation": "stop только останавливает контейнеры, а down удаляет контейнеры, сети, и с флагом -v ещё и тома" },
+      { "text": "down удаляет образы, а stop — только контейнеры", "correct": false, "explanation": "down по умолчанию не удаляет образы (для этого нужен --rmi). Он удаляет контейнеры и сети" },
+      { "text": "stop работает быстрее, чем down", "correct": false, "explanation": "Скорость не является ключевым отличием. Разница в том, что down удаляет ресурсы, а stop — нет" }
+    ]
+  },
+  {
+    "question": "Как Compose различает bind mount от именованного тома в секции volumes?",
+    "type": "single",
+    "options": [
+      { "text": "Путь начинающийся с ./ или / — bind mount, имя без слэша — именованный том", "correct": true },
+      { "text": "Compose не различает — всё создаётся как именованные тома", "correct": false, "explanation": "Compose различает: ./data:/app — bind mount, mydata:/app — именованный том. Формат пути определяет тип" },
+      { "text": "Нужно явно указывать type: bind или type: volume", "correct": false, "explanation": "Это нужно только в длинном синтаксисе. В коротком формате Compose определяет тип по формату пути" },
+      { "text": "Bind mount всегда требует секцию volumes в корне файла", "correct": false, "explanation": "Наоборот: именованные тома требуют объявления в корневой секции volumes, а bind mounts — нет" }
+    ]
+  }
+]

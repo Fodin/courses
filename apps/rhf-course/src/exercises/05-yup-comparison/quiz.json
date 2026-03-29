@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Как подключить Yup-схему к useForm?",
+    "type": "single",
+    "options": [
+      { "text": "useForm({ resolver: yupResolver(schema) })", "correct": true },
+      { "text": "useForm({ resolver: zodResolver(schema) })", "correct": false, "explanation": "zodResolver предназначен для Zod-схем, для Yup используйте yupResolver" },
+      { "text": "useForm({ schema })", "correct": false, "explanation": "useForm не принимает параметр schema напрямую — нужен resolver" },
+      { "text": "useForm({ yup: schema })", "correct": false, "explanation": "Нет параметра yup — все библиотеки валидации подключаются через resolver" }
+    ]
+  },
+  {
+    "question": "Как вывести TypeScript-тип из Yup-схемы?",
+    "type": "single",
+    "options": [
+      { "text": "type FormData = yup.infer<typeof schema>", "correct": false, "explanation": "В Yup метод называется InferType (с заглавной I и T), а не infer" },
+      { "text": "type FormData = yup.InferType<typeof schema>", "correct": true },
+      { "text": "type FormData = typeof schema", "correct": false, "explanation": "typeof schema даст тип самой Yup-схемы, а не данных" },
+      { "text": "type FormData = schema.type()", "correct": false, "explanation": "Такого метода в Yup нет" }
+    ]
+  },
+  {
+    "question": "Какие различия есть между Zod и Yup?",
+    "type": "multiple",
+    "options": [
+      { "text": "Zod создан с TypeScript-first подходом", "correct": true },
+      { "text": "В Yup строки по умолчанию опциональны, в Zod — обязательны", "correct": true },
+      { "text": "Yup использует цепочечный (chained) API", "correct": true },
+      { "text": "Zod не поддерживает async-валидацию", "correct": false, "explanation": "Zod поддерживает async-валидацию через .refine() с async-функцией" }
+    ]
+  },
+  {
+    "question": "Как в Yup проверить, что строка соответствует регулярному выражению?",
+    "type": "single",
+    "options": [
+      { "text": "yup.string().regex(/pattern/)", "correct": false, "explanation": "В Yup метод называется matches(), а не regex()" },
+      { "text": "yup.string().matches(/pattern/, 'Ошибка')", "correct": true },
+      { "text": "yup.string().pattern(/pattern/)", "correct": false, "explanation": "В Yup метод называется matches(), а не pattern()" },
+      { "text": "yup.string().test(/pattern/)", "correct": false, "explanation": "test() принимает функцию, а не RegExp — для RegExp используйте matches()" }
+    ]
+  }
+]

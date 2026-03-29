@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How does use() differ from regular React hooks?",
+    "type": "single",
+    "options": [
+      { "text": "use() can be called inside conditions and loops", "correct": true },
+      { "text": "use() only works in server components", "correct": false, "explanation": "use() works in client components as well. Its main difference is the ability to be called conditionally." },
+      { "text": "use() does not cause a re-render of the component", "correct": false, "explanation": "use() is integrated with Suspense and causes a re-render when the promise resolves." },
+      { "text": "use() replaces all other hooks", "correct": false, "explanation": "use() only works with Promise and Context. useState, useEffect, and other hooks are still needed." }
+    ]
+  },
+  {
+    "question": "What happens if you create a promise inside the component render function and pass it to use()?",
+    "type": "single",
+    "options": [
+      { "text": "The component renders correctly once", "correct": false, "explanation": "Each render creates a new promise, leading to an infinite loop of suspensions." },
+      { "text": "An infinite render loop occurs", "correct": true },
+      { "text": "React throws a compilation error", "correct": false, "explanation": "This is a runtime error, not a compilation error. The compiler cannot track promise stability." },
+      { "text": "The promise is automatically cached by React", "correct": false, "explanation": "React does not cache arbitrary promises. Promise stability is the developer's responsibility." }
+    ]
+  },
+  {
+    "question": "How is a context provider written in React 19?",
+    "type": "single",
+    "options": [
+      { "text": "<ThemeContext.Provider value=\"dark\">", "correct": false, "explanation": "This is the React 18 syntax. In React 19, you can use the simplified syntax without .Provider." },
+      { "text": "<ThemeContext value=\"dark\">", "correct": true },
+      { "text": "<Provider context={ThemeContext} value=\"dark\">", "correct": false, "explanation": "No such API exists. Context is used as a JSX element directly." },
+      { "text": "useProvider(ThemeContext, \"dark\")", "correct": false, "explanation": "The useProvider hook does not exist in React. A provider is a JSX element." }
+    ]
+  },
+  {
+    "question": "What types of values does use() accept?",
+    "type": "multiple",
+    "options": [
+      { "text": "Promise", "correct": true },
+      { "text": "Context", "correct": true },
+      { "text": "Observable", "correct": false, "explanation": "React does not support Observable in use(). Only Promise and Context." },
+      { "text": "Ref", "correct": false, "explanation": "For working with refs, useRef is used, not use()." }
+    ]
+  },
+  {
+    "question": "Which component must be higher in the tree when using use(Promise)?",
+    "type": "single",
+    "options": [
+      { "text": "ErrorBoundary", "correct": false, "explanation": "ErrorBoundary is recommended but not required. Without it, the promise error will bubble up." },
+      { "text": "Suspense", "correct": true },
+      { "text": "StrictMode", "correct": false, "explanation": "StrictMode is a development tool unrelated to use(Promise) functionality." },
+      { "text": "Fragment", "correct": false, "explanation": "Fragment is a wrapper for grouping elements, unrelated to Suspense." }
+    ]
+  }
+]

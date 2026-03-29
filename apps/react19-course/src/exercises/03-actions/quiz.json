@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что получает функция action при передаче в <form action={fn}>?",
+    "type": "single",
+    "options": [
+      { "text": "Объект Event (SyntheticEvent)", "correct": false, "explanation": "В отличие от onSubmit, action получает FormData, а не объект события." },
+      { "text": "FormData со всеми полями формы", "correct": true },
+      { "text": "Объект с ключами — именами полей", "correct": false, "explanation": "Action получает нативный FormData, а не обычный JS-объект. Для доступа к полям используйте formData.get()." },
+      { "text": "Массив значений полей формы", "correct": false, "explanation": "Action получает FormData, а не массив. FormData предоставляет методы get(), getAll(), entries() и др." }
+    ]
+  },
+  {
+    "question": "Какой хук возвращает массив [state, formAction, isPending]?",
+    "type": "single",
+    "options": [
+      { "text": "useFormStatus", "correct": false, "explanation": "useFormStatus возвращает объект { pending, data, method, action } и работает только в дочерних компонентах формы." },
+      { "text": "useActionState", "correct": true },
+      { "text": "useFormState", "correct": false, "explanation": "useFormState — устаревшее имя из canary-версии react-dom. В стабильном React 19 используется useActionState из react." },
+      { "text": "useTransition", "correct": false, "explanation": "useTransition возвращает [isPending, startTransition] и не связан напрямую с формами." }
+    ]
+  },
+  {
+    "question": "Где можно вызывать useFormStatus?",
+    "type": "single",
+    "options": [
+      { "text": "В любом компоненте приложения", "correct": false, "explanation": "useFormStatus читает статус ближайшей родительской формы. Он должен вызываться в компоненте, который является дочерним элементом <form>." },
+      { "text": "В том же компоненте, где объявлена <form>", "correct": false, "explanation": "Это распространённая ошибка. useFormStatus не видит форму в том же компоненте — он ищет родительскую форму в дереве." },
+      { "text": "Только в дочернем компоненте внутри <form>", "correct": true },
+      { "text": "Только в серверных компонентах", "correct": false, "explanation": "useFormStatus — клиентский хук из react-dom, он не работает в серверных компонентах." }
+    ]
+  },
+  {
+    "question": "Какие преимущества Actions дают по сравнению с классическим onSubmit?",
+    "type": "multiple",
+    "options": [
+      { "text": "Не нужен e.preventDefault()", "correct": true },
+      { "text": "Встроенный isPending без отдельного useState", "correct": true },
+      { "text": "Поддержка прогрессивного улучшения (работа без JS)", "correct": true },
+      { "text": "Автоматическая валидация всех полей", "correct": false, "explanation": "Actions не добавляют автоматическую валидацию. Валидацию нужно реализовать в action-функции или использовать нативные HTML-атрибуты." }
+    ]
+  },
+  {
+    "question": "Что происходит с формой после успешного выполнения action?",
+    "type": "single",
+    "options": [
+      { "text": "Форма автоматически сбрасывается (reset)", "correct": true },
+      { "text": "Форма сохраняет все введённые значения", "correct": false, "explanation": "По умолчанию React сбрасывает неуправляемую форму после успешного выполнения action." },
+      { "text": "Форма блокируется для дальнейшего ввода", "correct": false, "explanation": "Форма не блокируется. Она сбрасывается и готова к повторному заполнению." },
+      { "text": "Страница перезагружается", "correct": false, "explanation": "Action обрабатывается React на клиенте без перезагрузки страницы." }
+    ]
+  }
+]

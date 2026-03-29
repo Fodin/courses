@@ -1,0 +1,53 @@
+[
+  {
+    "question": "When is the best time to clear a validation error for a specific field?",
+    "type": "single",
+    "options": [
+      { "text": "When the field value changes (onChange) after the first submit", "correct": true },
+      { "text": "Only on the next submit", "correct": false, "explanation": "Waiting for submit to clear the error confuses the user — they can't tell if the problem is fixed" },
+      { "text": "Immediately on blur (losing focus)", "correct": false, "explanation": "Blur is good for showing errors, but clearing on onChange gives instant feedback" },
+      { "text": "After 3 seconds of display", "correct": false, "explanation": "A timer is not tied to user actions and may hide the error before it's fixed" }
+    ]
+  },
+  {
+    "question": "Which HTTP status code does the server usually return for validation errors?",
+    "type": "single",
+    "options": [
+      { "text": "422 Unprocessable Entity", "correct": true },
+      { "text": "400 Bad Request", "correct": false, "explanation": "400 is used for general request errors, 422 is more specific for validation errors" },
+      { "text": "500 Internal Server Error", "correct": false, "explanation": "500 is a server error, not related to client data validation" },
+      { "text": "404 Not Found", "correct": false, "explanation": "404 means the resource was not found, not related to validation" }
+    ]
+  },
+  {
+    "question": "Which aria attributes are required for form error accessibility?",
+    "type": "multiple",
+    "options": [
+      { "text": "aria-invalid on the field with an error", "correct": true },
+      { "text": "aria-describedby linking the field to the error message", "correct": true },
+      { "text": "role=\"alert\" on the error message", "correct": true },
+      { "text": "aria-hidden on the error message", "correct": false, "explanation": "aria-hidden would hide the message from screen readers — the opposite of what's needed" },
+      { "text": "aria-disabled on the field with an error", "correct": false, "explanation": "aria-disabled would make the field inaccessible, but the user needs to fix the input" }
+    ]
+  },
+  {
+    "question": "What should be done on form submit if there are validation errors?",
+    "type": "single",
+    "options": [
+      { "text": "Focus the first errored field", "correct": true },
+      { "text": "Disable all form fields", "correct": false, "explanation": "Disabling fields prevents the user from fixing the errors" },
+      { "text": "Automatically clear all errored fields", "correct": false, "explanation": "Clearing fields removes user data that may be partially correct" },
+      { "text": "Show an alert() with a list of errors", "correct": false, "explanation": "alert() blocks the interface and doesn't let the user see the error context" }
+    ]
+  },
+  {
+    "question": "Why is it important to clear server errors before resubmitting a form?",
+    "type": "single",
+    "options": [
+      { "text": "Old server errors will display alongside the new response, confusing the user", "correct": true },
+      { "text": "The server won't accept the request if old errors aren't cleared", "correct": false, "explanation": "The server is unaware of the error state on the client" },
+      { "text": "React will throw an error when storing old and new errors simultaneously", "correct": false, "explanation": "React doesn't track form error logic — that's the developer's responsibility" },
+      { "text": "Clearing errors speeds up form submission", "correct": false, "explanation": "Clearing errors doesn't affect submission speed — it's a UI correctness issue" }
+    ]
+  }
+]

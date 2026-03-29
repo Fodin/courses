@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Как представить число 5 на уровне типов TypeScript для арифметических операций?",
+    "type": "single",
+    "options": [
+      { "text": "Как кортеж длины 5: [unknown, unknown, unknown, unknown, unknown]", "correct": true },
+      { "text": "Как литеральный тип 5", "correct": false, "explanation": "Литеральный тип 5 — это просто тип-константа. Для арифметики нужно представление, с которым можно выполнять операции (конкатенация, деструктуризация). Кортежи это позволяют через spread и infer" },
+      { "text": "Как enum с 5 значениями", "correct": false, "explanation": "Enum — это конструкция времени выполнения, а не инструмент для type-level вычислений. Кортежи позволяют использовать spread (...) для сложения и infer для вычитания" },
+      { "text": "Как рекурсивный тип Succ<Succ<Succ<Succ<Succ<Zero>>>>>", "correct": false, "explanation": "Хотя это классический Peano-подход, в TypeScript он непрактичен из-за сложности извлечения числового литерала. Кортежи позволяют получить число через T['length']" }
+    ]
+  },
+  {
+    "question": "Почему type Add<A, B> = [...BuildTuple<A>, ...BuildTuple<B>]['length'] может не вернуть литеральный тип числа?",
+    "type": "single",
+    "options": [
+      { "text": "Потому что без infer extends результат T['length'] может быть типом number вместо литерала", "correct": true },
+      { "text": "Потому что spread не работает с кортежами", "correct": false, "explanation": "Spread отлично работает с кортежами в TypeScript. Проблема именно в том, что ['length'] без дополнительной обработки может вернуть расширенный тип number" },
+      { "text": "Потому что TypeScript не поддерживает арифметику с типами", "correct": false, "explanation": "TypeScript поддерживает type-level арифметику через кортежи. Проблема в конкретном синтаксисе — нужно использовать infer extends number для сужения результата" },
+      { "text": "Потому что BuildTuple возвращает never для больших чисел", "correct": false, "explanation": "BuildTuple работает для чисел до ~999. Проблема не в BuildTuple, а в том, как TypeScript обрабатывает indexed access ['length']" }
+    ]
+  },
+  {
+    "question": "Какие из следующих type-level операций со строками корректны?",
+    "type": "multiple",
+    "options": [
+      { "text": "type Split<S, D> = S extends `${infer H}${D}${infer T}` ? [H, ...Split<T, D>] : [S]", "correct": true },
+      { "text": "type Trim<S> = S extends `${' '}${infer R}` ? Trim<R> : S", "correct": true },
+      { "text": "type Replace<S, F, T> = S extends `${infer A}${F}${infer B}` ? `${A}${T}${B}` : S", "correct": true },
+      { "text": "type Length<S> = S['length']", "correct": false, "explanation": "S['length'] для строкового литерального типа вернёт тип number, а не конкретное число. Для получения длины строки на уровне типов нужна рекурсивная конвертация в кортеж" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при type Match<42, [PatternCase<_, 'default'>, PatternCase<42, 'found'>]>?",
+    "type": "single",
+    "options": [
+      { "text": "Результат будет 'default', потому что wildcard _ стоит первым и матчит всё", "correct": true },
+      { "text": "Результат будет 'found', потому что точное совпадение имеет приоритет", "correct": false, "explanation": "В type-level pattern matching порядок паттернов важен. Match проверяет паттерны слева направо (как switch без break), поэтому wildcard _ первым перехватит любое значение" },
+      { "text": "Будет ошибка компиляции", "correct": false, "explanation": "Код скомпилируется без ошибок, просто wildcard-паттерн перехватит значение раньше точного совпадения" },
+      { "text": "Результат будет never", "correct": false, "explanation": "Wildcard-паттерн _ матчит любое значение, поэтому результат будет 'default', а не never" }
+    ]
+  },
+  {
+    "question": "Какой максимальный уровень рекурсии поддерживает TypeScript для type-level вычислений?",
+    "type": "single",
+    "options": [
+      { "text": "Примерно 999 уровней (зависит от версии TypeScript)", "correct": true },
+      { "text": "Без ограничений — TypeScript развернёт любую рекурсию", "correct": false, "explanation": "TypeScript имеет жёсткое ограничение на глубину рекурсии типов для предотвращения бесконечных вычислений и зависания компилятора" },
+      { "text": "Ровно 50 уровней", "correct": false, "explanation": "50 уровней — это ограничение для conditional types в старых версиях. Современный TypeScript поддерживает значительно большую глубину рекурсии" },
+      { "text": "Ровно 100 уровней", "correct": false, "explanation": "Реальный лимит значительно выше — около 999 уровней, хотя точное значение зависит от версии TypeScript и сложности типов" }
+    ]
+  }
+]

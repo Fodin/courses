@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What happens if you forget await before calling an async function inside try/catch?",
+    "type": "single",
+    "options": [
+      { "text": "catch won't catch the promise error — it becomes an UnhandledPromiseRejection", "correct": true },
+      { "text": "catch will catch the error, but with a delay", "correct": false, "explanation": "Without await, the promise is not connected to try/catch — the error bypasses catch entirely" },
+      { "text": "TypeScript won't compile code without await", "correct": false, "explanation": "TypeScript allows calling async functions without await, though it may show a warning" },
+      { "text": "The function will return undefined instead of the result", "correct": false, "explanation": "The function will return a Promise, not undefined, but the main problem is that catch won't intercept the error" }
+    ]
+  },
+  {
+    "question": "When does the finally block execute when using async/await?",
+    "type": "single",
+    "options": [
+      { "text": "Always — both after successful execution and after an error", "correct": true },
+      { "text": "Only after successful try execution", "correct": false, "explanation": "finally executes always, regardless of whether an error occurred" },
+      { "text": "Only if catch didn't rethrow the error", "correct": false, "explanation": "finally executes even if catch rethrows the error via throw" },
+      { "text": "Only if the promise was resolved", "correct": false, "explanation": "finally doesn't depend on the promise state — it will execute regardless" }
+    ]
+  },
+  {
+    "question": "What is the retry pattern and why is it needed?",
+    "type": "single",
+    "options": [
+      { "text": "Automatic operation retry on error with a delay between attempts", "correct": true },
+      { "text": "A pattern for cancelling the previous request before a new one", "correct": false, "explanation": "Request cancellation is the AbortController pattern, not retry" },
+      { "text": "A way to cache results of failed requests", "correct": false, "explanation": "Retry repeats the request, it doesn't cache failed results" },
+      { "text": "A mechanism to revert to the previous state on error", "correct": false, "explanation": "That describes rollback/undo, not retry" }
+    ]
+  },
+  {
+    "question": "Why is it bad to silently return null from an async function on error?",
+    "type": "multiple",
+    "options": [
+      { "text": "The calling code can't distinguish 'no data' from 'an error occurred'", "correct": true },
+      { "text": "It leads to cascading Cannot read properties of null errors", "correct": true },
+      { "text": "It's impossible to show the user an adequate error message", "correct": true },
+      { "text": "null cannot be returned from an async function", "correct": false, "explanation": "Technically null can be returned, but it's an anti-pattern that hides error information" }
+    ]
+  },
+  {
+    "question": "What is the advantage of exponential backoff over a fixed delay?",
+    "type": "single",
+    "options": [
+      { "text": "It reduces server load by increasing the pause between attempts", "correct": true },
+      { "text": "It guarantees the request will eventually succeed", "correct": false, "explanation": "No retry strategy guarantees success — the server may be unavailable for a long time" },
+      { "text": "It works faster than a fixed delay", "correct": false, "explanation": "Exponential delay increases with each attempt, so total wait time is longer" },
+      { "text": "It allows an infinite number of attempts", "correct": false, "explanation": "The number of attempts is still limited by the maxAttempts parameter" }
+    ]
+  }
+]

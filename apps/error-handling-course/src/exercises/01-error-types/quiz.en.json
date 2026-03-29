@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What error will occur when executing null.toString()?",
+    "type": "single",
+    "options": [
+      { "text": "TypeError", "correct": true },
+      { "text": "ReferenceError", "correct": false, "explanation": "ReferenceError occurs when accessing an undeclared variable, and null is a value, not a variable" },
+      { "text": "SyntaxError", "correct": false, "explanation": "SyntaxError occurs when parsing code with incorrect syntax, not when calling a method" },
+      { "text": "RangeError", "correct": false, "explanation": "RangeError occurs when numeric values are outside an allowed range" }
+    ]
+  },
+  {
+    "question": "What must you do when creating a custom Error class?",
+    "type": "multiple",
+    "options": [
+      { "text": "Call super(message) in the constructor", "correct": true },
+      { "text": "Set this.name", "correct": true },
+      { "text": "Extend Error", "correct": true },
+      { "text": "Define a toString() method", "correct": false, "explanation": "The toString() method is inherited from Error and uses name and message automatically" },
+      { "text": "Define a code property", "correct": false, "explanation": "The code property is an optional addition, not a mandatory requirement" }
+    ]
+  },
+  {
+    "question": "Why is checking error.name === 'ValidationError' worse than error instanceof ValidationError?",
+    "type": "multiple",
+    "options": [
+      { "text": "A typo in the string won't cause a compilation error", "correct": true },
+      { "text": "It doesn't check the inheritance chain", "correct": true },
+      { "text": "Refactoring the class name won't be caught by TypeScript", "correct": true },
+      { "text": "String comparison is slower", "correct": false, "explanation": "Performance is not the main concern here — the key issue is reliability and type safety" }
+    ]
+  },
+  {
+    "question": "What does the cause property (ES2022) do in an Error object?",
+    "type": "single",
+    "options": [
+      { "text": "Stores the original error that caused the current one", "correct": true },
+      { "text": "Automatically logs the error cause to the console", "correct": false, "explanation": "cause simply stores a reference to the original error, logging must be done manually" },
+      { "text": "Replaces the new error's stack trace with the original's", "correct": false, "explanation": "cause does not replace the stack — both errors retain their stack traces" },
+      { "text": "Prevents the error from propagating up the stack", "correct": false, "explanation": "cause does not affect error propagation — it still bubbles up" }
+    ]
+  },
+  {
+    "question": "What are type guards used for when working with errors in TypeScript?",
+    "type": "single",
+    "options": [
+      { "text": "To safely narrow the unknown type in a catch block", "correct": true },
+      { "text": "To automatically convert the error to the needed type", "correct": false, "explanation": "Type guards don't convert values — they only narrow the type for the compiler" },
+      { "text": "To prevent errors from occurring", "correct": false, "explanation": "Type guards don't prevent errors — they help safely work with already caught errors" },
+      { "text": "To replace try/catch with a safer construct", "correct": false, "explanation": "Type guards complement try/catch, they don't replace it" }
+    ]
+  }
+]

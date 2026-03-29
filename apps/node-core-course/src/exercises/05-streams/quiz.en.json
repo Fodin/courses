@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What happens if you don't check the return value of writable.write()?",
+    "type": "single",
+    "options": [
+      { "text": "Data accumulates in memory, potentially causing OOM crash", "correct": true },
+      { "text": "Node.js automatically pauses the readable", "correct": false, "explanation": "Automatic pausing only works when using pipe() or pipeline(). With manual write() calls, you must check the return value and call pause() yourself" },
+      { "text": "write() throws an exception", "correct": false, "explanation": "write() never throws on buffer overflow — it returns false. The data will still be written, but the buffer will grow uncontrollably" },
+      { "text": "Data will be lost", "correct": false, "explanation": "Data is not lost — it all goes into the Writable stream buffer. The problem is the buffer grows without limits and can exhaust memory" }
+    ]
+  },
+  {
+    "question": "Which way of reading a Readable Stream is recommended in modern Node.js?",
+    "type": "single",
+    "options": [
+      { "text": "for await (const chunk of readable)", "correct": true },
+      { "text": "readable.on('data', callback)", "correct": false, "explanation": "The data event works, but async iterator automatically handles end, error, and backpressure. It's a cleaner and safer approach" },
+      { "text": "readable.on('readable', () => readable.read())", "correct": false, "explanation": "Paused mode with read() gives full control, but in most cases async iterator is simpler and safer" },
+      { "text": "readable.pipe(writable)", "correct": false, "explanation": "pipe() is convenient for redirecting to a Writable, but for data processing async iterator is preferable" }
+    ]
+  },
+  {
+    "question": "How does pipeline() differ from pipe()?",
+    "type": "multiple",
+    "options": [
+      { "text": "pipeline() automatically destroys all streams on error", "correct": true },
+      { "text": "pipeline() supports AbortSignal for cancellation", "correct": true },
+      { "text": "pipeline() has callback/promise API for tracking completion", "correct": true },
+      { "text": "pipeline() is faster than pipe()", "correct": false, "explanation": "Data transfer speed is the same. pipeline() adds safety (error handling, stream destruction), not performance" }
+    ]
+  },
+  {
+    "question": "What is objectMode for in a Transform stream?",
+    "type": "single",
+    "options": [
+      { "text": "To pass JS objects instead of Buffer/string through the stream", "correct": true },
+      { "text": "To automatically serialize objects to JSON", "correct": false, "explanation": "objectMode doesn't serialize data — it simply allows push() and read() to work with arbitrary JS objects instead of Buffer" },
+      { "text": "To improve performance when working with objects", "correct": false, "explanation": "objectMode doesn't affect performance. It changes the data type in the stream: JS objects instead of Buffer/string" },
+      { "text": "To automatically validate data", "correct": false, "explanation": "objectMode doesn't add validation. It only allows passing arbitrary JS values through the stream" }
+    ]
+  },
+  {
+    "question": "What do cork() and uncork() do in a Writable stream?",
+    "type": "single",
+    "options": [
+      { "text": "cork() buffers all write() calls in memory, uncork() sends everything in a single system call", "correct": true },
+      { "text": "cork() pauses the stream, uncork() resumes it", "correct": false, "explanation": "cork/uncork is a write optimization (batching), not flow control. For pause/resume, use pause()/resume()" },
+      { "text": "cork() encrypts data, uncork() decrypts it", "correct": false, "explanation": "cork/uncork have nothing to do with encryption. For encryption, use crypto.createCipheriv()" },
+      { "text": "cork() compresses data, uncork() decompresses it", "correct": false, "explanation": "cork/uncork have nothing to do with compression. For compression, use zlib (createGzip, createDeflate)" }
+    ]
+  }
+]

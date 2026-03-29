@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Что нового в startTransition в React 19 по сравнению с React 18?",
+    "type": "single",
+    "options": [
+      { "text": "startTransition теперь принимает async-функции", "correct": true },
+      { "text": "startTransition стал синхронным", "correct": false, "explanation": "Наоборот, startTransition расширен для поддержки асинхронности. В React 18 он принимал только синхронные функции." },
+      { "text": "startTransition удалён и заменён на useDeferredValue", "correct": false, "explanation": "startTransition не удалён. Он и useDeferredValue решают разные задачи и используются совместно." },
+      { "text": "startTransition теперь возвращает Promise", "correct": false, "explanation": "startTransition не возвращает Promise. isPending из useTransition отслеживает статус перехода." }
+    ]
+  },
+  {
+    "question": "Какой новый параметр получил useDeferredValue в React 19?",
+    "type": "single",
+    "options": [
+      { "text": "timeout — максимальное время ожидания", "correct": false, "explanation": "useDeferredValue не принимает timeout. React автоматически адаптирует задержку под устройство." },
+      { "text": "initialValue — начальное значение для первого рендера", "correct": true },
+      { "text": "priority — уровень приоритета обновления", "correct": false, "explanation": "Приоритет управляется React автоматически, его нельзя задать вручную." },
+      { "text": "compareFn — функция сравнения значений", "correct": false, "explanation": "useDeferredValue не принимает функцию сравнения. Он работает с любыми значениями автоматически." }
+    ]
+  },
+  {
+    "question": "Как ведёт себя Suspense fallback при навигации через useTransition?",
+    "type": "single",
+    "options": [
+      { "text": "Fallback показывается при каждом переходе", "correct": false, "explanation": "При переходе через transition старый контент остаётся видимым с isPending, fallback не мерцает." },
+      { "text": "Fallback показывается только при первой загрузке, при переходах остаётся старый контент", "correct": true },
+      { "text": "Fallback полностью отключается", "correct": false, "explanation": "Fallback не отключается, он показывается при первой загрузке. Но при последующих переходах используется isPending." },
+      { "text": "Fallback заменяется на индикатор isPending", "correct": false, "explanation": "Fallback и isPending работают в разных сценариях: fallback — для первой загрузки, isPending — для переходов." }
+    ]
+  },
+  {
+    "question": "Чем useDeferredValue отличается от debounce?",
+    "type": "multiple",
+    "options": [
+      { "text": "useDeferredValue адаптивен к производительности устройства", "correct": true },
+      { "text": "useDeferredValue работает на уровне рендеринга, а не событий", "correct": true },
+      { "text": "useDeferredValue является прерываемым (concurrent)", "correct": true },
+      { "text": "useDeferredValue всегда быстрее debounce", "correct": false, "explanation": "useDeferredValue не всегда быстрее. Его преимущество — адаптивность и интеграция с React concurrent mode, а не абсолютная скорость." }
+    ]
+  },
+  {
+    "question": "Что означает isPending === true при использовании useTransition с async-функцией?",
+    "type": "single",
+    "options": [
+      { "text": "Только синхронная часть transition ещё выполняется", "correct": false, "explanation": "В React 19 isPending остаётся true на протяжении всей async-операции, включая ожидание промисов." },
+      { "text": "Async-функция в startTransition ещё не завершилась", "correct": true },
+      { "text": "Компонент ожидает монтирования", "correct": false, "explanation": "isPending относится к текущему transition, а не к жизненному циклу компонента." },
+      { "text": "Произошла ошибка во время transition", "correct": false, "explanation": "isPending не сигнализирует об ошибках. При ошибке isPending становится false, и ошибка обрабатывается ErrorBoundary." }
+    ]
+  }
+]

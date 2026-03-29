@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why do parameterized queries ($1, $2) protect against SQL injection while template strings don't?",
+    "type": "single",
+    "options": [
+      { "text": "Parameters are passed separately from SQL -- the driver escapes them at the protocol level, not inserting them into the query string", "correct": true },
+      { "text": "Parameterized queries encrypt values before inserting into SQL", "correct": false, "explanation": "Values aren't encrypted -- they're passed separately via the PostgreSQL protocol. The DB receives the SQL template and values separately, so values are never interpreted as SQL code" },
+      { "text": "Template strings (${ }) automatically escape quotes", "correct": false, "explanation": "Template strings DON'T escape anything -- they simply substitute the value. If userInput = \"'; DROP TABLE users; --\", it becomes part of the SQL code" },
+      { "text": "Parameters only work with PostgreSQL, other DBs need a different approach", "correct": false, "explanation": "Parameterized queries are supported by all SQL databases (MySQL -- ?, SQLite -- ?, MSSQL -- @param). This is standard SQL injection protection" }
+    ]
+  },
+  {
+    "question": "Why call client.release() in the finally block after a pg transaction?",
+    "type": "single",
+    "options": [
+      { "text": "To return the connection to the pool -- without release() the connection leaks and the pool gets exhausted", "correct": true },
+      { "text": "To close the PostgreSQL connection", "correct": false, "explanation": "release() doesn't close the connection -- it returns it to the pool for reuse. Without release(), the connection is considered busy, and new queries wait for a free connection" },
+      { "text": "To automatically execute COMMIT", "correct": false, "explanation": "release() doesn't execute COMMIT -- you must explicitly call client.query('COMMIT'). release() only returns the connection to the pool. Without COMMIT, the transaction will be rolled back" },
+      { "text": "finally isn't needed -- pg automatically frees connections", "correct": false, "explanation": "pg does NOT free connections automatically on errors. finally guarantees release() even on errors, preventing connection pool leaks" }
+    ]
+  },
+  {
+    "question": "What formula is used to calculate the optimal connection pool size?",
+    "type": "single",
+    "options": [
+      { "text": "(cpu_cores * 2) + disk_spindles -- for SSD on a 4-core CPU, this is about 10 connections", "correct": true },
+      { "text": "Number of concurrent HTTP requests * 2", "correct": false, "explanation": "Tying to HTTP requests is a common mistake. The pool should be small: most queries wait on I/O, not CPU. The (cores*2)+spindles formula is optimal for PostgreSQL" },
+      { "text": "100 connections by default -- sufficient for any project", "correct": false, "explanation": "100 is too many for most projects. Each connection consumes ~10 MB RAM in PostgreSQL. The (cores*2)+spindles formula usually gives 10-20 connections" },
+      { "text": "1 connection per application user", "correct": false, "explanation": "This would lead to thousands of connections, killing the DB. Connection pooling exists so a small number of connections serves many users through multiplexing" }
+    ]
+  },
+  {
+    "question": "How do you prevent deadlocks in concurrent transactions?",
+    "type": "single",
+    "options": [
+      { "text": "Always lock resources in the same order -- sort IDs before SELECT FOR UPDATE", "correct": true },
+      { "text": "Use READ UNCOMMITTED isolation level", "correct": false, "explanation": "READ UNCOMMITTED doesn't prevent deadlocks -- it lowers isolation, creating other problems (dirty reads). Deadlocks are prevented by lock ordering" },
+      { "text": "Increase lock_timeout in PostgreSQL", "correct": false, "explanation": "lock_timeout is the wait time for a lock, not deadlock prevention. It helps avoid hanging forever, but the deadlock still occurs. The solution is lock ordering" },
+      { "text": "Disable transactions and use individual queries", "correct": false, "explanation": "Without transactions, data can become inconsistent (money debited but not credited). Deadlocks are prevented by resource sorting, not abandoning transactions" }
+    ]
+  },
+  {
+    "question": "What are Prisma's advantages over raw SQL and Knex?",
+    "type": "multiple",
+    "options": [
+      { "text": "Full typing: TypeScript knows all field types and relations from schema.prisma", "correct": true },
+      { "text": "Automatic migration generation from declarative schema", "correct": true },
+      { "text": "Prisma always generates faster SQL than manual queries", "correct": false, "explanation": "Prisma can generate suboptimal SQL for complex cases. Raw SQL always gives full control. Prisma's advantage is DX and type safety, not performance" },
+      { "text": "Include and select for loading relations and choosing fields", "correct": true }
+    ]
+  }
+]

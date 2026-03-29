@@ -1,0 +1,52 @@
+[
+  {
+    "question": "When does a computed value recalculate?",
+    "type": "single",
+    "options": [
+      { "text": "Lazily: only when accessed, if dependencies have changed", "correct": true },
+      { "text": "Immediately after any observable change in the store", "correct": false, "explanation": "Computed recalculates lazily — only when someone accesses its value. If nobody reads the computed, there's no recalculation even if dependencies changed." },
+      { "text": "On a timer every 100ms", "correct": false, "explanation": "MobX doesn't use polling. Computed recalculates only on access when dependencies are marked as changed." },
+      { "text": "On every React component re-render", "correct": false, "explanation": "Computed is cached and independent of React re-renders. Recalculation happens only when dependent observables change." }
+    ]
+  },
+  {
+    "question": "What is comparer.structural used for in computed?",
+    "type": "single",
+    "options": [
+      { "text": "To compare results by content instead of reference, avoiding unnecessary re-renders", "correct": true },
+      { "text": "To speed up computed calculations", "correct": false, "explanation": "comparer.structural doesn't speed up calculations — it determines how new and old values are compared. If the content hasn't changed, subscribers won't be notified." },
+      { "text": "To convert computed into an observable", "correct": false, "explanation": "comparer doesn't change the value type. It determines whether the new value is considered different from the old one." },
+      { "text": "To deep-clone the computed result", "correct": false, "explanation": "comparer doesn't clone data. It compares the new result with the old one: if they're structurally equal, subscribers aren't notified." }
+    ]
+  },
+  {
+    "question": "Why shouldn't you perform side effects (localStorage, fetch) inside computed?",
+    "type": "single",
+    "options": [
+      { "text": "Computed must be a pure function — side effects are unpredictable due to lazy and cached recalculation", "correct": true },
+      { "text": "MobX will throw an error on side effects in computed", "correct": false, "explanation": "MobX doesn't check for side effects — the code will run, but the result will be unpredictable. The side effect executes only on computed access, not on every dependency change." },
+      { "text": "Computed doesn't have access to window and global APIs", "correct": false, "explanation": "Computed is a regular JavaScript function with access to all APIs. But side effects in it are an anti-pattern due to unpredictable execution timing." },
+      { "text": "Side effects in computed slow down React", "correct": false, "explanation": "The issue isn't speed but unpredictability: computed recalculates lazily and is cached, so the side effect might not execute when you expect." }
+    ]
+  },
+  {
+    "question": "What happens in a computed chain if only taxRate changes while items remain the same?",
+    "type": "multiple",
+    "options": [
+      { "text": "tax will recalculate (depends on taxRate)", "correct": true },
+      { "text": "total will recalculate (depends on tax)", "correct": true },
+      { "text": "subtotal will NOT recalculate (doesn't depend on taxRate)", "correct": true },
+      { "text": "All computed values recalculate because they're linked in a chain", "correct": false, "explanation": "MobX tracks dependencies precisely. subtotal depends only on items — if items haven't changed, subtotal doesn't recalculate, even if it's part of the chain." }
+    ]
+  },
+  {
+    "question": "What's the danger of using keepAlive: true in computed?",
+    "type": "single",
+    "options": [
+      { "text": "It can cause memory leaks if the store is long-lived and computed holds references to large data structures", "correct": true },
+      { "text": "Computed stops being cached", "correct": false, "explanation": "On the contrary: keepAlive: true enhances caching — the cache is preserved even without subscribers." },
+      { "text": "Computed recalculates on every access", "correct": false, "explanation": "keepAlive doesn't cancel caching. Computed still recalculates only when dependencies change." },
+      { "text": "It's impossible to remove the store from memory", "correct": false, "explanation": "The store can be removed, but keepAlive computed maintains subscriptions to dependencies even without observers, which can delay garbage collection for related data." }
+    ]
+  }
+]

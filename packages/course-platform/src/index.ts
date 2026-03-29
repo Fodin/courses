@@ -2,7 +2,7 @@
 export { CoursePlatform } from './CoursePlatform'
 
 // Types
-export type { CourseConfig, LevelConfig, TaskEntry, Language, Translations } from './types'
+export type { CourseConfig, LevelConfig, TaskEntry, Language, Translations, QuizQuestion, QuizOption } from './types'
 
 // Config helper
 export { task } from './helpers'

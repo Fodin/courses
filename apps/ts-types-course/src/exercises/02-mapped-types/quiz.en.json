@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does the -? modifier do in a mapped type: { [K in keyof T]-?: T[K] }?",
+    "type": "single",
+    "options": [
+      { "text": "Removes the optional modifier (?), making all properties required", "correct": true },
+      { "text": "Adds the optional modifier, making all properties optional", "correct": false, "explanation": "The minus sign (-) before ? means removing the modifier. To add it, just use ? without the minus" },
+      { "text": "Removes undefined from the value type", "correct": false, "explanation": "-? removes the syntactic optionality modifier, not the undefined type from the value. Although the result is similar, the mechanism is different" },
+      { "text": "Deletes properties whose value is undefined", "correct": false, "explanation": "-? doesn't filter properties — it transforms all keys by removing their optionality" }
+    ]
+  },
+  {
+    "question": "How does key remapping via as work in: [K in keyof T as `get${Capitalize<K & string>}`]?",
+    "type": "single",
+    "options": [
+      { "text": "Renames each key by adding a get prefix and capitalizing the first letter", "correct": true },
+      { "text": "Filters keys, keeping only those starting with get", "correct": false, "explanation": "The as clause transforms keys, it doesn't filter them. Filtering only happens when as resolves to never" },
+      { "text": "Creates additional keys while preserving the originals", "correct": false, "explanation": "The as clause replaces keys, it doesn't add new ones. Original keys are not preserved in the resulting type" },
+      { "text": "Adds a runtime get method for each property", "correct": false, "explanation": "Mapped types work exclusively at the type level. They don't create runtime code or methods" }
+    ]
+  },
+  {
+    "question": "Why is it important to check T[K] extends unknown[] when creating DeepPartial?",
+    "type": "single",
+    "options": [
+      { "text": "Without the check, arrays will be unwrapped as objects with numeric keys (0?, 1?, length?, etc.)", "correct": true },
+      { "text": "Arrays don't support recursive types", "correct": false, "explanation": "Arrays do support recursive types. The problem is that Array extends object = true, and without the check, the mapped type processes the array as an object" },
+      { "text": "TypeScript will throw a compile error when recursing into an array", "correct": false, "explanation": "There won't be a compile error — the array will simply lose its type and turn into an object with numeric keys" },
+      { "text": "Arrays don't have keyof", "correct": false, "explanation": "Arrays do have keyof — it's a union of numeric indices and methods (push, pop, length, etc.). That's exactly why a mapped type would unwrap the array as an object" }
+    ]
+  },
+  {
+    "question": "Which of the following mapped types are homomorphic (preserving modifiers from the source type)?",
+    "type": "multiple",
+    "options": [
+      { "text": "{ [K in keyof T]: T[K] } — iterating via keyof T", "correct": true },
+      { "text": "{ readonly [K in keyof T]: T[K] } — adding readonly", "correct": true },
+      { "text": "{ [K in 'a' | 'b']: string } — iterating over a literal union", "correct": false, "explanation": "This is not a homomorphic mapped type since iteration goes over an explicit union, not keyof T. Homomorphism requires a connection to the source type via keyof" },
+      { "text": "{ [K in keyof T as `get${K & string}`]: T[K] } — with key remapping", "correct": false, "explanation": "Key remapping via as breaks homomorphism. Modifiers from the source type (readonly, optional) are not carried over when using an as clause" }
+    ]
+  },
+  {
+    "question": "What happens if the as expression resolves to never?",
+    "type": "single",
+    "options": [
+      { "text": "The key is excluded from the resulting type", "correct": true },
+      { "text": "The value at that key becomes never", "correct": false, "explanation": "When as resolves to never, the entire key is skipped, not just its value. This is the primary mechanism for filtering keys in mapped types" },
+      { "text": "A compile error occurs", "correct": false, "explanation": "never in the as position is a standard TypeScript mechanism for filtering keys, not an error" },
+      { "text": "The key remains with type unknown", "correct": false, "explanation": "never in the as position means complete exclusion of the key, not replacing the type with unknown" }
+    ]
+  }
+]

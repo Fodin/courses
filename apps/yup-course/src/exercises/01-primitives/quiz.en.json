@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What happens when calling yup.number().validate('42')?",
+    "type": "single",
+    "options": [
+      { "text": "Validation error — a string is not a number", "correct": false, "explanation": "Yup coerces types by default: the string '42' will be converted to the number 42" },
+      { "text": "Returns the number 42 (after type coercion)", "correct": true },
+      { "text": "Returns the string '42' unchanged", "correct": false, "explanation": "number() coerces strings to numbers via parseFloat, so the result will be the number 42" },
+      { "text": "Returns NaN", "correct": false, "explanation": "NaN results from unparseable strings like 'abc'. The string '42' is correctly parsed to a number" }
+    ]
+  },
+  {
+    "question": "What is the difference between nullable() and optional() in Yup?",
+    "type": "single",
+    "options": [
+      { "text": "nullable() allows null, optional() allows undefined", "correct": true },
+      { "text": "They are synonyms — both allow null and undefined", "correct": false, "explanation": "They are different methods: nullable() adds null to the type, optional() adds undefined" },
+      { "text": "nullable() cancels required(), optional() does not", "correct": false, "explanation": "Neither cancels required(). nullable() affects null acceptability, optional() affects undefined" },
+      { "text": "optional() allows empty strings, nullable() does not", "correct": false, "explanation": "Empty strings are not related to nullable() or optional(). Empty strings are rejected by required()" }
+    ]
+  },
+  {
+    "question": "What does yup.string().default('Guest').cast(undefined) return?",
+    "type": "single",
+    "options": [
+      { "text": "undefined", "correct": false, "explanation": "default() replaces undefined with the specified value during cast" },
+      { "text": "'Guest'", "correct": true },
+      { "text": "null", "correct": false, "explanation": "default() substitutes the default value instead of undefined" },
+      { "text": "Validation error", "correct": false, "explanation": "cast() does not perform validation, it only transforms data" }
+    ]
+  },
+  {
+    "question": "Which values will the schema yup.string().required() reject?",
+    "type": "multiple",
+    "options": [
+      { "text": "undefined", "correct": true },
+      { "text": "null", "correct": true },
+      { "text": "Empty string ''", "correct": true },
+      { "text": "String of spaces '   '", "correct": false, "explanation": "required() does not consider a string of spaces as empty. It passes validation since it's a non-empty string" },
+      { "text": "Number 0", "correct": false, "explanation": "Number 0 will be coerced to string '0' and pass validation since '0' is a non-empty string" }
+    ]
+  },
+  {
+    "question": "How does defined() differ from required()?",
+    "type": "single",
+    "options": [
+      { "text": "defined() only forbids undefined, while required() forbids undefined, null, and empty strings", "correct": true },
+      { "text": "They work the same way", "correct": false, "explanation": "required() is stricter: it rejects undefined, null, and empty strings. defined() only rejects undefined" },
+      { "text": "defined() only works with TypeScript, required() works with both", "correct": false, "explanation": "Both methods work at runtime and affect validation. defined() only checks for the presence of a value (not undefined)" },
+      { "text": "required() is used for form fields, defined() for APIs", "correct": false, "explanation": "Both methods can be used in any context. The difference is which values they reject" }
+    ]
+  }
+]

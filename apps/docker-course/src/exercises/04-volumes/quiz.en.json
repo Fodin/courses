@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Which mount type is recommended for storing database data in production?",
+    "type": "single",
+    "options": [
+      { "text": "Named volumes", "correct": true },
+      { "text": "Bind mounts", "correct": false, "explanation": "Bind mounts are tied to specific host paths and are recommended for development, not production data" },
+      { "text": "tmpfs", "correct": false, "explanation": "tmpfs stores data only in RAM — all data is lost when the container stops" },
+      { "text": "Writing to the container's writable layer", "correct": false, "explanation": "Data in the writable layer is lost when the container is removed. Not suitable for persistent data" }
+    ]
+  },
+  {
+    "question": "How does -v differ from --mount syntax?",
+    "type": "multiple",
+    "options": [
+      { "text": "--mount is more explicit and self-documenting", "correct": true },
+      { "text": "--mount returns an error if the path doesn't exist, while -v silently creates a directory", "correct": true },
+      { "text": "-v doesn't support named volumes", "correct": false, "explanation": "-v supports both named volumes (-v mydata:/data) and bind mounts (-v /host/path:/container/path)" },
+      { "text": "--mount is recommended for scripts and CI/CD", "correct": true }
+    ]
+  },
+  {
+    "question": "What is tmpfs mounting used for?",
+    "type": "multiple",
+    "options": [
+      { "text": "Storing secrets that shouldn't be written to disk", "correct": true },
+      { "text": "Temporary files with high I/O speed", "correct": true },
+      { "text": "Long-term database storage", "correct": false, "explanation": "tmpfs stores data only in RAM. All data disappears when the container stops" },
+      { "text": "Cache and sessions that don't need to persist across restarts", "correct": true }
+    ]
+  },
+  {
+    "question": "What does the :ro flag do when mounting a volume?",
+    "type": "single",
+    "options": [
+      { "text": "Makes the mount read-only inside the container", "correct": true },
+      { "text": "Enables volume data rotation", "correct": false, "explanation": ":ro means read-only — the container cannot write data to this volume" },
+      { "text": "Creates the volume in root-only mode", "correct": false, "explanation": ":ro means read-only, not root-only" },
+      { "text": "Automatically creates a volume backup", "correct": false, "explanation": ":ro simply prevents writes. Backups must be created manually using docker run with tar" }
+    ]
+  },
+  {
+    "question": "Why might docker run -v ./src:/app/src not work as expected?",
+    "type": "single",
+    "options": [
+      { "text": "Docker may interpret the relative path as a volume name instead of a bind mount", "correct": true },
+      { "text": "The -v flag doesn't support bind mounts", "correct": false, "explanation": "-v supports bind mounts but requires an absolute path. Use $(pwd)/src instead of ./src" },
+      { "text": "The src directory must be empty", "correct": false, "explanation": "Bind mount works with any directory content. The issue is the path syntax" },
+      { "text": "You need to pre-create a volume with docker volume create", "correct": false, "explanation": "No volume is needed for bind mount. The issue is that Docker distinguishes volumes from bind mounts by path format" }
+    ]
+  }
+]

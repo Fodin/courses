@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Do you need to specify version in docker-compose.yml?",
+    "type": "single",
+    "options": [
+      { "text": "No — the version key is deprecated in Compose V2 and can be safely removed", "correct": true },
+      { "text": "Yes — Compose won't start without version", "correct": false, "explanation": "Docker Compose V2 automatically detects the file format. The version key is ignored and deprecated" },
+      { "text": "Yes — version determines available features", "correct": false, "explanation": "In Compose V2 all features are available without specifying version. This was only relevant for the deprecated Compose V1" },
+      { "text": "You need to specify version: '4'", "correct": false, "explanation": "Version 4 doesn't exist. The version key is deprecated in Docker Compose V2" }
+    ]
+  },
+  {
+    "question": "Why should ports values in docker-compose.yml be quoted?",
+    "type": "single",
+    "options": [
+      { "text": "The YAML parser may interpret 80:80 as a base-60 number", "correct": true },
+      { "text": "Without quotes, Compose doesn't support multiple ports", "correct": false, "explanation": "Compose supports multiple ports without quotes, but the YAML parser may misparse the x:y format" },
+      { "text": "Quotes are only needed for UDP ports", "correct": false, "explanation": "Quotes are recommended for all ports — both TCP and UDP. The issue is YAML parsing, not the protocol" },
+      { "text": "It's just a convention that doesn't affect functionality", "correct": false, "explanation": "It's not just a convention — without quotes, YAML may misparse port mappings, leading to errors" }
+    ]
+  },
+  {
+    "question": "What does Docker Compose create automatically with docker compose up?",
+    "type": "multiple",
+    "options": [
+      { "text": "A default network for the project (project_default)", "correct": true },
+      { "text": "Containers for all services", "correct": true },
+      { "text": "Named volumes specified in the volumes section", "correct": true },
+      { "text": "A Dockerfile for each service", "correct": false, "explanation": "Compose doesn't create Dockerfiles. It uses existing Dockerfiles or ready images specified in the configuration" }
+    ]
+  },
+  {
+    "question": "How does docker compose down differ from docker compose stop?",
+    "type": "single",
+    "options": [
+      { "text": "down stops and removes containers and networks, stop only stops them", "correct": true },
+      { "text": "No difference — both commands do the same thing", "correct": false, "explanation": "stop only stops containers, while down removes containers, networks, and with -v flag also volumes" },
+      { "text": "down deletes images, stop only removes containers", "correct": false, "explanation": "down doesn't delete images by default (you need --rmi for that). It removes containers and networks" },
+      { "text": "stop is faster than down", "correct": false, "explanation": "Speed is not the key difference. The difference is that down removes resources, while stop doesn't" }
+    ]
+  },
+  {
+    "question": "How does Compose distinguish a bind mount from a named volume in the volumes section?",
+    "type": "single",
+    "options": [
+      { "text": "Path starting with ./ or / is a bind mount, a name without slash is a named volume", "correct": true },
+      { "text": "Compose doesn't distinguish — everything is created as named volumes", "correct": false, "explanation": "Compose distinguishes: ./data:/app is a bind mount, mydata:/app is a named volume. The path format determines the type" },
+      { "text": "You must explicitly specify type: bind or type: volume", "correct": false, "explanation": "This is only needed in the long syntax. In short format, Compose determines the type by path format" },
+      { "text": "Bind mounts always require the root volumes section", "correct": false, "explanation": "The opposite: named volumes require declaration in the root volumes section, while bind mounts don't" }
+    ]
+  }
+]

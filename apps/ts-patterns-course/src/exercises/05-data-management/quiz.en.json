@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Why shouldn't business logic work directly with a data store?",
+    "type": "single",
+    "options": [
+      { "text": "Because changing the storage (localStorage -> API -> DB) would require rewriting the entire service layer", "correct": true },
+      { "text": "Because localStorage is slower than an API", "correct": false, "explanation": "Storage speed is not the reason for abstraction. Repository is needed to isolate business logic from storage details" },
+      { "text": "Because TypeScript doesn't support direct work with localStorage", "correct": false, "explanation": "TypeScript works perfectly with localStorage. Repository is an architectural decision, not a language limitation" },
+      { "text": "Because it's forbidden by the ECMAScript standard", "correct": false, "explanation": "ECMAScript doesn't impose such restrictions. Repository is a design pattern for reducing coupling" }
+    ]
+  },
+  {
+    "question": "What does Unit of Work guarantee?",
+    "type": "single",
+    "options": [
+      { "text": "Atomicity: either all accumulated operations are applied on commit, or none — rollback reverts everything on error", "correct": true },
+      { "text": "That operations execute in parallel for better performance", "correct": false, "explanation": "Unit of Work is not about parallelism but atomicity — all or nothing" },
+      { "text": "That each operation is immediately applied to the store", "correct": false, "explanation": "On the contrary — Unit of Work accumulates changes and applies them only on commit()" },
+      { "text": "That data is automatically synchronized between client and server", "correct": false, "explanation": "Synchronization is a separate concern. Unit of Work ensures transactionality of local operations" }
+    ]
+  },
+  {
+    "question": "Why shouldn't commands return data in CQRS?",
+    "type": "single",
+    "options": [
+      { "text": "To keep the read/write separation clean — a command performs an action, data is obtained through a separate Query", "correct": true },
+      { "text": "Because TypeScript doesn't allow void functions to return values", "correct": false, "explanation": "TypeScript allows typing return values however you want. The separation is an architectural CQRS decision" },
+      { "text": "To save network traffic", "correct": false, "explanation": "In practice, an additional read request may be needed. CQRS optimizes architecture, not traffic" },
+      { "text": "Because commands execute asynchronously and can't return results", "correct": false, "explanation": "Asynchronicity doesn't prevent returning results. Commands don't return data by the principle of separation of concerns" }
+    ]
+  },
+  {
+    "question": "What advantages does Event Sourcing provide?",
+    "type": "multiple",
+    "options": [
+      { "text": "Complete audit history — you can see exactly how the system reached its current state", "correct": true },
+      { "text": "Ability to 'rewind' state to any point in time through event replay", "correct": true },
+      { "text": "Ability to debug any bug by reproducing the sequence of events", "correct": true },
+      { "text": "Automatic improvement of read performance", "correct": false, "explanation": "Event Sourcing can even slow down reads since state must be computed from events. Projections are used for fast reads" },
+      { "text": "Reduced data storage volume", "correct": false, "explanation": "Event Sourcing typically increases data volume since it stores the entire event history, not just the current state" }
+    ]
+  },
+  {
+    "question": "Why must events in Event Sourcing be immutable?",
+    "type": "single",
+    "options": [
+      { "text": "Because events are facts that happened in the past. Changing history violates data integrity", "correct": true },
+      { "text": "Because TypeScript readonly automatically makes all objects immutable", "correct": false, "explanation": "readonly is a compile-time constraint. Event immutability is an architectural principle, not a technical limitation" },
+      { "text": "To improve performance during replay", "correct": false, "explanation": "Immutability doesn't affect replay speed. It's needed to guarantee history integrity and consistency" },
+      { "text": "Because mutable objects don't work with Map in JavaScript", "correct": false, "explanation": "Map works with any objects. Event immutability is an architectural principle of Event Sourcing" }
+    ]
+  }
+]

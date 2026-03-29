@@ -1,0 +1,43 @@
+[
+  {
+    "question": "Что делает вызов makeAutoObservable(this) в конструкторе класса?",
+    "type": "multiple",
+    "options": [
+      { "text": "Свойства класса становятся observable", "correct": true },
+      { "text": "Геттеры становятся computed", "correct": true },
+      { "text": "Методы становятся action", "correct": true },
+      { "text": "Класс автоматически оборачивается в observer", "correct": false, "explanation": "observer — это HOC из mobx-react-lite для React-компонентов, а не для классов сторов. makeAutoObservable делает данные наблюдаемыми, но не связывает стор с React." }
+    ]
+  },
+  {
+    "question": "Почему деструктуризация const { count } = store теряет реактивность?",
+    "type": "single",
+    "options": [
+      { "text": "MobX отслеживает обращения к свойствам объекта, а не локальные переменные", "correct": true },
+      { "text": "Деструктуризация удаляет свойство из стора", "correct": false, "explanation": "Деструктуризация не модифицирует исходный объект — она копирует значение в локальную переменную." },
+      { "text": "MobX не поддерживает примитивные типы", "correct": false, "explanation": "MobX отлично работает с примитивами (number, string, boolean) внутри observable-объектов. Проблема в том, что при деструктуризации примитив копируется и теряет связь с observable-свойством." },
+      { "text": "Нужно использовать специальный хук useDestructure", "correct": false, "explanation": "Такого хука не существует. Достаточно обращаться к свойствам через точку: store.count." }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если React-компонент читает данные из MobX-стора, но не обёрнут в observer?",
+    "type": "single",
+    "options": [
+      { "text": "Компонент покажет начальные данные и больше не обновится при их изменении", "correct": true },
+      { "text": "Будет ошибка компиляции TypeScript", "correct": false, "explanation": "TypeScript не знает о MobX-реактивности — код скомпилируется без ошибок, но компонент не будет реагировать на изменения." },
+      { "text": "Компонент будет обновляться, но с задержкой", "correct": false, "explanation": "Без observer компонент вообще не узнает об изменениях в сторе — задержки не будет, обновления просто не произойдёт." },
+      { "text": "MobX выбросит runtime-ошибку", "correct": false, "explanation": "MobX не выбрасывает ошибку — компонент просто молча отрисует начальные данные и не будет обновляться." }
+    ]
+  },
+  {
+    "question": "Какие из перечисленных являются тремя столпами MobX?",
+    "type": "multiple",
+    "options": [
+      { "text": "Observable State (наблюдаемое состояние)", "correct": true },
+      { "text": "Actions (действия)", "correct": true },
+      { "text": "Derivations (производные: computed и reactions)", "correct": true },
+      { "text": "Reducers (редьюсеры)", "correct": false, "explanation": "Редьюсеры — это концепция Redux. В MobX состояние изменяется напрямую через actions, без редьюсеров." },
+      { "text": "Selectors (селекторы)", "correct": false, "explanation": "Селекторы — это концепция Redux/Reselect. В MobX аналогичную роль выполняют computed-значения." }
+    ]
+  }
+]

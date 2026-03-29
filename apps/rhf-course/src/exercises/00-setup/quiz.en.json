@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What approach to working with components does React Hook Form use to achieve high performance?",
+    "type": "single",
+    "options": [
+      { "text": "Controlled components", "correct": false, "explanation": "Controlled components trigger a re-render on every value change, which reduces performance" },
+      { "text": "Uncontrolled components", "correct": true },
+      { "text": "Server components", "correct": false, "explanation": "Server components are a React concept unrelated to form state management" },
+      { "text": "Higher-order components (HOC)", "correct": false, "explanation": "HOC is a composition pattern; React Hook Form uses hooks, not HOCs" }
+    ]
+  },
+  {
+    "question": "Which hook is the primary one in React Hook Form?",
+    "type": "single",
+    "options": [
+      { "text": "useState", "correct": false, "explanation": "useState is a standard React hook for state management, not specific to RHF" },
+      { "text": "useReducer", "correct": false, "explanation": "useReducer is a standard React hook for complex state" },
+      { "text": "useForm", "correct": true },
+      { "text": "useFormState", "correct": false, "explanation": "useFormState is a helper RHF hook for subscribing to form state, but not the primary one" }
+    ]
+  },
+  {
+    "question": "What does the handleSubmit function do in React Hook Form?",
+    "type": "multiple",
+    "options": [
+      { "text": "Calls event.preventDefault()", "correct": true },
+      { "text": "Collects data from registered fields", "correct": true },
+      { "text": "Runs validation before calling onSubmit", "correct": true },
+      { "text": "Sends data to the server", "correct": false, "explanation": "handleSubmit does not send data — it passes the data to your callback function; the actual sending is your responsibility" }
+    ]
+  },
+  {
+    "question": "How do you correctly wire handleSubmit to a form?",
+    "type": "single",
+    "options": [
+      { "text": "<button onClick={handleSubmit(onSubmit)}>", "correct": false, "explanation": "With onClick the form does not submit on Enter, breaking standard browser behavior" },
+      { "text": "<form onSubmit={handleSubmit(onSubmit)}>", "correct": true },
+      { "text": "<form action={handleSubmit}>", "correct": false, "explanation": "action is an HTML attribute for a URL, not for JavaScript functions" },
+      { "text": "<form onChange={handleSubmit(onSubmit)}>", "correct": false, "explanation": "onChange fires on every field change, not on form submission" }
+    ]
+  }
+]

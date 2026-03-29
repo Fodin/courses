@@ -1,0 +1,53 @@
+[
+  {
+    "question": "В чём разница между type predicate (is) и assertion function (asserts)?",
+    "type": "single",
+    "options": [
+      { "text": "Type predicate возвращает boolean и используется в if, assertion бросает ошибку или сужает тип после вызова", "correct": true },
+      { "text": "Type predicate работает только с примитивами, assertion — с объектами", "correct": false, "explanation": "Оба механизма работают с любыми типами — и примитивами, и объектами. Разница в способе использования (if vs throw)" },
+      { "text": "Assertion functions быстрее, потому что не возвращают значение", "correct": false, "explanation": "Разница не в производительности, а в семантике: predicate — это проверка (is?), assertion — это гарантия (must be!)" },
+      { "text": "Type predicate сужает тип только в true-ветке, assertion сужает в обеих ветках", "correct": false, "explanation": "Assertion не имеет 'веток' — после успешного вызова тип сужен, при ошибке выбрасывается исключение" }
+    ]
+  },
+  {
+    "question": "Почему TypeScript не сужает тип при использовании Array.filter без type predicate?",
+    "type": "single",
+    "options": [
+      { "text": "filter принимает callback с return type boolean, а TypeScript не может вывести сужение из произвольного boolean-выражения", "correct": true },
+      { "text": "filter всегда возвращает массив того же типа по спецификации", "correct": false, "explanation": "TypeScript имеет перегрузку filter с type predicate, которая возвращает массив суженного типа. Но нужен explicit predicate" },
+      { "text": "Это баг TypeScript, который будет исправлен в будущих версиях", "correct": false, "explanation": "Это не баг — TypeScript корректно обрабатывает type predicates. Без явного predicate компилятор не может гарантировать сужение" },
+      { "text": "filter работает только с примитивными типами", "correct": false, "explanation": "filter работает с любыми типами. Сужение зависит от type predicate в callback, а не от типа элементов" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если type predicate обещает тип, но runtime-проверка неполная?",
+    "type": "single",
+    "options": [
+      { "text": "TypeScript поверит predicate и сузит тип, но в runtime может произойти ошибка из-за несоответствия", "correct": true },
+      { "text": "TypeScript выдаст ошибку компиляции", "correct": false, "explanation": "TypeScript не проверяет корректность runtime-проверки внутри type guard — он доверяет аннотации return type" },
+      { "text": "Программа не скомпилируется", "correct": false, "explanation": "TypeScript полностью доверяет type predicate. Ответственность за корректность проверки лежит на разработчике" },
+      { "text": "TypeScript автоматически добавит недостающие проверки", "correct": false, "explanation": "TypeScript не модифицирует runtime-код. Type predicate — это обещание разработчика компилятору" }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений об assertion functions верны?",
+    "type": "multiple",
+    "options": [
+      { "text": "Assertion function должна либо бросить ошибку, либо вернуть void", "correct": true },
+      { "text": "После успешного вызова assertion function TypeScript сужает тип переменной", "correct": true },
+      { "text": "Assertion functions не могут быть async", "correct": true },
+      { "text": "Assertion functions могут возвращать boolean вместо void", "correct": false, "explanation": "asserts-функции всегда возвращают void. Если нужен boolean — используйте type predicate (is)" },
+      { "text": "Assertion functions работают только с типом unknown", "correct": false, "explanation": "Assertion functions работают с любыми типами: unknown, union-типами, generic-параметрами и т.д." }
+    ]
+  },
+  {
+    "question": "Как создать generic type guard, проверяющий наличие свойства у unknown-объекта?",
+    "type": "single",
+    "options": [
+      { "text": "function hasProperty<K extends string>(obj: unknown, key: K): obj is Record<K, unknown> с проверкой typeof obj === 'object' && obj !== null && key in obj", "correct": true },
+      { "text": "function hasProperty(obj: unknown, key: string): boolean с проверкой obj[key] !== undefined", "correct": false, "explanation": "Без type predicate (is) функция не сужает тип. Также obj[key] выдаст ошибку TypeScript, так как unknown не индексируется" },
+      { "text": "function hasProperty<K>(obj: Record<K, unknown>, key: K): boolean", "correct": false, "explanation": "Этот вариант не принимает unknown — он уже требует Record, что противоречит цели проверки unknown-данных" },
+      { "text": "function hasProperty(obj: object, key: string): obj is { [key]: unknown }", "correct": false, "explanation": "Вычисляемые свойства (computed properties) нельзя использовать в type predicate таким образом. Нужен Record<K, unknown> с generic K" }
+    ]
+  }
+]

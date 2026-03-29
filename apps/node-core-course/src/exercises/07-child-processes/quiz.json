@@ -1,0 +1,54 @@
+[
+  {
+    "question": "В чём главное отличие exec от execFile?",
+    "type": "single",
+    "options": [
+      { "text": "exec запускает команду через shell, execFile — напрямую", "correct": true },
+      { "text": "exec синхронный, execFile асинхронный", "correct": false, "explanation": "Оба метода асинхронные. Синхронные версии — execSync и execFileSync" },
+      { "text": "exec возвращает Promise, execFile — нет", "correct": false, "explanation": "Оба используют callback. Promise-версии доступны через util.promisify" },
+      { "text": "execFile не может запускать бинарные файлы", "correct": false, "explanation": "execFile запускает именно бинарные файлы напрямую, без shell" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при превышении maxBuffer в exec?",
+    "type": "single",
+    "options": [
+      { "text": "callback получит Error с сообщением 'stdout maxBuffer length exceeded'", "correct": true },
+      { "text": "Вывод будет обрезан до maxBuffer и callback получит частичный stdout", "correct": false, "explanation": "exec не обрезает вывод — он завершает процесс с ошибкой при превышении лимита" },
+      { "text": "Node.js упадёт с out of memory", "correct": false, "explanation": "maxBuffer предотвращает OOM — он вызывает контролируемую ошибку до того, как память закончится" },
+      { "text": "Процесс продолжит работу, но stdout будет пустым", "correct": false, "explanation": "Дочерний процесс будет принудительно завершён при превышении лимита" }
+    ]
+  },
+  {
+    "question": "Какие преимущества spawn перед exec?",
+    "type": "multiple",
+    "options": [
+      { "text": "Потоковый вывод данных через stdout/stderr streams", "correct": true },
+      { "text": "Нет ограничения maxBuffer", "correct": true },
+      { "text": "Подходит для долгих процессов с большим выводом", "correct": true },
+      { "text": "Автоматически создаёт IPC-канал", "correct": false, "explanation": "IPC автоматически создаётся только в fork. В spawn нужно явно указать stdio: ['pipe', 'pipe', 'pipe', 'ipc']" },
+      { "text": "Всегда быстрее exec", "correct": false, "explanation": "Для коротких команд exec может быть удобнее и не медленнее — разница в потоковой обработке, а не в скорости запуска" }
+    ]
+  },
+  {
+    "question": "Что делает child.unref() в сочетании с detached: true?",
+    "type": "single",
+    "options": [
+      { "text": "Позволяет родительскому процессу завершиться, не дожидаясь ребёнка", "correct": true },
+      { "text": "Убивает дочерний процесс", "correct": false, "explanation": "unref() не убивает процесс — он убирает его из event loop reference count родителя" },
+      { "text": "Отключает IPC-канал", "correct": false, "explanation": "Для отключения IPC используется child.disconnect(), а не unref()" },
+      { "text": "Переводит процесс в фоновый режим ОС", "correct": false, "explanation": "detached: true создаёт новую группу процессов. unref() просто позволяет родителю не ждать этот процесс" }
+    ]
+  },
+  {
+    "question": "Что нельзя передать через IPC в fork?",
+    "type": "multiple",
+    "options": [
+      { "text": "Функции", "correct": true },
+      { "text": "Объекты с циклическими ссылками", "correct": true },
+      { "text": "Строки и числа", "correct": false, "explanation": "Примитивные типы прекрасно сериализуются в JSON и передаются через IPC" },
+      { "text": "Вложенные объекты", "correct": false, "explanation": "Вложенные объекты сериализуются в JSON без проблем, если нет циклических ссылок" },
+      { "text": "Symbol и WeakMap", "correct": true }
+    ]
+  }
+]

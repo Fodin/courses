@@ -1,0 +1,52 @@
+[
+  {
+    "question": "In what order will callbacks execute: setTimeout(fn, 0), process.nextTick(fn), Promise.resolve().then(fn)?",
+    "type": "single",
+    "options": [
+      { "text": "nextTick → Promise → setTimeout", "correct": true },
+      { "text": "setTimeout → nextTick → Promise", "correct": false, "explanation": "setTimeout is a macrotask, it executes after all microtasks. nextTick and Promise are microtasks, but nextTick has higher priority" },
+      { "text": "Promise → nextTick → setTimeout", "correct": false, "explanation": "process.nextTick has its own queue with higher priority than the Promise microtask queue" },
+      { "text": "The order is undefined", "correct": false, "explanation": "The order is well-defined: nextTick queue drains first, then Promise queue, then macrotasks" }
+    ]
+  },
+  {
+    "question": "What happens if you recursively call process.nextTick?",
+    "type": "single",
+    "options": [
+      { "text": "The Event Loop is blocked — I/O and timers won't execute", "correct": true },
+      { "text": "Node.js automatically limits recursion depth", "correct": false, "explanation": "Modern Node.js has no nextTick depth limit. The --max-tick-depth flag was removed in v0.12" },
+      { "text": "Callbacks will execute in parallel in the thread pool", "correct": false, "explanation": "nextTick callbacks run in the main thread, not the thread pool. Node.js is single-threaded for JavaScript" },
+      { "text": "Node.js throws a Maximum call stack size exceeded error", "correct": false, "explanation": "nextTick doesn't cause stack recursion — each callback runs separately. The problem is the queue grows infinitely" }
+    ]
+  },
+  {
+    "question": "What is the order of setTimeout(fn, 0) and setImmediate(fn) inside an fs.readFile callback?",
+    "type": "single",
+    "options": [
+      { "text": "setImmediate always first, setTimeout second", "correct": true },
+      { "text": "setTimeout always first, setImmediate second", "correct": false, "explanation": "Inside an I/O callback (Poll phase), the next phase is Check (setImmediate), not Timers" },
+      { "text": "The order is undefined", "correct": false, "explanation": "In the main module the order is undefined, but inside I/O callbacks: always setImmediate → setTimeout" },
+      { "text": "They execute simultaneously", "correct": false, "explanation": "JavaScript is single-threaded — two callbacks cannot execute simultaneously" }
+    ]
+  },
+  {
+    "question": "Which statements about the Poll phase are true?",
+    "type": "multiple",
+    "options": [
+      { "text": "It processes I/O operation callbacks (fs.readFile, net)", "correct": true },
+      { "text": "It can block waiting for new I/O events", "correct": true },
+      { "text": "It executes setTimeout callbacks", "correct": false, "explanation": "setTimeout executes in the Timers phase, not Poll" },
+      { "text": "When setImmediate is present, it moves to Check phase", "correct": true }
+    ]
+  },
+  {
+    "question": "Why does setTimeout(fn, 0) actually have a delay of >= 1ms?",
+    "type": "single",
+    "options": [
+      { "text": "Node.js sets a minimum delay of 1ms for setTimeout", "correct": true },
+      { "text": "The V8 engine doesn't support zero delay", "correct": false, "explanation": "V8 doesn't manage timers — libuv does. The 1ms minimum is a Node.js architectural decision" },
+      { "text": "The operating system doesn't allow delays under 1ms", "correct": false, "explanation": "The OS can support more precise timers. The 1ms limit is a Node.js/libuv decision" },
+      { "text": "This is a bug in Node.js that they plan to fix", "correct": false, "explanation": "This is intentional behavior. The HTML spec mandates 4ms minimum (after 5 nested calls), Node.js uses 1ms" }
+    ]
+  }
+]

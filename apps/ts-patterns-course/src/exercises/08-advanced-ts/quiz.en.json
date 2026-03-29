@@ -1,0 +1,53 @@
+[
+  {
+    "question": "How does a Type-safe Builder prevent calling build() without required fields?",
+    "type": "single",
+    "options": [
+      { "text": "The build method has type never until the generic accumulator contains all required keys — TypeScript won't allow calling never", "correct": true },
+      { "text": "The Builder throws a runtime exception when build() is called without required fields", "correct": false, "explanation": "Type-safe Builder solves the problem at compile time, not runtime. The error is caught before execution" },
+      { "text": "TypeScript automatically makes build() private until all fields are filled", "correct": false, "explanation": "TypeScript doesn't dynamically change access modifiers. A conditional type is used: build is available only when the accumulator matches" },
+      { "text": "The Builder uses a @required decorator on mandatory fields", "correct": false, "explanation": "TC39 class decorators (@) are not used in this pattern. The mechanism is based on conditional types and a generic accumulator" }
+    ]
+  },
+  {
+    "question": "Where is it acceptable to use the `as` operator when working with Phantom Types?",
+    "type": "single",
+    "options": [
+      { "text": "Only inside boundary functions (validate, sanitize) — the rest of the code works with branded types without casting", "correct": true },
+      { "text": "Anywhere you need to convert a type", "correct": false, "explanation": "Scattering as throughout the code bypasses all phantom type protection — unvalidated data can enter typed functions" },
+      { "text": "Only in tests", "correct": false, "explanation": "In tests, as is also undesirable without validation. as is used in constructors/validators — both in tests and production code" },
+      { "text": "The as operator isn't needed — TypeScript automatically casts types", "correct": false, "explanation": "TypeScript cannot automatically cast string to a branded type — the brand intentionally makes the type incompatible" }
+    ]
+  },
+  {
+    "question": "How does a Type-level State Machine restrict calling publish() only for documents in the Review state?",
+    "type": "single",
+    "options": [
+      { "text": "Through the this parameter: publish(this: Document<Review>) is only available on Document<Review> instances", "correct": true },
+      { "text": "Through an if (this.state === 'review') check inside the method", "correct": false, "explanation": "That's a runtime check — the error is only discovered during execution. The type-level approach catches the error at compile time" },
+      { "text": "Through a private access modifier on the publish method", "correct": false, "explanation": "Private hides the method from everyone, not just inappropriate states. The this parameter allows precise type checking" },
+      { "text": "Through a @StateGuard('review') decorator", "correct": false, "explanation": "TC39 decorators are not used in this pattern. The mechanism is based on the typed this parameter" }
+    ]
+  },
+  {
+    "question": "What does the Effect<R, E, A> type describe?",
+    "type": "multiple",
+    "options": [
+      { "text": "R — required dependencies (context) needed to execute the effect", "correct": true },
+      { "text": "E — possible errors the effect can return", "correct": true },
+      { "text": "A — the result on successful execution of the effect", "correct": true },
+      { "text": "R — result, E — execution, A — arguments", "correct": false, "explanation": "R = Requirements (dependencies), E = Error (errors), A = success value (success type)" },
+      { "text": "It's a runtime wrapper for Promise", "correct": false, "explanation": "Effect is a lazy computation with explicit dependencies and errors in the type. It's not a Promise wrapper" }
+    ]
+  },
+  {
+    "question": "What is the key advantage of describing business rules at the type level instead of runtime checks?",
+    "type": "single",
+    "options": [
+      { "text": "Errors are caught at compile time — before the program runs, making invalid states unrepresentable in code", "correct": true },
+      { "text": "Code runs faster since checks are performed at compile time, not runtime", "correct": false, "explanation": "Type-level checks are erased at compilation. The advantage is early error detection, not performance" },
+      { "text": "No need to write tests for business rules", "correct": false, "explanation": "Tests are still needed to verify business logic. Type-level checks guarantee structural correctness, not logic" },
+      { "text": "Code becomes shorter and easier to read", "correct": false, "explanation": "Type-level patterns often make code more complex. Their advantage is compile-time guarantees, not readability" }
+    ]
+  }
+]

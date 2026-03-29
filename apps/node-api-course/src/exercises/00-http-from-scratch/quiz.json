@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Какой тип потока (stream) представляет объект req (IncomingMessage) в http.createServer?",
+    "type": "single",
+    "options": [
+      { "text": "Readable Stream -- данные тела запроса приходят чанками через события data/end", "correct": true },
+      { "text": "Writable Stream -- в него записывается ответ сервера", "correct": false, "explanation": "Writable Stream -- это объект res (ServerResponse). Объект req -- это Readable Stream, из которого читают тело запроса" },
+      { "text": "Duplex Stream -- одновременно читает и записывает данные", "correct": false, "explanation": "req -- это только Readable Stream. Duplex Stream используется в WebSocket и TCP-соединениях, но не в HTTP request" },
+      { "text": "Transform Stream -- преобразует данные на лету", "correct": false, "explanation": "Transform Stream используется для преобразования данных (например, сжатие). req -- это Readable Stream для чтения входящих данных" }
+    ]
+  },
+  {
+    "question": "Почему для раздачи больших файлов нужно использовать fs.createReadStream().pipe(res) вместо fs.readFileSync()?",
+    "type": "single",
+    "options": [
+      { "text": "readFileSync загружает весь файл в оперативную память, а pipe передаёт данные чанками (~64 КБ), экономя память", "correct": true },
+      { "text": "readFileSync не поддерживает бинарные файлы", "correct": false, "explanation": "readFileSync прекрасно работает с бинарными файлами. Проблема в том, что для файла в 500 МБ readFileSync загрузит все 500 МБ в RAM одновременно" },
+      { "text": "pipe работает быстрее, потому что пропускает проверку прав доступа", "correct": false, "explanation": "pipe не пропускает проверки. Его преимущество -- потоковая передача данных чанками с управлением backpressure, что критично при высокой нагрузке" },
+      { "text": "readFileSync блокирует event loop, но pipe тоже блокирует -- разницы нет", "correct": false, "explanation": "readFileSync действительно блокирует event loop. А pipe работает асинхронно, не блокируя event loop, плюс экономит память за счёт чанковой передачи" }
+    ]
+  },
+  {
+    "question": "Как правильно защититься от path traversal атаки (../../etc/passwd) при раздаче статических файлов?",
+    "type": "single",
+    "options": [
+      { "text": "Использовать path.resolve() и проверить, что результирующий путь начинается с publicDir", "correct": true },
+      { "text": "Проверить, что URL не содержит символов '..'", "correct": false, "explanation": "Простая проверка на '..' недостаточна -- атакующий может использовать URL-кодирование (%2e%2e), двойное кодирование или другие обходы. path.resolve() нормализует путь, а проверка startsWith гарантирует безопасность" },
+      { "text": "Использовать encodeURIComponent для URL", "correct": false, "explanation": "encodeURIComponent кодирует URL для отправки, но не защищает от path traversal. Нужно path.resolve() + проверка что путь внутри разрешённой директории" },
+      { "text": "Запретить запросы длиннее 100 символов", "correct": false, "explanation": "Ограничение длины URL не защищает от path traversal -- атака ../../etc/passwd укладывается в 100 символов. Нужна проверка через path.resolve() + startsWith(publicDir)" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если в обработчике http.createServer не вызвать res.end()?",
+    "type": "single",
+    "options": [
+      { "text": "Соединение будет висеть, пока клиент не отключится по таймауту -- браузер будет бесконечно ждать ответа", "correct": true },
+      { "text": "Node.js автоматически завершит ответ через 30 секунд", "correct": false, "explanation": "Node.js не завершает ответ автоматически. Без res.end() соединение будет висеть, пока клиент не закроет его по таймауту или пользователь не отменит запрос" },
+      { "text": "Сервер упадёт с ошибкой ERR_RESPONSE_NOT_ENDED", "correct": false, "explanation": "Такой ошибки нет. Без res.end() соединение просто остаётся открытым -- это утечка ресурсов, но не crash сервера" },
+      { "text": "Клиент получит пустой ответ с кодом 200", "correct": false, "explanation": "Без res.end() клиент не получит ничего -- соединение остаётся открытым в ожидании данных. Пустой ответ отправляется только при явном вызове res.end()" }
+    ]
+  },
+  {
+    "question": "Какие Content-Type заголовки нужно указать для разных типов тела запроса?",
+    "type": "multiple",
+    "options": [
+      { "text": "application/json для JSON-данных", "correct": true },
+      { "text": "application/x-www-form-urlencoded для HTML-форм", "correct": true },
+      { "text": "multipart/form-data для загрузки файлов", "correct": true },
+      { "text": "text/html для всех POST-запросов", "correct": false, "explanation": "text/html -- это Content-Type для HTML-страниц в ответе сервера. Для POST-запросов используется application/json, application/x-www-form-urlencoded или multipart/form-data в зависимости от данных" }
+    ]
+  }
+]

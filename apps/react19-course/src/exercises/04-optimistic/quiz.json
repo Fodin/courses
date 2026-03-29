@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Что происходит с оптимистичным состоянием, если серверный запрос завершился ошибкой?",
+    "type": "single",
+    "options": [
+      { "text": "Оптимистичное значение остаётся в UI", "correct": false, "explanation": "При ошибке реальное состояние не обновляется, и оптимистичное значение автоматически откатывается к реальному." },
+      { "text": "UI автоматически откатывается к реальному состоянию", "correct": true },
+      { "text": "Нужно вручную вызвать rollback()", "correct": false, "explanation": "Откат в useOptimistic происходит автоматически. Никакого ручного метода rollback() не существует." },
+      { "text": "Компонент размонтируется с ошибкой", "correct": false, "explanation": "Ошибка не вызывает размонтирование. Оптимистичное состояние просто откатывается." }
+    ]
+  },
+  {
+    "question": "Какой хук рекомендуется комбинировать с useOptimistic для async-операций?",
+    "type": "single",
+    "options": [
+      { "text": "useState", "correct": false, "explanation": "useState хранит реальное состояние, но для оборачивания async-операций лучше использовать useTransition, который предоставляет isPending." },
+      { "text": "useTransition", "correct": true },
+      { "text": "useEffect", "correct": false, "explanation": "useEffect не подходит для обработки пользовательских действий. useTransition специально создан для этого." },
+      { "text": "useCallback", "correct": false, "explanation": "useCallback мемоизирует функцию, но не управляет переходами. useTransition — правильный выбор." }
+    ]
+  },
+  {
+    "question": "Что принимает useOptimistic вторым аргументом?",
+    "type": "single",
+    "options": [
+      { "text": "Начальное значение оптимистичного состояния", "correct": false, "explanation": "Начальное значение берётся из первого аргумента (реальное состояние). Второй аргумент — это reducer-функция." },
+      { "text": "Reducer-функцию (currentState, optimisticValue) => newState", "correct": true },
+      { "text": "Callback для обработки ошибок", "correct": false, "explanation": "Обработка ошибок выполняется в try/catch внутри startTransition, а не через useOptimistic." },
+      { "text": "Объект с опциями { rollback: true }", "correct": false, "explanation": "useOptimistic не принимает объект опций. Второй аргумент — это функция-reducer." }
+    ]
+  },
+  {
+    "question": "В чём ключевое преимущество useOptimistic перед ручной реализацией оптимистичных обновлений?",
+    "type": "multiple",
+    "options": [
+      { "text": "Автоматический откат при ошибке", "correct": true },
+      { "text": "Не нужно хранить предыдущее значение для отката", "correct": true },
+      { "text": "Работает быстрее, чем useState", "correct": false, "explanation": "useOptimistic не быстрее useState по производительности. Его преимущество — в удобстве API и автоматическом откате." },
+      { "text": "Меньше boilerplate-кода", "correct": true }
+    ]
+  }
+]

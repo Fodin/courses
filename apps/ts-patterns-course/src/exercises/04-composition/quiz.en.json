@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What is the difference between pipe and compose?",
+    "type": "single",
+    "options": [
+      { "text": "pipe executes functions left to right (data flow), compose — right to left (mathematical composition f(g(x)))", "correct": true },
+      { "text": "pipe only works with synchronous functions, compose — with asynchronous", "correct": false, "explanation": "Both can work with synchronous and asynchronous functions. The difference is only in execution direction" },
+      { "text": "compose is a deprecated version of pipe", "correct": false, "explanation": "Both approaches are relevant. pipe is better for describing data flow, compose — for building functions from other functions" },
+      { "text": "pipe creates a new array, compose mutates the original", "correct": false, "explanation": "Neither pipe nor compose work with arrays — they combine functions into a new function" }
+    ]
+  },
+  {
+    "question": "Why is it important to call `next(req)` and return its result in middleware?",
+    "type": "single",
+    "options": [
+      { "text": "Without calling next(), the middleware chain is interrupted — subsequent handlers and the final handler won't execute", "correct": true },
+      { "text": "Because TypeScript requires calling next in the function signature", "correct": false, "explanation": "TypeScript doesn't check whether a function is called inside the body. This is a logical requirement of the pattern, not a compile-time constraint" },
+      { "text": "For automatic request logging", "correct": false, "explanation": "Logging is a separate task for a separate middleware. next() passes control to the next handler in the chain" },
+      { "text": "So the request doesn't stay in server memory", "correct": false, "explanation": "Memory management is not related to calling next. next() is a mechanism for passing control through the chain" }
+    ]
+  },
+  {
+    "question": "Why can't `any[]` be used for typing pipe arguments?",
+    "type": "single",
+    "options": [
+      { "text": "Type safety is lost — TypeScript won't verify that one function's output matches the next function's input", "correct": true },
+      { "text": "Because any[] doesn't compile in strict TypeScript mode", "correct": false, "explanation": "any[] compiles even in strict mode. The problem is not compilation but the loss of type checking between pipe links" },
+      { "text": "any[] reduces runtime performance", "correct": false, "explanation": "Types are erased at compilation and don't affect runtime. The problem is the absence of compile-time function compatibility checks" },
+      { "text": "any[] is not supported in reduce", "correct": false, "explanation": "any[] works perfectly with reduce. The problem is that TypeScript cannot guarantee type consistency in the chain" }
+    ]
+  },
+  {
+    "question": "Which principles should a Plugin System follow?",
+    "type": "multiple",
+    "options": [
+      { "text": "Plugins should not depend on the installation order of other plugins", "correct": true },
+      { "text": "The core should be extensible without modifying its code (Open/Closed Principle)", "correct": true },
+      { "text": "Reinstalling a plugin should throw an error or automatically clean up the old one", "correct": true },
+      { "text": "All plugins must inherit from a common base class", "correct": false, "explanation": "Plugins implement an interface, not inherit from a class. Interfaces provide flexibility without inheritance" },
+      { "text": "Plugins should have direct access to the core's internal state", "correct": false, "explanation": "Plugins should interact with the core through lifecycle hooks, not through direct access to internals" }
+    ]
+  },
+  {
+    "question": "Why is `reduceRight` used to build a middleware pipeline?",
+    "type": "single",
+    "options": [
+      { "text": "Because middleware wraps each other from outside in, but executes in forward order", "correct": true },
+      { "text": "Because reduceRight is faster than reduce for function arrays", "correct": false, "explanation": "Performance of reduce and reduceRight is the same. reduceRight is needed for correct wrapping order" },
+      { "text": "Because reduce doesn't work with Middleware type functions", "correct": false, "explanation": "reduce works with any types. reduceRight is needed for middleware semantics — the first middleware should be the outer wrapper" },
+      { "text": "It's an arbitrary choice — reduce would work too", "correct": false, "explanation": "The choice of reduceRight is not arbitrary — with reduce, middleware would execute in reverse order" }
+    ]
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Для чего используется FormProvider и useFormContext?",
+    "type": "single",
+    "options": [
+      { "text": "Для глобального хранения данных всех форм приложения", "correct": false, "explanation": "FormProvider работает для одной формы, а не для всего приложения" },
+      { "text": "Для передачи методов формы в глубоко в��оженные компоненты без prop drilling", "correct": true },
+      { "text": "Для создания нескольких форм на одной странице", "correct": false, "explanation": "Несколько форм можно создать просто используя несколько useForm" },
+      { "text": "Для сохранения формы в Redux", "correct": false, "explanation": "FormProvider использует React Context, а не Redux" }
+    ]
+  },
+  {
+    "question": "Как правильно интегрировать Material-UI TextField с React Hook Form?",
+    "type": "single",
+    "options": [
+      { "text": "Через register напрямую", "correct": false, "explanation": "Material-UI компоненты — контролируемые, для них нужен Controller" },
+      { "text": "Через Controller с render-пропом", "correct": true },
+      { "text": "Через useState + onChange", "correct": false, "explanation": "Это не интегрируется с RHF — используйте Controller" },
+      { "text": "Через useRef", "correct": false, "explanation": "useRef не даёт интеграцию с валидацией и состоянием формы RHF" }
+    ]
+  },
+  {
+    "question": "Какие задачи решают кастомные хуки поверх useForm?",
+    "type": "multiple",
+    "options": [
+      { "text": "Инкапсуляция логики формы в переиспользуемый хук", "correct": true },
+      { "text": "Совмещение useForm с бизнес-логикой (API, навигация)", "correct": true },
+      { "text": "Обязательная замена стандартного useForm", "correct": false, "explanation": "Кастомные хуки — дополнение, а не замена useForm" },
+      { "text": "Добавление дефолтных значений и схемы валидации", "correct": true }
+    ]
+  },
+  {
+    "question": "Как сохранить данные формы в localStorage для восстановления при перезагрузке?",
+    "type": "single",
+    "options": [
+      { "text": "RHF автоматически сохраняет данные в localStorage", "correct": false, "explanation": "RHF не имеет встроенной интеграции с localStorage — это нужно реализовать самостоятельно" },
+      { "text": "watch() для отслеживания изменений + сохранение в localStorage + defaultValues для восстановления", "correct": true },
+      { "text": "Через sessionStorage (не localStorage)", "correct": false, "explanation": "sessionStorage очищается при закрытии вкладки — для persist лучше localStorage" },
+      { "text": "Через Redux Persist", "correct": false, "explanation": "Redux Persist — отдельная экосистема, RHF не требует Redux" }
+    ]
+  }
+]

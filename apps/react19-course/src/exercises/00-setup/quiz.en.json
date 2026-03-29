@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Which command runs the full automatic migration recipe for React 19?",
+    "type": "single",
+    "options": [
+      { "text": "npx codemod@latest react/19/migration-recipe", "correct": true },
+      { "text": "npx react-upgrade@19", "correct": false, "explanation": "No such package exists. The official tool is the codemod CLI." },
+      { "text": "npm install react@19 --migrate", "correct": false, "explanation": "The --migrate flag does not exist in npm. Installing a package and migrating code are separate steps." },
+      { "text": "npx create-react-app --upgrade 19", "correct": false, "explanation": "create-react-app has no migration feature and is no longer recommended." }
+    ]
+  },
+  {
+    "question": "Which APIs were removed in React 19?",
+    "type": "multiple",
+    "options": [
+      { "text": "defaultProps for function components", "correct": true },
+      { "text": "ReactDOM.render()", "correct": true },
+      { "text": "useState()", "correct": false, "explanation": "useState is a core React hook and was not removed." },
+      { "text": "propTypes", "correct": true },
+      { "text": "String refs (ref=\"myRef\")", "correct": true }
+    ]
+  },
+  {
+    "question": "What replaces ReactDOM.render() in React 19?",
+    "type": "single",
+    "options": [
+      { "text": "createRoot().render()", "correct": true },
+      { "text": "ReactDOM.mount()", "correct": false, "explanation": "The mount() method does not exist in React. The new API uses createRoot from react-dom/client." },
+      { "text": "React.render()", "correct": false, "explanation": "The render() method is not part of the react package. Rendering is done through react-dom/client." },
+      { "text": "document.render()", "correct": false, "explanation": "This is a browser API unrelated to React." }
+    ]
+  },
+  {
+    "question": "What does codemod NOT do automatically when migrating to React 19?",
+    "type": "single",
+    "options": [
+      { "text": "Rewrite forms from onSubmit to Actions", "correct": true },
+      { "text": "Replace ReactDOM.render with createRoot", "correct": false, "explanation": "This is one of the standard codemod transformations." },
+      { "text": "Replace forwardRef with ref as prop", "correct": false, "explanation": "Codemod automatically removes the forwardRef wrapper." },
+      { "text": "Replace defaultProps with default parameters", "correct": false, "explanation": "This is a standard codemod transformation for function components." }
+    ]
+  },
+  {
+    "question": "Which React type no longer includes children by default in React 19?",
+    "type": "single",
+    "options": [
+      { "text": "FC (FunctionComponent)", "correct": true },
+      { "text": "Component", "correct": false, "explanation": "Class components always required explicit children in their types." },
+      { "text": "ReactElement", "correct": false, "explanation": "ReactElement is a return value type, not a component type. It does not contain children in its typing." },
+      { "text": "HTMLAttributes", "correct": false, "explanation": "HTMLAttributes are DOM element types that always contained children through React.DOMAttributes." }
+    ]
+  }
+]

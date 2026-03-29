@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Чем reaction отличается от autorun?",
+    "type": "multiple",
+    "options": [
+      { "text": "reaction не запускает effect при инициализации, autorun запускается сразу", "correct": true },
+      { "text": "reaction отслеживает только возврат data function, autorun — все прочитанные observable", "correct": true },
+      { "text": "reaction предоставляет доступ к предыдущему значению, autorun — нет", "correct": true },
+      { "text": "reaction работает асинхронно, autorun — синхронно", "correct": false, "explanation": "Обе реакции запускаются синхронно при изменении наблюдаемых данных. Разница в том, как они определяют зависимости и когда впервые срабатывают." }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если не вызвать disposer реакции при размонтировании компонента?",
+    "type": "single",
+    "options": [
+      { "text": "Утечка памяти — реакция продолжит работать и держать ссылки на замыкания и стор", "correct": true },
+      { "text": "React автоматически очистит реакцию", "correct": false, "explanation": "React ничего не знает о MobX-реакциях. Очистка — ответственность разработчика через cleanup-функцию useEffect." },
+      { "text": "MobX автоматически отключит реакцию после 60 секунд простоя", "correct": false, "explanation": "MobX не имеет таймаута для реакций. autorun и reaction работают бесконечно, пока не вызван disposer." },
+      { "text": "Ничего страшного — реакция просто перестанет работать", "correct": false, "explanation": "Реакция НЕ перестанет работать — она продолжит отслеживать observable и выполнять callback, вызывая утечку памяти и потенциальные ошибки." }
+    ]
+  },
+  {
+    "question": "Когда лучше использовать when вместо reaction?",
+    "type": "single",
+    "options": [
+      { "text": "Когда нужно выполнить действие один раз при выполнении условия", "correct": true },
+      { "text": "Когда нужно отслеживать изменения непрерывно", "correct": false, "explanation": "Для непрерывного отслеживания используйте reaction или autorun. when срабатывает один раз и автоматически утилизируется." },
+      { "text": "Когда нужно получить доступ к предыдущему значению", "correct": false, "explanation": "when не предоставляет доступ к предыдущему значению. Для этого подходит reaction." },
+      { "text": "Когда условие может стать true несколько раз", "correct": false, "explanation": "when срабатывает только при первом выполнении условия. Для повторяющихся условий используйте reaction." }
+    ]
+  },
+  {
+    "question": "Почему опасно изменять observable внутри autorun?",
+    "type": "single",
+    "options": [
+      { "text": "Это может вызвать бесконечный цикл, если autorun отслеживает то же observable, которое изменяет", "correct": true },
+      { "text": "MobX запрещает мутации внутри реакций", "correct": false, "explanation": "MobX не запрещает мутации внутри реакций полностью, но при enforceActions: 'always' выбросит ошибку. Главная опасность — бесконечный цикл." },
+      { "text": "Изменения внутри autorun не отслеживаются MobX", "correct": false, "explanation": "Изменения отслеживаются, и именно поэтому может возникнуть бесконечный цикл: autorun изменяет observable, это вызывает повторный запуск autorun, который снова изменяет observable." },
+      { "text": "Autorun не имеет доступа к this стора", "correct": false, "explanation": "autorun — обычная функция с замыканием, она имеет доступ ко всем переменным из внешней области видимости." }
+    ]
+  },
+  {
+    "question": "Какая форма when возвращает Promise?",
+    "type": "single",
+    "options": [
+      { "text": "when с одним аргументом (только предикат, без callback)", "correct": true },
+      { "text": "when с двумя аргументами (предикат + callback)", "correct": false, "explanation": "При передаче двух аргументов when возвращает disposer (функцию отмены), а не Promise." },
+      { "text": "Обе формы возвращают Promise", "correct": false, "explanation": "Форма с callback возвращает disposer, а форма без callback — Promise. Это два разных API." },
+      { "text": "when никогда не возвращает Promise", "correct": false, "explanation": "when(predicate) без callback возвращает Promise, который можно использовать с await." }
+    ]
+  }
+]

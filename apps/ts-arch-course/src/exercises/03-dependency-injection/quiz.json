@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Как типобезопасный DI-контейнер отслеживает типы зарегистрированных сервисов?",
+    "type": "single",
+    "options": [
+      { "text": "Через накопление generic-параметра: каждый register() расширяет TRegistry через intersection type", "correct": true },
+      { "text": "Через Map<string, unknown> с runtime-проверками", "correct": false, "explanation": "Map<string, unknown> — это runtime-хранилище. Типобезопасность обеспечивается generic-параметром, который расширяется при каждой регистрации" },
+      { "text": "Через декораторы, которые добавляют метаданные о типах", "correct": false, "explanation": "Декораторы — это отдельный механизм. Накопление generic-параметра работает без декораторов и обеспечивает compile-time проверку" },
+      { "text": "Через JSON-схему, описывающую типы всех сервисов", "correct": false, "explanation": "JSON-схема — это runtime-подход. Generic-параметр работает исключительно на уровне типов, без дополнительного кода" }
+    ]
+  },
+  {
+    "question": "Чем InjectionToken отличается от строкового ключа для идентификации сервисов?",
+    "type": "multiple",
+    "options": [
+      { "text": "Токен несёт фантомный тип, связывающий его с типом сервиса", "correct": true },
+      { "text": "Каждый токен — уникальный объект, исключающий коллизии имён", "correct": true },
+      { "text": "Токен работает быстрее строки в Map", "correct": false, "explanation": "Производительность Map одинакова для строк и объектов. Преимущество токенов — в типобезопасности и уникальности, а не в скорости" },
+      { "text": "Токен позволяет связать примитивные значения (string, number) с типизированным ключом", "correct": true }
+    ]
+  },
+  {
+    "question": "Что такое captive dependency и почему это проблема?",
+    "type": "single",
+    "options": [
+      { "text": "Singleton, зависящий от scoped-сервиса: scoped-экземпляр захвачен и не обновляется при создании нового scope", "correct": true },
+      { "text": "Циклическая зависимость между двумя singleton-ами", "correct": false, "explanation": "Циклическая зависимость — отдельная проблема. Captive dependency возникает при нарушении правила lifetime: длинноживущий сервис захватывает короткоживущий" },
+      { "text": "Сервис, зарегистрированный дважды под разными именами", "correct": false, "explanation": "Дублирование регистрации — это другая проблема. Captive dependency — это несоответствие lifetime-ов зависимостей" },
+      { "text": "Зависимость, которая не используется ни одним сервисом", "correct": false, "explanation": "Неиспользуемая зависимость — это dead code, но не captive dependency. Captive — это проблема с lifetime, а не с использованием" }
+    ]
+  },
+  {
+    "question": "Как auto-wiring контейнер обнаруживает циклические зависимости?",
+    "type": "single",
+    "options": [
+      { "text": "Через Set текущих разрешаемых сервисов: если сервис уже в Set, значит цикл", "correct": true },
+      { "text": "Через статический анализ графа зависимостей при регистрации", "correct": false, "explanation": "Статический анализ при регистрации сложнее и не покрывает случаи с условными зависимостями. Рекурсивная проверка при resolve проще и надёжнее" },
+      { "text": "Через catch блок для StackOverflow", "correct": false, "explanation": "StackOverflow — это неконтролируемая ошибка. Явная проверка через Set даёт информативное сообщение с путём цикла" },
+      { "text": "Через ограничение глубины рекурсии", "correct": false, "explanation": "Ограничение глубины может дать ложные срабатывания для глубоких, но не циклических графов. Set resolving — точный метод" }
+    ]
+  },
+  {
+    "question": "Какое правило lifetime-ов зависимостей корректно?",
+    "type": "single",
+    "options": [
+      { "text": "Singleton может зависеть только от singleton; scoped — от scoped или singleton; transient — от чего угодно", "correct": true },
+      { "text": "Любой сервис может зависеть от любого другого независимо от lifetime", "correct": false, "explanation": "Это приводит к captive dependencies: singleton захватит scoped/transient экземпляр и будет использовать устаревшую версию" },
+      { "text": "Transient не может зависеть от singleton, так как это нарушает изоляцию", "correct": false, "explanation": "Transient может безопасно зависеть от singleton — singleton живёт дольше, что не создаёт проблем" },
+      { "text": "Scoped может зависеть от transient, но не от singleton", "correct": false, "explanation": "Scoped может безопасно зависеть от singleton (живёт дольше). Зависимость от transient тоже допустима — transient создастся заново при каждом resolve" }
+    ]
+  }
+]

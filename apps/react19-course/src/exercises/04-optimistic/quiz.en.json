@@ -1,0 +1,42 @@
+[
+  {
+    "question": "What happens to the optimistic state if the server request fails?",
+    "type": "single",
+    "options": [
+      { "text": "The optimistic value remains in the UI", "correct": false, "explanation": "When an error occurs, the real state is not updated, and the optimistic value automatically rolls back to the real state." },
+      { "text": "The UI automatically rolls back to the real state", "correct": true },
+      { "text": "You need to manually call rollback()", "correct": false, "explanation": "Rollback in useOptimistic happens automatically. No manual rollback() method exists." },
+      { "text": "The component unmounts with an error", "correct": false, "explanation": "The error does not cause unmounting. The optimistic state simply rolls back." }
+    ]
+  },
+  {
+    "question": "Which hook is recommended to combine with useOptimistic for async operations?",
+    "type": "single",
+    "options": [
+      { "text": "useState", "correct": false, "explanation": "useState stores the real state, but for wrapping async operations it's better to use useTransition, which provides isPending." },
+      { "text": "useTransition", "correct": true },
+      { "text": "useEffect", "correct": false, "explanation": "useEffect is not suitable for handling user actions. useTransition is specifically designed for this." },
+      { "text": "useCallback", "correct": false, "explanation": "useCallback memoizes a function but does not manage transitions. useTransition is the right choice." }
+    ]
+  },
+  {
+    "question": "What does useOptimistic accept as its second argument?",
+    "type": "single",
+    "options": [
+      { "text": "The initial value of the optimistic state", "correct": false, "explanation": "The initial value comes from the first argument (the real state). The second argument is a reducer function." },
+      { "text": "A reducer function (currentState, optimisticValue) => newState", "correct": true },
+      { "text": "A callback for error handling", "correct": false, "explanation": "Error handling is done in try/catch inside startTransition, not through useOptimistic." },
+      { "text": "An options object { rollback: true }", "correct": false, "explanation": "useOptimistic does not accept an options object. The second argument is a reducer function." }
+    ]
+  },
+  {
+    "question": "What are the key advantages of useOptimistic over manual implementation of optimistic updates?",
+    "type": "multiple",
+    "options": [
+      { "text": "Automatic rollback on error", "correct": true },
+      { "text": "No need to store the previous value for rollback", "correct": true },
+      { "text": "Faster than useState", "correct": false, "explanation": "useOptimistic is not faster than useState in terms of performance. Its advantage is in API convenience and automatic rollback." },
+      { "text": "Less boilerplate code", "correct": true }
+    ]
+  }
+]

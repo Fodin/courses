@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How does Content Security Policy (CSP) protect against XSS?",
+    "type": "single",
+    "options": [
+      { "text": "CSP controls where the browser can load scripts from -- inline scripts and scripts from unauthorized domains are blocked", "correct": true },
+      { "text": "CSP encrypts scripts before execution in the browser", "correct": false, "explanation": "CSP doesn't encrypt anything. It tells the browser: 'only execute scripts from these domains'. If XSS injects a <script> tag, it's blocked since inline scripts are forbidden" },
+      { "text": "CSP removes dangerous HTML tags from the server response", "correct": false, "explanation": "CSP doesn't modify HTML. It's a header directive for the browser. HTML sanitization is server code's job (DOMPurify, xss). CSP is the last line of defense" },
+      { "text": "CSP blocks all JavaScript on the page", "correct": false, "explanation": "CSP doesn't block all JS. It allows scripts from the whitelist (script-src 'self' cdn.com). Only scripts from unauthorized sources and inline scripts are blocked" }
+    ]
+  },
+  {
+    "question": "Why are SameSite cookies the best CSRF protection for modern APIs?",
+    "type": "single",
+    "options": [
+      { "text": "SameSite: strict/lax prevents the browser from sending cookies with cross-origin requests -- evil.com won't get bank.com's cookie", "correct": true },
+      { "text": "SameSite encrypts the cookie so attackers can't read it", "correct": false, "explanation": "SameSite doesn't encrypt (that's what Secure flag + HTTPS does). SameSite controls WHEN the cookie is sent -- not with cross-origin requests" },
+      { "text": "SameSite automatically generates a CSRF token", "correct": false, "explanation": "SameSite doesn't generate tokens. It replaces the need for CSRF tokens by simply not sending cookies on cross-origin requests" },
+      { "text": "SameSite makes the cookie invisible to JavaScript", "correct": false, "explanation": "That's the httpOnly flag, not SameSite. SameSite controls cookie sending in cross-origin requests. httpOnly protects from XSS (document.cookie)" }
+    ]
+  },
+  {
+    "question": "What is NoSQL injection and how do you protect against it?",
+    "type": "single",
+    "options": [
+      { "text": "Passing MongoDB operators ($gt, $ne) through input -- defense: express-mongo-sanitize (strips $ and .) + Zod validation", "correct": true },
+      { "text": "SQL injection in MongoDB -- same defense as SQL databases", "correct": false, "explanation": "MongoDB doesn't use SQL. NoSQL injection passes MongoDB operators via JSON. { email: { $gt: '' } } returns the first user instead of a specific one" },
+      { "text": "Injecting JavaScript into MongoDB via eval", "correct": false, "explanation": "While $where and eval are dangerous, typical NoSQL injection passes operators ($gt, $ne, $exists) via unchecked input. express-mongo-sanitize solves this" },
+      { "text": "NoSQL injection is impossible because MongoDB doesn't use SQL", "correct": false, "explanation": "Absence of SQL doesn't mean security. MongoDB operators ($gt, $ne, $regex) allow bypassing filters. { password: { $ne: '' } } bypasses password checks" }
+    ]
+  },
+  {
+    "question": "Why is the regex /^(a+)+$/ dangerous (ReDoS)?",
+    "type": "single",
+    "options": [
+      { "text": "Nested quantifiers (a+)+ create exponential backtracking paths on strings like 'aaaaab'", "correct": true },
+      { "text": "It's an infinite loop -- the regex never terminates", "correct": false, "explanation": "It's not infinite -- the regex will terminate, but on a 25-character string it takes minutes/hours. The number of backtracks grows exponentially: 2^n" },
+      { "text": "Regex consumes lots of RAM when processing long strings", "correct": false, "explanation": "ReDoS is a CPU problem, not RAM. The regex engine tries exponential paths, loading the processor. This enables DoS via a single HTTP string" },
+      { "text": "Only in Node.js -- other languages aren't affected by ReDoS", "correct": false, "explanation": "ReDoS affects all languages with backtracking regex engines: JavaScript, Python, Java, Ruby, .NET. Only RE2 (Go, Rust) uses a linear-time algorithm" }
+    ]
+  },
+  {
+    "question": "Which headers does Helmet set by default?",
+    "type": "multiple",
+    "options": [
+      { "text": "X-Content-Type-Options: nosniff -- prevents MIME sniffing", "correct": true },
+      { "text": "X-Frame-Options: SAMEORIGIN -- clickjacking protection", "correct": true },
+      { "text": "Authorization: Bearer -- automatic JWT authentication", "correct": false, "explanation": "Helmet doesn't manage authentication. Authorization is a client request header, not a server response. Helmet sets security headers in responses" },
+      { "text": "Strict-Transport-Security -- enforces HTTPS", "correct": true }
+    ]
+  }
+]

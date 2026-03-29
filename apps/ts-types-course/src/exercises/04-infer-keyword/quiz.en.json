@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Where can the infer keyword be used?",
+    "type": "single",
+    "options": [
+      { "text": "Only in the true branch of a conditional type (after extends ... ?)", "correct": true },
+      { "text": "Anywhere in a type definition", "correct": false, "explanation": "infer is special syntax that only works inside conditional types in the extends pattern" },
+      { "text": "In interfaces and classes", "correct": false, "explanation": "infer cannot be used in interfaces or classes — only in conditional types" },
+      { "text": "In both branches of a conditional type (true and false)", "correct": false, "explanation": "A variable declared with infer is only available in the true branch of the conditional type" }
+    ]
+  },
+  {
+    "question": "What happens when two infer with the same name appear in covariant positions?",
+    "type": "single",
+    "options": [
+      { "text": "A union of the inferred types is produced", "correct": true },
+      { "text": "An intersection of the inferred types is produced", "correct": false, "explanation": "Intersection occurs in contravariant positions (e.g., function parameters). In covariant positions, TypeScript creates a union" },
+      { "text": "TypeScript throws a compilation error", "correct": false, "explanation": "Two infer with the same name is valid syntax — TypeScript will combine the inferred types" },
+      { "text": "The second infer is ignored", "correct": false, "explanation": "Both infer declarations are considered — the result depends on position (covariant/contravariant)" }
+    ]
+  },
+  {
+    "question": "What type results from: type R = UnwrapPromise<string>, given UnwrapPromise<T> = T extends Promise<infer U> ? U : T?",
+    "type": "single",
+    "options": [
+      { "text": "string", "correct": true },
+      { "text": "never", "correct": false, "explanation": "never is only returned if the false branch returns never. Here the false branch returns T, which is string" },
+      { "text": "unknown", "correct": false, "explanation": "string is not a Promise, so the false branch fires, returning T (which is string)" },
+      { "text": "Promise<string>", "correct": false, "explanation": "string doesn't match the Promise<infer U> pattern, so the original T = string is returned" }
+    ]
+  },
+  {
+    "question": "How do you extract the last parameter type of a function using infer?",
+    "type": "single",
+    "options": [
+      { "text": "T extends (...args: [...infer _, infer L]) => unknown ? L : never", "correct": true },
+      { "text": "T extends (...args: infer P) => unknown ? P[P.length - 1] : never", "correct": false, "explanation": "You cannot use arithmetic like P.length - 1 at the type level. You need the variadic tuples pattern" },
+      { "text": "T extends (last: infer L) => unknown ? L : never", "correct": false, "explanation": "This pattern only works for single-parameter functions, not for any number of parameters" },
+      { "text": "T extends (...args: infer _, last: infer L) => unknown ? L : never", "correct": false, "explanation": "Rest parameter syntax doesn't allow splitting arguments this way. You need the [...infer _, infer L] pattern inside a tuple" }
+    ]
+  },
+  {
+    "question": "What does constrained infer in TypeScript 4.7+ do?",
+    "type": "multiple",
+    "options": [
+      { "text": "Allows adding an extends constraint directly in the infer position", "correct": true },
+      { "text": "Simplifies code by replacing nested conditional types", "correct": true },
+      { "text": "Automatically narrows the type in the true branch to the specified constraint", "correct": true },
+      { "text": "Only works with primitive types (string, number, boolean)", "correct": false, "explanation": "Constrained infer works with any types, not just primitives — you can constrain with interfaces, classes, unions, etc." },
+      { "text": "Replaces the need for conditional types", "correct": false, "explanation": "Constrained infer is still used inside conditional types — it doesn't replace them, it simplifies them" }
+    ]
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Чем контейнеры принципиально отличаются от виртуальных машин?",
+    "type": "single",
+    "options": [
+      { "text": "Контейнеры используют ядро хост-операционной системы, а VM имеют собственное ядро", "correct": true },
+      { "text": "Контейнеры работают только на Linux, а VM — на любой ОС", "correct": false, "explanation": "Контейнеры через Docker Desktop работают и на macOS/Windows. Различие не в поддерживаемых ОС, а в механизме изоляции" },
+      { "text": "Контейнеры не обеспечивают никакой изоляции", "correct": false, "explanation": "Контейнеры обеспечивают изоляцию через namespaces и cgroups, хоть и менее строгую, чем у VM" },
+      { "text": "Виртуальные машины быстрее контейнеров", "correct": false, "explanation": "Наоборот: контейнеры запускаются за секунды и имеют производительность, близкую к нативной, тогда как VM стартуют минутами" }
+    ]
+  },
+  {
+    "question": "Какие механизмы Linux используются для изоляции контейнеров?",
+    "type": "multiple",
+    "options": [
+      { "text": "namespaces — для изоляции процессов, сети, файловой системы", "correct": true },
+      { "text": "cgroups — для ограничения ресурсов (CPU, RAM)", "correct": true },
+      { "text": "hypervisor — для эмуляции аппаратного обеспечения", "correct": false, "explanation": "Hypervisor используется для виртуальных машин, а не для контейнеров" },
+      { "text": "BIOS — для загрузки гостевой ОС", "correct": false, "explanation": "BIOS/UEFI используется при загрузке физической или виртуальной машины, контейнеры не имеют собственного загрузчика" }
+    ]
+  },
+  {
+    "question": "Какова правильная цепочка взаимодействия компонентов Docker?",
+    "type": "single",
+    "options": [
+      { "text": "Docker CLI → Docker Daemon → containerd → runc → Контейнер", "correct": true },
+      { "text": "Docker CLI → containerd → Docker Daemon → runc → Контейнер", "correct": false, "explanation": "Docker Daemon (dockerd) получает запросы от CLI и делегирует их containerd, а не наоборот" },
+      { "text": "Docker CLI → runc → containerd → Docker Daemon → Контейнер", "correct": false, "explanation": "runc — это низкоуровневый рантайм, он вызывается containerd на последнем этапе, а не первым" },
+      { "text": "Docker CLI → Docker Registry → Docker Daemon → Контейнер", "correct": false, "explanation": "Registry используется для хранения образов, а не как промежуточное звено при запуске контейнеров" }
+    ]
+  },
+  {
+    "question": "Что произойдёт с данными при удалении контейнера, если не использовать тома?",
+    "type": "single",
+    "options": [
+      { "text": "Данные будут потеряны безвозвратно", "correct": true },
+      { "text": "Данные сохранятся в образе", "correct": false, "explanation": "Образ — это шаблон только для чтения. Изменения контейнера хранятся в записываемом слое, который удаляется вместе с контейнером" },
+      { "text": "Docker автоматически создаст бэкап", "correct": false, "explanation": "Docker не создаёт автоматических бэкапов. Для сохранения данных нужно явно использовать тома (volumes)" },
+      { "text": "Данные останутся в Docker Daemon", "correct": false, "explanation": "Docker Daemon управляет контейнерами, но не сохраняет данные удалённых контейнеров" }
+    ]
+  }
+]

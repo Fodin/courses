@@ -1,0 +1,42 @@
+[
+  {
+    "question": "How do you connect a Yup schema to useForm?",
+    "type": "single",
+    "options": [
+      { "text": "useForm({ resolver: yupResolver(schema) })", "correct": true },
+      { "text": "useForm({ resolver: zodResolver(schema) })", "correct": false, "explanation": "zodResolver is meant for Zod schemas — use yupResolver for Yup" },
+      { "text": "useForm({ schema })", "correct": false, "explanation": "useForm does not accept a schema parameter directly — a resolver is required" },
+      { "text": "useForm({ yup: schema })", "correct": false, "explanation": "There is no yup parameter — all validation libraries are connected via resolver" }
+    ]
+  },
+  {
+    "question": "How do you derive a TypeScript type from a Yup schema?",
+    "type": "single",
+    "options": [
+      { "text": "type FormData = yup.infer<typeof schema>", "correct": false, "explanation": "In Yup the method is called InferType (capital I and T), not infer" },
+      { "text": "type FormData = yup.InferType<typeof schema>", "correct": true },
+      { "text": "type FormData = typeof schema", "correct": false, "explanation": "typeof schema gives the type of the Yup schema itself, not the data" },
+      { "text": "type FormData = schema.type()", "correct": false, "explanation": "No such method exists in Yup" }
+    ]
+  },
+  {
+    "question": "What are the differences between Zod and Yup?",
+    "type": "multiple",
+    "options": [
+      { "text": "Zod was built with a TypeScript-first approach", "correct": true },
+      { "text": "In Yup strings are optional by default, in Zod they are required", "correct": true },
+      { "text": "Yup uses a chained API", "correct": true },
+      { "text": "Zod does not support async validation", "correct": false, "explanation": "Zod supports async validation via .refine() with an async function" }
+    ]
+  },
+  {
+    "question": "How do you validate that a string matches a regular expression in Yup?",
+    "type": "single",
+    "options": [
+      { "text": "yup.string().regex(/pattern/)", "correct": false, "explanation": "In Yup the method is called matches(), not regex()" },
+      { "text": "yup.string().matches(/pattern/, 'Error')", "correct": true },
+      { "text": "yup.string().pattern(/pattern/)", "correct": false, "explanation": "In Yup the method is called matches(), not pattern()" },
+      { "text": "yup.string().test(/pattern/)", "correct": false, "explanation": "test() accepts a function, not a RegExp — use matches() for RegExp" }
+    ]
+  }
+]

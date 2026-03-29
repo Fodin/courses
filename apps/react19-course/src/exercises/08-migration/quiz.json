@@ -1,0 +1,54 @@
+[
+  {
+    "question": "Какой порядок шагов рекомендуется при миграции на React 19?",
+    "type": "single",
+    "options": [
+      { "text": "Обновить зависимости → запустить codemod → исправить breaking changes → внедрить новые API", "correct": true },
+      { "text": "Внедрить новые API → обновить зависимости → исправить breaking changes", "correct": false, "explanation": "Нельзя использовать новые API до обновления зависимостей. Сначала нужно установить React 19." },
+      { "text": "Запустить codemod → обновить зависимости → тестировать", "correct": false, "explanation": "Codemod нужно запускать после обновления зависимостей, чтобы он знал целевую версию React." },
+      { "text": "Переписать всё приложение с нуля на React 19", "correct": false, "explanation": "React 19 поддерживает постепенную миграцию. Полная переработка не требуется." }
+    ]
+  },
+  {
+    "question": "Какие из этих изменений НЕ нужно делать сразу при миграции на React 19?",
+    "type": "multiple",
+    "options": [
+      { "text": "Заменить useContext на use(Context)", "correct": true },
+      { "text": "Заменить Context.Provider на Context", "correct": true },
+      { "text": "Заменить ReactDOM.render на createRoot", "correct": false, "explanation": "Это обязательное изменение — ReactDOM.render удалён в React 19." },
+      { "text": "Переписать существующие формы с onSubmit на Actions", "correct": true },
+      { "text": "Удалить defaultProps из функциональных компонентов", "correct": false, "explanation": "Это обязательное изменение — defaultProps для функциональных компонентов удалены в React 19." }
+    ]
+  },
+  {
+    "question": "Что из перечисленного заменяет defaultProps для функциональных компонентов в React 19?",
+    "type": "single",
+    "options": [
+      { "text": "ES6 default parameters", "correct": true },
+      { "text": "React.defaultValues", "correct": false, "explanation": "API React.defaultValues не существует. Стандартный подход — деструктуризация с значениями по умолчанию." },
+      { "text": "useDefaults() хук", "correct": false, "explanation": "Хук useDefaults() не существует в React. Используйте ES6 default parameters при деструктуризации props." },
+      { "text": "Атрибут defaultValue в JSX", "correct": false, "explanation": "defaultValue — атрибут для элементов формы (input, textarea), а не для задания значений props по умолчанию." }
+    ]
+  },
+  {
+    "question": "Какие новые API появились в React 19?",
+    "type": "multiple",
+    "options": [
+      { "text": "use()", "correct": true },
+      { "text": "useActionState", "correct": true },
+      { "text": "useOptimistic", "correct": true },
+      { "text": "useAsync", "correct": false, "explanation": "Хук useAsync не существует в React 19. Для async-данных используется use(Promise) + Suspense." },
+      { "text": "useFormStatus", "correct": true }
+    ]
+  },
+  {
+    "question": "Откуда теперь импортируется функция act для тестирования в React 19?",
+    "type": "single",
+    "options": [
+      { "text": "import { act } from 'react-dom/test-utils'", "correct": false, "explanation": "react-dom/test-utils удалён в React 19. act теперь экспортируется из основного пакета react." },
+      { "text": "import { act } from 'react'", "correct": true },
+      { "text": "import { act } from '@testing-library/react'", "correct": false, "explanation": "@testing-library/react реэкспортирует act, но каноничный импорт в React 19 — из пакета react." },
+      { "text": "import { act } from 'react-dom'", "correct": false, "explanation": "act не экспортируется из react-dom. В React 19 он импортируется из react." }
+    ]
+  }
+]

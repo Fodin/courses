@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему в React 19 больше не нужно писать import React from 'react' в каждом файле с JSX?",
+    "type": "single",
+    "options": [
+      { "text": "Новый JSX transform автоматически подставляет импорт из react/jsx-runtime", "correct": true },
+      { "text": "React 19 стал глобальной переменной и не требует импорта", "correct": false, "explanation": "React не стал глобальной переменной. Просто компилятор теперь сам добавляет нужный импорт из react/jsx-runtime." },
+      { "text": "JSX был заменён на обычные вызовы функций", "correct": false, "explanation": "JSX по-прежнему компилируется в вызовы функций, но теперь это jsx() из react/jsx-runtime вместо React.createElement()." },
+      { "text": "В React 19 JSX обрабатывается браузером нативно", "correct": false, "explanation": "Браузеры не поддерживают JSX нативно. JSX по-прежнему требует компиляции." }
+    ]
+  },
+  {
+    "question": "Как передать ref в дочерний функциональный компонент в React 19?",
+    "type": "single",
+    "options": [
+      { "text": "Обернуть компонент в forwardRef", "correct": false, "explanation": "forwardRef больше не нужен в React 19. ref теперь обычный prop." },
+      { "text": "Передать ref как обычный prop", "correct": true },
+      { "text": "Использовать специальный проп innerRef", "correct": false, "explanation": "innerRef — это устаревший паттерн из старых библиотек. В React 19 ref — стандартный prop." },
+      { "text": "Использовать useImperativeHandle обязательно", "correct": false, "explanation": "useImperativeHandle нужен только для кастомизации значения ref, а не для простой передачи." }
+    ]
+  },
+  {
+    "question": "Что возвращает ref cleanup function в React 19?",
+    "type": "single",
+    "options": [
+      { "text": "Функцию, которая вызывается при размонтировании элемента", "correct": true },
+      { "text": "null, чтобы очистить ссылку на DOM-элемент", "correct": false, "explanation": "В React 19 cleanup реализуется через возврат функции, а не через null. Паттерн с null — это подход React 18." },
+      { "text": "Promise для асинхронной очистки", "correct": false, "explanation": "Ref cleanup — синхронная функция, как и cleanup в useEffect." },
+      { "text": "Объект с методом dispose()", "correct": false, "explanation": "React не использует паттерн Disposable для ref cleanup. Используется обычная функция." }
+    ]
+  },
+  {
+    "question": "Какое значение jsx нужно установить в tsconfig.json для React 19?",
+    "type": "single",
+    "options": [
+      { "text": "\"react\"", "correct": false, "explanation": "Значение \"react\" использует старый transform через React.createElement, который не поддерживается в React 19." },
+      { "text": "\"react-jsx\"", "correct": true },
+      { "text": "\"react-jsxdev\"", "correct": false, "explanation": "react-jsxdev используется только для development-сборок. Для production нужен react-jsx." },
+      { "text": "\"preserve\"", "correct": false, "explanation": "preserve оставляет JSX без трансформации. Для React 19 нужен react-jsx." }
+    ]
+  },
+  {
+    "question": "Какие преимущества даёт ref как обычный prop в React 19?",
+    "type": "multiple",
+    "options": [
+      { "text": "Не нужна обёртка forwardRef", "correct": true },
+      { "text": "Не нужен displayName", "correct": true },
+      { "text": "ref можно передавать через несколько уровней вложенности автоматически", "correct": false, "explanation": "ref по-прежнему нужно передавать явно через каждый уровень, как и любой другой prop." },
+      { "text": "Проще типизация в TypeScript", "correct": true }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Какой стиль API fs рекомендуется использовать в серверном коде?",
+    "type": "single",
+    "options": [
+      { "text": "fs/promises (await fs.readFile(...))", "correct": true },
+      { "text": "fs.readFileSync(...)", "correct": false, "explanation": "Синхронные методы блокируют Event Loop и не должны использоваться в серверном коде. Они допустимы только в CLI-скриптах или при инициализации" },
+      { "text": "fs.readFile(..., callback)", "correct": false, "explanation": "Callback API работает, но приводит к callback hell. Promise API (fs/promises) — современный и рекомендуемый подход" },
+      { "text": "Все три стиля одинаково хороши", "correct": false, "explanation": "Sync блокирует Event Loop, callback приводит к вложенности. fs/promises — наиболее чистый и поддерживаемый подход" }
+    ]
+  },
+  {
+    "question": "Что вернёт fs.readFile без указания encoding?",
+    "type": "single",
+    "options": [
+      { "text": "Buffer", "correct": true },
+      { "text": "string в UTF-8", "correct": false, "explanation": "Без encoding Node.js возвращает сырой Buffer. Для получения строки нужно указать encoding: 'utf8' или вызвать buf.toString('utf8')" },
+      { "text": "Uint8Array", "correct": false, "explanation": "Node.js возвращает Buffer, который наследуется от Uint8Array, но это именно Buffer с дополнительными методами" },
+      { "text": "null", "correct": false, "explanation": "readFile всегда возвращает данные файла — либо Buffer (без encoding), либо string (с encoding)" }
+    ]
+  },
+  {
+    "question": "Почему path.join() предпочтительнее конкатенации строк для путей?",
+    "type": "single",
+    "options": [
+      { "text": "path.join() нормализует разделители и работает кроссплатформенно", "correct": true },
+      { "text": "path.join() быстрее строковой конкатенации", "correct": false, "explanation": "Скорость не главная причина. Главное — path.join() корректно обрабатывает разделители ('/' vs '\\'), убирает дубликаты и обрабатывает '..' " },
+      { "text": "path.join() проверяет существование файла", "correct": false, "explanation": "path.join() только строит путь, он не обращается к файловой системе и не проверяет существование" },
+      { "text": "Конкатенация строк запрещена в strict mode", "correct": false, "explanation": "strict mode не запрещает конкатенацию строк. Проблема в том, что '/' не работает на Windows, а path.join() использует правильный разделитель" }
+    ]
+  },
+  {
+    "question": "Какие утверждения о fs.watch() и fs.watchFile() верны?",
+    "type": "multiple",
+    "options": [
+      { "text": "fs.watch() использует уведомления ОС и более эффективен", "correct": true },
+      { "text": "fs.watchFile() использует polling и работает на сетевых дисках", "correct": true },
+      { "text": "fs.watch() может генерировать дублирующиеся события", "correct": true },
+      { "text": "fs.watchFile() поддерживает рекурсивное наблюдение за директориями", "correct": false, "explanation": "fs.watchFile() работает только с одним файлом. Рекурсивное наблюдение поддерживает fs.watch() (на macOS и Windows)" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при вызове fs.writeFile() если директория не существует?",
+    "type": "single",
+    "options": [
+      { "text": "Будет ошибка ENOENT", "correct": true },
+      { "text": "Директория будет создана автоматически", "correct": false, "explanation": "writeFile не создаёт директории. Нужно предварительно вызвать mkdir({ recursive: true }) для создания нужной структуры" },
+      { "text": "Файл будет создан в текущей директории", "correct": false, "explanation": "Node.js не меняет путь — если указанная директория не существует, операция завершится ошибкой ENOENT" },
+      { "text": "writeFile вернёт null без ошибки", "correct": false, "explanation": "writeFile всегда выбрасывает ошибку если путь невалиден. Отсутствующая директория — это ошибка ENOENT" }
+    ]
+  }
+]

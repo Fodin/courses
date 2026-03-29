@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Когда TypeScript НЕ проверяет excess properties?",
+    "type": "single",
+    "options": [
+      { "text": "При присваивании через промежуточную переменную (непрямое присваивание)", "correct": true },
+      { "text": "При прямом присваивании объектного литерала", "correct": false, "explanation": "Прямое присваивание — это именно тот случай, когда TypeScript проверяет excess properties и выдаёт ошибку" },
+      { "text": "При использовании интерфейсов вместо type alias", "correct": false, "explanation": "Проверка excess properties не зависит от интерфейсов vs type alias. Она зависит от способа присваивания (прямое vs непрямое)" },
+      { "text": "При использовании strict mode", "correct": false, "explanation": "strict mode не влияет на excess property checks. Эта проверка работает одинаково в strict и non-strict режимах" }
+    ]
+  },
+  {
+    "question": "Как работает тип Without<T, U> в реализации XOR?",
+    "type": "single",
+    "options": [
+      { "text": "Делает ключи из T, отсутствующие в U, опциональными с типом never", "correct": true },
+      { "text": "Удаляет все ключи T из U", "correct": false, "explanation": "Without не удаляет ключи, а делает \"чужие\" ключи опциональными с типом never. Это позволяет TypeScript запретить их присутствие в объекте" },
+      { "text": "Создаёт intersection T & U", "correct": false, "explanation": "Without создаёт тип с ключами из Exclude<keyof T, keyof U>, каждый из которых имеет тип never. Это противоположность intersection" },
+      { "text": "Возвращает never, если T и U пересекаются", "correct": false, "explanation": "Without не возвращает never — он создаёт mapped type с optional never-свойствами, что запрещает их наличие в объекте" }
+    ]
+  },
+  {
+    "question": "Какие из утверждений верны для branded (opaque) типов?",
+    "type": "multiple",
+    "options": [
+      { "text": "Brand<number, 'UserId'> несовместим с Brand<number, 'PostId'>", "correct": true },
+      { "text": "Branded тип нельзя присвоить из обычного number без as-assertion", "correct": true },
+      { "text": "Branded типы добавляют runtime-overhead", "correct": false, "explanation": "Branded типы существуют только на уровне типов. В скомпилированном JavaScript бренд полностью стирается — это zero-cost abstraction" },
+      { "text": "Smart constructor обязателен для создания branded типа", "correct": false, "explanation": "Технически можно использовать as-assertion напрямую. Но smart constructor — это best practice, так как он добавляет runtime-валидацию и единую точку создания" }
+    ]
+  },
+  {
+    "question": "Что делает тип DeepPick<User, 'profile.settings.theme'> для User = { id: number; profile: { settings: { theme: string; language: string } } }?",
+    "type": "single",
+    "options": [
+      { "text": "{ profile: { settings: { theme: string } } } — вложенная структура с одним полем на каждом уровне", "correct": true },
+      { "text": "{ theme: string } — только конечное значение", "correct": false, "explanation": "DeepPick сохраняет всю вложенную структуру пути. Результат — не плоский объект, а полная иерархия от корня до целевого свойства" },
+      { "text": "string — тип самого свойства theme", "correct": false, "explanation": "DeepPick возвращает объектный тип с сохранением иерархии, а не тип конечного значения. Для получения типа значения нужен другой подход" },
+      { "text": "Pick<User, 'profile'> — обычный Pick на верхнем уровне", "correct": false, "explanation": "DeepPick не эквивалентен Pick. Pick<User, 'profile'> вернёт весь profile со всеми вложенными свойствами, а DeepPick возвращает только путь до theme" }
+    ]
+  },
+  {
+    "question": "Почему для DeepPick с несколькими путями нужен UnionToIntersection?",
+    "type": "single",
+    "options": [
+      { "text": "Потому что DeepPick для union путей создаёт union результатов, а нужен intersection для доступа ко всем полям", "correct": true },
+      { "text": "Потому что TypeScript не поддерживает union строковых литералов", "correct": false, "explanation": "TypeScript отлично поддерживает union строковых литералов. Проблема в том, что distributive conditional types превращают union путей в union результатов, а не intersection" },
+      { "text": "Потому что без intersection будет ошибка рекурсии", "correct": false, "explanation": "Рекурсия работает одинаково с union или intersection. Проблема семантическая: union результатов позволяет обращаться только к общим полям, а intersection — ко всем" },
+      { "text": "Потому что это оптимизация производительности компиляции", "correct": false, "explanation": "UnionToIntersection — это не оптимизация, а необходимость. Без него DeepPick<User, 'id' | 'profile.avatar'> вернёт {id: number} | {profile: {avatar: string}} — нельзя обратиться к обоим полям" }
+    ]
+  }
+]

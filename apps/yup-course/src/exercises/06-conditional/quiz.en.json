@@ -1,0 +1,53 @@
+[
+  {
+    "question": "What does the then function receive in the when() method?",
+    "type": "single",
+    "options": [
+      { "text": "The current field schema that should be extended with new rules", "correct": true },
+      { "text": "The value of the dependency field", "correct": false, "explanation": "The dependency field value is passed to is (as a function). then receives the current schema for extension" },
+      { "text": "An empty new schema to create from scratch", "correct": false, "explanation": "then receives the existing schema with already configured rules. Creating a new one loses the previous rules" },
+      { "text": "An object with is, then, and otherwise fields", "correct": false, "explanation": "then is a callback that receives the current schema and should return the modified schema" }
+    ]
+  },
+  {
+    "question": "Why do dependency field values come as an array in the functional syntax of when()?",
+    "type": "single",
+    "options": [
+      { "text": "Because when() can depend on multiple fields, and values are always passed uniformly as an array", "correct": true },
+      { "text": "It's an API design mistake", "correct": false, "explanation": "This is a deliberate design decision for uniformity: both single and multiple fields are passed as an array" },
+      { "text": "The array is needed to support nullable fields", "correct": false, "explanation": "The array format is not related to nullable. It's for uniformity with one or multiple dependency fields" },
+      { "text": "So that values can be mutated", "correct": false, "explanation": "Mutating values is not the goal. The array is used for uniform value passing" }
+    ]
+  },
+  {
+    "question": "What are the limitations of when() in Yup?",
+    "type": "multiple",
+    "options": [
+      { "text": "The dependency field must be declared in the same object (shape)", "correct": true },
+      { "text": "Circular dependencies between fields are not allowed", "correct": true },
+      { "text": "when() looks for fields at the same nesting level by default", "correct": true },
+      { "text": "Multiple when() calls on the same field are not allowed", "correct": false, "explanation": "You can chain multiple when() calls on the same field — each one extends the schema" },
+      { "text": "when() doesn't work with nested objects", "correct": false, "explanation": "when() works in nested objects but references fields at the same level" }
+    ]
+  },
+  {
+    "question": "What happens if you create a new schema in then instead of extending the provided one?",
+    "type": "single",
+    "options": [
+      { "text": "All previously configured rules (min, max, matches, etc.) will be lost", "correct": true },
+      { "text": "Yup will throw an error during schema creation", "correct": false, "explanation": "Yup won't throw an error, but previous rules will be silently lost" },
+      { "text": "The new schema will be merged with the old one", "correct": false, "explanation": "Yup doesn't automatically merge schemas. The schema returned from then completely replaces the current one for that condition" },
+      { "text": "Nothing — both schemas will be applied", "correct": false, "explanation": "Only the schema returned by then is applied. Previous rules are lost" }
+    ]
+  },
+  {
+    "question": "How does Yup handle multiple when() calls on the same field with different dependencies?",
+    "type": "single",
+    "options": [
+      { "text": "Each when() extends the schema — all conditions are applied cumulatively", "correct": true },
+      { "text": "Only the last when() is active", "correct": false, "explanation": "All when() calls are active simultaneously and complement each other" },
+      { "text": "Yup picks the first matching when() and ignores the rest", "correct": false, "explanation": "All matching when() calls are applied, not just the first one" },
+      { "text": "Multiple when() calls cause an error", "correct": false, "explanation": "Multiple when() calls on the same field is a valid and useful pattern" }
+    ]
+  }
+]

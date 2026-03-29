@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How does a type-safe DI container track types of registered services?",
+    "type": "single",
+    "options": [
+      { "text": "Through generic parameter accumulation: each register() extends TRegistry via intersection type", "correct": true },
+      { "text": "Through Map<string, unknown> with runtime checks", "correct": false, "explanation": "Map<string, unknown> is runtime storage. Type safety is provided by the generic parameter that extends with each registration" },
+      { "text": "Through decorators that add type metadata", "correct": false, "explanation": "Decorators are a separate mechanism. Generic parameter accumulation works without decorators and provides compile-time checking" },
+      { "text": "Through a JSON schema describing all service types", "correct": false, "explanation": "JSON schema is a runtime approach. The generic parameter works purely at the type level, without additional code" }
+    ]
+  },
+  {
+    "question": "How does InjectionToken differ from a string key for identifying services?",
+    "type": "multiple",
+    "options": [
+      { "text": "Token carries a phantom type linking it to the service type", "correct": true },
+      { "text": "Each token is a unique object, eliminating name collisions", "correct": true },
+      { "text": "Token is faster than string in Map lookups", "correct": false, "explanation": "Map performance is the same for strings and objects. Token advantages are type safety and uniqueness, not speed" },
+      { "text": "Token allows linking primitive values (string, number) with a typed key", "correct": true }
+    ]
+  },
+  {
+    "question": "What is a captive dependency and why is it a problem?",
+    "type": "single",
+    "options": [
+      { "text": "Singleton depending on a scoped service: the scoped instance is captured and doesn't refresh when a new scope is created", "correct": true },
+      { "text": "Circular dependency between two singletons", "correct": false, "explanation": "Circular dependency is a separate problem. Captive dependency occurs when the lifetime rule is violated: a long-lived service captures a short-lived one" },
+      { "text": "A service registered twice under different names", "correct": false, "explanation": "Duplicate registration is a different problem. Captive dependency is a lifetime mismatch between dependencies" },
+      { "text": "A dependency that isn't used by any service", "correct": false, "explanation": "An unused dependency is dead code, not a captive dependency. Captive is a lifetime problem, not a usage problem" }
+    ]
+  },
+  {
+    "question": "How does an auto-wiring container detect circular dependencies?",
+    "type": "single",
+    "options": [
+      { "text": "Through a Set of currently resolving services: if a service is already in the Set, it's a cycle", "correct": true },
+      { "text": "Through static dependency graph analysis at registration", "correct": false, "explanation": "Static analysis at registration is more complex and doesn't cover conditional dependencies. Recursive checking at resolve is simpler and more reliable" },
+      { "text": "Through a catch block for StackOverflow", "correct": false, "explanation": "StackOverflow is an uncontrolled error. Explicit checking via Set provides an informative message with cycle path" },
+      { "text": "Through limiting recursion depth", "correct": false, "explanation": "Depth limiting can give false positives for deep but non-cyclic graphs. Resolving Set is a precise method" }
+    ]
+  },
+  {
+    "question": "Which dependency lifetime rule is correct?",
+    "type": "single",
+    "options": [
+      { "text": "Singleton can only depend on singleton; scoped on scoped or singleton; transient on anything", "correct": true },
+      { "text": "Any service can depend on any other regardless of lifetime", "correct": false, "explanation": "This leads to captive dependencies: singleton will capture a scoped/transient instance and use an outdated version" },
+      { "text": "Transient cannot depend on singleton as it violates isolation", "correct": false, "explanation": "Transient can safely depend on singleton — singleton lives longer, which doesn't create problems" },
+      { "text": "Scoped can depend on transient but not on singleton", "correct": false, "explanation": "Scoped can safely depend on singleton (lives longer). Dependency on transient is also fine — transient is recreated on each resolve" }
+    ]
+  }
+]

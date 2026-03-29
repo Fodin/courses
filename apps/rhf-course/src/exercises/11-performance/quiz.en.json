@@ -1,0 +1,32 @@
+[
+  {
+    "question": "Why is watch() without arguments bad for performance?",
+    "type": "single",
+    "options": [
+      { "text": "It makes an HTTP request on every change", "correct": false, "explanation": "watch() does not make HTTP requests — the problem is re-renders" },
+      { "text": "It subscribes to all fields and causes a full component re-render on any change", "correct": true },
+      { "text": "It blocks the main thread", "correct": false, "explanation": "watch() does not block the thread — the problem is excessive re-renders" },
+      { "text": "It consumes a lot of memory", "correct": false, "explanation": "The main issue is not memory, but the number of re-renders" }
+    ]
+  },
+  {
+    "question": "How does useWatch differ from watch?",
+    "type": "multiple",
+    "options": [
+      { "text": "useWatch subscribes only to the specified fields", "correct": true },
+      { "text": "useWatch can be used in child components via control", "correct": true },
+      { "text": "useWatch does not cause re-renders", "correct": false, "explanation": "useWatch does cause re-renders, but only in the component where it is used and only when the specified fields change" },
+      { "text": "useWatch isolates re-renders from the rest of the form", "correct": true }
+    ]
+  },
+  {
+    "question": "Which approach helps isolate re-renders in large forms?",
+    "type": "single",
+    "options": [
+      { "text": "Use watch() for all fields along with shouldComponentUpdate", "correct": false, "explanation": "watch() subscribes to everything — this is the opposite of isolation" },
+      { "text": "Extract parts of the form into separate components with memo and useWatch", "correct": true },
+      { "text": "Use useCallback for all handlers", "correct": false, "explanation": "useCallback memoizes functions but does not prevent re-renders caused by watch()" },
+      { "text": "Increase the debounce delay for onChange", "correct": false, "explanation": "Debounce reduces frequency but does not isolate re-renders" }
+    ]
+  }
+]

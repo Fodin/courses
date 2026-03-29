@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему discriminated union лучше объекта с опциональными полями для моделирования состояний?",
+    "type": "single",
+    "options": [
+      { "text": "Каждое состояние имеет строго свой набор данных, TypeScript сужает тип при проверке дискриминатора и исключает доступ к несуществующим полям", "correct": true },
+      { "text": "Discriminated union занимает меньше памяти, чем объект с опциональными полями", "correct": false, "explanation": "Разница в памяти минимальна. Преимущество в типобезопасности: при использовании опциональных полей data и error могут быть undefined в любом состоянии, что приводит к ошибкам" },
+      { "text": "TypeScript не поддерживает опциональные поля в интерфейсах", "correct": false, "explanation": "TypeScript прекрасно поддерживает опциональные поля (?:). Проблема в том, что они не связаны с конкретным состоянием, и компилятор не может гарантировать их наличие" },
+      { "text": "Объекты с опциональными полями нельзя использовать в switch", "correct": false, "explanation": "Объекты с опциональными полями можно использовать в switch. Но без discriminator TypeScript не сможет сузить тип и дать доступ к state-specific данным" }
+    ]
+  },
+  {
+    "question": "Как TypeScript сужает тип в ветках switch по дискриминатору discriminated union?",
+    "type": "single",
+    "options": [
+      { "text": "Через control flow analysis: в каждом case компилятор вычитает обработанные варианты из union, оставляя конкретный тип", "correct": true },
+      { "text": "Через runtime-проверку типов с помощью typeof", "correct": false, "explanation": "typeof работает только с примитивами (string, number, boolean). Для объектов TypeScript использует control flow analysis по значению дискриминатора" },
+      { "text": "TypeScript добавляет runtime-приведение типов в каждый case", "correct": false, "explanation": "TypeScript не добавляет ничего в runtime. Сужение типов — исключительно compile-time механизм, использующий анализ потока управления" },
+      { "text": "Через метод instanceof для каждого варианта union", "correct": false, "explanation": "instanceof работает только с классами. Discriminated unions — это обычные объекты, различаемые по значению поля-дискриминатора" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если dispatch CONNECTED action в состоянии phase: 'offline'?",
+    "type": "single",
+    "options": [
+      { "text": "Reducer вернёт текущее состояние без изменений, так как CONNECTED применим только к online", "correct": true },
+      { "text": "TypeScript не позволит вызвать dispatch с CONNECTED в offline состоянии", "correct": false, "explanation": "Reducer принимает любой AppAction независимо от текущего состояния. Проверка применимости — внутри reducer через if (state.phase !== 'online')" },
+      { "text": "Произойдёт runtime ошибка при обращении к state.connection", "correct": false, "explanation": "Если reducer правильно реализован, он проверяет phase перед доступом к connection и возвращает state без изменений для неприменимых действий" },
+      { "text": "TypeScript автоматически преобразует состояние в online", "correct": false, "explanation": "TypeScript не выполняет автоматических преобразований данных. Переходы между состояниями определяются логикой reducer" }
+    ]
+  },
+  {
+    "question": "Как функция isInState() обеспечивает type narrowing в TypeScript?",
+    "type": "single",
+    "options": [
+      { "text": "Через return type 'value is Extract<State, { status: S }>' — type predicate, который сужает тип после проверки", "correct": true },
+      { "text": "Через приведение типа (as) внутри функции", "correct": false, "explanation": "Приведение типа (as) работает только внутри функции и не влияет на тип в вызывающем коде. Type predicate (is) — специальный механизм, информирующий TypeScript о сужении типа" },
+      { "text": "Через generic constraints, которые ограничивают допустимые параметры", "correct": false, "explanation": "Generic constraints ограничивают входные типы, но не сужают тип переменной после вызова функции. Для этого нужен type predicate" },
+      { "text": "TypeScript автоматически определяет type narrowing для всех функций с проверками", "correct": false, "explanation": "TypeScript сужает типы автоматически только для прямых проверок (typeof, ===, in). Для пользовательских функций нужно явно указать type predicate через синтаксис 'param is Type'" }
+    ]
+  },
+  {
+    "question": "Какие преимущества даёт типизация функций-переходов через Extract (например, approve принимает только Extract<DocumentState, { status: 'review' }>)?",
+    "type": "multiple",
+    "options": [
+      { "text": "Невалидные переходы обнаруживаются на этапе компиляции, а не в runtime", "correct": true },
+      { "text": "Внутри функции доступны все данные конкретного состояния без дополнительных проверок", "correct": true },
+      { "text": "Функции-переходы становятся быстрее благодаря оптимизациям компилятора", "correct": false, "explanation": "Extract — это чисто type-level конструкция, стираемая при компиляции. Никакого влияния на runtime-производительность нет" },
+      { "text": "Документирование допустимых переходов прямо в сигнатуре функции", "correct": true }
+    ]
+  }
+]

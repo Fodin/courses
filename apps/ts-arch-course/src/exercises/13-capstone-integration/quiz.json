@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему Value Object (Email, Money) использует приватный конструктор и фабричный метод create(), возвращающий Result?",
+    "type": "single",
+    "options": [
+      { "text": "Приватный конструктор гарантирует, что невалидный Value Object невозможно создать — валидация происходит в create(), и результат типизирован как Result (успех или ошибка)", "correct": true },
+      { "text": "Приватный конструктор ускоряет создание объектов за счёт оптимизаций V8", "correct": false, "explanation": "Приватный конструктор — compile-time ограничение TypeScript, не влияющее на runtime. Цель — гарантировать, что объект создаётся только через валидирующий фабричный метод" },
+      { "text": "Result тип нужен для асинхронного создания объектов", "correct": false, "explanation": "Result не связан с асинхронностью (для этого Promise). Result используется для явного представления успеха/ошибки без throw, что делает ошибки частью контракта" },
+      { "text": "Фабричный метод нужен для реализации паттерна Singleton", "correct": false, "explanation": "Value Objects — не Singleton (их может быть много экземпляров). Фабричный метод нужен для инкапсуляции валидации и нормализации данных" }
+    ]
+  },
+  {
+    "question": "В чём преимущество CQS (Command-Query Separation) при типизации handlers?",
+    "type": "multiple",
+    "options": [
+      { "text": "Команды и запросы типизированы отдельно — компилятор проверяет, что handler получает правильный тип команды/запроса", "correct": true },
+      { "text": "Extract<Command, { type: 'CreateOrder' }> автоматически сужает тип аргумента handler до конкретной команды", "correct": true },
+      { "text": "CQS ускоряет выполнение запросов за счёт разделения чтения и записи на уровне TypeScript", "correct": false, "explanation": "TypeScript не влияет на runtime-производительность. CQS — архитектурный паттерн для разделения ответственности, а не оптимизации скорости" },
+      { "text": "Запросы могут быть кэшированы, а команды — нет, что TypeScript проверяет статически", "correct": false, "explanation": "TypeScript не может статически проверять кэшируемость. CQS помогает архитектурно, но кэширование — runtime-решение" }
+    ]
+  },
+  {
+    "question": "Почему Repository<T, ID> в Infrastructure Layer возвращает Result вместо бросания исключений?",
+    "type": "single",
+    "options": [
+      { "text": "Result делает возможные ошибки частью типа функции — вызывающий код обязан обработать оба случая (ok/error), что предотвращает необработанные ошибки", "correct": true },
+      { "text": "Потому что TypeScript не поддерживает типизацию исключений в throws clause", "correct": false, "explanation": "Верно, что TypeScript не имеет throws clause, но это не главная причина. Result явно моделирует возможные ошибки в сигнатуре, делая контракт прозрачным" },
+      { "text": "Result работает быстрее try/catch благодаря отсутствию stack trace", "correct": false, "explanation": "Разница в производительности минимальна для операций с базой данных. Преимущество Result — в типобезопасности и явном контракте, а не в скорости" },
+      { "text": "Исключения не совместимы с generic типами в TypeScript", "correct": false, "explanation": "Исключения совместимы с generic типами. Result выбирается по архитектурным причинам: явный контракт, compose-ability, и принуждение к обработке ошибок" }
+    ]
+  },
+  {
+    "question": "Как TypedContainer с TokenMap обеспечивает типобезопасность DI?",
+    "type": "single",
+    "options": [
+      { "text": "TokenMap связывает строковые ключи с конкретными типами, и resolve<K extends keyof TokenMap>(token: K): TokenMap[K] возвращает точный тип для каждого токена", "correct": true },
+      { "text": "TypedContainer проверяет типы сервисов в runtime при каждом resolve", "correct": false, "explanation": "TokenMap — compile-time конструкция. TypedContainer не добавляет runtime-проверок типов. Типобезопасность обеспечивается generic-параметром K в resolve" },
+      { "text": "TokenMap автоматически генерируется из зарегистрированных сервисов", "correct": false, "explanation": "TokenMap определяется вручную. Это осознанный выбор: маппинг типов является документацией всех доступных сервисов и их типов" },
+      { "text": "TypedContainer запрещает регистрацию сервисов с неправильным типом", "correct": false, "explanation": "Регистрация происходит в generic Container без привязки к TokenMap. TypedContainer — обёртка, обеспечивающая типобезопасность при resolve, а не при register" }
+    ]
+  },
+  {
+    "question": "Почему в API Layer маппинг domain объектов в DTO (toOrderResponse) критически важен?",
+    "type": "multiple",
+    "options": [
+      { "text": "Domain объекты (Money, Specification) содержат методы и внутреннюю логику, которая не должна утекать в API-ответы", "correct": true },
+      { "text": "DTO гарантирует стабильный формат API даже при изменении внутренних domain типов", "correct": true },
+      { "text": "Маппинг ускоряет сериализацию в JSON за счёт упрощения структуры", "correct": false, "explanation": "Ускорение сериализации — побочный эффект, а не цель. Главная причина — инкапсуляция domain логики и стабильность API-контракта" },
+      { "text": "Преобразование типов (Money.toString(), timestamp → ISO) делает ответ удобным для клиентов", "correct": true }
+    ]
+  }
+]

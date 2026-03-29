@@ -1,7 +1,7 @@
 import { useCallback, type ReactNode } from 'react'
 
 import { useLocalStorage } from './useLocalStorage'
-import { ProgressContext, type TaskProgress } from './useProgress'
+import { ProgressContext, type TaskProgress, type QuizProgress } from './useProgress'
 
 interface ProgressProviderProps {
   storageKey: string
@@ -10,6 +10,7 @@ interface ProgressProviderProps {
 
 export function ProgressProvider({ storageKey, children }: ProgressProviderProps) {
   const [progress, setProgress] = useLocalStorage<TaskProgress>(storageKey, {})
+  const [quizProgress, setQuizProgress] = useLocalStorage<QuizProgress>(`${storageKey}-quiz`, {})
 
   const toggleTask = useCallback(
     (levelId: string, taskId: string) => {
@@ -52,9 +53,27 @@ export function ProgressProvider({ storageKey, children }: ProgressProviderProps
     [progress]
   )
 
+  const isQuizComplete = useCallback(
+    (levelId: string) => {
+      return quizProgress[levelId] || false
+    },
+    [quizProgress]
+  )
+
+  const setQuizComplete = useCallback(
+    (levelId: string, complete: boolean) => {
+      setQuizProgress(prev => ({
+        ...prev,
+        [levelId]: complete,
+      }))
+    },
+    [setQuizProgress]
+  )
+
   const resetProgress = useCallback(() => {
     setProgress({})
-  }, [setProgress])
+    setQuizProgress({})
+  }, [setProgress, setQuizProgress])
 
   return (
     <ProgressContext.Provider
@@ -65,6 +84,9 @@ export function ProgressProvider({ storageKey, children }: ProgressProviderProps
         getLevelProgress,
         getTotalProgress,
         resetProgress,
+        quizProgress,
+        isQuizComplete,
+        setQuizComplete,
       }}
     >
       {children}

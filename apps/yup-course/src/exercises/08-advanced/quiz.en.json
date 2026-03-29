@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How does yup.ref() work and where can it be used?",
+    "type": "single",
+    "options": [
+      { "text": "Creates a reference to another field's value in the same object() — for cross-field validation", "correct": true },
+      { "text": "Creates a reference to another schema for reuse", "correct": false, "explanation": "ref() references a field value, not a schema. Use variables for schema reuse" },
+      { "text": "References an external JavaScript variable", "correct": false, "explanation": "ref() only works with fields inside object() or with context ($). Use $-context for external data" },
+      { "text": "Creates a lazy reference evaluated at schema creation time", "correct": false, "explanation": "ref() is evaluated on each validation, not at schema creation time" }
+    ]
+  },
+  {
+    "question": "Why do you need to add .default(undefined) in recursive schemas with lazy()?",
+    "type": "single",
+    "options": [
+      { "text": "Without it, Yup enters an infinite loop when trying to determine the default value", "correct": true },
+      { "text": "It's needed for TypeScript typing", "correct": false, "explanation": "default(undefined) is needed at runtime, not for TypeScript. Without it, Yup recursively computes the default" },
+      { "text": "lazy() requires a mandatory default() call", "correct": false, "explanation": "lazy() doesn't require default() in general. But for recursive schemas, it's necessary to prevent infinite loops" },
+      { "text": "Without default(), the recursive schema can't validate data", "correct": false, "explanation": "Validation will work, but Yup may hang when trying to compute the default value" }
+    ]
+  },
+  {
+    "question": "What do you need to do for InferType to infer literal types from oneOf?",
+    "type": "single",
+    "options": [
+      { "text": "Use as const for the values array: oneOf(['admin', 'user'] as const)", "correct": true },
+      { "text": "Specify a generic type: oneOf<'admin' | 'user'>(['admin', 'user'])", "correct": false, "explanation": "oneOf doesn't accept a generic parameter for literal types. Use as const" },
+      { "text": "Wrap values in yup.string(): oneOf([yup.string('admin')])", "correct": false, "explanation": "oneOf accepts plain values, not schemas. Use as const for literal types" },
+      { "text": "Nothing — InferType automatically infers literal types", "correct": false, "explanation": "Without as const, TypeScript widens literals to string. as const preserves exact values" }
+    ]
+  },
+  {
+    "question": "Which statements about the context ($) in ref() are correct?",
+    "type": "multiple",
+    "options": [
+      { "text": "References with $ access the context passed in validate() options", "correct": true },
+      { "text": "Context allows passing external data into validation", "correct": true },
+      { "text": "Context helps solve the problem of circular dependencies", "correct": true },
+      { "text": "Context automatically includes all fields from the parent object", "correct": false, "explanation": "Context is passed explicitly via the { context: {...} } option. It doesn't include schema fields automatically" }
+    ]
+  },
+  {
+    "question": "How does lazy() differ from when() for dynamic schema selection?",
+    "type": "single",
+    "options": [
+      { "text": "lazy() selects a schema based on the value itself, when() based on other fields' values", "correct": true },
+      { "text": "lazy() is faster, when() is slower", "correct": false, "explanation": "The difference is not in performance but in what determines schema selection: the value itself or other fields" },
+      { "text": "when() supports recursion, lazy() does not", "correct": false, "explanation": "It's the opposite: lazy() is the primary tool for recursive schemas. when() doesn't support recursion" },
+      { "text": "lazy() only works with objects, when() with any type", "correct": false, "explanation": "lazy() works with any types and values, not just objects" }
+    ]
+  }
+]

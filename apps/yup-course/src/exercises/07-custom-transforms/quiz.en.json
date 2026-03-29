@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why do you need a regular function instead of an arrow function to access this.createError() in test()?",
+    "type": "single",
+    "options": [
+      { "text": "Arrow functions inherit this from the outer context, not from the Yup test context", "correct": true },
+      { "text": "Arrow functions don't support return", "correct": false, "explanation": "Arrow functions support return. The issue is with this binding" },
+      { "text": "Yup doesn't support arrow functions", "correct": false, "explanation": "Yup supports arrow functions in test(), but this in them doesn't point to the test context" },
+      { "text": "createError is only available in synchronous functions", "correct": false, "explanation": "createError is available in async functions too. The problem is specifically with this binding via arrow functions" }
+    ]
+  },
+  {
+    "question": "In what order does Yup execute transform() and test() in a chain?",
+    "type": "single",
+    "options": [
+      { "text": "All transformations run first (left to right), then all validations", "correct": true },
+      { "text": "Each call runs in declaration order, alternating transform and test", "correct": false, "explanation": "Yup collects all transformations and runs them before validations, regardless of chain order" },
+      { "text": "All tests first, then all transformations", "correct": false, "explanation": "It's the opposite: transformations (cast) first, then tests (validate)" },
+      { "text": "The order is random", "correct": false, "explanation": "The order is strictly defined: transformations always before validations" }
+    ]
+  },
+  {
+    "question": "What do you need to do so TypeScript recognizes a method added via addMethod?",
+    "type": "single",
+    "options": [
+      { "text": "Extend the interface via declare module 'yup'", "correct": true },
+      { "text": "Add a type as a generic parameter to addMethod", "correct": false, "explanation": "addMethod doesn't accept a generic parameter for typing. You need to extend the schema interface" },
+      { "text": "Use 'as any' when calling the method", "correct": false, "explanation": "'as any' is a type workaround, not a solution. The proper approach is declare module" },
+      { "text": "Nothing — TypeScript will automatically infer the type", "correct": false, "explanation": "TypeScript doesn't know about dynamically added methods. You need to explicitly extend the interface" }
+    ]
+  },
+  {
+    "question": "How should you handle null and undefined in a custom test()?",
+    "type": "single",
+    "options": [
+      { "text": "Return true for null/undefined — let required() handle mandatory fields", "correct": true },
+      { "text": "Always return false for null/undefined", "correct": false, "explanation": "This leads to double errors: from both test() and required(). Let required() handle the mandatory check" },
+      { "text": "Throw an exception for null/undefined", "correct": false, "explanation": "No need to throw exceptions — just return true and delegate the check to required()" },
+      { "text": "Ignore null/undefined — Yup doesn't pass them to test()", "correct": false, "explanation": "Yup does pass null/undefined to test(). You need to handle them explicitly" }
+    ]
+  },
+  {
+    "question": "Which statements about transform() are correct?",
+    "type": "multiple",
+    "options": [
+      { "text": "transform() receives the current value and the original value as arguments", "correct": true },
+      { "text": "transform() is applied during both cast() and validate() calls", "correct": true },
+      { "text": "Multiple transform() calls execute in declaration order", "correct": true },
+      { "text": "transform() can return a Promise for async transformations", "correct": false, "explanation": "transform() is a synchronous operation. For async logic, use test() with async" }
+    ]
+  }
+]

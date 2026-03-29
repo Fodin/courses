@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What does the action function receive when passed to <form action={fn}>?",
+    "type": "single",
+    "options": [
+      { "text": "An Event object (SyntheticEvent)", "correct": false, "explanation": "Unlike onSubmit, action receives FormData, not an event object." },
+      { "text": "FormData with all form fields", "correct": true },
+      { "text": "An object with keys being field names", "correct": false, "explanation": "Action receives native FormData, not a plain JS object. Use formData.get() to access fields." },
+      { "text": "An array of form field values", "correct": false, "explanation": "Action receives FormData, not an array. FormData provides methods like get(), getAll(), entries(), etc." }
+    ]
+  },
+  {
+    "question": "Which hook returns the array [state, formAction, isPending]?",
+    "type": "single",
+    "options": [
+      { "text": "useFormStatus", "correct": false, "explanation": "useFormStatus returns an object { pending, data, method, action } and only works in child components of a form." },
+      { "text": "useActionState", "correct": true },
+      { "text": "useFormState", "correct": false, "explanation": "useFormState is the deprecated name from the canary version of react-dom. In stable React 19, useActionState from react is used." },
+      { "text": "useTransition", "correct": false, "explanation": "useTransition returns [isPending, startTransition] and is not directly related to forms." }
+    ]
+  },
+  {
+    "question": "Where can useFormStatus be called?",
+    "type": "single",
+    "options": [
+      { "text": "In any component of the application", "correct": false, "explanation": "useFormStatus reads the status of the nearest parent form. It must be called in a component that is a child of <form>." },
+      { "text": "In the same component where <form> is declared", "correct": false, "explanation": "This is a common mistake. useFormStatus does not see the form in the same component — it looks for a parent form in the tree." },
+      { "text": "Only in a child component inside <form>", "correct": true },
+      { "text": "Only in server components", "correct": false, "explanation": "useFormStatus is a client-side hook from react-dom, it does not work in server components." }
+    ]
+  },
+  {
+    "question": "What advantages do Actions provide compared to the classic onSubmit?",
+    "type": "multiple",
+    "options": [
+      { "text": "No need for e.preventDefault()", "correct": true },
+      { "text": "Built-in isPending without a separate useState", "correct": true },
+      { "text": "Progressive enhancement support (works without JS)", "correct": true },
+      { "text": "Automatic validation of all fields", "correct": false, "explanation": "Actions do not add automatic validation. Validation must be implemented in the action function or using native HTML attributes." }
+    ]
+  },
+  {
+    "question": "What happens to the form after a successful action execution?",
+    "type": "single",
+    "options": [
+      { "text": "The form is automatically reset", "correct": true },
+      { "text": "The form retains all entered values", "correct": false, "explanation": "By default, React resets the uncontrolled form after a successful action execution." },
+      { "text": "The form is locked for further input", "correct": false, "explanation": "The form is not locked. It resets and is ready to be filled again." },
+      { "text": "The page reloads", "correct": false, "explanation": "The action is handled by React on the client without a page reload." }
+    ]
+  }
+]

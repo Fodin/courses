@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Какие условия можно использовать в расширенной форме depends_on?",
+    "type": "multiple",
+    "options": [
+      { "text": "service_healthy — ждать, пока healthcheck пройдёт", "correct": true },
+      { "text": "service_started — достаточно, что контейнер запущен", "correct": true },
+      { "text": "service_completed_successfully — ждать успешного завершения (exit code 0)", "correct": true },
+      { "text": "service_ready — ждать, пока сервис не откроет порт", "correct": false, "explanation": "Условия service_ready не существует. Для проверки готовности порта используйте healthcheck с curl или wget" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при использовании condition: service_healthy, если у целевого сервиса нет healthcheck?",
+    "type": "single",
+    "options": [
+      { "text": "Docker Compose выдаст ошибку при запуске", "correct": true },
+      { "text": "Compose пропустит проверку и запустит сервис сразу", "correct": false, "explanation": "Compose строго проверяет наличие healthcheck у целевого сервиса и не запустит зависимый сервис без него" },
+      { "text": "Сервис будет считаться всегда здоровым", "correct": false, "explanation": "Compose не может определить состояние здоровья без healthcheck и выдаст ошибку" },
+      { "text": "Compose автоматически добавит стандартный healthcheck", "correct": false, "explanation": "Compose не добавляет healthcheck автоматически. Его нужно определить явно для каждого сервиса" }
+    ]
+  },
+  {
+    "question": "Для чего используется profiles в Docker Compose?",
+    "type": "single",
+    "options": [
+      { "text": "Для условного запуска сервисов — например, dev-инструменты только при отладке", "correct": true },
+      { "text": "Для ограничения ресурсов CPU и RAM для сервисов", "correct": false, "explanation": "Ограничение ресурсов настраивается через deploy.resources.limits, а не через profiles" },
+      { "text": "Для указания порядка запуска сервисов", "correct": false, "explanation": "Порядок запуска определяется через depends_on. Profiles определяют, какие сервисы включены" },
+      { "text": "Для выбора Docker-сети для каждого сервиса", "correct": false, "explanation": "Сети определяются через ключ networks в конфигурации сервиса, а не через profiles" }
+    ]
+  },
+  {
+    "question": "Как списки (ports, volumes) ведут себя при слиянии docker-compose.yml и override-файла?",
+    "type": "single",
+    "options": [
+      { "text": "Списки конкатенируются — элементы из override добавляются к существующим", "correct": true },
+      { "text": "Списки из override полностью заменяют списки из основного файла", "correct": false, "explanation": "Списки дополняются, а не заменяются. Если в основном файле '3000:3000', а в override '9229:9229', в итоге будут оба порта" },
+      { "text": "Docker Compose мержит дубликаты и оставляет уникальные", "correct": false, "explanation": "Compose не удаляет дубликаты — все элементы конкатенируются. Дублирование порта приведёт к ошибке 'port already allocated'" },
+      { "text": "Только override-файл определяет итоговый список", "correct": false, "explanation": "Override-файл дополняет, а не заменяет. Элементы из основного файла сохраняются" }
+    ]
+  },
+  {
+    "question": "Какое действие Compose Watch подходит для изменения package.json?",
+    "type": "single",
+    "options": [
+      { "text": "rebuild — пересобирает образ и пересоздаёт контейнер", "correct": true },
+      { "text": "sync — копирует файл в контейнер без перезапуска", "correct": false, "explanation": "sync только копирует файлы. Для установки новых зависимостей из package.json нужна полная пересборка образа" },
+      { "text": "sync+restart — копирует файл и перезапускает контейнер", "correct": false, "explanation": "sync+restart перезапустит контейнер, но не переустановит зависимости. Нужна полная пересборка через rebuild" },
+      { "text": "Compose Watch не поддерживает отслеживание package.json", "correct": false, "explanation": "Watch может отслеживать любые файлы. Для package.json нужно action: rebuild" }
+    ]
+  }
+]

@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Почему код после await внутри async-метода MobX-стора перестаёт быть частью action?",
+    "type": "single",
+    "options": [
+      { "text": "После await выполнение продолжается в другом тике event loop, и MobX теряет контекст action", "correct": true },
+      { "text": "MobX не поддерживает async/await", "correct": false, "explanation": "MobX поддерживает async-методы, но код после await выполняется вне контекста action. Для этого есть runInAction и flow." },
+      { "text": "await автоматически завершает текущий action", "correct": false, "explanation": "await не завершает action явно. Просто код после await выполняется в следующем микротаске, где контекст action уже не действует." },
+      { "text": "Нужно пометить метод как async action вручную", "correct": false, "explanation": "Специальной аннотации async action нет. Решение — использовать runInAction для обёртки мутаций после await или flow-генераторы." }
+    ]
+  },
+  {
+    "question": "Что делает опция autoBind: true в makeAutoObservable?",
+    "type": "single",
+    "options": [
+      { "text": "Автоматически привязывает this ко всем методам, чтобы они работали как callback", "correct": true },
+      { "text": "Автоматически вызывает все action при создании стора", "correct": false, "explanation": "autoBind не вызывает методы — он привязывает контекст this, чтобы методы можно было безопасно передавать как callback." },
+      { "text": "Привязывает стор к React-компоненту", "correct": false, "explanation": "autoBind не связан с React. Это опция привязки this для методов класса." },
+      { "text": "Автоматически оборачивает все методы в runInAction", "correct": false, "explanation": "autoBind не добавляет runInAction. Он просто привязывает this через .bind(), чтобы при передаче метода как callback контекст не терялся." }
+    ]
+  },
+  {
+    "question": "Какое преимущество даёт батчинг (batching) в actions?",
+    "type": "single",
+    "options": [
+      { "text": "Несколько изменений observable внутри одного action вызывают только один ререндер", "correct": true },
+      { "text": "Action выполняется быстрее за счёт параллелизма", "correct": false, "explanation": "Батчинг не ускоряет выполнение action. Он группирует уведомления подписчиков, чтобы ререндер произошёл один раз после завершения action." },
+      { "text": "MobX кеширует результат action и не выполняет его повторно", "correct": false, "explanation": "Кеширование — это свойство computed, а не actions. Батчинг в actions означает группировку уведомлений об изменениях." },
+      { "text": "Несколько actions объединяются в одну транзакцию базы данных", "correct": false, "explanation": "MobX не работает с базами данных. Батчинг означает, что все мутации observable внутри одного action группируются, и подписчики уведомляются только один раз." }
+    ]
+  },
+  {
+    "question": "Какие из перечисленных значений допустимы для настройки enforceActions?",
+    "type": "multiple",
+    "options": [
+      { "text": "'never' — без ограничений", "correct": true },
+      { "text": "'observed' — action нужен только для наблюдаемых observable", "correct": true },
+      { "text": "'always' — action нужен для любых изменений observable", "correct": true },
+      { "text": "'strict' — запрещает любые мутации", "correct": false, "explanation": "Значения 'strict' не существует. Используются 'never', 'observed' и 'always'." },
+      { "text": "'warn' — выводит предупреждение вместо ошибки", "correct": false, "explanation": "Значения 'warn' не существует. enforceActions принимает только 'never', 'observed' и 'always'." }
+    ]
+  },
+  {
+    "question": "Когда нужно использовать runInAction?",
+    "type": "single",
+    "options": [
+      { "text": "Для обёртки мутаций observable после await в async-методах", "correct": true },
+      { "text": "Для любого изменения observable-свойства", "correct": false, "explanation": "Если мутация происходит внутри action-метода (до первого await), runInAction не нужен. Он необходим только после await." },
+      { "text": "Для создания нового action на лету", "correct": false, "explanation": "runInAction — это одноразовый анонимный action, но его основное назначение — обёртка мутаций после асинхронных операций, а не создание именованных actions." },
+      { "text": "Только при использовании enforceActions: 'always'", "correct": false, "explanation": "runInAction полезен всегда: без него не только возникает ошибка при enforceActions: 'always', но и теряется батчинг, что приводит к лишним ререндерам." }
+    ]
+  }
+]

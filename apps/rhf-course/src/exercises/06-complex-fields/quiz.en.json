@@ -1,0 +1,43 @@
+[
+  {
+    "question": "When should you use Controller instead of register?",
+    "type": "multiple",
+    "options": [
+      { "text": "For third-party UI components (Material-UI, Ant Design)", "correct": true },
+      { "text": "For custom components that do not accept a ref", "correct": true },
+      { "text": "For regular HTML input elements", "correct": false, "explanation": "Use register for standard HTML inputs — Controller is not needed" },
+      { "text": "For controlled components", "correct": true }
+    ]
+  },
+  {
+    "question": "Which prop of Controller receives the control object?",
+    "type": "single",
+    "options": [
+      { "text": "form", "correct": false, "explanation": "The prop is called control, not form" },
+      { "text": "control", "correct": true },
+      { "text": "register", "correct": false, "explanation": "register is a function for registering fields, not a Controller prop" },
+      { "text": "ref", "correct": false, "explanation": "ref is passed inside the field object in the render function, not as a Controller prop" }
+    ]
+  },
+  {
+    "question": "What does the field object passed to the Controller render function contain?",
+    "type": "multiple",
+    "options": [
+      { "text": "onChange", "correct": true },
+      { "text": "onBlur", "correct": true },
+      { "text": "value", "correct": true },
+      { "text": "ref", "correct": true },
+      { "text": "error", "correct": false, "explanation": "error is in fieldState, not in field" }
+    ]
+  },
+  {
+    "question": "How does React Hook Form handle multiple checkboxes with the same name?",
+    "type": "single",
+    "options": [
+      { "text": "Keeps only the last value", "correct": false, "explanation": "RHF automatically collects the checked values into an array" },
+      { "text": "Collects the checked values into an array", "correct": true },
+      { "text": "Creates an object with key-value pairs", "correct": false, "explanation": "RHF collects values into an array of strings, not an object" },
+      { "text": "Throws an error due to duplicate names", "correct": false, "explanation": "Duplicate names are the correct pattern for multiple selection in RHF" }
+    ]
+  }
+]

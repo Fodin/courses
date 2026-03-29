@@ -1,0 +1,54 @@
+[
+  {
+    "question": "What is the recommended order of steps when migrating to React 19?",
+    "type": "single",
+    "options": [
+      { "text": "Update dependencies → run codemod → fix breaking changes → adopt new APIs", "correct": true },
+      { "text": "Adopt new APIs → update dependencies → fix breaking changes", "correct": false, "explanation": "You cannot use new APIs before updating dependencies. React 19 must be installed first." },
+      { "text": "Run codemod → update dependencies → test", "correct": false, "explanation": "Codemod should be run after updating dependencies so it knows the target React version." },
+      { "text": "Rewrite the entire application from scratch on React 19", "correct": false, "explanation": "React 19 supports incremental migration. A complete rewrite is not required." }
+    ]
+  },
+  {
+    "question": "Which of these changes do NOT need to be done immediately when migrating to React 19?",
+    "type": "multiple",
+    "options": [
+      { "text": "Replace useContext with use(Context)", "correct": true },
+      { "text": "Replace Context.Provider with Context", "correct": true },
+      { "text": "Replace ReactDOM.render with createRoot", "correct": false, "explanation": "This is a mandatory change — ReactDOM.render is removed in React 19." },
+      { "text": "Rewrite existing forms from onSubmit to Actions", "correct": true },
+      { "text": "Remove defaultProps from function components", "correct": false, "explanation": "This is a mandatory change — defaultProps for function components are removed in React 19." }
+    ]
+  },
+  {
+    "question": "What replaces defaultProps for function components in React 19?",
+    "type": "single",
+    "options": [
+      { "text": "ES6 default parameters", "correct": true },
+      { "text": "React.defaultValues", "correct": false, "explanation": "The React.defaultValues API does not exist. The standard approach is destructuring with default values." },
+      { "text": "useDefaults() hook", "correct": false, "explanation": "The useDefaults() hook does not exist in React. Use ES6 default parameters when destructuring props." },
+      { "text": "The defaultValue attribute in JSX", "correct": false, "explanation": "defaultValue is an attribute for form elements (input, textarea), not for setting default prop values." }
+    ]
+  },
+  {
+    "question": "Which new APIs appeared in React 19?",
+    "type": "multiple",
+    "options": [
+      { "text": "use()", "correct": true },
+      { "text": "useActionState", "correct": true },
+      { "text": "useOptimistic", "correct": true },
+      { "text": "useAsync", "correct": false, "explanation": "The useAsync hook does not exist in React 19. For async data, use(Promise) + Suspense is used." },
+      { "text": "useFormStatus", "correct": true }
+    ]
+  },
+  {
+    "question": "Where is the act function for testing now imported from in React 19?",
+    "type": "single",
+    "options": [
+      { "text": "import { act } from 'react-dom/test-utils'", "correct": false, "explanation": "react-dom/test-utils is removed in React 19. act is now exported from the main react package." },
+      { "text": "import { act } from 'react'", "correct": true },
+      { "text": "import { act } from '@testing-library/react'", "correct": false, "explanation": "@testing-library/react re-exports act, but the canonical import in React 19 is from the react package." },
+      { "text": "import { act } from 'react-dom'", "correct": false, "explanation": "act is not exported from react-dom. In React 19, it is imported from react." }
+    ]
+  }
+]

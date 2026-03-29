@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why can't containers in the default bridge network find each other by name?",
+    "type": "single",
+    "options": [
+      { "text": "Default bridge doesn't provide a built-in DNS server for container name resolution", "correct": true },
+      { "text": "Default bridge doesn't support network communication at all", "correct": false, "explanation": "Default bridge supports communication between containers, but only by IP addresses, not by names" },
+      { "text": "Containers in default bridge are isolated from each other", "correct": false, "explanation": "Containers in default bridge can see each other by IP, but DNS by name doesn't work. A user-defined network is needed for DNS" },
+      { "text": "Container names are not unique in default bridge", "correct": false, "explanation": "Container names are always unique. The issue is specifically the lack of DNS resolution in default bridge" }
+    ]
+  },
+  {
+    "question": "What advantages does a user-defined bridge network have over the default bridge?",
+    "type": "multiple",
+    "options": [
+      { "text": "Automatic DNS — containers find each other by name", "correct": true },
+      { "text": "Isolation — only network members can see each other", "correct": true },
+      { "text": "Hot-plugging containers via docker network connect", "correct": true },
+      { "text": "Higher data transfer speed", "correct": false, "explanation": "Data transfer speed is the same for default and user-defined bridge networks. Advantages are in DNS, isolation, and management" }
+    ]
+  },
+  {
+    "question": "How does EXPOSE in Dockerfile differ from the -p flag in docker run?",
+    "type": "single",
+    "options": [
+      { "text": "EXPOSE is documentation only, -p actually publishes the port on the host", "correct": true },
+      { "text": "EXPOSE automatically publishes the port, -p overrides it", "correct": false, "explanation": "EXPOSE doesn't publish the port — it's just metadata. You always need -p for actual publishing" },
+      { "text": "No difference — both mechanisms do the same thing", "correct": false, "explanation": "They're fundamentally different: EXPOSE is documentation, -p is actual port forwarding via iptables" },
+      { "text": "EXPOSE works for TCP, while -p works for UDP", "correct": false, "explanation": "Both support TCP and UDP. The difference is in purpose: EXPOSE documents, -p publishes" }
+    ]
+  },
+  {
+    "question": "Why is publishing database ports externally not recommended?",
+    "type": "single",
+    "options": [
+      { "text": "It exposes the database to the external network, which is a security threat", "correct": true },
+      { "text": "Docker doesn't support port forwarding for databases", "correct": false, "explanation": "Docker supports forwarding any ports. But publishing DB ports is a bad security practice" },
+      { "text": "It slows down the database", "correct": false, "explanation": "Port forwarding doesn't affect performance. The issue is security: the DB becomes accessible from outside" },
+      { "text": "Database ports conflict with system ports", "correct": false, "explanation": "Port conflicts are possible, but the main reason is security. DBs should only be accessible within the Docker network" }
+    ]
+  },
+  {
+    "question": "How do you enable communication between containers from different networks?",
+    "type": "single",
+    "options": [
+      { "text": "Connect the container to both networks via docker network connect", "correct": true },
+      { "text": "Use the --link flag between containers", "correct": false, "explanation": "--link is deprecated. The correct approach is docker network connect for multi-network attachment" },
+      { "text": "Containers from different networks cannot communicate — it's a fundamental limitation", "correct": false, "explanation": "The limitation can be bypassed: a container can be connected to multiple networks simultaneously, acting as a bridge" },
+      { "text": "Use host network for all containers", "correct": false, "explanation": "Host network removes all network isolation, which is not recommended. The correct approach is docker network connect" }
+    ]
+  }
+]

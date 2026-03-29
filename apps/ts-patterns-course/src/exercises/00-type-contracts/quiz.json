@@ -1,0 +1,53 @@
+[
+  {
+    "question": "Какую проблему решают Branded Types?",
+    "type": "single",
+    "options": [
+      { "text": "Предотвращают путаницу между значениями одного примитивного типа (например, Email и UserId — оба string)", "correct": true },
+      { "text": "Ускоряют работу программы за счёт оптимизации типов", "correct": false, "explanation": "Branded Types существуют только на уровне системы типов TypeScript и не влияют на производительность в runtime" },
+      { "text": "Позволяют хранить значения разных типов в одном массиве", "correct": false, "explanation": "Для этого используются union types или generics, а не branded types" },
+      { "text": "Заменяют необходимость валидации данных", "correct": false, "explanation": "Branded Types дополняют валидацию — функция-конструктор обычно включает валидацию перед приведением к branded type" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если в type guard функции указать возвращаемый тип boolean вместо предиката `x is Type`?",
+    "type": "single",
+    "options": [
+      { "text": "Функция будет работать в runtime, но TypeScript не сузит тип переменной в условном блоке", "correct": true },
+      { "text": "TypeScript выдаст ошибку компиляции", "correct": false, "explanation": "Код скомпилируется без ошибок — функция просто вернёт boolean. Но TypeScript не сможет автоматически сузить тип в if/else" },
+      { "text": "Тип будет сужаться, но только внутри switch/case", "correct": false, "explanation": "Без предиката `x is Type` сужение типа не произойдёт ни в if/else, ни в switch/case" },
+      { "text": "Программа упадёт в runtime", "correct": false, "explanation": "В runtime type guard с boolean работает точно так же — это чисто compile-time различие" }
+    ]
+  },
+  {
+    "question": "Для чего используется паттерн `const _never: never = value` в default-ветке switch?",
+    "type": "single",
+    "options": [
+      { "text": "Для обработки непредвиденных значений в runtime", "correct": false, "explanation": "Этот паттерн работает на уровне компиляции — он заставляет TypeScript проверить, что все варианты union обработаны" },
+      { "text": "Для гарантии на уровне компиляции, что все варианты discriminated union обработаны (exhaustive check)", "correct": true },
+      { "text": "Для оптимизации памяти при работе с union типами", "correct": false, "explanation": "Тип never не влияет на runtime — это исключительно инструмент системы типов" },
+      { "text": "Для создания точки останова при отладке", "correct": false, "explanation": "Exhaustive check — это compile-time проверка полноты обработки, а не инструмент отладки" }
+    ]
+  },
+  {
+    "question": "Какие из перечисленных конструкций являются встроенными type guards в TypeScript?",
+    "type": "multiple",
+    "options": [
+      { "text": "typeof x === 'string'", "correct": true },
+      { "text": "x instanceof Error", "correct": true },
+      { "text": "'key' in obj", "correct": true },
+      { "text": "x as Type", "correct": false, "explanation": "Оператор as — это type assertion (приведение типа), а не type guard. Он не выполняет проверку в runtime" },
+      { "text": "x === null", "correct": false, "explanation": "Проверка на null/undefined — это narrowing (сужение), но не type guard в классическом смысле. Type guards — это typeof, instanceof, in и пользовательские предикаты" }
+    ]
+  },
+  {
+    "question": "Почему в branded type конструкторе используется `as`?",
+    "type": "single",
+    "options": [
+      { "text": "Потому что TypeScript не может автоматически привести string к Brand<string, 'Email'>, и `as` — единственный способ создать branded значение после валидации", "correct": true },
+      { "text": "Для повышения производительности при создании branded значений", "correct": false, "explanation": "Оператор as не существует в runtime и не влияет на производительность — это чисто compile-time операция" },
+      { "text": "Потому что без `as` объект будет иммутабельным", "correct": false, "explanation": "Оператор as не влияет на мутабельность. Для иммутабельности используется readonly" },
+      { "text": "Это временный workaround, который будет исправлен в будущих версиях TypeScript", "correct": false, "explanation": "Это намеренное поведение системы типов — branded types по определению требуют явного приведения, так как бренд не существует в runtime" }
+    ]
+  }
+]

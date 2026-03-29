@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Why can't you use Access-Control-Allow-Origin: * together with credentials: true?",
+    "type": "single",
+    "options": [
+      { "text": "The CORS spec forbids wildcards with credentials -- the browser requires a specific origin for cookie security", "correct": true },
+      { "text": "Wildcard origin doesn't work in Chrome", "correct": false, "explanation": "Allow-Origin: * works in all browsers, but only without credentials. With credentials: true, a specific origin is needed -- this is a CORS spec requirement, not a browser limitation" },
+      { "text": "Cookies aren't sent with wildcards due to a fetch API bug", "correct": false, "explanation": "This isn't a bug but an intentional security restriction. If wildcards worked with cookies, any site could send requests with user cookies to your API" },
+      { "text": "Wildcard origin doesn't support HTTPS", "correct": false, "explanation": "Wildcard origin works with HTTPS. The restriction is about security: with credentials: true, the server must explicitly specify a trusted origin to prevent CSRF" }
+    ]
+  },
+  {
+    "question": "Why send X-RateLimit-Reset (Unix timestamp) in rate limiting headers?",
+    "type": "single",
+    "options": [
+      { "text": "The client can calculate when to send the next request and implement exponential backoff or waiting", "correct": true },
+      { "text": "It's an HTTP standard, without it the request will be rejected", "correct": false, "explanation": "X-RateLimit-* headers aren't an HTTP standard -- they're a convention. The request won't be rejected without this header, but the client won't be able to intelligently plan retries" },
+      { "text": "The browser automatically retries the request after Reset", "correct": false, "explanation": "The browser doesn't handle X-RateLimit-Reset automatically. It's information for client code to implement retry logic with proper timing" },
+      { "text": "Without this header, CDN won't cache the response", "correct": false, "explanation": "CDN caching depends on Cache-Control, not X-RateLimit-Reset. Rate limit headers are client information about limits, not for caching" }
+    ]
+  },
+  {
+    "question": "How does Token Bucket differ from Fixed Window for rate limiting?",
+    "type": "single",
+    "options": [
+      { "text": "Token Bucket allows burst traffic (series of requests), gradually refilling tokens, while Fixed Window counts in rigid windows", "correct": true },
+      { "text": "Token Bucket is faster because it doesn't store request history", "correct": false, "explanation": "Fixed Window also doesn't store history -- just a counter. The difference is behavior: Token Bucket allows burst up to maxTokens, then limits to refillRate" },
+      { "text": "Fixed Window is more accurate, Token Bucket is approximate", "correct": false, "explanation": "Fixed Window is less accurate due to window boundary issues (2x burst). Token Bucket provides smoother limiting with support for legitimate burst patterns" },
+      { "text": "Token Bucket only works with Redis, Fixed Window works in-memory", "correct": false, "explanation": "Both algorithms can be implemented in-memory or in Redis. The difference is the model: Token Bucket -- tokens + refill, Fixed Window -- counter + reset" }
+    ]
+  },
+  {
+    "question": "When should the server return 304 Not Modified?",
+    "type": "single",
+    "options": [
+      { "text": "When the client sent If-None-Match with an ETag matching the current one -- data hasn't changed, no body needed", "correct": true },
+      { "text": "When the client repeats the same request within max-age", "correct": false, "explanation": "Within max-age, the browser uses the cache and doesn't make a server request at all. 304 is returned for conditional requests with If-None-Match or If-Modified-Since" },
+      { "text": "When the request is idempotent (GET)", "correct": false, "explanation": "Idempotency isn't related to 304. The server returns 304 only when the client sends an ETag (If-None-Match) or date (If-Modified-Since), and data hasn't changed" },
+      { "text": "Automatically for all GET requests after the first one", "correct": false, "explanation": "304 isn't automatic -- the client must send conditional headers (If-None-Match/If-Modified-Since). Without them, the server returns a full 200 response" }
+    ]
+  }
+]

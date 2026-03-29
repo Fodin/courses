@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the difference between the .env file and env_file in Docker Compose?",
+    "type": "single",
+    "options": [
+      { "text": ".env substitutes ${VAR} values in docker-compose.yml, while env_file passes variables into the container", "correct": true },
+      { "text": "No difference — both mechanisms pass variables to the container", "correct": false, "explanation": "These are different mechanisms: .env interpolates in the YAML file, env_file passes variables directly into the container" },
+      { "text": ".env only works with Docker CLI, env_file only with Compose", "correct": false, "explanation": "docker run --env-file also exists. The difference is that .env in Compose substitutes values in YAML" },
+      { "text": "env_file is loaded only during build, .env during runtime", "correct": false, "explanation": ".env is substituted when parsing docker-compose.yml, and env_file passes variables when creating the container" }
+    ]
+  },
+  {
+    "question": "What does the syntax ${DB_PASSWORD:?DB_PASSWORD is required} mean?",
+    "type": "single",
+    "options": [
+      { "text": "If DB_PASSWORD is unset or empty, Compose will throw an error with the specified message", "correct": true },
+      { "text": "Sets DB_PASSWORD to the string 'DB_PASSWORD is required'", "correct": false, "explanation": "The :? syntax throws an error, not sets a value. Use :- for default values" },
+      { "text": "Creates the variable only if it doesn't exist yet", "correct": false, "explanation": "The :? syntax checks variable presence and throws an error if it's absent or empty" },
+      { "text": "Encrypts the variable value", "correct": false, "explanation": "Docker Compose doesn't encrypt variables. The :? syntax validates that a variable is required" }
+    ]
+  },
+  {
+    "question": "Why shouldn't you store secrets in Dockerfile ARG?",
+    "type": "single",
+    "options": [
+      { "text": "ARG values are visible through docker history and stored in image metadata", "correct": true },
+      { "text": "ARG doesn't support special characters in passwords", "correct": false, "explanation": "ARG supports any string values. The problem is that values are saved in image layers and visible to everyone" },
+      { "text": "ARG automatically logs values to STDOUT", "correct": false, "explanation": "ARG doesn't automatically log values, but they're visible via docker history and docker inspect" },
+      { "text": "ARG values are shared with all containers on the host", "correct": false, "explanation": "ARG is only available during the build of one image, but its value is preserved in layer history" }
+    ]
+  },
+  {
+    "question": "What is the correct priority of environment variables in Docker Compose (highest to lowest)?",
+    "type": "single",
+    "options": [
+      { "text": "environment in compose.yml → Host shell variables → env_file → .env → ENV in Dockerfile", "correct": true },
+      { "text": "ENV in Dockerfile → environment in compose.yml → .env → Host shell variables", "correct": false, "explanation": "Dockerfile ENV has the lowest priority. environment in compose.yml and host variables override it" },
+      { "text": ".env → env_file → environment → Shell variables → ENV in Dockerfile", "correct": false, "explanation": ".env has low priority. Explicit environment values and host shell variables override .env" },
+      { "text": "All sources have equal priority", "correct": false, "explanation": "There's a clear hierarchy: explicit environment > shell > env_file > .env > Dockerfile ENV" }
+    ]
+  },
+  {
+    "question": "How are Docker Secrets more secure than environment variables?",
+    "type": "multiple",
+    "options": [
+      { "text": "Secrets are stored in files (/run/secrets/), not in environment variables", "correct": true },
+      { "text": "Secrets are not visible through docker inspect", "correct": true },
+      { "text": "Secrets don't leak into logs via console.log(process.env)", "correct": true },
+      { "text": "Secrets are automatically encrypted during transfer between host and container", "correct": false, "explanation": "In Docker Compose (without Swarm), secrets are passed as bind mounts of files, without additional encryption. Encryption is only available in Docker Swarm" }
+    ]
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "question": "How do you implement async field validation in React Hook Form?",
+    "type": "single",
+    "options": [
+      { "text": "Via the asyncValidate parameter in register", "correct": false, "explanation": "This parameter does not exist — use validate with an async function" },
+      { "text": "Via validate with an async function in register", "correct": true },
+      { "text": "Via a separate useEffect", "correct": false, "explanation": "useEffect can be used, but the standard approach is an async validate function in register" },
+      { "text": "Async validation is not possible in RHF", "correct": false, "explanation": "RHF fully supports async validation" }
+    ]
+  },
+  {
+    "question": "How do you load data into a form for editing?",
+    "type": "single",
+    "options": [
+      { "text": "Via setValue for each field manually", "correct": false, "explanation": "While this works, the more correct approach is to use reset() or async defaultValues" },
+      { "text": "Via reset() with data or async defaultValues in useForm", "correct": true },
+      { "text": "Via localStorage", "correct": false, "explanation": "localStorage is for saving drafts, not for loading data from the server" },
+      { "text": "Via the form component's props", "correct": false, "explanation": "Props do not integrate directly with useForm — use reset() or defaultValues" }
+    ]
+  },
+  {
+    "question": "What happens to formState.isLoading when using async defaultValues?",
+    "type": "single",
+    "options": [
+      { "text": "isLoading is always false", "correct": false, "explanation": "With async defaultValues, isLoading becomes true until loading completes" },
+      { "text": "isLoading becomes true until the defaultValues Promise resolves", "correct": true },
+      { "text": "isLoading does not exist in formState", "correct": false, "explanation": "isLoading is a valid formState property" },
+      { "text": "isLoading is only managed manually", "correct": false, "explanation": "RHF automatically manages isLoading when async defaultValues are used" }
+    ]
+  },
+  {
+    "question": "Which RHF methods are used to manually manage errors during async operations?",
+    "type": "multiple",
+    "options": [
+      { "text": "setError — set an error for a field", "correct": true },
+      { "text": "clearErrors — clear errors", "correct": true },
+      { "text": "removeError — remove a specific error", "correct": false, "explanation": "The method removeError does not exist — use clearErrors()" },
+      { "text": "trigger — run validation manually", "correct": true }
+    ]
+  }
+]

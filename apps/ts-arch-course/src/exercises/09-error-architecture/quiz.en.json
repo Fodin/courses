@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why are discriminated unions with _tag better than class inheritance for error hierarchies?",
+    "type": "single",
+    "options": [
+      { "text": "Discriminated unions provide exhaustive checking in switch — the compiler guarantees all error types are handled", "correct": true },
+      { "text": "Classes don't support inheritance in TypeScript", "correct": false, "explanation": "TypeScript fully supports classes and inheritance. The issue isn't support, but that instanceof checks are less reliable than discriminated unions for exhaustive checking" },
+      { "text": "Discriminated unions perform faster at runtime", "correct": false, "explanation": "Performance is comparable. The advantage is type safety: switch on _tag provides exhaustive check, while instanceof doesn't guarantee complete handling" },
+      { "text": "Error classes can't be serialized to JSON", "correct": false, "explanation": "Classes can be serialized (by implementing toJSON). The main advantage of unions is that TypeScript automatically narrows types in switch and flags incomplete handling" }
+    ]
+  },
+  {
+    "question": "What does an Error Boundary do in the context of type-safe architecture?",
+    "type": "single",
+    "options": [
+      { "text": "Converts unknown from catch into a specific typed error type, isolating the layer's error domain", "correct": true },
+      { "text": "Suppresses all errors and returns null", "correct": false, "explanation": "A boundary doesn't suppress errors. It converts unknown into a typed error and returns Result<T, E>, where the error is explicitly present in the type" },
+      { "text": "Automatically retries the operation on error", "correct": false, "explanation": "Retrying is a retry strategy, not a boundary. A boundary is responsible for mapping unknown -> typed error and returning Result" },
+      { "text": "Logs errors and rethrows them via throw", "correct": false, "explanation": "A boundary doesn't rethrow errors via throw. It returns Result<T, E>, turning exceptions into values and eliminating the need for try/catch above" }
+    ]
+  },
+  {
+    "question": "How does flatMap in ResultChain accumulate error types?",
+    "type": "single",
+    "options": [
+      { "text": "Through type union: flatMap<U, E2> returns ResultChain<U, E | E2>, combining errors from the current and next operation", "correct": true },
+      { "text": "Through an error array: each error is added to a list", "correct": false, "explanation": "Errors accumulate at the type level through union (|), not at runtime through an array. The actual error is always one — the one that occurred" },
+      { "text": "Through type intersection: E & E2", "correct": false, "explanation": "Intersection (&) means the error must have ALL properties of both types. Union (|) means the error can be ANY of the types — this is the correct semantics" },
+      { "text": "flatMap doesn't accumulate errors — each call replaces the error type", "correct": false, "explanation": "flatMap specifically accumulates: if the first operation can produce E1 and the second E2, the result has type E1 | E2. This is a key property of Result chains" }
+    ]
+  },
+  {
+    "question": "What states can a Circuit Breaker be in?",
+    "type": "multiple",
+    "options": [
+      { "text": "Closed — normal operation, requests pass through", "correct": true },
+      { "text": "Open — after exceeding failure threshold, requests are blocked", "correct": true },
+      { "text": "Half-open — trial mode after timeout, one request passes for verification", "correct": true },
+      { "text": "Degraded — partial operation with limited functionality", "correct": false, "explanation": "Degraded is not a standard Circuit Breaker state. The classic model includes only three states: closed, open, half-open" }
+    ]
+  },
+  {
+    "question": "Why does withFallback return Result<T, { primary: E1; fallback: E2 }> instead of Result<T, E1 | E2>?",
+    "type": "single",
+    "options": [
+      { "text": "To preserve information about which specific error occurred in primary and which in fallback — this is important for diagnostics", "correct": true },
+      { "text": "Because TypeScript doesn't support union in Result", "correct": false, "explanation": "TypeScript supports union in Result perfectly. The { primary, fallback } structure is chosen for informativeness — we know both errors, not just one of two" },
+      { "text": "For memory savings by storing only one object", "correct": false, "explanation": "An object with two fields uses more memory than a union. The reason is diagnostic value: when debugging, both errors are visible" },
+      { "text": "So you can retry only the failed operation", "correct": false, "explanation": "Both operations failed if we reached this error. The { primary, fallback } structure is needed for full diagnostics: what went wrong in each strategy" }
+    ]
+  }
+]

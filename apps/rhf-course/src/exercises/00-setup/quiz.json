@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Какой подход к работе с компонентами использует React Hook Form для достижения высокой производительности?",
+    "type": "single",
+    "options": [
+      { "text": "Контролируемые компоненты (controlled)", "correct": false, "explanation": "Контролируемые компоненты вызывают ререндер при каждом изменении значения, что снижает производительность" },
+      { "text": "Неконтролируемые компоненты (uncontrolled)", "correct": true },
+      { "text": "Серверные компоненты (server components)", "correct": false, "explanation": "Server components — это концепция React, не связанная с управлением формами" },
+      { "text": "Компоненты высшего порядка (HOC)", "correct": false, "explanation": "HOC — это паттерн композиции, React Hook Form использует хуки, а не HOC" }
+    ]
+  },
+  {
+    "question": "Какой хук является главным в React Hook Form?",
+    "type": "single",
+    "options": [
+      { "text": "useState", "correct": false, "explanation": "useState — стандартный хук React для управления состоянием, не специфичный для RHF" },
+      { "text": "useReducer", "correct": false, "explanation": "useReducer — стандартный хук React для сложного состояния" },
+      { "text": "useForm", "correct": true },
+      { "text": "useFormState", "correct": false, "explanation": "useFormState — вспомогательный хук RHF для подписки на состояние формы, но не основной" }
+    ]
+  },
+  {
+    "question": "Что делает функция handleSubmit в React Hook Form?",
+    "type": "multiple",
+    "options": [
+      { "text": "Вызывает event.preventDefault()", "correct": true },
+      { "text": "Собирает данные из зарегистрированных полей", "correct": true },
+      { "text": "Запускает валидацию перед вызовом onSubmit", "correct": true },
+      { "text": "Отправляет данные на сервер", "correct": false, "explanation": "handleSubmit не отправляет данные — она передаёт их в вашу callback-функцию, а отправку реализуете вы" }
+    ]
+  },
+  {
+    "question": "Как правильно подключить handleSubmit к форме?",
+    "type": "single",
+    "options": [
+      { "text": "<button onClick={handleSubmit(onSubmit)}>", "correct": false, "explanation": "При onClick форма не отправляется при нажатии Enter, нарушается стандартное поведение браузера" },
+      { "text": "<form onSubmit={handleSubmit(onSubmit)}>", "correct": true },
+      { "text": "<form action={handleSubmit}>", "correct": false, "explanation": "action — это HTML-атрибут для URL, а не для JavaScript-функций" },
+      { "text": "<form onChange={handleSubmit(onSubmit)}>", "correct": false, "explanation": "onChange срабатывает при каждом изменении поля, а не при отправке формы" }
+    ]
+  }
+]

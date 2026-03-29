@@ -1,0 +1,53 @@
+[
+  {
+    "question": "How is the map function for Result analogous to Array.map?",
+    "type": "single",
+    "options": [
+      { "text": "It transforms the value inside the container without changing the structure (ok/err)", "correct": true },
+      { "text": "It applies a function to each element in an array of errors", "correct": false, "explanation": "Result is not an array. map transforms a single value inside Result if it's ok" },
+      { "text": "It converts Result to an array", "correct": false, "explanation": "map doesn't change the container type — Result stays Result" },
+      { "text": "It filters errors from Result", "correct": false, "explanation": "map doesn't filter — it transforms the value on ok and leaves err unchanged" }
+    ]
+  },
+  {
+    "question": "What is the difference between map and flatMap for Result?",
+    "type": "single",
+    "options": [
+      { "text": "map returns a Result with a transformed value, flatMap takes a function that itself returns a Result", "correct": true },
+      { "text": "map works with errors, flatMap works with successful values", "correct": false, "explanation": "Both work with successful values. For errors there's mapError" },
+      { "text": "flatMap is faster because it doesn't create intermediate objects", "correct": false, "explanation": "The difference is not in performance but in the fact that the flatMap function can return its own Result (ok or err)" },
+      { "text": "map and flatMap do the same thing", "correct": false, "explanation": "With map the function returns a plain value T, with flatMap it returns Result<T, E>" }
+    ]
+  },
+  {
+    "question": "Why does the expectToThrow function need the marker 'Expected function to throw'?",
+    "type": "single",
+    "options": [
+      { "text": "Without the marker, the test passes even if the function didn't throw", "correct": true },
+      { "text": "The marker is needed for pretty console output", "correct": false, "explanation": "The marker is a verification mechanism, not formatting. Without it the test is meaningless" },
+      { "text": "JavaScript requires a marker in try/catch", "correct": false, "explanation": "JavaScript doesn't require any markers — it's an architectural decision for correct verification" },
+      { "text": "The marker automatically converts the error to the needed type", "correct": false, "explanation": "The marker doesn't convert errors — it distinguishes 'function didn't throw' from 'function threw'" }
+    ]
+  },
+  {
+    "question": "Why is throw for expected errors (invalid input) worse than Result?",
+    "type": "multiple",
+    "options": [
+      { "text": "throw is not visible in the function type — calling code doesn't know the function can throw", "correct": true },
+      { "text": "TypeScript won't warn about a missing catch", "correct": true },
+      { "text": "Result makes error handling mandatory at the type level", "correct": true },
+      { "text": "throw is slower than return", "correct": false, "explanation": "Performance is not the main concern. The key difference is type safety and explicitness" },
+      { "text": "throw cannot be used in async functions", "correct": false, "explanation": "throw works in async functions and rejects the promise" }
+    ]
+  },
+  {
+    "question": "Why is it important to test not only errors but also the 'happy path'?",
+    "type": "single",
+    "options": [
+      { "text": "The function might erroneously throw on valid data — without a test this goes undetected", "correct": true },
+      { "text": "Happy path tests execute faster", "correct": false, "explanation": "Speed is not the reason — it's about test completeness" },
+      { "text": "Without happy path tests the test framework won't start", "correct": false, "explanation": "Test frameworks run with any tests" },
+      { "text": "It's a TypeScript requirement", "correct": false, "explanation": "TypeScript doesn't require tests — it's a code quality concern" }
+    ]
+  }
+]

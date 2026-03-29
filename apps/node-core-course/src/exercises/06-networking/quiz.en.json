@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why might a TCP socket receive only part of a message in a single 'data' event?",
+    "type": "single",
+    "options": [
+      { "text": "TCP is a stream protocol — it doesn't guarantee message boundaries", "correct": true },
+      { "text": "Node.js splits messages for optimization", "correct": false, "explanation": "Node.js doesn't intentionally split data. TCP is stream-oriented, not packet-oriented. Data may arrive in arbitrary chunks" },
+      { "text": "This only happens on slow connections", "correct": false, "explanation": "TCP data fragmentation happens regardless of speed. Chunk sizes depend on MSS, OS buffers, and network conditions" },
+      { "text": "This is a bug in the net module", "correct": false, "explanation": "This is not a bug but a fundamental TCP property. To delimit messages, you need framing (newline-delimited, length-prefix, etc.)" }
+    ]
+  },
+  {
+    "question": "What type of stream is IncomingMessage (req) in an HTTP server?",
+    "type": "single",
+    "options": [
+      { "text": "Readable Stream", "correct": true },
+      { "text": "Writable Stream", "correct": false, "explanation": "req is a Readable Stream (you read the request body from it). Writable Stream is ServerResponse (res), which you write the response to" },
+      { "text": "Duplex Stream", "correct": false, "explanation": "req is Readable only. To read the request body, use for await...of or the 'data' event" },
+      { "text": "Transform Stream", "correct": false, "explanation": "req is Readable — it only provides data for reading. Transform both reads and writes with transformation" }
+    ]
+  },
+  {
+    "question": "Why can dns.lookup() become a bottleneck in high-load applications?",
+    "type": "single",
+    "options": [
+      { "text": "lookup() uses the libuv thread pool, which has only 4 threads by default", "correct": true },
+      { "text": "lookup() makes requests slower than resolve()", "correct": false, "explanation": "The DNS query speed itself may be similar. The problem is that lookup() blocks a thread from the pool, and there are only 4 by default" },
+      { "text": "lookup() doesn't cache results", "correct": false, "explanation": "The OS resolver used by lookup() has its own cache. The problem is not caching but blocking the limited thread pool" },
+      { "text": "lookup() doesn't support IPv6", "correct": false, "explanation": "lookup() supports both IPv4 and IPv6. The problem is thread pool blocking with many concurrent calls" }
+    ]
+  },
+  {
+    "question": "Which statements about TLS in Node.js are true?",
+    "type": "multiple",
+    "options": [
+      { "text": "The minimum recommended version is TLS 1.2", "correct": true },
+      { "text": "rejectUnauthorized: false disables certificate verification", "correct": true },
+      { "text": "socket.getProtocol() returns the TLS version in use", "correct": true },
+      { "text": "HTTPS runs over UDP, not TCP", "correct": false, "explanation": "HTTPS runs over TCP (via the net module). HTTP/3 uses QUIC (over UDP), but standard HTTPS is TCP + TLS" }
+    ]
+  },
+  {
+    "question": "What happens if you don't call res.end() in an HTTP handler?",
+    "type": "single",
+    "options": [
+      { "text": "The client will wait for the response indefinitely (timeout)", "correct": true },
+      { "text": "Node.js automatically calls end() after 30 seconds", "correct": false, "explanation": "Node.js doesn't automatically call end(). The server has a default timeout (2 minutes) after which the connection closes, but this is not normal behavior" },
+      { "text": "The response will be sent with an empty body", "correct": false, "explanation": "Without end(), response headers may be sent (if writeHead was called), but the connection stays open and the client keeps waiting" },
+      { "text": "The server will crash with an error", "correct": false, "explanation": "The server won't crash — it just leaves the connection open. This leads to resource leaks and client hanging" }
+    ]
+  }
+]

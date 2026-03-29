@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What happens if a middleware doesn't call next() in a type-safe chain?",
+    "type": "single",
+    "options": [
+      { "text": "The chain short-circuits — remaining middleware won't execute", "correct": true },
+      { "text": "TypeScript shows a compile error because next() is mandatory", "correct": false, "explanation": "next() is not mandatory — it's a regular function. Short-circuit is a legitimate pattern, e.g., for auth middleware returning 401" },
+      { "text": "A runtime exception will be thrown", "correct": false, "explanation": "Not calling next() doesn't cause exceptions — the middleware simply returns a result directly, bypassing the rest of the chain" },
+      { "text": "The chain continues but with an empty context", "correct": false, "explanation": "Without calling next(), subsequent middleware simply aren't invoked. The chain doesn't continue — the current middleware's result becomes final" }
+    ]
+  },
+  {
+    "question": "Why do accumulating middleware use pipe() overloads instead of a function array?",
+    "type": "single",
+    "options": [
+      { "text": "Overloads fix the type order: each subsequent middleware receives the type returned by the previous one", "correct": true },
+      { "text": "Function arrays are faster, but overloads are easier to read", "correct": false, "explanation": "It's not about performance or readability, but type safety. Arrays lose the connection between types of sequential middleware" },
+      { "text": "Overloads are required due to TypeScript limitations on type inference in loops", "correct": false, "explanation": "This isn't a TypeScript limitation. Arrays are homogeneous — all elements are the same type, but we need a heterogeneous chain with growing types" },
+      { "text": "Overloads allow using async/await in middleware", "correct": false, "explanation": "async/await is unrelated to overloads. Overloads are needed for sequential typing: pipe(A, f: A->B, g: B->C) => C" }
+    ]
+  },
+  {
+    "question": "In what order are after-hooks executed in the interceptor pattern (onion model)?",
+    "type": "single",
+    "options": [
+      { "text": "In reverse order: the last registered interceptor executes first", "correct": true },
+      { "text": "In forward order: the first registered executes first", "correct": false, "explanation": "Before-hooks are forward order, but after-hooks are reverse. This creates a symmetric 'onion': interceptor1.before -> interceptor2.before -> handler -> interceptor2.after -> interceptor1.after" },
+      { "text": "In random order depending on implementation", "correct": false, "explanation": "The order is deterministic and defined by the onion model architecture. After-hooks always execute in reverse order for symmetry" },
+      { "text": "In parallel via Promise.all", "correct": false, "explanation": "Interceptors execute sequentially, not in parallel. Each after-hook can transform the response, so order matters" }
+    ]
+  },
+  {
+    "question": "What advantages does a typed PluginHooks interface provide in a plugin system?",
+    "type": "multiple",
+    "options": [
+      { "text": "Autocomplete for hook names when calling emit()", "correct": true },
+      { "text": "Compile-time payload type checking for each hook", "correct": true },
+      { "text": "Automatic documentation generation for plugins", "correct": false, "explanation": "TypeScript doesn't automatically generate documentation. Typing ensures code checking, not documentation" },
+      { "text": "Inability to register a handler for a non-existent hook", "correct": true }
+    ]
+  },
+  {
+    "question": "Why can't you mutate context via (ctx as any).user = ... in accumulating middleware?",
+    "type": "single",
+    "options": [
+      { "text": "Mutation doesn't change the variable's type — TypeScript will still consider the context as the original type without the new property", "correct": true },
+      { "text": "as any is forbidden in TypeScript strict mode", "correct": false, "explanation": "as any is allowed in strict mode. The problem isn't syntax — after mutation, TypeScript doesn't know about the new property because the variable's type hasn't changed" },
+      { "text": "Mutation will cause a runtime error due to Object.freeze", "correct": false, "explanation": "Object.freeze isn't used automatically. The problem is purely at the type level: mutation via as any bypasses checking but doesn't extend the context type" },
+      { "text": "Mutation violates JavaScript's immutability principle", "correct": false, "explanation": "JavaScript has no built-in immutability principle. The issue is typing: mutation via as any 'tricks' TypeScript, and subsequent middleware won't see the added property in the type" }
+    ]
+  }
+]

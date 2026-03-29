@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Почему WebSocket начинается с HTTP-запроса, а не использует свой протокол с самого начала?",
+    "type": "single",
+    "options": [
+      { "text": "HTTP Upgrade позволяет пройти через существующие прокси, файрволы и балансировщики, которые понимают HTTP", "correct": true },
+      { "text": "WebSocket -- это расширение HTTP, поэтому всегда работает поверх HTTP", "correct": false, "explanation": "WebSocket -- отдельный протокол (ws://). HTTP используется только для handshake (Upgrade). После установки соединения HTTP больше не участвует -- передаются WebSocket фреймы" },
+      { "text": "Для передачи cookies и заголовков аутентификации", "correct": false, "explanation": "Cookies и заголовки можно передать во время handshake, но это не главная причина. Основная -- совместимость с существующей HTTP-инфраструктурой (прокси, LB, CDN)" },
+      { "text": "Потому что WebSocket не может работать без HTTP-сервера", "correct": false, "explanation": "WebSocket может работать на чистом TCP. HTTP Upgrade -- это механизм совместимости, а не техническое ограничение. На практике ws:// работает поверх TCP после handshake" }
+    ]
+  },
+  {
+    "question": "В чём разница между Socket.io rooms и namespaces?",
+    "type": "single",
+    "options": [
+      { "text": "Namespaces -- логическое разделение (отдельные endpoints: /chat, /admin), rooms -- группы клиентов внутри namespace для таргетированной рассылки", "correct": true },
+      { "text": "Namespaces и rooms -- одно и то же, просто разные названия", "correct": false, "explanation": "Это разные концепции. Namespaces создают отдельные каналы с собственными middleware и обработчиками. Rooms -- динамические группы клиентов для emit внутри namespace" },
+      { "text": "Rooms -- на сервере, namespaces -- на клиенте", "correct": false, "explanation": "И rooms, и namespaces управляются на сервере. Клиент подключается к namespace (io('/chat')), а сервер управляет rooms (socket.join('room'))" },
+      { "text": "Namespaces для масштабирования, rooms для авторизации", "correct": false, "explanation": "Namespaces не связаны с масштабированием, а rooms не связаны с авторизацией. Namespaces разделяют функционал, rooms группируют клиентов для целевой рассылки" }
+    ]
+  },
+  {
+    "question": "Почему SSE лучше WebSocket для уведомлений и новостных лент?",
+    "type": "multiple",
+    "options": [
+      { "text": "SSE автоматически переподключается с Last-Event-ID -- клиент не пропускает события", "correct": true },
+      { "text": "SSE работает через обычный HTTP -- не требует специальной настройки прокси и LB", "correct": true },
+      { "text": "SSE быстрее WebSocket для передачи данных", "correct": false, "explanation": "SSE не быстрее WebSocket. WebSocket имеет меньший overhead (2-14 байт vs HTTP). SSE выигрывает простотой и auto-reconnect, не скоростью" },
+      { "text": "SSE проще реализовать на сервере -- обычный HTTP response с потоком", "correct": true }
+    ]
+  },
+  {
+    "question": "Почему sticky sessions обязательны для Socket.io за Load Balancer?",
+    "type": "single",
+    "options": [
+      { "text": "Socket.io handshake (HTTP polling) и WebSocket upgrade должны попасть на один и тот же инстанс, иначе сессия потеряется", "correct": true },
+      { "text": "Без sticky sessions Socket.io не может установить WebSocket-соединение", "correct": false, "explanation": "WebSocket может установиться, но Socket.io по умолчанию начинает с HTTP long-polling и затем upgrade на WebSocket. Если polling-запросы попадают на разные инстансы, сессия ломается" },
+      { "text": "Sticky sessions нужны для хранения данных комнат (rooms) на одном сервере", "correct": false, "explanation": "Rooms хранятся в памяти каждого инстанса, но Redis Adapter синхронизирует их. Sticky sessions нужны именно для handshake/transport upgrade, а не для rooms" },
+      { "text": "Это рекомендация для производительности, не требование", "correct": false, "explanation": "Это жёсткое требование. Без sticky sessions Socket.io будет возвращать 400 Bad Request для polling-запросов, попавших на другой инстанс. Альтернатива -- отключить polling и использовать только WebSocket transport" }
+    ]
+  },
+  {
+    "question": "Зачем WebSocket-серверу heartbeat (ping/pong)?",
+    "type": "single",
+    "options": [
+      { "text": "Обнаружить зомби-соединения -- клиенты, которые отключились без close frame (потеря сети, crash)", "correct": true },
+      { "text": "Поддерживать TCP-соединение живым через NAT-роутеры", "correct": false, "explanation": "TCP keepalive -- отдельный механизм на уровне ОС. WebSocket heartbeat на уровне приложения нужен именно для обнаружения мёртвых соединений, а не для NAT traversal" },
+      { "text": "Измерять latency между клиентом и сервером", "correct": false, "explanation": "Хотя ping/pong можно использовать для измерения latency, основная цель -- обнаружение зомби-соединений. Без heartbeat сервер не узнает, что клиент отключился" },
+      { "text": "Синхронизировать время между клиентом и сервером", "correct": false, "explanation": "Ping/pong не связан с синхронизацией времени. Его цель -- проверка живости соединения. Если клиент не отвечает на ping, сервер вызывает terminate()" }
+    ]
+  }
+]

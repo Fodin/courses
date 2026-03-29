@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Why are Docker images built in layers?",
+    "type": "multiple",
+    "options": [
+      { "text": "For caching — unchanged layers are reused during rebuilds", "correct": true },
+      { "text": "For space efficiency — multiple images can share common layers", "correct": true },
+      { "text": "For security — each layer is encrypted separately", "correct": false, "explanation": "Layers are not automatically encrypted. The layered architecture is for caching and reuse, not encryption" },
+      { "text": "For parallel downloading — layers are fetched simultaneously", "correct": true }
+    ]
+  },
+  {
+    "question": "What does the 'latest' tag mean in Docker?",
+    "type": "single",
+    "options": [
+      { "text": "It's the default tag assigned when no tag is explicitly specified", "correct": true },
+      { "text": "It always points to the most recent version of the image", "correct": false, "explanation": "latest is just the default tag. It may point to an old version if the author hasn't updated it. Docker doesn't guarantee it's current" },
+      { "text": "It's a special tag that auto-updates on every docker push", "correct": false, "explanation": "latest doesn't auto-update. The image author must explicitly assign this tag to a new version" },
+      { "text": "This tag cannot be overridden", "correct": false, "explanation": "latest is a regular tag that can be overridden at any time, which is its main problem" }
+    ]
+  },
+  {
+    "question": "What Dockerfile instruction order is optimal for caching?",
+    "type": "single",
+    "options": [
+      { "text": "First COPY package.json, then RUN npm install, then COPY remaining files", "correct": true },
+      { "text": "First COPY all files, then RUN npm install", "correct": false, "explanation": "With this order, any code change invalidates the npm install cache, reinstalling dependencies every time" },
+      { "text": "Order doesn't matter for caching", "correct": false, "explanation": "Order is critical: Docker caches layers top-down, and changing one layer invalidates all subsequent ones" },
+      { "text": "First RUN npm install, then COPY all files", "correct": false, "explanation": "npm install without package.json can't install dependencies. Dependency files must be copied before installation" }
+    ]
+  },
+  {
+    "question": "What is .dockerignore used for?",
+    "type": "multiple",
+    "options": [
+      { "text": "Reduces build context size and speeds up docker build", "correct": true },
+      { "text": "Prevents secrets (.env) from getting into the image via COPY", "correct": true },
+      { "text": "Automatically deletes files from the final image", "correct": false, "explanation": ".dockerignore excludes files from the build context, not from the final image. It works before the build starts" },
+      { "text": "Prevents unnecessary cache invalidations (e.g., from .git)", "correct": true }
+    ]
+  },
+  {
+    "question": "What is the full Docker image name format?",
+    "type": "single",
+    "options": [
+      { "text": "[registry/][namespace/]repository[:tag|@digest]", "correct": true },
+      { "text": "repository:tag — nothing more", "correct": false, "explanation": "This is a simplified form. The full name can include registry address, namespace, and digest for exact identification" },
+      { "text": "namespace/repository/tag/registry", "correct": false, "explanation": "The element order is wrong. Registry comes first, then namespace, repository, and tag" },
+      { "text": "digest@repository:tag", "correct": false, "explanation": "Digest is specified after repository with @, not before it" }
+    ]
+  }
+]

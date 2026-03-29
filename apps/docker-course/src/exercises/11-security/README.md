@@ -21,20 +21,18 @@ $ docker run -d --name myapp \
 - Уязвимость в зависимости может стать **точкой входа** в вашу инфраструктуру
 - **Supply chain атака** через скомпрометированный базовый образ заражает все ваши сервисы
 
-```
-┌─────────────────────────────────────────────┐
-│                   ХОСТ                       │
-│                                              │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
-│  │Container │  │Container │  │Container │  │
-│  │(root,    │  │(no caps  │  │(read-only│  │
-│  │ privil.) │  │ dropped) │  │ FS, user)│  │
-│  │          │  │          │  │          │  │
-│  │ ОПАСНО!  │  │ Лучше    │  │ Хорошо   │  │
-│  └──────────┘  └──────────┘  └──────────┘  │
-│                                              │
-│  Общее ядро Linux (shared kernel)           │
-└─────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph HOST["ХОСТ — Общее ядро Linux (shared kernel)"]
+        C1["Container<br>(root, privil.)<br>ОПАСНО!"]
+        C2["Container<br>(no caps dropped)<br>Лучше"]
+        C3["Container<br>(read-only FS, user)<br>Хорошо"]
+    end
+
+    style C1 fill:#f8d7da,stroke:#dc3545
+    style C2 fill:#fff3cd,stroke:#ffc107
+    style C3 fill:#d4edda,stroke:#28a745
+    style HOST fill:#f0f0f0,stroke:#666
 ```
 
 В этом уровне мы разберём все аспекты безопасности Docker:
@@ -1231,10 +1229,23 @@ volumes:
 
 Главный принцип: **Defense in Depth** (эшелонированная оборона). Ни одна мера безопасности не идеальна, но их комбинация делает атаку значительно сложнее.
 
-```
-Без защиты:       ─────────────> ХОСТ (1 шаг)
+```mermaid
+flowchart LR
+    subgraph without["Без защиты"]
+        A1["Атака"] --> H1["ХОСТ (1 шаг)"]
+    end
 
-С защитой:  CAP_DROP → READ-ONLY → NO-NEW-PRIV → SECCOMP → USER
-            Каждый слой останавливает определённые атаки.
-            Пробить все 5 слоёв -- на порядки сложнее.
+    subgraph with["С защитой (Defense in Depth)"]
+        A2["Атака"] --> L1["CAP_DROP"]
+        L1 --> L2["READ-ONLY"]
+        L2 --> L3["NO-NEW-PRIV"]
+        L3 --> L4["SECCOMP"]
+        L4 --> L5["USER"]
+        L5 -. "Пробить все 5 слоёв — на порядки сложнее" .-> H2["ХОСТ"]
+    end
+
+    style without fill:#f8d7da,stroke:#dc3545
+    style with fill:#d4edda,stroke:#28a745
+    style H1 fill:#dc3545,color:#fff,stroke:#900
+    style H2 fill:#28a745,color:#fff,stroke:#060
 ```

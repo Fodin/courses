@@ -187,19 +187,22 @@ CMD ["node", "dist/server.js"]
 
 ### How it works
 
-```
-Stage 1 (builder):                 Stage 2 (runner):
-┌─────────────────────┐           ┌─────────────────────┐
-│ node:20 (1.1 GB)    │           │ node:20-alpine      │
-│ + npm ci (450 MB)   │  COPY     │ (135 MB)            │
-│ + source code       │ ────────> │ + dist/ (500 KB)    │
-│ + npm run build     │ --from=   │ + node_modules      │
-│ + dist/             │ builder   │   (prod only, 80MB) │
-│ TOTAL: ~1.6 GB      │           │ TOTAL: ~180 MB      │
-└─────────────────────┘           └─────────────────────┘
-        ↓                                  ↓
-  NOT included in                   Final image
-  the final image                   (only this)
+```mermaid
+flowchart LR
+    subgraph builder["Stage 1 (builder)"]
+        B1["node:20 (1.1 GB)<br>+ npm ci (450 MB)<br>+ source code<br>+ npm run build<br>+ dist/<br>TOTAL: ~1.6 GB"]
+    end
+    subgraph runner["Stage 2 (runner)"]
+        R1["node:20-alpine (135 MB)<br>+ dist/ (500 KB)<br>+ node_modules<br>(prod only, 80 MB)<br>TOTAL: ~180 MB"]
+    end
+    builder -- "COPY --from=builder" --> runner
+    builder -. "NOT included in final image" .-> X((" "))
+    runner -- "Final image (only this)" --> OK((" "))
+
+    style builder fill:#fee,stroke:#c33
+    style runner fill:#efe,stroke:#3a3
+    style X fill:none,stroke:none
+    style OK fill:none,stroke:none
 ```
 
 Docker **discards** all intermediate stages after the build. Only the last stage ends up in the final image.
@@ -366,23 +369,22 @@ Each instruction in a Dockerfile creates a new **layer**. Docker caches each lay
 2. The instruction has not changed
 3. For `COPY`/`ADD` — the files have not changed (compared by checksum)
 
-```
-Dockerfile:          Cache:
-┌──────────────┐     ┌──────────────┐
-│ FROM node:20 │ ──> │ cached ✅    │
-├──────────────┤     ├──────────────┤
-│ WORKDIR /app │ ──> │ cached ✅    │
-├──────────────┤     ├──────────────┤
-│ COPY pkg.json│ ──> │ cached ✅    │ (file unchanged)
-├──────────────┤     ├──────────────┤
-│ RUN npm ci   │ ──> │ cached ✅    │ (parent cached + instruction unchanged)
-├──────────────┤     ├──────────────┤
-│ COPY . .     │ ──> │ MISS ❌      │ (files changed!)
-├──────────────┤     ├──────────────┤
-│ RUN npm build│ ──> │ rebuild 🔄   │ (parent not from cache)
-├──────────────┤     ├──────────────┤
-│ CMD [...]    │ ──> │ rebuild 🔄   │
-└──────────────┘     └──────────────┘
+```mermaid
+flowchart TD
+    A["FROM node:20"] -->|"cached"| B["WORKDIR /app"]
+    B -->|"cached"| C["COPY pkg.json"]
+    C -->|"cached (file unchanged)"| D["RUN npm ci"]
+    D -->|"cached (parent cached + instruction unchanged)"| E["COPY . ."]
+    E -->|"MISS (files changed!)"| F["RUN npm build"]
+    F -->|"rebuild (parent not from cache)"| G["CMD [...]"]
+
+    style A fill:#d4edda,stroke:#28a745
+    style B fill:#d4edda,stroke:#28a745
+    style C fill:#d4edda,stroke:#28a745
+    style D fill:#d4edda,stroke:#28a745
+    style E fill:#f8d7da,stroke:#dc3545
+    style F fill:#fff3cd,stroke:#ffc107
+    style G fill:#fff3cd,stroke:#ffc107
 ```
 
 **As soon as one layer is not from cache — all subsequent layers are also rebuilt!**
@@ -813,15 +815,12 @@ ENTRYPOINT ["/myapp"]
 
 ### Comparison: the same Go service
 
-```
-Base image                 Final image size
-──────────────────────     ────────────────────────
-golang:1.22                820 MB
-golang:1.22-alpine         265 MB
-ubuntu:22.04 + binary      85 MB
-alpine:3.19 + binary       14 MB
-gcr.io/distroless/static   9 MB
-scratch                    8 MB
+```mermaid
+xychart-beta
+    title "Final Go service image size"
+    x-axis ["scratch", "distroless", "alpine + bin", "ubuntu + bin", "golang-alpine", "golang"]
+    y-axis "Size (MB)" 0 --> 850
+    bar [8, 9, 14, 85, 265, 820]
 ```
 
 ---

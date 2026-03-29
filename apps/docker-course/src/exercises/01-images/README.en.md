@@ -6,18 +6,11 @@ A Docker image is a **read-only template** that contains everything needed to ru
 
 An image can be compared to a **class** in object-oriented programming: by itself it does nothing, but from it you can create one or more **containers** (instances).
 
-```
-Image                   Container
-┌─────────────────┐     ┌─────────────────┐
-│  Template (R/O) │────▶│  Running         │
-│  Code + Deps    │     │  instance        │
-│  Configs        │     │  + writable      │
-│  Base OS        │     │    layer (R/W)   │
-└─────────────────┘     └─────────────────┘
-        │
-        ├──────────────▶ Container 2
-        │
-        └──────────────▶ Container 3
+```mermaid
+flowchart LR
+    Image["Image\nTemplate (R/O)\nCode + Deps\nConfigs\nBase OS"] --> C1["Container 1\nRunning instance\n+ writable layer (R/W)"]
+    Image --> C2["Container 2"]
+    Image --> C3["Container 3"]
 ```
 
 📌 **Key property:** images are **immutable**. You cannot modify an existing image — you can only create a new one based on it.
@@ -36,34 +29,27 @@ COPY app.js /app/          # Layer 4: copy code (~1 KB)
 CMD ["node", "app.js"]     # Metadata (does not create a layer)
 ```
 
-```
-┌────────────────────────────────────┐
-│ Layer 4: COPY app.js (R/O)        │  ← topmost
-├────────────────────────────────────┤
-│ Layer 3: apt install curl (R/O)   │
-├────────────────────────────────────┤
-│ Layer 2: apt-get update (R/O)     │
-├────────────────────────────────────┤
-│ Layer 1: ubuntu:22.04 (R/O)       │  ← base
-└────────────────────────────────────┘
+```mermaid
+block-beta
+    columns 1
+    layer4["Layer 4: COPY app.js (R/O) -- topmost"]
+    layer3["Layer 3: apt install curl (R/O)"]
+    layer2["Layer 2: apt-get update (R/O)"]
+    layer1["Layer 1: ubuntu:22.04 (R/O) -- base"]
 ```
 
 ### UnionFS and Copy-on-Write
 
 Docker uses a **Union File System (UnionFS)** to merge all layers into a single filesystem. When a container starts, a **writable layer** is added on top of the image layers:
 
-```
-┌────────────────────────────────────┐
-│ Container writable layer (R/W)    │  ← only here can files be changed
-├────────────────────────────────────┤
-│ Layer 4: COPY app.js (R/O)        │
-├────────────────────────────────────┤
-│ Layer 3: apt install curl (R/O)   │
-├────────────────────────────────────┤
-│ Layer 2: apt-get update (R/O)     │
-├────────────────────────────────────┤
-│ Layer 1: ubuntu:22.04 (R/O)       │
-└────────────────────────────────────┘
+```mermaid
+block-beta
+    columns 1
+    writable["Container writable layer (R/W) -- only here can files be changed"]
+    layer4["Layer 4: COPY app.js (R/O)"]
+    layer3["Layer 3: apt install curl (R/O)"]
+    layer2["Layer 2: apt-get update (R/O)"]
+    layer1["Layer 1: ubuntu:22.04 (R/O)"]
 ```
 
 **Copy-on-Write (CoW):** when a container modifies a file from an image layer, the file is first **copied** to the writable layer, and only then changed. The original in the image layer remains untouched.

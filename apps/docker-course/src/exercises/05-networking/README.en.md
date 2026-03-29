@@ -38,24 +38,23 @@ Docker supports several network drivers, each suited to a specific scenario:
 
 ### Visual Model
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│                      Host machine                             │
-│                                                              │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
-│  │  bridge      │  │   host      │  │      none           │  │
-│  │  (docker0)   │  │ (host net)  │  │  (no network)       │  │
-│  │             │  │             │  │                     │  │
-│  │ ┌───┐ ┌───┐│  │   ┌───┐    │  │      ┌───┐         │  │
-│  │ │web│ │api││  │   │app│    │  │      │job│         │  │
-│  │ └───┘ └───┘│  │   └───┘    │  │      └───┘         │  │
-│  └──────┬──────┘  └─────┬──────┘  └─────────────────────┘  │
-│         │               │                                    │
-│    NAT/iptables    direct                                    │
-│         │               │                                    │
-└─────────┴───────────────┴────────────────────────────────────┘
-          │               │
-     External world  External world
+```mermaid
+flowchart TD
+    subgraph Host["Host machine"]
+        subgraph bridge["bridge (docker0)"]
+            web["web"]
+            api["api"]
+        end
+        subgraph host_net["host (host net)"]
+            app["app"]
+        end
+        subgraph none["none (no network)"]
+            job["job"]
+        end
+    end
+
+    bridge -->|NAT / iptables| External["External world"]
+    host_net -->|direct| External
 ```
 
 ---
@@ -292,24 +291,17 @@ docker run -p 8080:80 nginx
 
 ### How Port Mapping Works
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Host machine                          │
-│                                                         │
-│  User → localhost:8080                                  │
-│                      │                                  │
-│              iptables / NAT                             │
-│                      │                                  │
-│         ┌────────────▼────────────┐                     │
-│         │   Bridge network        │                     │
-│         │   172.17.0.0/16         │                     │
-│         │                         │                     │
-│         │   ┌─────────────────┐   │                     │
-│         │   │  nginx          │   │                     │
-│         │   │  172.17.0.2:80  │   │                     │
-│         │   └─────────────────┘   │                     │
-│         └─────────────────────────┘                     │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    User["User"] -->|localhost:8080| IPT["iptables / NAT"]
+
+    subgraph Host["Host machine"]
+        IPT --> nginx
+
+        subgraph Bridge["Bridge network\n172.17.0.0/16"]
+            nginx["nginx\n172.17.0.2:80"]
+        end
+    end
 ```
 
 Docker uses **iptables** (Linux) to redirect traffic from a host port to a container port.
@@ -376,28 +368,29 @@ docker run -d --name web --network frontend nginx
 
 ### Typical Microservices Architecture
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                                                         │
-│  frontend network                backend network        │
-│  ┌──────────────────┐           ┌──────────────────┐    │
-│  │                  │           │                  │    │
-│  │  ┌─────┐        │           │        ┌─────┐  │    │
-│  │  │ web │  ┌─────┤───────────├─────┐  │ db  │  │    │
-│  │  └─────┘  │ api │           │     │  └─────┘  │    │
-│  │           └─────┤───────────├─────┘           │    │
-│  │                  │           │        ┌─────┐  │    │
-│  │                  │           │        │redis│  │    │
-│  │                  │           │        └─────┘  │    │
-│  └──────────────────┘           └──────────────────┘    │
-│                                                         │
-│  User → :80 (web)                                       │
-│  web → api:3000 (within frontend)                       │
-│  api → db:5432 (within backend)                         │
-│  api → redis:6379 (within backend)                      │
-│  web ✗ db (isolation!)                                  │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    User["User"] -->|:80| web
+
+    subgraph frontend["frontend network"]
+        web
+        api
+    end
+
+    subgraph backend["backend network"]
+        api2["api"]
+        db
+        redis
+    end
+
+    web -->|api:3000| api
+    api2 -->|db:5432| db
+    api2 -->|redis:6379| redis
+
+    web -.-x|"isolation!"| db
+
+    style api fill:#f9f,stroke:#333
+    style api2 fill:#f9f,stroke:#333
 ```
 
 ---

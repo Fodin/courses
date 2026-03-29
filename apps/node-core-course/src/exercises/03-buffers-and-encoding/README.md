@@ -99,16 +99,39 @@ Buffer.byteLength('Привет') // 12
 
 ### Иерархия типов
 
-```
-ArrayBuffer — контейнер сырых байтов (нельзя читать напрямую)
-  ├── TypedArray — типизированное представление
-  │     ├── Uint8Array      (Buffer наследует от этого!)
-  │     ├── Uint16Array
-  │     ├── Uint32Array
-  │     ├── Int8Array / Int16Array / Int32Array
-  │     ├── Float32Array / Float64Array
-  │     └── BigInt64Array / BigUint64Array
-  └── DataView — гибкое чтение/запись с контролем endianness
+```mermaid
+flowchart LR
+    AB["ArrayBuffer\nконтейнер сырых байтов"]
+
+    AB --> TA["TypedArray"]
+    AB --> DV["DataView\nконтроль endianness"]
+
+    subgraph Целочисленные
+        U8["Uint8Array"]
+        U16["Uint16Array"]
+        U32["Uint32Array"]
+        I8["Int8Array"]
+        I16["Int16Array"]
+        I32["Int32Array"]
+    end
+
+    subgraph Дробные
+        F32["Float32Array"]
+        F64["Float64Array"]
+    end
+
+    subgraph BigInt
+        B64["BigInt64Array"]
+        BU64["BigUint64Array"]
+    end
+
+    TA --> Целочисленные
+    TA --> Дробные
+    TA --> BigInt
+
+    U8 --> BUF["Buffer\nнаследует Uint8Array"]
+
+    style BUF fill:#f96,stroke:#333,color:#000
 ```
 
 ### Один ArrayBuffer — разные представления

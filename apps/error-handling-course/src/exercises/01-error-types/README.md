@@ -55,14 +55,14 @@ decodeURIComponent('%')          // URIError: URI malformed
 
 Все ошибки наследуют от `Error`:
 
-```
-Error
-├── TypeError
-├── RangeError
-├── SyntaxError
-├── ReferenceError
-├── URIError
-└── EvalError (устарело)
+```mermaid
+flowchart TD
+    Error --> TypeError
+    Error --> RangeError
+    Error --> SyntaxError
+    Error --> ReferenceError
+    Error --> URIError
+    Error --> EvalError["EvalError (устарело)"]
 ```
 
 ```javascript

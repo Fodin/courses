@@ -61,35 +61,38 @@ Docker-образ описывает окружение как код (`Dockerfi
 
 Виртуальная машина эмулирует **полноценный компьютер**: у неё есть свой процессор, память, диск и **своя операционная система**. Над физическим оборудованием работает **гипервизор** (например, VMware, VirtualBox, Hyper-V), который распределяет ресурсы между VM.
 
-```
-┌─────────────────────────────────────┐
-│          Виртуальная машина          │
-│  ┌─────────┐  ┌─────────┐          │
-│  │  App A   │  │  App B   │          │
-│  │ Libs/Deps│  │ Libs/Deps│          │
-│  │ Guest OS │  │ Guest OS │          │
-│  └─────────┘  └─────────┘          │
-│          Гипервизор                  │
-│       Хост-операционная система      │
-│         Физическое железо            │
-└─────────────────────────────────────┘
+```mermaid
+block-beta
+    columns 1
+    block:vm["Виртуальная машина"]
+        columns 2
+        block:appA["App A\nLibs/Deps\nGuest OS"]
+        end
+        block:appB["App B\nLibs/Deps\nGuest OS"]
+        end
+    end
+    hypervisor["Гипервизор"]
+    hostOS["Хост-операционная система"]
+    hardware["Физическое железо"]
 ```
 
 ### Контейнеры
 
 Контейнер использует **ядро хост-операционной системы**. У него нет своей ОС -- вместо этого он изолирует процессы с помощью механизмов Linux: **namespaces** (изоляция) и **cgroups** (ограничение ресурсов).
 
-```
-┌─────────────────────────────────────┐
-│             Контейнеры               │
-│  ┌─────────┐  ┌─────────┐          │
-│  │  App A   │  │  App B   │          │
-│  │ Libs/Deps│  │ Libs/Deps│          │
-│  └─────────┘  └─────────┘          │
-│          Docker Engine               │
-│       Хост-операционная система      │
-│         Физическое железо            │
-└─────────────────────────────────────┘
+```mermaid
+block-beta
+    columns 1
+    block:containers["Контейнеры"]
+        columns 2
+        block:appA2["App A\nLibs/Deps"]
+        end
+        block:appB2["App B\nLibs/Deps"]
+        end
+    end
+    engine["Docker Engine"]
+    hostOS2["Хост-операционная система"]
+    hardware2["Физическое железо"]
 ```
 
 ### Сравнительная таблица
@@ -141,20 +144,21 @@ docker pull ubuntu:22.04  # Скачать образ
 
 **Серверная часть** Docker. Daemon управляет Docker-объектами: образами, контейнерами, сетями и томами. Он слушает API-запросы от клиента и выполняет их.
 
-```
-Docker Client ──(REST API)──▶ Docker Daemon
-                                    │
-                          ┌─────────┼─────────┐
-                          ▼         ▼         ▼
-                      Контейнеры  Образы    Тома
+```mermaid
+flowchart LR
+    Client["Docker Client"] -->|REST API| Daemon["Docker Daemon"]
+    Daemon --> Containers["Контейнеры"]
+    Daemon --> Images["Образы"]
+    Daemon --> Volumes["Тома"]
 ```
 
 ### Container Runtime (containerd + runc)
 
 Docker Daemon не запускает контейнеры напрямую. Он делегирует это **containerd** (высокоуровневый рантайм), который в свою очередь использует **runc** (низкоуровневый рантайм) для создания контейнеров на основе OCI-спецификации.
 
-```
-Docker CLI → Docker Daemon → containerd → runc → Контейнер
+```mermaid
+flowchart LR
+    CLI["Docker CLI"] --> Daemon["Docker Daemon"] --> containerd --> runc --> Container["Контейнер"]
 ```
 
 ### Docker Registry
@@ -171,32 +175,18 @@ docker pull registry.company.com/my-app:1.0
 
 ### Полная схема взаимодействия
 
-```
-                    ┌──────────────────────────────────────┐
-                    │           Docker Host                  │
-                    │                                        │
- ┌──────────┐      │  ┌──────────────┐   ┌──────────────┐  │
- │  Docker   │─────▶│  │ Docker Daemon │──▶│  containerd   │  │
- │  Client   │ API  │  │   (dockerd)   │   │              │  │
- │  (CLI)    │◀─────│  └──────────────┘   └───────┬──────┘  │
- └──────────┘      │         │                    │         │
-                    │         ▼                    ▼         │
-                    │  ┌────────────┐      ┌──────────┐     │
-                    │  │   Images    │      │   runc    │     │
-                    │  │   Volumes   │      │          │     │
-                    │  │  Networks   │      └────┬─────┘     │
-                    │  └────────────┘           │           │
-                    │                     ┌─────┴──────┐    │
-                    │                     │ Контейнеры  │    │
-                    │                     └────────────┘    │
-                    └──────────────────────────────────────┘
-                               ▲
-                               │ docker pull / push
-                               ▼
-                    ┌──────────────────────┐
-                    │    Docker Registry    │
-                    │   (Docker Hub и др.)  │
-                    └──────────────────────┘
+```mermaid
+flowchart TB
+    Client["Docker Client\n(CLI)"] <-->|REST API| Daemon
+
+    subgraph Host["Docker Host"]
+        Daemon["Docker Daemon\n(dockerd)"] --> containerd
+        Daemon --> Objects["Images\nVolumes\nNetworks"]
+        containerd --> runc
+        runc --> Containers["Контейнеры"]
+    end
+
+    Daemon <-->|docker pull / push| Registry["Docker Registry\n(Docker Hub и др.)"]
 ```
 
 ## 📌 Docker-объекты

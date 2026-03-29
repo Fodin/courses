@@ -77,22 +77,16 @@ registerSingleton<T>(token: Token<T>, factory: () => T): void {
 
 Business logic lives at the center and **knows nothing** about the database, HTTP, or the file system. Instead, it defines **ports** (interfaces), and the outside world provides **adapters** (implementations).
 
-```
-          ┌──────────────────────┐
-          │    Adapter (HTTP)    │
-          └──────────┬───────────┘
-                     │
-          ┌──────────▼───────────┐
-          │     Port (interface) │
-          ├──────────────────────┤
-          │   Business Logic     │
-          ├──────────────────────┤
-          │     Port (interface) │
-          └──────────┬───────────┘
-                     │
-          ┌──────────▼───────────┐
-          │  Adapter (Postgres)  │
-          └──────────────────────┘
+```mermaid
+flowchart TD
+    A1["Adapter (HTTP)"] --> P1["Port (interface)"]
+
+    subgraph Core ["Business Logic"]
+        P1 --> BL["Core Logic"]
+        BL --> P2["Port (interface)"]
+    end
+
+    P2 --> A2["Adapter (Postgres)"]
 ```
 
 ### Example
@@ -124,11 +118,13 @@ class InMemoryUserRepository implements UserRepository {
 
 ### Layers
 
-```
-Infrastructure → Application → Domain
-     ↑               ↑           ↑
-  depends on     depends on   depends on
-                              nothing
+```mermaid
+flowchart TD
+    Infra["Infrastructure\n(depends on Application & Domain)"]
+    App["Application\n(depends on Domain)"]
+    Domain["Domain\n(depends on nothing)"]
+
+    Infra --> App --> Domain
 ```
 
 1. 🟢 **Domain (Entity)** — business objects and rules. Depends on nothing.

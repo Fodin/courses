@@ -6,9 +6,9 @@ MobX has three key concepts: **observable** (state), **computed** (derived data)
 
 Reactions are the bridge between the reactive world of MobX and the "outside world": DOM, localStorage, network requests, console, timers, etc.
 
-```
-Observable ──→ Computed ──→ Reaction ──→ Side Effect
-  (state)      (derived)     (bridge)     (DOM, API, log...)
+```mermaid
+flowchart LR
+    Observable["Observable\n(state)"] --> Computed["Computed\n(derived)"] --> Reaction["Reaction\n(bridge)"] --> SideEffect["Side Effect\n(DOM, API, log...)"]
 ```
 
 MobX provides three types of reactions:

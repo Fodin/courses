@@ -20,9 +20,9 @@
 
 ### Архитектура
 
-```
-Producer → Redis Queue → Worker(s)
-  (API)     (хранилище)    (обработчик)
+```mermaid
+graph LR
+    Producer["Producer (API)"] --> Queue["Redis Queue (хранилище)"] --> Workers["Worker(s) (обработчик)"]
 ```
 
 ### Producer и Worker

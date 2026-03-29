@@ -77,22 +77,16 @@ registerSingleton<T>(token: Token<T>, factory: () => T): void {
 
 Бизнес-логика живёт в центре и **не знает** ни о базе данных, ни о HTTP, ни о файловой системе. Вместо этого она определяет **порты** (интерфейсы), а внешний мир предоставляет **адаптеры** (реализации).
 
-```
-          ┌──────────────────────┐
-          │    Adapter (HTTP)    │
-          └──────────┬───────────┘
-                     │
-          ┌──────────▼───────────┐
-          │     Port (interface) │
-          ├──────────────────────┤
-          │   Business Logic     │
-          ├──────────────────────┤
-          │     Port (interface) │
-          └──────────┬───────────┘
-                     │
-          ┌──────────▼───────────┐
-          │  Adapter (Postgres)  │
-          └──────────────────────┘
+```mermaid
+flowchart TD
+    A1["Адаптер (HTTP)"] --> P1["Порт (интерфейс)"]
+
+    subgraph Core ["Бизнес-логика"]
+        P1 --> BL["Основная логика"]
+        BL --> P2["Порт (интерфейс)"]
+    end
+
+    P2 --> A2["Адаптер (Postgres)"]
 ```
 
 ### Пример
@@ -124,10 +118,13 @@ class InMemoryUserRepository implements UserRepository {
 
 ### Слои
 
-```
-Infrastructure → Application → Domain
-     ↑               ↑           ↑
-  зависит от     зависит от   ни от чего
+```mermaid
+flowchart TD
+    Infra["Infrastructure\n(зависит от Application и Domain)"]
+    App["Application\n(зависит от Domain)"]
+    Domain["Domain\n(ни от чего не зависит)"]
+
+    Infra --> App --> Domain
 ```
 
 1. 🟢 **Domain (Entity)** — бизнес-объекты и правила. Не зависит ни от чего.

@@ -33,6 +33,41 @@ UTF-8 (default), ascii, latin1, hex, base64, base64url, utf16le.
 
 Buffer extends Uint8Array. ArrayBuffer is the raw container, TypedArrays are views.
 
+```mermaid
+flowchart LR
+    AB["ArrayBuffer\nraw byte container"]
+
+    AB --> TA["TypedArray"]
+    AB --> DV["DataView\nendianness control"]
+
+    subgraph Integer
+        U8["Uint8Array"]
+        U16["Uint16Array"]
+        U32["Uint32Array"]
+        I8["Int8Array"]
+        I16["Int16Array"]
+        I32["Int32Array"]
+    end
+
+    subgraph Float
+        F32["Float32Array"]
+        F64["Float64Array"]
+    end
+
+    subgraph BigInt
+        B64["BigInt64Array"]
+        BU64["BigUint64Array"]
+    end
+
+    TA --> Integer
+    TA --> Float
+    TA --> BigInt
+
+    U8 --> BUF["Buffer\nextends Uint8Array"]
+
+    style BUF fill:#f96,stroke:#333,color:#000
+```
+
 DataView gives explicit endianness control: big-endian for network, little-endian for CPU.
 
 ## 📌 Binary Protocol Parsing

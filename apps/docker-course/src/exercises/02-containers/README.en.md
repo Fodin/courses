@@ -12,16 +12,13 @@ When you run `docker run`, Docker:
 4. Configures **cgroups** (resource limits: CPU, RAM)
 5. Starts the process specified in `CMD` or `ENTRYPOINT`
 
-```
-┌─────────────────────────────┐
-│     Writable Layer (R/W)    │  ← Container changes
-├─────────────────────────────┤
-│     Image Layer 3 (R/O)     │
-├─────────────────────────────┤
-│     Image Layer 2 (R/O)     │
-├─────────────────────────────┤
-│     Image Layer 1 (R/O)     │  ← Base image
-└─────────────────────────────┘
+```mermaid
+block-beta
+    columns 1
+    writable["Writable Layer (R/W) -- Container changes"]
+    layer3["Image Layer 3 (R/O)"]
+    layer2["Image Layer 2 (R/O)"]
+    layer1["Image Layer 1 (R/O) -- Base image"]
 ```
 
 A container is **ephemeral** by default: when deleted, all changes in the writable layer are lost. To persist data, use volumes — covered in Level 4.
@@ -54,26 +51,14 @@ docker run --rm --name my-nginx nginx
 
 ### What happens during `docker run`?
 
-```
-docker run nginx
-       │
-       ▼
-┌──────────────────┐
-│ 1. Look up image │ → Present locally? If not → docker pull
-│    locally        │
-├──────────────────┤
-│ 2. Create         │ → New writable layer
-│    container      │
-├──────────────────┤
-│ 3. Allocate       │ → Namespace (PID, NET, MNT, UTS, IPC)
-│    namespaces     │   + cgroups (CPU, Memory)
-├──────────────────┤
-│ 4. Configure net  │ → IP address in bridge network
-│                   │
-├──────────────────┤
-│ 5. Start process  │ → CMD or ENTRYPOINT from the image
-│                   │
-└──────────────────┘
+```mermaid
+flowchart TD
+    run["docker run nginx"] --> step1
+    step1["1. Look up image locally\nPresent locally? If not -> docker pull"] --> step2
+    step2["2. Create container\nNew writable layer"] --> step3
+    step3["3. Allocate namespaces\nPID, NET, MNT, UTS, IPC + cgroups"] --> step4
+    step4["4. Configure network\nIP address in bridge network"] --> step5
+    step5["5. Start process\nCMD or ENTRYPOINT from the image"]
 ```
 
 ---
@@ -147,35 +132,16 @@ docker run -d \
 
 A container goes through several states:
 
-```
-               docker create
-                    │
-                    ▼
-              ┌──────────┐
-              │ Created   │
-              └─────┬─────┘
-                    │ docker start
-                    ▼
-              ┌──────────┐     docker pause     ┌──────────┐
-              │ Running   │ ──────────────────→  │ Paused   │
-              └─────┬─────┘  ←──────────────────  └──────────┘
-                    │              docker unpause
-                    │
-                    │ docker stop / docker kill
-                    │ or process exited
-                    ▼
-              ┌──────────┐
-              │ Exited    │
-              └─────┬─────┘
-                    │
-           ┌───────┴───────┐
-           │               │
-    docker start    docker rm
-           │               │
-           ▼               ▼
-      ┌──────────┐   ┌──────────┐
-      │ Running   │   │ Removed   │
-      └──────────┘   └──────────┘
+```mermaid
+stateDiagram-v2
+    [*] --> Created : docker create
+    Created --> Running : docker start
+    Running --> Paused : docker pause
+    Paused --> Running : docker unpause
+    Running --> Exited : docker stop / docker kill\nor process exited
+    Exited --> Running : docker start
+    Exited --> Removed : docker rm
+    Removed --> [*]
 ```
 
 ### Management commands

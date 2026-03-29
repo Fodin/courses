@@ -31,27 +31,14 @@ const fs = require('fs')
 
 Когда вы вызываете `require('./module')`, Node.js выполняет 5 шагов:
 
-```
-require('./module')
-  │
-  ├── 1. Resolve — определить полный путь к файлу
-  │     ./module → /app/module.js
-  │     Порядок поиска: .js → .json → .node → index.js в директории
-  │
-  ├── 2. Check Cache — проверить require.cache
-  │     Если уже загружен → вернуть кэшированный module.exports
-  │
-  ├── 3. Load — прочитать содержимое файла
-  │     .js  → текст JavaScript
-  │     .json → JSON.parse()
-  │     .node → dlopen() для C++ аддонов
-  │
-  ├── 4. Wrap — обернуть в функцию-обёртку
-  │     (function(exports, require, module, __filename, __dirname) {
-  │       // ваш код модуля
-  │     })
-  │
-  └── 5. Execute — выполнить обёртку и вернуть module.exports
+```mermaid
+flowchart TD
+    R["require('./module')"] --> Resolve
+    Resolve["1. Resolve\nОпределить полный путь к файлу\n./module -> /app/module.js\nПорядок: .js -> .json -> .node -> index.js"]
+    Resolve --> Cache["2. Check Cache\nПроверить require.cache\nЕсли уже загружен -> вернуть кэшированный module.exports"]
+    Cache --> Load["3. Load\nПрочитать содержимое файла\n.js -> текст JavaScript\n.json -> JSON.parse()\n.node -> dlopen() для C++ аддонов"]
+    Load --> Wrap["4. Wrap\nОбернуть в функцию-обёртку\n(function(exports, require, module, __filename, __dirname) { ... })"]
+    Wrap --> Exec["5. Execute\nВыполнить обёртку и вернуть module.exports"]
 ```
 
 ### Module Wrapper

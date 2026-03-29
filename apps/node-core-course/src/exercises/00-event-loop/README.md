@@ -16,48 +16,28 @@ Node.js построен на двух ключевых компонентах:
 1. **V8** -- движок JavaScript (компиляция и выполнение JS)
 2. **libuv** -- C-библиотека, реализующая Event Loop и асинхронный I/O
 
-```
-┌─────────────────────────────────────────┐
-│              Node.js Process             │
-│                                          │
-│  ┌──────────┐     ┌──────────────────┐  │
-│  │    V8     │     │     libuv        │  │
-│  │  Engine   │◄───►│   Event Loop     │  │
-│  │           │     │   Thread Pool    │  │
-│  │  JS код   │     │   Async I/O     │  │
-│  └──────────┘     └──────────────────┘  │
-│                                          │
-│  ┌──────────────────────────────────┐   │
-│  │    Node.js Bindings (C++)        │   │
-│  │    fs, net, crypto, dns, ...     │   │
-│  └──────────────────────────────────┘   │
-└─────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Process["Node.js Process"]
+        V8["V8 Engine\nJS код"] <--> libuv["libuv\nEvent Loop\nThread Pool\nAsync I/O"]
+        Bindings["Node.js Bindings C++\nfs, net, crypto, dns, ..."]
+    end
+    V8 --- Bindings
+    libuv --- Bindings
 ```
 
 ## 🔥 Фазы Event Loop
 
 Event Loop в libuv состоит из 6 фаз. Каждая фаза имеет FIFO-очередь колбэков:
 
-```
-   ┌───────────────────────────┐
-┌─▶│         Timers             │ ← setTimeout, setInterval
-│  └──────────┬────────────────┘
-│  ┌──────────▼────────────────┐
-│  │      Pending I/O          │ ← отложенные I/O колбэки
-│  └──────────┬────────────────┘
-│  ┌──────────▼────────────────┐
-│  │      Idle / Prepare       │ ← внутреннее использование
-│  └──────────┬────────────────┘
-│  ┌──────────▼────────────────┐
-│  │          Poll              │ ← получение I/O событий
-│  └──────────┬────────────────┘
-│  ┌──────────▼────────────────┐
-│  │         Check              │ ← setImmediate
-│  └──────────┬────────────────┘
-│  ┌──────────▼────────────────┐
-│  │     Close Callbacks       │ ← socket.on('close')
-│  └──────────┬────────────────┘
-└─────────────┘
+```mermaid
+flowchart TD
+    Timers["Timers\nsetTimeout, setInterval"] --> PendingIO["Pending I/O\nотложенные I/O колбэки"]
+    PendingIO --> Idle["Idle / Prepare\nвнутреннее использование"]
+    Idle --> Poll["Poll\nполучение I/O событий"]
+    Poll --> Check["Check\nsetImmediate"]
+    Check --> Close["Close Callbacks\nsocket.on('close')"]
+    Close --> Timers
 ```
 
 ### 1. Timers

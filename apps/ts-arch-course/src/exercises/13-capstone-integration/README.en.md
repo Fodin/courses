@@ -6,20 +6,29 @@ This level brings together all patterns and approaches from the course into a un
 
 ### Application Architecture
 
-```
-┌──────────────────────────────────────────┐
-│              API Layer                    │
-│   Validation → Controllers → Responses   │
-├──────────────────────────────────────────┤
-│          Application Layer               │
-│   Command Handlers  │  Query Handlers    │
-├──────────────────────────────────────────┤
-│            Domain Layer                  │
-│  Value Objects │ Entities │ Events │ Specs│
-├──────────────────────────────────────────┤
-│         Infrastructure Layer             │
-│  Repositories │ Event Store │ Adapters   │
-└──────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph API ["API Layer"]
+        direction LR
+        V["Validation"] --> C["Controllers"] --> R["Responses"]
+    end
+
+    subgraph App ["Application Layer"]
+        direction LR
+        CH["Command Handlers"] ~~~ QH["Query Handlers"]
+    end
+
+    subgraph Domain ["Domain Layer"]
+        direction LR
+        VO["Value Objects"] ~~~ E["Entities"] ~~~ EV["Events"] ~~~ SP["Specs"]
+    end
+
+    subgraph Infra ["Infrastructure Layer"]
+        direction LR
+        Repo["Repositories"] ~~~ ES["Event Store"] ~~~ Ad["Adapters"]
+    end
+
+    API --> App --> Domain --> Infra
 ```
 
 Each layer depends only on abstractions from lower layers. A DI container wires everything together.

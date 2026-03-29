@@ -22,42 +22,53 @@ $ docker-compose up -d
 
 Problems with a manual process:
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Manual Deploy                         │
-│                                                         │
-│  Developer ──► git push ──► SSH to server ──► build     │
-│       │                            │                    │
-│       │         Human              │                    │
-│       │          factor:           │                    │
-│       │                            │                    │
-│       │  • Forgot to run tests     │                    │
-│       │  • Built wrong branch      │                    │
-│       │  • Didn't update .env      │                    │
-│       │  • Forgot migrations       │                    │
-│       │  • No rollback plan        │                    │
-│       ▼                            ▼                    │
-│     PROBLEM                   DOWNTIME                  │
-└─────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph manual["Manual Deploy"]
+        D["Developer"] --> GP["git push"]
+        GP --> SSH["SSH to server"]
+        SSH --> BUILD["build"]
+
+        D --> HF["Human factor"]
+        HF --> E1["Forgot to run tests"]
+        HF --> E2["Built wrong branch"]
+        HF --> E3["Didn't update .env"]
+        HF --> E4["Forgot migrations"]
+        HF --> E5["No rollback plan"]
+
+        E1 & E2 & E3 & E4 & E5 --> PROBLEM["PROBLEM"]
+        BUILD --> DOWNTIME["DOWNTIME"]
+    end
+
+    style PROBLEM fill:#f8d7da,stroke:#dc3545
+    style DOWNTIME fill:#f8d7da,stroke:#dc3545
+    style HF fill:#fff3cd,stroke:#ffc107
+    style manual fill:#fff5f5,stroke:#dc3545
 ```
 
 CI/CD (Continuous Integration / Continuous Delivery) automates the entire path from commit to production, removing the human factor:
 
-```
-┌──────────────────────────────────────────────────────────┐
-│                    CI/CD Pipeline                         │
-│                                                          │
-│  git push ──► CI Build ──► Tests ──► Push Image ──► CD  │
-│                  │           │           │            │   │
-│              Dockerfile   unit,       Registry     Deploy│
-│              lint, scan   e2e,        (GHCR,      (k8s, │
-│                           integration  ECR)       swarm) │
-│                  │           │           │            │   │
-│                  ▼           ▼           ▼            ▼   │
-│           Automatically  Quality    Versioned   Safe     │
-│           reproducible   guarantee  image       rollback │
-│                                     control              │
-└──────────────────────────────────────────────────────────┘
+```mermaid
+flowchart LR
+    GP["git push"] --> CI["CI Build<br>(Dockerfile,<br>lint, scan)"]
+    CI --> T["Tests<br>(unit, e2e,<br>integration)"]
+    T --> PI["Push Image<br>(Registry:<br>GHCR, ECR)"]
+    PI --> CD["CD Deploy<br>(k8s, swarm)"]
+
+    CI --> R1["Automatically<br>reproducible"]
+    T --> R2["Quality<br>guarantee"]
+    PI --> R3["Versioned<br>image control"]
+    CD --> R4["Safe<br>rollback"]
+
+    style GP fill:#e3f2fd,stroke:#1976d2
+    style CI fill:#e8f5e9,stroke:#388e3c
+    style T fill:#e8f5e9,stroke:#388e3c
+    style PI fill:#e8f5e9,stroke:#388e3c
+    style CD fill:#e8f5e9,stroke:#388e3c
+    style R1 fill:#f3e5f5,stroke:#7b1fa2
+    style R2 fill:#f3e5f5,stroke:#7b1fa2
+    style R3 fill:#f3e5f5,stroke:#7b1fa2
+    style R4 fill:#f3e5f5,stroke:#7b1fa2
 ```
 
 In this level we will cover:
@@ -81,13 +92,22 @@ In this level we will cover:
 
 **CD (Continuous Deployment)** — full automation: every commit that passes tests is automatically deployed to production.
 
-```
-CI                          CD (Delivery)           CD (Deployment)
-┌────────────────┐    ┌──────────────────┐    ┌──────────────────┐
-│ Push ──► Build │    │ Staging Deploy   │    │ Auto Production  │
-│     ──► Test   │──►│ Manual Approval  │──►│ Deploy           │
-│     ──► Lint   │    │ Production Deploy│    │ (no approval)    │
-└────────────────┘    └──────────────────┘    └──────────────────┘
+```mermaid
+flowchart LR
+    subgraph CI["CI"]
+        P["Push"] --> B["Build"]
+        B --> T["Test"]
+        T --> L["Lint"]
+    end
+    subgraph CDel["CD (Delivery)"]
+        SD["Staging Deploy"]
+        SD --> MA["Manual Approval"]
+        MA --> PD["Production Deploy"]
+    end
+    subgraph CDep["CD (Deployment)"]
+        AP["Auto Production<br>Deploy<br>(no approval)"]
+    end
+    CI --> CDel --> CDep
 ```
 
 ### CI/CD pipeline stages for Docker
@@ -661,14 +681,23 @@ describe('User Repository', () => {
 
 Gradually replace old containers with new ones:
 
-```
-Time ──────────────────────────────►
+```mermaid
+gantt
+    title Rolling Update
+    dateFormat X
+    axisFormat %s
 
-Replica 1:  [v1] [v1] [v2] [v2] [v2]
-Replica 2:  [v1] [v1] [v1] [v2] [v2]
-Replica 3:  [v1] [v1] [v1] [v1] [v2]
+    section Replica 1
+    v1 :done, r1v1, 0, 2
+    v2 :active, r1v2, 2, 5
 
-Traffic:    100%v1     mixed     100%v2
+    section Replica 2
+    v1 :done, r2v1, 0, 3
+    v2 :active, r2v2, 3, 5
+
+    section Replica 3
+    v1 :done, r3v1, 0, 4
+    v2 :active, r3v2, 4, 5
 ```
 
 ```yaml
@@ -690,21 +719,20 @@ deploy:
 
 Two identical environments: "blue" (current) and "green" (new):
 
-```
-┌──────────────┐     ┌──────────────┐
-│  Load Balancer│────►│  Blue (v1)   │  ◄── current production
-│              │     │  Port 8080   │
-│              │     └──────────────┘
-│              │
-│              │     ┌──────────────┐
-│              │     │  Green (v2)  │  ◄── new version (being tested)
-│              │     │  Port 8081   │
-│              │     └──────────────┘
-└──────────────┘
+```mermaid
+flowchart LR
+    LB["Load Balancer"]
+    LB -->|"traffic"| Blue["Blue (v1)<br>Port 8080<br>current production"]
+    LB -.->|"being tested"| Green["Green (v2)<br>Port 8081<br>new version"]
 
-# After verifying green -- switch traffic:
-# Load Balancer ──► Green (v2) [new production]
-# Blue (v1) -- keep for quick rollback
+    Green -->|"After verification:<br>switch traffic"| LB2["Load Balancer"]
+    LB2 -->|"traffic"| Green2["Green (v2)<br>new production"]
+    Blue2["Blue (v1)<br>quick rollback"] -.-> LB2
+
+    style Blue fill:#bbdefb,stroke:#1976d2
+    style Green fill:#c8e6c9,stroke:#388e3c
+    style Green2 fill:#c8e6c9,stroke:#388e3c
+    style Blue2 fill:#bbdefb,stroke:#1976d2
 ```
 
 ```yaml
@@ -745,19 +773,20 @@ services:
 
 Route a small fraction of traffic to the new version:
 
-```
-┌──────────────┐     ┌──────────────┐
-│  Load Balancer│─90%─►│  Stable (v1) │
-│              │     └──────────────┘
-│              │
-│              │─10%─►┌──────────────┐
-│              │     │  Canary (v2) │
-│              │     └──────────────┘
-└──────────────┘
+```mermaid
+flowchart LR
+    LB["Load Balancer"]
+    LB -->|"90% traffic"| Stable["Stable (v1)"]
+    LB -->|"10% traffic"| Canary["Canary (v2)"]
 
-# Monitor canary metrics
-# If all OK: 10% ► 30% ► 50% ► 100%
-# If errors: 10% ► 0% (rollback)
+    Canary --> Monitor{"Monitor metrics"}
+    Monitor -->|"OK"| Scale["10% -> 30% -> 50% -> 100%"]
+    Monitor -->|"Errors"| Rollback["10% -> 0% (rollback)"]
+
+    style Stable fill:#d4edda,stroke:#28a745
+    style Canary fill:#fff3cd,stroke:#ffc107
+    style Scale fill:#d4edda,stroke:#28a745
+    style Rollback fill:#f8d7da,stroke:#dc3545
 ```
 
 ```nginx

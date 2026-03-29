@@ -23,14 +23,15 @@
 
 ## 🔥 MongoDB: Архитектура
 
-```
-Client → MongoClient → Connection Pool → mongod
-                                        ├── Database
-                                        │   ├── Collection (users)
-                                        │   │   ├── Document { _id, name, ... }
-                                        │   │   └── Document { _id, name, ... }
-                                        │   └── Collection (posts)
-                                        └── Database
+```mermaid
+graph LR
+    Client --> MongoClient --> Pool[Connection Pool] --> mongod
+    mongod --> DB1[Database]
+    mongod --> DB2[Database]
+    DB1 --> C1[Collection: users]
+    DB1 --> C2[Collection: posts]
+    C1 --> D1["Document { _id, name, ... }"]
+    C1 --> D2["Document { _id, name, ... }"]
 ```
 
 ### MongoClient и Connection Pool

@@ -187,19 +187,22 @@ CMD ["node", "dist/server.js"]
 
 ### Как это работает
 
-```
-Stage 1 (builder):                 Stage 2 (runner):
-┌─────────────────────┐           ┌─────────────────────┐
-│ node:20 (1.1 GB)    │           │ node:20-alpine      │
-│ + npm ci (450 MB)   │  COPY     │ (135 MB)            │
-│ + source code       │ ────────> │ + dist/ (500 KB)    │
-│ + npm run build     │ --from=   │ + node_modules      │
-│ + dist/             │ builder   │   (prod only, 80MB) │
-│ TOTAL: ~1.6 GB      │           │ TOTAL: ~180 MB      │
-└─────────────────────┘           └─────────────────────┘
-        ↓                                  ↓
-  НЕ попадает в                    Финальный образ
-  финальный образ                  (только это)
+```mermaid
+flowchart LR
+    subgraph builder["Stage 1 (builder)"]
+        B1["node:20 (1.1 GB)<br>+ npm ci (450 MB)<br>+ source code<br>+ npm run build<br>+ dist/<br>TOTAL: ~1.6 GB"]
+    end
+    subgraph runner["Stage 2 (runner)"]
+        R1["node:20-alpine (135 MB)<br>+ dist/ (500 KB)<br>+ node_modules<br>(prod only, 80 MB)<br>TOTAL: ~180 MB"]
+    end
+    builder -- "COPY --from=builder" --> runner
+    builder -. "НЕ попадает в финальный образ" .-> X((" "))
+    runner -- "Финальный образ (только это)" --> OK((" "))
+
+    style builder fill:#fee,stroke:#c33
+    style runner fill:#efe,stroke:#3a3
+    style X fill:none,stroke:none
+    style OK fill:none,stroke:none
 ```
 
 Docker **отбрасывает** все промежуточные stages после сборки. В финальный образ попадает только последний stage.
@@ -366,23 +369,22 @@ COPY --from=aquasec/trivy:latest /usr/local/bin/trivy /usr/local/bin/trivy
 2. Инструкция не изменилась
 3. Для `COPY`/`ADD` -- файлы не изменились (сравнение по checksum)
 
-```
-Dockerfile:          Cache:
-┌──────────────┐     ┌──────────────┐
-│ FROM node:20 │ ──> │ cached ✅    │
-├──────────────┤     ├──────────────┤
-│ WORKDIR /app │ ──> │ cached ✅    │
-├──────────────┤     ├──────────────┤
-│ COPY pkg.json│ ──> │ cached ✅    │ (файл не изменился)
-├──────────────┤     ├──────────────┤
-│ RUN npm ci   │ ──> │ cached ✅    │ (родитель cached + инструкция та же)
-├──────────────┤     ├──────────────┤
-│ COPY . .     │ ──> │ MISS ❌      │ (файлы изменились!)
-├──────────────┤     ├──────────────┤
-│ RUN npm build│ ──> │ rebuild 🔄   │ (родитель не из кэша)
-├──────────────┤     ├──────────────┤
-│ CMD [...]    │ ──> │ rebuild 🔄   │
-└──────────────┘     └──────────────┘
+```mermaid
+flowchart TD
+    A["FROM node:20"] -->|"cached"| B["WORKDIR /app"]
+    B -->|"cached"| C["COPY pkg.json"]
+    C -->|"cached (файл не изменился)"| D["RUN npm ci"]
+    D -->|"cached (родитель cached + инструкция та же)"| E["COPY . ."]
+    E -->|"MISS (файлы изменились!)"| F["RUN npm build"]
+    F -->|"rebuild (родитель не из кэша)"| G["CMD [...]"]
+
+    style A fill:#d4edda,stroke:#28a745
+    style B fill:#d4edda,stroke:#28a745
+    style C fill:#d4edda,stroke:#28a745
+    style D fill:#d4edda,stroke:#28a745
+    style E fill:#f8d7da,stroke:#dc3545
+    style F fill:#fff3cd,stroke:#ffc107
+    style G fill:#fff3cd,stroke:#ffc107
 ```
 
 **Как только один слой не из кэша -- все последующие слои тоже пересобираются!**
@@ -813,15 +815,12 @@ ENTRYPOINT ["/myapp"]
 
 ### Сравнение: один и тот же Go-сервис
 
-```
-Базовый образ              Размер финального образа
-──────────────────────     ────────────────────────
-golang:1.22                820 MB
-golang:1.22-alpine         265 MB
-ubuntu:22.04 + binary      85 MB
-alpine:3.19 + binary       14 MB
-gcr.io/distroless/static   9 MB
-scratch                    8 MB
+```mermaid
+xychart-beta
+    title "Размер финального образа Go-сервиса"
+    x-axis ["scratch", "distroless", "alpine + bin", "ubuntu + bin", "golang-alpine", "golang"]
+    y-axis "Размер (MB)" 0 --> 850
+    bar [8, 9, 14, 85, 265, 820]
 ```
 
 ---

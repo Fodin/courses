@@ -21,20 +21,18 @@ A container is **not a virtual machine**. It uses the same Linux kernel as the h
 - A vulnerability in a dependency can become an **entry point** into your infrastructure
 - A **supply chain attack** via a compromised base image can infect all your services
 
-```
-┌─────────────────────────────────────────────┐
-│                    HOST                      │
-│                                              │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  │
-│  │Container │  │Container │  │Container │  │
-│  │(root,    │  │(no caps  │  │(read-only│  │
-│  │ privil.) │  │ dropped) │  │ FS, user)│  │
-│  │          │  │          │  │          │  │
-│  │ DANGEROUS│  │ Better   │  │ Good     │  │
-│  └──────────┘  └──────────┘  └──────────┘  │
-│                                              │
-│  Shared Linux kernel                         │
-└─────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph HOST["HOST — Shared Linux kernel"]
+        C1["Container<br>(root, privil.)<br>DANGEROUS"]
+        C2["Container<br>(no caps dropped)<br>Better"]
+        C3["Container<br>(read-only FS, user)<br>Good"]
+    end
+
+    style C1 fill:#f8d7da,stroke:#dc3545
+    style C2 fill:#fff3cd,stroke:#ffc107
+    style C3 fill:#d4edda,stroke:#28a745
+    style HOST fill:#f0f0f0,stroke:#666
 ```
 
 In this level we will cover all aspects of Docker security:
@@ -1231,10 +1229,23 @@ Docker security is **not a single setting**, but a comprehensive approach:
 
 The core principle: **Defense in Depth**. No single security measure is perfect, but their combination makes an attack significantly harder.
 
-```
-Without protection:  ─────────────> HOST (1 step)
+```mermaid
+flowchart LR
+    subgraph without["Without protection"]
+        A1["Attack"] --> H1["HOST (1 step)"]
+    end
 
-With protection: CAP_DROP → READ-ONLY → NO-NEW-PRIV → SECCOMP → USER
-                 Each layer stops certain attacks.
-                 Breaking through all 5 layers is orders of magnitude harder.
+    subgraph with["With protection (Defense in Depth)"]
+        A2["Attack"] --> L1["CAP_DROP"]
+        L1 --> L2["READ-ONLY"]
+        L2 --> L3["NO-NEW-PRIV"]
+        L3 --> L4["SECCOMP"]
+        L4 --> L5["USER"]
+        L5 -. "Breaking through all 5 layers is orders of magnitude harder" .-> H2["HOST"]
+    end
+
+    style without fill:#f8d7da,stroke:#dc3545
+    style with fill:#d4edda,stroke:#28a745
+    style H1 fill:#dc3545,color:#fff,stroke:#900
+    style H2 fill:#28a745,color:#fff,stroke:#060
 ```

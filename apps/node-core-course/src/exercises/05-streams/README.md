@@ -18,22 +18,25 @@ for await (const chunk of stream) {
 
 ## 📌 Четыре типа стримов
 
-```
-┌──────────────────────────────────────────────────────┐
-│                    Node.js Streams                    │
-├──────────────┬──────────────┬──────────┬─────────────┤
-│   Readable   │   Writable   │ Duplex   │  Transform  │
-├──────────────┼──────────────┼──────────┼─────────────┤
-│ Источник     │ Приёмник     │ Оба      │ Оба +       │
-│ данных       │ данных       │          │ трансформ.  │
-├──────────────┼──────────────┼──────────┼─────────────┤
-│ fs.createRead│ fs.createWrit│ net.Sock │ zlib.Gzip   │
-│ Stream       │ eStream      │ et       │             │
-│ http.Incomin │ http.Server  │          │ crypto.     │
-│ gMessage     │ Response     │          │ Cipher      │
-│ process.stdin│ process.stdou│          │             │
-│              │ t            │          │             │
-└──────────────┴──────────────┴──────────┴─────────────┘
+```mermaid
+flowchart LR
+    subgraph Readable["Readable\nИсточник данных"]
+        R1["fs.createReadStream"]
+        R2["http.IncomingMessage"]
+        R3["process.stdin"]
+    end
+    subgraph Writable["Writable\nПриёмник данных"]
+        W1["fs.createWriteStream"]
+        W2["http.ServerResponse"]
+        W3["process.stdout"]
+    end
+    subgraph Duplex["Duplex\nОба направления"]
+        D1["net.Socket"]
+    end
+    subgraph Transform["Transform\nОба + трансформация"]
+        T1["zlib.Gzip"]
+        T2["crypto.Cipher"]
+    end
 ```
 
 Все стримы наследуют от `EventEmitter`, поэтому работают через события.
@@ -210,19 +213,12 @@ try {
 
 Backpressure -- механизм, который замедляет producer когда consumer не успевает.
 
-```
-Быстрый Producer          Буфер              Медленный Consumer
-    ──────────► ┌─────────────────┐ ──────────►
-    500 MB/s    │ highWaterMark   │     50 MB/s
-                │ (default: 16KB) │
-                └─────────────────┘
-                        │
-                 Если буфер полон:
-                 write() → false
-                 readable.pause()
-                        │
-                 После drain:
-                 readable.resume()
+```mermaid
+flowchart LR
+    Producer["Быстрый Producer\n500 MB/s"] -->|"write()"| Buffer["Буфер\nhighWaterMark\n(default: 16KB)"]
+    Buffer -->|"read()"| Consumer["Медленный Consumer\n50 MB/s"]
+    Buffer -.-|"Если буфер полон:\nwrite() -> false\nreadable.pause()"| Pause(("pause"))
+    Pause -.-|"После drain:\nreadable.resume()"| Buffer
 ```
 
 ### Ручная обработка

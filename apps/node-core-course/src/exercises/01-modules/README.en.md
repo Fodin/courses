@@ -31,27 +31,14 @@ const fs = require('fs')
 
 When you call `require('./module')`, Node.js performs 5 steps:
 
-```
-require('./module')
-  │
-  ├── 1. Resolve — determine full file path
-  │     ./module → /app/module.js
-  │     Search order: .js → .json → .node → index.js in directory
-  │
-  ├── 2. Check Cache — check require.cache
-  │     If already loaded → return cached module.exports
-  │
-  ├── 3. Load — read file contents
-  │     .js  → JavaScript text
-  │     .json → JSON.parse()
-  │     .node → dlopen() for C++ addons
-  │
-  ├── 4. Wrap — wrap in a wrapper function
-  │     (function(exports, require, module, __filename, __dirname) {
-  │       // your module code
-  │     })
-  │
-  └── 5. Execute — run the wrapper and return module.exports
+```mermaid
+flowchart TD
+    R["require('./module')"] --> Resolve
+    Resolve["1. Resolve\nDetermine full file path\n./module -> /app/module.js\nOrder: .js -> .json -> .node -> index.js"]
+    Resolve --> Cache["2. Check Cache\nCheck require.cache\nIf already loaded -> return cached module.exports"]
+    Cache --> Load["3. Load\nRead file contents\n.js -> JavaScript text\n.json -> JSON.parse()\n.node -> dlopen() for C++ addons"]
+    Load --> Wrap["4. Wrap\nWrap in a wrapper function\n(function(exports, require, module, __filename, __dirname) { ... })"]
+    Wrap --> Exec["5. Execute\nRun the wrapper and return module.exports"]
 ```
 
 ### Module Caching

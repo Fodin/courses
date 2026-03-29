@@ -6,9 +6,9 @@
 
 Реакции — это мост между реактивным миром MobX и «внешним миром»: DOM, localStorage, сетевые запросы, консоль, таймеры и т.д.
 
-```
-Observable ──→ Computed ──→ Reaction ──→ Side Effect
-  (state)      (derived)     (bridge)     (DOM, API, log...)
+```mermaid
+flowchart LR
+    Observable["Observable\n(state)"] --> Computed["Computed\n(derived)"] --> Reaction["Reaction\n(bridge)"] --> SideEffect["Side Effect\n(DOM, API, log...)"]
 ```
 
 MobX предоставляет три вида реакций:

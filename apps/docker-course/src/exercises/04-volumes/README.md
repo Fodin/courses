@@ -41,22 +41,23 @@ Docker предоставляет три механизма для работы 
 
 ### Визуальная модель
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    Хост-машина                      │
-│                                                     │
-│  ┌─────────────┐  ┌──────────┐  ┌───────────────┐  │
-│  │   Volume     │  │ Bind     │  │   tmpfs       │  │
-│  │ /var/lib/    │  │ mount    │  │   (RAM)       │  │
-│  │ docker/      │  │ ~/proj/  │  │               │  │
-│  │ volumes/     │  │          │  │               │  │
-│  └──────┬───────┘  └────┬─────┘  └───────┬───────┘  │
-│         │               │                │          │
-│  ┌──────┴───────────────┴────────────────┴───────┐  │
-│  │              Контейнер                        │  │
-│  │   /data       /app/src       /run/secrets     │  │
-│  └───────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+    subgraph Host["Хост-машина"]
+        Volume["Volume\n/var/lib/docker/volumes/"]
+        Bind["Bind mount\n~/proj/"]
+        Tmpfs["tmpfs\n(RAM)"]
+
+        subgraph Container["Контейнер"]
+            data["/data"]
+            src["/app/src"]
+            secrets["/run/secrets"]
+        end
+
+        Volume --> data
+        Bind --> src
+        Tmpfs --> secrets
+    end
 ```
 
 ---

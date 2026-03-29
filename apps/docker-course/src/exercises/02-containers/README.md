@@ -12,16 +12,13 @@
 4. Настраивает **cgroups** (ограничение ресурсов: CPU, RAM)
 5. Запускает процесс, указанный в `CMD` или `ENTRYPOINT`
 
-```
-┌─────────────────────────────┐
-│     Writable Layer (R/W)    │  ← Изменения контейнера
-├─────────────────────────────┤
-│     Image Layer 3 (R/O)     │
-├─────────────────────────────┤
-│     Image Layer 2 (R/O)     │
-├─────────────────────────────┤
-│     Image Layer 1 (R/O)     │  ← Базовый образ
-└─────────────────────────────┘
+```mermaid
+block-beta
+    columns 1
+    writable["Writable Layer (R/W) -- Изменения контейнера"]
+    layer3["Image Layer 3 (R/O)"]
+    layer2["Image Layer 2 (R/O)"]
+    layer1["Image Layer 1 (R/O) -- Базовый образ"]
 ```
 
 Контейнер **эфемерен** по умолчанию: при удалении все изменения в writable layer теряются. Для сохранения данных используются тома (volumes) — об этом в уровне 4.
@@ -54,26 +51,14 @@ docker run --rm --name my-nginx nginx
 
 ### Что происходит при `docker run`?
 
-```
-docker run nginx
-       │
-       ▼
-┌──────────────────┐
-│ 1. Поиск образа  │ → Есть локально? Если нет → docker pull
-│    локально       │
-├──────────────────┤
-│ 2. Создание       │ → Новый writable layer
-│    контейнера     │
-├──────────────────┤
-│ 3. Выделение      │ → Namespace (PID, NET, MNT, UTS, IPC)
-│    namespace'ов   │   + cgroups (CPU, Memory)
-├──────────────────┤
-│ 4. Настройка сети │ → IP-адрес в bridge network
-│                   │
-├──────────────────┤
-│ 5. Запуск процесса│ → CMD или ENTRYPOINT из образа
-│                   │
-└──────────────────┘
+```mermaid
+flowchart TD
+    run["docker run nginx"] --> step1
+    step1["1. Поиск образа локально\nЕсть локально? Если нет -> docker pull"] --> step2
+    step2["2. Создание контейнера\nНовый writable layer"] --> step3
+    step3["3. Выделение namespace'ов\nPID, NET, MNT, UTS, IPC + cgroups"] --> step4
+    step4["4. Настройка сети\nIP-адрес в bridge network"] --> step5
+    step5["5. Запуск процесса\nCMD или ENTRYPOINT из образа"]
 ```
 
 ---
@@ -147,35 +132,16 @@ docker run -d \
 
 Контейнер проходит через несколько состояний:
 
-```
-               docker create
-                    │
-                    ▼
-              ┌──────────┐
-              │ Created   │
-              └─────┬─────┘
-                    │ docker start
-                    ▼
-              ┌──────────┐     docker pause     ┌──────────┐
-              │ Running   │ ──────────────────→  │ Paused   │
-              └─────┬─────┘  ←──────────────────  └──────────┘
-                    │              docker unpause
-                    │
-                    │ docker stop / docker kill
-                    │ или процесс завершился
-                    ▼
-              ┌──────────┐
-              │ Exited    │
-              └─────┬─────┘
-                    │
-           ┌───────┴───────┐
-           │               │
-    docker start    docker rm
-           │               │
-           ▼               ▼
-      ┌──────────┐   ┌──────────┐
-      │ Running   │   │ Removed   │
-      └──────────┘   └──────────┘
+```mermaid
+stateDiagram-v2
+    [*] --> Created : docker create
+    Created --> Running : docker start
+    Running --> Paused : docker pause
+    Paused --> Running : docker unpause
+    Running --> Exited : docker stop / docker kill\nили процесс завершился
+    Exited --> Running : docker start
+    Exited --> Removed : docker rm
+    Removed --> [*]
 ```
 
 ### Команды управления

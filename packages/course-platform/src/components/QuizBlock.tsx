@@ -22,6 +22,10 @@ export function QuizBlock({ level }: QuizBlockProps) {
   const { isOpen, toggle } = useCollapsible({ initialState: false })
   const [correctAnswers, setCorrectAnswers] = useState<Set<number>>(new Set())
 
+  useEffect(() => {
+    setCorrectAnswers(new Set())
+  }, [level])
+
   const totalQuestions = questions?.length ?? 0
 
   const handleQuestionResult = useCallback((index: number, correct: boolean) => {
@@ -155,7 +159,6 @@ function QuizQuestion({ question, index, onResult }: QuizQuestionProps) {
           const isSelected = isSingle
             ? selectedRadio === optIdx
             : checkedBoxes.has(optIdx)
-          const showResult = revealed && isSelected
 
           let optionClass = styles.option
           if (revealed && isAnswerCorrect) {

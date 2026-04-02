@@ -120,6 +120,9 @@ export const translations: Translations = {
     // Теория
     'theory.title': '📚 Теория',
     'theory.loading': 'Загрузка теории...',
+    'theory.brief': 'Кратко',
+    'theory.detailed': 'Развёрнуто',
+    'theory.notFound': 'Теория для этого уровня не найдена.',
 
     // Квиз
     'quiz.title': '🧪 Тест по теории',
@@ -279,6 +282,9 @@ export const translations: Translations = {
     // Theory
     'theory.title': '📚 Theory',
     'theory.loading': 'Loading theory...',
+    'theory.brief': 'Brief',
+    'theory.detailed': 'Detailed',
+    'theory.notFound': 'Theory for this level was not found.',
 
     // Quiz
     'quiz.title': '🧪 Theory Quiz',

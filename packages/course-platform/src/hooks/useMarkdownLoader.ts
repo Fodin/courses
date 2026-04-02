@@ -28,12 +28,15 @@ export function useMarkdownLoader(path: string, options: UseMarkdownLoaderOption
         const localizedPath = language === 'en' ? path.replace('.md', '.en.md') : path
 
         const response = await fetch(localizedPath)
+        const contentType = response.headers.get('content-type') || ''
+        const isHtmlFallback = contentType.includes('text/html')
 
-        if (!response.ok) {
+        if (!response.ok || isHtmlFallback) {
           // Если английская версия не найдена, пробуем русскую
           if (language === 'en') {
             const fallbackResponse = await fetch(path)
-            if (fallbackResponse.ok) {
+            const fallbackCt = fallbackResponse.headers.get('content-type') || ''
+            if (fallbackResponse.ok && !fallbackCt.includes('text/html')) {
               const text = await fallbackResponse.text()
               if (mounted) {
                 setContent(text)

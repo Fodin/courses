@@ -77,6 +77,8 @@ export const translations: Translations = {
     'task.stats.hasValidation': 'Форма имеет валидацию',
 
     'theory.title': '📚 Теория',
+    'theory.brief': 'Кратко',
+    'theory.detailed': 'Развёрнуто',
     'theory.loading': 'Загрузка теории...',
 
     'quiz.title': '🧪 Тест по теории',
@@ -142,6 +144,8 @@ export const translations: Translations = {
     'task.stats.hasValidation': 'Form has validation',
 
     'theory.title': '📚 Theory',
+    'theory.brief': 'Brief',
+    'theory.detailed': 'Detailed',
     'theory.loading': 'Loading theory...',
 
     'quiz.title': '🧪 Theory Quiz',

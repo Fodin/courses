@@ -129,6 +129,8 @@ export const translations: Translations = {
 
     // Теория и решение
     'theory.title': '📚 Теория',
+    'theory.brief': 'Кратко',
+    'theory.detailed': 'Развёрнуто',
     'theory.loading': 'Загрузка теории...',
     'quiz.title': '🧪 Тест по теории',
     'quiz.submit': 'Ответить',
@@ -290,6 +292,8 @@ export const translations: Translations = {
 
     // Theory and solution
     'theory.title': '📚 Theory',
+    'theory.brief': 'Brief',
+    'theory.detailed': 'Detailed',
     'theory.loading': 'Loading theory...',
     'quiz.title': '🧪 Theory Quiz',
     'quiz.submit': 'Submit',

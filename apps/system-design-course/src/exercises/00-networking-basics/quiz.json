@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Чем TCP принципиально отличается от UDP?",
+    "type": "single",
+    "options": [
+      { "text": "TCP гарантирует доставку и порядок пакетов, UDP — нет", "correct": true, "explanation": "TCP использует механизмы подтверждения (ACK), повторной отправки и нумерации пакетов для гарантии надёжной доставки" },
+      { "text": "TCP работает быстрее, чем UDP", "correct": false, "explanation": "Наоборот: UDP быстрее, так как не тратит время на handshake, подтверждения и контроль порядка" },
+      { "text": "UDP не может передавать данные по сети", "correct": false, "explanation": "UDP полноценно передаёт данные, просто без гарантий доставки. Он широко используется для видеозвонков, игр и DNS-запросов" },
+      { "text": "TCP и UDP работают на разных уровнях модели TCP/IP", "correct": false, "explanation": "Оба протокола работают на транспортном уровне модели TCP/IP" }
+    ]
+  },
+  {
+    "question": "Какую проблему HTTP/2 мультиплексинг решает по сравнению с HTTP/1.1?",
+    "type": "single",
+    "options": [
+      { "text": "HTTP-level Head-of-Line blocking — запросы больше не ждут в очереди", "correct": true, "explanation": "HTTP/2 позволяет отправлять множество запросов параллельно в одном TCP-соединении через streams, устраняя очередь на уровне HTTP" },
+      { "text": "Полностью устраняет все виды HOL blocking", "correct": false, "explanation": "HTTP/2 устраняет HTTP-level HOL blocking, но TCP-level HOL blocking остаётся: потеря TCP-пакета блокирует все потоки. Это решено только в HTTP/3 (QUIC)" },
+      { "text": "Позволяет использовать шифрование (TLS)", "correct": false, "explanation": "TLS доступен и в HTTP/1.1 (HTTPS). Мультиплексинг не связан с шифрованием" },
+      { "text": "Уменьшает размер передаваемых данных за счёт бинарного формата тела запроса", "correct": false, "explanation": "HTTP/2 использует бинарное фреймирование для заголовков (HPACK), но тело запроса передаётся как есть. Мультиплексинг — это параллельные потоки, а не сжатие" }
+    ]
+  },
+  {
+    "question": "Как устанавливается WebSocket-соединение?",
+    "type": "single",
+    "options": [
+      { "text": "Через HTTP Upgrade handshake: клиент отправляет HTTP-запрос с заголовком Upgrade: websocket", "correct": true, "explanation": "WebSocket начинается как обычный HTTP-запрос. Сервер отвечает 101 Switching Protocols, и соединение переключается в полнодуплексный режим" },
+      { "text": "Клиент открывает отдельное TCP-соединение на специальный WebSocket-порт", "correct": false, "explanation": "WebSocket использует те же порты, что и HTTP (80/443). Соединение устанавливается через HTTP Upgrade, а не через отдельный порт" },
+      { "text": "Клиент отправляет UDP-пакет для инициации WebSocket", "correct": false, "explanation": "WebSocket работает поверх TCP, не UDP. Он начинается с HTTP-запроса и затем переключает протокол" },
+      { "text": "Сервер инициирует соединение к клиенту", "correct": false, "explanation": "Инициатором всегда является клиент. Сервер не может открыть WebSocket-соединение к клиенту — он только принимает и подтверждает upgrade-запрос" }
+    ]
+  },
+  {
+    "question": "Какие преимущества gRPC получает от использования HTTP/2 и Protocol Buffers?",
+    "type": "multiple",
+    "options": [
+      { "text": "Мультиплексинг — множество RPC-вызовов через одно TCP-соединение", "correct": true, "explanation": "HTTP/2 позволяет gRPC отправлять множество RPC-вызовов параллельно через потоки (streams) в одном соединении" },
+      { "text": "Бинарная сериализация — payload в 3-10x меньше, чем JSON", "correct": true, "explanation": "Protocol Buffers кодируют данные в компактный бинарный формат, значительно экономя трафик по сравнению с текстовым JSON" },
+      { "text": "Bidirectional streaming — клиент и сервер могут одновременно отправлять потоки данных", "correct": true, "explanation": "HTTP/2 streams позволяют gRPC реализовать четыре режима коммуникации, включая двунаправленный стриминг" },
+      { "text": "Нативная поддержка в браузерах без дополнительных прокси", "correct": false, "explanation": "Браузеры не поддерживают gRPC напрямую из-за ограничений браузерных HTTP/2 API. Нужен grpc-web прокси (например, Envoy)" }
+    ]
+  },
+  {
+    "question": "Вы набрали в браузере https://shop.example.com. В каком порядке происходят сетевые операции?",
+    "type": "single",
+    "options": [
+      { "text": "DNS lookup → TCP handshake → TLS handshake → HTTP request", "correct": true, "explanation": "Сначала нужно узнать IP-адрес (DNS), затем установить TCP-соединение (SYN/SYN-ACK/ACK), затем установить шифрованный канал (TLS), и только потом отправить HTTP-запрос" },
+      { "text": "TCP handshake → DNS lookup → HTTP request → TLS handshake", "correct": false, "explanation": "Невозможно установить TCP-соединение, не зная IP-адреса сервера. DNS lookup всегда первый шаг" },
+      { "text": "HTTP request → DNS lookup → TLS handshake → TCP handshake", "correct": false, "explanation": "HTTP-запрос отправляется последним, когда уже есть IP (DNS), TCP-соединение и шифрованный канал (TLS)" },
+      { "text": "TLS handshake → TCP handshake → DNS lookup → HTTP request", "correct": false, "explanation": "TLS работает поверх TCP, поэтому сначала нужен TCP. А TCP невозможен без IP, который даёт DNS" }
+    ]
+  }
+]

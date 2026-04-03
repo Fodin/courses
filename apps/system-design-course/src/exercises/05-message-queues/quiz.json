@@ -1,0 +1,52 @@
+[
+  {
+    "question": "Чем отличается паттерн Queue (Point-to-Point) от Pub/Sub (Topic)?",
+    "type": "single",
+    "options": [
+      { "text": "Queue доставляет сообщение всем подписчикам, Topic — только одному", "correct": false, "explanation": "Наоборот. Queue (Point-to-Point) доставляет сообщение одному consumer (кто первый взял). Topic (Pub/Sub) доставляет копию каждому подписчику" },
+      { "text": "Queue доставляет сообщение одному consumer, Topic — всем подписчикам", "correct": true, "explanation": "Queue — load balancing: каждое сообщение обрабатывается ровно одним consumer. Topic — fanout: каждый подписчик получает копию. Queue — для распределения задач, Topic — для оповещения всех заинтересованных сервисов" },
+      { "text": "Queue и Topic — одно и то же, просто разные названия в RabbitMQ и Kafka", "correct": false, "explanation": "Это принципиально разные паттерны. Queue — одно сообщение → один получатель. Topic — одно сообщение → все подписчики. И RabbitMQ, и Kafka поддерживают оба паттерна (в Kafka — через consumer groups)" },
+      { "text": "Queue хранит сообщения, а Topic — нет", "correct": false, "explanation": "Оба хранят сообщения. Разница в семантике доставки: Queue — одному, Topic — всем. В Kafka и Queue (consumer group), и Topic хранят сообщения в log" }
+    ]
+  },
+  {
+    "question": "Какие из утверждений про гарантии доставки верны?",
+    "type": "multiple",
+    "options": [
+      { "text": "At-least-once может доставить сообщение несколько раз — поэтому нужна idempotency", "correct": true, "explanation": "At-least-once гарантирует: сообщение точно будет доставлено, но может прийти повторно (если consumer упал после обработки, но до ack). Consumer должен быть идемпотентным — повторная обработка не должна менять результат" },
+      { "text": "Exactly-once легко реализовать между любыми двумя сервисами", "correct": false, "explanation": "Exactly-once между сервисами практически невозможен в распределённых системах (Two Generals Problem). Kafka реализует его только внутри себя (producer → broker → consumer). Как только consumer пишет в внешнюю БД — нужна idempotency" },
+      { "text": "At-most-once подходит для логов и метрик, где потеря отдельных сообщений допустима", "correct": true, "explanation": "At-most-once — fire-and-forget. Быстро, но сообщение может потеряться. Идеально для некритичных данных: аналитика, логи, метрики. Для заказов и платежей — недопустимо" },
+      { "text": "At-least-once — стандартная гарантия для бизнес-логики в production", "correct": true, "explanation": "At-least-once — золотой стандарт. Потеря сообщений недопустима для бизнеса, а с дублями справляется idempotency. Почти все production-системы используют at-least-once + idempotent consumers" }
+    ]
+  },
+  {
+    "question": "Что такое Dead Letter Queue (DLQ) и зачем она нужна?",
+    "type": "single",
+    "options": [
+      { "text": "Очередь для сообщений, которые не удалось обработать после нескольких попыток", "correct": true, "explanation": "DLQ — «карантин» для проблемных сообщений. После N неудачных попыток обработки (poison messages) сообщение перемещается в DLQ вместо бесконечного retry. Это предотвращает блокировку основной очереди и позволяет разобраться с проблемой вручную или автоматически" },
+      { "text": "Очередь для удалённых сообщений, чтобы их можно было восстановить", "correct": false, "explanation": "DLQ — не корзина удалённых. Это очередь для сообщений, которые consumer не смог обработать. Они не были удалены намеренно — произошла ошибка обработки (невалидные данные, баг в коде, недоступный внешний сервис)" },
+      { "text": "Временная очередь для сообщений с истёкшим TTL", "correct": false, "explanation": "TTL — одна из причин попадания в DLQ, но не единственная. Основная причина — ошибки обработки. DLQ принимает сообщения после превышения лимита retry или по timeout" },
+      { "text": "Специальная очередь в Kafka для хранения offset", "correct": false, "explanation": "В Kafka offset хранится в специальном топике __consumer_offsets, это не DLQ. Dead Letter Queue — паттерн для обработки ошибок, применимый в любом брокере (RabbitMQ, Kafka, SQS)" }
+    ]
+  },
+  {
+    "question": "У вас e-commerce: при создании заказа нужно отправить email, обновить аналитику, зарезервировать товар и проверить на фрод. Как спроектировать?",
+    "type": "single",
+    "options": [
+      { "text": "HTTP-вызовы ко всем 4 сервисам синхронно из Order Service", "correct": false, "explanation": "Создание заказа займёт сумму задержек всех 4 сервисов. Если один сервис упал — весь заказ не создастся. Сильная связанность: Order Service должен знать обо всех downstream-сервисах" },
+      { "text": "Publish событие OrderCreated в topic, все 4 сервиса подписаны (Pub/Sub)", "correct": true, "explanation": "Pub/Sub идеален: Order Service публикует одно событие и не знает о подписчиках. Каждый сервис обрабатывает независимо. Если Email упал — Inventory всё равно работает. Легко добавить новый сервис (Loyalty Points) без изменения Order Service" },
+      { "text": "4 отдельных очереди (Point-to-Point), Order Service кладёт в каждую", "correct": false, "explanation": "Работает, но Order Service знает обо всех очередях — сильная связанность. При добавлении нового сервиса (Loyalty) нужно менять Order Service. Pub/Sub решает это: один publish → все подписчики получают" },
+      { "text": "Cron-задача каждые 5 секунд проверяет новые заказы и рассылает", "correct": false, "explanation": "Polling — антипаттерн для real-time обработки. Задержка до 5 секунд, нагрузка на БД от постоянных запросов, сложность отслеживания 'уже обработанных' заказов. Event-driven (Pub/Sub) реагирует мгновенно" }
+    ]
+  },
+  {
+    "question": "Какие утверждения про Kafka верны?",
+    "type": "multiple",
+    "options": [
+      { "text": "Kafka хранит сообщения как append-only лог — можно «перемотать» и прочитать заново", "correct": true, "explanation": "Kafka — это распределённый лог. Сообщения не удаляются после чтения, а хранятся определённое время (retention period). Consumer может перемотать offset и перечитать все события — полезно для восстановления данных или добавления нового сервиса" },
+      { "text": "В Kafka количество consumers в group может превышать количество partitions", "correct": false, "explanation": "Каждая partition назначается ровно одному consumer в группе. Если consumers > partitions, лишние consumers простаивают (idle). Правило: partitions >= consumers. Для увеличения параллелизма — добавляйте partitions" },
+      { "text": "Kafka гарантирует порядок сообщений внутри одной partition", "correct": true, "explanation": "Внутри partition порядок строго гарантирован (append-only). Между partitions порядок НЕ гарантирован. Поэтому все события одного пользователя отправляют в одну partition (через key), чтобы сохранить порядок" },
+      { "text": "Kafka идеальна для простых task queues с малым объёмом", "correct": false, "explanation": "Для простых task queues (resize image, send email) RabbitMQ проще и удобнее: умная маршрутизация, приоритеты, встроенный retry. Kafka оправдана для высоконагруженного event streaming, логов, аналитики, CQRS" }
+    ]
+  }
+]

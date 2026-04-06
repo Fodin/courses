@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Что из перечисленного НЕ сохраняется в mosquitto.db при включённой persistence?",
+    "type": "multiple",
+    "options": [
+      { "text": "Сообщения QoS 0 в пути к офлайн-клиентам", "correct": true, "explanation": "QoS 0 — это 'fire and forget'. По спецификации MQTT сообщения QoS 0 не буферизуются для офлайн-клиентов и не сохраняются в persistent-хранилище." },
+      { "text": "Retained-сообщения", "correct": false, "explanation": "Retained-сообщения — одна из ключевых вещей, которые сохраняет persistence. После перезапуска брокера retained-сообщения восстанавливаются." },
+      { "text": "Текущая статистика брокера ($SYS/#)", "correct": true, "explanation": "$SYS-топики — это runtime-статистика, которая пересчитывается после каждого запуска. Они не сохраняются в базе данных." },
+      { "text": "Подписки persistent-сессий (clean_session=false)", "correct": false, "explanation": "Подписки клиентов с clean_session=false сохраняются в mosquitto.db и восстанавливаются после перезапуска." }
+    ]
+  },
+  {
+    "question": "Почему использование persistence_location /tmp на OpenWRT является ошибкой?",
+    "type": "single",
+    "options": [
+      { "text": "/tmp — это tmpfs (RAM), данные теряются при перезагрузке", "correct": true, "explanation": "На OpenWRT /tmp монтируется как tmpfs — виртуальная файловая система в RAM. После перезагрузки или отключения питания все данные исчезают, что полностью нивелирует смысл persistence." },
+      { "text": "/tmp не имеет прав для записи процессом mosquitto", "correct": false, "explanation": "Mosquitto обычно имеет права на запись в /tmp. Проблема не в правах, а в том, что tmpfs не сохраняет данные." },
+      { "text": "/tmp слишком медленный для работы базы данных", "correct": false, "explanation": "Наоборот, tmpfs — самый быстрый вариант (RAM). Проблема в энергозависимости, а не в скорости." },
+      { "text": "Mosquitto не поддерживает хранение в /tmp", "correct": false, "explanation": "Технически Mosquitto запустится с persistence_location /tmp, но после перезагрузки данные будут потеряны — это логическая ошибка конфигурации." }
+    ]
+  },
+  {
+    "question": "Зачем отправлять SIGUSR1 процессу Mosquitto перед созданием бэкапа?",
+    "type": "single",
+    "options": [
+      { "text": "Чтобы Mosquitto немедленно сохранил буферы в памяти на диск", "correct": true, "explanation": "Mosquitto не записывает каждое изменение сразу на диск — он буферизует данные для производительности. SIGUSR1 вызывает немедленный flush буферов. Без этого файл mosquitto.db на диске может содержать устаревшие данные." },
+      { "text": "Чтобы Mosquitto завершил все активные соединения перед бэкапом", "correct": false, "explanation": "SIGUSR1 не затрагивает активные соединения клиентов, он только сохраняет базу данных на диск." },
+      { "text": "Чтобы заблокировать файл БД на время копирования", "correct": false, "explanation": "SIGUSR1 не блокирует файл. Это просто принудительный flush буферов. Для атомарного копирования следует делать паузу после сигнала (sleep 2)." },
+      { "text": "Чтобы перезагрузить конфигурацию Mosquitto", "correct": false, "explanation": "SIGUSR1 — принудительное сохранение БД. Для перезагрузки конфигурации в Mosquitto 1.x использовался SIGHUP, в 2.x — mosquitto_ctrl reload." }
+    ]
+  },
+  {
+    "question": "Какой параметр рекомендуется установить для экономии ресурса flash-памяти на OpenWRT при использовании /overlay?",
+    "type": "multiple",
+    "options": [
+      { "text": "autosave_on_changes false", "correct": true, "explanation": "При autosave_on_changes true база сохраняется при каждом изменении retained-сообщения или подписки. На активном брокере это могут быть сотни записей в час. false — экономит ресурс flash." },
+      { "text": "autosave_interval 600 или больше", "correct": true, "explanation": "Больший интервал автосохранения = меньше операций записи на flash в сутки. 600 секунд (10 минут) — разумный компромисс между потенциальными потерями данных и износом." },
+      { "text": "persistence false", "correct": false, "explanation": "Отключение persistence решает проблему износа, но тогда retained-сообщения и сессии теряются при перезагрузке — это не решение." },
+      { "text": "autosave_interval 0", "correct": false, "explanation": "autosave_interval 0 означает: сохранять только при корректном завершении (SIGTERM). Это наименьший износ flash, но при сбое питания все изменения с момента последнего старта будут потеряны." }
+    ]
+  }
+]

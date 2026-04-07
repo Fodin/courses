@@ -1,0 +1,42 @@
+[
+  {
+    "question": "Why are virtual nodes (vnodes) used in consistent hashing?",
+    "type": "single",
+    "options": [
+      { "text": "Virtual nodes speed up the hash operation — hash computation is faster", "correct": false, "explanation": "Virtual nodes don't affect hash computation speed. The hash for a key is computed once, regardless of vnode count. Vnodes solve the distribution problem, not hashing performance" },
+      { "text": "Virtual nodes ensure even key distribution across physical nodes — one node creates 100-200 points on the hash ring, minimizing load imbalances", "correct": true, "explanation": "With 1 point per node, one node may be responsible for 60% of the ring, another — for 5%. With 150 vnodes, the deviation from ideal distribution is ±5%. When adding/removing a node, exactly 1/N keys move, distributed evenly" },
+      { "text": "Virtual nodes are needed for data replication — each vnode stores a data copy", "correct": false, "explanation": "Virtual nodes are points on the hash ring, not separate storages. All vnodes of one physical node point to the same storage. Replication is implemented by a separate mechanism (leader-follower)" },
+      { "text": "Virtual nodes allow storing data on disk instead of RAM", "correct": false, "explanation": "Virtual nodes are not related to persistence. They solve the problem of even key distribution on the hash ring. Disk storage (RDB/AOF) is a separate mechanism" }
+    ]
+  },
+  {
+    "question": "How does gossip protocol detect node failure in Redis Cluster?",
+    "type": "single",
+    "options": [
+      { "text": "A central coordinator sends heartbeats to all nodes and marks a node as failed if there's no response", "correct": false, "explanation": "Redis Cluster has no central coordinator — that would be a single point of failure. Gossip protocol is decentralized: each node independently pings others" },
+      { "text": "Node A doesn't receive PONG from node B → marks B as PFAIL (suspected). When most nodes agree with PFAIL, node B transitions to FAIL status (confirmed)", "correct": true, "explanation": "Two-phase detection: PFAIL — one node's subjective opinion ('I think B is dead'). FAIL — objective consensus: a majority of nodes confirm via gossip that B is unresponsive. This protects against false positives from temporary network issues" },
+      { "text": "Each node checks TCP connection with every other node every millisecond, and declares FAIL after 3 consecutive failures", "correct": false, "explanation": "Checking every millisecond for every node would be too expensive (N² messages per second). Gossip is more economical: each node pings a random node once per second. And one node cannot declare FAIL — majority consensus is needed" },
+      { "text": "Clients report the unavailable node to the cluster, and the cluster initiates failover", "correct": false, "explanation": "Failure detection is an internal cluster task, not a client responsibility. The client receives a MOVED/ASK redirect after the cluster completes failover. The client doesn't participate in node status decisions" }
+    ]
+  },
+  {
+    "question": "During a split-brain in Redis Cluster (network split divides the cluster into 2 parts), how to prevent data divergence?",
+    "type": "single",
+    "options": [
+      { "text": "Redis automatically synchronizes data after the network recovers, so split-brain is not a problem", "correct": false, "explanation": "After split-brain, data in the two partitions may conflict (different values for the same key). Redis has no automatic conflict resolution mechanism. Lost writes are simply lost — the problem is real" },
+      { "text": "MIN_REPLICAS_TO_WRITE setting: the leader refuses writes if it sees fewer than N replicas, and the minority partition stops serving because it doesn't see the majority", "correct": true, "explanation": "MIN_REPLICAS_TO_WRITE guarantees that a write reaches at least N replicas. The minority partition (e.g., 2 out of 5 nodes) has no majority → stops accepting writes → data doesn't diverge. The cost is reduced availability for the minority partition, but this is better than inconsistency" },
+      { "text": "Use synchronous replication — then split-brain is impossible", "correct": false, "explanation": "Synchronous replication doesn't prevent split-brain per se. A network split can still occur. Sync replication guarantees data was on all replicas before the split, but new writes to both partitions still cause divergence without a quorum mechanism" },
+      { "text": "Split-brain doesn't occur in Redis Cluster because gossip protocol detects the split instantly", "correct": false, "explanation": "Gossip protocol detects the split, but not instantly — there's a cluster-node-timeout (usually 15 seconds). During this time, the minority partition may accept writes if MIN_REPLICAS_TO_WRITE is not set. Split-brain is a real problem for any distributed system" }
+    ]
+  },
+  {
+    "question": "What persistence strategies does Redis offer, and which combination is recommended for production?",
+    "type": "multiple",
+    "options": [
+      { "text": "RDB (snapshots) — periodic full RAM dump to file; fast recovery, but data loss between snapshots (1-5 minutes)", "correct": true, "explanation": "RDB creates a compact binary snapshot via fork() + copy-on-write. Recovery is fast (loading the file into RAM), but all writes between snapshots are lost on crash" },
+      { "text": "AOF (Append-Only File) — log of every write operation; minimal loss (≤1 sec with fsync=everysec), but slower recovery and the file grows", "correct": true, "explanation": "AOF records every command (SET, DEL, etc.). With fsync=everysec, maximum loss is 1 second. Downsides: file grows infinitely (needs AOF rewrite/compaction), recovery is slower (replaying all commands)" },
+      { "text": "It's recommended to use RDB + AOF together: AOF for minimal data loss, RDB for fast disaster recovery", "correct": true, "explanation": "The RDB + AOF combination gives the best of both: AOF ensures minimal loss during normal operation, while an RDB snapshot allows fast cluster recovery in a disaster (no need to replay billions of AOF commands)" },
+      { "text": "WAL (Write-Ahead Log) — standard mechanism like in PostgreSQL; always recommended to use only WAL", "correct": false, "explanation": "Redis doesn't use WAL in the classical sense (like PostgreSQL). AOF is conceptually similar to WAL, but it's a separate implementation. Redis offers RDB and AOF — and recommends their combination, not PostgreSQL-style WAL" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "The Circuit Breaker is in the Open state. What happens when the timeout expires?",
+    "type": "single",
+    "options": [
+      { "text": "Transitions to Closed and starts passing all requests", "correct": false, "explanation": "You cannot immediately transition to Closed — the service may not have recovered. First, you need to test with a single request" },
+      { "text": "Transitions to Half-Open and allows one test request", "correct": true, "explanation": "After the timeout, the Circuit Breaker transitions to Half-Open — it allows one (or a few) test requests. If the test succeeds → Closed, if it fails → back to Open. This allows safely checking whether the service has recovered" },
+      { "text": "Stays in Open but doubles the timeout (exponential backoff)", "correct": false, "explanation": "A standard Circuit Breaker does not apply exponential backoff to its timeout. After a fixed timeout, it transitions to Half-Open for testing. Some advanced implementations may increase the timeout, but this is not standard behavior" },
+      { "text": "Resets the error counter and transitions to Closed", "correct": false, "explanation": "The error counter is only reset after a successful request in the Half-Open state. A timeout alone doesn't guarantee the service has recovered — a test is needed" }
+    ]
+  },
+  {
+    "question": "Exponential backoff formula: delay = baseDelay * 2^attempt. With baseDelay = 1 second, what is the delay before the 4th attempt (attempt = 3)?",
+    "type": "single",
+    "options": [
+      { "text": "3 seconds", "correct": false, "explanation": "3 seconds is linear backoff (baseDelay * attempt). Exponential backoff grows faster: 2^3 = 8, not 3" },
+      { "text": "4 seconds", "correct": false, "explanation": "4 is 2^2 (attempt = 2, third attempt). For attempt = 3 (fourth attempt): 2^3 = 8 seconds" },
+      { "text": "8 seconds", "correct": true, "explanation": "delay = 1s * 2^3 = 1 * 8 = 8 seconds. Without jitter. With jitter, a random delay is added: 8s + random(0, 8s). Sequence: 1s → 2s → 4s → 8s → 16s" },
+      { "text": "16 seconds", "correct": false, "explanation": "16 seconds is 2^4 (attempt = 4, fifth attempt). For attempt = 3: 2^3 = 8 seconds" }
+    ]
+  },
+  {
+    "question": "Why is the Bulkhead pattern needed in a microservice architecture?",
+    "type": "single",
+    "options": [
+      { "text": "To speed up request processing through parallelism", "correct": false, "explanation": "Bulkhead is not about speed — it's about isolation. It limits resources (threads, connections) for each service so that one service's failure doesn't exhaust resources for others" },
+      { "text": "To isolate resources between components so one component's failure doesn't bring down all others", "correct": true, "explanation": "Like watertight compartments in a submarine: if one compartment floods — the rest keep working. Separate connection pools, thread pools, and queues for different services prevent cascading failures" },
+      { "text": "To encrypt traffic between services for security", "correct": false, "explanation": "Traffic encryption is mTLS / service mesh. Bulkhead is a reliability pattern (fault isolation), not a security one" },
+      { "text": "To load balance across service replicas", "correct": false, "explanation": "Load balancing is a separate pattern. Bulkhead isolates resources: each dependent service gets its own limited pool so that one slow service doesn't consume all resources" }
+    ]
+  },
+  {
+    "question": "How does an SLO differ from an SLA?",
+    "type": "single",
+    "options": [
+      { "text": "SLO is a metric (a number), SLA is the target value of that metric", "correct": false, "explanation": "Actually the opposite: the metric is the SLI (Service Level Indicator), e.g., latency p99 = 150ms. SLO is the target (p99 < 200ms). SLA is a legal contract with consequences" },
+      { "text": "SLO is an internal team target, SLA is an external contract with clients with financial consequences", "correct": true, "explanation": "SLO (Objective) is an internal target the team sets for itself: 'our p99 latency must be < 200ms'. SLA (Agreement) is a legal contract with the client: 'we guarantee 99.95% uptime, or compensation'. SLO is usually stricter than SLA — to provide a buffer" },
+      { "text": "SLO applies to a single service, SLA — to the entire system", "correct": false, "explanation": "Both SLO and SLA can apply at any level: a single service, a group of services, or the entire system. The difference is in purpose: SLO is an internal target, SLA is an external contract" },
+      { "text": "SLO and SLA are synonyms — just different names for the same thing", "correct": false, "explanation": "No, they are different. SLO is an internal team target without legal consequences. SLA is a contract with the client with specific penalties/compensations for violations. SLO is usually stricter than SLA" }
+    ]
+  },
+  {
+    "question": "You're doing a canary release of a new payment service version. At 5% traffic, the error rate grew from 0.1% to 0.8%. What should you do?",
+    "type": "single",
+    "options": [
+      { "text": "Increase to 25% — maybe 5% isn't enough for a statistically significant result", "correct": false, "explanation": "The error rate grew 8x (from 0.1% to 0.8%). For a payment service, this is critical — every error = lost money. Increasing traffic to a problematic version is irresponsible. An immediate rollback is needed" },
+      { "text": "Immediate rollback to the previous version, investigate the causes", "correct": true, "explanation": "An 8x increase in error rate for a payment service is serious. The correct response: 1) Immediate rollback (canary → 0%). 2) Investigation: logs, traces, what exactly is breaking. 3) Fix. 4) New canary release with enhanced monitoring" },
+      { "text": "Wait 24 hours — maybe it's a temporary spike", "correct": false, "explanation": "24 hours at 0.8% error rate on a payment service = hundreds/thousands of failed payments. Canary is meant for catching problems quickly and rolling back fast, not waiting" },
+      { "text": "Decrease canary to 1% and observe", "correct": false, "explanation": "Decreasing to 1% doesn't solve the problem — you're still breaking payments for some users. The correct approach: full rollback, find the cause, fix, and re-release" }
+    ]
+  }
+]

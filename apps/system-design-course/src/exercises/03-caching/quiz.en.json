@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How does Cache-Aside differ from Read-Through?",
+    "type": "single",
+    "options": [
+      { "text": "In Cache-Aside, the application manages the cache itself (checks, reads from DB, writes to cache), while in Read-Through the cache fetches from the DB on miss", "correct": true, "explanation": "In Cache-Aside, the application contains all the cache logic: check → miss → DB query → write to cache. In Read-Through, the cache transparently loads data from the DB — the application only ever talks to the cache" },
+      { "text": "Cache-Aside caches only reads, while Read-Through caches both reads and writes", "correct": false, "explanation": "Both patterns relate to read strategies. For writes, separate patterns are used: Write-Through and Write-Behind. Cache-Aside and Read-Through differ in who manages data loading on miss" },
+      { "text": "Read-Through is faster than Cache-Aside because it doesn't check the cache", "correct": false, "explanation": "Both patterns check the cache on every request. The difference is who goes to the DB on miss: in Cache-Aside — the application, in Read-Through — the cache itself. Their speeds are comparable" },
+      { "text": "Cache-Aside cannot be used with Redis", "correct": false, "explanation": "Cache-Aside is the most popular pattern precisely with Redis. The application calls GET, on miss goes to the DB and does SET. Redis is ideal for Cache-Aside due to its simplicity and speed" }
+    ]
+  },
+  {
+    "question": "What is the best way to protect against cache stampede (thundering herd)?",
+    "type": "multiple",
+    "options": [
+      { "text": "Mutex/lock: only one thread updates the cache, others wait", "correct": true, "explanation": "SET lock:key 1 NX EX 10 — classic protection. On miss, only one thread acquires the lock and updates the cache. Others wait and read the already-updated cache" },
+      { "text": "Stochastic early refresh — update the cache BEFORE TTL expires", "correct": true, "explanation": "XFetch algorithm: the closer TTL gets to 0, the higher the probability of early refresh. One of the threads will update the cache before TTL expires, preventing a mass miss" },
+      { "text": "Increase TTL to maximum so keys never expire", "correct": false, "explanation": "Infinite TTL creates other problems: data becomes permanently stale, memory is never freed. Cache stampede should be solved via locks or early refresh, not by avoiding invalidation" },
+      { "text": "Use a Bloom Filter before the cache", "correct": false, "explanation": "Bloom Filter solves the cache penetration problem (requests for non-existent keys), not stampede. Stampede occurs for existing and popular keys when their TTL expires simultaneously for all clients" }
+    ]
+  },
+  {
+    "question": "When is LFU (Least Frequently Used) better suited than LRU (Least Recently Used)?",
+    "type": "single",
+    "options": [
+      { "text": "LFU is always better than LRU", "correct": false, "explanation": "LFU performs worse than LRU when access patterns change: if an element was popular before but is no longer needed, LFU will keep it for a long time due to the accumulated frequency counter" },
+      { "text": "When there are stably popular elements (top products, hot posts) that shouldn't be evicted by random requests", "correct": true, "explanation": "LFU protects 'hot' keys well: an element with 10,000 accesses won't be evicted by an element accessed once, even if the latter was accessed more recently. LRU in this situation might evict the popular key" },
+      { "text": "When data updates frequently and fresh versions are needed", "correct": false, "explanation": "For data freshness, TTL and invalidation strategy matter more, not the eviction policy. LFU/LRU determine which key to delete when memory is low, not how often to update data" },
+      { "text": "When the cache is small (< 100 keys)", "correct": false, "explanation": "Cache size doesn't determine the choice between LRU and LFU. For small caches, both algorithms work roughly the same. The choice depends on the access pattern: stable popularity → LFU, streaming data → LRU" }
+    ]
+  },
+  {
+    "question": "Which HTTP header correctly configures aggressive caching of static files (JS, CSS) in the browser and CDN?",
+    "type": "single",
+    "options": [
+      { "text": "Cache-Control: no-cache", "correct": false, "explanation": "no-cache does NOT forbid caching! It requires revalidation on every request (If-None-Match/ETag check). For static files, this means unnecessary requests — you need max-age with a large value" },
+      { "text": "Cache-Control: public, max-age=31536000, immutable", "correct": true, "explanation": "public — CDN can cache, max-age=31536000 — 1 year cache, immutable — don't check freshness. Ideal for files with a hash in the name (app.a1b2c3.js), because when content changes, the file name changes" },
+      { "text": "Cache-Control: private, max-age=31536000", "correct": false, "explanation": "private forbids CDN caching — browser only. For public static files (JS, CSS), you need public so the CDN also caches and serves files without hitting the origin server" },
+      { "text": "Cache-Control: no-store", "correct": false, "explanation": "no-store completely forbids caching — neither browser nor CDN stores the response. This is the opposite of aggressive caching. Used for confidential data (banking data, tokens)" }
+    ]
+  },
+  {
+    "question": "Which statements about cache penetration are correct? Select all that apply.",
+    "type": "multiple",
+    "options": [
+      { "text": "Cache penetration is requests for non-existent keys that always bypass the cache and hit the DB", "correct": true, "explanation": "When requesting a non-existent key, the cache always gives miss, the request goes to the DB, the DB returns null, and nothing gets cached. Every repeated request hits the DB again — the cache is useless" },
+      { "text": "Caching null responses with a short TTL is one way to protect against it", "correct": true, "explanation": "SET user:999999 NULL EX 60 — if the key doesn't exist in the DB, cache 'not found' for 1 minute. Subsequent requests get the response from cache without loading the DB" },
+      { "text": "Bloom Filter allows you to determine exactly whether a key exists", "correct": false, "explanation": "Bloom Filter gives two answers: 'definitely does NOT exist' or 'possibly exists'. False positives are possible, false negatives are not. This is enough for protection: we filter out guaranteedly non-existent keys" },
+      { "text": "Cache penetration and cache stampede are the same problem", "correct": false, "explanation": "These are different problems. Penetration — requests for non-existent keys (cache is useless). Stampede — mass miss on an existing key when its TTL expires (everyone hits the DB simultaneously for the same data)" }
+    ]
+  }
+]

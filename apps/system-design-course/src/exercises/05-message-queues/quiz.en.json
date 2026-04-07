@@ -1,0 +1,52 @@
+[
+  {
+    "question": "How does the Queue (Point-to-Point) pattern differ from Pub/Sub (Topic)?",
+    "type": "single",
+    "options": [
+      { "text": "Queue delivers the message to all subscribers, Topic — to only one", "correct": false, "explanation": "The opposite. Queue (Point-to-Point) delivers the message to one consumer (first to take it). Topic (Pub/Sub) delivers a copy to every subscriber" },
+      { "text": "Queue delivers the message to one consumer, Topic — to all subscribers", "correct": true, "explanation": "Queue — load balancing: each message is processed by exactly one consumer. Topic — fanout: every subscriber gets a copy. Queue is for task distribution, Topic is for notifying all interested services" },
+      { "text": "Queue and Topic are the same thing, just different names in RabbitMQ and Kafka", "correct": false, "explanation": "These are fundamentally different patterns. Queue — one message → one receiver. Topic — one message → all subscribers. Both RabbitMQ and Kafka support both patterns (in Kafka — via consumer groups)" },
+      { "text": "Queue stores messages, Topic — doesn't", "correct": false, "explanation": "Both store messages. The difference is in delivery semantics: Queue — to one, Topic — to all. In Kafka, both Queue (consumer group) and Topic store messages in a log" }
+    ]
+  },
+  {
+    "question": "Which statements about delivery guarantees are correct?",
+    "type": "multiple",
+    "options": [
+      { "text": "At-least-once may deliver a message multiple times — therefore idempotency is needed", "correct": true, "explanation": "At-least-once guarantees: the message will definitely be delivered, but may arrive again (if the consumer crashed after processing but before ack). The consumer must be idempotent — repeated processing must not change the result" },
+      { "text": "Exactly-once is easy to implement between any two services", "correct": false, "explanation": "Exactly-once between services is practically impossible in distributed systems (Two Generals Problem). Kafka implements it only within itself (producer → broker → consumer). As soon as the consumer writes to an external DB — idempotency is needed" },
+      { "text": "At-most-once is suitable for logs and metrics, where losing individual messages is acceptable", "correct": true, "explanation": "At-most-once — fire-and-forget. Fast, but a message may be lost. Ideal for non-critical data: analytics, logs, metrics. For orders and payments — unacceptable" },
+      { "text": "At-least-once is the standard guarantee for business logic in production", "correct": true, "explanation": "At-least-once — the gold standard. Message loss is unacceptable for business, and idempotency handles duplicates. Almost all production systems use at-least-once + idempotent consumers" }
+    ]
+  },
+  {
+    "question": "What is a Dead Letter Queue (DLQ) and why is it needed?",
+    "type": "single",
+    "options": [
+      { "text": "A queue for messages that couldn't be processed after several attempts", "correct": true, "explanation": "DLQ is a 'quarantine' for problematic messages. After N failed processing attempts (poison messages), the message is moved to the DLQ instead of infinite retry. This prevents blocking the main queue and allows the issue to be resolved manually or automatically" },
+      { "text": "A queue for deleted messages so they can be restored", "correct": false, "explanation": "DLQ is not a trash bin for deleted messages. It's a queue for messages the consumer couldn't process. They weren't intentionally deleted — a processing error occurred (invalid data, code bug, unavailable external service)" },
+      { "text": "A temporary queue for messages with expired TTL", "correct": false, "explanation": "TTL is one reason messages end up in the DLQ, but not the only one. The main reason is processing errors. The DLQ accepts messages after exceeding the retry limit or on timeout" },
+      { "text": "A special queue in Kafka for storing offsets", "correct": false, "explanation": "In Kafka, offsets are stored in a special topic __consumer_offsets, which is not a DLQ. Dead Letter Queue is an error-handling pattern applicable to any broker (RabbitMQ, Kafka, SQS)" }
+    ]
+  },
+  {
+    "question": "You have an e-commerce: when an order is created, you need to send an email, update analytics, reserve inventory, and check for fraud. How would you design this?",
+    "type": "single",
+    "options": [
+      { "text": "HTTP calls to all 4 services synchronously from the Order Service", "correct": false, "explanation": "Order creation will take the sum of all 4 services' latencies. If one service is down — the entire order won't be created. Tight coupling: Order Service must know about all downstream services" },
+      { "text": "Publish OrderCreated event to a topic, all 4 services subscribe (Pub/Sub)", "correct": true, "explanation": "Pub/Sub is ideal: Order Service publishes one event and doesn't know about subscribers. Each service processes independently. If Email is down — Inventory still works. Easy to add a new service (Loyalty Points) without changing Order Service" },
+      { "text": "4 separate queues (Point-to-Point), Order Service puts in each one", "correct": false, "explanation": "It works, but Order Service knows about all queues — tight coupling. When adding a new service (Loyalty), you need to change Order Service. Pub/Sub solves this: one publish → all subscribers receive" },
+      { "text": "A cron job checks new orders every 5 seconds and dispatches", "correct": false, "explanation": "Polling is an anti-pattern for real-time processing. Up to 5 seconds delay, load on DB from constant queries, difficulty tracking 'already processed' orders. Event-driven (Pub/Sub) reacts instantly" }
+    ]
+  },
+  {
+    "question": "Which statements about Kafka are correct?",
+    "type": "multiple",
+    "options": [
+      { "text": "Kafka stores messages as an append-only log — you can 'rewind' and re-read", "correct": true, "explanation": "Kafka is a distributed log. Messages aren't deleted after reading, they are stored for a certain time (retention period). A consumer can rewind the offset and re-read all events — useful for data recovery or adding a new service" },
+      { "text": "In Kafka, the number of consumers in a group can exceed the number of partitions", "correct": false, "explanation": "Each partition is assigned to exactly one consumer in the group. If consumers > partitions, the extra consumers are idle. Rule: partitions >= consumers. For more parallelism — add partitions" },
+      { "text": "Kafka guarantees message order within a single partition", "correct": true, "explanation": "Within a partition, order is strictly guaranteed (append-only). Between partitions, order is NOT guaranteed. That's why all events for one user are sent to one partition (via key) to preserve order" },
+      { "text": "Kafka is ideal for simple task queues with small volume", "correct": false, "explanation": "For simple task queues (resize image, send email), RabbitMQ is simpler and more convenient: smart routing, priorities, built-in retry. Kafka is justified for high-load event streaming, logs, analytics, CQRS" }
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+[
+  {
+    "question": "According to the CAP theorem, during a network partition between nodes of a distributed system, what choice remains?",
+    "type": "single",
+    "options": [
+      { "text": "Consistency + Availability — the system is both consistent and available, just slower", "correct": false, "explanation": "During a partition, you cannot guarantee both consistency and availability simultaneously. If nodes can't communicate, the system either refuses to respond (CP) or responds but data may be stale (AP)" },
+      { "text": "Consistency or Availability — you must sacrifice one of the two", "correct": true, "explanation": "In a distributed system, Partition tolerance is a given (the network WILL break). So the real choice is: CP (block requests until connection is restored, guarantee consistency) or AP (continue responding, but data may diverge)" },
+      { "text": "You can choose all three — CAP only shows theoretical limits, in practice they can be bypassed", "correct": false, "explanation": "The CAP theorem is a mathematically proven statement, not a recommendation. During a real network partition, it's impossible to simultaneously guarantee consistency and availability. You can mitigate (tunable consistency), but not bypass the theorem" },
+      { "text": "Partition tolerance or Availability — you must sacrifice one of the two", "correct": false, "explanation": "In a distributed system, Partition tolerance cannot be 'disabled' — network breaks are inevitable. So P is always present, and the choice is between C and A" }
+    ]
+  },
+  {
+    "question": "Which statements about ACID and BASE are correct?",
+    "type": "multiple",
+    "options": [
+      { "text": "ACID guarantees that a transaction either completes entirely or not at all (Atomicity)", "correct": true, "explanation": "Atomicity is a key property of ACID. In a bank transfer, debit and credit are one atomic operation. If credit fails, the debit is rolled back" },
+      { "text": "BASE means data will be lost on failure", "correct": false, "explanation": "BASE does not imply data loss. Basically Available + Soft state + Eventual consistency means the system always responds, but data may temporarily diverge between nodes. Eventual consistency — data will synchronize over time" },
+      { "text": "Eventual consistency (BASE) means that after some time all nodes will have the same data", "correct": true, "explanation": "Eventual consistency guarantees: if writes stop, then after a finite time all replicas will converge to the same state. In practice, this takes seconds — a user updates their avatar, within 2-5 seconds all nodes see the new one" },
+      { "text": "ACID systems are always slower than BASE systems", "correct": false, "explanation": "Not always. PostgreSQL on a single server can be faster than distributed Cassandra for simple queries. The difference shows at scale: ACID guarantees are more expensive in distributed systems due to node coordination" }
+    ]
+  },
+  {
+    "question": "You have an e-commerce project with a product catalog (10M records), carts, and payment transactions. Which DB combination is optimal?",
+    "type": "single",
+    "options": [
+      { "text": "MongoDB for everything — flexible schema suits any data", "correct": false, "explanation": "MongoDB doesn't support full transactions between collections (multi-document transactions appeared in 4.0, but are slower than SQL). For payments, you need ACID. Product catalog with JOIN (product → category → reviews) maps better to SQL" },
+      { "text": "PostgreSQL for catalog and transactions + Redis for carts and sessions", "correct": true, "explanation": "PostgreSQL provides ACID for payments, powerful JOIN for the catalog. Redis is ideal for carts (fast key-value, TTL for auto-cleaning abandoned carts) and sessions. This is the classic e-commerce combination" },
+      { "text": "Cassandra for everything — scales horizontally without issues", "correct": false, "explanation": "Cassandra doesn't support JOIN and has limited transactions (lightweight transactions — slow). For payments, you need ACID. Cassandra is good for logs, analytics, IoT — not for transactional operations" },
+      { "text": "PostgreSQL for everything — it's a universal database", "correct": false, "explanation": "PostgreSQL can handle it, but carts and sessions in Redis work 100x faster (0.5 ms vs 50 ms). Redis also supports TTL for auto-deleting abandoned carts. For high-load e-commerce, polyglot persistence (multiple DB types) is the standard" }
+    ]
+  },
+  {
+    "question": "How does sharding differ from replication?",
+    "type": "single",
+    "options": [
+      { "text": "Sharding SPLITS data across servers, replication COPIES the same data to multiple servers", "correct": true, "explanation": "Replication: each node stores a full copy of data — scales reads and increases fault tolerance. Sharding: each node stores a portion of data — scales reads, writes, and storage volume" },
+      { "text": "Sharding and replication are the same thing, just different names", "correct": false, "explanation": "These are fundamentally different mechanisms. Replication = copies of data. Sharding = division of data. In practice, they are combined: each shard is replicated (sharded + replicated)" },
+      { "text": "Replication scales writes, sharding scales reads", "correct": false, "explanation": "The opposite. Replication scales reads (read from any slave), but does NOT scale writes (all writes go to master). Sharding scales both reads and writes (each shard handles its portion)" },
+      { "text": "Sharding only works with NoSQL, replication only with SQL", "correct": false, "explanation": "Both sharding and replication work with any DB type. PostgreSQL supports replication (streaming replication) and sharding (Citus, pg_shard). MongoDB and Cassandra also support both mechanisms" }
+    ]
+  },
+  {
+    "question": "Which statements about B-tree and Hash indexes are correct?",
+    "type": "multiple",
+    "options": [
+      { "text": "B-tree supports range queries (>, <, BETWEEN), hash — only exact match (=)", "correct": true, "explanation": "B-tree stores data in sorted order, so it efficiently handles ranges and sorting. A hash index only knows 'key exists' or 'key doesn't exist' — for > or < it would need to scan all records" },
+      { "text": "Hash index is faster than B-tree for exact matches (=)", "correct": true, "explanation": "Hash index works in O(1) for exact matches, B-tree — in O(log N). For lookups by exact value (email, id), a hash index can be faster. In practice, the difference is negligible for most cases" },
+      { "text": "Composite index (A, B, C) works efficiently for a query WHERE B = 5", "correct": false, "explanation": "Composite B-tree index follows the leftmost prefix rule. Index (A, B, C) works for queries on A, A+B, A+B+C. A query on B alone cannot use this index efficiently — a separate index on B is needed" },
+      { "text": "The more indexes on a table, the faster all operations become", "correct": false, "explanation": "Indexes speed up reads but slow down writes (write amplification). Each INSERT/UPDATE must update all indexes. 10 indexes = 11 write operations instead of 1. Balance: index only columns you actually search by" }
+    ]
+  }
+]

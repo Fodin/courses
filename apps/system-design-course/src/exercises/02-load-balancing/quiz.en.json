@@ -1,0 +1,52 @@
+[
+  {
+    "question": "What is the difference between an L4 and L7 load balancer?",
+    "type": "single",
+    "options": [
+      { "text": "L4 operates at the TCP/UDP level (sees only IP and port), while L7 parses HTTP requests (URL, headers, cookies)", "correct": true, "explanation": "L4 operates at the transport layer — forwards the TCP connection as a whole without looking inside. L7 parses the application protocol (HTTP) and can route by URL, headers, cookies. L4 is faster, L7 is smarter" },
+      { "text": "L4 supports only 4 servers, while L7 supports up to 7", "correct": false, "explanation": "The numbers 4 and 7 refer to OSI model layers (Open Systems Interconnection), not the number of servers. L4 = transport layer (TCP/UDP), L7 = application layer (HTTP)" },
+      { "text": "L4 only works with HTTP, while L7 works with any protocol", "correct": false, "explanation": "The opposite: L4 works with any TCP/UDP protocol (without looking inside), while L7 specializes in HTTP/HTTPS and can inspect request contents" },
+      { "text": "L7 is faster than L4 because it operates at a higher level", "correct": false, "explanation": "L4 is significantly faster than L7 (millions of packets/sec vs million requests/sec) because it doesn't need to parse packet contents. A higher level means more work, not more speed" }
+    ]
+  },
+  {
+    "question": "Which load balancing algorithm is best suited for a scenario where requests have highly varying processing times (from 10 ms to 5 seconds)?",
+    "type": "single",
+    "options": [
+      { "text": "Round Robin", "correct": false, "explanation": "Round Robin distributes requests evenly in rotation, without accounting for current load. A server that receives several 'heavy' 5-second requests will be overloaded while others idle" },
+      { "text": "Weighted Round Robin", "correct": false, "explanation": "Weighted RR accounts for server capacity (weights), but not current load. If a powerful server receives a series of heavy requests, it will still be overloaded" },
+      { "text": "Least Connections", "correct": true, "explanation": "Least Connections directs a request to the server with the fewest active connections. A server processing heavy requests accumulates connections and receives fewer new ones — load automatically balances" },
+      { "text": "IP Hash", "correct": false, "explanation": "IP Hash binds a client to a server by IP address hash. It accounts for neither load nor processing time — one 'heavy' client can overload its server" }
+    ]
+  },
+  {
+    "question": "What is the main advantage of consistent hashing over regular hash % N?",
+    "type": "single",
+    "options": [
+      { "text": "Consistent hashing is faster to compute", "correct": false, "explanation": "Consistent hashing has O(log N) complexity for finding the right server on the ring, while hash % N is O(1). Speed is not its advantage" },
+      { "text": "When adding/removing a server, only ~1/N keys move, not all of them", "correct": true, "explanation": "With hash % N, changing the number of servers redistributes ~75-100% of keys. With consistent hashing — only ~1/N (keys between the new and previous server on the ring). This is critical for caches and sharded systems" },
+      { "text": "Consistent hashing doesn't require knowing the number of servers in advance", "correct": false, "explanation": "Regular hash % N also doesn't require knowing the server count in advance — N is substituted at computation time. The advantage of consistent hashing is minimal data redistribution" },
+      { "text": "Consistent hashing guarantees perfectly even distribution", "correct": false, "explanation": "Without virtual nodes, consistent hashing can produce uneven distribution. Virtual nodes (100-200 per server) are needed precisely for balancing. The main advantage is minimal redistribution when server count changes" }
+    ]
+  },
+  {
+    "question": "Which statements about health checks are correct? Select all that apply.",
+    "type": "multiple",
+    "options": [
+      { "text": "Active health checks — the load balancer periodically polls servers itself", "correct": true, "explanation": "Active health checks send HTTP requests (usually GET /health) to servers every N seconds. This enables fast failure detection, even if the server receives no real traffic" },
+      { "text": "Passive health checks track errors in real responses to clients", "correct": true, "explanation": "Passive checks observe the results of real requests. If a server starts returning 5xx errors or timeouts, it's removed from the pool. Pros — zero overhead, cons — first clients get errors" },
+      { "text": "Health check endpoint should return 200 OK if the process is running", "correct": false, "explanation": "A health check should verify real readiness: DB availability, Redis, sufficient disk space. The process may be running but unable to serve requests (DB down, disk full)" },
+      { "text": "Best practice — use both active and passive health checks simultaneously", "correct": true, "explanation": "Active checks provide fast detection (seconds), passive provide additional insurance without overhead. Together they give maximum reliability" }
+    ]
+  },
+  {
+    "question": "Why are sticky sessions considered an anti-pattern for scalable systems?",
+    "type": "multiple",
+    "options": [
+      { "text": "When a server goes down, all clients bound to it lose their state", "correct": true, "explanation": "Sticky sessions bind a client to a specific server. If that server fails, all its clients lose their sessions and data stored in server memory" },
+      { "text": "Load is distributed unevenly due to 'hot' clients", "correct": true, "explanation": "One active client (or group of clients) can generate a disproportionately large load on its server while other servers idle" },
+      { "text": "Sticky sessions are technically impossible to implement", "correct": false, "explanation": "Sticky sessions are easily implemented via IP hash, cookie-based affinity, or header-based routing. The problem isn't implementation, but the consequences for scalability and fault tolerance" },
+      { "text": "Harder to scale horizontally — new servers don't receive traffic from bound clients", "correct": true, "explanation": "Existing clients continue hitting old servers. New servers only receive new clients, which slows load balancing during scaling" }
+    ]
+  }
+]

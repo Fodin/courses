@@ -3,6 +3,7 @@
 // ============================================
 
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Task 1.1: Installation via opkg
@@ -85,6 +86,7 @@ const categoryLabels: Record<InstallStep['category'], { label: string; color: st
   }
 
 export function Task1_1_Solution() {
+  const { t } = useLanguage()
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set())
   const [expandedStep, setExpandedStep] = useState<number | null>(null)
   const [copied, setCopied] = useState<number | null>(null)
@@ -108,9 +110,9 @@ export function Task1_1_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '820px' }}>
-      <h2 style={{ marginBottom: '0.5rem' }}>Установка Mosquitto через opkg</h2>
+      <h2 style={{ marginBottom: '0.5rem' }}>{t('solution.level1.installTitle')}</h2>
       <p style={{ color: '#555', marginBottom: '1rem' }}>
-        Следуй шагам по порядку. Нажми на шаг, чтобы увидеть вывод команды. Отмечай выполненные шаги.
+        {t('solution.level1.installDesc')}
       </p>
 
       {/* Progress bar */}
@@ -123,7 +125,7 @@ export function Task1_1_Solution() {
             marginBottom: '4px',
           }}
         >
-          <span>Прогресс установки</span>
+          <span>{t('solution.level1.installProgress')}</span>
           <span style={{ fontWeight: 700, color: progress === 100 ? '#2E7D32' : '#1565C0' }}>
             {completedSteps.size}/{installSteps.length} ({progress}%)
           </span>
@@ -285,7 +287,7 @@ export function Task1_1_Solution() {
                   )}
                   {!step.output && (
                     <div style={{ fontSize: '0.82rem', color: '#999', fontStyle: 'italic' }}>
-                      Нет вывода (команда выполняется без ответа)
+                      {t('solution.level1.noOutput')}
                     </div>
                   )}
                 </div>
@@ -307,9 +309,9 @@ export function Task1_1_Solution() {
           }}
         >
           <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🎉</div>
-          <div style={{ fontWeight: 700, color: '#2E7D32' }}>Mosquitto успешно установлен!</div>
+          <div style={{ fontWeight: 700, color: '#2E7D32' }}>{t('solution.level1.successTitle')}</div>
           <div style={{ fontSize: '0.85rem', color: '#555', marginTop: '0.25rem' }}>
-            Брокер запущен и готов к настройке.
+            {t('solution.level1.successDesc')}
           </div>
         </div>
       )}
@@ -436,20 +438,21 @@ mosquitto_sub -h localhost -u user -P pass -t "home/+" -v -d`,
 ]
 
 export function Task1_2_Solution() {
+  const { t } = useLanguage()
   const [selected, setSelected] = useState<FileNode | null>(null)
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '900px' }}>
-      <h2 style={{ marginBottom: '0.5rem' }}>Структура файлов Mosquitto</h2>
+      <h2 style={{ marginBottom: '0.5rem' }}>{t('solution.level1.fileStructTitle')}</h2>
       <p style={{ color: '#555', marginBottom: '1.5rem' }}>
-        Нажми на любой файл, чтобы увидеть его описание и содержимое.
+        {t('solution.level1.fileStructDesc')}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: '1.5rem' }}>
         {/* File tree */}
         <div>
           <h3 style={{ marginBottom: '0.75rem', fontSize: '0.9rem', color: '#666', textTransform: 'uppercase' }}>
-            Файловая система
+            {t('solution.level1.fileSystem')}
           </h3>
           <div
             style={{
@@ -499,7 +502,7 @@ export function Task1_2_Solution() {
         {/* Detail panel */}
         <div>
           <h3 style={{ marginBottom: '0.75rem', fontSize: '0.9rem', color: '#666', textTransform: 'uppercase' }}>
-            Описание
+            {t('solution.level1.description')}
           </h3>
           {selected ? (
             <div>
@@ -529,14 +532,14 @@ export function Task1_2_Solution() {
                       color: '#F57F17',
                     }}
                   >
-                    📌 Важный файл — изменяется при настройке
+                    {t('solution.level1.importantFile')}
                   </div>
                 )}
               </div>
               {selected.content && (
                 <div>
                   <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '4px' }}>
-                    Пример содержимого:
+                    {t('solution.level1.contentExample')}:
                   </div>
                   <pre
                     style={{
@@ -569,7 +572,7 @@ export function Task1_2_Solution() {
                 fontSize: '0.9rem',
               }}
             >
-              Выберите файл слева для просмотра информации
+              {t('solution.level1.selectFile')}
             </div>
           )}
         </div>
@@ -666,6 +669,7 @@ const categoryConfig: Record<VerifyCommand['category'], { label: string; color: 
 }
 
 export function Task1_3_Solution() {
+  const { t } = useLanguage()
   const [runOutput, setRunOutput] = useState<Record<string, string>>({})
   const [runningId, setRunningId] = useState<string | null>(null)
 
@@ -681,10 +685,9 @@ export function Task1_3_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '820px' }}>
-      <h2 style={{ marginBottom: '0.5rem' }}>Первый запуск и проверка</h2>
+      <h2 style={{ marginBottom: '0.5rem' }}>{t('solution.level1.firstStartTitle')}</h2>
       <p style={{ color: '#555', marginBottom: '1.5rem' }}>
-        После установки нужно убедиться, что брокер работает корректно. Нажми кнопку рядом с командой
-        для симуляции вывода.
+        {t('solution.level1.firstStartDesc')}
       </p>
 
       {categoryGroups.map(cat => {
@@ -750,7 +753,7 @@ export function Task1_3_Solution() {
                         flexShrink: 0,
                       }}
                     >
-                      {runningId === cmd.id ? '...' : runOutput[cmd.id] ? '✓ Выполнено' : '▶ Запустить'}
+                      {runningId === cmd.id ? '...' : runOutput[cmd.id] ? `✓ ${t('solution.level1.running')}` : `▶ ${t('solution.level1.run')}`}
                     </button>
                   </div>
                   <div style={{ padding: '0.5rem 1rem', fontSize: '0.82rem', color: '#666', borderTop: '1px solid #f0f0f0' }}>

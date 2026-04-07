@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Задание 5.1: Файл паролей (password_file) — Решение
@@ -46,6 +47,7 @@ const roleColors: Record<string, string> = {
 }
 
 export function Task5_1_Solution() {
+  const { t } = useLanguage()
   const [users, setUsers] = useState<MqttUser[]>([
     { username: 'admin', passwordHash: hashPassword('admin123'), createdAt: '10:00:00', roles: ['admin'] },
     { username: 'sensor_kitchen', passwordHash: hashPassword('s3cr3t'), createdAt: '10:00:01', roles: ['sensor'] },
@@ -100,15 +102,15 @@ password_file /etc/mosquitto/passwd
 
   return (
     <div className="exercise-container">
-      <h2>Задание 5.1: Файл паролей (password_file)</h2>
+      <h2>{t('solution.level5.passwdTitle')}</h2>
       <p style={{ color: '#6b7280', marginBottom: 16 }}>
-        Управление пользователями Mosquitto. Пароли хранятся в виде PBKDF2-SHA512 хешей.
+        {t('solution.level5.passwdDesc')}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
         <div>
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 12 }}>
-            Пользователи ({users.length})
+            {t('solution.level5.users')} ({users.length})
           </h3>
 
           {users.map((user) => (
@@ -149,7 +151,7 @@ password_file /etc/mosquitto/passwd
                     fontSize: 12,
                   }}
                 >
-                  Удалить
+                  {t('solution.level5.delete')}
                 </button>
               </div>
               <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 4, fontFamily: 'monospace' }}>
@@ -159,19 +161,19 @@ password_file /etc/mosquitto/passwd
           ))}
 
           <div style={{ marginTop: 16, padding: 12, background: '#f9fafb', borderRadius: 8 }}>
-            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>Добавить пользователя</div>
+            <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>{t('solution.level5.addUser')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <input
                 value={newUsername}
                 onChange={(e) => setNewUsername(e.target.value)}
-                placeholder="Имя пользователя"
+                placeholder={t('solution.level5.usernamePlaceholder')}
                 style={{ padding: '6px 10px', border: '1px solid #e5e7eb', borderRadius: 6, fontSize: 13, fontFamily: 'monospace' }}
               />
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                placeholder="Пароль"
+                placeholder={t('solution.level5.passwordPlaceholder')}
                 style={{ padding: '6px 10px', border: '1px solid #e5e7eb', borderRadius: 6, fontSize: 13 }}
               />
               <select
@@ -268,13 +270,13 @@ password_file /etc/mosquitto/passwd
           )}
 
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 8 }}>
-            Shell команды для OpenWRT
+            {t('solution.level5.shellCommands')}
           </h3>
           <button
             onClick={() => setShowPasswd(true)}
             style={{ marginBottom: 8, padding: '6px 12px', border: '1px solid #e5e7eb', borderRadius: 6, background: 'white', cursor: 'pointer', fontSize: 12 }}
           >
-            Показать команды mosquitto_passwd
+            {t('solution.level5.showPasswdCommands')}
           </button>
           {showPasswd && (
             <pre style={{
@@ -291,7 +293,7 @@ password_file /etc/mosquitto/passwd
           )}
 
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 8 }}>
-            Лог
+            {t('solution.level5.log')}
           </h3>
           <div style={{
             background: '#1e1e2e',
@@ -458,6 +460,7 @@ pattern write devices/%c/data
 pattern read devices/%c/cmd`
 
 export function Task5_2_Solution() {
+  const { t } = useLanguage()
   const [aclContent, setAclContent] = useState(defaultAclContent)
   const [checkUser, setCheckUser] = useState('sensor_kitchen')
   const [checkTopic, setCheckTopic] = useState('home/kitchen/temp')
@@ -482,9 +485,9 @@ export function Task5_2_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 5.2: ACL — списки контроля доступа</h2>
+      <h2>{t('solution.level5.aclTitle')}</h2>
       <p style={{ color: '#6b7280', marginBottom: 16 }}>
-        Редактируйте ACL файл и проверяйте права доступа пользователей к топикам.
+        {t('solution.level5.aclDesc')}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
@@ -515,7 +518,7 @@ export function Task5_2_Solution() {
           </div>
 
           <div style={{ marginTop: 12 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>Примеры проверок:</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 4 }}>{t('solution.level5.presetChecks')}:</div>
             {presetChecks.map((check, idx) => (
               <button
                 key={idx}
@@ -546,12 +549,12 @@ export function Task5_2_Solution() {
 
         <div>
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 12 }}>
-            Проверка доступа
+            {t('solution.level5.accessCheck')}
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
             <div>
-              <label style={{ fontSize: 12, color: '#6b7280' }}>Пользователь:</label>
+              <label style={{ fontSize: 12, color: '#6b7280' }}>{t('solution.level5.user')}:</label>
               <input
                 value={checkUser}
                 onChange={(e) => setCheckUser(e.target.value)}
@@ -567,7 +570,7 @@ export function Task5_2_Solution() {
               />
             </div>
             <div>
-              <label style={{ fontSize: 12, color: '#6b7280' }}>Топик:</label>
+              <label style={{ fontSize: 12, color: '#6b7280' }}>{t('solution.level5.topic')}:</label>
               <input
                 value={checkTopic}
                 onChange={(e) => setCheckTopic(e.target.value)}
@@ -605,12 +608,12 @@ export function Task5_2_Solution() {
                 cursor: 'pointer',
               }}
             >
-              Проверить доступ
+              {t('solution.level5.checkAccess')}
             </button>
           </div>
 
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 8 }}>
-            Результаты проверки
+            {t('solution.level5.checkResults')}
           </h3>
           {checkResults.map((result, idx) => (
             <div
@@ -626,7 +629,7 @@ export function Task5_2_Solution() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                 <span style={{ fontSize: 16 }}>{result.allowed ? '✅' : '❌'}</span>
                 <span style={{ fontWeight: 600, color: result.allowed ? '#166534' : '#991b1b' }}>
-                  {result.allowed ? 'Разрешено' : 'Запрещено'}
+                  {result.allowed ? t('solution.level5.allowed') : t('solution.level5.denied')}
                 </span>
               </div>
               <div style={{ fontSize: 12, fontFamily: 'monospace', color: '#374151' }}>
@@ -634,18 +637,18 @@ export function Task5_2_Solution() {
               </div>
               {result.matchedRule && (
                 <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>
-                  Правило: {result.matchedRule}
+                  {t('solution.level5.rule')}: {result.matchedRule}
                 </div>
               )}
               {!result.matchedRule && (
                 <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>
-                  Правило не найдено → запрещено по умолчанию
+                  {t('solution.level5.noRule')}
                 </div>
               )}
             </div>
           ))}
           {checkResults.length === 0 && (
-            <div style={{ color: '#9ca3af', fontSize: 13 }}>Нажмите «Проверить доступ»</div>
+            <div style={{ color: '#9ca3af', fontSize: 13 }}>{t('solution.level5.clickCheckAccess')}</div>
           )}
         </div>
       </div>
@@ -776,6 +779,7 @@ plugin_opt_jwt_userfield Username`,
 ]
 
 export function Task5_3_Solution() {
+  const { t } = useLanguage()
   const [selectedPlugin, setSelectedPlugin] = useState<string>('passwd_file')
   const [showConfig, setShowConfig] = useState(false)
 
@@ -783,9 +787,9 @@ export function Task5_3_Solution() {
 
   const supportBadge = (support: AuthPlugin['openWrtSupport']) => {
     const config = {
-      full: { label: 'Полная', color: '#16a34a', bg: '#f0fdf4' },
-      partial: { label: 'Частичная', color: '#c2410c', bg: '#fff7ed' },
-      limited: { label: 'Ограниченная', color: '#dc2626', bg: '#fef2f2' },
+      full: { label: t('solution.level5.supportFull'), color: '#16a34a', bg: '#f0fdf4' },
+      partial: { label: t('solution.level5.supportPartial'), color: '#c2410c', bg: '#fff7ed' },
+      limited: { label: t('solution.level5.supportLimited'), color: '#dc2626', bg: '#fef2f2' },
     }
     const c = config[support]
     return (
@@ -797,15 +801,15 @@ export function Task5_3_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 5.3: Плагины аутентификации</h2>
+      <h2>{t('solution.level5.pluginsTitle')}</h2>
       <p style={{ color: '#6b7280', marginBottom: 16 }}>
-        Обзор механизмов аутентификации для Mosquitto с оценкой совместимости с OpenWRT.
+        {t('solution.level5.pluginsDesc')}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: 24 }}>
         <div>
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 12 }}>
-            Плагины
+            {t('solution.level5.plugins')}
           </h3>
           {authPlugins.map((p) => (
             <button
@@ -832,7 +836,7 @@ export function Task5_3_Solution() {
                   background: p.type === 'builtin' ? '#eff6ff' : '#fef3c7',
                   color: p.type === 'builtin' ? '#1d4ed8' : '#92400e',
                 }}>
-                  {p.type === 'builtin' ? 'встроен' : 'сторонний'}
+                  {p.type === 'builtin' ? t('solution.level5.builtin') : t('solution.level5.thirdparty')}
                 </span>
               </div>
               <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>
@@ -861,13 +865,13 @@ export function Task5_3_Solution() {
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
             <div style={{ padding: 12, background: '#f0fdf4', borderRadius: 8 }}>
-              <div style={{ fontWeight: 600, color: '#15803d', marginBottom: 6, fontSize: 13 }}>Преимущества</div>
+              <div style={{ fontWeight: 600, color: '#15803d', marginBottom: 6, fontSize: 13 }}>{t('solution.level5.pros')}</div>
               {plugin.pros.map((p) => (
                 <div key={p} style={{ fontSize: 12, color: '#166534', marginBottom: 3 }}>✅ {p}</div>
               ))}
             </div>
             <div style={{ padding: 12, background: '#fef2f2', borderRadius: 8 }}>
-              <div style={{ fontWeight: 600, color: '#b91c1c', marginBottom: 6, fontSize: 13 }}>Недостатки</div>
+              <div style={{ fontWeight: 600, color: '#b91c1c', marginBottom: 6, fontSize: 13 }}>{t('solution.level5.cons')}</div>
               {plugin.cons.map((c) => (
                 <div key={c} style={{ fontSize: 12, color: '#991b1b', marginBottom: 3 }}>⚠️ {c}</div>
               ))}
@@ -890,7 +894,7 @@ export function Task5_3_Solution() {
               fontSize: 13,
             }}
           >
-            {showConfig ? '▼ Скрыть конфигурацию' : '▶ Показать пример конфигурации'}
+            {showConfig ? t('solution.level5.hideConfig') : t('solution.level5.showPluginConfig')}
           </button>
 
           {showConfig && (

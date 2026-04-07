@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Задание 10.1: $SYS топики брокера — Решение
@@ -13,34 +14,35 @@ interface SysMetric {
 
 const SYS_METRICS: SysMetric[] = [
   // Клиенты
-  { topic: '$SYS/broker/clients/connected', description: 'Количество подключённых клиентов', example: '42', category: 'Клиенты' },
-  { topic: '$SYS/broker/clients/total', description: 'Всего известных клиентов (включая отключённых)', example: '157', category: 'Клиенты' },
-  { topic: '$SYS/broker/clients/maximum', description: 'Максимум подключений за всё время', example: '85', category: 'Клиенты' },
-  { topic: '$SYS/broker/clients/disconnected', description: 'Клиенты с persistent session, сейчас offline', example: '12', category: 'Клиенты' },
+  { topic: '$SYS/broker/clients/connected', description: 'solution.level10.metricClientsConnected', example: '42', category: 'solution.level10.catClients' },
+  { topic: '$SYS/broker/clients/total', description: 'solution.level10.metricClientsTotal', example: '157', category: 'solution.level10.catClients' },
+  { topic: '$SYS/broker/clients/maximum', description: 'solution.level10.metricClientsMax', example: '85', category: 'solution.level10.catClients' },
+  { topic: '$SYS/broker/clients/disconnected', description: 'solution.level10.metricClientsDisconnected', example: '12', category: 'solution.level10.catClients' },
   // Сообщения
-  { topic: '$SYS/broker/messages/received', description: 'Сообщений получено с запуска', example: '12847', category: 'Сообщения' },
-  { topic: '$SYS/broker/messages/sent', description: 'Сообщений отправлено с запуска', example: '15321', category: 'Сообщения' },
-  { topic: '$SYS/broker/messages/publish/received', description: 'PUBLISH-пакетов получено', example: '8234', category: 'Сообщения' },
-  { topic: '$SYS/broker/messages/publish/sent', description: 'PUBLISH-пакетов отправлено', example: '9876', category: 'Сообщения' },
-  { topic: '$SYS/broker/messages/retained/count', description: 'Retained сообщений в памяти', example: '234', category: 'Сообщения' },
+  { topic: '$SYS/broker/messages/received', description: 'solution.level10.metricMsgsReceived', example: '12847', category: 'solution.level10.catMessages' },
+  { topic: '$SYS/broker/messages/sent', description: 'solution.level10.metricMsgsSent', example: '15321', category: 'solution.level10.catMessages' },
+  { topic: '$SYS/broker/messages/publish/received', description: 'solution.level10.metricPublishReceived', example: '8234', category: 'solution.level10.catMessages' },
+  { topic: '$SYS/broker/messages/publish/sent', description: 'solution.level10.metricPublishSent', example: '9876', category: 'solution.level10.catMessages' },
+  { topic: '$SYS/broker/messages/retained/count', description: 'solution.level10.metricRetainedCount', example: '234', category: 'solution.level10.catMessages' },
   // Трафик
-  { topic: '$SYS/broker/bytes/received', description: 'Байт получено с запуска', example: '2048576', category: 'Трафик' },
-  { topic: '$SYS/broker/bytes/sent', description: 'Байт отправлено с запуска', example: '1538048', category: 'Трафик' },
-  { topic: '$SYS/broker/publish/bytes/received', description: 'Байт в PUBLISH-пакетах', example: '512000', category: 'Трафик' },
+  { topic: '$SYS/broker/bytes/received', description: 'solution.level10.metricBytesReceived', example: '2048576', category: 'solution.level10.catTraffic' },
+  { topic: '$SYS/broker/bytes/sent', description: 'solution.level10.metricBytesSent', example: '1538048', category: 'solution.level10.catTraffic' },
+  { topic: '$SYS/broker/publish/bytes/received', description: 'solution.level10.metricPublishBytesReceived', example: '512000', category: 'solution.level10.catTraffic' },
   // Подписки
-  { topic: '$SYS/broker/subscriptions/count', description: 'Активных подписок', example: '89', category: 'Подписки' },
+  { topic: '$SYS/broker/subscriptions/count', description: 'solution.level10.metricSubscriptionsCount', example: '89', category: 'solution.level10.catSubscriptions' },
   // Брокер
-  { topic: '$SYS/broker/uptime', description: 'Время работы брокера', example: '86400 seconds', category: 'Брокер' },
-  { topic: '$SYS/broker/version', description: 'Версия Mosquitto', example: 'mosquitto version 2.0.18', category: 'Брокер' },
-  { topic: '$SYS/broker/heap/current', description: 'Текущее использование heap (байт)', example: '524288', category: 'Брокер' },
-  { topic: '$SYS/broker/heap/maximum', description: 'Максимальное использование heap (байт)', example: '1048576', category: 'Брокер' },
+  { topic: '$SYS/broker/uptime', description: 'solution.level10.metricUptime', example: '86400 seconds', category: 'solution.level10.catBroker' },
+  { topic: '$SYS/broker/version', description: 'solution.level10.metricVersion', example: 'mosquitto version 2.0.18', category: 'solution.level10.catBroker' },
+  { topic: '$SYS/broker/heap/current', description: 'solution.level10.metricHeapCurrent', example: '524288', category: 'solution.level10.catBroker' },
+  { topic: '$SYS/broker/heap/maximum', description: 'solution.level10.metricHeapMaximum', example: '1048576', category: 'solution.level10.catBroker' },
   // Интервальные метрики
-  { topic: '$SYS/broker/load/messages/received/1min', description: 'Сообщений в минуту (1 мин)', example: '45.2', category: 'Нагрузка' },
-  { topic: '$SYS/broker/load/messages/received/5min', description: 'Сообщений в минуту (5 мин)', example: '38.7', category: 'Нагрузка' },
-  { topic: '$SYS/broker/load/connections/1min', description: 'Подключений в минуту (1 мин)', example: '2.1', category: 'Нагрузка' },
+  { topic: '$SYS/broker/load/messages/received/1min', description: 'solution.level10.metricLoad1min', example: '45.2', category: 'solution.level10.catLoad' },
+  { topic: '$SYS/broker/load/messages/received/5min', description: 'solution.level10.metricLoad5min', example: '38.7', category: 'solution.level10.catLoad' },
+  { topic: '$SYS/broker/load/connections/1min', description: 'solution.level10.metricConnLoad1min', example: '2.1', category: 'solution.level10.catLoad' },
 ]
 
 export function Task10_1_Solution() {
+  const { t } = useLanguage()
   const [filterCategory, setFilterCategory] = useState<string>('Все')
   const [searchTerm, setSearchTerm] = useState('')
   const [showSubscribeCmd, setShowSubscribeCmd] = useState(false)
@@ -51,41 +53,41 @@ export function Task10_1_Solution() {
     const matchCat = filterCategory === 'Все' || m.category === filterCategory
     const matchSearch =
       m.topic.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      m.description.toLowerCase().includes(searchTerm.toLowerCase())
+      t(m.description).toLowerCase().includes(searchTerm.toLowerCase())
     return matchCat && matchSearch
   })
 
   return (
     <div className="exercise-container">
-      <h2>Задание 10.1: $SYS топики брокера</h2>
+      <h2>{t('solution.level10.sysTopicsTitle')}</h2>
 
       <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>Категория:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level10.categoryLabel')}:</label>
           <select
             value={filterCategory}
             onChange={(e) => setFilterCategory(e.target.value)}
             style={{ padding: '0.25rem' }}
           >
             {categories.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>{c === 'Все' ? t('solution.level10.all') : t(c)}</option>
             ))}
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>Поиск:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level10.searchLabel')}:</label>
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="топик или описание..."
+            placeholder={t('solution.level10.searchPlaceholder')}
             style={{ padding: '0.25rem', width: '200px' }}
           />
         </div>
       </div>
 
       <button onClick={() => setShowSubscribeCmd((v) => !v)} style={{ marginBottom: '1rem' }}>
-        {showSubscribeCmd ? 'Скрыть' : 'Показать'} команду подписки
+        {showSubscribeCmd ? t('solution.level10.hide') : t('solution.level10.show')} {t('solution.level10.subscribeCommand')}
       </button>
 
       {showSubscribeCmd && (
@@ -104,25 +106,25 @@ mosquitto_sub -h localhost -u admin -P pass \\
       )}
 
       <p style={{ color: '#888', fontSize: '0.9rem' }}>
-        Показано: {filtered.length} из {SYS_METRICS.length} метрик
+        {t('solution.level10.shown')}: {filtered.length} {t('solution.level10.from')} {SYS_METRICS.length} {t('solution.level10.metrics')}
       </p>
 
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
           <thead>
             <tr style={{ borderBottom: '2px solid #444' }}>
-              <th style={{ padding: '0.5rem', textAlign: 'left' }}>Категория</th>
-              <th style={{ padding: '0.5rem', textAlign: 'left' }}>Топик</th>
-              <th style={{ padding: '0.5rem', textAlign: 'left' }}>Описание</th>
-              <th style={{ padding: '0.5rem', textAlign: 'left' }}>Пример</th>
+              <th style={{ padding: '0.5rem', textAlign: 'left' }}>{t('solution.level10.category')}</th>
+              <th style={{ padding: '0.5rem', textAlign: 'left' }}>{t('solution.level10.topic')}</th>
+              <th style={{ padding: '0.5rem', textAlign: 'left' }}>{t('solution.level10.description')}</th>
+              <th style={{ padding: '0.5rem', textAlign: 'left' }}>{t('solution.level10.example')}</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((m, i) => (
               <tr key={i} style={{ borderBottom: '1px solid #333' }}>
-                <td style={{ padding: '0.4rem', color: '#888', whiteSpace: 'nowrap' }}>{m.category}</td>
+                <td style={{ padding: '0.4rem', color: '#888', whiteSpace: 'nowrap' }}>{t(m.category)}</td>
                 <td style={{ padding: '0.4rem', fontFamily: 'monospace', color: '#4ec9b0', whiteSpace: 'nowrap' }}>{m.topic}</td>
-                <td style={{ padding: '0.4rem' }}>{m.description}</td>
+                <td style={{ padding: '0.4rem' }}>{t(m.description)}</td>
                 <td style={{ padding: '0.4rem', fontFamily: 'monospace', color: '#ce9178' }}>{m.example}</td>
               </tr>
             ))}
@@ -140,6 +142,7 @@ mosquitto_sub -h localhost -u admin -P pass \\
 type ScriptType = 'basic' | 'alert' | 'periodic'
 
 export function Task10_2_Solution() {
+  const { t } = useLanguage()
   const [scriptType, setScriptType] = useState<ScriptType>('basic')
   const [brokerHost, setBrokerHost] = useState('localhost')
   const [output, setOutput] = useState<string[]>([])
@@ -255,23 +258,23 @@ export function Task10_2_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 10.2: Скрипты мониторинга</h2>
+      <h2>{t('solution.level10.monitoringScriptsTitle')}</h2>
 
       <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>Тип скрипта:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level10.scriptTypeLabel')}:</label>
           <select
             value={scriptType}
             onChange={(e) => setScriptType(e.target.value as ScriptType)}
             style={{ padding: '0.25rem' }}
           >
-            <option value="basic">Базовый (вывод статистики)</option>
-            <option value="alert">Алерты (порог + MQTT уведомление)</option>
-            <option value="periodic">Периодический (CSV-лог)</option>
+            <option value="basic">{t('solution.level10.scriptBasic')}</option>
+            <option value="alert">{t('solution.level10.scriptAlert')}</option>
+            <option value="periodic">{t('solution.level10.scriptPeriodic')}</option>
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>Хост брокера:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level10.brokerHostLabel')}:</label>
           <input
             type="text"
             value={brokerHost}
@@ -281,7 +284,7 @@ export function Task10_2_Solution() {
         </div>
       </div>
 
-      <button onClick={generateScript}>Сгенерировать скрипт</button>
+      <button onClick={generateScript}>{t('solution.level10.generateScript')}</button>
 
       {output.length > 0 && (
         <div style={{ marginTop: '1rem' }}>
@@ -299,6 +302,7 @@ export function Task10_2_Solution() {
 // ============================================
 
 export function Task10_3_Solution() {
+  const { t } = useLanguage()
   const [brokerHost, setBrokerHost] = useState('localhost')
   const [activeSection, setActiveSection] = useState<'install' | 'script' | 'config'>('install')
   const [output, setOutput] = useState<string[]>([])
@@ -383,7 +387,7 @@ export function Task10_3_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 10.3: Интеграция с collectd</h2>
+      <h2>{t('solution.level10.collectdTitle')}</h2>
 
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
         {(['install', 'script', 'config'] as const).map((s) => (
@@ -392,14 +396,14 @@ export function Task10_3_Solution() {
             onClick={() => setActiveSection(s)}
             style={{ fontWeight: activeSection === s ? 'bold' : 'normal' }}
           >
-            {s === 'install' ? 'Установка' : s === 'script' ? 'Скрипт exec' : 'Конфиг collectd'}
+            {s === 'install' ? t('solution.level10.install') : s === 'script' ? t('solution.level10.execScript') : t('solution.level10.collectdConfig')}
           </button>
         ))}
       </div>
 
       {activeSection !== 'install' && (
         <div style={{ marginBottom: '1rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>Хост брокера:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level10.brokerHostLabel')}:</label>
           <input
             type="text"
             value={brokerHost}
@@ -409,7 +413,7 @@ export function Task10_3_Solution() {
         </div>
       )}
 
-      <button onClick={generate}>Показать</button>
+      <button onClick={generate}>{t('solution.level10.show')}</button>
 
       {output.length > 0 && (
         <div style={{ marginTop: '1rem' }}>

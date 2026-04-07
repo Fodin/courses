@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Задание 11.1: Ограничения встраиваемых систем — Решение
@@ -24,7 +25,7 @@ const ROUTER_PROFILES: RouterProfile[] = [
     maxClients: 10,
     maxMsgPerSec: 50,
     heapLimit: '4 MB',
-    notes: 'Только для лёгких сценариев. QoS 0. Нет TLS.',
+    notes: 'solution.level11.notesMinimal',
   },
   {
     name: 'TP-Link Archer C7 (средний)',
@@ -34,7 +35,7 @@ const ROUTER_PROFILES: RouterProfile[] = [
     maxClients: 50,
     maxMsgPerSec: 500,
     heapLimit: '16 MB',
-    notes: 'Хороший баланс. Поддерживает TLS с 20-30 клиентами.',
+    notes: 'solution.level11.notesBalanced',
   },
   {
     name: 'GL.iNet GL-MT3000 (мощный)',
@@ -44,7 +45,7 @@ const ROUTER_PROFILES: RouterProfile[] = [
     maxClients: 200,
     maxMsgPerSec: 5000,
     heapLimit: '64 MB',
-    notes: 'Полноценный брокер. TLS, persistence, bridge — всё работает.',
+    notes: 'solution.level11.notesFull',
   },
   {
     name: 'Raspberry Pi + OpenWRT (мощный)',
@@ -54,11 +55,12 @@ const ROUTER_PROFILES: RouterProfile[] = [
     maxClients: 1000,
     maxMsgPerSec: 50000,
     heapLimit: '512 MB',
-    notes: 'По сути полноценный сервер. Без ограничений.',
+    notes: 'solution.level11.notesPi',
   },
 ]
 
 export function Task11_1_Solution() {
+  const { t } = useLanguage()
   const [selectedProfile, setSelectedProfile] = useState<RouterProfile>(ROUTER_PROFILES[0])
   const [showConfig, setShowConfig] = useState(false)
 
@@ -91,10 +93,10 @@ export function Task11_1_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 11.1: Ограничения встраиваемых систем</h2>
+      <h2>{t('solution.level11.embeddedConstraintsTitle')}</h2>
 
       <div style={{ marginBottom: '1rem' }}>
-        <label style={{ display: 'block', marginBottom: '0.25rem' }}>Профиль роутера:</label>
+        <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level11.routerProfileLabel')}:</label>
         <select
           onChange={(e) => {
             setSelectedProfile(ROUTER_PROFILES[Number(e.target.value)])
@@ -115,9 +117,9 @@ export function Task11_1_Solution() {
               ['RAM', selectedProfile.ram],
               ['Flash', selectedProfile.flash],
               ['CPU', selectedProfile.cpu],
-              ['Макс. клиентов', String(selectedProfile.maxClients)],
-              ['Макс. msg/сек', String(selectedProfile.maxMsgPerSec)],
-              ['Рекомендуемый heap limit', selectedProfile.heapLimit],
+              [t('solution.level11.maxClients'), String(selectedProfile.maxClients)],
+              [t('solution.level11.maxMsgPerSec'), String(selectedProfile.maxMsgPerSec)],
+              [t('solution.level11.heapLimit'), selectedProfile.heapLimit],
             ].map(([k, v]) => (
               <tr key={k}>
                 <td style={{ padding: '0.3rem', color: '#888', width: '40%' }}>{k}:</td>
@@ -127,12 +129,12 @@ export function Task11_1_Solution() {
           </tbody>
         </table>
         <p style={{ marginTop: '0.5rem', color: '#ce9178', fontSize: '0.85rem' }}>
-          {selectedProfile.notes}
+          {t(selectedProfile.notes)}
         </p>
       </div>
 
       <button onClick={() => setShowConfig((v) => !v)}>
-        {showConfig ? 'Скрыть' : 'Показать'} рекомендуемый конфиг
+        {showConfig ? t('solution.level11.hide') : t('solution.level11.show')} {t('solution.level11.recommendedConfig')}
       </button>
 
       {showConfig && (
@@ -157,19 +159,20 @@ interface TuningParam {
 }
 
 const TUNING_PARAMS: TuningParam[] = [
-  { name: 'max_connections', default: '-1 (без лимита)', recommended: '50-100', description: 'Максимум одновременных TCP-соединений', impact: 'memory' },
-  { name: 'message_size_limit', default: '0 (без лимита, макс 268 MB)', recommended: '4096', description: 'Максимальный размер одного сообщения (байт)', impact: 'memory' },
-  { name: 'max_queued_messages', default: '1000', recommended: '100-500', description: 'Сообщений в очереди на клиента (QoS 1/2)', impact: 'memory' },
-  { name: 'max_queued_bytes', default: '0', recommended: '1048576 (1 MB)', description: 'Максимум байт в очередях (Mosquitto 2.x)', impact: 'memory' },
-  { name: 'memory_limit', default: '0', recommended: '32000000 (32 MB)', description: 'Максимум heap для Mosquitto (байт)', impact: 'memory' },
-  { name: 'sys_interval', default: '10', recommended: '30-60', description: 'Интервал публикации $SYS-метрик (секунды)', impact: 'cpu' },
-  { name: 'max_keepalive', default: '65535', recommended: '300', description: 'Максимальный keepalive клиента (секунды)', impact: 'reliability' },
-  { name: 'persistent_client_expiration', default: 'нет', recommended: '1d', description: 'Через сколько удалять неактивные persistent sessions', impact: 'memory' },
-  { name: 'max_inflight_messages', default: '20', recommended: '10', description: 'Параллельных QoS 1/2 сообщений на клиента', impact: 'throughput' },
-  { name: 'log_type', default: 'error warning notice', recommended: 'error warning', description: 'Уровни логирования (меньше = легче)', impact: 'cpu' },
+  { name: 'max_connections', default: '-1 (без лимита)', recommended: '50-100', description: 'solution.level11.tuningMaxConn', impact: 'memory' },
+  { name: 'message_size_limit', default: '0 (без лимита, макс 268 MB)', recommended: '4096', description: 'solution.level11.tuningMsgSize', impact: 'memory' },
+  { name: 'max_queued_messages', default: '1000', recommended: '100-500', description: 'solution.level11.tuningQueuedMsgs', impact: 'memory' },
+  { name: 'max_queued_bytes', default: '0', recommended: '1048576 (1 MB)', description: 'solution.level11.tuningQueuedBytes', impact: 'memory' },
+  { name: 'memory_limit', default: '0', recommended: '32000000 (32 MB)', description: 'solution.level11.tuningMemoryLimit', impact: 'memory' },
+  { name: 'sys_interval', default: '10', recommended: '30-60', description: 'solution.level11.tuningSysInterval', impact: 'cpu' },
+  { name: 'max_keepalive', default: '65535', recommended: '300', description: 'solution.level11.tuningMaxKeepalive', impact: 'reliability' },
+  { name: 'persistent_client_expiration', default: 'нет', recommended: '1d', description: 'solution.level11.tuningPersistExpiration', impact: 'memory' },
+  { name: 'max_inflight_messages', default: '20', recommended: '10', description: 'solution.level11.tuningInflight', impact: 'throughput' },
+  { name: 'log_type', default: 'error warning notice', recommended: 'error warning', description: 'solution.level11.tuningLogType', impact: 'cpu' },
 ]
 
 export function Task11_2_Solution() {
+  const { t } = useLanguage()
   const [ram, setRam] = useState(64)
   const [output, setOutput] = useState<string[]>([])
 
@@ -215,11 +218,11 @@ export function Task11_2_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 11.2: Тюнинг Mosquitto</h2>
+      <h2>{t('solution.level11.tuningTitle')}</h2>
 
       <div style={{ marginBottom: '1rem' }}>
         <label style={{ display: 'block', marginBottom: '0.25rem' }}>
-          RAM роутера: <strong>{ram} MB</strong>
+          {t('solution.level11.routerRam')}: <strong>{ram} MB</strong>
         </label>
         <input
           type="range"
@@ -236,7 +239,7 @@ export function Task11_2_Solution() {
       </div>
 
       <button onClick={generateTuning} style={{ marginBottom: '1rem' }}>
-        Сгенерировать тюнинг
+        {t('solution.level11.generateTuning')}
       </button>
 
       {output.length > 0 && (
@@ -245,16 +248,16 @@ export function Task11_2_Solution() {
         </pre>
       )}
 
-      <h3 style={{ marginTop: '1rem' }}>Справочник параметров</h3>
+      <h3 style={{ marginTop: '1rem' }}>{t('solution.level11.paramsReference')}</h3>
       <div style={{ overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
           <thead>
             <tr style={{ borderBottom: '2px solid #444' }}>
-              <th style={{ padding: '0.4rem', textAlign: 'left' }}>Параметр</th>
-              <th style={{ padding: '0.4rem', textAlign: 'left' }}>По умолчанию</th>
-              <th style={{ padding: '0.4rem', textAlign: 'left' }}>Рекомендуется</th>
-              <th style={{ padding: '0.4rem', textAlign: 'left' }}>Описание</th>
-              <th style={{ padding: '0.4rem', textAlign: 'left' }}>Влияет на</th>
+              <th style={{ padding: '0.4rem', textAlign: 'left' }}>{t('solution.level11.param')}</th>
+              <th style={{ padding: '0.4rem', textAlign: 'left' }}>{t('solution.level11.defaultValue')}</th>
+              <th style={{ padding: '0.4rem', textAlign: 'left' }}>{t('solution.level11.recommended')}</th>
+              <th style={{ padding: '0.4rem', textAlign: 'left' }}>{t('solution.level11.description')}</th>
+              <th style={{ padding: '0.4rem', textAlign: 'left' }}>{t('solution.level11.affects')}</th>
             </tr>
           </thead>
           <tbody>
@@ -263,7 +266,7 @@ export function Task11_2_Solution() {
                 <td style={{ padding: '0.35rem', fontFamily: 'monospace', color: '#4ec9b0', whiteSpace: 'nowrap' }}>{p.name}</td>
                 <td style={{ padding: '0.35rem', fontFamily: 'monospace', color: '#888', whiteSpace: 'nowrap' }}>{p.default}</td>
                 <td style={{ padding: '0.35rem', fontFamily: 'monospace', color: '#ce9178', whiteSpace: 'nowrap' }}>{p.recommended}</td>
-                <td style={{ padding: '0.35rem' }}>{p.description}</td>
+                <td style={{ padding: '0.35rem' }}>{t(p.description)}</td>
                 <td style={{ padding: '0.35rem', color: impactColor(p.impact), whiteSpace: 'nowrap' }}>{p.impact}</td>
               </tr>
             ))}
@@ -282,6 +285,7 @@ type SessionMode = 'clean' | 'persistent'
 type KeepAliveScenario = 'iot' | 'dashboard' | 'mobile'
 
 export function Task11_3_Solution() {
+  const { t } = useLanguage()
   const [sessionMode, setSessionMode] = useState<SessionMode>('clean')
   const [scenario, setScenario] = useState<KeepAliveScenario>('iot')
   const [output, setOutput] = useState<string[]>([])
@@ -348,11 +352,11 @@ export function Task11_3_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 11.3: Управление соединениями</h2>
+      <h2>{t('solution.level11.connManagementTitle')}</h2>
 
       <div style={{ marginBottom: '1rem', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem' }}>Тип сессии:</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t('solution.level11.sessionTypeLabel')}:</label>
           <label style={{ display: 'block', marginBottom: '0.25rem' }}>
             <input type="radio" value="clean" checked={sessionMode === 'clean'}
               onChange={() => setSessionMode('clean')} />{' '}
@@ -366,26 +370,26 @@ export function Task11_3_Solution() {
         </div>
 
         <div>
-          <label style={{ display: 'block', marginBottom: '0.5rem' }}>Сценарий клиента:</label>
+          <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t('solution.level11.clientScenarioLabel')}:</label>
           <label style={{ display: 'block', marginBottom: '0.25rem' }}>
             <input type="radio" value="iot" checked={scenario === 'iot'}
               onChange={() => setScenario('iot')} />{' '}
-            IoT-датчик (редкие подключения)
+            {t('solution.level11.iotSensor')}
           </label>
           <label style={{ display: 'block', marginBottom: '0.25rem' }}>
             <input type="radio" value="dashboard" checked={scenario === 'dashboard'}
               onChange={() => setScenario('dashboard')} />{' '}
-            Дашборд (постоянно онлайн)
+            {t('solution.level11.dashboardOnline')}
           </label>
           <label>
             <input type="radio" value="mobile" checked={scenario === 'mobile'}
               onChange={() => setScenario('mobile')} />{' '}
-            Мобильное приложение
+            {t('solution.level11.mobileApp')}
           </label>
         </div>
       </div>
 
-      <button onClick={generateConfig}>Сгенерировать конфиг</button>
+      <button onClick={generateConfig}>{t('solution.level11.generateConfig')}</button>
 
       {output.length > 0 && (
         <pre style={{ background: '#1e1e1e', color: '#d4d4d4', padding: '1rem', borderRadius: '4px', overflowX: 'auto', fontSize: '0.85rem', marginTop: '1rem' }}>

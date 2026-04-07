@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Задание 8.1: Концепция Bridge — Решение
@@ -15,42 +16,43 @@ interface BridgeScenario {
 const bridgeScenarios: BridgeScenario[] = [
   {
     id: 'local-cloud',
-    title: 'Локальная сеть → Облако',
+    title: 'solution.level8.localCloudTitle',
     description:
-      'Локальный брокер на OpenWRT собирает данные с IoT-устройств. Bridge пересылает нужные топики в облачный MQTT (AWS IoT, HiveMQ Cloud). Устройства не знают об облаке — они работают с локальным брокером.',
+      'solution.level8.localCloudDesc',
     diagram: `Датчики ──► Mosquitto (OpenWRT) ──Bridge──► AWS IoT / HiveMQ Cloud
              локальная сеть               интернет`,
-    useCases: ['Мониторинг умного дома через облачное приложение', 'Сбор телеметрии с удалённых объектов', 'Резервирование: облако как fallback'],
+    useCases: ['solution.level8.localCloudUseCase1', 'solution.level8.localCloudUseCase2', 'solution.level8.localCloudUseCase3'],
   },
   {
     id: 'two-sites',
-    title: 'Два офиса / объекта',
+    title: 'solution.level8.twoSitesTitle',
     description:
-      'Два брокера на разных площадках связаны мостом. Каждый имеет локальных клиентов, но нужные данные автоматически реплицируются между площадками.',
+      'solution.level8.twoSitesDesc',
     diagram: `Офис А: Mosquitto ◄──Bridge──► Mosquitto: Офис Б
                датчики А          VPN/интернет          датчики Б`,
-    useCases: ['Синхронизация состояния между офисами', 'Централизованный мониторинг нескольких объектов', 'Масштабирование: разгрузка центрального брокера'],
+    useCases: ['solution.level8.twoSitesUseCase1', 'solution.level8.twoSitesUseCase2', 'solution.level8.twoSitesUseCase3'],
   },
   {
     id: 'hierarchy',
-    title: 'Иерархическая архитектура',
+    title: 'solution.level8.hierarchyTitle',
     description:
-      'Несколько локальных брокеров (edge) пересылают данные на центральный брокер (hub). Классическая архитектура для промышленного IoT.',
+      'solution.level8.hierarchyDesc',
     diagram: `Объект 1: Mosquitto ──►
 Объект 2: Mosquitto ──► Центральный Mosquitto ──► Dashboard / SCADA
 Объект 3: Mosquitto ──►`,
-    useCases: ['Промышленные SCADA-системы', 'Городские IoT-сети', 'Мониторинг распределённой инфраструктуры'],
+    useCases: ['solution.level8.hierarchyUseCase1', 'solution.level8.hierarchyUseCase2', 'solution.level8.hierarchyUseCase3'],
   },
 ]
 
 export function Task8_1_Solution() {
+  const { t } = useLanguage()
   const [selected, setSelected] = useState<string>('local-cloud')
 
   const scenario = bridgeScenarios.find((s) => s.id === selected)!
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif' }}>
-      <h2>Концепция MQTT Bridge</h2>
+      <h2>{t('solution.level8.bridgeHeading')}</h2>
 
       <div
         style={{
@@ -62,9 +64,7 @@ export function Task8_1_Solution() {
           lineHeight: 1.6,
         }}
       >
-        <strong>Bridge (мост)</strong> — это механизм Mosquitto, позволяющий двум брокерам обмениваться
-        сообщениями. Один брокер выступает клиентом для другого: подключается к нему и публикует / получает
-        сообщения от своего имени. Клиенты каждого брокера не знают, что данные пришли с другого сервера.
+        <strong>{t('solution.level8.bridgeTerm')}</strong>{t('solution.level8.bridgeExplain')}
       </div>
 
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
@@ -84,14 +84,14 @@ export function Task8_1_Solution() {
               fontSize: '0.87rem',
             }}
           >
-            {s.title}
+            {t(s.title)}
           </button>
         ))}
       </div>
 
       <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
         <div style={{ flex: '1', minWidth: '260px' }}>
-          <h3 style={{ margin: '0 0 0.5rem' }}>Схема</h3>
+          <h3 style={{ margin: '0 0 0.5rem' }}>{t('solution.level8.diagramHeading')}</h3>
           <pre
             style={{
               background: '#263238',
@@ -107,16 +107,16 @@ export function Task8_1_Solution() {
           </pre>
 
           <p style={{ margin: '1rem 0 0.5rem', lineHeight: 1.6, color: '#333' }}>
-            {scenario.description}
+            {t(scenario.description)}
           </p>
         </div>
 
         <div style={{ flex: '1', minWidth: '220px' }}>
-          <h3 style={{ margin: '0 0 0.5rem' }}>Сценарии использования</h3>
+          <h3 style={{ margin: '0 0 0.5rem' }}>{t('solution.level8.useCasesHeading')}</h3>
           <ul style={{ paddingLeft: '1.2rem', margin: 0 }}>
             {scenario.useCases.map((u, i) => (
               <li key={i} style={{ marginBottom: '0.6rem', lineHeight: 1.5 }}>
-                {u}
+                {t(u)}
               </li>
             ))}
           </ul>
@@ -130,11 +130,9 @@ export function Task8_1_Solution() {
               border: '1px solid #e0e0e0',
             }}
           >
-            <h4 style={{ margin: '0 0 0.5rem' }}>Как работает под капотом</h4>
+            <h4 style={{ margin: '0 0 0.5rem' }}>{t('solution.level8.howItWorksHeading')}</h4>
             <p style={{ margin: 0, fontSize: '0.88rem', lineHeight: 1.6 }}>
-              Mosquitto-мост создаёт MQTT-соединение к удалённому брокеру — он ведёт себя как
-              обычный MQTT-клиент. Разница лишь в том, что этот клиент управляется брокером:
-              он автоматически подписывается на нужные топики и пересылает сообщения в обе стороны.
+              {t('solution.level8.howItWorksDesc')}
             </p>
           </div>
         </div>
@@ -155,17 +153,18 @@ interface BridgeParam {
 }
 
 const bridgeParams: BridgeParam[] = [
-  { key: 'connection', value: 'bridge-to-cloud', required: true, description: 'Уникальное имя соединения. Используется в логах и для идентификации нескольких мостов.' },
-  { key: 'address', value: 'mqtt.example.com:1883', required: true, description: 'Адрес и порт удалённого брокера. Для TLS используйте порт 8883.' },
-  { key: 'topic', value: 'sensors/# out 0', required: true, description: 'Топик(и) для пересылки. Формат: <паттерн> <направление> <QoS> [локальный_префикс] [удалённый_префикс]' },
-  { key: 'remote_username', value: 'bridge_user', required: false, description: 'Имя пользователя для аутентификации на удалённом брокере.' },
-  { key: 'remote_password', value: 'strong_password', required: false, description: 'Пароль для удалённого брокера.' },
-  { key: 'bridge_cafile', value: '/etc/mosquitto/certs/ca.crt', required: false, description: 'CA сертификат для TLS-подключения к удалённому брокеру.' },
-  { key: 'keepalive_interval', value: '60', required: false, description: 'Keep-alive интервал в секундах. Брокер отправляет PINGREQ каждые N секунд.' },
-  { key: 'start_type', value: 'automatic', required: false, description: 'automatic — соединение поддерживается всегда. lazy — только когда есть сообщения. once — одноразовое подключение.' },
+  { key: 'connection', value: 'bridge-to-cloud', required: true, description: 'solution.level8.paramConnDesc' },
+  { key: 'address', value: 'mqtt.example.com:1883', required: true, description: 'solution.level8.paramAddrDesc' },
+  { key: 'topic', value: 'sensors/# out 0', required: true, description: 'solution.level8.paramTopicDesc' },
+  { key: 'remote_username', value: 'bridge_user', required: false, description: 'solution.level8.paramUserDesc' },
+  { key: 'remote_password', value: 'strong_password', required: false, description: 'solution.level8.paramPassDesc' },
+  { key: 'bridge_cafile', value: '/etc/mosquitto/certs/ca.crt', required: false, description: 'solution.level8.paramCaDesc' },
+  { key: 'keepalive_interval', value: '60', required: false, description: 'solution.level8.paramKeepaliveDesc' },
+  { key: 'start_type', value: 'automatic', required: false, description: 'solution.level8.paramStartDesc' },
 ]
 
 export function Task8_2_Solution() {
+  const { t } = useLanguage()
   const [showOptional, setShowOptional] = useState(false)
   const [selectedParam, setSelectedParam] = useState<string | null>(null)
   const [remoteAddr, setRemoteAddr] = useState('mqtt.example.com:1883')
@@ -173,7 +172,7 @@ export function Task8_2_Solution() {
 
   const displayed = showOptional ? bridgeParams : bridgeParams.filter((p) => p.required)
 
-  const configText = `# Мост настраивается как отдельная секция в mosquitto.conf
+  const configText = `# ${t('solution.level8.bridgeConfigComment')}
 
 connection ${connName}
 address ${remoteAddr}
@@ -191,12 +190,12 @@ start_type automatic`
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif' }}>
-      <h2>Настройка моста в Mosquitto</h2>
+      <h2>{t('solution.level8.bridgeConfigTitle')}</h2>
 
       <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
         <div style={{ flex: '1', minWidth: '260px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
-            <h3 style={{ margin: 0 }}>Параметры</h3>
+            <h3 style={{ margin: 0 }}>{t('solution.level8.paramsHeading')}</h3>
             <label style={{ fontSize: '0.85rem', cursor: 'pointer' }}>
               <input
                 type="checkbox"
@@ -204,7 +203,7 @@ start_type automatic`
                 onChange={(e) => setShowOptional(e.target.checked)}
                 style={{ marginRight: '0.3rem' }}
               />
-              Показать все
+              {t('solution.level8.showAll')}
             </label>
           </div>
 
@@ -225,14 +224,14 @@ start_type automatic`
                   <code style={{ color: '#1976d2', fontSize: '0.85rem' }}>{p.key}</code>
                   {p.required && (
                     <span style={{ fontSize: '0.7rem', background: '#4caf50', color: '#fff', padding: '0.1rem 0.4rem', borderRadius: '3px' }}>
-                      обязательно
+                      {t('solution.level8.required')}
                     </span>
                   )}
                 </div>
                 <code style={{ fontSize: '0.82rem', color: '#555' }}>{p.value}</code>
                 {selectedParam === p.key && (
                   <div style={{ marginTop: '0.5rem', fontSize: '0.82rem', color: '#333', lineHeight: 1.5, borderTop: '1px solid #e0e0e0', paddingTop: '0.5rem' }}>
-                    {p.description}
+                    {t(p.description)}
                   </div>
                 )}
               </div>
@@ -243,7 +242,7 @@ start_type automatic`
         <div style={{ flex: '1', minWidth: '260px' }}>
           <div style={{ marginBottom: '0.75rem' }}>
             <label style={{ fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>
-              Имя соединения:
+              {t('solution.level8.connNameLabel')}:
             </label>
             <input
               value={connName}
@@ -253,7 +252,7 @@ start_type automatic`
           </div>
           <div style={{ marginBottom: '0.75rem' }}>
             <label style={{ fontSize: '0.85rem', display: 'block', marginBottom: '0.25rem' }}>
-              Адрес удалённого брокера:
+              {t('solution.level8.remoteBrokerLabel')}:
             </label>
             <input
               value={remoteAddr}
@@ -297,9 +296,9 @@ interface TopicRule {
 }
 
 const topicDirections = {
-  out: { label: 'out →', color: '#1976d2', desc: 'Локальные топики пересылаются на удалённый брокер' },
-  in: { label: '← in', color: '#388e3c', desc: 'Топики с удалённого брокера получаются локально' },
-  both: { label: '⇄ both', color: '#f57c00', desc: 'Двунаправленная синхронизация топика' },
+  out: { label: 'out →', color: '#1976d2', desc: 'solution.level8.dirOutDesc' },
+  in: { label: '← in', color: '#388e3c', desc: 'solution.level8.dirInDesc' },
+  both: { label: '⇄ both', color: '#f57c00', desc: 'solution.level8.dirBothDesc' },
 }
 
 const topicRules: TopicRule[] = [
@@ -309,7 +308,7 @@ const topicRules: TopicRule[] = [
     qos: 0,
     localPrefix: '',
     remotePrefix: 'home/',
-    description: 'Все данные датчиков пересылаются в облако с добавлением префикса "home/"',
+    description: 'solution.level8.ruleSensorsDesc',
     example: 'sensors/temp → home/sensors/temp',
   },
   {
@@ -318,7 +317,7 @@ const topicRules: TopicRule[] = [
     qos: 1,
     localPrefix: '',
     remotePrefix: '',
-    description: 'Команды из облака получаются локально на тех же топиках',
+    description: 'solution.level8.ruleCommandsDesc',
     example: 'commands/light → commands/light (QoS 1 гарантирует доставку)',
   },
   {
@@ -327,7 +326,7 @@ const topicRules: TopicRule[] = [
     qos: 2,
     localPrefix: 'local/',
     remotePrefix: 'remote/',
-    description: 'Двунаправленная синхронизация статуса с маппингом префиксов',
+    description: 'solution.level8.ruleStatusDesc',
     example: 'local/status ⇄ remote/status',
   },
   {
@@ -336,12 +335,13 @@ const topicRules: TopicRule[] = [
     qos: 2,
     localPrefix: '',
     remotePrefix: '',
-    description: 'Критические оповещения с гарантией доставки exactly-once',
+    description: 'solution.level8.ruleAlertsDesc',
     example: 'alerts/fire → alerts/fire (QoS 2)',
   },
 ]
 
 export function Task8_3_Solution() {
+  const { t } = useLanguage()
   const [selectedRule, setSelectedRule] = useState<number | null>(null)
   const [customPattern, setCustomPattern] = useState('sensors/#')
   const [customDir, setCustomDir] = useState<'in' | 'out' | 'both'>('out')
@@ -354,7 +354,7 @@ export function Task8_3_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif' }}>
-      <h2>Фильтрация топиков в MQTT Bridge</h2>
+      <h2>{t('solution.level8.topicFilterTitle')}</h2>
 
       <div
         style={{
@@ -366,7 +366,7 @@ export function Task8_3_Solution() {
           lineHeight: 1.6,
         }}
       >
-        <strong>Формат строки topic:</strong>
+        <strong>{t('solution.level8.topicFormatLabel')}</strong>
         <code
           style={{
             display: 'block',
@@ -378,13 +378,13 @@ export function Task8_3_Solution() {
             fontSize: '0.85rem',
           }}
         >
-          topic &lt;паттерн&gt; &lt;направление&gt; &lt;QoS&gt; [локальный_префикс] [удалённый_префикс]
+          topic &lt;{t('solution.level8.pattern')}&gt; &lt;{t('solution.level8.direction')}&gt; &lt;QoS&gt; [{t('solution.level8.localPrefix')}] [{t('solution.level8.remotePrefix')}]
         </code>
       </div>
 
       <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
         <div style={{ flex: '1', minWidth: '260px' }}>
-          <h3 style={{ margin: '0 0 0.75rem' }}>Примеры правил (кликните для деталей)</h3>
+          <h3 style={{ margin: '0 0 0.75rem' }}>{t('solution.level8.ruleExamplesHeading')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {topicRules.map((rule, i) => {
               const dir = topicDirections[rule.direction]
@@ -432,10 +432,10 @@ export function Task8_3_Solution() {
                   {selectedRule === i && (
                     <div style={{ marginTop: '0.5rem', borderTop: '1px solid #e0e0e0', paddingTop: '0.5rem' }}>
                       <p style={{ margin: '0 0 0.25rem', fontSize: '0.83rem', color: '#333' }}>
-                        {rule.description}
+                        {t(rule.description)}
                       </p>
                       <div style={{ fontSize: '0.82rem', color: '#666', fontStyle: 'italic' }}>
-                        Пример: {rule.example}
+                        {t('solution.level8.example')}: {rule.example}
                       </div>
                     </div>
                   )}
@@ -446,10 +446,10 @@ export function Task8_3_Solution() {
         </div>
 
         <div style={{ flex: '1', minWidth: '240px' }}>
-          <h3 style={{ margin: '0 0 0.75rem' }}>Конструктор правила</h3>
+          <h3 style={{ margin: '0 0 0.75rem' }}>{t('solution.level8.ruleBuilderHeading')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '0.75rem' }}>
             <label style={{ fontSize: '0.85rem' }}>
-              Паттерн:
+              {t('solution.level8.pattern')}:
               <input
                 value={customPattern}
                 onChange={(e) => setCustomPattern(e.target.value)}
@@ -457,15 +457,15 @@ export function Task8_3_Solution() {
               />
             </label>
             <label style={{ fontSize: '0.85rem' }}>
-              Направление:
+              {t('solution.level8.direction')}:
               <select
                 value={customDir}
                 onChange={(e) => setCustomDir(e.target.value as 'in' | 'out' | 'both')}
                 style={{ display: 'block', width: '100%', padding: '0.35rem 0.5rem', border: '1px solid #ddd', borderRadius: '4px', marginTop: '0.2rem', fontSize: '0.87rem' }}
               >
-                <option value="out">out → (отправлять в облако)</option>
-                <option value="in">← in (получать из облака)</option>
-                <option value="both">⇄ both (в обе стороны)</option>
+                <option value="out">{t('solution.level8.dirOutOption')}</option>
+                <option value="in">{t('solution.level8.dirInOption')}</option>
+                <option value="both">{t('solution.level8.dirBothOption')}</option>
               </select>
             </label>
             <label style={{ fontSize: '0.85rem' }}>
@@ -475,15 +475,15 @@ export function Task8_3_Solution() {
                 onChange={(e) => setCustomQos(Number(e.target.value) as 0 | 1 | 2)}
                 style={{ display: 'block', width: '100%', padding: '0.35rem 0.5rem', border: '1px solid #ddd', borderRadius: '4px', marginTop: '0.2rem', fontSize: '0.87rem' }}
               >
-                <option value={0}>QoS 0 — без гарантий (быстро)</option>
-                <option value={1}>QoS 1 — хотя бы один раз</option>
-                <option value={2}>QoS 2 — ровно один раз (медленно)</option>
+                <option value={0}>{t('solution.level8.qos0Option')}</option>
+                <option value={1}>{t('solution.level8.qos1Option')}</option>
+                <option value={2}>{t('solution.level8.qos2Option')}</option>
               </select>
             </label>
           </div>
 
           <div style={{ fontSize: '0.83rem', color: '#555', marginBottom: '0.5rem' }}>
-            Сгенерированная строка конфига:
+            {t('solution.level8.generatedConfigLine')}:
           </div>
           <pre
             style={{
@@ -507,7 +507,7 @@ export function Task8_3_Solution() {
               lineHeight: 1.6,
             }}
           >
-            <strong>{topicDirections[customDir].label}</strong> — {topicDirections[customDir].desc}
+            <strong>{topicDirections[customDir].label}</strong> — {t(topicDirections[customDir].desc)}
           </div>
         </div>
       </div>

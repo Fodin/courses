@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Задание 12.1: Firewall правила — Решение
@@ -8,6 +9,7 @@ type FirewallTool = 'uci' | 'iptables' | 'nftables'
 type AccessZone = 'lan-only' | 'wan-allow' | 'vpn-only'
 
 export function Task12_1_Solution() {
+  const { t } = useLanguage()
   const [tool, setTool] = useState<FirewallTool>('uci')
   const [zone, setZone] = useState<AccessZone>('lan-only')
   const [mqttPort, setMqttPort] = useState('1883')
@@ -131,11 +133,11 @@ export function Task12_1_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 12.1: Firewall правила для MQTT</h2>
+      <h2>{t('solution.level12.firewallTitle')}</h2>
 
       <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>Инструмент:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level12.toolLabel')}</label>
           <select
             value={tool}
             onChange={(e) => setTool(e.target.value as FirewallTool)}
@@ -147,19 +149,19 @@ export function Task12_1_Solution() {
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>Зона доступа:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level12.zoneLabel')}</label>
           <select
             value={zone}
             onChange={(e) => setZone(e.target.value as AccessZone)}
             style={{ padding: '0.25rem' }}
           >
-            <option value="lan-only">Только LAN (рекомендуется)</option>
-            <option value="wan-allow">Разрешить из WAN</option>
-            <option value="vpn-only">Только VPN</option>
+            <option value="lan-only">{t('solution.level12.zoneLanOnly')}</option>
+            <option value="wan-allow">{t('solution.level12.zoneWanAllow')}</option>
+            <option value="vpn-only">{t('solution.level12.zoneVpnOnly')}</option>
           </select>
         </div>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>MQTT порт:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level12.mqttPortLabel')}</label>
           <input
             type="number"
             value={mqttPort}
@@ -168,7 +170,7 @@ export function Task12_1_Solution() {
           />
         </div>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>WS порт:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level12.wsPortLabel')}</label>
           <input
             type="number"
             value={wsPort}
@@ -178,13 +180,13 @@ export function Task12_1_Solution() {
         </div>
       </div>
 
-      <button onClick={generateFirewall}>Сгенерировать правила</button>
+      <button onClick={generateFirewall}>{t('solution.level12.generateBtn')}</button>
 
       {output.length > 0 && (
         <div style={{ marginTop: '1rem' }}>
           {zone === 'wan-allow' && (
             <div style={{ background: '#4a1a1a', border: '1px solid #ff4444', padding: '0.5rem', borderRadius: '4px', marginBottom: '0.5rem', fontSize: '0.85rem' }}>
-              Открытие MQTT в интернет небезопасно без TLS и строгой аутентификации!
+              {t('solution.level12.wanWarning')}
             </div>
           )}
           <pre style={{ background: '#1e1e1e', color: '#d4d4d4', padding: '1rem', borderRadius: '4px', overflowX: 'auto', fontSize: '0.85rem' }}>
@@ -201,6 +203,7 @@ export function Task12_1_Solution() {
 // ============================================
 
 export function Task12_2_Solution() {
+  const { t } = useLanguage()
   const [activeSection, setActiveSection] = useState<'mosquitto' | 'iptables' | 'fail2ban'>('mosquitto')
   const [output, setOutput] = useState<string[]>([])
 
@@ -295,7 +298,7 @@ export function Task12_2_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 12.2: Rate limiting и защита</h2>
+      <h2>{t('solution.level12.rateLimitTitle')}</h2>
 
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
         {(['mosquitto', 'iptables', 'fail2ban'] as const).map((s) => (
@@ -304,12 +307,12 @@ export function Task12_2_Solution() {
             onClick={() => setActiveSection(s)}
             style={{ fontWeight: activeSection === s ? 'bold' : 'normal' }}
           >
-            {s === 'mosquitto' ? 'Mosquitto' : s === 'iptables' ? 'iptables' : 'fail2ban'}
+            {s === 'mosquitto' ? t('solution.level12.mosquitto') : s === 'iptables' ? 'iptables' : 'fail2ban'}
           </button>
         ))}
       </div>
 
-      <button onClick={generate}>Показать</button>
+      <button onClick={generate}>{t('solution.level12.showBtn')}</button>
 
       {output.length > 0 && (
         <div style={{ marginTop: '1rem' }}>
@@ -359,8 +362,9 @@ const CHECKLIST: ChecklistItem[] = [
 ]
 
 export function Task12_3_Solution() {
+  const { t } = useLanguage()
   const [checked, setChecked] = useState<Set<string>>(new Set())
-  const [filterSeverity, setFilterSeverity] = useState<string>('Все')
+  const [filterSeverity, setFilterSeverity] = useState<string>('all')
   const [showConfig, setShowConfig] = useState<string | null>(null)
 
   const toggleCheck = (id: string) => {
@@ -372,9 +376,9 @@ export function Task12_3_Solution() {
     })
   }
 
-  const severities = ['Все', 'critical', 'high', 'medium', 'low']
+  const severities = ['all', 'critical', 'high', 'medium', 'low']
   const filtered = CHECKLIST.filter(
-    (item) => filterSeverity === 'Все' || item.severity === filterSeverity
+    (item) => filterSeverity === 'all' || item.severity === filterSeverity
   )
 
   const totalChecked = CHECKLIST.filter((item) => checked.has(item.id)).length
@@ -388,23 +392,23 @@ export function Task12_3_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 12.3: Чеклист безопасности MQTT</h2>
+      <h2>{t('solution.level12.checklistTitle')}</h2>
 
       <div style={{ background: '#2d2d2d', padding: '0.75rem', borderRadius: '4px', marginBottom: '1rem', display: 'flex', gap: '2rem' }}>
         <div>
-          <span style={{ color: '#888' }}>Выполнено: </span>
+          <span style={{ color: '#888' }}>{t('solution.level12.completed')}: </span>
           <strong style={{ color: totalChecked === CHECKLIST.length ? '#44bb44' : '#fff' }}>
             {totalChecked}/{CHECKLIST.length}
           </strong>
         </div>
         <div>
-          <span style={{ color: '#888' }}>Критических: </span>
+          <span style={{ color: '#888' }}>{t('solution.level12.critical')}: </span>
           <strong style={{ color: criticalChecked === totalCritical ? '#44bb44' : '#ff4444' }}>
             {criticalChecked}/{totalCritical}
           </strong>
         </div>
         <div>
-          <span style={{ color: '#888' }}>Оценка: </span>
+          <span style={{ color: '#888' }}>{t('solution.level12.assessment')}: </span>
           <strong style={{ color: totalChecked / CHECKLIST.length >= 0.8 ? '#44bb44' : '#ff8800' }}>
             {Math.round((totalChecked / CHECKLIST.length) * 100)}%
           </strong>
@@ -418,16 +422,16 @@ export function Task12_3_Solution() {
             onClick={() => setFilterSeverity(s)}
             style={{
               fontWeight: filterSeverity === s ? 'bold' : 'normal',
-              color: s !== 'Все' ? severityColor(s as ChecklistItem['severity']) : undefined,
+              color: s !== 'all' ? severityColor(s as ChecklistItem['severity']) : undefined,
             }}
           >
-            {s}
+            {s === 'all' ? t('solution.level12.all') : s}
           </button>
         ))}
       </div>
 
       <div>
-        {['Аутентификация', 'Шифрование', 'Сеть', 'Ресурсы', 'Мониторинг'].map((cat) => {
+        {[t('solution.level12.catAuth'), t('solution.level12.catTls'), t('solution.level12.catNet'), t('solution.level12.catRes'), t('solution.level12.catMon')].map((cat) => {
           const items = filtered.filter((item) => item.category === cat)
           if (items.length === 0) return null
           return (
@@ -459,7 +463,7 @@ export function Task12_3_Solution() {
                         }}
                         style={{ fontSize: '0.75rem', padding: '0.1rem 0.4rem' }}
                       >
-                        config
+                        {t('solution.level12.configBtn')}
                       </button>
                     )}
                   </label>

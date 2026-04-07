@@ -3,6 +3,7 @@
 // ============================================
 
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Task 0.1: MQTT Protocol and pub/sub model
@@ -97,6 +98,7 @@ const exampleMessages: Message[] = [
 ]
 
 export function Task0_1_Solution() {
+  const { t } = useLanguage()
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null)
   const [activeNode, setActiveNode] = useState<string | null>(null)
   const [log, setLog] = useState<string[]>([])
@@ -131,10 +133,9 @@ export function Task0_1_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '900px' }}>
-      <h2 style={{ marginBottom: '0.5rem' }}>Протокол MQTT и модель pub/sub</h2>
+      <h2 style={{ marginBottom: '0.5rem' }}>{t('solution.level0.protocolTitle')}</h2>
       <p style={{ color: '#555', marginBottom: '1.5rem' }}>
-        MQTT — это брокерный протокол. Отправители (publishers) не знают о получателях
-        (subscribers). Все сообщения проходят через центральный узел — брокер.
+        {t('solution.level0.protocolDesc')}
       </p>
 
       {/* Architecture diagram */}
@@ -236,7 +237,7 @@ export function Task0_1_Solution() {
 
       {/* Simulate message publishing */}
       <div style={{ marginBottom: '1.5rem' }}>
-        <h3 style={{ marginBottom: '0.75rem' }}>Симуляция публикации</h3>
+        <h3 style={{ marginBottom: '0.75rem' }}>{t('solution.level0.simulatePublish')}</h3>
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           {exampleMessages.map(msg => (
             <button
@@ -268,20 +269,20 @@ export function Task0_1_Solution() {
             }}
           >
             <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>
-              Опубликованное сообщение:
+              {t('solution.level0.publishedMessage')}
             </div>
             <div style={{ fontFamily: 'monospace', fontSize: '0.85rem' }}>
               <div>
-                <b>Topic:</b> {selectedMessage.topic}
+                <b>{t('solution.level0.topic')}:</b> {selectedMessage.topic}
               </div>
               <div>
-                <b>Payload:</b> {selectedMessage.payload}
+                <b>{t('solution.level0.payload')}:</b> {selectedMessage.payload}
               </div>
               <div>
                 <b>QoS:</b> {selectedMessage.qos}
               </div>
               <div>
-                <b>Получатели:</b> {selectedMessage.to.join(', ')}
+                <b>{t('solution.level0.recipients')}:</b> {selectedMessage.to.join(', ')}
               </div>
             </div>
           </div>
@@ -299,7 +300,7 @@ export function Task0_1_Solution() {
               marginBottom: '0.5rem',
             }}
           >
-            <h3 style={{ margin: 0 }}>Лог событий</h3>
+            <h3 style={{ margin: 0 }}>{t('solution.level0.eventLog')}</h3>
             <button
               onClick={() => setLog([])}
               style={{
@@ -311,7 +312,7 @@ export function Task0_1_Solution() {
                 fontSize: '0.8rem',
               }}
             >
-              Очистить
+              {t('solution.level0.clear')}
             </button>
           </div>
           <div
@@ -433,6 +434,7 @@ function renderTopicNode(
 }
 
 export function Task0_2_Solution() {
+  const { t } = useLanguage()
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
   const [subscribeInput, setSubscribeInput] = useState('home/sensor/+')
   const [matchedTopics, setMatchedTopics] = useState<string[]>([])
@@ -464,12 +466,12 @@ export function Task0_2_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '900px' }}>
-      <h2 style={{ marginBottom: '0.5rem' }}>Архитектура MQTT: брокер, клиенты, топики</h2>
+      <h2 style={{ marginBottom: '0.5rem' }}>{t('solution.level0.architectureTitle')}</h2>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
         {/* Topic tree */}
         <div>
-          <h3 style={{ marginBottom: '0.75rem' }}>Дерево топиков</h3>
+          <h3 style={{ marginBottom: '0.75rem' }}>{t('solution.level0.topicTree')}</h3>
           <div
             style={{
               border: '1px solid #ddd',
@@ -491,14 +493,14 @@ export function Task0_2_Solution() {
                 fontSize: '0.85rem',
               }}
             >
-              <b>Выбран топик:</b> {selectedTopic}
+              <b>{t('solution.level0.selectedTopic')}:</b> {selectedTopic}
             </div>
           )}
         </div>
 
         {/* Connection info */}
         <div>
-          <h3 style={{ marginBottom: '0.75rem' }}>Параметры подключения</h3>
+          <h3 style={{ marginBottom: '0.75rem' }}>{t('solution.level0.connectionParams')}</h3>
           <div
             style={{
               border: '1px solid #ddd',
@@ -527,7 +529,7 @@ export function Task0_2_Solution() {
           </div>
 
           {/* Wildcard tester */}
-          <h3 style={{ marginTop: '1.25rem', marginBottom: '0.75rem' }}>Тестер подписки</h3>
+          <h3 style={{ marginTop: '1.25rem', marginBottom: '0.75rem' }}>{t('solution.level0.subscriptionTester')}</h3>
           <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
             <input
               value={subscribeInput}
@@ -553,20 +555,20 @@ export function Task0_2_Solution() {
                 cursor: 'pointer',
               }}
             >
-              Тест
+              {t('solution.level0.test')}
             </button>
           </div>
           <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.5rem' }}>
-            + = один уровень, # = все уровни ниже
+            {t('solution.level0.wildcardHint')}
           </div>
           {matchedTopics.length > 0 && (
             <div>
               <div style={{ fontSize: '0.8rem', color: '#2E7D32', marginBottom: '0.25rem' }}>
-                Совпадений: {matchedTopics.length}
+                {t('solution.level0.matches')}: {matchedTopics.length}
               </div>
-              {matchedTopics.map(t => (
+              {matchedTopics.map(topic => (
                 <div
-                  key={t}
+                  key={topic}
                   style={{
                     fontFamily: 'monospace',
                     fontSize: '0.85rem',
@@ -576,14 +578,14 @@ export function Task0_2_Solution() {
                     marginBottom: '4px',
                   }}
                 >
-                  ✅ {t}
+                  ✅ {topic}
                 </div>
               ))}
             </div>
           )}
           {matchedTopics.length === 0 && subscribeInput && (
             <div style={{ fontSize: '0.8rem', color: '#999' }}>
-              Нажмите "Тест" чтобы проверить паттерн
+              {t('solution.level0.testPrompt')}
             </div>
           )}
         </div>
@@ -697,6 +699,7 @@ const iotRating: Record<Protocol['iot'], { label: string; color: string }> = {
 }
 
 export function Task0_3_Solution() {
+  const { t } = useLanguage()
   const [activeProtocol, setActiveProtocol] = useState<string>('MQTT v5')
   const [view, setView] = useState<'table' | 'detail'>('table')
 
@@ -704,9 +707,9 @@ export function Task0_3_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '960px' }}>
-      <h2 style={{ marginBottom: '0.5rem' }}>MQTT vs HTTP vs WebSocket vs AMQP</h2>
+      <h2 style={{ marginBottom: '0.5rem' }}>{t('solution.level0.comparisonTitle')}</h2>
       <p style={{ color: '#555', marginBottom: '1rem' }}>
-        Выбор протокола для IoT — критически важное архитектурное решение. Сравним четыре основных варианта.
+        {t('solution.level0.comparisonDesc')}
       </p>
 
       {/* View toggle */}
@@ -725,7 +728,7 @@ export function Task0_3_Solution() {
               fontSize: '0.85rem',
             }}
           >
-            {v === 'table' ? '📊 Сравнение' : '🔍 Детали'}
+            {v === 'table' ? `📊 ${t('solution.level0.comparison')}` : `🔍 ${t('solution.level0.details')}`}
           </button>
         ))}
       </div>
@@ -743,7 +746,7 @@ export function Task0_3_Solution() {
                     minWidth: '160px',
                   }}
                 >
-                  Критерий
+                  {t('solution.level0.criteria')}
                 </th>
                 {protocols.map(p => (
                   <th
@@ -794,7 +797,7 @@ export function Task0_3_Solution() {
                 <td
                   style={{ padding: '0.6rem 0.75rem', border: '1px solid #ddd', fontWeight: 600 }}
                 >
-                  Пригодность для IoT
+                  {t('solution.level0.iotSuitability')}
                 </td>
                 {protocols.map(p => (
                   <td
@@ -849,7 +852,7 @@ export function Task0_3_Solution() {
             <h3 style={{ color: active.color, marginBottom: '1rem' }}>{active.name}</h3>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
-                <h4 style={{ marginBottom: '0.5rem', color: '#333' }}>Плюсы</h4>
+                <h4 style={{ marginBottom: '0.5rem', color: '#333' }}>{t('solution.level0.pros')}</h4>
                 {active.pros.map(p => (
                   <div key={p} style={{ fontSize: '0.85rem', marginBottom: '4px' }}>
                     ✅ {p}
@@ -857,7 +860,7 @@ export function Task0_3_Solution() {
                 ))}
               </div>
               <div>
-                <h4 style={{ marginBottom: '0.5rem', color: '#333' }}>Минусы</h4>
+                <h4 style={{ marginBottom: '0.5rem', color: '#333' }}>{t('solution.level0.cons')}</h4>
                 {active.cons.map(c => (
                   <div key={c} style={{ fontSize: '0.85rem', marginBottom: '4px' }}>
                     ❌ {c}
@@ -866,7 +869,7 @@ export function Task0_3_Solution() {
               </div>
             </div>
             <div style={{ marginTop: '1rem' }}>
-              <h4 style={{ marginBottom: '0.5rem' }}>Типичные применения</h4>
+              <h4 style={{ marginBottom: '0.5rem' }}>{t('solution.level0.useCases')}</h4>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                 {active.useCases.map(u => (
                   <span

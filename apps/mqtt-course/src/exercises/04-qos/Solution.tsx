@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Задание 4.1: Уровни QoS (0, 1, 2) — Решение
@@ -74,15 +75,16 @@ const qosData: Record<QosLevel, {
 }
 
 const comparisonData = [
-  { param: 'Гарантия', qos0: 'Не более 1 раза', qos1: 'Не менее 1 раза', qos2: 'Ровно 1 раз' },
-  { param: 'Дубликаты', qos0: 'Нет', qos1: 'Возможны', qos2: 'Нет' },
-  { param: 'Потери', qos0: 'Возможны', qos1: 'Нет', qos2: 'Нет' },
-  { param: 'Пакетов', qos0: '1', qos1: '2–4', qos2: '4' },
-  { param: 'RAM (брокер)', qos0: '0', qos1: '~200 байт/msg', qos2: '~400 байт/msg' },
-  { param: 'Скорость', qos0: '100%', qos1: '50%', qos2: '25%' },
+  { param: 'compGuarantee', qos0: 'compQos0Guarantee', qos1: 'compQos1Guarantee', qos2: 'compQos2Guarantee' },
+  { param: 'compDuplicates', qos0: 'compQos0Duplicates', qos1: 'compQos1Duplicates', qos2: 'compQos2Duplicates' },
+  { param: 'compLosses', qos0: 'compQos0Losses', qos1: 'compQos1Losses', qos2: 'compQos2Losses' },
+  { param: 'compPackets', qos0: '1', qos1: '2–4', qos2: '4' },
+  { param: 'compRam', qos0: '0', qos1: 'compRamQos1', qos2: 'compRamQos2' },
+  { param: 'compSpeed', qos0: '100%', qos1: '50%', qos2: '25%' },
 ]
 
 export function Task4_1_Solution() {
+  const { t } = useLanguage()
   const [activeQos, setActiveQos] = useState<QosLevel>(0)
   const [animStep, setAnimStep] = useState<number>(-1)
   const [showComparison, setShowComparison] = useState(false)
@@ -103,18 +105,18 @@ export function Task4_1_Solution() {
 
   const actorLabel = (actor: string) => {
     const labels: Record<string, string> = {
-      publisher: 'Издатель',
-      broker: 'Брокер',
-      subscriber: 'Подписчик',
+      publisher: t('solution.level4.actorPublisher'),
+      broker: t('solution.level4.actorBroker'),
+      subscriber: t('solution.level4.actorSubscriber'),
     }
     return labels[actor] || actor
   }
 
   return (
     <div className="exercise-container">
-      <h2>Задание 4.1: Уровни QoS (0, 1, 2)</h2>
+      <h2>{t('solution.level4.qosTitle')}</h2>
       <p style={{ color: '#6b7280', marginBottom: 16 }}>
-        Визуализация handshake для каждого уровня QoS. Нажмите «Запустить» для анимации.
+        {t('solution.level4.qosDesc')}
       </p>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
@@ -135,7 +137,7 @@ export function Task4_1_Solution() {
           >
             <div>QoS {q}</div>
             <div style={{ fontSize: 11, fontWeight: 400, opacity: 0.9 }}>
-              {qosData[q].packetsCount} пакет{q === 0 ? '' : q === 1 ? 'а' : 'а'}
+              {qosData[q].packetsCount} {q === 0 ? t('solution.level4.packet') : t('solution.level4.packets')}
             </div>
           </button>
         ))}
@@ -152,7 +154,7 @@ export function Task4_1_Solution() {
       <div style={{ marginBottom: 16 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', margin: 0 }}>
-            Схема обмена пакетами
+            {t('solution.level4.packetScheme')}
           </h3>
           <button
             onClick={runAnimation}
@@ -166,7 +168,7 @@ export function Task4_1_Solution() {
               fontSize: 13,
             }}
           >
-            ▶ Анимировать
+            {t('solution.level4.animate')}
           </button>
         </div>
 
@@ -316,13 +318,13 @@ export function Task4_1_Solution() {
       {/* Плюсы/минусы и use case */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
         <div style={{ padding: 12, background: '#f0fdf4', borderRadius: 8 }}>
-          <div style={{ fontWeight: 600, color: '#15803d', marginBottom: 8 }}>Преимущества</div>
+          <div style={{ fontWeight: 600, color: '#15803d', marginBottom: 8 }}>{t('solution.level4.pros')}</div>
           {data.pros.map((pro) => (
             <div key={pro} style={{ fontSize: 13, color: '#166534', marginBottom: 4 }}>✅ {pro}</div>
           ))}
         </div>
         <div style={{ padding: 12, background: '#fef2f2', borderRadius: 8 }}>
-          <div style={{ fontWeight: 600, color: '#b91c1c', marginBottom: 8 }}>Недостатки</div>
+          <div style={{ fontWeight: 600, color: '#b91c1c', marginBottom: 8 }}>{t('solution.level4.cons')}</div>
           {data.cons.map((con) => (
             <div key={con} style={{ fontSize: 13, color: '#991b1b', marginBottom: 4 }}>⚠️ {con}</div>
           ))}
@@ -330,7 +332,7 @@ export function Task4_1_Solution() {
       </div>
 
       <div style={{ padding: 12, background: '#eff6ff', borderRadius: 8, marginBottom: 16, fontSize: 13 }}>
-        <strong>Когда использовать:</strong> {data.useCase}
+        <strong>{t('solution.level4.whenToUse')}:</strong> {data.useCase}
       </div>
 
       {/* Сравнительная таблица */}
@@ -346,14 +348,14 @@ export function Task4_1_Solution() {
           marginBottom: 8,
         }}
       >
-        {showComparison ? '▼' : '▶'} Сравнительная таблица QoS 0/1/2
+        {showComparison ? '▼' : '▶'} {t('solution.level4.comparisonTable')}
       </button>
 
       {showComparison && (
         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
           <thead>
             <tr style={{ background: '#f3f4f6' }}>
-              <th style={{ padding: '8px 12px', textAlign: 'left', border: '1px solid #e5e7eb' }}>Параметр</th>
+              <th style={{ padding: '8px 12px', textAlign: 'left', border: '1px solid #e5e7eb' }}>{t('solution.level4.compParameter')}</th>
               <th style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #e5e7eb', color: '#3b82f6' }}>QoS 0</th>
               <th style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #e5e7eb', color: '#f59e0b' }}>QoS 1</th>
               <th style={{ padding: '8px 12px', textAlign: 'center', border: '1px solid #e5e7eb', color: '#8b5cf6' }}>QoS 2</th>
@@ -362,10 +364,10 @@ export function Task4_1_Solution() {
           <tbody>
             {comparisonData.map((row) => (
               <tr key={row.param}>
-                <td style={{ padding: '6px 12px', border: '1px solid #e5e7eb', fontWeight: 600 }}>{row.param}</td>
-                <td style={{ padding: '6px 12px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.qos0}</td>
-                <td style={{ padding: '6px 12px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.qos1}</td>
-                <td style={{ padding: '6px 12px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{row.qos2}</td>
+                <td style={{ padding: '6px 12px', border: '1px solid #e5e7eb', fontWeight: 600 }}>{t(`solution.level4.${row.param}`)}</td>
+                <td style={{ padding: '6px 12px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{t(`solution.level4.${row.qos0}`)}</td>
+                <td style={{ padding: '6px 12px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{t(`solution.level4.${row.qos1}`)}</td>
+                <td style={{ padding: '6px 12px', border: '1px solid #e5e7eb', textAlign: 'center' }}>{t(`solution.level4.${row.qos2}`)}</td>
               </tr>
             ))}
           </tbody>
@@ -387,6 +389,7 @@ interface RetainedMessage {
 }
 
 export function Task4_2_Solution() {
+  const { t } = useLanguage()
   const [retainedStore, setRetainedStore] = useState<Map<string, RetainedMessage>>(new Map([
     ['home/temperature', { topic: 'home/temperature', payload: '22.5', timestamp: '10:00:00', isRetained: true }],
     ['home/humidity', { topic: 'home/humidity', payload: '65', timestamp: '10:00:05', isRetained: true }],
@@ -450,29 +453,28 @@ export function Task4_2_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 4.2: Retained Messages</h2>
+      <h2>{t('solution.level4.retainedTitle')}</h2>
       <p style={{ color: '#6b7280', marginBottom: 16 }}>
-        Демонстрация работы retained-сообщений. Публикуйте сообщения и наблюдайте,
-        что получит новый подписчик при подключении.
+        {t('solution.level4.retainedDesc')}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
         <div>
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 12 }}>
-            Публикация сообщения
+            {t('solution.level4.publishMessage')}
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 12 }}>
             <input
               value={newTopic}
               onChange={(e) => setNewTopic(e.target.value)}
-              placeholder="Топик"
+              placeholder={t('solution.level4.placeholderTopic')}
               style={{ padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 6, fontFamily: 'monospace', fontSize: 13 }}
             />
             <input
               value={newPayload}
               onChange={(e) => setNewPayload(e.target.value)}
-              placeholder="Payload (пусто = удалить retained)"
+              placeholder={t('solution.level4.placeholderPayload')}
               style={{ padding: '8px 12px', border: '1px solid #e5e7eb', borderRadius: 6, fontFamily: 'monospace', fontSize: 13 }}
             />
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
@@ -494,12 +496,12 @@ export function Task4_2_Solution() {
                 cursor: 'pointer',
               }}
             >
-              Опубликовать
+              {t('solution.level4.publish')}
             </button>
           </div>
 
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 8 }}>
-            Retained хранилище брокера ({retainedStore.size})
+            {t('solution.level4.retainedStorage')} ({retainedStore.size})
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {Array.from(retainedStore.values()).map((msg) => (
@@ -518,14 +520,14 @@ export function Task4_2_Solution() {
               </div>
             ))}
             {retainedStore.size === 0 && (
-              <div style={{ color: '#9ca3af', fontSize: 13, fontStyle: 'italic' }}>Хранилище пусто</div>
+              <div style={{ color: '#9ca3af', fontSize: 13, fontStyle: 'italic' }}>{t('solution.level4.storageEmpty')}</div>
             )}
           </div>
         </div>
 
         <div>
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 12 }}>
-            Симуляция нового подписчика
+            {t('solution.level4.simulateSubscriber')}
           </h3>
 
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
@@ -546,14 +548,14 @@ export function Task4_2_Solution() {
                 whiteSpace: 'nowrap',
               }}
             >
-              Подключить клиента
+              {t('solution.level4.connectClient')}
             </button>
           </div>
 
           {newSubscriberReceived.length > 0 && (
             <div style={{ marginBottom: 12 }}>
               <div style={{ fontSize: 13, color: '#166534', marginBottom: 8, fontWeight: 600 }}>
-                Новый клиент сразу получил {newSubscriberReceived.length} сообщений:
+                {t('solution.level4.subscriberReceived')}: {newSubscriberReceived.length}
               </div>
               {newSubscriberReceived.map((msg) => (
                 <div key={msg.topic} style={{
@@ -573,7 +575,7 @@ export function Task4_2_Solution() {
           )}
 
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 8 }}>
-            Лог брокера
+            {t('solution.level4.brokerLog')}
           </h3>
           <div style={{
             background: '#1e1e2e',
@@ -593,13 +595,13 @@ export function Task4_2_Solution() {
       </div>
 
       <div style={{ marginTop: 16, padding: 12, background: '#fffbeb', borderRadius: 8, fontSize: 13 }}>
-        <strong>Конфигурация Mosquitto:</strong>
+        <strong>{t('solution.level4.mosquittoConfig')}:</strong>
         <code style={{ display: 'block', marginTop: 4, color: '#92400e' }}>
           retain_available true{'\n'}
           max_retained_messages 1000
         </code>
         <div style={{ marginTop: 4, color: '#92400e' }}>
-          ⚠️ На OpenWRT ограничьте <code>max_retained_messages</code> — каждое retained сообщение занимает RAM.
+          ⚠️ {t('solution.level4.openwrtWarning')}
         </div>
       </div>
     </div>
@@ -669,6 +671,7 @@ const initialDevices: DeviceState[] = [
 ]
 
 export function Task4_3_Solution() {
+  const { t } = useLanguage()
   const [devices, setDevices] = useState<DeviceState[]>(initialDevices)
   const [log, setLog] = useState<string[]>([
     '> [10:00:00] esp32-01 подключился. Will: device/esp32-01/status → "offline" (QoS 1, retain)',
@@ -733,15 +736,15 @@ export function Task4_3_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 4.3: Last Will and Testament</h2>
+      <h2>{t('solution.level4.lwtTitle')}</h2>
       <p style={{ color: '#6b7280', marginBottom: 16 }}>
-        Демонстрация LWT: симулируйте аварийное отключение и нормальный disconnect устройств.
+        {t('solution.level4.lwtDesc')}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
         <div>
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 12 }}>
-            Устройства (с настроенным LWT)
+            {t('solution.level4.devicesWithLwt')}
           </h3>
 
           {devices.map((device) => (
@@ -769,7 +772,7 @@ export function Task4_3_Solution() {
                 <strong style={{ fontSize: 14 }}>{device.name}</strong>
               </div>
               <div style={{ fontSize: 12, color: '#6b7280' }}>
-                ID: <code>{device.id}</code> | Статус: <span style={{ color: statusColor(device.status), fontWeight: 600 }}>{device.status}</span>
+                ID: <code>{device.id}</code> | {t('solution.level4.status')}: <span style={{ color: statusColor(device.status), fontWeight: 600 }}>{device.status}</span>
               </div>
               <div style={{ fontSize: 12, color: '#6b7280', marginTop: 4 }}>
                 LWT: <code>{device.lwtTopic}</code> → "{device.lwtPayload}"
@@ -790,7 +793,7 @@ export function Task4_3_Solution() {
                     opacity: device.status === 'offline' ? 0.5 : 1,
                   }}
                 >
-                  ⚡ Краш
+                  ⚡ {t('solution.level4.crash')}
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); simulateNormalDisconnect(device.id) }}
@@ -822,7 +825,7 @@ export function Task4_3_Solution() {
                     opacity: device.status === 'online' ? 0.5 : 1,
                   }}
                 >
-                  Переподключить
+                  {t('solution.level4.reconnect')}
                 </button>
               </div>
             </div>
@@ -830,7 +833,7 @@ export function Task4_3_Solution() {
 
           {/* LWT конфигурация */}
           <div style={{ marginTop: 16, padding: 12, background: '#f9fafb', borderRadius: 8 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>Пример настройки LWT:</div>
+            <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8 }}>{t('solution.level4.lwtConfig')}:</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
               <div>
                 <label style={{ fontSize: 12, color: '#6b7280' }}>Will Topic:</label>
@@ -887,7 +890,7 @@ export function Task4_3_Solution() {
 
         <div>
           <h3 style={{ fontSize: 14, color: '#6b7280', textTransform: 'uppercase', marginBottom: 8 }}>
-            Лог брокера
+            {t('solution.level4.brokerLog')}
           </h3>
           <div style={{
             background: '#1e1e2e',
@@ -915,7 +918,7 @@ export function Task4_3_Solution() {
           </div>
 
           <div style={{ marginTop: 16, padding: 12, background: '#fffbeb', borderRadius: 8, fontSize: 13 }}>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>Паттерн Online/Offline:</div>
+            <div style={{ fontWeight: 600, marginBottom: 8 }}>{t('solution.level4.onlineOfflinePattern')}:</div>
             <div style={{ fontFamily: 'monospace', fontSize: 12 }}>
               <div style={{ color: '#16a34a' }}>1. will_set(topic, "offline", retain=True)</div>
               <div style={{ color: '#16a34a' }}>2. client.connect(broker)</div>

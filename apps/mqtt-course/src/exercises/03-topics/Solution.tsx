@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Задание 3.1: Иерархия топиков — Решение
@@ -125,6 +126,7 @@ function TreeNodeComponent({ node, path, depth, selectedPath, onSelect }: TreeNo
 }
 
 export function Task3_1_Solution() {
+  const { t } = useLanguage()
   const [selectedPath, setSelectedPath] = useState<string | null>('home/living_room/temperature')
   const [customTopic, setCustomTopic] = useState('')
 
@@ -139,15 +141,15 @@ export function Task3_1_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 3.1: Иерархия топиков</h2>
+      <h2>{t('solution.level3.topicTitle')}</h2>
       <p style={{ color: '#6b7280', marginBottom: 16 }}>
-        Дерево топиков умного дома. Нажмите на узел, чтобы увидеть полный путь топика.
+        {t('solution.level3.topicDesc')}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
         <div>
           <h3 style={{ marginBottom: 12, fontSize: 14, color: '#6b7280', textTransform: 'uppercase' }}>
-            Дерево топиков
+            {t('solution.level3.topicTreeHeader')}
           </h3>
           <div style={{
             border: '1px solid #e5e7eb',
@@ -167,12 +169,12 @@ export function Task3_1_Solution() {
 
         <div>
           <h3 style={{ marginBottom: 12, fontSize: 14, color: '#6b7280', textTransform: 'uppercase' }}>
-            Информация о топике
+            {t('solution.level3.topicInfo')}
           </h3>
 
           {selectedPath && (
             <div style={{ border: '1px solid #e5e7eb', borderRadius: 8, padding: 16, marginBottom: 16 }}>
-              <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Полный путь:</div>
+              <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>{t('solution.level3.fullPath')}:</div>
               <code style={{
                 display: 'block',
                 padding: '8px 12px',
@@ -186,16 +188,16 @@ export function Task3_1_Solution() {
                 {selectedPath}
               </code>
               <div style={{ fontSize: 12, color: '#6b7280' }}>
-                Уровней иерархии: <strong>{selectedPath.split('/').length}</strong>
+                {t('solution.level3.hierarchyLevels')}: <strong>{selectedPath.split('/').length}</strong>
               </div>
               <div style={{ fontSize: 12, color: '#6b7280' }}>
-                Длина строки: <strong>{selectedPath.length} байт</strong>
+                {t('solution.level3.stringLength')}: <strong>{selectedPath.length} {t('solution.level3.bytes')}</strong>
               </div>
             </div>
           )}
 
           <h3 style={{ marginBottom: 8, fontSize: 14, color: '#6b7280', textTransform: 'uppercase' }}>
-            Примеры подписок
+            {t('solution.level3.subExamples')}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
             {exampleTopics.map((topic) => (
@@ -224,7 +226,7 @@ export function Task3_1_Solution() {
                     color: selectedPath === topic ? 'white' : '#92400e',
                     borderRadius: 4,
                   }}>
-                    wildcard
+                    {t('solution.level3.wildcard')}
                   </span>
                 )}
               </button>
@@ -232,7 +234,7 @@ export function Task3_1_Solution() {
           </div>
 
           <div style={{ marginTop: 16 }}>
-            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Проверить свой топик:</div>
+            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>{t('solution.level3.checkOwnTopic')}:</div>
             <input
               value={customTopic}
               onChange={(e) => setCustomTopic(e.target.value)}
@@ -249,10 +251,10 @@ export function Task3_1_Solution() {
             />
             {customTopic && (
               <div style={{ marginTop: 8, fontSize: 12 }}>
-                <div>Уровней: <strong>{customTopic.split('/').length}</strong></div>
-                <div>Длина: <strong>{customTopic.length} байт</strong></div>
+                <div>{t('solution.level3.levels')}: <strong>{customTopic.split('/').length}</strong></div>
+                <div>{t('solution.level3.length')}: <strong>{customTopic.length} {t('solution.level3.bytes')}</strong></div>
                 <div style={{ color: customTopic.startsWith('/') ? '#ef4444' : '#16a34a' }}>
-                  {customTopic.startsWith('/') ? '⚠️ Начинается с / — создаёт пустой уровень' : '✅ Корректное начало'}
+                  {customTopic.startsWith('/') ? `⚠️ ${t('solution.level3.warningSlash')}` : `✅ ${t('solution.level3.correctStart')}`}
                 </div>
               </div>
             )}
@@ -318,6 +320,7 @@ const presetPatterns = [
 ]
 
 export function Task3_2_Solution() {
+  const { t } = useLanguage()
   const [pattern, setPattern] = useState('home/+/temperature')
   const [customPattern, setCustomPattern] = useState('')
 
@@ -332,16 +335,15 @@ export function Task3_2_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 3.2: Wildcards: + и #</h2>
+      <h2>{t('solution.level3.wildcardTitle')}</h2>
       <p style={{ color: '#6b7280', marginBottom: 16 }}>
-        Интерактивная демонстрация соответствия wildcard-паттернов топикам MQTT.
-        Выберите паттерн и посмотрите, какие топики совпадают.
+        {t('solution.level3.wildcardDesc')}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
         <div>
           <h3 style={{ marginBottom: 12, fontSize: 14, color: '#6b7280', textTransform: 'uppercase' }}>
-            Готовые паттерны
+            {t('solution.level3.presetPatterns')}
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 16 }}>
             {presetPatterns.map(({ pattern: p, description }) => (
@@ -366,7 +368,7 @@ export function Task3_2_Solution() {
           </div>
 
           <div>
-            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>Свой паттерн:</div>
+            <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 4 }}>{t('solution.level3.ownPattern')}:</div>
             <input
               value={customPattern}
               onChange={(e) => setCustomPattern(e.target.value)}
@@ -384,16 +386,16 @@ export function Task3_2_Solution() {
           </div>
 
           <div style={{ marginTop: 16, padding: 12, background: '#fffbeb', borderRadius: 8, fontSize: 13 }}>
-            <div style={{ fontWeight: 600, marginBottom: 8 }}>Правила wildcards:</div>
-            <div><code style={{ background: '#fef3c7', padding: '1px 4px', borderRadius: 3 }}>+</code> — ровно один уровень</div>
-            <div><code style={{ background: '#fef3c7', padding: '1px 4px', borderRadius: 3 }}>#</code> — любое число уровней (только в конце)</div>
-            <div style={{ marginTop: 8, color: '#92400e' }}>⚠️ Только для подписки, не для публикации</div>
+            <div style={{ fontWeight: 600, marginBottom: 8 }}>{t('solution.level3.wildcardRules')}:</div>
+            <div><code style={{ background: '#fef3c7', padding: '1px 4px', borderRadius: 3 }}>+</code> — {t('solution.level3.wildcardPlus')}</div>
+            <div><code style={{ background: '#fef3c7', padding: '1px 4px', borderRadius: 3 }}>#</code> — {t('solution.level3.wildcardHash')}</div>
+            <div style={{ marginTop: 8, color: '#92400e' }}>⚠️ {t('solution.level3.wildcardWarning')}</div>
           </div>
         </div>
 
         <div>
           <h3 style={{ marginBottom: 8, fontSize: 14, color: '#6b7280', textTransform: 'uppercase' }}>
-            Результаты для паттерна:
+            {t('solution.level3.resultsForPattern')}:
           </h3>
           <code style={{
             display: 'block',
@@ -404,7 +406,7 @@ export function Task3_2_Solution() {
             marginBottom: 12,
             fontSize: 14,
           }}>
-            {activePattern || '(введите паттерн)'}
+            {activePattern || `(${t('solution.level3.enterPattern')})`}
           </code>
 
           <div style={{
@@ -412,7 +414,7 @@ export function Task3_2_Solution() {
             color: '#6b7280',
             marginBottom: 8,
           }}>
-            Совпадений: <strong style={{ color: matchCount > 0 ? '#16a34a' : '#9ca3af' }}>{matchCount}</strong> из {testTopics.length}
+            {t('solution.level3.matchesCount')}: <strong style={{ color: matchCount > 0 ? '#16a34a' : '#9ca3af' }}>{matchCount}</strong> {t('solution.level3.from')} {testTopics.length}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -488,6 +490,7 @@ const sysTopics: SysTopicEntry[] = [
 const categories = Array.from(new Set(sysTopics.map((t) => t.category)))
 
 export function Task3_3_Solution() {
+  const { t } = useLanguage()
   const [activeCategory, setActiveCategory] = useState<string>('все')
   const [search, setSearch] = useState('')
   const [copiedTopic, setCopiedTopic] = useState<string | null>(null)
@@ -509,9 +512,9 @@ export function Task3_3_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 3.3: Системные топики $SYS</h2>
+      <h2>{t('solution.level3.sysTitle')}</h2>
       <p style={{ color: '#6b7280', marginBottom: 16 }}>
-        Справочник $SYS топиков Mosquitto 2.x. Нажмите на строку — скопирует команду подписки.
+        {t('solution.level3.sysDesc')}
       </p>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
@@ -529,7 +532,7 @@ export function Task3_3_Solution() {
               fontSize: 13,
             }}
           >
-            {cat}
+            {cat === 'все' ? t('solution.level3.all') : cat}
           </button>
         ))}
       </div>
@@ -537,7 +540,7 @@ export function Task3_3_Solution() {
       <input
         value={search}
         onChange={(e) => setSearch(e.target.value)}
-        placeholder="Поиск по топику или описанию..."
+        placeholder={t('solution.level3.searchTopicPlaceholder')}
         style={{
           width: '100%',
           padding: '8px 12px',
@@ -550,7 +553,7 @@ export function Task3_3_Solution() {
       />
 
       <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>
-        Показано {filtered.length} из {sysTopics.length} топиков
+        {t('solution.level3.shown')} {filtered.length} {t('solution.level3.of')} {sysTopics.length} {t('solution.level3.topics')}
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -593,9 +596,9 @@ export function Task3_3_Solution() {
             </code>
             <div style={{ fontSize: 11, textAlign: 'right', color: '#9ca3af' }}>
               {copiedTopic === entry.topic ? (
-                <span style={{ color: '#16a34a' }}>✅ Скопировано!</span>
+                <span style={{ color: '#16a34a' }}>✅ {t('solution.level3.copied')}!</span>
               ) : (
-                <span>📋 Нажмите для копирования</span>
+                <span>📋 {t('solution.level3.clickCopy')}</span>
               )}
             </div>
           </div>
@@ -603,8 +606,7 @@ export function Task3_3_Solution() {
       </div>
 
       <div style={{ marginTop: 16, padding: 12, background: '#fffbeb', borderRadius: 8, fontSize: 13 }}>
-        <strong>Важно:</strong> Топики <code>$SYS/#</code> не доступны через подписку на <code>#</code>.
-        Всегда используйте кавычки в shell: <code>mosquitto_sub -t '$SYS/broker/uptime'</code>
+        <strong>{t('solution.level3.sysImportant')}</strong> <code>$SYS/#</code> {t('solution.level3.sysImportant2')} <code>#</code>. {t('solution.level3.sysQuote')}: <code>mosquitto_sub -t '$SYS/broker/uptime'</code>
       </div>
     </div>
   )

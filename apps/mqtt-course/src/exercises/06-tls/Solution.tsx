@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Задание 6.1: Генерация сертификатов — Решение
@@ -67,6 +68,7 @@ const certSteps: CertStep[] = [
 ]
 
 export function Task6_1_Solution() {
+  const { t } = useLanguage()
   const [activeStep, setActiveStep] = useState<string | null>(null)
   const [copiedCommand, setCopiedCommand] = useState<string | null>(null)
 
@@ -80,7 +82,7 @@ export function Task6_1_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif' }}>
-      <h2>Генерация PKI-инфраструктуры для MQTT TLS</h2>
+      <h2>{t('solution.level6.certGenTitle')}</h2>
 
       <div
         style={{
@@ -91,7 +93,7 @@ export function Task6_1_Solution() {
           marginBottom: '1.5rem',
         }}
       >
-        <strong>Результат:</strong> после выполнения всех шагов получите:
+        <strong>{t('solution.level6.result')}:</strong> {t('solution.level6.resultDesc')}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.5rem' }}>
           {allFiles.map((f) => (
             <code
@@ -147,7 +149,7 @@ export function Task6_1_Solution() {
                     marginLeft: '1rem',
                   }}
                 >
-                  Создаёт: {step.generates.join(', ')}
+                  {t('solution.level6.creates')}: {step.generates.join(', ')}
                 </span>
               </button>
 
@@ -187,14 +189,14 @@ export function Task6_1_Solution() {
                         fontSize: '0.75rem',
                       }}
                     >
-                      {copiedCommand === step.id ? 'Скопировано!' : 'Копировать'}
+                      {copiedCommand === step.id ? t('solution.level6.copied') : t('solution.level6.copy')}
                     </button>
                   </div>
 
                   {step.output && (
                     <div>
                       <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.25rem' }}>
-                        Вывод команды:
+                        {t('solution.level6.commandOutput')}:
                       </div>
                       <pre
                         style={{
@@ -226,7 +228,7 @@ export function Task6_1_Solution() {
           border: '1px solid #ff9800',
         }}
       >
-        <strong>Размещение на OpenWRT:</strong>
+        <strong>{t('solution.level6.openwrtPlacement')}:</strong>
         <pre
           style={{
             background: '#1e1e1e',
@@ -268,6 +270,7 @@ const tlsOptions: TlsOption[] = [
 ]
 
 export function Task6_2_Solution() {
+  const { t } = useLanguage()
   const [showAll, setShowAll] = useState(false)
   const [selectedOption, setSelectedOption] = useState<string | null>(null)
   const [testResult, setTestResult] = useState<string | null>(null)
@@ -290,13 +293,13 @@ export function Task6_2_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif' }}>
-      <h2>Настройка TLS в Mosquitto</h2>
+      <h2>{t('solution.level6.tlsConfigTitle')}</h2>
 
       <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
         {/* Left: options */}
         <div style={{ flex: '1', minWidth: '260px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '0.75rem' }}>
-            <h3 style={{ margin: 0 }}>Параметры конфигурации</h3>
+            <h3 style={{ margin: 0 }}>{t('solution.level6.configParams')}</h3>
             <label style={{ fontSize: '0.85rem', cursor: 'pointer', userSelect: 'none' }}>
               <input
                 type="checkbox"
@@ -304,7 +307,7 @@ export function Task6_2_Solution() {
                 onChange={(e) => setShowAll(e.target.checked)}
                 style={{ marginRight: '0.3rem' }}
               />
-              Показать все
+              {t('solution.level6.showAll')}
             </label>
           </div>
 
@@ -333,7 +336,7 @@ export function Task6_2_Solution() {
                         borderRadius: '3px',
                       }}
                     >
-                      обязательно
+                      {t('solution.level6.required')}
                     </span>
                   )}
                 </div>
@@ -378,7 +381,7 @@ export function Task6_2_Solution() {
           </pre>
 
           <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ margin: '0 0 0.5rem' }}>Тест подключения</h3>
+            <h3 style={{ margin: '0 0 0.5rem' }}>{t('solution.level6.connectionTest')}</h3>
             <pre
               style={{
                 background: '#1e1e1e',
@@ -403,7 +406,7 @@ export function Task6_2_Solution() {
                 fontSize: '0.9rem',
               }}
             >
-              Симулировать подключение
+              {t('solution.level6.simulateConnection')}
             </button>
             {testResult && (
               <pre
@@ -473,6 +476,7 @@ use_identity_as_username true`,
 ]
 
 export function Task6_3_Solution() {
+  const { t } = useLanguage()
   const [selectedMode, setSelectedMode] = useState<string>('tls-only')
   const [showClientCmd, setShowClientCmd] = useState(false)
 
@@ -495,7 +499,7 @@ export function Task6_3_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif' }}>
-      <h2>Клиентские сертификаты и mTLS</h2>
+      <h2>{t('solution.level6.mtlsTitle')}</h2>
 
       <div
         style={{
@@ -507,9 +511,7 @@ export function Task6_3_Solution() {
           lineHeight: 1.6,
         }}
       >
-        <strong>Аналогия:</strong> обычный TLS — это как показать паспорт на входе в офис (только вы
-        проверяете, что здание настоящее). mTLS — это обмен паспортами: и здание проверяет вас, и вы
-        проверяете здание.
+        <strong>{t('solution.level6.analogy')}:</strong> {t('solution.level6.analogyText')}
       </div>
 
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem' }}>
@@ -535,7 +537,7 @@ export function Task6_3_Solution() {
 
       <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
         <div style={{ flex: '1', minWidth: '260px' }}>
-          <h3 style={{ margin: '0 0 0.5rem' }}>Конфигурация Mosquitto</h3>
+          <h3 style={{ margin: '0 0 0.5rem' }}>{t('solution.level6.mosquittoConfig')}</h3>
           <pre
             style={{
               background: '#1e1e1e',
@@ -557,7 +559,7 @@ export function Task6_3_Solution() {
           </p>
 
           <div style={{ marginBottom: '0.75rem' }}>
-            <strong>Сценарии использования:</strong>
+            <strong>{t('solution.level6.useCases')}:</strong>
             <ul style={{ margin: '0.25rem 0 0', paddingLeft: '1.2rem' }}>
               {mode.useCases.map((u, i) => (
                 <li key={i} style={{ fontSize: '0.88rem', marginBottom: '0.25rem' }}>
@@ -577,7 +579,7 @@ export function Task6_3_Solution() {
                 border: '1px solid #4caf50',
               }}
             >
-              <strong style={{ fontSize: '0.82rem' }}>Плюсы:</strong>
+              <strong style={{ fontSize: '0.82rem' }}>{t('solution.level6.prosLabel')}:</strong>
               <ul style={{ margin: '0.25rem 0 0', paddingLeft: '1.2rem' }}>
                 {mode.pros.map((p, i) => (
                   <li key={i} style={{ fontSize: '0.82rem', marginBottom: '0.2rem' }}>
@@ -595,7 +597,7 @@ export function Task6_3_Solution() {
                 border: '1px solid #ef9a9a',
               }}
             >
-              <strong style={{ fontSize: '0.82rem' }}>Минусы:</strong>
+              <strong style={{ fontSize: '0.82rem' }}>{t('solution.level6.consLabel')}:</strong>
               <ul style={{ margin: '0.25rem 0 0', paddingLeft: '1.2rem' }}>
                 {mode.cons.map((c, i) => (
                   <li key={i} style={{ fontSize: '0.82rem', marginBottom: '0.2rem' }}>
@@ -620,7 +622,7 @@ export function Task6_3_Solution() {
             cursor: 'pointer',
           }}
         >
-          {showClientCmd ? 'Скрыть' : 'Показать'} команду клиента
+          {showClientCmd ? t('solution.level6.hideClientCmd') : t('solution.level6.showClientCmd')}
         </button>
         {showClientCmd && (
           <pre

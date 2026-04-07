@@ -3,6 +3,7 @@
 // ============================================
 
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Task 2.1: mosquitto.conf — main parameters
@@ -184,6 +185,7 @@ const categoryConfig: Record<
 }
 
 export function Task2_1_Solution() {
+  const { t } = useLanguage()
   const [search, setSearch] = useState('')
   const [activeCategory, setActiveCategory] = useState<ConfigParam['category'] | 'all'>('all')
   const [selected, setSelected] = useState<ConfigParam | null>(null)
@@ -200,9 +202,9 @@ export function Task2_1_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '960px' }}>
-      <h2 style={{ marginBottom: '0.5rem' }}>mosquitto.conf — основные параметры</h2>
+      <h2 style={{ marginBottom: '0.5rem' }}>{t('solution.level2.configTitle')}</h2>
       <p style={{ color: '#555', marginBottom: '1rem' }}>
-        Справочник параметров конфигурации Mosquitto 2.x. Нажми на параметр для детального описания.
+        {t('solution.level2.configDesc')}
       </p>
 
       {/* Filters */}
@@ -210,7 +212,7 @@ export function Task2_1_Solution() {
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
-          placeholder="Поиск параметра..."
+          placeholder={t('solution.level2.searchPlaceholder')}
           style={{
             padding: '0.5rem 0.75rem',
             border: '1px solid #ddd',
@@ -246,7 +248,7 @@ export function Task2_1_Solution() {
                 fontWeight: activeCategory === cat ? 700 : 400,
               }}
             >
-              {cat === 'all' ? 'Все' : categoryConfig[cat].icon + ' ' + categoryConfig[cat].label}
+              {cat === 'all' ? t('solution.level2.all') : categoryConfig[cat].icon + ' ' + categoryConfig[cat].label}
             </button>
           ))}
         </div>
@@ -256,7 +258,7 @@ export function Task2_1_Solution() {
         {/* Params list */}
         <div>
           <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.5rem' }}>
-            Найдено: {filtered.length} параметров
+            {t('solution.level2.found')}: {filtered.length} {t('solution.level2.params')}
           </div>
           <div
             style={{
@@ -348,7 +350,7 @@ export function Task2_1_Solution() {
                   {selected.description}
                 </p>
                 <div style={{ fontSize: '0.82rem', color: '#555' }}>
-                  <b>Значение по умолчанию:</b>{' '}
+                  <b>{t('solution.level2.defaultLabel')}:</b>{' '}
                   <code
                     style={{
                       fontFamily: 'monospace',
@@ -357,7 +359,7 @@ export function Task2_1_Solution() {
                       borderRadius: '4px',
                     }}
                   >
-                    {selected.defaultValue || '(не задано)'}
+                    {selected.defaultValue || t('solution.level2.notSet')}
                   </code>
                 </div>
                 {selected.note && (
@@ -375,7 +377,7 @@ export function Task2_1_Solution() {
                   </div>
                 )}
               </div>
-              <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '4px' }}>Пример использования:</div>
+              <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '4px' }}>{t('solution.level2.usageExample')}:</div>
               <pre
                 style={{
                   background: '#1a1a2e',
@@ -401,7 +403,7 @@ export function Task2_1_Solution() {
                 color: '#aaa',
               }}
             >
-              Выберите параметр для просмотра описания
+              {t('solution.level2.selectParam')}
             </div>
           )}
         </div>
@@ -504,6 +506,7 @@ function generateListenerConfig(listeners: ListenerConfig[]): string {
 }
 
 export function Task2_2_Solution() {
+  const { t } = useLanguage()
   const [selectedListeners, setSelectedListeners] = useState<Set<string>>(
     new Set(['mqtt-lan']),
   )
@@ -526,15 +529,15 @@ export function Task2_2_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '960px' }}>
-      <h2 style={{ marginBottom: '0.5rem' }}>Listeners и порты</h2>
+      <h2 style={{ marginBottom: '0.5rem' }}>{t('solution.level2.listenersTitle')}</h2>
       <p style={{ color: '#555', marginBottom: '1.5rem' }}>
-        Mosquitto поддерживает несколько listener-ов одновременно. Выбери нужные и получи готовую конфигурацию.
+        {t('solution.level2.listenersDesc')}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '1.5rem' }}>
         {/* Preset cards */}
         <div>
-          <h3 style={{ marginBottom: '0.75rem' }}>Доступные listener-ы</h3>
+          <h3 style={{ marginBottom: '0.75rem' }}>{t('solution.level2.availableListeners')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             {listenerPresets.map(preset => {
               const active = selectedListeners.has(preset.id)
@@ -598,7 +601,7 @@ export function Task2_2_Solution() {
         {/* Generated config */}
         <div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-            <h3 style={{ margin: 0 }}>Конфигурация</h3>
+            <h3 style={{ margin: 0 }}>{t('solution.level2.configuration')}</h3>
             <button
               onClick={() => setShowConfig(!showConfig)}
               style={{
@@ -611,14 +614,14 @@ export function Task2_2_Solution() {
                 fontSize: '0.8rem',
               }}
             >
-              {showConfig ? 'Скрыть' : 'Показать конфиг'}
+              {showConfig ? t('solution.level2.hideConfig') : t('solution.level2.showConfig')}
             </button>
           </div>
 
           {/* Active listeners visual */}
           <div style={{ marginBottom: '1rem' }}>
             <div style={{ fontSize: '0.85rem', color: '#555', marginBottom: '0.5rem' }}>
-              Активных listener-ов: <b>{activeListeners.length}</b>
+              {t('solution.level2.activeListeners')}: <b>{activeListeners.length}</b>
             </div>
             {activeListeners.map(l => (
               <div
@@ -646,7 +649,7 @@ export function Task2_2_Solution() {
           {showConfig && (
             <div>
               <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '4px' }}>
-                Готовая конфигурация для mosquitto.conf:
+                {t('solution.level2.configReady')}
               </div>
               <pre
                 style={{
@@ -669,21 +672,21 @@ export function Task2_2_Solution() {
 
           {/* Port reference table */}
           <div style={{ marginTop: '1.25rem' }}>
-            <h4 style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>Стандартные порты MQTT</h4>
+            <h4 style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>{t('solution.level2.stdPorts')}</h4>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.82rem' }}>
               <thead>
                 <tr style={{ background: '#f5f5f5' }}>
-                  <th style={{ padding: '6px 8px', border: '1px solid #ddd', textAlign: 'left' }}>Порт</th>
-                  <th style={{ padding: '6px 8px', border: '1px solid #ddd', textAlign: 'left' }}>Протокол</th>
-                  <th style={{ padding: '6px 8px', border: '1px solid #ddd', textAlign: 'left' }}>Описание</th>
+                  <th style={{ padding: '6px 8px', border: '1px solid #ddd', textAlign: 'left' }}>{t('solution.level2.port')}</th>
+                  <th style={{ padding: '6px 8px', border: '1px solid #ddd', textAlign: 'left' }}>{t('solution.level2.protocol')}</th>
+                  <th style={{ padding: '6px 8px', border: '1px solid #ddd', textAlign: 'left' }}>{t('solution.level2.portDesc')}</th>
                 </tr>
               </thead>
               <tbody>
                 {[
-                  { port: '1883', proto: 'MQTT', desc: 'Стандартный порт (IANA)' },
-                  { port: '8883', proto: 'MQTT/TLS', desc: 'Зашифрованный MQTT (IANA)' },
-                  { port: '9001', proto: 'MQTT/WS', desc: 'WebSocket (де-факто стандарт)' },
-                  { port: '9883', proto: 'MQTT/WSS', desc: 'Secure WebSocket' },
+                  { port: '1883', proto: 'MQTT', desc: t('solution.level2.portStdMqtt') },
+                  { port: '8883', proto: 'MQTT/TLS', desc: t('solution.level2.portTlsMqtt') },
+                  { port: '9001', proto: 'MQTT/WS', desc: t('solution.level2.portWs') },
+                  { port: '9883', proto: 'MQTT/WSS', desc: t('solution.level2.portWss') },
                 ].map(row => (
                   <tr key={row.port}>
                     <td style={{ padding: '6px 8px', border: '1px solid #ddd', fontFamily: 'monospace', fontWeight: 700 }}>
@@ -787,6 +790,7 @@ const logDestOptions = [
 ]
 
 export function Task2_3_Solution() {
+  const { t } = useLanguage()
   const [selectedDest, setSelectedDest] = useState<string>('syslog')
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(
     new Set(['error', 'warning', 'notice']),
@@ -828,16 +832,16 @@ export function Task2_3_Solution() {
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '960px' }}>
-      <h2 style={{ marginBottom: '0.5rem' }}>Настройка логирования</h2>
+      <h2 style={{ marginBottom: '0.5rem' }}>{t('solution.level2.loggingTitle')}</h2>
       <p style={{ color: '#555', marginBottom: '1.5rem' }}>
-        Правильно настроенные логи — ключ к диагностике проблем. Собери конфигурацию логирования и посмотри пример вывода.
+        {t('solution.level2.loggingDesc')}
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
         {/* Left column */}
         <div>
           {/* log_dest */}
-          <h3 style={{ marginBottom: '0.75rem' }}>Назначение логов (log_dest)</h3>
+          <h3 style={{ marginBottom: '0.75rem' }}>{t('solution.level2.logDest')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1.5rem' }}>
             {logDestOptions.map(dest => (
               <label
@@ -876,7 +880,7 @@ export function Task2_3_Solution() {
                         fontWeight: 600,
                       }}
                     >
-                      рекомендуется
+                      {t('solution.level2.recommended')}
                     </span>
                   )}
                   <div style={{ fontSize: '0.78rem', color: '#666', marginTop: '2px' }}>
@@ -910,7 +914,7 @@ export function Task2_3_Solution() {
               <code style={{ fontFamily: 'monospace', fontSize: '0.85rem', fontWeight: 600 }}>
                 log_timestamp true
               </code>
-              <div style={{ fontSize: '0.78rem', color: '#666' }}>Добавлять временную метку к каждой строке</div>
+              <div style={{ fontSize: '0.78rem', color: '#666' }}>{t('solution.level2.timestampLabel')}</div>
             </div>
           </label>
         </div>
@@ -918,7 +922,7 @@ export function Task2_3_Solution() {
         {/* Right column */}
         <div>
           {/* log_type */}
-          <h3 style={{ marginBottom: '0.75rem' }}>Типы событий (log_type)</h3>
+          <h3 style={{ marginBottom: '0.75rem' }}>{t('solution.level2.logTypes')}</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', marginBottom: '1.5rem' }}>
             {logTypes.map(lt => {
               const active = selectedTypes.has(lt.id)
@@ -979,14 +983,14 @@ export function Task2_3_Solution() {
               fontSize: '0.85rem',
             }}
           >
-            {showConfig ? 'Скрыть конфиг' : '📋 Показать конфиг'}
+            {showConfig ? t('solution.level2.hideConfigBtn') : `📋 ${t('solution.level2.showConfigBtn')}`}
           </button>
         </div>
 
         {showConfig && (
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
             <div>
-              <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '4px' }}>mosquitto.conf:</div>
+              <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '4px' }}>{t('solution.level2.mosquittoConf')}:</div>
               <pre
                 style={{
                   background: '#1a1a2e',
@@ -1003,7 +1007,7 @@ export function Task2_3_Solution() {
               </pre>
             </div>
             <div>
-              <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '4px' }}>Пример лог-вывода:</div>
+              <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '4px' }}>{t('solution.level2.logPreview')}:</div>
               <div
                 style={{
                   background: '#1a1a2e',
@@ -1018,7 +1022,7 @@ export function Task2_3_Solution() {
               >
                 {exampleLog.length > 0
                   ? exampleLog.map((line, i) => <div key={i}>{line}</div>)
-                  : <span style={{ color: '#666' }}>Выберите типы событий</span>}
+                  : <span style={{ color: '#666' }}>{t('solution.level2.selectLogTypes')}</span>}
               </div>
             </div>
           </div>

@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useLanguage } from '@courses/platform'
 
 // ============================================
 // Задание 9.1: WebSocket listener — Решение
 // ============================================
 
 export function Task9_1_Solution() {
+  const { t } = useLanguage()
   const [activeTab, setActiveTab] = useState<'config' | 'test'>('config')
   const [port, setPort] = useState('9001')
   const [bindAddr, setBindAddr] = useState('0.0.0.0')
@@ -56,19 +58,19 @@ export function Task9_1_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 9.1: WebSocket listener</h2>
+      <h2>{t('solution.level9.wsListenerTitle')}</h2>
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
         <button
           onClick={() => setActiveTab('config')}
           style={{ fontWeight: activeTab === 'config' ? 'bold' : 'normal' }}
         >
-          Конфигурация
+          {t('solution.level9.configuration')}
         </button>
         <button
           onClick={() => setActiveTab('test')}
           style={{ fontWeight: activeTab === 'test' ? 'bold' : 'normal' }}
         >
-          Тестирование
+          {t('solution.level9.testing')}
         </button>
       </div>
 
@@ -76,7 +78,7 @@ export function Task9_1_Solution() {
         <div>
           <div style={{ marginBottom: '1rem' }}>
             <label style={{ display: 'block', marginBottom: '0.25rem' }}>
-              WebSocket порт:
+              {t('solution.level9.wsPortLabel')}:
             </label>
             <input
               type="number"
@@ -90,17 +92,17 @@ export function Task9_1_Solution() {
               onChange={(e) => setBindAddr(e.target.value)}
               style={{ padding: '0.25rem' }}
             >
-              <option value="0.0.0.0">0.0.0.0 (все интерфейсы)</option>
-              <option value="127.0.0.1">127.0.0.1 (только localhost)</option>
+              <option value="0.0.0.0">0.0.0.0 ({t('solution.level9.allInterfaces')})</option>
+              <option value="127.0.0.1">127.0.0.1 ({t('solution.level9.localhostOnly')})</option>
               <option value="192.168.1.1">192.168.1.1 (LAN)</option>
             </select>
           </div>
-          <button onClick={generateConfig}>Сгенерировать конфиг</button>
+          <button onClick={generateConfig}>{t('solution.level9.generateConfig')}</button>
         </div>
       )}
 
       {activeTab === 'test' && (
-        <button onClick={runTest}>Показать команды тестирования</button>
+        <button onClick={runTest}>{t('solution.level9.showTestCommands')}</button>
       )}
 
       {output.length > 0 && (
@@ -121,6 +123,7 @@ export function Task9_1_Solution() {
 type ProxyType = 'uhttpd' | 'nginx'
 
 export function Task9_2_Solution() {
+  const { t } = useLanguage()
   const [proxyType, setProxyType] = useState<ProxyType>('uhttpd')
   const [mqttWsPort, setMqttWsPort] = useState('9001')
   const [publicPath, setPublicPath] = useState('/mqtt')
@@ -183,10 +186,10 @@ export function Task9_2_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 9.2: Reverse proxy для WebSocket MQTT</h2>
+      <h2>{t('solution.level9.reverseProxyTitle')}</h2>
 
       <div style={{ marginBottom: '1rem' }}>
-        <label style={{ display: 'block', marginBottom: '0.5rem' }}>Тип прокси:</label>
+        <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t('solution.level9.proxyTypeLabel')}:</label>
         <label style={{ marginRight: '1.5rem' }}>
           <input
             type="radio"
@@ -194,7 +197,7 @@ export function Task9_2_Solution() {
             checked={proxyType === 'uhttpd'}
             onChange={() => setProxyType('uhttpd')}
           />{' '}
-          uhttpd (встроен в OpenWRT)
+          uhttpd ({t('solution.level9.uhttpdDesc')})
         </label>
         <label>
           <input
@@ -209,7 +212,7 @@ export function Task9_2_Solution() {
 
       <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>Порт Mosquitto WS:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level9.mosquittoWsPortLabel')}:</label>
           <input
             type="number"
             value={mqttWsPort}
@@ -219,7 +222,7 @@ export function Task9_2_Solution() {
         </div>
         {proxyType === 'nginx' && (
           <div>
-            <label style={{ display: 'block', marginBottom: '0.25rem' }}>Путь (location):</label>
+            <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level9.pathLabel')}:</label>
             <input
               type="text"
               value={publicPath}
@@ -230,7 +233,7 @@ export function Task9_2_Solution() {
         )}
       </div>
 
-      <button onClick={generateProxy}>Сгенерировать конфиг</button>
+      <button onClick={generateProxy}>{t('solution.level9.generateConfig')}</button>
 
       {output.length > 0 && (
         <div style={{ marginTop: '1rem' }}>
@@ -250,6 +253,7 @@ export function Task9_2_Solution() {
 type MqttLib = 'mqttjs' | 'paho'
 
 export function Task9_3_Solution() {
+  const { t } = useLanguage()
   const [lib, setLib] = useState<MqttLib>('mqttjs')
   const [brokerHost, setBrokerHost] = useState('192.168.1.1')
   const [wsPort, setWsPort] = useState('9001')
@@ -342,10 +346,10 @@ export function Task9_3_Solution() {
 
   return (
     <div className="exercise-container">
-      <h2>Задание 9.3: Веб-клиент MQTT</h2>
+      <h2>{t('solution.level9.webClientTitle')}</h2>
 
       <div style={{ marginBottom: '1rem' }}>
-        <label style={{ display: 'block', marginBottom: '0.5rem' }}>Библиотека:</label>
+        <label style={{ display: 'block', marginBottom: '0.5rem' }}>{t('solution.level9.libraryLabel')}:</label>
         <label style={{ marginRight: '1.5rem' }}>
           <input
             type="radio"
@@ -353,7 +357,7 @@ export function Task9_3_Solution() {
             checked={lib === 'mqttjs'}
             onChange={() => setLib('mqttjs')}
           />{' '}
-          MQTT.js (рекомендуется)
+          MQTT.js ({t('solution.level9.recommended')})
         </label>
         <label>
           <input
@@ -368,7 +372,7 @@ export function Task9_3_Solution() {
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>IP брокера:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level9.brokerIpLabel')}:</label>
           <input
             type="text"
             value={brokerHost}
@@ -377,7 +381,7 @@ export function Task9_3_Solution() {
           />
         </div>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>WS порт:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level9.wsPortLabel2')}:</label>
           <input
             type="number"
             value={wsPort}
@@ -386,7 +390,7 @@ export function Task9_3_Solution() {
           />
         </div>
         <div>
-          <label style={{ display: 'block', marginBottom: '0.25rem' }}>Топик подписки:</label>
+          <label style={{ display: 'block', marginBottom: '0.25rem' }}>{t('solution.level9.subscribeTopicLabel')}:</label>
           <input
             type="text"
             value={topic}
@@ -396,7 +400,7 @@ export function Task9_3_Solution() {
         </div>
       </div>
 
-      <button onClick={generateClient}>Сгенерировать код клиента</button>
+      <button onClick={generateClient}>{t('solution.level9.generateClientCode')}</button>
 
       {output.length > 0 && (
         <div style={{ marginTop: '1rem' }}>

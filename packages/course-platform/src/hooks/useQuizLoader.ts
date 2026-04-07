@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react'
 
-import { useLanguage } from './useLanguage'
 import type { QuizQuestion } from '../types'
 
 /**
  * Хук для загрузки quiz JSON файлов с поддержкой локализации
  */
 export function useQuizLoader(path: string) {
-  const { language } = useLanguage()
   const [questions, setQuestions] = useState<QuizQuestion[] | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -20,24 +18,9 @@ export function useQuizLoader(path: string) {
         setLoading(true)
         setError(null)
 
-        const localizedPath =
-          language === 'en' ? path.replace('.json', '.en.json') : path
-
-        const response = await fetch(localizedPath)
+        const response = await fetch(path)
 
         if (!response.ok) {
-          if (language === 'en') {
-            const fallbackResponse = await fetch(path)
-            if (fallbackResponse.ok) {
-              const data = await fallbackResponse.json()
-              if (mounted) {
-                setQuestions(data)
-                setError(null)
-              }
-              setLoading(false)
-              return
-            }
-          }
           throw new Error(`Failed to load quiz: ${response.status}`)
         }
 
@@ -64,7 +47,7 @@ export function useQuizLoader(path: string) {
     return () => {
       mounted = false
     }
-  }, [path, language])
+  }, [path])
 
   return { questions, loading, error }
 }

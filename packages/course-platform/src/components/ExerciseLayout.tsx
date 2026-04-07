@@ -42,49 +42,55 @@ export function ExerciseLayout({ config }: ExerciseLayoutProps) {
         <p style={{ color: 'var(--clr-text-muted)' }}>{t(descKey)}</p>
       </header>
 
-      <div className={taskStyles.container}>
-        {tasks.map(task => {
-          const completed = isTaskComplete(levelId, task.id)
-          const isActive = currentTask === task.id
-          const buttonClass = `${taskStyles.button} ${
-            isActive ? taskStyles.buttonActive : taskStyles.buttonInactive
-          } ${completed ? taskStyles.buttonCompleted : ''}`
+      {tasks.length > 0 && (
+        <>
+          <div className={taskStyles.container}>
+            {tasks.map(task => {
+              const completed = isTaskComplete(levelId, task.id)
+              const isActive = currentTask === task.id
+              const buttonClass = `${taskStyles.button} ${
+                isActive ? taskStyles.buttonActive : taskStyles.buttonInactive
+              } ${completed ? taskStyles.buttonCompleted : ''}`
 
-          return (
-            <div key={task.id} className={taskStyles.taskWrapper}>
-              <button onClick={() => changeTask(task.id)} className={buttonClass}>
-                {t('task.title')} {task.id}
-              </button>
-              <input
-                type="checkbox"
-                checked={completed}
-                onChange={() => toggleTask(levelId, task.id)}
-                className={taskStyles.checkbox}
-                title={completed ? t('task.markIncomplete') : t('task.markComplete')}
-              />
-            </div>
-          )
-        })}
-      </div>
+              return (
+                <div key={task.id} className={taskStyles.taskWrapper}>
+                  <button onClick={() => changeTask(task.id)} className={buttonClass}>
+                    {t('task.title')} {task.id}
+                  </button>
+                  <input
+                    type="checkbox"
+                    checked={completed}
+                    onChange={() => toggleTask(levelId, task.id)}
+                    className={taskStyles.checkbox}
+                    title={completed ? t('task.markIncomplete') : t('task.markComplete')}
+                  />
+                </div>
+              )
+            })}
+          </div>
 
-      <div className={solutionStyles.container}>
-        <button
-          onClick={() => setShowSolution(!showSolution)}
-          className={`${solutionStyles.button} ${
-            showSolution ? solutionStyles.buttonHide : solutionStyles.buttonShow
-          }`}
-        >
-          {showSolution ? t('solution.hide') : t('solution.show')}
-        </button>
-      </div>
+          <div className={solutionStyles.container}>
+            <button
+              onClick={() => setShowSolution(!showSolution)}
+              className={`${solutionStyles.button} ${
+                showSolution ? solutionStyles.buttonHide : solutionStyles.buttonShow
+              }`}
+            >
+              {showSolution ? t('solution.hide') : t('solution.show')}
+            </button>
+          </div>
 
-      {showSolution ? (
-        currentTaskEntry?.solution
-      ) : (
-        <DynamicStudentTask folder={config.folder} taskId={currentTask} />
+          {showSolution ? (
+            currentTaskEntry?.solution
+          ) : (
+            <DynamicStudentTask folder={config.folder} taskId={currentTask} />
+          )}
+        </>
       )}
 
-      <TaskDescription taskNumber={currentTask} level={levelId} />
+      {tasks.length > 0 && (
+        <TaskDescription taskNumber={currentTask} level={levelId} />
+      )}
 
       <TheoryBlock level={levelId} />
 

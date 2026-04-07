@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 
-import { useLanguage } from './useLanguage'
-
 interface UseMarkdownLoaderOptions {
   fallback?: string
 }
@@ -11,7 +9,6 @@ interface UseMarkdownLoaderOptions {
  */
 export function useMarkdownLoader(path: string, options: UseMarkdownLoaderOptions = {}) {
   const { fallback = '' } = options
-  const { language } = useLanguage()
   const [content, setContent] = useState<string>('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -24,28 +21,11 @@ export function useMarkdownLoader(path: string, options: UseMarkdownLoaderOption
         setLoading(true)
         setError(null)
 
-        // Добавляем .en.md для английского языка
-        const localizedPath = language === 'en' ? path.replace('.md', '.en.md') : path
-
-        const response = await fetch(localizedPath)
+        const response = await fetch(path)
         const contentType = response.headers.get('content-type') || ''
         const isHtmlFallback = contentType.includes('text/html')
 
         if (!response.ok || isHtmlFallback) {
-          // Если английская версия не найдена, пробуем русскую
-          if (language === 'en') {
-            const fallbackResponse = await fetch(path)
-            const fallbackCt = fallbackResponse.headers.get('content-type') || ''
-            if (fallbackResponse.ok && !fallbackCt.includes('text/html')) {
-              const text = await fallbackResponse.text()
-              if (mounted) {
-                setContent(text)
-                setError(null)
-              }
-              setLoading(false)
-              return
-            }
-          }
           throw new Error(`Failed to load markdown: ${response.status}`)
         }
 
@@ -72,7 +52,7 @@ export function useMarkdownLoader(path: string, options: UseMarkdownLoaderOption
     return () => {
       mounted = false
     }
-  }, [path, language, fallback])
+  }, [path, fallback])
 
   return { content, loading, error }
 }

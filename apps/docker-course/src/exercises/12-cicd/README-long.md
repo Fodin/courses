@@ -1020,22 +1020,32 @@ Rolling Update -- постепенная замена старых контей�
 Аналогия: замена колёс на движущемся поезде. Вы не можете остановить поезд, поэтому меняете колёса по одному вагону, пока поезд продолжает ехать.
 
 ```mermaid
-gantt
-    title Rolling Update -- постепенное обновление
-    dateFormat X
-    axisFormat %s
+flowchart LR
+    subgraph t0["t=0: Все на v1"]
+        A1["Реплика 1: v1"]
+        A2["Реплика 2: v1"]
+        A3["Реплика 3: v1"]
+    end
+    subgraph t1["t=1: Обновляем первую"]
+        B1["Реплика 1: v2 ✓"]
+        B2["Реплика 2: v1"]
+        B3["Реплика 3: v1"]
+    end
+    subgraph t2["t=2: Обновляем вторую"]
+        C1["Реплика 1: v2 ✓"]
+        C2["Реплика 2: v2 ✓"]
+        C3["Реплика 3: v1"]
+    end
+    subgraph t3["t=3: Все на v2"]
+        D1["Реплика 1: v2 ✓"]
+        D2["Реплика 2: v2 ✓"]
+        D3["Реплика 3: v2 ✓"]
+    end
 
-    section Реплика 1
-    v1 :done, r1v1, 0, 2
-    v2 :active, r1v2, 2, 6
-
-    section Реплика 2
-    v1 :done, r2v1, 0, 3
-    v2 :active, r2v2, 3, 6
-
-    section Реплика 3
-    v1 :done, r3v1, 0, 4
-    v2 :active, r3v2, 4, 6
+    style t0 fill:transparent,stroke:#888
+    style t1 fill:transparent,stroke:#888
+    style t2 fill:transparent,stroke:#888
+    style t3 fill:transparent,stroke:#888
 ```
 
 Конфигурация для Docker Swarm:

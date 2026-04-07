@@ -1,0 +1,142 @@
+[
+  {
+    "question": "Which Claude Code files and directories should be committed to git for team collaboration?",
+    "type": "multiple",
+    "options": [
+      { "text": "CLAUDE.md", "correct": true, "explanation": "CLAUDE.md is the main source of rules for the team, versioned and goes through code review" },
+      { "text": ".claude/settings.json", "correct": true, "explanation": "Team permissions and settings shared by all project participants" },
+      { "text": ".claude/settings.local.json", "correct": false, "explanation": "Local settings contain paths and preferences of a specific developer — colleagues will have different ones" },
+      { "text": ".claude/rules/ and .claude/skills/", "correct": true, "explanation": "Rules and skills are part of team standards and should be the same for everyone" }
+    ]
+  },
+  {
+    "question": "Where are managed settings placed on macOS?",
+    "type": "single",
+    "options": [
+      { "text": "~/.claude/managed-settings.json", "correct": false, "explanation": "User's home directory — a developer can modify it. Managed settings must not be editable by users" },
+      { "text": "/Library/Application Support/ClaudeCode/", "correct": true, "explanation": "System directory requiring root privileges to write. Only an administrator can change managed settings" },
+      { "text": "/usr/local/etc/claude-code/", "correct": false, "explanation": "This is not the standard path for Claude Code managed settings on macOS" },
+      { "text": ".claude/managed/", "correct": false, "explanation": "Files in the project directory are available for developer editing — this is not the managed level" }
+    ]
+  },
+  {
+    "question": "What does allowManagedPermissionRulesOnly: true do?",
+    "type": "single",
+    "options": [
+      { "text": "Allows developers to add their own allow rules on top of managed", "correct": false, "explanation": "The opposite — this parameter prohibits developers from adding their own permission rules" },
+      { "text": "Only managed policy can define allow rules — developers cannot extend permissions", "correct": true, "explanation": "The organization fully controls what is allowed. A developer cannot add allow for additional tools" },
+      { "text": "Managed settings become advisory, not mandatory", "correct": false, "explanation": "Managed settings are always mandatory. allowManagedPermissionRulesOnly strengthens control, not weakens it" },
+      { "text": "Enables managed settings at the project level", "correct": false, "explanation": "Managed settings are set by a system administrator at the OS level, not at the project level" }
+    ]
+  },
+  {
+    "question": "You're creating a company plugin. What can be included in a plugin?",
+    "type": "multiple",
+    "options": [
+      { "text": "Skills", "correct": true, "explanation": "Skills for typical tasks — deploy, migrate, review — are a main part of many plugins" },
+      { "text": "Hooks", "correct": true, "explanation": "Hooks for validation, audit, and automation are an important part of a corporate plugin" },
+      { "text": "Agents", "correct": true, "explanation": "Agents for code review, testing, and other processes can be part of a plugin" },
+      { "text": "Managed settings", "correct": false, "explanation": "Managed settings are installed by a system administrator at the OS level, not through plugins" }
+    ]
+  },
+  {
+    "question": "Why should an organization restrict available MCP servers via managed-mcp.json?",
+    "type": "multiple",
+    "options": [
+      { "text": "Security: not all MCP servers are trusted", "correct": true, "explanation": "A third-party MCP server could be compromised or intentionally malicious — data through it could leak" },
+      { "text": "Cost: each MCP call spends tokens", "correct": true, "explanation": "Uncontrolled use of MCP servers increases API costs — the organization wants to control the budget" },
+      { "text": "Compliance: data must not leak through third-party servers", "correct": true, "explanation": "Regulatory requirements may prohibit transmitting certain data through external services" },
+      { "text": "Performance: MCP servers slow down the agent", "correct": false, "explanation": "MCP calls add latency, but this isn't the main reason for restrictions. Security, cost, and compliance are the primary motivators" }
+    ]
+  },
+  {
+    "question": "How does path-specific targeting in .claude/rules/ work?",
+    "type": "single",
+    "options": [
+      { "text": "Rules are applied to all project files equally", "correct": false, "explanation": "The point of path-specific targeting is different rules for different parts of the project" },
+      { "text": "Paths are specified in the file's frontmatter — rules apply only when working with files matching those paths", "correct": true, "explanation": "Claude loads rules from .claude/rules/ only when working with files matching the paths patterns. For example, backend rules for src/api/**" },
+      { "text": "Rules execute in the order of files in the directory", "correct": false, "explanation": "Order doesn't depend on file names — rules are activated by path matching, not alphabetically" },
+      { "text": "Each rules file can contain only one rule", "correct": false, "explanation": "A rules file can contain any number of rules and recommendations for the specified paths" }
+    ]
+  },
+  {
+    "question": "A team of 15 is starting to use Claude Code. What's the first step?",
+    "type": "single",
+    "options": [
+      { "text": "Each developer configures Claude Code independently", "correct": false, "explanation": "Without shared standards, each will generate code in their own style — the codebase will quickly become chaotic" },
+      { "text": "Create CLAUDE.md with base rules and .claude/settings.json with permissions, commit to git", "correct": true, "explanation": "Shared standards are the foundation of team work. CLAUDE.md defines code style, settings.json defines permissions and restrictions" },
+      { "text": "Install managed policy on all machines", "correct": false, "explanation": "Managed policy is for organizations with security requirements. For a team of 15, start with CLAUDE.md and project settings" },
+      { "text": "Write 50 skills for all possible tasks", "correct": false, "explanation": "Start with base rules, not skills. Add skills as recurring tasks are identified" }
+    ]
+  },
+  {
+    "question": "Why shouldn't CLAUDE.md be longer than 200 lines?",
+    "type": "single",
+    "options": [
+      { "text": "Claude Code doesn't support files longer than 200 lines", "correct": false, "explanation": "There's no technical limitation. The problem is context window consumption and reduced accuracy with large volumes" },
+      { "text": "The agent spends context window on reading, and rules/ and skills/ are available for details", "correct": true, "explanation": "CLAUDE.md is read on every launch. The longer it is, the less context remains for work. Details are moved to rules/ (on-path) and skills/ (on-demand)" },
+      { "text": "Git can't store large markdown files", "correct": false, "explanation": "Git handles files of any size just fine. The limitation relates to the agent's context window, not git" },
+      { "text": "It's an Anthropic standard for CLAUDE.md", "correct": false, "explanation": "There's no formal restriction from Anthropic. 200 lines is a practical recommendation for effective context usage" }
+    ]
+  },
+  {
+    "question": "What's the advantage of plugins over copying files between projects?",
+    "type": "multiple",
+    "options": [
+      { "text": "Versioning: you can update a plugin for everyone at once", "correct": true, "explanation": "When a plugin is updated, all projects using it get the new version — no need to update each project manually" },
+      { "text": "Single source of truth: changes in one place", "correct": true, "explanation": "Fixed a bug in a hook — all projects get the fix on update, no need to search for copies across 20 repositories" },
+      { "text": "Plugins run faster than regular files", "correct": false, "explanation": "Performance is the same — a plugin ultimately unpacks to the same files. The advantage is manageability, not speed" },
+      { "text": "Standardization: all developers get the same set of tools", "correct": true, "explanation": "A plugin guarantees everyone has the same skills, hooks, and agents — no discrepancies from manual copying" }
+    ]
+  },
+  {
+    "question": "How does Claude Code use .claude/rules/ when working with files?",
+    "type": "single",
+    "options": [
+      { "text": "Loads all rules files in every session", "correct": false, "explanation": "That would be wasteful for context. Claude loads only relevant rules based on paths" },
+      { "text": "Automatically loads only those rules whose paths match the files the agent is working with", "correct": true, "explanation": "If the agent edits src/api/users.ts, rules with paths: ['src/api/**'] are loaded, but not frontend rules" },
+      { "text": "The developer must manually specify which rules to apply", "correct": false, "explanation": "Rules are loaded automatically by path matching — no manual specification is required" },
+      { "text": "Rules apply only when skills are invoked", "correct": false, "explanation": "Rules work independently of skills — they're automatically activated when working with files at the specified paths" }
+    ]
+  },
+  {
+    "question": "An organization rolled out allowManagedPermissionRulesOnly: true, and developers complain the agent can't run tests. What's the likely cause?",
+    "type": "single",
+    "options": [
+      { "text": "Developers haven't updated Claude Code to the latest version", "correct": false, "explanation": "The problem isn't the version — it's that the managed policy didn't include the necessary allow rules" },
+      { "text": "Bash(npm test*) wasn't added to the allow list in the managed policy", "correct": true, "explanation": "allowManagedPermissionRulesOnly prohibits adding allow rules at the project and user levels. If npm test isn't allowed in managed — it's unavailable" },
+      { "text": "Tests aren't working because of sandbox", "correct": false, "explanation": "Sandbox might block network requests, but running npm test is a permissions issue, not sandbox" },
+      { "text": "All Claude Code sessions need to be restarted", "correct": false, "explanation": "Managed settings apply automatically. The problem is in configuration, not caching" }
+    ]
+  },
+  {
+    "question": "A new developer joins the project. Which combination of Claude Code tools best helps with onboarding?",
+    "type": "single",
+    "options": [
+      { "text": "Only CLAUDE.md — everything is written there", "correct": false, "explanation": "CLAUDE.md is a good base, but full onboarding needs interactive tools: skills for environment setup, agents for review" },
+      { "text": "CLAUDE.md for project understanding + environment setup skill + code review agent", "correct": true, "explanation": "Three levels: CLAUDE.md provides context, skill automates setup, agent helps write code to standards. Together they create an interactive mentor" },
+      { "text": "Managed policy with maximum restrictions for newcomers", "correct": false, "explanation": "Strict restrictions will hinder learning. A newcomer needs support (skills, agents), not additional barriers" },
+      { "text": "A personal CLAUDE.md for each newcomer", "correct": false, "explanation": "CLAUDE.md should be shared for the team. Personal settings go in settings.local.json, but onboarding needs skills and agents" }
+    ]
+  },
+  {
+    "question": "What is allowManagedHooksOnly and why is it needed?",
+    "type": "single",
+    "options": [
+      { "text": "Allows using only built-in Claude Code hooks", "correct": false, "explanation": "The parameter isn't about built-in hooks — it's about who can define hooks: only managed policy or all settings levels" },
+      { "text": "Only hooks from managed policy will execute — developers can't add their own", "correct": true, "explanation": "This prevents a situation where a developer creates a hook that bypasses or disables corporate security checks" },
+      { "text": "Hooks only work in managed mode", "correct": false, "explanation": "Hooks work in all modes. allowManagedHooksOnly controls who can define hooks" },
+      { "text": "Automatically creates hooks based on managed policy", "correct": false, "explanation": "The parameter doesn't create hooks — it prohibits adding hooks at levels below managed" }
+    ]
+  },
+  {
+    "question": "A team wants the agent to always run the linter after finishing work. Which hook to use?",
+    "type": "single",
+    "options": [
+      { "text": "PreToolUse with matcher: 'Write|Edit'", "correct": false, "explanation": "PreToolUse fires before each edit, not at work completion. Running linter after every Edit is too frequent" },
+      { "text": "Stop with matcher: '.*'", "correct": true, "explanation": "The Stop hook fires when the agent finishes work. Running the linter at this stage ensures all code is checked" },
+      { "text": "PostToolUse with matcher: '.*'", "correct": false, "explanation": "PostToolUse after every tool — the linter would run dozens of times per session. Stop — once at completion" },
+      { "text": "SessionStart with matcher: '.*'", "correct": false, "explanation": "SessionStart is the beginning of a session, not the end. The linter is needed after changes, not before them" }
+    ]
+  }
+]

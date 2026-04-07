@@ -1,0 +1,82 @@
+[
+  {
+    "question": "What are Subagents in Claude Code?",
+    "type": "single",
+    "options": [
+      { "text": "Specialized agents that run in parallel to handle specific tasks", "correct": true, "explanation": "Correct: subagents are Claude agents delegated by the main agent to work on independent tasks in parallel." },
+      { "text": "MCP servers for external integrations", "correct": false, "explanation": "MCP servers are external tools. Subagents are built-in Claude Code feature." },
+      { "text": "Git branches for parallel development", "correct": false, "explanation": "Git branches are version control, not Claude Code subagents." },
+      { "text": "Background processes for running commands", "correct": false, "explanation": "Background processes are shell features. Subagents are full Claude agents with their own context." }
+    ]
+  },
+  {
+    "question": "When should you use subagents?",
+    "type": "multiple",
+    "options": [
+      { "text": "When tasks are independent and can run in parallel", "correct": true, "explanation": "Correct: independent tasks benefit most from parallel execution." },
+      { "text": "When tasks require different context or expertise", "correct": true, "explanation": "Correct: subagents can specialize in different areas." },
+      { "text": "When tasks depend on each other", "correct": false, "explanation": "Dependent tasks must run sequentially — subagents cannot help here." },
+      { "text": "For simple one-line commands like ls or grep", "correct": false, "explanation": "Simple commands do not need subagent overhead — use Bash directly." }
+    ]
+  },
+  {
+    "question": "What context do subagents have access to?",
+    "type": "single",
+    "options": [
+      { "text": "The full conversation between the user and the main agent", "correct": false, "explanation": "Subagents only receive their specific task description, not the full conversation." },
+      { "text": "Only their specific task description and project files", "correct": true, "explanation": "Correct: subagents work in isolated contexts with only their task and file access." },
+      { "text": "The results of other subagents", "correct": false, "explanation": "Subagents cannot see each other's results — they work independently." },
+      { "text": "The user's direct input", "correct": false, "explanation": "Subagents do not receive direct user input — communication goes through the main agent." }
+    ]
+  },
+  {
+    "question": "How do subagents improve performance?",
+    "type": "single",
+    "options": [
+      { "text": "By using fewer tokens overall", "correct": false, "explanation": "Subagents may use more tokens due to duplicated context. The benefit is time, not tokens." },
+      { "text": "By running tasks in parallel instead of sequentially", "correct": true, "explanation": "Correct: three 10-minute tasks take ~10 minutes total with subagents, not 30." },
+      { "text": "By caching results from previous runs", "correct": false, "explanation": "Subagents do not cache results — they run fresh each time." },
+      { "text": "By using a faster model", "correct": false, "explanation": "Subagents use the same model as the main agent." }
+    ]
+  },
+  {
+    "question": "What happens when subagents complete their tasks?",
+    "type": "single",
+    "options": [
+      { "text": "Results are shown directly to the user", "correct": false, "explanation": "Results return to the main agent first, which then presents them to the user." },
+      { "text": "Results return to the main agent for aggregation", "correct": true, "explanation": "Correct: the main agent reviews, combines, and presents subagent results." },
+      { "text": "Results are saved to files automatically", "correct": false, "explanation": "Subagents can save files, but results also return to the main agent." },
+      { "text": "Results are discarded after completion", "correct": false, "explanation": "Results are returned to the main agent, not discarded." }
+    ]
+  },
+  {
+    "question": "Which is a good subagent task description?",
+    "type": "single",
+    "options": [
+      { "text": "Look at the API", "correct": false, "explanation": "Too vague — the subagent will waste time figuring out what to do." },
+      { "text": "Find all endpoints in src/api/ that handle user authentication, and document their request/response formats", "correct": true, "explanation": "Correct: specific scope, clear location, and defined output format." },
+      { "text": "Do everything related to the API", "correct": false, "explanation": "Too broad — no clear scope or deliverable." },
+      { "text": "Fix all bugs", "correct": false, "explanation": "No scope, no location, no definition of done." }
+    ]
+  },
+  {
+    "question": "What is a common mistake when using subagents?",
+    "type": "multiple",
+    "options": [
+      { "text": "Creating subagents for sequential tasks", "correct": true, "explanation": "Correct: sequential tasks cannot benefit from parallelism." },
+      { "text": "Giving vague task descriptions", "correct": true, "explanation": "Correct: vague descriptions waste subagent time and tokens." },
+      { "text": "Creating too many subagents", "correct": true, "explanation": "Correct: overhead and cost outweigh parallelism benefits with too many." },
+      { "text": "Not aggregating results", "correct": true, "explanation": "Correct: raw subagent output is not user-friendly without aggregation." }
+    ]
+  },
+  {
+    "question": "How do subagents differ from MCP servers?",
+    "type": "single",
+    "options": [
+      { "text": "Subagents are for parallel task execution, MCP is for external tool integration", "correct": true, "explanation": "Correct: subagents run tasks within Claude Code, MCP connects to external services." },
+      { "text": "Subagents are faster than MCP servers", "correct": false, "explanation": "Speed is not the primary difference — they serve different purposes." },
+      { "text": "Subagents use HTTP, MCP uses stdio", "correct": false, "explanation": "Both can use various transports. This is not a distinguishing factor." },
+      { "text": "Subagents are external processes", "correct": false, "explanation": "Subagents run within Claude Code. MCP servers are external processes." }
+    ]
+  }
+]

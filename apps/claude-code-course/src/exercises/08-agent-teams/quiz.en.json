@@ -1,0 +1,102 @@
+[
+  {
+    "question": "What are Agent Teams in Claude Code?",
+    "type": "single",
+    "options": [
+      { "text": "Multiple agents working together with explicit coordination and specialized roles", "correct": true, "explanation": "Correct: Agent Teams involve structured roles, orchestrator, and handoffs between agents." },
+      { "text": "A group of MCP servers working together", "correct": false, "explanation": "MCP servers are external tools. Agent Teams are Claude Code agents." },
+      { "text": "Multiple subagents running in parallel", "correct": false, "explanation": "Subagents are delegated by a single agent. Agent Teams have explicit coordination." },
+      { "text": "Git contributors to a repository", "correct": false, "explanation": "Git contributors are people, not AI agents." }
+    ]
+  },
+  {
+    "question": "What is the role of the Orchestrator?",
+    "type": "single",
+    "options": [
+      { "text": "Writes the most complex code", "correct": false, "explanation": "The orchestrator coordinates work, not writes code." },
+      { "text": "Coordinates work, manages handoffs, and delegates tasks based on expertise", "correct": true, "explanation": "Correct: the orchestrator is the team manager." },
+      { "text": "Reviews all code before it goes to the user", "correct": false, "explanation": "That is the Reviewer's role. The orchestrator coordinates." },
+      { "text": "Runs tests on the final output", "correct": false, "explanation": "That is the QA agent's role." }
+    ]
+  },
+  {
+    "question": "Which orchestration pattern is best for maximum quality?",
+    "type": "single",
+    "options": [
+      { "text": "Sequential Pipeline", "correct": false, "explanation": "Sequential is good for quality but Iterative Refinement is better." },
+      { "text": "Parallel Development + Review", "correct": false, "explanation": "This balances speed and quality, not maximum quality." },
+      { "text": "Iterative Refinement", "correct": true, "explanation": "Correct: iterative refinement catches the most bugs through repeated review cycles." },
+      { "text": "Hub and Spoke", "correct": false, "explanation": "Hub and Spoke is good for coordination, not specifically for quality." }
+    ]
+  },
+  {
+    "question": "What should a good handoff include?",
+    "type": "multiple",
+    "options": [
+      { "text": "What was completed", "correct": true, "explanation": "Correct: the receiving agent needs to know what was done." },
+      { "text": "What needs special attention", "correct": true, "explanation": "Correct: focus areas help the receiving agent do its job." },
+      { "text": "Known limitations or issues", "correct": true, "explanation": "Correct: the receiving agent should know about caveats." },
+      { "text": "The full conversation history", "correct": false, "explanation": "Handoffs should be concise summaries, not full history." }
+    ]
+  },
+  {
+    "question": "Why is it important to limit iterations in an Agent Team?",
+    "type": "single",
+    "options": [
+      { "text": "To prevent infinite review loops and control costs", "correct": true, "explanation": "Correct: without limits, agents can loop indefinitely, consuming many tokens." },
+      { "text": "To make agents work faster", "correct": false, "explanation": "Iteration limits do not affect speed — they affect total work done." },
+      { "text": "To ensure agents use the correct model", "correct": false, "explanation": "Model selection is separate from iteration limits." },
+      { "text": "To prevent agents from communicating", "correct": false, "explanation": "Iteration limits control the number of cycles, not communication." }
+    ]
+  },
+  {
+    "question": "What is a common mistake when setting up Agent Teams?",
+    "type": "multiple",
+    "options": [
+      { "text": "Undefined agent roles", "correct": true, "explanation": "Correct: without clear roles, agents step on each other's toes." },
+      { "text": "No handoff structure", "correct": true, "explanation": "Correct: information is lost between agents without structured handoffs." },
+      { "text": "No exit criteria", "correct": true, "explanation": "Correct: without exit criteria, teams can work indefinitely." },
+      { "text": "Too many agents for a simple task", "correct": true, "explanation": "Correct: overhead outweighs benefits for simple tasks." }
+    ]
+  },
+  {
+    "question": "How do Agent Teams differ from Subagents?",
+    "type": "single",
+    "options": [
+      { "text": "Agent Teams have explicit coordination, Subagents are delegated by a single agent", "correct": true, "explanation": "Correct: teams have orchestrator and handoffs; subagents just return results to the main agent." },
+      { "text": "Agent Teams are faster than Subagents", "correct": false, "explanation": "Speed depends on the workflow, not the feature type." },
+      { "text": "Subagents have more tools than Agent Teams", "correct": false, "explanation": "Both have the same tool access." },
+      { "text": "Agent Teams use a different model", "correct": false, "explanation": "Both use the same Claude model." }
+    ]
+  },
+  {
+    "question": "Which agent role is responsible for writing tests?",
+    "type": "single",
+    "options": [
+      { "text": "Developer", "correct": false, "explanation": "Developers write code. Tests are the QA agent's responsibility." },
+      { "text": "Reviewer", "correct": false, "explanation": "Reviewers check quality. They do not write tests." },
+      { "text": "QA Engineer", "correct": true, "explanation": "Correct: the QA Engineer writes and runs comprehensive tests." },
+      { "text": "Architect", "correct": false, "explanation": "Architects design solutions. They do not write tests." }
+    ]
+  },
+  {
+    "question": "What is the main cost concern with Agent Teams?",
+    "type": "single",
+    "options": [
+      { "text": "Each agent turn consumes tokens, and review cycles multiply costs", "correct": true, "explanation": "Correct: multiple agents with multiple turns = many token consumptions." },
+      { "text": "Agent Teams require additional server infrastructure", "correct": false, "explanation": "Agent Teams run within Claude Code — no extra infrastructure needed." },
+      { "text": "Agent Teams need separate API keys for each agent", "correct": false, "explanation": "All agents share the same API key." },
+      { "text": "Agent Teams store data permanently", "correct": false, "explanation": "Agent Teams do not store data beyond the session." }
+    ]
+  },
+  {
+    "question": "When should you NOT use Agent Teams?",
+    "type": "multiple",
+    "options": [
+      { "text": "For simple one-file changes", "correct": true, "explanation": "Correct: overhead outweighs benefits for simple tasks." },
+      { "text": "When speed is more important than quality", "correct": true, "explanation": "Correct: teams add latency due to coordination." },
+      { "text": "When you have a tight budget", "correct": true, "explanation": "Correct: teams consume many more tokens than a single agent." },
+      { "text": "For complex multi-step workflows", "correct": false, "explanation": "This is exactly when you SHOULD use Agent Teams." }
+    ]
+  }
+]

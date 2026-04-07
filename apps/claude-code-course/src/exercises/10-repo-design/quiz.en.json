@@ -1,0 +1,132 @@
+[
+  {
+    "question": "Why are file names like helpers.ts and misc.ts bad for an agent?",
+    "type": "single",
+    "options": [
+      { "text": "The agent can't find the needed code via Glob/Grep — names don't describe content", "correct": true, "explanation": "Correct: the agent searches for files by patterns. glob **/*payment* won't find payment logic in a file named helpers.ts" },
+      { "text": "TypeScript doesn't allow such names", "correct": false, "explanation": "TypeScript doesn't restrict file names. The problem is in search, not compilation" },
+      { "text": "Such files take more memory", "correct": false, "explanation": "File name doesn't affect memory usage. The problem is navigation" },
+      { "text": "ESLint forbids such names by default", "correct": false, "explanation": "ESLint doesn't check file names by default. This is a project convention issue" }
+    ]
+  },
+  {
+    "question": "What does CLAUDE.md provide to an agent?",
+    "type": "single",
+    "options": [
+      { "text": "Automatically generates tests for the project", "correct": false, "explanation": "CLAUDE.md is a context file, it doesn't generate anything automatically" },
+      { "text": "Saves thousands of tokens by giving the agent project context without scanning everything", "correct": true, "explanation": "Correct: without CLAUDE.md the agent spends 5-10 thousand tokens on structure \"exploration\". With CLAUDE.md it immediately knows where everything is" },
+      { "text": "Blocks the agent's access to certain files", "correct": false, "explanation": "CLAUDE.md describes context, not access restrictions. Permission settings are used for restrictions" },
+      { "text": "Speeds up TypeScript compilation", "correct": false, "explanation": "CLAUDE.md is a file for the agent, it doesn't affect compilation" }
+    ]
+  },
+  {
+    "question": "What advantage does a monorepo offer to an agent?",
+    "type": "single",
+    "options": [
+      { "text": "Fewer tokens needed for analysis", "correct": false, "explanation": "Monorepos usually consume more tokens due to the volume of files. The advantage lies elsewhere" },
+      { "text": "The agent sees all dependencies between services in one place", "correct": true, "explanation": "Correct: in a monorepo the agent can find the API, client, and shared types — it sees the full picture" },
+      { "text": "Glob works faster", "correct": false, "explanation": "In a monorepo Glob may be slower due to the larger number of files" },
+      { "text": "No CLAUDE.md needed", "correct": false, "explanation": "In a monorepo CLAUDE.md is even more important — it helps the agent not waste context on irrelevant parts" }
+    ]
+  },
+  {
+    "question": "Why are tests the most important tool for an agent after code?",
+    "type": "single",
+    "options": [
+      { "text": "Tests run faster than linter", "correct": false, "explanation": "Test speed is not the point. The value of tests is in the feedback they provide" },
+      { "text": "Tests give the agent a feedback loop: wrote code → ran tests → saw result → fixed", "correct": true, "explanation": "Correct: without tests the agent works blind. With tests it gets immediate feedback on code correctness" },
+      { "text": "The agent can't work without tests", "correct": false, "explanation": "The agent can work without tests, but much less efficiently — no feedback" },
+      { "text": "TypeScript requires tests for compilation", "correct": false, "explanation": "TypeScript has nothing to do with tests. Compilation and testing are separate processes" }
+    ]
+  },
+  {
+    "question": "What is Verification-Driven Development?",
+    "type": "single",
+    "options": [
+      { "text": "A methodology where tests are written first (TDD)", "correct": false, "explanation": "TDD is a specific methodology. VDD is broader: it's an approach where the agent is given verifiable success criteria" },
+      { "text": "Giving the agent verifiable success criteria instead of abstract wishes", "correct": true, "explanation": "Correct: instead of \"improve performance\" — \"the query must execute in < 100ms, test: npm run test -- perf.test.ts\"" },
+      { "text": "Code verification through formal methods", "correct": false, "explanation": "Formal verification is an academic approach. VDD is a practical pattern for working with an agent" },
+      { "text": "Mandatory code review before each commit", "correct": false, "explanation": "Code review is a process, not VDD. VDD is about formulating tasks with verifiable criteria" }
+    ]
+  },
+  {
+    "question": "Which task formulation is better for an agent?",
+    "type": "single",
+    "options": [
+      { "text": "Make authorization better", "correct": false, "explanation": "No success criteria. What does \"better\" mean? The agent doesn't know when the task is done" },
+      { "text": "Add rate limiting to /api/login: max 5 attempts per 15 minutes, then 429 response. Test: 6 requests → last one gets 429", "correct": true, "explanation": "Correct: specific numbers, expected behavior, verifiable criterion. The agent knows exactly what to do and how to verify" },
+      { "text": "Work on security", "correct": false, "explanation": "Too abstract. Security is what? XSS? CSRF? Rate limiting? The agent needs specifics" },
+      { "text": "Fix all bugs in the project", "correct": false, "explanation": "An infinite task with no completion criteria. The agent doesn't know which bugs to look for and when to stop" }
+    ]
+  },
+  {
+    "question": "Which test is more useful for an agent?",
+    "type": "single",
+    "options": [
+      { "text": "test('works', () => { expect(true).toBe(true) })", "correct": false, "explanation": "A stub test that checks nothing. The agent gets a false positive signal" },
+      { "text": "test('rejects negative amount', () => { expect(() => pay(-100)).toThrow('Amount must be positive') })", "correct": true, "explanation": "Correct: specific assertion with a clear message. If the test fails, the agent will understand what exactly broke" },
+      { "text": "test('payment', async () => { await createPayment(data) })", "correct": false, "explanation": "No expect() — the test doesn't verify the result. Even if the function returns nonsense, the test passes" },
+      { "text": "test('result', () => { expect(result).toBeTruthy() })", "correct": false, "explanation": "toBeTruthy() is too vague. Any value except null/undefined/0/false/'' passes" }
+    ]
+  },
+  {
+    "question": "How does typing help an agent?",
+    "type": "multiple",
+    "options": [
+      { "text": "Types describe function contracts — what goes in and comes out", "correct": true, "explanation": "Correct: the agent sees interface OrderInput and immediately knows which fields are needed" },
+      { "text": "The TypeScript compiler catches agent errors before running", "correct": true, "explanation": "Correct: if the agent writes a wrong type, tsc shows an error — another feedback loop" },
+      { "text": "Types replace documentation and CLAUDE.md", "correct": false, "explanation": "Types complement documentation but don't replace it. CLAUDE.md describes architecture and navigation, types — contracts" },
+      { "text": "any is better than strict types because it gives the agent more freedom", "correct": false, "explanation": "On the contrary: any for the agent means \"I don't know what's here\". Strict types are contract documentation" }
+    ]
+  },
+  {
+    "question": "What is the essence of the \"Explore -> Plan -> Code\" pattern?",
+    "type": "single",
+    "options": [
+      { "text": "Three different agents: one explores, another plans, third codes", "correct": false, "explanation": "This is one agent working in three steps. For three agents, Agent Teams are used" },
+      { "text": "The agent first studies the codebase, then proposes a plan, then implements", "correct": true, "explanation": "Correct: the three-step approach reduces the risk of errors on unfamiliar codebases. Each step can be verified before moving to the next" },
+      { "text": "A mandatory order for every task", "correct": false, "explanation": "This pattern is useful for complex tasks and unfamiliar codebases. For simple tasks it's excessive" },
+      { "text": "A replacement for testing: explore checks code instead of tests", "correct": false, "explanation": "Explore is a study phase, not a test replacement. Tests are still necessary" }
+    ]
+  },
+  {
+    "question": "What should a minimal CLAUDE.md in a project contain?",
+    "type": "multiple",
+    "options": [
+      { "text": "Project description (what it does)", "correct": true, "explanation": "Correct: the agent needs to understand what project it's working with" },
+      { "text": "Folder structure (where things are)", "correct": true, "explanation": "Correct: a project map saves thousands of tokens on scanning" },
+      { "text": "Startup commands (npm run dev, test, lint)", "correct": true, "explanation": "Correct: the agent needs to know how to run the project and tests" },
+      { "text": "Full API documentation with request examples", "correct": false, "explanation": "This is excessive for CLAUDE.md. API documentation should be in separate files or README" }
+    ]
+  },
+  {
+    "question": "A project uses polyrepo with 5 services. The agent works in one of them and can't see another service's API. How to solve this?",
+    "type": "single",
+    "options": [
+      { "text": "Switch to monorepo", "correct": false, "explanation": "Migrating to monorepo is a massive effort. There's a simpler solution" },
+      { "text": "Describe external dependencies and API contracts in the current service's CLAUDE.md", "correct": true, "explanation": "Correct: CLAUDE.md can describe which endpoints of other services are used, their contracts and URLs. The agent gets context without access to other code" },
+      { "text": "Copy the other service's code into the current repository", "correct": false, "explanation": "Code duplication is an anti-pattern. Code will get out of sync and create more problems" },
+      { "text": "Use Agent Teams so one teammate works in another repo", "correct": false, "explanation": "This is possible but excessive for the task of understanding an API. CLAUDE.md with contract descriptions is simpler and cheaper" }
+    ]
+  },
+  {
+    "question": "Which of the following makes a project \"agent-friendly\"?",
+    "type": "multiple",
+    "options": [
+      { "text": "Clear folder structure with descriptive names", "correct": true, "explanation": "Correct: the agent finds needed files via Glob by predictable patterns" },
+      { "text": "CLAUDE.md with context and project map", "correct": true, "explanation": "Correct: saves tokens and gives the agent immediate context" },
+      { "text": "Tests covering core business logic", "correct": true, "explanation": "Correct: tests provide a feedback loop — the agent knows if its code works" },
+      { "text": "Maximum comments on every line of code", "correct": false, "explanation": "Excessive comments are noise. Descriptive function names and types are better than a comment on every line" }
+    ]
+  },
+  {
+    "question": "You see a file src/utils.ts with 500 lines in a project. How to improve it for the agent?",
+    "type": "single",
+    "options": [
+      { "text": "Add detailed comments for each function", "correct": false, "explanation": "Comments would help, but don't solve the search problem. The agent still has to read 500 lines to find the needed function" },
+      { "text": "Split into separate files by purpose: date-formatting.ts, price-calculation.ts, string-validation.ts", "correct": true, "explanation": "Correct: small files with descriptive names — the agent finds what it needs via Glob and reads only 30-50 lines instead of 500" },
+      { "text": "Rename to utilities.ts", "correct": false, "explanation": "Renaming doesn't solve the problem. The file is still 500 lines of \"everything\"" },
+      { "text": "Add index.ts that re-exports everything from utils.ts", "correct": false, "explanation": "An additional layer of abstraction doesn't help — the code is still in one large file" }
+    ]
+  }
+]

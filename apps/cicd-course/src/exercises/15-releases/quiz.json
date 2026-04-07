@@ -1,0 +1,392 @@
+[
+  {
+    "question": "Что означает увеличение MAJOR-версии в Semantic Versioning?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Добавлена новая функциональность, обратно совместимая с предыдущей версией",
+        "correct": false,
+        "explanation": "Это описание MINOR-версии. Новые возможности без нарушения существующего API — только +1 к MINOR."
+      },
+      {
+        "text": "Введены изменения, несовместимые с предыдущим API (breaking changes)",
+        "correct": true,
+        "explanation": "Правильно. MAJOR увеличивается только при breaking changes — когда существующий код пользователей перестаёт работать без изменений с их стороны."
+      },
+      {
+        "text": "Исправлены баги без изменения публичного API",
+        "correct": false,
+        "explanation": "Это описание PATCH-версии. Исправление бага без изменения интерфейса — только +1 к PATCH."
+      },
+      {
+        "text": "Проект перешёл с alpha на stable",
+        "correct": false,
+        "explanation": "Переход с alpha/beta к stable — это конкретная точка в истории, а не правило для MAJOR. MAJOR определяется наличием breaking changes."
+      }
+    ]
+  },
+  {
+    "question": "В GitLab CI ты хочешь запустить release джоб только при появлении тегов вида v1.2.3, v2.0.0, v10.5.2. Какое правило использовать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "only: [tags]",
+        "correct": false,
+        "explanation": "only: [tags] запустит джоб при ЛЮБОМ теге, включая dev-tag, hotfix-test, my-tag. Для фильтрации по semver-формату нужен regex."
+      },
+      {
+        "text": "rules: - if: '$CI_COMMIT_TAG =~ /^v\\d+\\.\\d+\\.\\d+$/'",
+        "correct": true,
+        "explanation": "Правильно. Regex /^v\\d+\\.\\d+\\.\\d+$/ точно соответствует формату vMAJOR.MINOR.PATCH. Только теги в этом формате запустят джоб."
+      },
+      {
+        "text": "rules: - if: '$CI_COMMIT_BRANCH == \"main\"'",
+        "correct": false,
+        "explanation": "Это запустит джоб при каждом коммите в main, но не при тегах. CI_COMMIT_BRANCH и CI_COMMIT_TAG — разные переменные."
+      },
+      {
+        "text": "only: [/^v.*/]",
+        "correct": false,
+        "explanation": "only: [/^v.*/] совпадёт с любым тегом, начинающимся на v, включая v-test, v-broken, v или vXXX. Это слишком широко."
+      }
+    ]
+  },
+  {
+    "question": "Какую переменную GitLab CI содержит имя тега, по которому был запущен пайплайн?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CI_TAG_NAME",
+        "correct": false,
+        "explanation": "Такой переменной не существует в GitLab CI. Нужно знать точное название предопределённых переменных."
+      },
+      {
+        "text": "CI_RELEASE_VERSION",
+        "correct": false,
+        "explanation": "CI_RELEASE_VERSION не является стандартной переменной GitLab CI. Это несуществующее имя."
+      },
+      {
+        "text": "CI_COMMIT_TAG",
+        "correct": true,
+        "explanation": "Правильно. CI_COMMIT_TAG — предопределённая переменная GitLab. Она содержит имя тега (например, v1.2.3) и доступна только в пайплайнах, запущенных по тегу."
+      },
+      {
+        "text": "GIT_TAG",
+        "correct": false,
+        "explanation": "GIT_TAG не является стандартной переменной GitLab CI. Такого нет в списке предопределённых переменных."
+      }
+    ]
+  },
+  {
+    "question": "Тег в git имеет значение v1.2.3. Как правильно убрать префикс 'v' при публикации npm-пакета?",
+    "type": "single",
+    "options": [
+      {
+        "text": "echo $CI_COMMIT_TAG | cut -c2-",
+        "correct": false,
+        "explanation": "Технически работает, но это неидиоматично для shell. Стандартный способ — parameter expansion в bash."
+      },
+      {
+        "text": "export VERSION=${CI_COMMIT_TAG#v}",
+        "correct": true,
+        "explanation": "Правильно. Bash parameter expansion ${var#prefix} убирает префикс. ${CI_COMMIT_TAG#v} превращает v1.2.3 в 1.2.3. Это самый чистый и идиоматичный способ."
+      },
+      {
+        "text": "export VERSION=$(semver $CI_COMMIT_TAG)",
+        "correct": false,
+        "explanation": "semver — отдельный инструмент, который не установлен по умолчанию. Для простого удаления 'v' это избыточно."
+      },
+      {
+        "text": "npm version $CI_COMMIT_TAG — npm сам уберёт 'v'",
+        "correct": false,
+        "explanation": "npm не убирает 'v' автоматически. npm version v1.2.3 вернёт ошибку, так как v1.2.3 не является валидной semver строкой для npm."
+      }
+    ]
+  },
+  {
+    "question": "Какой тип git-тега рекомендуется использовать для релизов и почему?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Lightweight tag — он создаётся быстрее и занимает меньше места",
+        "correct": false,
+        "explanation": "Lightweight tag — просто ссылка на коммит без метаданных. Для релизов это недостаточно: нет автора, даты тега и сообщения."
+      },
+      {
+        "text": "Annotated tag — он содержит автора, дату, сообщение и является полноценным объектом в git",
+        "correct": true,
+        "explanation": "Правильно. Annotated tag — полноценный объект в git с метаданными. Он отображается в git log, поддерживается GitLab Releases, и по нему удобно делать git describe."
+      },
+      {
+        "text": "Signed tag — только GPG-подписанные теги принимаются в production",
+        "correct": false,
+        "explanation": "GPG-подписанные теги — дополнительный уровень безопасности, но не обязательное требование. Annotated tags подходят для большинства команд."
+      },
+      {
+        "text": "Любой тип тега — это не имеет значения для CI/CD",
+        "correct": false,
+        "explanation": "Тип тега важен: annotated теги содержат метаданные, отображаются в CI/CD системах как полноценные объекты и используются в git describe."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Conventional Commits и зачем они нужны в контексте автоматических релизов?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это стандарт форматирования, который ускоряет code review",
+        "correct": false,
+        "explanation": "Conventional Commits прежде всего нужны для машинного разбора: инструменты вроде semantic-release и git-cliff читают коммиты и определяют тип версии."
+      },
+      {
+        "text": "Формат коммитов вида 'type(scope): desc', позволяющий инструментам автоматически определять тип версии и генерировать changelog",
+        "correct": true,
+        "explanation": "Правильно. feat: → MINOR bump, fix: → PATCH bump, feat!: → MAJOR bump. Инструменты парсят эти префиксы и сами решают, нужен ли новый релиз и какой."
+      },
+      {
+        "text": "Стандарт, обязательный для работы GitLab CI",
+        "correct": false,
+        "explanation": "GitLab CI не требует Conventional Commits. Это соглашение команды, которое открывает доступ к автоматизации версионирования."
+      },
+      {
+        "text": "Это плагин для IDE, который проверяет орфографию в коммитах",
+        "correct": false,
+        "explanation": "Conventional Commits — это спецификация формата коммит-сообщений, а не инструмент проверки орфографии."
+      }
+    ]
+  },
+  {
+    "question": "В чём разница между GitLab Release и git tag?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab Release — это то же самое, что и git tag, просто с другим именем в интерфейсе",
+        "correct": false,
+        "explanation": "Это разные сущности. Git tag — метка на коммите. GitLab Release — страница с описанием, changelog, ссылками на артефакты, привязанная к тегу."
+      },
+      {
+        "text": "Git tag — метка на коммите в репозитории. GitLab Release — страница в GitLab с changelog, assets и описанием, привязанная к тегу",
+        "correct": true,
+        "explanation": "Правильно. Тег существует в git-истории. Release — это UI-слой поверх тега: человекочитаемое описание, ссылки на бинарники, changelog для пользователей."
+      },
+      {
+        "text": "GitLab Release создаёт тег автоматически, git tag — вручную",
+        "correct": false,
+        "explanation": "GitLab Release требует существующий тег. release-cli привязывается к тегу, но сам тег должен существовать до создания релиза."
+      },
+      {
+        "text": "Git tag нельзя создать через CI, только GitLab Release",
+        "correct": false,
+        "explanation": "Git теги можно создавать из CI через git tag и git push. GitLab Release создаётся через release-cli."
+      }
+    ]
+  },
+  {
+    "question": "Ты публикуешь Docker-образ при каждом релизе. Какие теги нужно ставить образу?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "myapp:$CI_COMMIT_TAG — версионный тег (например, myapp:v1.2.3)",
+        "correct": true,
+        "explanation": "Правильно. Версионный тег позволяет откатиться к точной версии: docker pull myapp:v1.2.3. Без него невозможно воспроизвести старое состояние."
+      },
+      {
+        "text": "myapp:latest — всегда указывает на последнюю версию",
+        "correct": true,
+        "explanation": "Правильно. latest — удобный псевдоним для последнего стабильного релиза. Новые пользователи получат актуальную версию без знания номера."
+      },
+      {
+        "text": "myapp:$CI_COMMIT_SHA — SHA коммита",
+        "correct": false,
+        "explanation": "SHA коммита для релизных образов избыточен — уже есть версионный тег. SHA удобен для dev/staging образов при отладке конкретного коммита."
+      },
+      {
+        "text": "myapp:stable — тег stable нужен для production",
+        "correct": false,
+        "explanation": "Тег stable не является стандартным соглашением. latest обычно подразумевает стабильный релиз. Добавлять нестандартные теги без явной нужды не стоит."
+      }
+    ]
+  },
+  {
+    "question": "Команда использует semantic-release для автоматических релизов. Какой коммит вызовет создание MAJOR-версии (например, 1.x.x → 2.0.0)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "major: удалить устаревший API",
+        "correct": false,
+        "explanation": "Тип major: не определён в спецификации Conventional Commits. semantic-release не распознает этот тип."
+      },
+      {
+        "text": "feat!: удалить устаревший метод getUserById()",
+        "correct": true,
+        "explanation": "Правильно. Восклицательный знак после типа (feat!) обозначает breaking change. Также работает BREAKING CHANGE: в теле коммита. semantic-release увеличит MAJOR."
+      },
+      {
+        "text": "fix: удалить устаревший метод getUserById()",
+        "correct": false,
+        "explanation": "fix: без восклицательного знака вызовет только PATCH-bump. Тип коммита и суть изменения должны соответствовать: удаление API — это breaking change."
+      },
+      {
+        "text": "chore!: большой рефакторинг кодовой базы",
+        "correct": false,
+        "explanation": "chore! технически является breaking change по формату, но семантически chore — это вспомогательные задачи без изменения функциональности. semantic-release обычно игнорирует chore для версионирования."
+      }
+    ]
+  },
+  {
+    "question": "При генерации changelog через git-cliff или conventional-changelog в GitLab CI пайплайн не видит историю тегов. Почему?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Инструменты changelog не поддерживают GitLab CI",
+        "correct": false,
+        "explanation": "Инструменты работают с git-историей, а не с платформой. Проблема не в совместимости."
+      },
+      {
+        "text": "По умолчанию GitLab CI делает shallow clone (GIT_DEPTH: 20), а для changelog нужна полная история",
+        "correct": true,
+        "explanation": "Правильно. Shallow clone содержит только последние N коммитов без тегов. Для генерации changelog нужна полная история: GIT_DEPTH: 0 или явный fetch тегов."
+      },
+      {
+        "text": "Теги не передаются в CI — их нужно создавать прямо в пайплайне",
+        "correct": false,
+        "explanation": "Теги передаются в CI вместе с репозиторием. Проблема только в глубине клона."
+      },
+      {
+        "text": "Нужно установить дополнительный плагин gitlab-changelog в Runner",
+        "correct": false,
+        "explanation": "Никакого специального плагина не существует. Решение — изменить глубину клонирования через переменную GIT_DEPTH."
+      }
+    ]
+  },
+  {
+    "question": "Ты настраиваешь release pipeline. В чём проблема этой конфигурации?\n\n```yaml\npublish:\n  script:\n    - npm publish\n```",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Джоб запустится при каждом коммите в любую ветку, а не только при релизных тегах",
+        "correct": true,
+        "explanation": "Правильно. Без rules или only джоб выполняется при каждом пуше. Каждый коммит в main будет публиковать новую версию npm, что сломает семантику версионирования."
+      },
+      {
+        "text": "npm publish завершится ошибкой без NPM_TOKEN в переменных",
+        "correct": true,
+        "explanation": "Верно. Публикация в npm registry требует аутентификации через токен. Без NPM_TOKEN в CI-переменных команда вернёт ошибку 403."
+      },
+      {
+        "text": "Не указана версия для публикации — npm возьмёт версию из package.json, которая может не совпадать с тегом",
+        "correct": true,
+        "explanation": "Правильно. Версия в package.json должна совпадать с тегом. Если не обновить её через npm version ${CI_COMMIT_TAG#v}, будет опубликована старая версия."
+      },
+      {
+        "text": "npm publish не работает в GitLab CI — нужно использовать yarn publish",
+        "correct": false,
+        "explanation": "npm publish прекрасно работает в GitLab CI. Это не является проблемой."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно привязать GitLab Release к CHANGELOG.md, сгенерированному в предыдущем джобе?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Скопировать содержимое CHANGELOG.md в поле description напрямую через cat",
+        "correct": false,
+        "explanation": "Технически возможно через script, но неидиоматично. Правильный способ — передать путь к файлу в поле description блока release."
+      },
+      {
+        "text": "Указать путь к файлу в поле release:description и получить CHANGELOG.md через dependencies от предыдущего джоба",
+        "correct": true,
+        "explanation": "Правильно. dependencies: [generate-changelog] загрузит артефакт CHANGELOG.md, а description: './CHANGELOG.md' передаст его содержимое в GitLab Release."
+      },
+      {
+        "text": "Передать содержимое через переменную CI_RELEASE_DESCRIPTION",
+        "correct": false,
+        "explanation": "CI_RELEASE_DESCRIPTION не является стандартной переменной GitLab CI. Такого механизма не существует."
+      },
+      {
+        "text": "GitLab автоматически находит CHANGELOG.md в корне репозитория — ничего настраивать не нужно",
+        "correct": false,
+        "explanation": "GitLab не ищет CHANGELOG.md автоматически. Нужно явно указать description: './CHANGELOG.md' в блоке release."
+      }
+    ]
+  },
+  {
+    "question": "Ты видишь, что при каждом пуше в main CI создаёт новый тег и публикует npm-пакет. Версии выглядят так: 1.0.1, 1.0.2, 1.0.3... Что, скорее всего, настроено?",
+    "type": "single",
+    "options": [
+      {
+        "text": "semantic-release на main ветке с анализом conventional commits",
+        "correct": true,
+        "explanation": "Правильно. semantic-release автоматически создаёт теги при каждом мерже в main. Если коммиты типа fix:, он создаёт PATCH-релиз. Это стандартное поведение trunk-based development."
+      },
+      {
+        "text": "Случайная ошибка конфигурации — теги создаются сами по себе",
+        "correct": false,
+        "explanation": "Теги не создаются сами по себе. Это явно настроенное поведение — скорее всего, semantic-release или аналогичный инструмент."
+      },
+      {
+        "text": "GitLab автоматически создаёт теги при мерже в protected ветку",
+        "correct": false,
+        "explanation": "GitLab не создаёт теги автоматически при мерже. Это должно быть явно настроено в пайплайне."
+      },
+      {
+        "text": "Разработчики вручную создают теги перед каждым коммитом",
+        "correct": false,
+        "explanation": "Если бы теги создавались вручную, они не были бы такими регулярными и частыми."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если запустить 'git tag -a v1.2.3 -m \"Release\"' и не выполнить 'git push origin v1.2.3'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab автоматически получит новые теги при следующем пуше коммитов",
+        "correct": false,
+        "explanation": "Теги не пушатся автоматически вместе с коммитами. git push origin main не отправит теги — нужен явный push тегов."
+      },
+      {
+        "text": "Тег существует только локально, CI/CD пайплайн не запустится, релиз не произойдёт",
+        "correct": true,
+        "explanation": "Правильно. Локальный тег невидим для GitLab. CI/CD реагирует только на события в remote репозитории. Без git push origin v1.2.3 тег останется только на машине разработчика."
+      },
+      {
+        "text": "GitLab получит тег через fetch при следующем открытии MR",
+        "correct": false,
+        "explanation": "GitLab не делает fetch из локального репозитория разработчика. Связь однонаправленная: разработчик пушит в GitLab, не наоборот."
+      },
+      {
+        "text": "Тег создастся в remote автоматически через хуки git",
+        "correct": false,
+        "explanation": "Стандартные git хуки не пушат теги автоматически. pre-push хук мог бы это делать, но это нестандартная настройка."
+      }
+    ]
+  },
+  {
+    "question": "Какова роль образа 'registry.gitlab.com/gitlab-org/release-cli:latest' в GitLab CI pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это базовый образ для всех джобов GitLab CI по умолчанию",
+        "correct": false,
+        "explanation": "По умолчанию GitLab CI использует образ ruby, не release-cli. release-cli нужно указывать явно для джобов создания релизов."
+      },
+      {
+        "text": "Образ содержит инструмент release-cli, который умеет создавать GitLab Releases через API — позволяет использовать блок 'release:' в джобе",
+        "correct": true,
+        "explanation": "Правильно. release-cli — официальный CLI-инструмент GitLab для создания релизов. Без этого образа (или установки release-cli вручную) блок release: в джобе не будет работать."
+      },
+      {
+        "text": "Образ автоматически публикует все артефакты в npm и Docker Hub",
+        "correct": false,
+        "explanation": "release-cli создаёт только GitLab Release страницу. Публикация в npm и Docker Hub — отдельные шаги с отдельными инструментами."
+      },
+      {
+        "text": "Этот образ нужен только для подписи релизов GPG-ключами",
+        "correct": false,
+        "explanation": "release-cli не занимается GPG-подписью. Его задача — создавать GitLab Release через API с changelog, assets и метаданными."
+      }
+    ]
+  }
+]

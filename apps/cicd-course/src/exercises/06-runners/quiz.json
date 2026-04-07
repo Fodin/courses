@@ -1,0 +1,392 @@
+[
+  {
+    "question": "Что такое GitLab Runner?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Веб-интерфейс для просмотра пайплайнов GitLab",
+        "correct": false,
+        "explanation": "Веб-интерфейс — это сам GitLab. Runner — отдельный агент."
+      },
+      {
+        "text": "Агент, который получает задания от GitLab и выполняет их на машине, где установлен",
+        "correct": true,
+        "explanation": "GitLab Runner — это отдельная программа (агент), которая опрашивает GitLab, забирает джобы и выполняет их."
+      },
+      {
+        "text": "Плагин для IDE, который запускает тесты локально",
+        "correct": false,
+        "explanation": "Runner запускается на сервере или VM, не в IDE."
+      },
+      {
+        "text": "Docker-образ с предустановленным GitLab",
+        "correct": false,
+        "explanation": "GitLab и GitLab Runner — разные программы. Runner — это агент выполнения."
+      }
+    ]
+  },
+  {
+    "question": "У тебя job с тегами [docker, linux, arm64]. Какой раннер возьмёт этот job?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Раннер с тегами [docker]",
+        "correct": false,
+        "explanation": "Раннер должен иметь ВСЕ теги джоба. Тега linux и arm64 нет — пропустит."
+      },
+      {
+        "text": "Раннер с тегами [docker, linux, arm64, ci]",
+        "correct": true,
+        "explanation": "Раннер должен иметь все теги джоба. Наличие дополнительного тега ci — не проблема."
+      },
+      {
+        "text": "Раннер с тегами [linux, windows, arm64]",
+        "correct": false,
+        "explanation": "У этого раннера нет тега docker — он пропустит job."
+      },
+      {
+        "text": "Любой доступный раннер с run_untagged = true",
+        "correct": false,
+        "explanation": "run_untagged касается только джобов БЕЗ тегов. Этот job имеет теги, поэтому нужно точное совпадение."
+      }
+    ]
+  },
+  {
+    "question": "В чём принципиальное отличие Docker executor от Shell executor?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Docker executor запускает каждый job в изолированном контейнере",
+        "correct": true,
+        "explanation": "Да, каждый job получает свежий контейнер — полная изоляция."
+      },
+      {
+        "text": "Shell executor выполняет скрипты напрямую на хост-машине без изоляции",
+        "correct": true,
+        "explanation": "Shell executor — самый быстрый, но джобы могут влиять друг на друга и на систему."
+      },
+      {
+        "text": "Docker executor работает только с публичными образами Docker Hub",
+        "correct": false,
+        "explanation": "Docker executor работает с любыми образами: публичными, приватными, из своего реестра."
+      },
+      {
+        "text": "Shell executor не требует дополнительного ПО на хост-машине",
+        "correct": false,
+        "explanation": "Shell executor требует наличия всех зависимостей (Node, Python, etc.) прямо на хост-машине."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если ни один раннер не подходит по тегам для job?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Job завершится с ошибкой сразу",
+        "correct": false,
+        "explanation": "Job не завершается с ошибкой сразу — он встаёт в очередь и ждёт подходящего раннера."
+      },
+      {
+        "text": "Job будет выполнен на любом доступном раннере",
+        "correct": false,
+        "explanation": "Нет, если теги не совпадают, раннер не возьмёт job — это защита от случайного выполнения не там."
+      },
+      {
+        "text": "Job останется в статусе pending и будет ждать подходящего раннера",
+        "correct": true,
+        "explanation": "Job висит в очереди pending. Если раннер так и не появится — timeout (по умолчанию 1 час)."
+      },
+      {
+        "text": "GitLab автоматически создаст новый раннер",
+        "correct": false,
+        "explanation": "GitLab не создаёт раннеры автоматически. Администратор должен зарегистрировать раннеры заранее."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Protected Runner и зачем он нужен?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Раннер с включённым SSL/TLS для безопасного соединения с GitLab",
+        "correct": false,
+        "explanation": "Все раннеры используют HTTPS. Protected — это про ветки, не про шифрование."
+      },
+      {
+        "text": "Раннер, который берёт джобы только из protected branches (main, release/*)",
+        "correct": true,
+        "explanation": "Protected runner не выполняет джобы из обычных feature-веток, что защищает production от вредоносного кода."
+      },
+      {
+        "text": "Раннер с паролем для доступа к нему",
+        "correct": false,
+        "explanation": "Доступ к раннерам регулируется через токены, не пароли. Protected — про ограничение по веткам."
+      },
+      {
+        "text": "Раннер, который автоматически создаёт резервные копии артефактов",
+        "correct": false,
+        "explanation": "Это не связано с Protected runner. Protected — исключительно про ограничение по protected branches."
+      }
+    ]
+  },
+  {
+    "question": "Твоя команда тратит $500/мес на GitLab CI minutes. У вас 5 разработчиков, пайплайны запускаются 50 раз в день, каждый занимает ~15 минут. Что лучше сделать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Купить больше CI minutes у GitLab",
+        "correct": false,
+        "explanation": "При такой интенсивности использования self-hosted runner окупится за 1-2 месяца."
+      },
+      {
+        "text": "Поднять self-hosted раннер на своём сервере или облаке",
+        "correct": true,
+        "explanation": "50 запусков × 15 мин × 30 дней = 22 500 минут/мес. Даже небольшой VPS (~$30-50/мес) выгоднее $500."
+      },
+      {
+        "text": "Уменьшить количество тестов, чтобы пайплайны были быстрее",
+        "correct": false,
+        "explanation": "Уменьшение тестов — плохой компромисс. Экономия должна быть за счёт инфраструктуры, не качества."
+      },
+      {
+        "text": "Запускать пайплайны только раз в день по расписанию",
+        "correct": false,
+        "explanation": "Это уничтожит быстрый feedback loop — главную ценность CI. Не стоит жертвовать практикой ради экономии."
+      }
+    ]
+  },
+  {
+    "question": "Какие параметры важно указать в config.toml для контроля параллелизма?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "concurrent — максимальное количество одновременно выполняемых джобов",
+        "correct": true,
+        "explanation": "concurrent на верхнем уровне конфига ограничивает суммарное количество параллельных джобов."
+      },
+      {
+        "text": "check_interval — как часто раннер опрашивает GitLab на наличие новых джобов",
+        "correct": true,
+        "explanation": "check_interval (в секундах) влияет на задержку старта джоба после его появления в очереди."
+      },
+      {
+        "text": "max_jobs — максимум джобов за всё время жизни раннера",
+        "correct": false,
+        "explanation": "Такого параметра нет в config.toml. Есть MaxBuilds в контексте autoscaling (docker+machine)."
+      },
+      {
+        "text": "timeout — время ожидания перед взятием следующего джоба",
+        "correct": false,
+        "explanation": "timeout в job — это максимальное время выполнения. Нет параметра 'ждать перед взятием'."
+      }
+    ]
+  },
+  {
+    "question": "Когда следует использовать Kubernetes executor вместо Docker executor?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Когда нужно автоматическое масштабирование без дополнительной настройки",
+        "correct": true,
+        "explanation": "Kubernetes создаёт новые Pod-ы при нагрузке и удаляет их после — автомасштабирование из коробки."
+      },
+      {
+        "text": "Когда у команды уже есть Kubernetes кластер и экспертиза",
+        "correct": true,
+        "explanation": "Kubernetes executor требует настроенного кластера. Если он уже есть — логично использовать его для раннеров."
+      },
+      {
+        "text": "Когда нужна максимальная скорость старта джоба",
+        "correct": false,
+        "explanation": "Kubernetes Pod запускается дольше Docker-контейнера. Для скорости старта лучше Shell или Docker."
+      },
+      {
+        "text": "Когда нужен точный контроль CPU и Memory для каждого джоба",
+        "correct": true,
+        "explanation": "Kubernetes позволяет задать requests и limits на CPU/Memory для каждого Pod — уникальная возможность."
+      }
+    ]
+  },
+  {
+    "question": "Что означает параметр run_untagged = true у раннера?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Раннер выполняет джобы без указания тегов в .gitlab-ci.yml",
+        "correct": true,
+        "explanation": "Да, раннер с run_untagged = true берёт джобы, у которых вообще нет секции tags:."
+      },
+      {
+        "text": "Раннер игнорирует теги джобов и берёт любые задания",
+        "correct": false,
+        "explanation": "Нет, run_untagged не означает игнорирование тегов. Если у джоба есть теги, совпадение всё равно обязательно."
+      },
+      {
+        "text": "Раннер создаёт Docker-контейнеры без тегов образов",
+        "correct": false,
+        "explanation": "run_untagged не имеет отношения к Docker-образам. Это про GitLab CI теги джобов."
+      },
+      {
+        "text": "Раннер не регистрирует теги при новых джобах",
+        "correct": false,
+        "explanation": "Это не про регистрацию. run_untagged = true просто позволяет раннеру брать джобы без тегов."
+      }
+    ]
+  },
+  {
+    "question": "Почему НЕ рекомендуется использовать privileged = true для Docker executor без необходимости?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Вредоносный job может получить полный доступ к хост-системе",
+        "correct": true,
+        "explanation": "privileged контейнер имеет доступ к устройствам хоста. Компрометация контейнера = компрометация хоста."
+      },
+      {
+        "text": "Нарушается изоляция между контейнерами",
+        "correct": true,
+        "explanation": "Privileged-контейнер может взаимодействовать с другими контейнерами и обходить namespace-изоляцию."
+      },
+      {
+        "text": "Замедляется выполнение джобов из-за дополнительных проверок",
+        "correct": false,
+        "explanation": "privileged = true не замедляет выполнение. Это исключительно вопрос безопасности."
+      },
+      {
+        "text": "Нельзя использовать кэш раннера в privileged-режиме",
+        "correct": false,
+        "explanation": "Кэш работает независимо от privileged. Это не связанные настройки."
+      }
+    ]
+  },
+  {
+    "question": "Команда поднимает раннер для деплоя в production. Какие настройки обязательны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Сделать раннер Protected (только для protected branches)",
+        "correct": true,
+        "explanation": "Protected runner гарантирует, что деплой в prod происходит только из защищённых веток (main, release/*)."
+      },
+      {
+        "text": "Назначить уникальные теги, которые есть только у этого раннера",
+        "correct": true,
+        "explanation": "Уникальные теги (например, production-deploy) гарантируют, что только нужные джобы попадают на этот раннер."
+      },
+      {
+        "text": "Установить run_untagged = true чтобы раннер брал все джобы",
+        "correct": false,
+        "explanation": "Это опасно для production-раннера. Он должен брать только специально помеченные джобы, а не все подряд."
+      },
+      {
+        "text": "Установить privileged = true для максимальной производительности",
+        "correct": false,
+        "explanation": "privileged влияет на безопасность, не на производительность. Для production минимальные права — обязательное требование."
+      }
+    ]
+  },
+  {
+    "question": "Где хранится основной конфигурационный файл GitLab Runner после установки?",
+    "type": "single",
+    "options": [
+      {
+        "text": "~/.gitlab-runner/config.yml",
+        "correct": false,
+        "explanation": "Файл называется config.toml (TOML формат), не YAML. И на Linux путь системный, не в домашней директории."
+      },
+      {
+        "text": "/etc/gitlab-runner/config.toml",
+        "correct": true,
+        "explanation": "Стандартный путь для системной установки на Linux — /etc/gitlab-runner/config.toml."
+      },
+      {
+        "text": "/var/log/gitlab-runner.conf",
+        "correct": false,
+        "explanation": "/var/log — директория для логов, не конфигов. Конфиг раннера в /etc/gitlab-runner/."
+      },
+      {
+        "text": "gitlab-runner.json в текущей директории",
+        "correct": false,
+        "explanation": "Раннер не ищет конфиг в текущей директории. Конфиг в системном месте /etc/gitlab-runner/config.toml."
+      }
+    ]
+  },
+  {
+    "question": "Чем Group runner отличается от Project runner?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Group runner быстрее, потому что использует специальный протокол",
+        "correct": false,
+        "explanation": "Скорость не зависит от типа. Разница только в области видимости: каким проектам доступен раннер."
+      },
+      {
+        "text": "Group runner доступен всем проектам в группе, Project runner — только одному проекту",
+        "correct": true,
+        "explanation": "Это ключевое различие: область видимости. Group runner зарегистрирован на уровне группы, Project — на уровне проекта."
+      },
+      {
+        "text": "Group runner нельзя использовать с Docker executor",
+        "correct": false,
+        "explanation": "Тип executor не зависит от области видимости раннера. Любой тип раннера может использовать любой executor."
+      },
+      {
+        "text": "Project runner автоматически получает все секреты проекта",
+        "correct": false,
+        "explanation": "Доступ к секретам (CI/CD Variables) настраивается отдельно и не зависит от типа раннера."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик видит, что job 'deploy-prod' взял shared runner вместо dedicated production runner. Как это исправить?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Добавить уникальные теги к job deploy-prod в .gitlab-ci.yml",
+        "correct": true,
+        "explanation": "Теги ограничат выбор раннеров. Только раннер с такими тегами возьмёт этот job."
+      },
+      {
+        "text": "Сделать production runner Protected и убедиться, что deploy идёт из protected branch",
+        "correct": true,
+        "explanation": "Protected runner не берёт джобы из unprotected веток, что добавляет защитный барьер."
+      },
+      {
+        "text": "Удалить shared runners из проекта (отключить в Settings > CI/CD)",
+        "correct": true,
+        "explanation": "Можно отключить shared runners для проекта и использовать только свои — это полностью решает проблему."
+      },
+      {
+        "text": "Установить run_untagged = false на shared runner",
+        "correct": false,
+        "explanation": "Если у job нет тегов, это поможет. Но если job имеет теги, которые совпадают с shared runner — не поможет."
+      }
+    ]
+  },
+  {
+    "question": "Какой executor лучше выбрать для сборки проектов на разных языках (Node.js, Python, Go) в рамках одного раннера?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Shell executor — он самый быстрый",
+        "correct": false,
+        "explanation": "Shell потребует установки Node, Python и Go на хост-машину и управления версиями. Это кошмар сопровождения."
+      },
+      {
+        "text": "Docker executor с разными image для каждого job",
+        "correct": true,
+        "explanation": "Каждый job задаёт image: node:20, image: python:3.12, image: golang:1.22 — идеальная изоляция без конфликтов."
+      },
+      {
+        "text": "Нужно зарегистрировать отдельный раннер для каждого языка",
+        "correct": false,
+        "explanation": "Это избыточно. Docker executor позволяет одному раннеру работать с любым языком через разные образы."
+      },
+      {
+        "text": "Docker Machine executor — он создаёт VM для каждого языка",
+        "correct": false,
+        "explanation": "Docker Machine избыточен для этого случая. Он нужен для автомасштабирования, а не для разных языков."
+      }
+    ]
+  }
+]

@@ -1,0 +1,202 @@
+[
+  {
+    "question": "Какая предопределённая переменная содержит короткий SHA коммита (8 символов)?",
+    "type": "single",
+    "options": [
+      { "text": "CI_COMMIT_SHA", "correct": false, "explanation": "CI_COMMIT_SHA содержит полный SHA из 40 символов" },
+      { "text": "CI_COMMIT_SHORT_SHA", "correct": true, "explanation": "CI_COMMIT_SHORT_SHA содержит первые 8 символов SHA — удобно для тегирования Docker-образов" },
+      { "text": "CI_COMMIT_ID", "correct": false, "explanation": "Такой переменной не существует в GitLab CI" },
+      { "text": "CI_SHORT_SHA", "correct": false, "explanation": "Такой переменной не существует в GitLab CI" }
+    ]
+  },
+  {
+    "question": "В каком порядке переменные имеют приоритет (от наименьшего к наибольшему)?",
+    "type": "single",
+    "options": [
+      { "text": "Job → Pipeline → .gitlab-ci.yml → Project → Group → Instance", "correct": false, "explanation": "Это обратный порядок — job имеет наивысший приоритет, а не наименьший" },
+      { "text": "Instance → Group → Project → .gitlab-ci.yml global → Pipeline → Job", "correct": true, "explanation": "Правильный порядок: каждый следующий уровень перезаписывает предыдущий, job имеет наивысший приоритет" },
+      { "text": "Project → Group → Instance → .gitlab-ci.yml → Pipeline → Job", "correct": false, "explanation": "Неверный порядок: instance имеет наименьший приоритет, а не средний" },
+      { "text": "Pipeline → Job → .gitlab-ci.yml → Project → Group → Instance", "correct": false, "explanation": "Неверный порядок: pipeline и job имеют наивысший приоритет, а не наименьший" }
+    ]
+  },
+  {
+    "question": "Что такое File-type переменная в GitLab CI?",
+    "type": "single",
+    "options": [
+      { "text": "Переменная, значение которой считывается из файла в репозитории", "correct": false, "explanation": "Нет, File-type переменная не читает файл из репозитория" },
+      { "text": "Переменная, значение которой записывается во временный файл, а сама переменная содержит путь к этому файлу", "correct": true, "explanation": "Верно: GitLab создаёт временный файл с содержимым переменной и передаёт путь к нему в job" },
+      { "text": "Переменная для хранения бинарных файлов напрямую", "correct": false, "explanation": "File-type переменные хранят текстовое содержимое (сертификаты, конфиги), а не бинарные данные" },
+      { "text": "Переменная типа boolean, которая включает или отключает чтение .env файлов", "correct": false, "explanation": "File-type — это специальный тип переменной для файлового содержимого, не boolean" }
+    ]
+  },
+  {
+    "question": "Переменные CI_MERGE_REQUEST_* доступны во всех пайплайнах?",
+    "type": "single",
+    "options": [
+      { "text": "Да, они доступны в любом пайплайне", "correct": false, "explanation": "Нет, эти переменные доступны только в MR-пайплайнах" },
+      { "text": "Нет, только когда CI_PIPELINE_SOURCE == 'merge_request_event'", "correct": true, "explanation": "Правильно: переменные MR доступны только в пайплайнах, запущенных для merge request" },
+      { "text": "Только в protected ветках", "correct": false, "explanation": "Protected ветки — это про защиту переменных, не про MR-переменные" },
+      { "text": "Только при использовании merge_requests: ключевого слова в конфиге", "correct": false, "explanation": "Для доступа к MR-переменным нужен пайплайн типа merge_request_event, а не ключевое слово" }
+    ]
+  },
+  {
+    "question": "Ты добавляешь API-токен в .gitlab-ci.yml в секции variables:. Что не так с этим подходом?",
+    "type": "multiple",
+    "options": [
+      { "text": "Токен виден всем, кто имеет доступ к репозиторию", "correct": true, "explanation": ".gitlab-ci.yml хранится в репозитории — любой, кто может читать код, видит секрет" },
+      { "text": "Токен попадает в историю git и остаётся там навсегда", "correct": true, "explanation": "Даже если удалить токен в следующем коммите, он останется в git history" },
+      { "text": "GitLab автоматически блокирует такие переменные", "correct": false, "explanation": "GitLab не проверяет и не блокирует секреты в .gitlab-ci.yml" },
+      { "text": "Переменную нельзя использовать в script командах", "correct": false, "explanation": "Технически переменная работает, проблема только в безопасности" }
+    ]
+  },
+  {
+    "question": "Какое значение вернёт выражение ${DEPLOY_ENV:-production} если переменная DEPLOY_ENV не задана?",
+    "type": "single",
+    "options": [
+      { "text": "Пустую строку", "correct": false, "explanation": "Пустая строка — это результат без default значения: просто $DEPLOY_ENV" },
+      { "text": "production", "correct": true, "explanation": "Синтаксис ${VAR:-default} возвращает default если VAR не задана или пустая" },
+      { "text": "Ошибку выполнения", "correct": false, "explanation": "Shell не выдаёт ошибку для незаданных переменных — просто возвращает default" },
+      { "text": "DEPLOY_ENV", "correct": false, "explanation": "Имя переменной не возвращается — это синтаксис подстановки значения" }
+    ]
+  },
+  {
+    "question": "Чем отличается Protected переменная от Masked?",
+    "type": "single",
+    "options": [
+      { "text": "Protected — скрывает в логах, Masked — только для protected веток", "correct": false, "explanation": "Это обратное определение: Protected ограничивает доступ по веткам, Masked скрывает в логах" },
+      { "text": "Protected — доступна только в protected ветках, Masked — скрывается в логах job'а", "correct": true, "explanation": "Верно: Protected контролирует доступ (какие ветки), Masked контролирует видимость (в логах)" },
+      { "text": "Это одно и то же, просто разные названия", "correct": false, "explanation": "Это разные настройки с разными функциями, можно применять как вместе, так и отдельно" },
+      { "text": "Protected нужен для файловых переменных, Masked для строковых", "correct": false, "explanation": "Protected и Masked не зависят от типа переменной (File или Variable)" }
+    ]
+  },
+  {
+    "question": "Переменная IMAGE задана как variables: IMAGE: '$CI_REGISTRY_IMAGE:latest' (одинарные кавычки). Когда произойдёт подстановка CI_REGISTRY_IMAGE?",
+    "type": "single",
+    "options": [
+      { "text": "При парсинге YAML перед запуском пайплайна", "correct": false, "explanation": "Двойные кавычки приводят к подстановке при парсинге YAML, но одинарные — нет" },
+      { "text": "При выполнении job'а в runtime", "correct": true, "explanation": "Одинарные кавычки в YAML предотвращают раннее раскрытие — подстановка происходит в shell при выполнении команды" },
+      { "text": "Никогда — одинарные кавычки полностью блокируют подстановку", "correct": false, "explanation": "Одинарные кавычки в YAML влияют только на время парсинга, но в shell переменная всё равно раскроется" },
+      { "text": "Зависит от операционной системы runner'а", "correct": false, "explanation": "Время подстановки определяется синтаксисом YAML (одинарные vs двойные кавычки), а не ОС" }
+    ]
+  },
+  {
+    "question": "Какая переменная содержит имя ветки в формате, безопасном для использования в URL и именах ресурсов (без слешей и спецсимволов)?",
+    "type": "single",
+    "options": [
+      { "text": "CI_COMMIT_REF_NAME", "correct": false, "explanation": "CI_COMMIT_REF_NAME содержит оригинальное имя ветки, включая слеши: feature/login" },
+      { "text": "CI_COMMIT_REF_SLUG", "correct": true, "explanation": "CI_COMMIT_REF_SLUG содержит slug-версию: feature/login → feature-login (слеши заменены дефисами)" },
+      { "text": "CI_COMMIT_BRANCH", "correct": false, "explanation": "CI_COMMIT_BRANCH содержит оригинальное имя ветки без нормализации" },
+      { "text": "CI_BRANCH_SLUG", "correct": false, "explanation": "Такой переменной не существует в GitLab CI" }
+    ]
+  },
+  {
+    "question": "Ты запускаешь пайплайн через API и передаёшь variables[DEPLOY_ENV]=staging. В job'е также есть variables: DEPLOY_ENV: 'production'. Какое значение получит job?",
+    "type": "single",
+    "options": [
+      { "text": "production — job-level переменные имеют наивысший приоритет", "correct": false, "explanation": "Job-level переменные (variables: в job) имеют наивысший приоритет, но вопрос о global variables vs pipeline variables" },
+      { "text": "staging — pipeline переменные перезаписывают global variables в .gitlab-ci.yml", "correct": false, "explanation": "Если DEPLOY_ENV задана на уровне job (не global), то job-level переменная победит над pipeline переменной" },
+      { "text": "production — переменная задана на уровне job'а, job-level выше pipeline", "correct": true, "explanation": "Job-level variables (variables: внутри job) имеют наивысший приоритет — выше pipeline и global variables" },
+      { "text": "Ошибка: конфликт переменных", "correct": false, "explanation": "GitLab не выдаёт ошибку при конфликте — просто применяет правило приоритета" }
+    ]
+  },
+  {
+    "question": "Для чего используется переменная CI_JOB_TOKEN?",
+    "type": "multiple",
+    "options": [
+      { "text": "Аутентификация в GitLab Container Registry", "correct": true, "explanation": "CI_JOB_TOKEN можно использовать для docker login в gitlab registry без отдельного токена" },
+      { "text": "Аутентификация в GitLab Package Registry", "correct": true, "explanation": "CI_JOB_TOKEN даёт доступ к Package Registry проекта" },
+      { "text": "Аутентификация в сторонних сервисах (AWS, GCP)", "correct": false, "explanation": "CI_JOB_TOKEN работает только с GitLab API и сервисами GitLab, не с внешними провайдерами" },
+      { "text": "Это постоянный токен, который можно сохранить для будущего использования", "correct": false, "explanation": "CI_JOB_TOKEN временный — действует только во время выполнения job'а и истекает после" }
+    ]
+  },
+  {
+    "question": "Как вывести в лог только переменные GitLab CI (начинающиеся с CI_)?",
+    "type": "single",
+    "options": [
+      { "text": "- gitlab ci vars", "correct": false, "explanation": "Такой команды не существует" },
+      { "text": "- env | grep CI_", "correct": true, "explanation": "env выводит все переменные окружения, grep CI_ фильтрует только нужные" },
+      { "text": "- echo $CI_*", "correct": false, "explanation": "Shell не раскрывает $CI_* как glob-паттерн для переменных окружения" },
+      { "text": "- printenv --gitlab", "correct": false, "explanation": "Флага --gitlab у printenv не существует" }
+    ]
+  },
+  {
+    "question": "В .gitlab-ci.yml задана глобальная переменная APP_ENV: 'production'. В job'е test-job нет своей переменной APP_ENV. Какое значение получит test-job?",
+    "type": "single",
+    "options": [
+      { "text": "Пустую строку", "correct": false, "explanation": "Глобальные variables: наследуются всеми job'ами, если не переопределены" },
+      { "text": "production", "correct": true, "explanation": "Глобальные переменные из variables: секции автоматически доступны во всех job'ах" },
+      { "text": "Значение из Project Settings", "correct": false, "explanation": "Global variables: имеют приоритет выше Project Settings" },
+      { "text": "Ошибку выполнения — переменная не объявлена в job'е", "correct": false, "explanation": "GitLab не требует объявлять переменные в каждом job — они наследуются автоматически" }
+    ]
+  },
+  {
+    "question": "Почему использование CI_COMMIT_SHORT_SHA для тегирования Docker-образов считается лучшей практикой?",
+    "type": "multiple",
+    "options": [
+      { "text": "Тег уникален для каждого коммита — можно точно знать, какой код в образе", "correct": true, "explanation": "SHA коммита гарантирует уникальность и полную прослеживаемость: тег → коммит → код" },
+      { "text": "Можно легко откатиться к любому предыдущему образу", "correct": true, "explanation": "Зная SHA коммита, можно найти соответствующий образ и задеплоить его" },
+      { "text": "Docker требует SHA-формат для тегов", "correct": false, "explanation": "Docker принимает любую строку как тег, SHA — это выбор команды, не требование Docker" },
+      { "text": "latest тег перезаписывается и не позволяет откатиться", "correct": true, "explanation": "Тег latest всегда указывает на последний образ — предыдущие версии недостижимы по тегу" }
+    ]
+  },
+  {
+    "question": "У переменной CI_PIPELINE_SOURCE значение 'merge_request_event'. Что это означает?",
+    "type": "single",
+    "options": [
+      { "text": "Пайплайн запущен после слияния MR в main", "correct": false, "explanation": "После слияния запускается обычный push-пайплайн, а не merge_request_event" },
+      { "text": "Пайплайн запущен для активного Merge Request (при создании или обновлении MR)", "correct": true, "explanation": "merge_request_event означает, что пайплайн запущен в контексте живого MR — это ключевой источник для conditional logic" },
+      { "text": "Пайплайн запущен вручную через кнопку 'Run Pipeline'", "correct": false, "explanation": "Ручной запуск даёт CI_PIPELINE_SOURCE = 'web'" },
+      { "text": "Пайплайн запущен по расписанию в ветке с открытым MR", "correct": false, "explanation": "Расписание даёт CI_PIPELINE_SOURCE = 'schedule' независимо от наличия MR" }
+    ]
+  },
+  {
+    "question": "Переменная DB_PASSWORD содержит значение 'p@ss'. Можно ли её замаскировать?",
+    "type": "single",
+    "options": [
+      { "text": "Да, без ограничений", "correct": false, "explanation": "У masked переменных есть ограничения: значение должно быть минимум 8 символов" },
+      { "text": "Нет, значение слишком короткое — masked требует минимум 8 символов", "correct": true, "explanation": "GitLab требует минимум 8 символов для masked переменных. 'p@ss' — только 4 символа" },
+      { "text": "Нет, символ @ запрещён в masked переменных", "correct": false, "explanation": "Основное ограничение — длина (8+ символов) и отсутствие переносов строк, @ обычно допустим" },
+      { "text": "Только если переменная также Protected", "correct": false, "explanation": "Masked и Protected — независимые настройки, можно применять по отдельности" }
+    ]
+  },
+  {
+    "question": "Как задать переменную только для конкретного job'а и переопределить глобальную?",
+    "type": "single",
+    "options": [
+      { "text": "override: APP_ENV: 'test' внутри job", "correct": false, "explanation": "Ключевого слова override: в GitLab CI не существует" },
+      { "text": "variables: APP_ENV: 'test' внутри секции job'а", "correct": true, "explanation": "Секция variables: внутри job переопределяет глобальную переменную только для этого job'а" },
+      { "text": "env: APP_ENV=test в секции script", "correct": false, "explanation": "env: не является ключевым словом GitLab CI. Переменную можно задать через export в script, но это другой подход" },
+      { "text": "set APP_ENV=test в секции before_script", "correct": false, "explanation": "set — это команда Windows CMD. В Linux используется export, но это задаёт переменную в shell, а не на уровне GitLab CI" }
+    ]
+  },
+  {
+    "question": "Команда в job содержит echo $API_SECRET. Переменная API_SECRET помечена как Masked. Что появится в логах?",
+    "type": "single",
+    "options": [
+      { "text": "Реальное значение переменной", "correct": false, "explanation": "Masked переменные скрываются в логах именно для того, чтобы предотвратить утечку" },
+      { "text": "[MASKED]", "correct": true, "explanation": "GitLab заменяет вхождения masked значения на [MASKED] в логах job'а" },
+      { "text": "Пустая строка", "correct": false, "explanation": "Пустая строка — это результат незаданной переменной, не masked" },
+      { "text": "Ошибка: masked variable cannot be printed", "correct": false, "explanation": "GitLab не блокирует команду — просто заменяет вывод на [MASKED]" }
+    ]
+  },
+  {
+    "question": "Какой из вариантов правильно использует variable expansion для создания полного имени Docker-образа?",
+    "type": "single",
+    "options": [
+      { "text": "- docker build -t CI_REGISTRY_IMAGE:CI_COMMIT_SHORT_SHA .", "correct": false, "explanation": "Без знака $ переменная не раскрывается — это просто строка" },
+      { "text": "- docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA} .", "correct": true, "explanation": "Синтаксис ${VAR} явно указывает границы имени переменной — надёжнее чем $VAR когда после переменной идёт : или другой символ" },
+      { "text": "- docker build -t %CI_REGISTRY_IMAGE%:%CI_COMMIT_SHORT_SHA% .", "correct": false, "explanation": "%VAR% — это синтаксис Windows CMD, не bash" },
+      { "text": "- docker build -t $(CI_REGISTRY_IMAGE):$(CI_COMMIT_SHORT_SHA) .", "correct": false, "explanation": "$(VAR) в bash означает подстановку команды, а не значения переменной. Для переменных используется ${VAR}" }
+    ]
+  },
+  {
+    "question": "Зачем нужна переменная CI_PROJECT_DIR?",
+    "type": "single",
+    "options": [
+      { "text": "Это URL директории проекта в GitLab UI", "correct": false, "explanation": "URL проекта хранится в CI_PROJECT_URL, а не CI_PROJECT_DIR" },
+      { "text": "Путь к директории, куда runner склонировал репозиторий на хосте", "correct": true, "explanation": "CI_PROJECT_DIR содержит абсолютный путь на файловой системе runner'а — полезен для копирования артефактов и работы с файлами" },
+      { "text": "Путь к директории в Docker-контейнере по умолчанию", "correct": false, "explanation": "CI_PROJECT_DIR — реальный путь на runner'е, не путь внутри контейнера" },
+      { "text": "Переменная для указания рабочей директории job'а в конфиге", "correct": false, "explanation": "Рабочую директорию задаёт ключевое слово working_dir:, а CI_PROJECT_DIR — это предопределённая переменная" }
+    ]
+  }
+]

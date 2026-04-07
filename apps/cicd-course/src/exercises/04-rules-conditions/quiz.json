@@ -1,0 +1,418 @@
+[
+  {
+    "question": "Вы используете `only: [main]` и `rules: [{if: ...}]` в одном джобе. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сработают оба механизма, джоб запустится при выполнении любого условия",
+        "correct": false,
+        "explanation": "GitLab не объединяет only/except и rules — они несовместимы в одном джобе."
+      },
+      {
+        "text": "GitLab выдаст ошибку конфигурации, пайплайн не запустится",
+        "correct": true,
+        "explanation": "only/except и rules нельзя использовать одновременно в одном джобе — это явная ошибка конфигурации."
+      },
+      {
+        "text": "Приоритет у rules, only будет проигнорирован",
+        "correct": false,
+        "explanation": "Никакого приоритета нет — это запрещённая комбинация, которая вызывает ошибку."
+      },
+      {
+        "text": "Приоритет у only, rules будет проигнорирован",
+        "correct": false,
+        "explanation": "GitLab не выбирает победителя — комбинация недопустима и вызывает ошибку пайплайна."
+      }
+    ]
+  },
+  {
+    "question": "Какое значение примет $CI_PIPELINE_SOURCE при ручном запуске пайплайна через кнопку в GitLab UI?",
+    "type": "single",
+    "options": [
+      {
+        "text": "manual",
+        "correct": false,
+        "explanation": "manual — это значение when, а не CI_PIPELINE_SOURCE. Источник при запуске через UI — web."
+      },
+      {
+        "text": "web",
+        "correct": true,
+        "explanation": "Запуск через кнопку Run pipeline в GitLab UI устанавливает CI_PIPELINE_SOURCE=web."
+      },
+      {
+        "text": "push",
+        "correct": false,
+        "explanation": "push — источник при git push. Ручной запуск через UI — это web."
+      },
+      {
+        "text": "trigger",
+        "correct": false,
+        "explanation": "trigger — источник при запуске из другого пайплайна через trigger-джоб."
+      }
+    ]
+  },
+  {
+    "question": "В списке rules что произойдёт, если ни одно условие не совпало и нет финального `when: never`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Джоб не запустится",
+        "correct": false,
+        "explanation": "Без явного финального правила GitLab применяет значение по умолчанию — when: on_success."
+      },
+      {
+        "text": "GitLab выдаст ошибку",
+        "correct": false,
+        "explanation": "Ошибки не будет — GitLab просто применит поведение по умолчанию."
+      },
+      {
+        "text": "Джоб запустится с when: on_success по умолчанию",
+        "correct": true,
+        "explanation": "Если ни одно правило не совпало и нет fallback-правила, GitLab использует when: on_success как значение по умолчанию — это частая причина неожиданных запусков."
+      },
+      {
+        "text": "Джоб перейдёт в статус skipped",
+        "correct": false,
+        "explanation": "Skipped — это не поведение по умолчанию при отсутствии fallback в rules."
+      }
+    ]
+  },
+  {
+    "question": "Как работает логика внутри одного правила rules, содержащего и `if`, и `changes`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "OR: правило срабатывает если выполнено if ИЛИ изменились файлы из changes",
+        "correct": false,
+        "explanation": "Внутри одного правила условия объединяются по AND, а не OR."
+      },
+      {
+        "text": "AND: правило срабатывает только если выполнено if И изменились файлы из changes",
+        "correct": true,
+        "explanation": "Внутри одного правила if и changes объединяются по AND. Сам список rules — это OR (первое сработавшее побеждает)."
+      },
+      {
+        "text": "if имеет приоритет, changes проверяется только если if вернул false",
+        "correct": false,
+        "explanation": "Нет приоритетов между условиями — они проверяются одновременно по AND."
+      },
+      {
+        "text": "changes имеет приоритет над if",
+        "correct": false,
+        "explanation": "Нет никакого приоритета — оба условия в одном правиле применяются по AND."
+      }
+    ]
+  },
+  {
+    "question": "Для чего используется `workflow:rules`?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Управление запуском всего пайплайна целиком",
+        "correct": true,
+        "explanation": "workflow:rules решает, создавать ли пайплайн вообще, в отличие от rules в джобах, которые управляют отдельными джобами."
+      },
+      {
+        "text": "Дедупликация branch и MR пайплайнов",
+        "correct": true,
+        "explanation": "Это одно из главных применений workflow:rules — предотвратить двойной запуск при push + открытом MR."
+      },
+      {
+        "text": "Управление when для отдельных джобов",
+        "correct": false,
+        "explanation": "Управление when для отдельных джобов — это rules в самих джобах, а не workflow:rules."
+      },
+      {
+        "text": "Ограничение запуска пайплайна только на определённых ветках",
+        "correct": true,
+        "explanation": "workflow:rules позволяет разрешить пайплайн только для main, MR и тегов, блокируя всё остальное."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик исправил только `docs/README.md`. Какие джобы запустятся?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Все джобы запустятся",
+        "correct": false,
+        "explanation": "Если у frontend-tests и backend-tests есть rules:changes на соответствующие папки, они не запустятся при изменении только docs/."
+      },
+      {
+        "text": "Только джобы с rules:changes на docs/**/*",
+        "correct": true,
+        "explanation": "rules:changes сравнивает изменённые файлы с паттернами. Джобы с паттернами на frontend/ и backend/ не запустятся."
+      },
+      {
+        "text": "Ни один джоб не запустится",
+        "correct": false,
+        "explanation": "Джобы с rules:changes на docs/** запустятся, так как docs/README.md попадает под паттерн."
+      },
+      {
+        "text": "Запустятся джобы без rules:changes и джоб с паттерном docs/**/*",
+        "correct": false,
+        "explanation": "Джобы без rules:changes следуют своей логике (если нет rules вообще — запускаются всегда). Но это зависит от конкретной конфигурации."
+      }
+    ]
+  },
+  {
+    "question": "Почему при первом push новой ветки rules:changes может запустить джоб, даже если изменений в целевых файлах нет?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это баг GitLab",
+        "correct": false,
+        "explanation": "Это не баг, а ожидаемое поведение: при первом push в ветку нет базы для сравнения, поэтому все файлы считаются изменёнными."
+      },
+      {
+        "text": "При первом push нет предыдущего коммита для сравнения, все файлы считаются изменёнными",
+        "correct": true,
+        "explanation": "rules:changes сравнивает с предыдущим состоянием. Если предыдущего коммита нет (новая ветка), все файлы считаются новыми/изменёнными."
+      },
+      {
+        "text": "rules:changes не работает на новых ветках совсем",
+        "correct": false,
+        "explanation": "Он работает, но ведёт себя особым образом — считает все файлы изменёнными при первом push."
+      },
+      {
+        "text": "GitLab сравнивает с файлами в main при первом push",
+        "correct": false,
+        "explanation": "GitLab не делает такого сравнения автоматически. При первом push сравнивать не с чем — все файлы считаются изменёнными."
+      }
+    ]
+  },
+  {
+    "question": "Какая переменная позволяет определить, есть ли открытые MR для текущей ветки?",
+    "type": "single",
+    "options": [
+      {
+        "text": "$CI_MERGE_REQUEST_IID",
+        "correct": false,
+        "explanation": "$CI_MERGE_REQUEST_IID доступна только в MR-пайплайне. В branch-пайплайне она не будет задана."
+      },
+      {
+        "text": "$CI_OPEN_MERGE_REQUESTS",
+        "correct": true,
+        "explanation": "$CI_OPEN_MERGE_REQUESTS содержит IID открытых MR для текущей ветки и доступна в branch-пайплайне. Используется для дедупликации."
+      },
+      {
+        "text": "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME",
+        "correct": false,
+        "explanation": "Эта переменная содержит имя исходной ветки MR, а не наличие открытых MR."
+      },
+      {
+        "text": "$CI_PIPELINE_SOURCE == 'merge_request_event'",
+        "correct": false,
+        "explanation": "Это условие, а не переменная. Кроме того, в branch-пайплайне CI_PIPELINE_SOURCE будет 'push', а не 'merge_request_event'."
+      }
+    ]
+  },
+  {
+    "question": "У вас два правила в джобе. Первое: `if: $CI_COMMIT_BRANCH == 'main', when: manual`. Второе: `when: always`. Пайплайн запущен на ветке feature/auth. Как запустится джоб?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Не запустится — ветка не main",
+        "correct": false,
+        "explanation": "Первое правило не срабатывает (ветка не main), но второе правило when: always сработает."
+      },
+      {
+        "text": "Запустится автоматически (when: always) — второе правило срабатывает как fallback",
+        "correct": true,
+        "explanation": "Первое правило не совпадает (ветка feature/auth != main). Второе правило when: always не имеет условия и срабатывает как fallback — джоб запустится автоматически."
+      },
+      {
+        "text": "Запустится как manual — правило с main имеет приоритет",
+        "correct": false,
+        "explanation": "Правило с main не срабатывает (условие ложно). Приоритет определяется порядком, а не типом when."
+      },
+      {
+        "text": "GitLab выдаст ошибку из-за конфликта manual и always",
+        "correct": false,
+        "explanation": "Конфликта нет — правила применяются последовательно. Первое не совпало, второе сработало."
+      }
+    ]
+  },
+  {
+    "question": "Какое значение CI_PIPELINE_SOURCE установится, когда другой пайплайн запускает ваш через ключевое слово `trigger`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "pipeline",
+        "correct": false,
+        "explanation": "Значение 'pipeline' не используется для trigger. Правильное значение — 'trigger'."
+      },
+      {
+        "text": "trigger",
+        "correct": true,
+        "explanation": "Когда пайплайн запускается из другого через ключевое слово trigger (downstream pipeline), CI_PIPELINE_SOURCE принимает значение 'trigger'."
+      },
+      {
+        "text": "api",
+        "correct": false,
+        "explanation": "api — это запуск через GitLab API напрямую. Запуск через trigger-джоб другого пайплайна — это 'trigger'."
+      },
+      {
+        "text": "parent_pipeline",
+        "correct": false,
+        "explanation": "Такого значения не существует. Правильное значение при запуске из родительского пайплайна — 'trigger'."
+      }
+    ]
+  },
+  {
+    "question": "Какой паттерн в rules:changes совпадёт с файлом `src/auth/middleware/jwt.ts`?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "`src/**/*`",
+        "correct": true,
+        "explanation": "Паттерн src/**/* рекурсивно совпадает со всеми файлами в src/, включая src/auth/middleware/jwt.ts."
+      },
+      {
+        "text": "`**/*.ts`",
+        "correct": true,
+        "explanation": "Паттерн **/*.ts совпадает со всеми TypeScript-файлами в любой директории, включая jwt.ts."
+      },
+      {
+        "text": "`src/auth/*`",
+        "correct": false,
+        "explanation": "src/auth/* совпадает только с файлами непосредственно в src/auth/, но не в поддиректориях middleware/."
+      },
+      {
+        "text": "`src/auth/**/*`",
+        "correct": true,
+        "explanation": "Паттерн src/auth/**/* рекурсивно совпадает со всеми файлами в src/auth/ и его поддиректориях."
+      }
+    ]
+  },
+  {
+    "question": "Команда обнаружила, что при каждом push в feature-ветку создаётся два пайплайна — branch и MR. Что нужно добавить в .gitlab-ci.yml?",
+    "type": "single",
+    "options": [
+      {
+        "text": "rules с `when: never` для всех branch-пайплайнов",
+        "correct": false,
+        "explanation": "Это уберёт branch-пайплайны полностью, что нежелательно — нужно оставить их, когда нет открытого MR."
+      },
+      {
+        "text": "workflow:rules с проверкой $CI_OPEN_MERGE_REQUESTS для дедупликации",
+        "correct": true,
+        "explanation": "workflow:rules с условием `if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS, when: never` блокирует branch-пайплайн когда уже создастся MR-пайплайн."
+      },
+      {
+        "text": "except: [merge_requests] в каждом джобе",
+        "correct": false,
+        "explanation": "except — устаревший синтаксис. Кроме того, это не решит проблему дублирования — branch-пайплайн всё равно запустится."
+      },
+      {
+        "text": "Добавить `interruptible: true` во все джобы",
+        "correct": false,
+        "explanation": "interruptible позволяет отменить старый пайплайн при новом push в ту же ветку, но не решает проблему дублирования branch+MR."
+      }
+    ]
+  },
+  {
+    "question": "Что делает rules:exists применительно к задаче определения типа проекта?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Проверяет, существует ли файл на файловой системе runner'а",
+        "correct": false,
+        "explanation": "rules:exists проверяет файлы в репозитории (git tree), а не на файловой системе runner'а."
+      },
+      {
+        "text": "Проверяет наличие файла в репозитории и позволяет запускать джоб только для проектов нужного типа",
+        "correct": true,
+        "explanation": "rules:exists смотрит в репозиторий. Наличие Dockerfile, package.json, go.mod или Chart.yaml позволяет автоматически определить тип проекта и запустить соответствующие джобы."
+      },
+      {
+        "text": "Проверяет, изменился ли файл в последнем коммите",
+        "correct": false,
+        "explanation": "Изменения файлов проверяет rules:changes. Exists проверяет только факт наличия файла в репо, независимо от изменений."
+      },
+      {
+        "text": "Проверяет существование артефакта из предыдущей стадии",
+        "correct": false,
+        "explanation": "Артефакты — отдельный механизм. rules:exists работает с файлами в репозитории."
+      }
+    ]
+  },
+  {
+    "question": "Джоб должен запускаться на MR ТОЛЬКО если изменились файлы в `backend/`. На ветке main он должен запускаться всегда. Какая конфигурация правильная?",
+    "type": "single",
+    "options": [
+      {
+        "text": "`rules: [{if: MR, changes: [backend/**/*]}, {if: main}]`",
+        "correct": true,
+        "explanation": "Первое правило: AND (MR и изменения в backend). Второе правило: только if (main без ограничений на changes). Порядок правильный."
+      },
+      {
+        "text": "`rules: [{changes: [backend/**/*]}, {if: main}]`",
+        "correct": false,
+        "explanation": "Первое правило не ограничено источником — джоб запустится при любом push с изменениями в backend/, а не только на MR."
+      },
+      {
+        "text": "`rules: [{if: main}, {if: MR, changes: [backend/**/*]}]`",
+        "correct": false,
+        "explanation": "Порядок имеет значение. Правило с main стоит первым — если пайплайн на main, оно сработает. Но для MR с изменениями в frontend/ — нет подходящего правила, джоб не запустится."
+      },
+      {
+        "text": "`rules: [{if: MR || main, changes: [backend/**/*]}]`",
+        "correct": false,
+        "explanation": "Такой синтаксис не позволяет задать разные условия changes для разных if. changes в одном правиле применяется вместе с if по AND."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик добавил `when: delayed` и `start_in: '1 hour'` в правило. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab выдаст ошибку — delayed нельзя использовать в rules",
+        "correct": false,
+        "explanation": "delayed можно использовать в rules. Это валидное значение when."
+      },
+      {
+        "text": "Джоб запустится автоматически через 1 час после создания пайплайна",
+        "correct": true,
+        "explanation": "when: delayed с start_in: '1 hour' означает, что джоб будет ждать 1 час в статусе delayed, затем запустится автоматически. Используется например для blue-green деплоев или уведомлений."
+      },
+      {
+        "text": "Джоб запустится немедленно, start_in игнорируется в rules",
+        "correct": false,
+        "explanation": "start_in не игнорируется — он задаёт задержку перед запуском delayed-джоба."
+      },
+      {
+        "text": "Нужно нажать кнопку через 1 час, иначе джоб не запустится",
+        "correct": false,
+        "explanation": "delayed — это не manual. Джоб запустится автоматически после указанной задержки, без ручного вмешательства."
+      }
+    ]
+  },
+  {
+    "question": "В каких сценариях использование `rules:exists` предпочтительнее `rules:changes`?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Когда нужно запустить docker build только если в репо есть Dockerfile",
+        "correct": true,
+        "explanation": "exists идеально подходит для проверки наличия файла конфигурации. Если Dockerfile есть — проект поддерживает Docker-сборку."
+      },
+      {
+        "text": "Когда нужно реагировать на изменения в src/ с последнего коммита",
+        "correct": false,
+        "explanation": "Это задача для rules:changes, а не exists. Changes сравнивает с предыдущим коммитом."
+      },
+      {
+        "text": "Когда тип проекта определяется по наличию манифеста (package.json, go.mod, pom.xml)",
+        "correct": true,
+        "explanation": "rules:exists — правильный инструмент для определения типа проекта по наличию файла-манифеста."
+      },
+      {
+        "text": "Когда нужно запустить helm-деплой только для проектов с chart'ом",
+        "correct": true,
+        "explanation": "Проверка существования helm/Chart.yaml через exists — классический паттерн для условного helm-деплоя."
+      }
+    ]
+  }
+]

@@ -1,3 +1,6 @@
+// Need React import for CSSProperties
+import React from 'react'
+
 export function Cheat() {
   const code = (s: string) => (
     <pre style={{ background: '#f5f5f5', padding: '0.75rem', borderRadius: '6px', fontSize: '0.8rem', overflow: 'auto', margin: '0.5rem 0 0' }}>{s}</pre>
@@ -9,23 +12,29 @@ export function Cheat() {
 
   return (
     <div className="exercise-container">
-      <h2>Level 12: Подсказки по продвинутым паттернам</h2>
+      {/* Level 12: Подсказки по продвинутым паттернам / Advanced patterns hints */}
+      <h2>Level 12: Подсказки по продвинутым паттернам / Advanced patterns hints</h2>
 
       <section style={sectionStyle}>
+        {/* 12.1 — Discriminated union для controlled/uncontrolled */}
         <h3 style={h3Style}>12.1 — Discriminated union для controlled/uncontrolled</h3>
-        <p style={pStyle}>never в другой ветке запрещает смешивание props:</p>
+        {/* never в другой ветке запрещает смешивание props: */}
+        <p style={pStyle}>never в другой ветке запрещает смешивание props: / never in the other branch prevents mixing props:</p>
         {code(`type ControlledProps = {
   value: Date
   onChange: (date: Date) => void
   defaultValue?: never    // <- never запрещает это поле
+  // <- never disallows this field
 }
 type UncontrolledProps = {
   defaultValue?: Date
   value?: never           // <- never запрещает это поле
+  // <- never disallows this field
   onChange?: never
 }
 type DatePickerProps = ControlledProps | UncontrolledProps`)}
-        <p style={{ ...pStyle, marginTop: '0.5rem' }}>useControllableState — абстракция обоих режимов:</p>
+        {/* useControllableState — абстракция обоих режимов: */}
+        <p style={{ ...pStyle, marginTop: '0.5rem' }}>useControllableState — абстракция обоих режимов: / useControllableState — abstraction for both modes:</p>
         {code(`function useControllableState<T>(
   controlled: T | undefined,
   defaultValue: T,
@@ -43,8 +52,10 @@ type DatePickerProps = ControlledProps | UncontrolledProps`)}
       </section>
 
       <section style={sectionStyle}>
-        <h3 style={h3Style}>12.1 — Сетка дней календаря</h3>
-        <p style={pStyle}>Генерация массива дней с пустыми ячейками в начале:</p>
+        {/* 12.1 — Сетка дней календаря / Calendar day grid */}
+        <h3 style={h3Style}>12.1 — Сетка дней календаря / Calendar day grid</h3>
+        {/* Генерация массива дней с пустыми ячейками в начале: */}
+        <p style={pStyle}>Генерация массива дней с пустыми ячейками в начале: / Generate array of days with empty cells at the start:</p>
         {code(`function buildCalendarDays(year: number, month: number) {
   const firstDayOfWeek = new Date(year, month, 1).getDay()
   const startOffset = (firstDayOfWeek + 6) % 7  // Mon-first
@@ -59,21 +70,27 @@ type DatePickerProps = ControlledProps | UncontrolledProps`)}
       </section>
 
       <section style={sectionStyle}>
-        <h3 style={h3Style}>12.2 — ARIA в triggerProps хука</h3>
-        <p style={pStyle}>Пользователь хука получает доступность бесплатно через spread:</p>
+        {/* 12.2 — ARIA в triggerProps хука / ARIA in hook's triggerProps */}
+        <h3 style={h3Style}>12.2 — ARIA в triggerProps хука / ARIA in hook's triggerProps</h3>
+        {/* Пользователь хука получает доступность бесплатно через spread: */}
+        <p style={pStyle}>Пользователь хука получает доступность бесплатно через spread: / Hook user gets accessibility for free via spread:</p>
         {code(`// В хуке:
+// In the hook:
 triggerProps: {
   onClick: () => setIsOpen(prev => !prev),
   'aria-haspopup': 'listbox' as const,
   'aria-expanded': isOpen,
 }
 // В UI:
+// In UI:
 <button {...triggerProps}>Выберите...</button>
-// -> автоматически получает aria-haspopup и aria-expanded`)}
+// -> автоматически получает aria-haspopup и aria-expanded
+// -> automatically gets aria-haspopup and aria-expanded`)}
       </section>
 
       <section style={sectionStyle}>
-        <h3 style={h3Style}>12.2 — Закрытие по клику снаружи</h3>
+        {/* 12.2 — Закрытие по клику снаружи / Close on click outside */}
+        <h3 style={h3Style}>12.2 — Закрытие по клику снаружи / Close on click outside</h3>
         {code(`const containerRef = useRef<HTMLDivElement>(null)
 
 useEffect(() => {
@@ -89,16 +106,20 @@ useEffect(() => {
       </section>
 
       <section style={sectionStyle}>
-        <h3 style={h3Style}>12.3 — Защита переходов в reducer</h3>
-        <p style={pStyle}>Каждый case проверяет, откуда пришли:</p>
+        {/* 12.3 — Защита переходов в reducer / Transition guards in reducer */}
+        <h3 style={h3Style}>12.3 — Защита переходов в reducer / Transition guards in reducer</h3>
+        {/* Каждый case проверяет, откуда пришли: */}
+        <p style={pStyle}>Каждый case проверяет, откуда пришли: / Each case checks where we came from:</p>
         {code(`function checkoutReducer(state: CheckoutState, action: CheckoutAction): CheckoutState {
   switch (action.type) {
     case 'SUBMIT_SHIPPING':
       if (state.status !== 'shipping') return state  // защита!
+      // guard!
       return { status: 'payment', shipping: action.payload }
 
     case 'CONFIRM_ORDER':
       if (state.status !== 'payment') return state   // защита!
+      // guard!
       return { status: 'confirmation', orderId: action.orderId, shipping: state.shipping }
 
     case 'SET_ERROR':
@@ -109,8 +130,10 @@ useEffect(() => {
       </section>
 
       <section style={sectionStyle}>
+        {/* 12.4 — LibButton через forwardRef + type assertion */}
         <h3 style={h3Style}>12.4 — LibButton через forwardRef + type assertion</h3>
-        <p style={pStyle}>Сохранение generic T после forwardRef обёртки:</p>
+        {/* Сохранение generic T после forwardRef обёртки: */}
+        <p style={pStyle}>Сохранение generic T после forwardRef обёртки: / Preserving generic T after forwardRef wrapper:</p>
         {code(`const LibButtonInner = forwardRef(function LibButtonImpl<C extends React.ElementType = 'button'>(
   { as, variant = 'primary', isLoading, children, ...rest }: LibButtonProps<C>,
   ref: React.Ref<Element>
@@ -120,13 +143,15 @@ useEffect(() => {
 })
 
 // Type assertion восстанавливает generic
+// Type assertion restores generic
 const LibButton = LibButtonInner as <C extends React.ElementType = 'button'>(
   props: LibButtonProps<C> & { ref?: React.Ref<Element> }
 ) => ReactElement`)}
       </section>
 
       <section style={sectionStyle}>
-        <h3 style={h3Style}>12.4 — Modal через createPortal</h3>
+        {/* 12.4 — Modal через createPortal */}
+        <h3 style={h3Style}>12.4 — Modal через createPortal / Modal via createPortal</h3>
         {code(`import { createPortal } from 'react-dom'
 
 function LibModal({ isOpen, onClose, children }: LibModalProps) {
@@ -144,8 +169,10 @@ function LibModal({ isOpen, onClose, children }: LibModalProps) {
       </section>
 
       <section style={sectionStyle}>
-        <h3 style={h3Style}>12.4 — useId для label + input</h3>
-        <p style={pStyle}>React 18: уникальный id без коллизий на сервере и клиенте:</p>
+        {/* 12.4 — useId для label + input */}
+        <h3 style={h3Style}>12.4 — useId для label + input / useId for label + input</h3>
+        {/* React 18: уникальный id без коллизий на сервере и клиенте: */}
+        <p style={pStyle}>React 18: уникальный id без коллизий на сервере и клиенте: / React 18: unique id without server/client collisions:</p>
         {code(`function LibInput({ label, error, ...rest }: LibInputProps, ref) {
   const id = useId()
   return (
@@ -166,6 +193,3 @@ function LibModal({ isOpen, onClose, children }: LibModalProps) {
     </div>
   )
 }
-
-// Need React import for CSSProperties
-import React from 'react'

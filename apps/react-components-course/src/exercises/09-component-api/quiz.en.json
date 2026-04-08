@@ -1,0 +1,267 @@
+[
+  {
+    "question": "What is a discriminated union in the context of component props?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Props that TypeScript forbids from being used together",
+        "correct": false,
+        "explanation": "This is a similar idea, but an imprecise formulation. A discriminated union doesn't 'forbid' but rather structures: each union variant defines its own set of valid fields."
+      },
+      {
+        "text": "A union type with a shared discriminator field, by which TypeScript narrows the type",
+        "correct": true,
+        "explanation": "A discriminated union is several types combined with |, where one shared field (usually 'variant' or 'type') unambiguously determines the shape of the remaining props. TypeScript uses it for type narrowing."
+      },
+      {
+        "text": "A props type where all fields are optional",
+        "correct": false,
+        "explanation": "Optional props are an antipattern: TypeScript cannot determine which fields are needed together. A discriminated union is the exact opposite."
+      },
+      {
+        "text": "A set of boolean flags instead of a single string field",
+        "correct": false,
+        "explanation": "Boolean flags are an antipattern because they allow invalid combinations (isPrimary && isSecondary). A discriminated union makes invalid states unrepresentable."
+      }
+    ]
+  },
+  {
+    "question": "What is the purpose of the polymorphic `as` prop?",
+    "type": "single",
+    "options": [
+      {
+        "text": "So that one component can render as different HTML elements or components while preserving typing",
+        "correct": true,
+        "explanation": "A Button with as='a' renders as a link and TypeScript requires href. A Button with as='button' requires onClick. One component, one style, different semantics — without code duplication."
+      },
+      {
+        "text": "To switch between light and dark themes of a component",
+        "correct": false,
+        "explanation": "Theming is a task for CSS or context. The `as` prop determines which HTML element or component is rendered."
+      },
+      {
+        "text": "To pass a component as a wrapper via props",
+        "correct": false,
+        "explanation": "This describes the 'wrapper component' pattern, not the `as` prop. The `as` prop changes what the component itself renders, not what wraps it."
+      },
+      {
+        "text": "For conditional rendering of child components",
+        "correct": false,
+        "explanation": "Conditional rendering of children is a different pattern. The `as` prop determines the type of the component's root element."
+      }
+    ]
+  },
+  {
+    "question": "Why do you use `ComponentPropsWithoutRef` instead of `ComponentPropsWithRef` when implementing a polymorphic component?",
+    "type": "single",
+    "options": [
+      {
+        "text": "ComponentPropsWithRef doesn't support generics",
+        "correct": false,
+        "explanation": "Both variants support generics. The only difference is the presence of the ref field in the resulting type."
+      },
+      {
+        "text": "WithRef is deprecated and removed from React 18",
+        "correct": false,
+        "explanation": "ComponentPropsWithRef exists and is used. The difference is the presence of the ref field in the props type, not deprecation."
+      },
+      {
+        "text": "WithoutRef works faster at runtime",
+        "correct": false,
+        "explanation": "The choice between WithRef and WithoutRef only affects TypeScript typing, not runtime performance."
+      },
+      {
+        "text": "WithRef creates a collision with forwardRef — ref is duplicated in props and in the forwardRef parameter",
+        "correct": true,
+        "explanation": "ComponentPropsWithRef includes ref in the props object type. If used with forwardRef, ref would appear twice: in props and as the second parameter of the callback. WithoutRef eliminates this duplication."
+      }
+    ]
+  },
+  {
+    "question": "You have a generic component Table<T>. You want to add forwardRef. Why is this difficult in React 18?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Generic components cannot be wrapped in forwardRef due to technical React limitations",
+        "correct": false,
+        "explanation": "Technically it is possible — it just requires extra effort. The classic workaround: implement the component, then override the type via type assertion."
+      },
+      {
+        "text": "forwardRef doesn't work with functional components in React 18",
+        "correct": false,
+        "explanation": "forwardRef works fine with functional components — that's its primary use. The problem is specific to generic components."
+      },
+      {
+        "text": "Ref and generic parameter T cannot have the same name",
+        "correct": false,
+        "explanation": "Name conflicts are not the issue — TypeScript distinguishes type parameters by scope. The real problem is the forwardRef signature."
+      },
+      {
+        "text": "forwardRef accepts a fixed signature and does not allow adding a generic parameter to the wrapped function",
+        "correct": true,
+        "explanation": "forwardRef<Ref, Props> has two type parameters for ref and props. Adding a third T for generics directly is not possible — TypeScript loses the connection between Props<T> and T. Workarounds are needed: type assertion or declare function."
+      }
+    ]
+  },
+  {
+    "question": "You are designing a notification component. You have success, error, warning, info variants. How best to type it?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "interface NotificationProps { isSuccess?: boolean; isError?: boolean; isWarning?: boolean; isInfo?: boolean; message: string }",
+        "correct": false,
+        "explanation": "Boolean flags create invalid states: isSuccess && isError. TypeScript won't protect against this. This is an antipattern."
+      },
+      {
+        "text": "type NotificationVariant = 'success' | 'error' | 'warning' | 'info' and a separate interface NotificationProps with field variant: NotificationVariant",
+        "correct": true,
+        "explanation": "Extracting the union into a separate type is good practice for reuse. If props are the same for all variants, this is the optimal solution."
+      },
+      {
+        "text": "All of the listed options are incorrect",
+        "correct": false,
+        "explanation": "Some of the listed options are indeed correct."
+      },
+      {
+        "text": "type NotificationProps = SuccessProps | ErrorProps | WarningProps | InfoProps where each type has a type field",
+        "correct": true,
+        "explanation": "A discriminated union is appropriate when different variants have different props. For example, error might require an additional errorCode, and success might require a redirectUrl."
+      },
+      {
+        "text": "type NotificationProps = { type: 'success' | 'error' | 'warning' | 'info'; message: string; onClose?: () => void }",
+        "correct": true,
+        "explanation": "If all variants share the same set of props (just message and optional onClose), a regular union of string literals is sufficient. A discriminated union is needed when props differ across variants."
+      }
+    ]
+  },
+  {
+    "question": "What happens if you don't spread `...rest` into the native element inside a component?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "TypeScript will produce a compilation error",
+        "correct": false,
+        "explanation": "TypeScript doesn't check that all received props are spread down. This is a logical error, not a type error."
+      },
+      {
+        "text": "Event handlers onClick, onChange will not be triggered",
+        "correct": true,
+        "explanation": "If onClick is passed from outside but not spread via ...rest onto the element — the click won't trigger the handler. This is a common and hard-to-detect bug."
+      },
+      {
+        "text": "className passed from outside won't be applied to the element",
+        "correct": true,
+        "explanation": "className is a regular prop. Without spread into the element it will be lost: you receive it in props but don't pass it further to the DOM."
+      },
+      {
+        "text": "data-testid and aria-* attributes won't reach the DOM",
+        "correct": true,
+        "explanation": "data-* and aria-* attributes are critical for testing and accessibility. Without spread they are silently lost — the component appears to work fine, but tests and screen readers don't work."
+      }
+    ]
+  },
+  {
+    "question": "Why add `displayName` to a component created via forwardRef?",
+    "type": "single",
+    "options": [
+      {
+        "text": "It's a TypeScript requirement",
+        "correct": false,
+        "explanation": "displayName is an optional property. TypeScript doesn't require it. It's purely for developer convenience."
+      },
+      {
+        "text": "displayName is needed for SSR (server-side rendering)",
+        "correct": false,
+        "explanation": "displayName doesn't affect SSR. It's used exclusively by developer tools: React DevTools and error boundaries."
+      },
+      {
+        "text": "In React DevTools the component will be called 'ForwardRef' instead of a readable name",
+        "correct": true,
+        "explanation": "forwardRef wraps the component and loses the function name. In DevTools it appears as 'ForwardRef' or 'Anonymous'. displayName = 'MyComponent' restores a readable name for debugging."
+      },
+      {
+        "text": "Without displayName the component won't receive ref",
+        "correct": false,
+        "explanation": "Receiving ref has nothing to do with displayName. ref works independently of the name."
+      }
+    ]
+  },
+  {
+    "question": "A Select<T> component accepts items: T[], onSelect: (item: T) => void, getLabel: (item: T) => string. How does TypeScript infer T when using the component?",
+    "type": "single",
+    "options": [
+      {
+        "text": "T must be specified explicitly: <Select<User> items={users} ... />",
+        "correct": false,
+        "explanation": "Explicit specification is possible but not required. TypeScript can infer T from the passed arguments — this is called type inference."
+      },
+      {
+        "text": "TypeScript automatically infers T from the type of the items array",
+        "correct": true,
+        "explanation": "If you pass items={users} where users: User[], TypeScript infers T = User. After that, onSelect is typed as (item: User) => void, and getLabel as (item: User) => string — without explicit specification."
+      },
+      {
+        "text": "T will always be unknown unless specified explicitly",
+        "correct": false,
+        "explanation": "unknown is the type for unknown values. TypeScript infers a concrete type from the usage context, not unknown."
+      },
+      {
+        "text": "Generic components in React don't support automatic type inference",
+        "correct": false,
+        "explanation": "TypeScript supports generic parameter inference for generic functions, including React functional components. This is one of the main advantages of generic components."
+      }
+    ]
+  },
+  {
+    "question": "You are making a Heading component that should render as h1, h2, h3 depending on context. Which approach is best?",
+    "type": "single",
+    "options": [
+      {
+        "text": "dangerouslySetInnerHTML with the desired tag",
+        "correct": false,
+        "explanation": "dangerouslySetInnerHTML is for embedding HTML strings, not for choosing tags. This is the wrong tool for this task and creates XSS risks."
+      },
+      {
+        "text": "Three separate components: H1, H2, H3",
+        "correct": false,
+        "explanation": "Three components with identical code means duplication. If you need to change style or logic, you have to change it in three places."
+      },
+      {
+        "text": "Polymorphic as prop: <Heading as='h1'> or <Heading as='h2'>",
+        "correct": true,
+        "explanation": "The as prop is ideal here. One component, one styling, different HTML element. TypeScript via ComponentPropsWithoutRef automatically restricts as to h1-h6 values."
+      },
+      {
+        "text": "Prop level: 1 | 2 | 3, inside switch render different elements",
+        "correct": false,
+        "explanation": "It works, but you lose HTML attribute typing: TypeScript doesn't know whether h1 or h2 is rendered. The as prop solves both the rendering task and the typing task simultaneously."
+      }
+    ]
+  },
+  {
+    "question": "What does the expression 'invalid states should be unrepresentable' mean in the context of TypeScript and props?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "You need to add runtime validation of all props via Zod or yup",
+        "correct": false,
+        "explanation": "Runtime validation is a separate practice for API data. 'Unrepresentable states' refers to static TypeScript typing at compile time, not runtime."
+      },
+      {
+        "text": "You should not be able to create a props object that is logically contradictory without a TypeScript error",
+        "correct": true,
+        "explanation": "Exactly that. A discriminated union makes contradictions visible at code-writing time — before running, before code review, before deploy."
+      },
+      {
+        "text": "TypeScript should forbid passing onConfirm to an 'alert' variant where confirmation is not needed",
+        "correct": true,
+        "explanation": "If variant='alert' shouldn't accept onConfirm, a discriminated union makes that field unavailable in this branch. TypeScript produces an error when you try to pass an extra prop."
+      },
+      {
+        "text": "All props must be required — no optionals",
+        "correct": false,
+        "explanation": "Optional props themselves are not a problem. The problem is when optional props are semantically related to each other and their combinations aren't checked by TypeScript."
+      }
+    ]
+  }
+]

@@ -1,0 +1,267 @@
+[
+  {
+    "question": "Why is a single global AppContext (user + theme + notifications in one object) an anti-pattern?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Because context objects cannot be typed in TypeScript",
+        "correct": false,
+        "explanation": "TypeScript can type context objects just fine. That is not the cause of the problem."
+      },
+      {
+        "text": "Because changing any field causes all context subscribers to re-render",
+        "correct": true,
+        "explanation": "React cannot track which specific context fields a component uses. When notifications change, components that only read user also re-render."
+      },
+      {
+        "text": "Because a Provider with multiple fields cannot be memoized",
+        "correct": false,
+        "explanation": "useMemo works with objects of any structure. Memoization is possible, but it does not solve the problem — changing any field recreates the entire object."
+      },
+      {
+        "text": "Because createContext does not support objects with multiple fields",
+        "correct": false,
+        "explanation": "createContext perfectly well supports objects with any number of fields. The problem is not in syntax, but in behavior."
+      }
+    ]
+  },
+  {
+    "question": "What does createStrictContext do compared to regular createContext?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "This approach is outdated and no longer used",
+        "correct": false,
+        "explanation": "This approach is actively used in modern systems."
+      },
+      {
+        "text": "Returns a typed tuple [Context, useHook]",
+        "correct": true,
+        "explanation": "as const in the return value preserves the tuple type, allowing destructuring with correct types."
+      },
+      {
+        "text": "Automatically memoizes the context value",
+        "correct": false,
+        "explanation": "createStrictContext creates a context and hook, but value memoization must be done manually in the provider via useMemo."
+      },
+      {
+        "text": "Sets displayName for display in React DevTools",
+        "correct": true,
+        "explanation": "Context.displayName allows seeing 'ThemeContext.Provider' instead of 'Context.Provider' in DevTools."
+      },
+      {
+        "text": "Throws an error when the hook is used outside a provider",
+        "correct": true,
+        "explanation": "This is the main difference: the strict hook checks value !== undefined and throws an Error with a clear message."
+      }
+    ]
+  },
+  {
+    "question": "Why must ComposeProviders use reduceRight instead of reduce?",
+    "type": "single",
+    "options": [
+      {
+        "text": "So that the first provider in the array becomes the outermost in the tree",
+        "correct": true,
+        "explanation": "reduceRight starts from the end of the array and wraps each next one on the outside. The first element of the array becomes the outermost provider."
+      },
+      {
+        "text": "reduceRight is faster for arrays of providers",
+        "correct": false,
+        "explanation": "Performance is not the difference here — provider arrays are small. The reason is nesting order."
+      },
+      {
+        "text": "Because reduce does not work with JSX elements",
+        "correct": false,
+        "explanation": "reduce works fine with JSX. The only difference is order — with reduce the first in the array becomes the innermost."
+      },
+      {
+        "text": "So that children always end up in the correct position",
+        "correct": false,
+        "explanation": "children are always passed as the initial accumulator value — this does not depend on choosing reduce/reduceRight."
+      }
+    ]
+  },
+  {
+    "question": "You are writing a NotificationBell component that shows the notification count. The application uses separated contexts: UserContext, ThemeContext, NotificationsContext. Under which action should NotificationBell re-render?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The user switched the theme from light to dark",
+        "correct": false,
+        "explanation": "NotificationBell is subscribed only to NotificationsContext. A theme change in ThemeContext will not cause it to re-render."
+      },
+      {
+        "text": "The user logged out",
+        "correct": false,
+        "explanation": "Logging out updates UserContext. NotificationBell is not subscribed to UserContext and will not re-render."
+      },
+      {
+        "text": "The user dismissed a notification",
+        "correct": true,
+        "explanation": "Dismissing a notification updates NotificationsContext — NotificationBell re-renders to show the updated count."
+      },
+      {
+        "text": "A new notification arrives",
+        "correct": true,
+        "explanation": "A new notification updates NotificationsContext, which NotificationBell is subscribed to."
+      }
+    ]
+  },
+  {
+    "question": "Why use useRef instead of useState for a component's render counter?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Because ref can only be used for DOM elements",
+        "correct": false,
+        "explanation": "This is a common misconception. useRef can store any values, not just DOM references."
+      },
+      {
+        "text": "Because ref value persists between renders, but state does not",
+        "correct": false,
+        "explanation": "State also persists between renders — that is exactly what it is for. This is not a difference."
+      },
+      {
+        "text": "Because updating ref does not trigger a re-render, so the counter does not distort the measurement",
+        "correct": true,
+        "explanation": "If you use useState for the counter, each change would trigger an extra re-render, distorting the metric itself. useRef updates without re-render."
+      },
+      {
+        "text": "useRef is faster than useState",
+        "correct": false,
+        "explanation": "Speed is not the main point here. The fundamental reason is: ref updates do not cause re-renders."
+      }
+    ]
+  },
+  {
+    "question": "How to correctly prevent unnecessary subscriber re-renders when using a Context Provider?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use useCallback instead of useMemo for the context value",
+        "correct": false,
+        "explanation": "useCallback memoizes functions. For the context value object you need useMemo."
+      },
+      {
+        "text": "Wrap the Provider in React.memo",
+        "correct": false,
+        "explanation": "React.memo prevents the component from re-rendering due to unchanged props, but does not affect context subscriber re-renders."
+      },
+      {
+        "text": "Pass primitives in value instead of objects",
+        "correct": false,
+        "explanation": "Primitives help for individual fields, but the full context is usually an object. The correct solution is useMemo to stabilize the object."
+      },
+      {
+        "text": "Memoize the context value via useMemo",
+        "correct": true,
+        "explanation": "useMemo stabilizes the reference to the value object. If dependencies have not changed, Context.Provider receives the same object and does not trigger subscriber re-renders."
+      }
+    ]
+  },
+  {
+    "question": "A team is building a dashboard with real-time data: currency rates update every second, user data — on login. How should contexts be organized?",
+    "type": "single",
+    "options": [
+      {
+        "text": "One context for all data — easier to manage",
+        "correct": false,
+        "explanation": "When currency rates update every second, all components including user interface will re-render. This leads to noticeable lag."
+      },
+      {
+        "text": "Use one context but wrap all components in React.memo",
+        "correct": false,
+        "explanation": "React.memo will not help: it prevents re-renders from props, but not from context changes. Context subscribers always re-render on context change."
+      },
+      {
+        "text": "Separate contexts: UserContext (rare) and CurrencyContext (frequent)",
+        "correct": true,
+        "explanation": "Data with different update frequencies should be in different contexts. Components showing the user name will not re-render on every currency update."
+      },
+      {
+        "text": "Context API is unsuitable for frequently updated data — Redux is needed",
+        "correct": false,
+        "explanation": "Context API is perfectly fine. The key is to separate data by frequency. For very high-frequency data (>10 times/sec) alternatives are worth considering, but once per second — context handles it."
+      }
+    ]
+  },
+  {
+    "question": "What happens if you don't specify Context.displayName when creating a context?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In React DevTools the provider will show as 'Context.Provider' instead of 'ThemeContext.Provider'",
+        "correct": true,
+        "explanation": "displayName is only for debugging. In DevTools all contexts without displayName look the same — 'Context.Provider', making the component tree harder to read."
+      },
+      {
+        "text": "Context subscribers will not receive updates",
+        "correct": false,
+        "explanation": "displayName is purely a debugging property. The subscription and update mechanism does not depend on it."
+      },
+      {
+        "text": "The application will throw a compilation error",
+        "correct": false,
+        "explanation": "displayName is optional. Its absence does not affect application behavior."
+      },
+      {
+        "text": "useContext will not be able to find the correct provider",
+        "correct": false,
+        "explanation": "useContext identifies the provider by the Context object reference, not by name. displayName does not affect functionality."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following are correct uses of Context API?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Store a form state with 20 fields",
+        "correct": false,
+        "explanation": "Form state is local and not needed by other components. useState/useReducer in the form component is the right choice."
+      },
+      {
+        "text": "Store authenticated user data",
+        "correct": true,
+        "explanation": "The current user is needed in the header, sidebar, profile — this is global data, an ideal candidate for UserContext."
+      },
+      {
+        "text": "Store a product catalog list for pagination",
+        "correct": false,
+        "explanation": "Product list is server data specific to a particular page. React Query, SWR, or page-local state is better for this."
+      },
+      {
+        "text": "Store the active application theme (light/dark)",
+        "correct": true,
+        "explanation": "Theme is a classic use case for Context: global data, changes infrequently, needed in many components."
+      }
+    ]
+  },
+  {
+    "question": "A developer created ThemeContext without createStrictContext, with defaultValue = null. The ThemeToggle component was forgotten to be wrapped in ThemeProvider. What will happen?",
+    "type": "single",
+    "options": [
+      {
+        "text": "TypeScript will prevent compilation — null type does not match ThemeValue",
+        "correct": false,
+        "explanation": "TypeScript checks types, but if createContext<ThemeValue | null>(null) — this is a valid type. TS will not prevent the error if the developer intentionally included null in the type."
+      },
+      {
+        "text": "ThemeToggle will work with defaultValue = null without error — a silent bug",
+        "correct": true,
+        "explanation": "Without a strict hook, useContext will return defaultValue (null). The component may partially render without a visible error. The bug will be hard to detect — this is exactly what makes createStrictContext necessary."
+      },
+      {
+        "text": "React will automatically find the nearest ThemeProvider up the tree",
+        "correct": false,
+        "explanation": "React searches for a provider up the tree. If none found — returns defaultValue. There is no automatic protection."
+      },
+      {
+        "text": "The browser will throw a TypeError when accessing properties of null",
+        "correct": false,
+        "explanation": "It might, but only if the component tries to access a property of null (e.g. null.mode). This may happen, but the error will be unclear."
+      }
+    ]
+  }
+]

@@ -3,9 +3,11 @@ import { useLanguage } from 'src/hooks'
 
 // ============================================
 // Задание 2.2 — Generic DataList<T>
+// Task 2.2 — Generic DataList<T>
 // ============================================
 
 // TODO: Объявите интерфейс пропсов DataList (дженерик)
+// TODO: Declare the DataList props interface (generic)
 // interface DataListProps<T> {
 //   data: T[]
 //   renderItem: (item: T, index: number) => ReactNode
@@ -13,15 +15,21 @@ import { useLanguage } from 'src/hooks'
 // }
 
 // TODO: Реализуйте компонент DataList<T>
+// TODO: Implement the DataList<T> component
 // - Если data пустой и есть renderEmpty — вызовите renderEmpty()
+// - If data is empty and renderEmpty exists — call renderEmpty()
 // - Если data пустой и нет renderEmpty — покажите "Список пуст"
+// - If data is empty and no renderEmpty — show "List is empty"
 // - Для каждого элемента вызывайте renderItem(item, index)
+// - For each item call renderItem(item, index)
 // - В TSX используйте <T,> или <T extends object> чтобы избежать конфликта с JSX
+// - In TSX use <T,> or <T extends object> to avoid conflict with JSX
 
 // function DataList<T,>({ data, renderItem, renderEmpty }: DataListProps<T>) { ... }
 
 // ============================================
 // Типы данных
+// Data types
 // ============================================
 
 interface User {
@@ -44,6 +52,7 @@ interface Notification {
 
 // ============================================
 // Начальные данные
+// Initial data
 // ============================================
 
 const INITIAL_USERS: User[] = [
@@ -76,11 +85,14 @@ export function Task2_2() {
     <div className="exercise-container">
       <h2>{t('task.title')} 2.2 — Generic DataList</h2>
 
-      {/* TODO: Список пользователей
-          Используйте DataList<User> с renderItem, показывающим имя и роль
-          renderEmpty должен возвращать сообщение о пустом списке
-          Добавьте кнопку "Очистить" которая вызывает setUsers([])
-      */}
+      {/* TODO: Список пользователей */}
+      {/* TODO: Users list */}
+      {/* Используйте DataList<User> с renderItem, показывающим имя и роль */}
+      {/* Use DataList<User> with renderItem showing name and role */}
+      {/* renderEmpty должен возвращать сообщение о пустом списке */}
+      {/* renderEmpty should return an empty list message */}
+      {/* Добавьте кнопку "Очистить" которая вызывает setUsers([]) */}
+      {/* Add a "Clear" button that calls setUsers([]) */}
       <section style={{ marginBottom: '32px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <h3 style={{ margin: 0 }}>Пользователи</h3>
@@ -92,9 +104,10 @@ export function Task2_2() {
         <p style={{ color: '#9ca3af' }}>Реализуйте DataList выше</p>
       </section>
 
-      {/* TODO: Список товаров
-          renderItem показывает название и цену в рублях (toLocaleString)
-      */}
+      {/* TODO: Список товаров */}
+      {/* TODO: Products list */}
+      {/* renderItem показывает название и цену в рублях (toLocaleString) */}
+      {/* renderItem shows name and price in rubles (toLocaleString) */}
       <section style={{ marginBottom: '32px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <h3 style={{ margin: 0 }}>Товары</h3>
@@ -106,9 +119,10 @@ export function Task2_2() {
         <p style={{ color: '#9ca3af' }}>Реализуйте DataList выше</p>
       </section>
 
-      {/* TODO: Список уведомлений
-          renderItem показывает сообщение и статус прочитанности (read: boolean)
-      */}
+      {/* TODO: Список уведомлений */}
+      {/* TODO: Notifications list */}
+      {/* renderItem показывает сообщение и статус прочитанности (read: boolean) */}
+      {/* renderItem shows message and read status (read: boolean) */}
       <section>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <h3 style={{ margin: 0 }}>Уведомления</h3>

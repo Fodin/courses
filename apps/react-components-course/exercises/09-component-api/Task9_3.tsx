@@ -4,13 +4,18 @@ import type { ReactNode } from 'react'
 
 // ============================================
 // Задание 9.3: SelectableList<T> — generic компонент
+// Task 9.3: SelectableList<T> — generic component
 // ============================================
 //
 // Реализуйте generic компонент SelectableList<T>.
+// Implement a generic component SelectableList<T>.
 // Компонент не знает о структуре элементов — вся логика
+// The component doesn't know about element structure — all logic
 // отображения и ключей делегируется через props-функции.
+// for rendering and keys is delegated via props functions.
 //
 // Props компонента:
+// Component props:
 // - items: T[]
 // - selectedItem: T | null
 // - onSelect: (item: T) => void
@@ -18,13 +23,16 @@ import type { ReactNode } from 'react'
 // - keyExtractor: (item: T) => string
 //
 // Подсказка для сравнения:
+// Hint for comparison:
 // const isSelected = selectedItem !== null
 //   && keyExtractor(selectedItem) === keyExtractor(item)
 
 // TODO: Определите интерфейс SelectableListProps<T>
+// TODO: Define SelectableListProps<T> interface
 // interface SelectableListProps<T> { ... }
 
 // TODO: Реализуйте компонент SelectableList
+// TODO: Implement SelectableList component
 // function SelectableList<T>({ items, selectedItem, onSelect, renderItem, keyExtractor }: SelectableListProps<T>) {
 //   return (
 //     <ul>
@@ -42,6 +50,7 @@ import type { ReactNode } from 'react'
 // }
 
 // Тестовые данные — используйте в демонстрации
+// Test data — use in demonstration
 interface User {
   id: string
   name: string
@@ -76,6 +85,7 @@ export function Task9_3() {
       <h2>{t('task.title')} 9.3</h2>
 
       {/* TODO: Два экземпляра SelectableList — с User[] и Product[] */}
+      {/* TODO: Two instances of SelectableList — with User[] and Product[] */}
       {/* <SelectableList
         items={DEMO_USERS}
         selectedItem={selectedUser}

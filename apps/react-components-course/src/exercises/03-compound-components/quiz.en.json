@@ -1,0 +1,272 @@
+[
+  {
+    "question": "What is the main purpose of the Compound Components pattern?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Speed up component rendering through memoization",
+        "correct": false,
+        "explanation": "Compound Components is an architectural pattern for API design, not a performance optimization"
+      },
+      {
+        "text": "Avoid using TypeScript in components",
+        "correct": false,
+        "explanation": "Compound Components work great with TypeScript and are even better typed than the render props approach"
+      },
+      {
+        "text": "Reduce the number of files in the project",
+        "correct": false,
+        "explanation": "Compound Components don't reduce the number of files — on the contrary, each sub-component can be a separate function"
+      },
+      {
+        "text": "Provide a declarative flexible API instead of passing everything through props",
+        "correct": true,
+        "explanation": "Compound Components allow the component user to control the structure declaratively, avoiding prop explosion"
+      }
+    ]
+  },
+  {
+    "question": "Why is it recommended to use Context instead of React.Children + cloneElement?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Context is faster on large trees",
+        "correct": false,
+        "explanation": "Context can cause unnecessary re-renders — this is not an argument in its favor from a performance standpoint"
+      },
+      {
+        "text": "TypeScript types Context better than cloned elements",
+        "correct": true,
+        "explanation": "cloneElement with additional props loses types; Context is strictly typed via createContext<T>"
+      },
+      {
+        "text": "Context is an explicit contract, cloneElement is implicit magic",
+        "correct": true,
+        "explanation": "With Context, the component's dependency on the parent is explicit via a hook; cloneElement implicitly adds props without the receiver's knowledge"
+      },
+      {
+        "text": "A special license is required for this",
+        "correct": false,
+        "explanation": "The listed technologies have open-source versions."
+      },
+      {
+        "text": "cloneElement works only for direct children, Context works for any nesting level",
+        "correct": true,
+        "explanation": "Context passes through any depth of the tree, cloneElement passes props only one level down"
+      }
+    ]
+  },
+  {
+    "question": "What happens if you call useTabsContext() outside of a <Tabs> component?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Context returns the last saved value",
+        "correct": false,
+        "explanation": "Context is not cached globally — outside the Provider it always returns the initial value (null in our case)"
+      },
+      {
+        "text": "Nothing — React simply ignores the call",
+        "correct": false,
+        "explanation": "React doesn't ignore hook calls — if the hook has a throw, it will throw an error"
+      },
+      {
+        "text": "It returns undefined",
+        "correct": false,
+        "explanation": "createContext(null) returns null as the initial value, not undefined"
+      },
+      {
+        "text": "An error with a clear message will be thrown, if the hook is implemented correctly",
+        "correct": true,
+        "explanation": "Correct implementation: if ctx === null, throw new Error('...must be used within <Tabs>'). This is better than a cryptic TypeError"
+      }
+    ]
+  },
+  {
+    "question": "You are creating a <Select> component with Compound Components. How does Select.Option know its index in the list for keyboard navigation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Option counts its previous sibling elements via the DOM",
+        "correct": false,
+        "explanation": "Accessing the DOM to determine logical order is a poor approach — it's fragile and violates the React model"
+      },
+      {
+        "text": "The index is not needed — Option always knows whether it's selected by the selected value",
+        "correct": false,
+        "explanation": "To display the focused state when navigating with arrows, focusedIndex is needed — knowing just selected is not enough"
+      },
+      {
+        "text": "The user must pass index explicitly: <Select.Option index={0} value='ru'>",
+        "correct": false,
+        "explanation": "This is possible but inconvenient — the user has to manually count indices. A good API does this automatically"
+      },
+      {
+        "text": "Option automatically receives the index via React.Children.map in the root component",
+        "correct": true,
+        "explanation": "SelectRoot traverses children via React.Children.map, collects all values from Option components, and stores them in an options array in context. Option looks up its index in this array"
+      }
+    ]
+  },
+  {
+    "question": "Why use Object.assign(TabsRoot, { Tab, Panel, List }) instead of just exporting TabsRoot?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "It allows writing <Tabs.Tab> instead of <TabsTab>, creating a namespaced API",
+        "correct": true,
+        "explanation": "Object.assign creates a single object with nested components — this is a convenient namespaced API, clear and auto-completable"
+      },
+      {
+        "text": "This is the only way to create Compound Components in React",
+        "correct": false,
+        "explanation": "You can also assign static properties: TabsRoot.Tab = Tab. Object.assign is just one convenient way"
+      },
+      {
+        "text": "Object.assign speeds up component rendering",
+        "correct": false,
+        "explanation": "Object.assign just creates an object with the needed properties — it has no effect on rendering performance"
+      },
+      {
+        "text": "TypeScript automatically infers sub-component types from the Object.assign result",
+        "correct": true,
+        "explanation": "The return type of Object.assign includes the types of all added properties — autocomplete and type checking work out of the box"
+      }
+    ]
+  },
+  {
+    "question": "In which case is the Compound Components pattern NOT a good choice?",
+    "type": "single",
+    "options": [
+      {
+        "text": "When the component structure is fixed and the user shouldn't change it",
+        "correct": true,
+        "explanation": "If the structure is always the same (e.g., a simple card with avatar + name + bio), a prop-based API is simpler and clearer"
+      },
+      {
+        "text": "When the component is used in several places in the application",
+        "correct": false,
+        "explanation": "Reusability is a good reason for Compound Components — they provide flexibility without rewriting the component"
+      },
+      {
+        "text": "When the component has several interconnected parts",
+        "correct": false,
+        "explanation": "Several interconnected parts is the main signal for using Compound Components"
+      },
+      {
+        "text": "When the component is part of a design system",
+        "correct": false,
+        "explanation": "Design systems are an excellent place for Compound Components: they give users flexibility while maintaining consistency"
+      }
+    ]
+  },
+  {
+    "question": "How should you properly organize keyboard navigation in Select.Options?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Add an onKeyDown handler to the root element of the component",
+        "correct": true,
+        "explanation": "onKeyDown on the root div with tabIndex={0} is the correct approach: the event bubbles up from the Trigger button and is handled centrally"
+      },
+      {
+        "text": "All of the above options are incorrect",
+        "correct": false,
+        "explanation": "Some of the listed options are indeed correct."
+      },
+      {
+        "text": "Handle keydown on window via addEventListener",
+        "correct": false,
+        "explanation": "Global handlers are bad practice: they fire even when Select is not focused and can conflict with other components"
+      },
+      {
+        "text": "Close the list when Escape is pressed",
+        "correct": true,
+        "explanation": "Escape to close is standard expected behavior (ARIA Authoring Practices Guide), without it the component is inconvenient for users"
+      },
+      {
+        "text": "Call e.preventDefault() when ArrowDown and ArrowUp are pressed",
+        "correct": true,
+        "explanation": "Without preventDefault(), the arrows will scroll the page in parallel with option navigation — this is undesirable behavior"
+      }
+    ]
+  },
+  {
+    "question": "You are creating a <Stepper> and want each <Stepper.Step> to know its ordinal number without explicitly passing stepIndex. How to implement this?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use useId() to generate a unique id for each Step",
+        "correct": false,
+        "explanation": "useId() generates unique strings but doesn't determine order — this doesn't solve the numbering task"
+      },
+      {
+        "text": "Each Step independently counts the number of previous Steps via querySelectorAll",
+        "correct": false,
+        "explanation": "DOM queries to determine logical order are an antipattern: fragile, only works after mounting, violates the React model"
+      },
+      {
+        "text": "Use React.Children.map in StepperRoot and pass stepIndex via cloneElement",
+        "correct": true,
+        "explanation": "React.Children.map traverses children, cloneElement adds stepIndex to each Step. This is the classic way to automatically number child components"
+      },
+      {
+        "text": "Store totalSteps in a ref and increment on each Step mount",
+        "correct": false,
+        "explanation": "Incrementing on mount is unreliable: mount order is not guaranteed, and with dynamic step addition the counter will break"
+      }
+    ]
+  },
+  {
+    "question": "Why add displayName to Compound Components sub-components?",
+    "type": "single",
+    "options": [
+      {
+        "text": "For correct TypeScript operation",
+        "correct": false,
+        "explanation": "displayName is a runtime property only for debugging; TypeScript uses static types and doesn't depend on displayName"
+      },
+      {
+        "text": "For server-side rendering (SSR) to work",
+        "correct": false,
+        "explanation": "SSR works without displayName — this is exclusively a developer tool for debugging"
+      },
+      {
+        "text": "For readable names in React DevTools",
+        "correct": true,
+        "explanation": "Without displayName, anonymous functions appear as Anonymous or Component in DevTools. With displayName 'Tabs.Tab' the tree becomes readable"
+      },
+      {
+        "text": "For re-render optimization via React.memo",
+        "correct": false,
+        "explanation": "React.memo uses component referential equality, not displayName — these are unrelated"
+      }
+    ]
+  },
+  {
+    "question": "How does controlled mode differ from uncontrolled mode in Compound Components?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "In controlled mode, state is stored outside the component and passed via props",
+        "correct": true,
+        "explanation": "Controlled: <Tabs activeTab={active} onTabChange={setActive}> — the parent controls the state"
+      },
+      {
+        "text": "A good component supports both modes simultaneously",
+        "correct": true,
+        "explanation": "The pattern: if activeTab is passed — use it (controlled), otherwise use internal useState(defaultTab) (uncontrolled)"
+      },
+      {
+        "text": "Controlled mode is always faster due to fewer re-renders",
+        "correct": false,
+        "explanation": "Controlled mode can cause more re-renders since the parent component also re-renders on state change"
+      },
+      {
+        "text": "In uncontrolled mode, state is stored inside the component via useState",
+        "correct": true,
+        "explanation": "Uncontrolled: <Tabs defaultTab='home'> — the component manages state on its own, external code receives changes via callback"
+      }
+    ]
+  }
+]

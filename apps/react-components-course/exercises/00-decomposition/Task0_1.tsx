@@ -2,36 +2,53 @@ import { useLanguage } from 'src/hooks'
 
 // ============================================
 // Задание 0.1: Декомпозиция ProductPage
+// Task 0.1: ProductPage Decomposition
 // ============================================
 // Разбейте монолитную страницу товара на 4 компонента:
+// Split the monolithic product page into 4 components:
 // ProductCard, ReviewsList, AddToCartForm, RelatedProducts
 
 // TODO: Определите интерфейсы для данных
+// TODO: Define interfaces for the data
 // interface Product { ... }
 // interface Review { ... }
 
 // TODO: Создайте компонент ProductCard
+// TODO: Create the ProductCard component
 // Принимает: product: Product
+// Accepts: product: Product
 // Отображает: фото, название, описание, цену, количество в наличии
+// Displays: photo, name, description, price, stock quantity
 // function ProductCard({ product }: { product: Product }) { ... }
 
 // TODO: Создайте компонент ReviewsList
+// TODO: Create the ReviewsList component
 // Принимает: reviews: Review[]
+// Accepts: reviews: Review[]
 // Отображает: список отзывов с автором, звёздочками, текстом и датой
+// Displays: a list of reviews with author, stars, text, and date
 // function ReviewsList({ reviews }: { reviews: Review[] }) { ... }
 
 // TODO: Создайте компонент AddToCartForm
+// TODO: Create the AddToCartForm component
 // Принимает: productId: string, stock: number
+// Accepts: productId: string, stock: number
 // Управляет: количеством товара (useState), статусом кнопки (useState)
+// Manages: product quantity (useState), button status (useState)
 // Кнопка "В корзину" меняет текст на "Добавлено ✓" на 2 секунды
+// "Add to Cart" button changes text to "Added ✓" for 2 seconds
 // function AddToCartForm({ productId, stock }: { ... }) { ... }
 
 // TODO: Создайте компонент RelatedProducts
+// TODO: Create the RelatedProducts component
 // Принимает: products: Product[]
+// Accepts: products: Product[]
 // Отображает: горизонтальную плитку похожих товаров
+// Displays: a horizontal tile of related products
 // function RelatedProducts({ products }: { products: Product[] }) { ... }
 
 // Моковые данные — используйте в компоненте Task0_1
+// Mock data — use in the Task0_1 component
 const mockProduct = {
   id: '1',
   name: 'Механическая клавиатура Keychron K2',
@@ -58,16 +75,20 @@ export function Task0_1() {
     <div className="exercise-container">
       <h2>{t('task.title')} 0.1</h2>
       <p style={{ color: '#888', fontStyle: 'italic' }}>
+        {/* Декомпозируйте страницу товара на компоненты: ProductCard, AddToCartForm, ReviewsList, RelatedProducts */}
+        {/* Decompose the product page into components: ProductCard, AddToCartForm, ReviewsList, RelatedProducts */}
         Декомпозируйте страницу товара на компоненты: ProductCard, AddToCartForm, ReviewsList, RelatedProducts
       </p>
 
       {/* TODO: Отрендерите четыре компонента, используя данные выше */}
+      {/* TODO: Render the four components using the data above */}
       {/* <ProductCard product={mockProduct} /> */}
       {/* <AddToCartForm productId={mockProduct.id} stock={mockProduct.stock} /> */}
       {/* <ReviewsList reviews={mockReviews} /> */}
       {/* <RelatedProducts products={mockRelated} /> */}
 
       {/* Временная заглушка — замените на реальные компоненты */}
+      {/* Temporary placeholder — replace with actual components */}
       <div style={{ padding: '2rem', background: '#f5f5f5', borderRadius: '8px', textAlign: 'center', color: '#999' }}>
         Здесь должна быть страница товара, декомпозированная на 4 компонента
         <br />

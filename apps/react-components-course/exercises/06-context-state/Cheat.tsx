@@ -1,120 +1,128 @@
+// ============================================
+// Level 6: Hints — Context + State Management
+// Подсказки: Level 6 — Context + State Management
+// ============================================
+
 export function Cheat() {
   return (
     <div className="exercise-container">
-      <h2>Подсказки: Level 6 — Context + State Management</h2>
+      <h2>Hints: Level 6 — Context + State Management</h2>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h3 style={{ color: '#1976d2' }}>Задание 6.1: Корзина с useReducer</h3>
+        <h3 style={{ color: '#1976d2' }}>Task 6.1: Cart with useReducer</h3>
+        {/* Задание 6.1: Корзина с useReducer */}
         <ul style={{ lineHeight: 2 }}>
           <li>
-            <strong>cartReducer, case ADD:</strong> сначала ищем товар по id.
-            Если нашли — <code>map</code> + увеличиваем quantity. Если нет — спредим в новый массив с <code>quantity: 1</code>
+            <strong>cartReducer, case ADD:</strong> first find the item by id.
+            If found — <code>map</code> + increase quantity. If not — spread into a new array with <code>quantity: 1</code>
           </li>
           <li>
-            <strong>cartReducer, case DECREMENT:</strong> сначала <code>map</code> (уменьшаем quantity), затем
-            <code>.filter(i =&gt; i.quantity &gt; 0)</code> — одной цепочкой
+            <strong>cartReducer, case DECREMENT:</strong> first <code>map</code> (decrease quantity), then
+            <code>.filter(i =&gt; i.quantity &gt; 0)</code> — in one chain
           </li>
           <li>
-            <strong>Два контекста:</strong> <code>CartStateContext</code> хранит объект state,
-            <code>CartDispatchContext</code> хранит функцию dispatch. Provider оборачивает оба вложенно
+            <strong>Two contexts:</strong> <code>CartStateContext</code> holds the state object,
+            <code>CartDispatchContext</code> holds the dispatch function. Provider wraps both nested
           </li>
           <li>
-            <strong>useCartState / useCartDispatch:</strong> проверяйте на null и бросайте
+            <strong>useCartState / useCartDispatch:</strong> check for null and throw
             <code>new Error('useCartState must be inside CartProvider')</code>
           </li>
           <li>
-            <strong>CartBadge:</strong> используйте только <code>useCartState()</code>. Сумму quantity считайте через
+            <strong>CartBadge:</strong> use only <code>useCartState()</code>. Sum quantity via
             <code>items.reduce((sum, i) =&gt; sum + i.quantity, 0)</code>
           </li>
           <li>
-            <strong>CartDrawer:</strong> позиционирование — <code>position: 'fixed', top: 0, right: 0, bottom: 0, width: 320</code>.
-            Кнопка "Оформить заказ" диспатчит <code>{'{'} type: 'CLEAR' {'}'}</code>
+            <strong>CartDrawer:</strong> positioning — <code>position: 'fixed', top: 0, right: 0, bottom: 0, width: 320</code>.
+            "Checkout" button dispatches <code>{'{'} type: 'CLEAR' {'}'}</code>
           </li>
           <li>
-            Итоговую сумму считайте: <code>items.reduce((sum, i) =&gt; sum + i.price * i.quantity, 0)</code>
+            Calculate total: <code>items.reduce((sum, i) =&gt; sum + i.price * i.quantity, 0)</code>
           </li>
         </ul>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h3 style={{ color: '#1976d2' }}>Задание 6.2: Система нотификаций</h3>
+        <h3 style={{ color: '#1976d2' }}>Task 6.2: Notification System</h3>
+        {/* Задание 6.2: Система нотификаций */}
         <ul style={{ lineHeight: 2 }}>
           <li>
-            <strong>Уникальный ID:</strong> <code>{"`notif-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`"}</code>
+            <strong>Unique ID:</strong> <code>{"`notif-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`"}</code>
           </li>
           <li>
             <strong>timersRef:</strong> <code>useRef&lt;Map&lt;string, ReturnType&lt;typeof setTimeout&gt;&gt;&gt;(new Map())</code>
           </li>
           <li>
-            <strong>dismiss:</strong> оберните в <code>useCallback(fn, [])</code>. Внутри:
-            <code>setNotifications(prev =&gt; prev.filter(n =&gt; n.id !== id))</code>, затем <code>clearTimeout</code> и <code>timersRef.current.delete(id)</code>
+            <strong>dismiss:</strong> wrap in <code>useCallback(fn, [])</code>. Inside:
+            <code>setNotifications(prev =&gt; prev.filter(n =&gt; n.id !== id))</code>, then <code>clearTimeout</code> and <code>timersRef.current.delete(id)</code>
           </li>
           <li>
-            <strong>notify:</strong> оберните в <code>useCallback(fn, [dismiss])</code>. Если duration &gt; 0 — сохраните таймер:
+            <strong>notify:</strong> wrap in <code>useCallback(fn, [dismiss])</code>. If duration &gt; 0 — save the timer:
             <code>timersRef.current.set(id, setTimeout(() =&gt; dismiss(id), duration))</code>
           </li>
           <li>
-            <strong>Очистка при размонтировании:</strong> <code>useEffect(() =&gt; {'{'} const timers = timersRef.current; return () =&gt; timers.forEach(clearTimeout) {'}'}, [])</code>
+            <strong>Cleanup on unmount:</strong> <code>useEffect(() =&gt; {'{'} const timers = timersRef.current; return () =&gt; timers.forEach(clearTimeout) {'}'}, [])</code>
           </li>
           <li>
-            <strong>NotificationContainer</strong> рендерите внутри Provider, после <code>{'{children}'}</code>
+            <strong>NotificationContainer</strong> render inside Provider, after <code>{'{children}'}</code>
           </li>
           <li>
-            Каждый тип — свой объект <code>{'{'} bg, border, icon {'}'}</code>. Удобно хранить в объекте-словаре
+            Each type — its own object <code>{'{'} bg, border, icon {'}'}</code>. Convenient to store in a dictionary object
             <code>{'`'}const COLORS: Record{'<'}Notification['type'], T{'>'} = {'{'} info: ..., success: ... {'}'}{'`'}</code>
           </li>
         </ul>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h3 style={{ color: '#1976d2' }}>Задание 6.3: createStore</h3>
+        <h3 style={{ color: '#1976d2' }}>Task 6.3: createStore</h3>
+        {/* Задание 6.3: createStore */}
         <ul style={{ lineHeight: 2 }}>
           <li>
-            <strong>createStore внутри:</strong> вызовите <code>createContext</code> дважды. Каждый вызов <code>createStore</code>
-            создаёт новую независимую пару контекстов — это нормально
+            <strong>createStore inside:</strong> call <code>createContext</code> twice. Each <code>createStore</code> call
+            creates a new independent pair of contexts — this is normal
           </li>
           <li>
-            <strong>Provider:</strong> объявите как <code>const Provider: React.FC&lt;...&gt; = ({'{'} children {'}'}) =&gt; {'{'} ... {'}'}</code> —
-            именно так, а не <code>function Provider</code>, чтобы TypeScript правильно вывел тип
+            <strong>Provider:</strong> declare as <code>const Provider: React.FC&lt;...&gt; = ({'{'} children {'}'}) =&gt; {'{'} ... {'}'}</code> —
+            exactly this way, not <code>function Provider</code>, so TypeScript infers the type correctly
           </li>
           <li>
-            <strong>useStore с селектором:</strong> <code>function useStore&lt;R&gt;(selector: (state: S) =&gt; R): R {'{'} return selector(useContext(StateCtx)) {'}'}</code>
+            <strong>useStore with selector:</strong> <code>function useStore&lt;R&gt;(selector: (state: S) =&gt; R): R {'{'} return selector(useContext(StateCtx)) {'}'}</code>
           </li>
           <li>
-            <strong>TodoList с фильтрацией через селектор:</strong><br />
+            <strong>TodoList with filtering via selector:</strong><br />
             <code>const visible = useTodoStore(s =&gt; s.filter === 'active' ? s.todos.filter(t =&gt; !t.done) : ...)</code>
           </li>
           <li>
-            <strong>TodoStats:</strong> три отдельных вызова <code>useTodoStore</code> с разными селекторами — это нормально
+            <strong>TodoStats:</strong> three separate <code>useTodoStore</code> calls with different selectors — this is fine
           </li>
           <li>
-            <strong>TodoAddForm:</strong> используйте только <code>useTodoDispatch()</code>. Локальный state для поля ввода — через <code>useState</code>
+            <strong>TodoAddForm:</strong> use only <code>useTodoDispatch()</code>. Local state for the input field via <code>useState</code>
           </li>
           <li>
-            <strong>Форма добавления:</strong> обрабатывайте через <code>onSubmit</code> с <code>e.preventDefault()</code>,
-            проверяйте <code>text.trim()</code> перед dispatch
+            <strong>Add form:</strong> handle via <code>onSubmit</code> with <code>e.preventDefault()</code>,
+            check <code>text.trim()</code> before dispatch
           </li>
         </ul>
       </section>
 
       <section>
-        <h3 style={{ color: '#388e3c' }}>Общие советы по уровню</h3>
+        <h3 style={{ color: '#388e3c' }}>General Tips for This Level / Общие советы по уровню</h3>
         <ul style={{ lineHeight: 2 }}>
           <li>
-            <strong>Dispatch стабилен:</strong> <code>React.Dispatch</code> из <code>useReducer</code> никогда не меняет референс.
-            Это позволяет безопасно передавать его в зависимости <code>useCallback</code>
+            <strong>Dispatch is stable:</strong> <code>React.Dispatch</code> from <code>useReducer</code> never changes its reference.
+            This allows safely passing it in <code>useCallback</code> dependencies
           </li>
           <li>
-            <strong>State через функцию-обновитель:</strong> в <code>useCallback</code> с пустыми зависимостями
-            используйте <code>setState(prev =&gt; newState)</code> вместо прямого чтения state — это избегает stale closure
+            <strong>State via updater function:</strong> in <code>useCallback</code> with empty dependencies
+            use <code>setState(prev =&gt; newState)</code> instead of direct state read — this avoids stale closure
           </li>
           <li>
-            <strong>Не создавайте объект в value Provider:</strong> <code>value={'{'}{'{'}state, dispatch{'}'}{'}'}  </code> создаёт новый объект при каждом рендере.
-            Разделите на два Provider или оберните в <code>useMemo</code>
+            <strong>Don't create an object in Provider value:</strong> <code>value={'{'}{'{'}state, dispatch{'}'}{'}'}</code> creates a new object on every render.
+            Split into two Providers or wrap in <code>useMemo</code>
           </li>
           <li>
-            TypeScript: используйте <code>Omit&lt;CartItem, 'quantity'&gt;</code> для типа товара каталога —
-            quantity появляется только в корзине
+            TypeScript: use <code>Omit&lt;CartItem, 'quantity'&gt;</code> for catalog item type —
+            quantity appears only in the cart
           </li>
         </ul>
       </section>

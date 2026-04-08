@@ -1,18 +1,26 @@
 // ============================================
 // Level 1: Подсказки — Композиция, children и слоты
+// Level 1: Hints — Composition, children and slots
 // ============================================
 
 export function Cheat() {
   return (
     <div style={{ padding: 24, fontFamily: 'sans-serif', maxWidth: 720 }}>
+      {/* Подсказки — Level 1: Композиция */}
+      {/* Hints — Level 1: Composition */}
       <h2 style={{ marginTop: 0, fontSize: 20 }}>Подсказки — Level 1: Композиция</h2>
 
       {/* ---- 1.1 ---- */}
+      {/* ---- 1.1 ---- */}
       <section style={{ marginBottom: 32 }}>
+        {/* Задание 1.1 — Card со слотами */}
+        {/* Task 1.1 — Card with slots */}
         <h3 style={{ color: '#667eea', borderBottom: '2px solid #667eea', paddingBottom: 6 }}>
           Задание 1.1 — Card со слотами
         </h3>
 
+        {/* Интерфейс Card: */}
+        {/* Card interface: */}
         <p><strong>Интерфейс Card:</strong></p>
         <pre style={codeStyle}>{`interface CardProps {
   header?: React.ReactNode  // опциональный слот
@@ -20,6 +28,8 @@ export function Cheat() {
   footer?: React.ReactNode  // опциональный слот
 }`}</pre>
 
+        {/* Условный рендеринг слота: */}
+        {/* Conditional slot rendering: */}
         <p><strong>Условный рендеринг слота:</strong></p>
         <pre style={codeStyle}>{`// Не рендерит div если header не передан
 {header && (
@@ -28,6 +38,8 @@ export function Cheat() {
   </div>
 )}`}</pre>
 
+        {/* Несколько кнопок в footer: */}
+        {/* Multiple buttons in footer: */}
         <p><strong>Несколько кнопок в footer:</strong></p>
         <pre style={codeStyle}>{`// Оберните в Fragment
 <Card footer={
@@ -41,11 +53,16 @@ export function Cheat() {
       </section>
 
       {/* ---- 1.2 ---- */}
+      {/* ---- 1.2 ---- */}
       <section style={{ marginBottom: 32 }}>
+        {/* Задание 1.2 — PageLayout */}
+        {/* Task 1.2 — PageLayout */}
         <h3 style={{ color: '#667eea', borderBottom: '2px solid #667eea', paddingBottom: 6 }}>
           Задание 1.2 — PageLayout
         </h3>
 
+        {/* Структура flexbox-layout: */}
+        {/* flexbox-layout structure: */}
         <p><strong>Структура flexbox-layout:</strong></p>
         <pre style={codeStyle}>{`// Внешний контейнер — вертикальный flex
 <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -60,6 +77,8 @@ export function Cheat() {
   {footer && <footer>{footer}</footer>}
 </div>`}</pre>
 
+        {/* Сетка статистических карточек: */}
+        {/* Statistics cards grid: */}
         <p><strong>Сетка статистических карточек:</strong></p>
         <pre style={codeStyle}>{`<div style={{
   display: 'grid',
@@ -72,11 +91,16 @@ export function Cheat() {
       </section>
 
       {/* ---- 1.3 ---- */}
+      {/* ---- 1.3 ---- */}
       <section style={{ marginBottom: 32 }}>
+        {/* Задание 1.3 — Accordion */}
+        {/* Task 1.3 — Accordion */}
         <h3 style={{ color: '#667eea', borderBottom: '2px solid #667eea', paddingBottom: 6 }}>
           Задание 1.3 — Accordion
         </h3>
 
+        {/* AccordionItem со state: */}
+        {/* AccordionItem with state: */}
         <p><strong>AccordionItem со state:</strong></p>
         <pre style={codeStyle}>{`function AccordionItem({ title, children, defaultOpen = false }: AccordionItemProps) {
   const [isOpen, setIsOpen] = useState(defaultOpen)
@@ -95,6 +119,8 @@ export function Cheat() {
   )
 }`}</pre>
 
+        {/* Title с JSX (бейдж): */}
+        {/* Title with JSX (badge): */}
         <p><strong>Title с JSX (бейдж):</strong></p>
         <pre style={codeStyle}>{`<AccordionItem
   title={
@@ -110,6 +136,10 @@ export function Cheat() {
 </AccordionItem>`}</pre>
       </section>
 
+      {/* Принцип: компонент не знает о своём содержимом — он только определяет структуру. */}
+      {/* Principle: the component doesn't know about its content — it only defines the structure. */}
+      {/* Содержимое определяет пользователь компонента. */}
+      {/* The component consumer determines the content. */}
       <p style={{ color: '#888', fontSize: 12 }}>
         Принцип: компонент не знает о своём содержимом — он только определяет структуру.
         Содержимое определяет пользователь компонента.

@@ -1,0 +1,137 @@
+[
+  {
+    "question": "Why can't an Error Boundary be implemented as a functional component?",
+    "type": "single",
+    "options": [
+      {
+        "text": "It's a temporary limitation that will be removed in React 19",
+        "correct": false,
+        "explanation": "This is an architectural decision by the React team: hooks cannot catch errors from their own render call. No changes are planned."
+      },
+      {
+        "text": "React requires getDerivedStateFromError and componentDidCatch, which are lifecycle methods of class components",
+        "correct": true,
+        "explanation": "These two methods are what make a component an Error Boundary. Functional components have no equivalent for catching errors during the render phase."
+      },
+      {
+        "text": "Functional components don't support TypeScript",
+        "correct": false,
+        "explanation": "TypeScript works perfectly with functional components — this has nothing to do with Error Boundaries."
+      },
+      {
+        "text": "Functional components can't use useState",
+        "correct": false,
+        "explanation": "useState is the primary hook for functional components — it's their main feature."
+      }
+    ]
+  },
+  {
+    "question": "Which types of errors does an Error Boundary NOT catch?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Errors in async/await and Promises",
+        "correct": true,
+        "explanation": "Asynchronous errors occur outside the render phase. useErrorHandler is needed to propagate them."
+      },
+      {
+        "text": "Errors in render() of a child component",
+        "correct": false,
+        "explanation": "This is exactly what Error Boundaries are for — they catch errors in render of child components."
+      },
+      {
+        "text": "Errors in the ErrorBoundary itself",
+        "correct": true,
+        "explanation": "A Boundary can't catch its own errors. They propagate up to the next boundary."
+      },
+      {
+        "text": "Errors in event handlers (onClick, onChange)",
+        "correct": true,
+        "explanation": "Event handlers execute outside the render phase, so boundaries don't see them."
+      },
+      {
+        "text": "Errors in the constructor() of a child component",
+        "correct": false,
+        "explanation": "Errors in a child component's constructor are caught by the nearest Error Boundary."
+      }
+    ]
+  },
+  {
+    "question": "Why does useErrorHandler use the pattern setState(() => { throw error })?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The setState updater function is called by React during the render phase, so an error thrown in it reaches the Error Boundary",
+        "correct": true,
+        "explanation": "React calls the updater function during reconciliation. An error in this function is treated as a render error and caught by the nearest boundary."
+      },
+      {
+        "text": "It's a bug in React that accidentally works",
+        "correct": false,
+        "explanation": "This is an intentional pattern. React calls the setState updater function during reconciliation — in the render phase."
+      },
+      {
+        "text": "throw inside setState cancels the state update",
+        "correct": false,
+        "explanation": "throw interrupts the updater function execution, and React treats this as a render error — passing it to the Error Boundary."
+      },
+      {
+        "text": "setState is synchronous and executes immediately",
+        "correct": false,
+        "explanation": "setState is asynchronous — React batches updates. The updater function is called later, during the render phase."
+      }
+    ]
+  },
+  {
+    "question": "You have a dashboard with independent widgets: Weather, News, Stocks, Calendar. How should you place Error Boundaries?",
+    "type": "single",
+    "options": [
+      {
+        "text": "ErrorBoundary only around widgets that might crash",
+        "correct": false,
+        "explanation": "It's impossible to predict which widget will crash. Protect all independent sections preemptively."
+      },
+      {
+        "text": "One ErrorBoundary around the entire Dashboard",
+        "correct": false,
+        "explanation": "If one widget crashes, the user loses the entire dashboard. This contradicts the principle of graceful degradation."
+      },
+      {
+        "text": "ErrorBoundary isn't needed — try/catch in fetch is enough",
+        "correct": false,
+        "explanation": "try/catch in fetch won't protect against render errors (invalid data, null references, etc.)."
+      },
+      {
+        "text": "ErrorBoundary around each widget individually",
+        "correct": true,
+        "explanation": "Each widget loads data independently and can crash for its own reasons. Isolated boundaries provide graceful degradation."
+      }
+    ]
+  },
+  {
+    "question": "The fallback UI shows an error, but the user has no way to reset it. What does this violate?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The Single Responsibility Principle",
+        "correct": false,
+        "explanation": "SRP concerns component structure, not the presence of a recovery button."
+      },
+      {
+        "text": "Component mounting order",
+        "correct": false,
+        "explanation": "Mounting order is unrelated to having an error reset button."
+      },
+      {
+        "text": "The Open/Closed Principle",
+        "correct": false,
+        "explanation": "Open/Closed principle — from SOLID, concerns code extensibility, not UX."
+      },
+      {
+        "text": "The Recovery pattern: the user is stuck in a dead end with no way to recover",
+        "correct": true,
+        "explanation": "Without resetErrorBoundary the user is forced to reload the page. Good UX always provides a way out of an error state."
+      }
+    ]
+  }
+]

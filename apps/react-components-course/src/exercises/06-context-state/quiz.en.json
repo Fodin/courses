@@ -1,0 +1,267 @@
+[
+  {
+    "question": "Why is it recommended to separate CartStateContext and CartDispatchContext instead of using a single CartContext?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The code looks cleaner and more concise",
+        "correct": false,
+        "explanation": "This is subjective, and the pattern actually adds more code. The reason for separation is performance."
+      },
+      {
+        "text": "Components using only dispatch will not re-render when state changes",
+        "correct": true,
+        "explanation": "dispatch from useReducer is stable — React guarantees its reference does not change. If a component is subscribed only to CartDispatchContext, it will not re-render when items are added to the cart."
+      },
+      {
+        "text": "Two contexts allow different data types",
+        "correct": false,
+        "explanation": "TypeScript allows typing any context. Separation is not about typing."
+      },
+      {
+        "text": "Context cannot store state and functions simultaneously",
+        "correct": false,
+        "explanation": "Context can store any values, including objects with state and functions."
+      }
+    ]
+  },
+  {
+    "question": "When should you use useReducer instead of useState?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "When transition logic is complex and conditional",
+        "correct": true,
+        "explanation": "A reducer is a pure function that is easy to read, test, and extend. Complex logic in setState callbacks is unreadable."
+      },
+      {
+        "text": "When you need to log or replay action history",
+        "correct": true,
+        "explanation": "Actions explicitly describe what happened. This simplifies debugging and allows implementing undo/redo."
+      },
+      {
+        "text": "When multiple state fields always update together",
+        "correct": false,
+        "explanation": "For example, { loading, data, error } — they are always linked. useReducer updates them atomically in one dispatch."
+      },
+      {
+        "text": "When a component renders a list of 100+ elements",
+        "correct": false,
+        "explanation": "The number of rendered elements is not related to choosing useState vs useReducer. This is a render optimization issue, not state structure."
+      }
+    ]
+  },
+  {
+    "question": "You have a NotificationProvider. How should you correctly clean up setTimeout timers when the component unmounts?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Store timers in useState and call clearTimeout in handlers",
+        "correct": false,
+        "explanation": "On unmount, handlers are not called — timers will leak. Also setState on an unmounted component will cause a warning."
+      },
+      {
+        "text": "Call clearTimeout in componentWillUnmount",
+        "correct": false,
+        "explanation": "componentWillUnmount is a class component method. Functional components use the cleanup function from useEffect."
+      },
+      {
+        "text": "React automatically clears all timers on unmount",
+        "correct": false,
+        "explanation": "React does not clear timers — this is the developer's responsibility. An uncleared timer will keep running and may call setState on an already unmounted component."
+      },
+      {
+        "text": "Return a cleanup function from useEffect: return () => { timers.forEach(clearTimeout) }",
+        "correct": true,
+        "explanation": "useEffect with an empty dependency array runs once on mount. The returned function is called on unmount. This is the standard cleanup pattern."
+      }
+    ]
+  },
+  {
+    "question": "You are building a cart. The AddToCartButton component uses only dispatch({ type: 'ADD', item }). Is it true that it will NOT re-render when items are added to the cart?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only if AddToCartButton is wrapped in React.memo",
+        "correct": false,
+        "explanation": "React.memo protects against re-renders from props, but not from context changes. Context separation solves this more reliably."
+      },
+      {
+        "text": "Yes, if the component is subscribed only to CartDispatchContext (not CartStateContext)",
+        "correct": true,
+        "explanation": "dispatch from useReducer is stable — React guarantees its reference does not change between renders. CartDispatchContext.Provider value does not change, so consumers do not re-render."
+      },
+      {
+        "text": "Yes, but only in React 18+ thanks to automatic batching",
+        "correct": false,
+        "explanation": "Batching merges multiple setState calls into one render, but does not prevent re-renders of components subscribed to a changed context."
+      },
+      {
+        "text": "No, any dispatch causes a re-render of the entire tree",
+        "correct": false,
+        "explanation": "Re-renders are triggered by context value changes. If CartDispatchContext.value (dispatch) did not change — consumers do not re-render."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following are advantages of the createStore pattern with selectors over direct useContext?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A component can subscribe to only the needed part of state",
+        "correct": true,
+        "explanation": "A selector describes which slice of state the component needs. Changes to unrelated state parts do not cause a re-render."
+      },
+      {
+        "text": "Eliminates the need to write boilerplate for each new Provider",
+        "correct": true,
+        "explanation": "The createStore factory creates a Provider + two contexts + two hooks in one call. A new store is added in one line."
+      },
+      {
+        "text": "All of the above options are incorrect",
+        "correct": false,
+        "explanation": "Some of the listed options are indeed correct."
+      },
+      {
+        "text": "Allows creating independent stores for different areas of the application",
+        "correct": true,
+        "explanation": "Each createStore call creates a new pair of contexts. Stores are fully independent."
+      },
+      {
+        "text": "Automatically persists state in localStorage",
+        "correct": false,
+        "explanation": "createStore does not work with localStorage by default. This must be implemented separately."
+      }
+    ]
+  },
+  {
+    "question": "In which case is Context + useReducer NOT the optimal solution?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Application theme (light/dark) at the app-wide scale",
+        "correct": false,
+        "explanation": "Theme is an ideal case for Context. Simple state, needed globally, changes rarely."
+      },
+      {
+        "text": "Notification system with auto-dismiss",
+        "correct": false,
+        "explanation": "Notifications are perfectly implemented via Context + useReducer or useState. Limited scope, simple queue."
+      },
+      {
+        "text": "Server data cache with normalization, pagination, and invalidation",
+        "correct": true,
+        "explanation": "A data cache with this level of complexity is better handled by specialized tools: React Query, SWR, or Redux Toolkit Query. Context is not suitable for complex caching."
+      },
+      {
+        "text": "Shopping cart: add, remove, clear",
+        "correct": false,
+        "explanation": "Cart is a classic example for Context + useReducer. Limited scope, clear actions, moderate complexity."
+      }
+    ]
+  },
+  {
+    "question": "You have a NotificationProvider. You want the notify function to be stable (not recreated on every render). How should it be correctly defined?",
+    "type": "single",
+    "options": [
+      {
+        "text": "const notify = useCallback((message) => { setNotifications(prev => [...prev, ...]) }, [])",
+        "correct": true,
+        "explanation": "useCallback with an empty dependency array creates the function once. Updating state via an updater function (prev => ...) does not require adding state to dependencies."
+      },
+      {
+        "text": "const notifyRef = useRef((message) => { setNotifications(prev => [...prev, ...]) })",
+        "correct": false,
+        "explanation": "useRef is stable, but the function in ref is not updated when closures change. This leads to stale closure problems."
+      },
+      {
+        "text": "const notify = useMemo(() => (message) => { ... }, [])",
+        "correct": false,
+        "explanation": "Technically works, but semantically incorrect. useMemo is for values, useCallback is for functions. Use the right tool."
+      },
+      {
+        "text": "const notify = (message) => { setNotifications(prev => [...prev, ...]) }",
+        "correct": false,
+        "explanation": "Without useCallback the function is recreated on every Provider render. All NotificationContext consumers will get a new reference and re-render."
+      }
+    ]
+  },
+  {
+    "question": "A reducer receives action { type: 'DECREMENT', id: 'p1' } for an item with quantity: 1. How should this case be handled correctly?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Throw an error: throw new Error('Cannot decrement below 0')",
+        "correct": false,
+        "explanation": "Errors in a reducer will crash the component. A reducer must always return a valid state."
+      },
+      {
+        "text": "First check quantity and if === 1 — dispatch REMOVE instead of DECREMENT",
+        "correct": false,
+        "explanation": "Dispatching actions inside a reducer is not allowed — a reducer must be a pure synchronous function without side effects."
+      },
+      {
+        "text": "Set quantity to 0: items.map(i => i.id === id ? { ...i, quantity: 0 } : i)",
+        "correct": false,
+        "explanation": "Quantity 0 makes no sense in a cart — an item with zero quantity takes up space and confuses the user."
+      },
+      {
+        "text": "Decrease quantity and filter out items with quantity <= 0",
+        "correct": true,
+        "explanation": "The correct approach: first decrease quantity, then filter. This is an atomic operation without an intermediate invalid state."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following statements are true for the reducer function in useReducer?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A reducer can perform async operations (fetch, setTimeout)",
+        "correct": false,
+        "explanation": "A reducer must be a synchronous pure function. For async operations use useEffect, Redux Thunk, or Redux Saga."
+      },
+      {
+        "text": "A reducer should return a new state object only when changes occur, otherwise return the same object",
+        "correct": true,
+        "explanation": "If nothing changed (default case), return the same state object. React compares by reference and will skip a re-render."
+      },
+      {
+        "text": "A reducer must not mutate the input state",
+        "correct": false,
+        "explanation": "React uses referential equality to detect changes. Mutating state will not trigger a re-render and leads to unpredictable behavior."
+      },
+      {
+        "text": "A reducer must be a pure function",
+        "correct": true,
+        "explanation": "A pure function: same input → same output, no side effects. React may call the reducer multiple times in StrictMode."
+      }
+    ]
+  },
+  {
+    "question": "You use createStore with a selector `useStore(s => s.todos.filter(t => !t.done))`. On every dispatch (even unrelated to todos) the component re-renders. What is the problem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The selector returns a new array every time, React considers the value changed",
+        "correct": true,
+        "explanation": "filter() creates a new array on every call. React compares the selector result via ===. A new array !== the old array, even if the contents are the same. Solution: use useMemo or a library with deepEqual comparison."
+      },
+      {
+        "text": "createStore does not support complex selectors with filter",
+        "correct": false,
+        "explanation": "createStore supports any selector function. The problem is not in createStore, but in the referential equality of the result."
+      },
+      {
+        "text": "You should return a string or number from the selector instead of an array",
+        "correct": false,
+        "explanation": "The return type does not solve the architectural issue. If you need an array — use memoization."
+      },
+      {
+        "text": "You should wrap the component in React.memo",
+        "correct": false,
+        "explanation": "React.memo protects against re-renders from props, but not from context changes. This will not fix the problem."
+      }
+    ]
+  }
+]

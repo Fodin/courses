@@ -1,119 +1,127 @@
+// ============================================
+// Level 7: Hints — Hooks as an Architectural Tool
+// Подсказки: Level 7 — Хуки как архитектурный инструмент
+// ============================================
+
 export function Cheat() {
   return (
     <div className="exercise-container">
-      <h2>Подсказки: Level 7 — Хуки как архитектурный инструмент</h2>
+      <h2>Hints: Level 7 — Hooks as an Architectural Tool</h2>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h3 style={{ color: '#1976d2' }}>Задание 7.1: useAsync + useApi</h3>
+        <h3 style={{ color: '#1976d2' }}>Task 7.1: useAsync + useApi</h3>
+        {/* Задание 7.1: useAsync + useApi */}
         <ul style={{ lineHeight: 2 }}>
           <li>
-            <strong>Флаг cancelled в useAsync:</strong> объявите <code>let cancelled = false</code> внутри useEffect.
-            В <code>.then()</code> и <code>.catch()</code> проверяйте <code>if (!cancelled)</code> перед setState.
-            В cleanup: <code>return {'() => { cancelled = true }'}</code>
+            <strong>Cancelled flag in useAsync:</strong> declare <code>let cancelled = false</code> inside useEffect.
+            In <code>.then()</code> and <code>.catch()</code> check <code>if (!cancelled)</code> before setState.
+            In cleanup: <code>return {'() => { cancelled = true }'}</code>
           </li>
           <li>
-            <strong>AbortController в useApi:</strong>{' '}
+            <strong>AbortController in useApi:</strong>{' '}
             <code>{'const abortRef = useRef<AbortController | null>(null)'}</code>.
-            Перед fetch: <code>abortRef.current?.abort()</code>, затем <code>abortRef.current = new AbortController()</code>.
-            Передайте <code>{'{ signal: abortRef.current.signal }'}</code> в fetch
+            Before fetch: <code>abortRef.current?.abort()</code>, then <code>abortRef.current = new AbortController()</code>.
+            Pass <code>{'{ signal: abortRef.current.signal }'}</code> to fetch
           </li>
           <li>
-            <strong>Игнорирование AbortError:</strong>{' '}
-            <code>{'if (err instanceof Error && err.name === \'AbortError\') return'}</code> — это не ошибка, а плановая отмена
+            <strong>Ignore AbortError:</strong>{' '}
+            <code>{'if (err instanceof Error && err.name === \'AbortError\') return'}</code> — this is not an error, but a planned cancellation
           </li>
           <li>
-            <strong>refetch:</strong> добавьте <code>const [revision, setRevision] = useState(0)</code> и передайте
-            в deps useAsync. <code>refetch</code> вызывает <code>setRevision(r =&gt; r + 1)</code>
+            <strong>refetch:</strong> add <code>const [revision, setRevision] = useState(0)</code> and pass
+            in useAsync deps. <code>refetch</code> calls <code>setRevision(r =&gt; r + 1)</code>
           </li>
           <li>
-            <strong>Пустой url:</strong> проверяйте <code>if (!url) return Promise.resolve(null)</code> перед fetch
+            <strong>Empty url:</strong> check <code>if (!url) return Promise.resolve(null)</code> before fetch
           </li>
         </ul>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h3 style={{ color: '#1976d2' }}>Задание 7.2: useForm</h3>
+        <h3 style={{ color: '#1976d2' }}>Task 7.2: useForm</h3>
+        {/* Задание 7.2: useForm */}
         <ul style={{ lineHeight: 2 }}>
           <li>
-            <strong>handleChange с валидацией:</strong> используйте функциональное обновление setState:
+            <strong>handleChange with validation:</strong> use functional setState update:
             <code>{'setValues(prev => { const next = {...prev, [field]: value}; /* validate */ return next })'}</code>
           </li>
           <li>
-            <strong>handleBlur:</strong> сначала <code>setTouched(prev =&gt; {'({ ...prev, [field]: true })'} )</code>,
-            потом получите текущий values и вызовите validate, обновите только ошибку этого поля:
+            <strong>handleBlur:</strong> first <code>setTouched(prev =&gt; {'({ ...prev, [field]: true })'} )</code>,
+            then get current values and call validate, update only that field's error:
             <code>setErrors(prev =&gt; {'({ ...prev, [field]: errs[field] })'} )</code>
           </li>
           <li>
-            <strong>Пометить все touched при submit:</strong>{' '}
+            <strong>Mark all touched on submit:</strong>{' '}
             <code>{'Object.keys(values).reduce((acc, key) => ({ ...acc, [key]: true }), {})'}</code>
           </li>
           <li>
-            <strong>isSubmitting через finally:</strong>{' '}
+            <strong>isSubmitting via finally:</strong>{' '}
             <code>{'Promise.resolve(onSubmit(values)).finally(() => setIsSubmitting(false))'}</code>
           </li>
           <li>
-            <strong>Показ ошибки:</strong>{' '}
+            <strong>Show error:</strong>{' '}
             <code>{'{ form.touched.name && form.errors.name && <span>{form.errors.name}</span> }'}</code>
           </li>
         </ul>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h3 style={{ color: '#1976d2' }}>Задание 7.3: useDataTable</h3>
+        <h3 style={{ color: '#1976d2' }}>Task 7.3: useDataTable</h3>
+        {/* Задание 7.3: useDataTable */}
         <ul style={{ lineHeight: 2 }}>
           <li>
-            <strong>offset в usePagination:</strong> <code>const offset = (page - 1) * pageSize</code>.
+            <strong>offset in usePagination:</strong> <code>const offset = (page - 1) * pageSize</code>.
             <code>totalPages = Math.max(1, Math.ceil(totalItems / pageSize))</code>
           </li>
           <li>
-            <strong>Сброс при выходе за пределы:</strong>{' '}
+            <strong>Reset when out of bounds:</strong>{' '}
             <code>{'useEffect(() => { if (page > totalPages) setPage(1) }, [page, totalPages])'}</code>
           </li>
           <li>
-            <strong>toggleSort:</strong> если <code>field === prev</code> — меняем direction,
-            иначе устанавливаем новое поле с <code>'asc'</code>. Используйте функциональный setState
+            <strong>toggleSort:</strong> if <code>field === prev</code> — change direction,
+            otherwise set new field with <code>'asc'</code>. Use functional setState
           </li>
           <li>
-            <strong>sort без мутации:</strong> <code>return [...items].sort((a, b) =&gt; {'{ ... }'})</code> —
-            спред создаёт новый массив перед сортировкой
+            <strong>Sort without mutation:</strong> <code>return [...items].sort((a, b) =&gt; {'{ ... }'})</code> —
+            spread creates a new array before sorting
           </li>
           <li>
-            <strong>Порядок в useDataTable:</strong>{' '}
-            <code>filtered → sorted → pageData (slice по offset)</code>.
-            totalCount = filtered.length (не sorted.length, не data.length)
+            <strong>Order in useDataTable:</strong>{' '}
+            <code>filtered → sorted → pageData (slice by offset)</code>.
+            totalCount = filtered.length (not sorted.length, not data.length)
           </li>
           <li>
-            <strong>Сброс пагинации при смене фильтра:</strong>{' '}
-            <code>{'useEffect(() => { pagination.goTo(1) }, [filters.values])'}</code> — в useDataTable,
-            не в useFilters
+            <strong>Reset pagination on filter change:</strong>{' '}
+            <code>{'useEffect(() => { pagination.goTo(1) }, [filters.values])'}</code> — in useDataTable,
+            not in useFilters
           </li>
           <li>
-            <strong>Иконки сортировки:</strong> вспомогательная функция{' '}
+            <strong>Sort icons:</strong> helper function{' '}
             <code>{'const sortIcon = (f) => sorting.field !== f ? \'↕\' : direction === \'asc\' ? \'↑\' : \'↓\''}</code>
           </li>
         </ul>
       </section>
 
       <section>
-        <h3 style={{ color: '#388e3c' }}>Общие советы по уровню</h3>
+        <h3 style={{ color: '#388e3c' }}>General Tips for This Level / Общие советы по уровню</h3>
         <ul style={{ lineHeight: 2 }}>
           <li>
-            <strong>useMemo для производных данных:</strong> filtered, sorted, pageData —
-            оберните в <code>useMemo</code> с правильными зависимостями, иначе вычисления
-            будут происходить при каждом рендере
+            <strong>useMemo for derived data:</strong> filtered, sorted, pageData —
+            wrap in <code>useMemo</code> with correct dependencies, otherwise computations
+            will run on every render
           </li>
           <li>
-            <strong>useCallback для функций хука:</strong> handleChange, handleBlur, handleSubmit, goTo —
-            оберните в <code>useCallback</code>, чтобы компоненты, принимающие их как props, не ре-рендерились лишний раз
+            <strong>useCallback for hook functions:</strong> handleChange, handleBlur, handleSubmit, goTo —
+            wrap in <code>useCallback</code> so components receiving them as props don't re-render unnecessarily
           </li>
           <li>
-            <strong>Хук возвращает объект, не кортеж:</strong> если больше 2 значений —
-            предпочтительнее <code>{'return { data, loading, error }'}</code> вместо
+            <strong>Hook returns an object, not a tuple:</strong> if more than 2 values —
+            prefer <code>{'return { data, loading, error }'}</code> instead of
             <code>return [data, loading, error]</code>
           </li>
           <li>
-            <strong>Зависимости useEffect:</strong> следуйте правилу exhaustive-deps.
-            Если функция используется в зависимостях — оберните её в useCallback выше
+            <strong>useEffect dependencies:</strong> follow the exhaustive-deps rule.
+            If a function is used in dependencies — wrap it in useCallback above
           </li>
         </ul>
       </section>

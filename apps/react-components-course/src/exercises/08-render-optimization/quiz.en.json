@@ -1,0 +1,232 @@
+[
+  {
+    "question": "Component A contains useState. When state changes, does child component B re-render if it has no props?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Yes — React renders all child components when a parent re-renders",
+        "correct": true,
+        "explanation": "Correct. By default React recursively calls all child component functions when a parent re-renders, regardless of whether they receive props."
+      },
+      {
+        "text": "Depends on the React version",
+        "correct": false,
+        "explanation": "Incorrect. This is a fundamental principle of React's operation, independent of version."
+      },
+      {
+        "text": "No — B receives no props, so it does not re-render",
+        "correct": false,
+        "explanation": "Incorrect. The absence of props does not protect against re-renders. React by default renders the entire descendant tree when a parent's state changes."
+      }
+    ]
+  },
+  {
+    "question": "You wrapped a component in React.memo, but it still re-renders on every parent render. What is the most likely reason?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A custom comparator needs to be passed as the second argument to React.memo",
+        "correct": false,
+        "explanation": "This may help in some cases, but a custom comparator does not solve the fundamental problem of unstable references. The correct solution is useCallback/useMemo."
+      },
+      {
+        "text": "React.memo does not work in React 18",
+        "correct": false,
+        "explanation": "Incorrect. React.memo works fine in React 18."
+      },
+      {
+        "text": "The parent passes a function or object as a prop — they are recreated on every render",
+        "correct": true,
+        "explanation": "Correct. React.memo does a shallow comparison of props. If a function or object is created inline in the parent's JSX — it is a new reference every render, and memo does not help."
+      }
+    ]
+  },
+  {
+    "question": "What does useCallback do from a render optimization perspective?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Prevents the function from being called on every component render",
+        "correct": false,
+        "explanation": "Incorrect. useCallback does not prevent function execution. It is called whenever it is invoked (e.g., on click)."
+      },
+      {
+        "text": "Makes the function asynchronous to prevent render blocking",
+        "correct": false,
+        "explanation": "Incorrect. useCallback has nothing to do with asynchrony."
+      },
+      {
+        "text": "Returns a stable function reference between renders, as long as dependencies have not changed",
+        "correct": true,
+        "explanation": "Correct. useCallback caches the function and returns the same reference between renders. This allows React.memo to correctly compare the function prop."
+      }
+    ]
+  },
+  {
+    "question": "You have a component with state and an expensive child component. Which structural solution avoids unnecessary re-renders of the expensive component without React.memo?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Move state into a separate child component (state down), and keep the expensive component next to it",
+        "correct": true,
+        "explanation": "Correct. If state is in a different subtree — the expensive component is not a descendant of the component with state and does not re-render."
+      },
+      {
+        "text": "Pass the expensive component via children (children up) — it is created outside the component with state",
+        "correct": true,
+        "explanation": "Correct. When the expensive component is passed as children, it is created in the parent of the component with state — and does not depend on its re-renders."
+      },
+      {
+        "text": "Add a key to the expensive component — React optimizes such components automatically",
+        "correct": false,
+        "explanation": "Incorrect. Adding a key on change will cause the component to unmount and remount — this is the opposite of optimization."
+      },
+      {
+        "text": "Place both components in different React.StrictMode",
+        "correct": false,
+        "explanation": "Incorrect. StrictMode is used to identify side effects, not for render optimization."
+      }
+    ]
+  },
+  {
+    "question": "In which case is React.memo USELESS or HARMFUL?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A component accepts children via JSX — <MemoComp><div /></MemoComp>",
+        "correct": true,
+        "explanation": "Correct. children are created as a new React element on every parent render. Shallow comparison always shows 'changed' — memo does not help."
+      },
+      {
+        "text": "A simple component with primitive props that renders rarely",
+        "correct": true,
+        "explanation": "Correct. For simple components the overhead of prop comparison may exceed the benefit. memo adds complexity without real gain."
+      },
+      {
+        "text": "A heavy list of 500 elements that updates rarely",
+        "correct": false,
+        "explanation": "Incorrect. For heavy components that render frequently due to a parent but actually update rarely — React.memo is appropriate."
+      },
+      {
+        "text": "A component whose props change on every parent render",
+        "correct": true,
+        "explanation": "Correct. If props always change, memo performs a useless comparison on every render — just extra overhead."
+      },
+      {
+        "text": "A special license is required for this",
+        "correct": false,
+        "explanation": "The listed technologies have open-source versions."
+      }
+    ]
+  },
+  {
+    "question": "What is a stale closure in the context of useCallback?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A function reads a variable from its closure whose value has already changed, but the function was not recreated due to incorrect dependencies",
+        "correct": true,
+        "explanation": "Correct. If a variable is not listed in dependencies, useCallback retains a reference to the old value and works with outdated data."
+      },
+      {
+        "text": "A function was created in useCallback with an empty dependency array",
+        "correct": false,
+        "explanation": "Incorrect. An empty dependency array is not itself a problem — it is fine if the function does not read external variables."
+      },
+      {
+        "text": "A function in useCallback became stale because it has not been called in a long time",
+        "correct": false,
+        "explanation": "Incorrect. The recency of the last call does not affect the freshness of the closure."
+      }
+    ]
+  },
+  {
+    "question": "You have a search field in a Header that updates searchQuery. On every keystroke, the entire Page re-renders including a DataTable with thousands of rows. What is the best solution?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Move the searchQuery state and input field into a separate SearchBox component, keeping DataTable next to it in Page (state down)",
+        "correct": true,
+        "explanation": "Correct. This is a structural solution: state moves to SearchBox, DataTable stays in Page and is not a descendant of SearchBox — re-renders on typing do not affect it."
+      },
+      {
+        "text": "Wrap DataTable in React.memo",
+        "correct": false,
+        "explanation": "This only works if Header passes stable props to DataTable. But if searchQuery is passed to DataTable as a prop — memo will not help."
+      },
+      {
+        "text": "Use debounce on state updates",
+        "correct": false,
+        "explanation": "Debounce reduces the update frequency, but does not solve the problem of unnecessary re-renders. This is a temporary measure, not a structural solution."
+      }
+    ]
+  },
+  {
+    "question": "What happens with React.memo if an object is passed as a prop without useMemo?",
+    "type": "single",
+    "options": [
+      {
+        "text": "memo throws an error — objects need a custom comparator",
+        "correct": false,
+        "explanation": "Incorrect. memo does not throw an error. It simply does not work effectively when props are unstable."
+      },
+      {
+        "text": "React automatically compares object contents (deep equal)",
+        "correct": false,
+        "explanation": "Incorrect. React.memo only does shallow comparison — compares references, not object contents."
+      },
+      {
+        "text": "The object is recreated on every parent render → new reference → shallow comparison shows 'changed' → component re-renders",
+        "correct": true,
+        "explanation": "Correct. An inline object like config={{ color: 'red' }} is recreated on every parent render. React.memo compares references — a new object = a different reference = re-render needed."
+      }
+    ]
+  },
+  {
+    "question": "When is it justified to use useMemo?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "const isActive = status === 'active' — a primitive comparison",
+        "correct": false,
+        "explanation": "Incorrect. Primitive values (boolean, string, number) are compared by value — React.memo handles this correctly without useMemo."
+      },
+      {
+        "text": "const doubled = count * 2 — a simple arithmetic computation",
+        "correct": false,
+        "explanation": "Incorrect. Simple computations execute instantly. useMemo adds more overhead (closure creation, dependency comparison) than it saves."
+      },
+      {
+        "text": "Creating a configuration object for a React.memo component",
+        "correct": true,
+        "explanation": "Correct. useMemo stabilizes the reference to an object, allowing React.memo to correctly determine that nothing has changed."
+      },
+      {
+        "text": "Expensive filtering/sorting of a large array that runs on every render",
+        "correct": true,
+        "explanation": "Correct. Heavy computations that depend on specific data are worth memoizing."
+      }
+    ]
+  },
+  {
+    "question": "FilterPanel with 5 filters. Each filter is wrapped in React.memo. When Category changes, all 5 filters re-render. What is the problem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The filter state needs to be lifted higher up the tree",
+        "correct": false,
+        "explanation": "Incorrect. Lifting state would likely make the problem worse — more components would re-render on change."
+      },
+      {
+        "text": "The onChange functions are created in the parent body without useCallback — new references on every render — memo sees changed props",
+        "correct": true,
+        "explanation": "Correct. If onChange is passed as an arrow function directly in JSX, it is a new function every render. memo compares references, sees 'changed', and renders the component."
+      },
+      {
+        "text": "React.memo does not work with components that have onChange",
+        "correct": false,
+        "explanation": "Incorrect. React.memo works with any props, including functions — if the references are stable."
+      }
+    ]
+  }
+]

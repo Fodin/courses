@@ -4,26 +4,39 @@ import { useLanguage } from 'src/hooks'
 
 // ============================================
 // Задание 10.2: Modal на createPortal
+// Task 10.2: Modal via createPortal
 // ============================================
 //
 // Реализуйте компонент Modal, который:
+// Implement a Modal component that:
 //   1. Рендерится через createPortal в document.body
+//   1. Renders via createPortal into document.body
 //   2. Закрывается по клику на тёмный оверлей
+//   2. Closes on click on the dark overlay
 //   3. Закрывается по нажатию Escape
+//   3. Closes on Escape key press
 //   4. Блокирует прокрутку страницы при открытии
+//   4. Blocks page scroll when open
 //   5. Поддерживает стекинг (несколько модалок одновременно)
+//   5. Supports stacking (multiple modals at once)
 //
 // Подсказки:
+// Hints:
 //   - createPortal(jsx, document.body) — рендер в body
+//   - createPortal(jsx, document.body) — render into body
 //   - useEffect для addEventListener('keydown', ...) + cleanup
 //   - useEffect для document.body.style.overflow = 'hidden' + cleanup
 //   - Для стекинга: prop zIndex (default 1000), у вложенных — больше
+//   - For stacking: zIndex prop (default 1000), nested ones — higher
 //   - Клик на оверлей = onClose, клик на контент = e.stopPropagation()
+//   - Click on overlay = onClose, click on content = e.stopPropagation()
 
 // TODO: Счётчик открытых модалок для корректной разблокировки прокрутки
+// TODO: Counter for open modals for proper scroll unlock
 // let scrollLockCount = 0
 
 // TODO: Опишите интерфейс ModalProps
+// TODO: Define ModalProps interface
 // interface ModalProps {
 //   isOpen: boolean
 //   onClose: () => void
@@ -33,8 +46,10 @@ import { useLanguage } from 'src/hooks'
 // }
 
 // TODO: Реализуйте компонент Modal
+// TODO: Implement Modal component
 // function Modal({ isOpen, onClose, title, children, zIndex = 1000 }: ModalProps) {
 //   // useEffect: блокировка прокрутки
+//   // useEffect: scroll lock
 //   useEffect(() => {
 //     if (!isOpen) return
 //     scrollLockCount++
@@ -46,6 +61,7 @@ import { useLanguage } from 'src/hooks'
 //   }, [isOpen])
 //
 //   // useEffect: закрытие по Escape
+//   // useEffect: close on Escape
 //   useEffect(() => {
 //     if (!isOpen) return
 //     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -62,7 +78,9 @@ import { useLanguage } from 'src/hooks'
 //     >
 //       <div onClick={e => e.stopPropagation()} style={{ /* стили контента */ }}>
 //         {/* Шапка с title и кнопкой × */}
+//         {/* Header with title and × button */}
 //         {/* Содержимое children */}
+//         {/* children content */}
 //       </div>
 //     </div>,
 //     document.body
@@ -91,6 +109,7 @@ export function Task10_2() {
       </div>
 
       {/* TODO: Используйте компонент Modal */}
+      {/* TODO: Use the Modal component */}
       {/* <Modal isOpen={modal1Open} onClose={closeModal1} title="Модалка 1">
         <p>Контент модалки. Нажмите Escape или кликните на фон.</p>
         <button onClick={() => setModal2Open(true)}>Открыть вложенную</button>

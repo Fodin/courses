@@ -1,0 +1,132 @@
+[
+  {
+    "question": "What is the children prop in React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Everything placed between the opening and closing tags of a component",
+        "correct": true,
+        "explanation": "React automatically passes the content between tags into the children prop"
+      },
+      {
+        "text": "A special array of child components",
+        "correct": false,
+        "explanation": "children is not necessarily an array — it can be a single element, a string, null, or an array"
+      },
+      {
+        "text": "A lifecycle method for working with child elements",
+        "correct": false,
+        "explanation": "children is a prop (data), not a lifecycle method"
+      },
+      {
+        "text": "A list of nested components that must be explicitly passed as an attribute",
+        "correct": false,
+        "explanation": "children is passed implicitly — via JSX nesting, not as an explicit attribute"
+      }
+    ]
+  },
+  {
+    "question": "Which TypeScript type is most suitable for a slot that should accept JSX, strings, and null?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React.ReactElement",
+        "correct": false,
+        "explanation": "ReactElement accepts only JSX elements, but not strings, numbers, or null"
+      },
+      {
+        "text": "string | React.ReactElement",
+        "correct": false,
+        "explanation": "This union is incomplete — it misses numbers, null, arrays. ReactNode covers everything"
+      },
+      {
+        "text": "JSX.Element",
+        "correct": false,
+        "explanation": "JSX.Element is only JSX, it doesn't accept strings or null"
+      },
+      {
+        "text": "React.ReactNode",
+        "correct": true,
+        "explanation": "ReactNode is the broadest type: JSX elements, strings, numbers, arrays, null, undefined, boolean"
+      }
+    ]
+  },
+  {
+    "question": "Which of the following is a slot in React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A special React API for inserting content at a specific location",
+        "correct": false,
+        "explanation": "React has no special Slot API like Web Components — slots are just props with ReactNode type"
+      },
+      {
+        "text": "A regular prop with React.ReactNode type given a semantic name (header, footer, sidebar)",
+        "correct": true,
+        "explanation": "A slot is a convention, not a built-in mechanism. It's a prop that accepts ReactNode"
+      },
+      {
+        "text": "children with a predefined JSX structure",
+        "correct": false,
+        "explanation": "Slots are named props, independent of children"
+      },
+      {
+        "text": "A React Context that passes data through the component tree",
+        "correct": false,
+        "explanation": "Context is a different mechanism. Slots work through props, not through Context API"
+      }
+    ]
+  },
+  {
+    "question": "A Card component receives an optional footer?: React.ReactNode prop. What is the correct way to render it?",
+    "type": "single",
+    "options": [
+      {
+        "text": "{footer !== undefined && <div className=\"footer\">{footer}</div>}",
+        "correct": false,
+        "explanation": "Almost correct, but footer can be null or false — the !== undefined check won't cover these cases"
+      },
+      {
+        "text": "<div className=\"footer\">{footer}</div>",
+        "correct": false,
+        "explanation": "If footer is not passed, an empty <div> with padding/border will render, breaking the appearance"
+      },
+      {
+        "text": "{footer && <div className=\"footer\">{footer}</div>}",
+        "correct": true,
+        "explanation": "Short-circuit && checks for any falsy value (undefined, null, false) and doesn't render the container"
+      },
+      {
+        "text": "{footer ? <div className=\"footer\">{footer}</div> : <div />}",
+        "correct": false,
+        "explanation": "Rendering an empty <div /> instead of nothing is even worse: it adds an extra node to the DOM"
+      }
+    ]
+  },
+  {
+    "question": "You are building an Accordion. Which approach is preferable in terms of composition?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "<Accordion items={[{ title: 'Q1', content: 'A1' }]} />",
+        "correct": false,
+        "explanation": "The configuration approach limits capabilities: title and content can only be strings, complex JSX won't fit"
+      },
+      {
+        "text": "<Accordion><AccordionItem title=\"Q1\">A1</AccordionItem></Accordion>",
+        "correct": true,
+        "explanation": "The compositional approach — each element is independent, title and children accept any ReactNode"
+      },
+      {
+        "text": "Accordion stores an array of open indices and passes state down",
+        "correct": false,
+        "explanation": "This complicates Accordion and makes it responsible for child logic. With basic composition, this is unnecessary"
+      },
+      {
+        "text": "AccordionItem manages its own isOpen state via useState",
+        "correct": true,
+        "explanation": "Each AccordionItem is independent — they don't know about each other and manage their own state"
+      }
+    ]
+  }
+]

@@ -1,0 +1,262 @@
+[
+  {
+    "question": "What is a render prop in React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A prop that accepts a function which the component calls to get JSX",
+        "correct": true,
+        "explanation": "Exactly: the component receives a function via a prop, calls it (passing the needed data), and embeds the result in its render."
+      },
+      {
+        "text": "An HOC function that accepts a component and returns a new component",
+        "correct": false,
+        "explanation": "This describes a Higher-Order Component (HOC), not a render prop. HOC wraps a component, render prop passes a render function."
+      },
+      {
+        "text": "A special React attribute for controlling component rendering",
+        "correct": false,
+        "explanation": "There is no special attribute. Render prop is a design pattern, not a built-in React feature."
+      },
+      {
+        "text": "A lifecycle method called before rendering",
+        "correct": false,
+        "explanation": "This describes shouldComponentUpdate or getSnapshotBeforeUpdate, not render prop. Render prop is a pattern of passing a function via props."
+      }
+    ]
+  },
+  {
+    "question": "Why can't you use hooks inside a render prop callback?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Because the callback is a regular function, not a React component, and the rules of hooks don't apply",
+        "correct": true,
+        "explanation": "Hooks can only be used inside React functional components or custom hooks. A callback in a render prop is just a function called inside another component."
+      },
+      {
+        "text": "Because the render prop callback executes asynchronously",
+        "correct": false,
+        "explanation": "Render prop callbacks are called synchronously inside the component's render function. The reason hooks are forbidden is different: the callback is not a React component."
+      },
+      {
+        "text": "Because hooks only work in class components",
+        "correct": false,
+        "explanation": "On the contrary: hooks only work in functional components, not class components. But hooks also cannot be used in callback functions."
+      },
+      {
+        "text": "The restriction was lifted in React 18 — hooks now work in any function",
+        "correct": false,
+        "explanation": "This is incorrect. The rules of hooks haven't changed in React 18: hooks can still only be used in functional components and custom hooks."
+      }
+    ]
+  },
+  {
+    "question": "You are building a DataList<T> component. How do you correctly declare the renderItem prop type?",
+    "type": "single",
+    "options": [
+      {
+        "text": "renderItem: Function",
+        "correct": false,
+        "explanation": "The Function type is too broad: it doesn't describe either arguments or return value. The compiler won't warn about errors inside the callback."
+      },
+      {
+        "text": "renderItem: (item: object) => ReactNode",
+        "correct": false,
+        "explanation": "object is too broad — you can't access its fields without type casting. Generic T preserves the specific type of array elements."
+      },
+      {
+        "text": "renderItem: (item: any) => JSX.Element",
+        "correct": false,
+        "explanation": "any destroys type safety: TypeScript won't check that you're accessing existing fields of item. Use generic T."
+      },
+      {
+        "text": "renderItem: (item: T, index: number) => ReactNode",
+        "correct": true,
+        "explanation": "Exactly: the generic parameter T is used in the item type, allowing TypeScript to automatically infer the type from the data array."
+      }
+    ]
+  },
+  {
+    "question": "In which situations is a render prop preferable to a custom hook? Select all that apply.",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Creating a UI primitive (Headless UI, Radix) with full render control",
+        "correct": true,
+        "explanation": "Headless component libraries actively use render props (or compound components) to give the consumer full control over markup."
+      },
+      {
+        "text": "The component manages a limited DOM area (mouse tracking zone, drop zone)",
+        "correct": true,
+        "explanation": "When logic is tied to a specific DOM element (onMouseMove, onDrop), render prop gives the component control over its container, while a hook works globally."
+      },
+      {
+        "text": "You need to reuse fetch request logic between components",
+        "correct": false,
+        "explanation": "For reusing logic without UI — use hooks. useFetch/useQuery are much more convenient and don't create JSX nesting."
+      },
+      {
+        "text": "You need multiple render functions (renderItem, renderEmpty, renderHeader)",
+        "correct": true,
+        "explanation": "Multiple named render props are a natural way to give the consumer control over different parts of a single component's UI."
+      }
+    ]
+  },
+  {
+    "question": "How does function-as-children differ from a named render prop?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A named render prop makes the function's purpose obvious without reading documentation",
+        "correct": true,
+        "explanation": "renderItem clearly says the function renders a list item. children as a function requires knowledge of the component to understand what it does with it."
+      },
+      {
+        "text": "Function-as-children works faster due to React reconciler specifics",
+        "correct": false,
+        "explanation": "There is no performance difference. Both variants call the function synchronously during render."
+      },
+      {
+        "text": "With function-as-children it's impossible to pass multiple render functions",
+        "correct": true,
+        "explanation": "A component has only one children. If you need renderItem + renderEmpty + renderHeader — you'll have to use named props."
+      },
+      {
+        "text": "Function-as-children is passed via children, a named one via an explicit prop",
+        "correct": true,
+        "explanation": "The key syntactic difference: <Comp>{fn}</Comp> vs <Comp render={fn} />. Both patterns call the function the same way."
+      }
+    ]
+  },
+  {
+    "question": "What happens if you pass a render prop as a JSX tag instead of calling it as a function?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The render prop will be called as a component — this is an acceptable usage",
+        "correct": false,
+        "explanation": "This is not acceptable. When a prop is called renderItem (lowercase), React won't call it as a component. Use a function call: renderItem(item)."
+      },
+      {
+        "text": "React will throw an error: components must start with a capital letter, and the prop is lowercase",
+        "correct": true,
+        "explanation": "React treats lowercase tags as HTML elements. <renderItem /> will try to create an HTML element 'renderItem', which leads to a warning and incorrect render."
+      },
+      {
+        "text": "Everything will work — React automatically understands it's a function",
+        "correct": false,
+        "explanation": "React doesn't auto-detect functions. <renderItem /> is not the same as renderItem(). These are different operations."
+      },
+      {
+        "text": "TypeScript won't allow compiling such code",
+        "correct": false,
+        "explanation": "TypeScript may pass this with a warning, but not necessarily an error — depends on settings. The error will occur at runtime."
+      }
+    ]
+  },
+  {
+    "question": "You have a Toggle with a render prop. You need to add open/close animation via the useAnimation hook. How to do this correctly?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use useEffect inside the render callback to start the animation",
+        "correct": false,
+        "explanation": "useEffect is also a hook, it cannot be called inside a callback. The rule applies to all hooks: only in components and custom hooks."
+      },
+      {
+        "text": "Add useAnimation inside the Toggle itself",
+        "correct": false,
+        "explanation": "Toggle is a generic component, it shouldn't know about animation. This violates the inversion of control principle: the consumer loses control over animation."
+      },
+      {
+        "text": "Call useAnimation directly inside the Toggle's render callback",
+        "correct": false,
+        "explanation": "Violation of hook rules: a callback in render prop is not a React component. React can't track hook call order in regular functions."
+      },
+      {
+        "text": "Create a separate AnimatedContent component and use useAnimation inside it, passing it as renderItem",
+        "correct": true,
+        "explanation": "Hooks can only be used in components. Extracting logic into a separate component is the correct pattern. AnimatedContent receives isOpen and calls useAnimation."
+      }
+    ]
+  },
+  {
+    "question": "How do you declare a generic function in a TSX file so that <T> is not treated as a JSX tag?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Rename the file to .ts instead of .tsx",
+        "correct": false,
+        "explanation": "In .ts files there's no JSX, and <T> won't be ambiguous. But then you can't write JSX — not a solution for a component with JSX."
+      },
+      {
+        "text": "const DataList = <T>(props: DataListProps<T>) => ... — arrow functions don't have this problem",
+        "correct": false,
+        "explanation": "Arrow functions have the same problem in TSX! const DataList = <T> will be treated as the start of a JSX tag. The same comma is needed: <T,>."
+      },
+      {
+        "text": "function DataList<T,>(...) — add a comma after T",
+        "correct": true,
+        "explanation": "The comma is the standard way to disambiguate in TSX: <T,> cannot be a JSX tag, only a generic parameter."
+      },
+      {
+        "text": "function DataList<T extends object>(...) — add an extends constraint",
+        "correct": true,
+        "explanation": "Adding extends anything (object, unknown, {}) unambiguously tells TypeScript this is a generic parameter, not a JSX tag."
+      }
+    ]
+  },
+  {
+    "question": "A MouseTracker component tracks the mouse via onMouseMove on a container. A user complains that coordinates update even when the mouse is outside the area. What's the problem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The developer attached the handler to window instead of the container",
+        "correct": true,
+        "explanation": "If mousemove is attached to window or document, events will come from everywhere. onMouseMove on a div container limits tracking to that element's area."
+      },
+      {
+        "text": "The browser problem — onMouseMove is always global",
+        "correct": false,
+        "explanation": "This is incorrect. onMouseMove in React works via event bubbling, but if attached to a specific div — events only come when the mouse moves over that element and its descendants."
+      },
+      {
+        "text": "You need to use onMouseEnter instead of onMouseMove",
+        "correct": false,
+        "explanation": "onMouseEnter fires only on entering the element, not on movement. This won't solve the problem and is unsuitable for coordinate tracking."
+      },
+      {
+        "text": "The component didn't clean up the event subscription in useEffect",
+        "correct": false,
+        "explanation": "If onMouseMove was used via JSX attribute (not addEventListener in useEffect), cleanup is not needed — React manages this automatically."
+      }
+    ]
+  },
+  {
+    "question": "What is better to pass to a Toggle render prop: only isOpen, or the full group { isOpen, toggle, open, close }?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Pass setIsOpen directly — so the consumer gets full control",
+        "correct": false,
+        "explanation": "Passing setState directly is bad practice: the consumer can set invalid state or break component invariants. Better to pass named action functions."
+      },
+      {
+        "text": "The full group { isOpen, toggle, open, close } — the consumer chooses what to use",
+        "correct": true,
+        "explanation": "A rich API gives the consumer flexibility: a dropdown uses toggle, a modal uses open/close separately, expandable uses only toggle. Passing only isOpen shifts state management to the consumer."
+      },
+      {
+        "text": "Only isOpen — fewer props, cleaner API",
+        "correct": false,
+        "explanation": "If you pass only isOpen, the consumer can't change state — they don't have access to setIsOpen. You need to pass control functions too."
+      },
+      {
+        "text": "Only toggle — the consumer only needs to toggle state",
+        "correct": false,
+        "explanation": "For a modal you need separate open and close: the open button calls open, clicking the overlay calls close. toggle doesn't always fit."
+      }
+    ]
+  }
+]

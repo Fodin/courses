@@ -1,0 +1,272 @@
+[
+  {
+    "question": "What is a Higher-Order Component (HOC) in React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A component with many props",
+        "correct": false,
+        "explanation": "The number of props has nothing to do with HOC. HOC is a wrapping pattern, not a component characteristic."
+      },
+      {
+        "text": "A hook that returns JSX",
+        "correct": false,
+        "explanation": "Hooks don't return JSX — that violates the rules of hooks. HOC returns a component (a function), not JSX directly."
+      },
+      {
+        "text": "A component that renders other components via the children prop",
+        "correct": false,
+        "explanation": "This describes the children/composition pattern, not HOC. HOC is a function, not a component."
+      },
+      {
+        "text": "A function that takes a component and returns a new enhanced component",
+        "correct": true,
+        "explanation": "Exactly: HOC = (Component) => EnhancedComponent. This is a higher-order function applied to React components."
+      }
+    ]
+  },
+  {
+    "question": "Why can't you create an HOC inside a component's render function?",
+    "type": "single",
+    "options": [
+      {
+        "text": "HOCs don't work with functional components",
+        "correct": false,
+        "explanation": "HOCs work fine with functional components. The problem is elsewhere."
+      },
+      {
+        "text": "TypeScript can't infer types for HOCs inside functions",
+        "correct": false,
+        "explanation": "TypeScript can infer types regardless of where the HOC is created. This is not the reason."
+      },
+      {
+        "text": "It is syntactically forbidden in JavaScript",
+        "correct": false,
+        "explanation": "Syntactically this is perfectly valid. The problem is not syntax but React behavior."
+      },
+      {
+        "text": "Each render creates a new component type — React unmounts and remounts the tree",
+        "correct": true,
+        "explanation": "React compares component types by reference. If the type is new (a new function each render), React treats it as a different component and does a full remount — state is lost, effects re-fire."
+      }
+    ]
+  },
+  {
+    "question": "What displayName should you set for an HOC withAuth wrapping a Dashboard component?",
+    "type": "single",
+    "options": [
+      {
+        "text": "No displayName needed — React determines it automatically",
+        "correct": false,
+        "explanation": "React can't auto-determine displayName for anonymous functions returned by HOCs. Without displayName the DevTools tree is unreadable."
+      },
+      {
+        "text": "\"withAuth\"",
+        "correct": false,
+        "explanation": "Only the HOC name without the component name — it's unclear what is wrapped. With multiple withAuth usages they all look the same."
+      },
+      {
+        "text": "\"withAuth(Dashboard)\"",
+        "correct": true,
+        "explanation": "Convention: HOC name + wrapped component name in parentheses. This is the standard used in React DevTools and most libraries."
+      },
+      {
+        "text": "\"Dashboard\"",
+        "correct": false,
+        "explanation": "You can't name the HOC after the wrapped component — DevTools will be confusing about which Dashboard you're looking at."
+      }
+    ]
+  },
+  {
+    "question": "How do you correctly type an HOC withLoading so it accepts a component with props P and adds isLoading?",
+    "type": "single",
+    "options": [
+      {
+        "text": "function withLoading(Component: React.ComponentType<any>)",
+        "correct": false,
+        "explanation": "any destroys type safety — TypeScript won't check the wrapped component's props."
+      },
+      {
+        "text": "function withLoading(Component: React.FC) — returns React.FC with isLoading",
+        "correct": false,
+        "explanation": "React.FC without a type parameter is React.FC<{}>, which loses the component's specific props. Not suitable for a generic HOC."
+      },
+      {
+        "text": "function withLoading<P, Q>(Component: React.ComponentType<P>, extra: Q)",
+        "correct": false,
+        "explanation": "An extra Q parameter is not needed here. Additional HOC props (isLoading) are described via intersection types, not a separate generic."
+      },
+      {
+        "text": "function withLoading<P>(Component: React.ComponentType<P>) — returns a component with P & { isLoading: boolean }",
+        "correct": true,
+        "explanation": "The generic parameter P captures the original component's prop type, and the intersection P & { isLoading: boolean } describes the wrapper's props. This is the standard HOC typing."
+      }
+    ]
+  },
+  {
+    "question": "A ProfilePage component needs authorization protection and a spinner during loading. How do you correctly apply both HOCs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "const Enhanced = withAuth(withLoading(ProfilePage)) — withAuth outside, withLoading inside",
+        "correct": true,
+        "explanation": "withAuth checks authorization first. If not authorized — it shows the login form. If authorized — it passes control to withLoading, which shows a spinner during data loading. This is the correct order."
+      },
+      {
+        "text": "const Enhanced = withLoading(withAuth(ProfilePage)) — withLoading outside, withAuth inside",
+        "correct": false,
+        "explanation": "In this order, withLoading checks isLoading first. If loading, the spinner shows BEFORE the authorization check — an unauthorized user also sees a spinner instead of a login form."
+      },
+      {
+        "text": "Order doesn't matter — both variants are equivalent",
+        "correct": false,
+        "explanation": "Order is critical. The outer HOC executes first. withAuth outside means: authorization first, then loading — which is logically correct."
+      },
+      {
+        "text": "HOCs can't be combined directly — you must use only compose()",
+        "correct": false,
+        "explanation": "Direct nesting works but is less readable. compose() is a convenient utility, not a strict requirement."
+      }
+    ]
+  },
+  {
+    "question": "What does the compose function do when you call compose(withErrorBoundary, withAuth, withLoading)(MyComponent)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Creates a single singleton component with combined logic of all HOCs",
+        "correct": false,
+        "explanation": "compose creates nested components, not a singleton. Each HOC is a separate layer in the React component tree."
+      },
+      {
+        "text": "Applies HOCs left to right: first withErrorBoundary, then withAuth, then withLoading",
+        "correct": false,
+        "explanation": "compose applies right to left (mathematical convention). The rightmost HOC (withLoading) is closest to the component."
+      },
+      {
+        "text": "Applies HOCs right to left: withLoading(MyComponent), then withAuth(...), then withErrorBoundary(...)",
+        "correct": true,
+        "explanation": "Standard compose works right to left via reduceRight. Result: withErrorBoundary(withAuth(withLoading(MyComponent))). withErrorBoundary is the outer layer, withLoading is the inner."
+      },
+      {
+        "text": "Applies all HOCs simultaneously, merging their props",
+        "correct": false,
+        "explanation": "HOCs are applied sequentially, creating a chain of nested components. There is no parallel application."
+      }
+    ]
+  },
+  {
+    "question": "When is it preferable to use an HOC rather than a hook?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "When you need to conditionally render a component or show a fallback (e.g., a login form)",
+        "correct": true,
+        "explanation": "HOC is convenient for the 'if condition — render fallback, else — component' pattern. A hook requires early return inside the component, which is less declarative for reuse."
+      },
+      {
+        "text": "When you need to track window size via window.addEventListener",
+        "correct": false,
+        "explanation": "Window size tracking is logic with useState/useEffect. A custom useWindowSize hook is much simpler, more concise, and better testable."
+      },
+      {
+        "text": "When you need to implement an ErrorBoundary",
+        "correct": true,
+        "explanation": "ErrorBoundary requires a class component with getDerivedStateFromError. HOC is the ideal way to wrap a class ErrorBoundary into a convenient decorator for functional components."
+      },
+      {
+        "text": "When you need compatibility with class components that don't support hooks",
+        "correct": true,
+        "explanation": "Class components can't use hooks. HOC is the only way to add logic (e.g., from context) to a class component without rewriting it."
+      },
+      {
+        "text": "When you need to implement logic with useState and useEffect",
+        "correct": false,
+        "explanation": "For logic with hooks — use a custom hook. HOC is excessive for this and creates an extra level in the component tree."
+      }
+    ]
+  },
+  {
+    "question": "A developer wrote the following code. What is the problem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "withAuth HOC can't be used with functional components",
+        "correct": false,
+        "explanation": "withAuth works fine with functional components. The problem is elsewhere."
+      },
+      {
+        "text": "withAuth can't accept a component without props",
+        "correct": false,
+        "explanation": "A component without props is React.ComponentType<{}>, which is perfectly valid for an HOC. This is not the problem."
+      },
+      {
+        "text": "Profile doesn't pass all its props through spread",
+        "correct": false,
+        "explanation": "This is a withAuth implementation issue, not a call issue. The fact of calling the HOC inside a component is more critical."
+      },
+      {
+        "text": "const EnhancedProfile = withAuth(Profile) is called inside the Dashboard function on every render",
+        "correct": true,
+        "explanation": "If withAuth(Profile) is called inside the Dashboard component body, every Dashboard render creates a new EnhancedProfile type. React unmounts and remounts it, losing state. HOCs must be called at the module level."
+      }
+    ]
+  },
+  {
+    "question": "What is the result of the following compose: compose(f, g, h)(x), where f, g, h are HOCs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All three HOCs are applied simultaneously",
+        "correct": false,
+        "explanation": "It's impossible to apply multiple functions simultaneously — they are applied strictly sequentially, right to left."
+      },
+      {
+        "text": "h(g(f(x)))",
+        "correct": false,
+        "explanation": "This is the result of pipe (left to right), not compose. compose applies right to left."
+      },
+      {
+        "text": "f(x), then g(f(x)), then h(g(f(x)))",
+        "correct": false,
+        "explanation": "This is application left to right (pipe). compose works differently — right to left."
+      },
+      {
+        "text": "f(g(h(x)))",
+        "correct": true,
+        "explanation": "compose applies functions right to left: first h to x, then g to the result, then f. This is the mathematical convention of functional composition."
+      }
+    ]
+  },
+  {
+    "question": "When refactoring withWindowSize to useWindowSize. What remains the same in both implementations?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The returned data: width and height",
+        "correct": true,
+        "explanation": "Both approaches provide the same data — window width and height. HOC passes them as props, hook returns them as an object. The end result for the component is the same."
+      },
+      {
+        "text": "Listener cleanup (cleanup) on unmount",
+        "correct": true,
+        "explanation": "Both variants must call removeEventListener on cleanup — otherwise memory leak. In HOC it's in useEffect inside the returned component, in the hook it's in useEffect of the hook itself."
+      },
+      {
+        "text": "Display of an extra layer in React DevTools",
+        "correct": false,
+        "explanation": "HOC adds a withWindowSize(Component) layer to the tree. Hook doesn't create extra components — logic is visible only in the component's Hooks section in DevTools."
+      },
+      {
+        "text": "The need to create a new component via a factory function call",
+        "correct": false,
+        "explanation": "HOC requires creating a new component: const Enhanced = withWindowSize(MyComponent). Hook is called directly inside the component: const { width } = useWindowSize(). This is a key difference."
+      },
+      {
+        "text": "The logic of subscribing to window.resize via addEventListener",
+        "correct": true,
+        "explanation": "The DOM event logic is identical: useState for storing sizes, useEffect for subscribing and unsubscribing. HOC just contains this logic in a wrapper component, hook — in a standalone function."
+      }
+    ]
+  }
+]

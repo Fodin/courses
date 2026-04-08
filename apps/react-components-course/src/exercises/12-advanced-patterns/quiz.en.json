@@ -1,0 +1,132 @@
+[
+  {
+    "question": "The component `<DatePicker value={date} />` works without `onChange`. TypeScript is silent. What is the error in the type definition?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Function overloads should be used instead of union types",
+        "correct": false,
+        "explanation": "Overloads work for functions, but not for React components in the standard pattern. Discriminated union is the correct approach for components."
+      },
+      {
+        "text": "ControlledProps should use `never` for defaultValue, but `onChange` should remain optional",
+        "correct": false,
+        "explanation": "If onChange is optional, TypeScript won't require it when value is passed. A discriminated union is needed, where onChange is required in ControlledProps."
+      },
+      {
+        "text": "The type should be a discriminated union: `ControlledProps` with required `onChange`, `UncontrolledProps` with `value?: never`",
+        "correct": true,
+        "explanation": "A discriminated union via never fields guarantees: when value is passed, TypeScript selects ControlledProps and requires onChange. Without value, only UncontrolledProps is available."
+      },
+      {
+        "text": "You need to add `onChange?: (date: Date) => void` as an optional prop",
+        "correct": false,
+        "explanation": "An optional onChange doesn't solve the problem: value without onChange is a non-working controlled state. TypeScript should require both props together."
+      }
+    ]
+  },
+  {
+    "question": "What problem does the useControllableState hook solve in the controlled/uncontrolled pattern?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Allows the component to not know which mode it operates in: returns a single [value, setValue] regardless of state source",
+        "correct": true,
+        "explanation": "Exactly. The hook accepts controlledValue, defaultValue, and onChange — and returns a [value, setValue] pair. If controlledValue !== undefined, the value comes from outside. Otherwise — from internal useState."
+      },
+      {
+        "text": "Automatically switches the component between modes depending on passed props",
+        "correct": false,
+        "explanation": "Switching modes during component lifetime is an antipattern. The mode is determined at mount time and shouldn't change. React even warns in this situation."
+      },
+      {
+        "text": "Prevents unnecessary re-renders when switching modes",
+        "correct": false,
+        "explanation": "Mode switching (controlled/uncontrolled) during runtime is an antipattern, and useControllableState doesn't prevent it. The mode is fixed at mount."
+      },
+      {
+        "text": "Synchronizes state with localStorage",
+        "correct": false,
+        "explanation": "useControllableState is not related to localStorage. Its purpose is to abstract the choice between external and internal state."
+      }
+    ]
+  },
+  {
+    "question": "Headless component: what is the main advantage of moving ARIA attributes into the hook (triggerProps) rather than the UI component?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Reduces the component bundle size",
+        "correct": false,
+        "explanation": "Moving ARIA into the hook doesn't affect bundle size — it's the same lines of code, just in a different place."
+      },
+      {
+        "text": "Custom UI using only the hook automatically gets correct accessibility via spread props",
+        "correct": true,
+        "explanation": "This is the key advantage: `<button {...triggerProps}>` — and aria-expanded, aria-haspopup are already set. Custom UI doesn't lose accessibility."
+      },
+      {
+        "text": "Accessibility logic can be tested independently of UI — in hook unit tests",
+        "correct": true,
+        "explanation": "Correct. You can write a test for useDropdown, verifying that triggerProps contains the correct ARIA attributes — without rendering the component."
+      },
+      {
+        "text": "TypeScript automatically disallows incorrect ARIA values",
+        "correct": false,
+        "explanation": "TypeScript types ARIA attributes through React types (aria-haspopup: 'listbox', etc.), but this works regardless of where attributes are defined — in the hook or the component."
+      }
+    ]
+  },
+  {
+    "question": "State machine via discriminated union. Which code would cause a TypeScript error?",
+    "type": "single",
+    "options": [
+      {
+        "text": "`dispatch({ type: 'RESET' })`",
+        "correct": false,
+        "explanation": "RESET is a valid action that returns state to idle. No TypeScript error."
+      },
+      {
+        "text": "`if (state.status === 'idle') { console.log(state.orderId) }`",
+        "correct": true,
+        "explanation": "TypeScript error. The idle state has no orderId field. The discriminated union guarantees: TypeScript narrows the type to { status: 'idle' }, where orderId doesn't exist."
+      },
+      {
+        "text": "`switch (state.status) { case 'payment': ... }`",
+        "correct": false,
+        "explanation": "Switching on the status field is the standard narrowing pattern. TypeScript correctly narrows the type in each case."
+      },
+      {
+        "text": "`if (state.status === 'confirmation') { console.log(state.orderId) }`",
+        "correct": false,
+        "explanation": "Correct code. TypeScript narrows the type to { status: 'confirmation'; orderId: string } inside the if block, so orderId is available."
+      }
+    ]
+  },
+  {
+    "question": "In the Capstone mini-library: why wrap Modal.Body in an Error Boundary?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Error Boundary catches async errors when loading data in the modal",
+        "correct": false,
+        "explanation": "Error Boundaries don't catch async errors (fetch, setTimeout). For that you need the useErrorHandler pattern with error propagation via setState."
+      },
+      {
+        "text": "Error Boundary allows the Modal to automatically close on error",
+        "correct": false,
+        "explanation": "Error Boundaries don't close Modals — they show fallback UI instead of crashed content. Close logic must be implemented separately via onReset."
+      },
+      {
+        "text": "The user sees a meaningful fallback instead of a white screen when content errors occur",
+        "correct": true,
+        "explanation": "Exactly. The fallback can show 'Something went wrong' with a close button — much better than a crashed application."
+      },
+      {
+        "text": "An error in the modal content shouldn't crash the entire application",
+        "correct": true,
+        "explanation": "Correct. Without an Error Boundary, an error in Modal.Body propagates up the tree and potentially destroys the entire UI. The Boundary isolates the blast radius."
+      }
+    ]
+  }
+]

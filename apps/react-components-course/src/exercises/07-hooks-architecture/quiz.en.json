@@ -1,0 +1,267 @@
+[
+  {
+    "question": "Why does the useAsync hook use a cancelled flag instead of simply canceling the promise?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The cancelled flag is needed for React 17 compatibility",
+        "correct": false,
+        "explanation": "The cancelled flag is a race condition protection pattern, not related to the React version."
+      },
+      {
+        "text": "JavaScript promises cannot be canceled — the flag allows ignoring the result of a stale request",
+        "correct": true,
+        "explanation": "Native promises have no cancel() method. The request continues to execute, but the cancelled flag prevents updating the state of an already unmounted or switched component."
+      },
+      {
+        "text": "Without the flag, useEffect cannot return a cleanup function",
+        "correct": false,
+        "explanation": "The cleanup function from useEffect can be returned regardless of the flag. The flag and cleanup are different mechanisms."
+      },
+      {
+        "text": "The flag works faster than AbortController",
+        "correct": false,
+        "explanation": "The cancelled flag does not cancel the network request — it only ignores the result. AbortController actually aborts the request at the browser level and saves traffic."
+      }
+    ]
+  },
+  {
+    "question": "You have a useApi hook. The user types quickly in a search field — each character triggers a new request. Which mechanism correctly cancels previous unfinished requests?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Store results in a Map and take only the last one",
+        "correct": false,
+        "explanation": "This does not cancel requests — they all execute, consuming traffic and resources. Only the last result will be displayed, but this is inefficient."
+      },
+      {
+        "text": "Use Promise.race() and take the first completed result",
+        "correct": false,
+        "explanation": "Promise.race returns the first completed promise, but we need the last one (the most recent request). Also, this does not cancel the remaining requests."
+      },
+      {
+        "text": "AbortController: call controller.abort() before a new request and create a new controller",
+        "correct": true,
+        "explanation": "AbortController.abort() sends a cancel signal to fetch, which aborts the actual network transfer. The browser frees resources. This is the correct way to cancel HTTP requests."
+      },
+      {
+        "text": "setTimeout with a 500ms delay before each request (debounce)",
+        "correct": false,
+        "explanation": "Debounce reduces the number of requests, but does not cancel already-sent ones. AbortController solves a different problem: what to do with a request that is already in flight."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following statements about touched in useForm are correct?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "This approach is outdated and no longer used",
+        "correct": false,
+        "explanation": "This approach is actively used in modern systems."
+      },
+      {
+        "text": "touched is stored in DOM input attributes",
+        "correct": false,
+        "explanation": "touched is part of React state (useState), not a DOM attribute. The component manages this state explicitly via handleBlur."
+      },
+      {
+        "text": "Showing an error only makes sense if touched[field] === true",
+        "correct": true,
+        "explanation": "Showing 'Name is required' when the form first opens is bad UX. Errors are shown only for fields the user has already interacted with."
+      },
+      {
+        "text": "On handleSubmit all fields are marked as touched",
+        "correct": true,
+        "explanation": "If the user pressed 'Submit' without filling the form — all errors need to be shown at once. For this, all fields are marked as touched before validation."
+      },
+      {
+        "text": "touched[field] becomes true on onBlur (focus loss)",
+        "correct": true,
+        "explanation": "Standard UX: show an error only after the user visited the field and left it. onBlur is the right moment to mark touched."
+      }
+    ]
+  },
+  {
+    "question": "In the useDataTable hook, data is processed in the order: filtering → sorting → pagination. Why does pagination come last?",
+    "type": "single",
+    "options": [
+      {
+        "text": "This is a React requirement for correct useMemo behavior",
+        "correct": false,
+        "explanation": "useMemo does not dictate operation order. The order is determined by the data table logic."
+      },
+      {
+        "text": "Pagination must calculate totalPages from the filtered and sorted dataset",
+        "correct": true,
+        "explanation": "totalPages = Math.ceil(filteredCount / pageSize). If pagination is applied first, then filtering — the page count will be calculated from the full set and will be incorrect."
+      },
+      {
+        "text": "Sorting executes faster on a smaller array after pagination",
+        "correct": false,
+        "explanation": "Sorting a page of 10 elements does not give a correct result — you need to sort the entire set, otherwise each page will have its own independent sorting."
+      },
+      {
+        "text": "This is a JavaScript limitation — arrays cannot be sliced before sorting",
+        "correct": false,
+        "explanation": "JavaScript allows applying slice in any order. The order is chosen for correctness reasons, not technical limitations."
+      }
+    ]
+  },
+  {
+    "question": "You are creating useDataTable. When a filter changes, the current page should reset to the first one. How should this be correctly implemented?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Call pagination.goTo(1) inside setFilter in useFilters",
+        "correct": false,
+        "explanation": "useFilters should not know about pagination — this violates the single responsibility principle. Hooks should be independent."
+      },
+      {
+        "text": "Use a key on the table component to remount it when the filter changes",
+        "correct": false,
+        "explanation": "key remounts the component — this loses DOM and resets all state including scroll position. Too radical for just resetting the page number."
+      },
+      {
+        "text": "Add a useEffect in useDataTable: when filters.values change, call pagination.goTo(1)",
+        "correct": true,
+        "explanation": "useDataTable is the composition hook that knows about all three hooks. This is where it is logical to track filter changes and reset pagination. Each hook remains independent."
+      },
+      {
+        "text": "Pass setPage into useFilters as a parameter and call it on change",
+        "correct": false,
+        "explanation": "This creates a hard coupling between unrelated hooks. useFilters becomes dependent on pagination, breaking reusability."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following statements about the use prefix naming convention for hooks are correct?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The use prefix is only required for hooks that use useState",
+        "correct": false,
+        "explanation": "The use prefix is required for any function that calls React hooks (useState, useEffect, useCallback, etc.), not only those that use useState."
+      },
+      {
+        "text": "The file with a hook can be named anything — only the function name matters",
+        "correct": true,
+        "explanation": "React does not impose requirements on file names. The useAsync hook can be defined in asyncUtils.ts. Only the function name with the use prefix matters."
+      },
+      {
+        "text": "A function without the use prefix can call hooks inside",
+        "correct": false,
+        "explanation": "Technically it may run, but React cannot correctly track hook calls. The linter will report an error. This is a direct violation of the rules of hooks."
+      },
+      {
+        "text": "React linter uses the use prefix to determine hook rules",
+        "correct": true,
+        "explanation": "The eslint-plugin-react-hooks plugin searches for functions with the use prefix to apply rules: hooks cannot be called in conditions, loops, or nested functions."
+      }
+    ]
+  },
+  {
+    "question": "You are implementing useSorting. The user clicks the 'Name' column header twice. What should the behavior be?",
+    "type": "single",
+    "options": [
+      {
+        "text": "First click: field='name', direction='desc'. Second click: field='name', direction='asc'",
+        "correct": false,
+        "explanation": "The common convention: the first click sets 'asc' (ascending), the repeated click sets 'desc'. The reverse order violates user expectations."
+      },
+      {
+        "text": "First click: field='name', direction='asc'. Second click: field=null, direction='asc' (reset)",
+        "correct": false,
+        "explanation": "This is one implementation variant, but the task describes toggle behavior: asc → desc → asc. Resetting after two clicks is a less common pattern."
+      },
+      {
+        "text": "Both clicks: field='name', direction='asc' (repeated click is ignored)",
+        "correct": false,
+        "explanation": "Ignoring the repeated click does not give the user the ability to sort in descending order. This is bad UX."
+      },
+      {
+        "text": "First click: field='name', direction='asc'. Second click: field='name', direction='desc'",
+        "correct": true,
+        "explanation": "Standard UX for tables: the first click sorts ascending, a repeated click sorts descending. A third click on the same field may reset sorting (depends on requirements)."
+      }
+    ]
+  },
+  {
+    "question": "What happens if filtered and sorted calculations are not wrapped in useMemo inside useDataTable?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The application will crash — React forbids computations outside useMemo in hooks",
+        "correct": false,
+        "explanation": "React does not forbid computations outside useMemo. This is a performance optimization recommendation, not a mandatory rule."
+      },
+      {
+        "text": "Recalculation will happen on every component render, even if the data has not changed",
+        "correct": true,
+        "explanation": "Without useMemo, filtering and sorting run on every render. If the component re-renders for another reason (e.g., parent updated) — expensive computations will execute wastefully."
+      },
+      {
+        "text": "Data will be stale due to stale closure",
+        "correct": false,
+        "explanation": "Stale closure is a problem with useCallback and useEffect with outdated dependencies. Computations in the hook body always use current values from the current render."
+      },
+      {
+        "text": "TypeScript will report a type error",
+        "correct": false,
+        "explanation": "useMemo does not affect typing. TypeScript infers types the same way with or without useMemo."
+      }
+    ]
+  },
+  {
+    "question": "The EmployeeTable component uses useDataTable and receives { data, pagination, sorting, filters }. Which of the following operations should be performed in the component, not in the hook?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Calculating the offset for slicing the current page data",
+        "correct": false,
+        "explanation": "Offset calculation is pagination logic that belongs in usePagination. The component simply uses the already-prepared pageData."
+      },
+      {
+        "text": "Displaying the sort icon (↑/↓/↕) in the column header",
+        "correct": true,
+        "explanation": "Displaying icons is a UI decision, which is the component's responsibility. The hook provides data (which field is sorted and in which direction), the component decides how to show it."
+      },
+      {
+        "text": "Rendering table rows via data.map(employee => <tr>...)",
+        "correct": true,
+        "explanation": "Rendering is the component's responsibility. The hook knows nothing about JSX and should not know how data is displayed."
+      },
+      {
+        "text": "Filtering the array by a select field value",
+        "correct": false,
+        "explanation": "Data filtering is logic that belongs in useFilters or the filterFn passed to useDataTable. The component passes the filter value, but does not perform the filtering itself."
+      }
+    ]
+  },
+  {
+    "question": "You created useForm and found that typing in the 'email' field triggers validation, but the 'name' and 'password' fields are not revalidated. Is this correct behavior?",
+    "type": "single",
+    "options": [
+      {
+        "text": "No, validation should only run on handleBlur, not on handleChange",
+        "correct": false,
+        "explanation": "For good UX: on handleBlur we show the error for the first time, and on handleChange in an already-touched field — we update the error in real time. So the user sees when the error disappears."
+      },
+      {
+        "text": "Depends on the React version — behavior changed in React 18",
+        "correct": false,
+        "explanation": "Form validation behavior does not depend on the React version. This is an architectural decision in the hook logic."
+      },
+      {
+        "text": "No, on any change all fields should be validated at once",
+        "correct": false,
+        "explanation": "This would show errors in untouched fields while the user is filling in the first field. This is bad UX — errors should appear gradually."
+      },
+      {
+        "text": "Yes, handleChange should revalidate only the changed field if it is already touched",
+        "correct": true,
+        "explanation": "Revalidating the entire form on every keystroke is excessive. It is enough to update the error for the specific field. Full validation of all fields only happens on handleSubmit."
+      }
+    ]
+  }
+]

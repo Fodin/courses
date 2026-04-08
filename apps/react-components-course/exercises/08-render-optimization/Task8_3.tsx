@@ -2,11 +2,22 @@ import { useState, useCallback, useRef, memo } from 'react'
 import { useLanguage } from 'src/hooks'
 
 // ============================================
+// Task 8.3: FilterPanel — useCallback + React.memo
 // Задание 8.3: FilterPanel — useCallback + React.memo
 // ============================================
 //
+// FilterPanel with five independent filters: category, price, rating, discount, sorting.
+// Each filter is a separate component with a render counter.
+//
 // FilterPanel с пятью независимыми фильтрами: категория, цена, рейтинг, скидка, сортировка.
 // Каждый фильтр — отдельный компонент с render counter.
+//
+// Task:
+// 1. Add render counters (useRef) to all 5 components
+// 2. Verify that changing one filter re-renders all 5 (the original problem)
+// 3. Wrap each filter component in React.memo
+// 4. Stabilize each onChange via useCallback with functional setState(prev => ...)
+// 5. Verify that changing Category only re-renders CategoryFilter
 //
 // Задача:
 // 1. Добавь render counters (useRef) во все 5 компонентов
@@ -33,6 +44,7 @@ const INITIAL_FILTERS: Filters = {
   sort: 'popular',
 }
 
+// TODO: Add render counter + wrap in React.memo
 // TODO: Добавь render counter + оберни в React.memo
 // const CategoryFilter = memo(function CategoryFilter(...) { ... })
 function CategoryFilter({ value, onChange }: { value: string; onChange: (value: string) => void }) {
@@ -48,6 +60,7 @@ function CategoryFilter({ value, onChange }: { value: string; onChange: (value: 
 
   return (
     <div style={{ padding: '0.75rem', background: '#fff', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+      {/* TODO: Add render counter badge */}
       {/* TODO: Добавь render counter badge */}
       <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#555', marginBottom: '0.5rem' }}>Категория</div>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -74,6 +87,7 @@ function CategoryFilter({ value, onChange }: { value: string; onChange: (value: 
   )
 }
 
+// TODO: Add render counter + wrap in React.memo
 // TODO: Добавь render counter + оберни в React.memo
 function PriceFilter({
   minValue,
@@ -89,6 +103,7 @@ function PriceFilter({
 
   return (
     <div style={{ padding: '0.75rem', background: '#fff', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+      {/* TODO: Add render counter badge */}
       {/* TODO: Добавь render counter badge */}
       <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#555', marginBottom: '0.5rem' }}>
         Цена: {minValue.toLocaleString('ru-RU')} — {maxValue.toLocaleString('ru-RU')} ₽
@@ -117,6 +132,7 @@ function PriceFilter({
   )
 }
 
+// TODO: Add render counter + wrap in React.memo
 // TODO: Добавь render counter + оберни в React.memo
 function RatingFilter({ value, onChange }: { value: number; onChange: (value: number) => void }) {
   // const renderCount = useRef(0)
@@ -124,6 +140,7 @@ function RatingFilter({ value, onChange }: { value: number; onChange: (value: nu
 
   return (
     <div style={{ padding: '0.75rem', background: '#fff', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+      {/* TODO: Add render counter badge */}
       {/* TODO: Добавь render counter badge */}
       <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#555', marginBottom: '0.5rem' }}>Рейтинг от {value}</div>
       <div style={{ display: 'flex', gap: '4px' }}>
@@ -150,6 +167,7 @@ function RatingFilter({ value, onChange }: { value: number; onChange: (value: nu
   )
 }
 
+// TODO: Add render counter + wrap in React.memo
 // TODO: Добавь render counter + оберни в React.memo
 function DiscountFilter({ value, onChange }: { value: boolean; onChange: (value: boolean) => void }) {
   // const renderCount = useRef(0)
@@ -157,6 +175,7 @@ function DiscountFilter({ value, onChange }: { value: boolean; onChange: (value:
 
   return (
     <div style={{ padding: '0.75rem', background: '#fff', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+      {/* TODO: Add render counter badge */}
       {/* TODO: Добавь render counter badge */}
       <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#555', marginBottom: '0.5rem' }}>Скидка</div>
       <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', fontSize: '0.85rem' }}>
@@ -172,6 +191,7 @@ function DiscountFilter({ value, onChange }: { value: boolean; onChange: (value:
   )
 }
 
+// TODO: Add render counter + wrap in React.memo
 // TODO: Добавь render counter + оберни в React.memo
 function SortFilter({ value, onChange }: { value: Filters['sort']; onChange: (value: Filters['sort']) => void }) {
   // const renderCount = useRef(0)
@@ -179,6 +199,7 @@ function SortFilter({ value, onChange }: { value: Filters['sort']; onChange: (va
 
   return (
     <div style={{ padding: '0.75rem', background: '#fff', borderRadius: '8px', border: '1px solid #e9ecef' }}>
+      {/* TODO: Add render counter badge */}
       {/* TODO: Добавь render counter badge */}
       <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#555', marginBottom: '0.5rem' }}>Сортировка</div>
       <select
@@ -199,8 +220,11 @@ export function Task8_3() {
   const { t } = useLanguage()
   const [filters, setFilters] = useState<Filters>(INITIAL_FILTERS)
 
+  // TODO: Wrap each handler in useCallback
   // TODO: Оберни каждый обработчик в useCallback
+  // Use functional setState: setFilters(prev => ({ ...prev, field: value }))
   // Используй функциональный setState: setFilters(prev => ({ ...prev, field: value }))
+  // This allows passing an empty dependency array [] — functions are created once
   // Это позволит передать пустой массив зависимостей [] — функции создаются один раз
   const handleCategoryChange = (value: string) => {
     setFilters(prev => ({ ...prev, category: value }))
@@ -226,7 +250,7 @@ export function Task8_3() {
     <div className="exercise-container">
       <h2>{t('task.title')} 8.3 — FilterPanel</h2>
       <p style={{ color: '#888', fontStyle: 'italic', fontSize: '0.85rem', marginBottom: '1rem' }}>
-        Добавь memo + useCallback. При смене одного фильтра должен ре-рендериться только он.
+        Add memo + useCallback. When one filter changes, only it should re-render.
       </p>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
@@ -237,9 +261,10 @@ export function Task8_3() {
         <SortFilter value={filters.sort} onChange={handleSortChange} />
       </div>
 
+      {/* Current values for verification */}
       {/* Текущие значения для проверки */}
       <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#f8f9fa', borderRadius: '8px', fontSize: '0.82rem', border: '1px solid #e9ecef' }}>
-        <div style={{ fontWeight: 600, marginBottom: '0.4rem', color: '#555' }}>Активные фильтры:</div>
+        <div style={{ fontWeight: 600, marginBottom: '0.4rem', color: '#555' }}>Active filters:</div>
         <pre style={{ margin: 0, fontFamily: 'monospace', fontSize: '0.8rem', color: '#333' }}>
           {JSON.stringify(filters, null, 2)}
         </pre>
@@ -248,6 +273,7 @@ export function Task8_3() {
   )
 }
 
+// So TypeScript doesn't complain about unused imports before implementation
 // Чтобы TypeScript не ругался на неиспользуемые импорты до реализации
 void useCallback
 void useRef

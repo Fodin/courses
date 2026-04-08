@@ -1,115 +1,123 @@
+// ============================================
+// Level 8: Hints — Render Optimization
+// Подсказки: Level 8 — Оптимизация рендеринга
+// ============================================
+
 export function Cheat() {
   return (
     <div className="exercise-container">
-      <h2>Подсказки: Level 8 — Оптимизация рендеринга</h2>
+      <h2>Hints: Level 8 — Render Optimization</h2>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h3 style={{ color: '#1976d2' }}>Задание 8.1: Чат — диагностика и исправление</h3>
+        <h3 style={{ color: '#1976d2' }}>Task 8.1: Chat — Diagnose and Fix</h3>
+        {/* Задание 8.1: Чат — диагностика и исправление */}
         <ul style={{ lineHeight: 2 }}>
           <li>
             <strong>Render counter:</strong>{' '}
-            <code>const renderCount = useRef(0); renderCount.current++</code> — в начале тела компонента.
-            Отображай через <code>{'<span>renders: {renderCount.current}</span>'}</code>
+            <code>const renderCount = useRef(0); renderCount.current++</code> — at the start of the component body.
+            Display via <code>{'<span>renders: {renderCount.current}</span>'}</code>
           </li>
           <li>
-            <strong>State down:</strong> удали <code>inputText</code> и <code>setInputText</code> из <code>Task8_1</code>.
-            Перенеси <code>useState('')</code> внутрь <code>MessageInput</code>. Сигнатура станет:{' '}
+            <strong>State down:</strong> remove <code>inputText</code> and <code>setInputText</code> from <code>Task8_1</code>.
+            Move <code>useState('')</code> inside <code>MessageInput</code>. Signature becomes:{' '}
             <code>{'{'} onSend: (text: string) =&gt; void {'}'}</code>
           </li>
           <li>
             <strong>React.memo:</strong>{' '}
             <code>{'const MessageList = memo(function MessageList({ messages }) { ... })'}</code>
-            — то же для <code>OnlineUsers</code>
+            — same for <code>OnlineUsers</code>
           </li>
           <li>
-            <strong>useCallback для onSend:</strong>{' '}
+            <strong>useCallback for onSend:</strong>{' '}
             <code>{'const handleSend = useCallback((text: string) => { setMessages(prev => [...prev, ...]) }, [])'}</code>
-            — пустые зависимости, т.к. используем функциональный setState
+            — empty dependencies, since we use functional setState
           </li>
           <li>
-            <strong>Почему пустые зависимости безопасны:</strong> <code>setMessages(prev =&gt; ...)</code>
-            читает предыдущий state через аргумент, не из замыкания — нет stale closure
+            <strong>Why empty deps are safe:</strong> <code>setMessages(prev =&gt; ...)</code>
+            reads previous state via argument, not from closure — no stale closure
           </li>
         </ul>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h3 style={{ color: '#1976d2' }}>Задание 8.2: State down / Children up</h3>
+        <h3 style={{ color: '#1976d2' }}>Task 8.2: State down / Children up</h3>
+        {/* Задание 8.2: State down / Children up */}
         <ul style={{ lineHeight: 2 }}>
           <li>
-            <strong>State down — структура:</strong> <code>ColorPicker</code> сам хранит{' '}
-            <code>useState(color)</code>. В родителе: <code>{'<ColorPicker /> <HeavyPreview />'}</code> — рядом,
-            не вложено
+            <strong>State down — structure:</strong> <code>ColorPicker</code> stores{' '}
+            <code>useState(color)</code> itself. In parent: <code>{'<ColorPicker /> <HeavyPreview />'}</code> — side by side,
+            not nested
           </li>
           <li>
-            <strong>Children up — структура:</strong>{' '}
-            <code>{'function ColorWrapper({ children }: { children: React.ReactNode }) { const [color, setColor] = useState(...) ... return <div>...пикер... {children}</div> }'}</code>
+            <strong>Children up — structure:</strong>{' '}
+            <code>{'function ColorWrapper({ children }: { children: React.ReactNode }) { const [color, setColor] = useState(...) ... return <div>...picker... {children}</div> }'}</code>
           </li>
           <li>
-            <strong>Использование children up:</strong>{' '}
+            <strong>Using children up:</strong>{' '}
             <code>{'<ColorWrapper><HeavyPreview label="..." /></ColorWrapper>'}</code>{' '}
-            — <code>HeavyPreview</code> создаётся в <code>Task8_2</code>, передаётся как проп, не зависит от state <code>ColorWrapper</code>
+            — <code>HeavyPreview</code> is created in <code>Task8_2</code>, passed as a prop, does not depend on <code>ColorWrapper</code> state
           </li>
           <li>
-            <strong>Ключевой принцип:</strong> React не пересоздаёт JSX-элемент переданный как{' '}
-            <code>children</code> — он уже существует в области видимости родителя
+            <strong>Key principle:</strong> React does not recreate a JSX element passed as{' '}
+            <code>children</code> — it already exists in the parent's scope
           </li>
           <li>
-            <strong>React.memo НЕ использовать</strong> — это учебный пример структурных оптимизаций
+            <strong>Do NOT use React.memo</strong> — this is a learning example of structural optimizations
           </li>
         </ul>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <h3 style={{ color: '#1976d2' }}>Задание 8.3: FilterPanel — useCallback + memo</h3>
+        <h3 style={{ color: '#1976d2' }}>Task 8.3: FilterPanel — useCallback + memo</h3>
+        {/* Задание 8.3: FilterPanel — useCallback + memo */}
         <ul style={{ lineHeight: 2 }}>
           <li>
-            <strong>Порядок действий:</strong> сначала оберни все 5 компонентов в <code>memo</code>,
-            затем стабилизируй все <code>onChange</code> через <code>useCallback</code>
+            <strong>Order of actions:</strong> first wrap all 5 components in <code>memo</code>,
+            then stabilize all <code>onChange</code> via <code>useCallback</code>
           </li>
           <li>
-            <strong>useCallback с пустыми зависимостями:</strong>{' '}
+            <strong>useCallback with empty dependencies:</strong>{' '}
             <code>{'const handleCategoryChange = useCallback((value: string) => { setFilters(prev => ({ ...prev, category: value })) }, [])'}</code>
           </li>
           <li>
-            <strong>Почему [] безопасны:</strong> функциональный <code>setFilters(prev =&gt; ...)</code>
-            не читает <code>filters</code> из замыкания — нет stale closure. Setter из{' '}
-            <code>useState</code> стабилен, его не нужно добавлять в зависимости
+            <strong>Why [] is safe:</strong> functional <code>setFilters(prev =&gt; ...)</code>
+            does not read <code>filters</code> from closure — no stale closure. Setter from{' '}
+            <code>useState</code> is stable, no need to add it to dependencies
           </li>
           <li>
-            <strong>PriceFilter — два параметра:</strong>{' '}
+            <strong>PriceFilter — two parameters:</strong>{' '}
             <code>{'const handlePriceChange = useCallback((min: number, max: number) => { setFilters(prev => ({ ...prev, minPrice: min, maxPrice: max })) }, [])'}</code>
           </li>
           <li>
-            <strong>Memo на SortFilter — type:</strong> тип значения{' '}
-            <code>Filters['sort']</code> — используй его в обоих местах: в пропсах компонента и в {' '}
+            <strong>Memo on SortFilter — type:</strong> the value type{' '}
+            <code>Filters['sort']</code> — use it in both places: in component props and in {' '}
             <code>onChange</code>
           </li>
         </ul>
       </section>
 
       <section>
-        <h3 style={{ color: '#388e3c' }}>Общие советы по уровню</h3>
+        <h3 style={{ color: '#388e3c' }}>General Tips for This Level / Общие советы по уровню</h3>
         <ul style={{ lineHeight: 2 }}>
           <li>
-            <strong>Диагностика первична:</strong> всегда сначала убеждайся что проблема реальна.
-            Render counters — самый простой способ. React DevTools Profiler — для детального анализа
+            <strong>Diagnosis comes first:</strong> always verify the problem is real first.
+            Render counters — the simplest way. React DevTools Profiler — for detailed analysis
           </li>
           <li>
-            <strong>Структурные решения лучше мемоизации:</strong> state down / children up устраняют
-            причину. memo и useCallback — лечат симптом
+            <strong>Structural solutions are better than memoization:</strong> state down / children up eliminate
+            the root cause. memo and useCallback — treat the symptom
           </li>
           <li>
-            <strong>memo без useCallback бесполезен:</strong> если передаёшь функцию как проп в memo-компонент
-            без <code>useCallback</code> — memo не работает (новая ссылка = всегда "изменилось")
+            <strong>memo without useCallback is useless:</strong> if you pass a function as a prop to a memo component
+            without <code>useCallback</code> — memo doesn't work (new reference = always "changed")
           </li>
           <li>
-            <strong>useCallback без memo бесполезен:</strong> стабилизация функций нужна только если
-            компонент-получатель обёрнут в <code>memo</code>
+            <strong>useCallback without memo is useless:</strong> stabilizing functions is only useful if
+            the receiving component is wrapped in <code>memo</code>
           </li>
           <li>
-            <strong>Не оборачивай всё в memo:</strong> накладные расходы на сравнение пропсов для простых
-            компонентов могут превысить выгоду
+            <strong>Don't wrap everything in memo:</strong> overhead of prop comparison for simple
+            components may exceed the benefit
           </li>
         </ul>
       </section>

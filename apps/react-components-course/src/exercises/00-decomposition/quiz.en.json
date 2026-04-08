@@ -1,0 +1,272 @@
+[
+  {
+    "question": "What does the Single Responsibility Principle (SRP) mean in the context of React components?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A component should accept only one prop",
+        "correct": false,
+        "explanation": "The number of props is not related to SRP. A component can accept many props and still have a single responsibility."
+      },
+      {
+        "text": "A component should contain no more than 100 lines of code",
+        "correct": false,
+        "explanation": "Line count is a heuristic, not the principle itself. SRP is about responsibility, not size."
+      },
+      {
+        "text": "A component must not use useState",
+        "correct": false,
+        "explanation": "useState is a normal part of a component. SRP does not prohibit using hooks."
+      },
+      {
+        "text": "A component should have only one reason to change",
+        "correct": true,
+        "explanation": "This is the SRP formulation: if a component needs to change due to UI changes, loading logic, and business rules — it has three reasons to change, which violates SRP."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following statements are true for Presentational (Dumb) components?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "They do not make API requests",
+        "correct": true,
+        "explanation": "API requests are the responsibility of Container (Smart) components."
+      },
+      {
+        "text": "They cannot have any state",
+        "correct": false,
+        "explanation": "Presentational components can have UI state: dropdown open/closed, active tab. The restriction applies to data state, not UI state."
+      },
+      {
+        "text": "They are easier to test than Smart components",
+        "correct": true,
+        "explanation": "To test a Dumb component, you just pass the required props — no need to mock APIs or context."
+      },
+      {
+        "text": "All of the above options are incorrect",
+        "correct": false,
+        "explanation": "Some of the listed options are indeed correct."
+      },
+      {
+        "text": "They receive data via props",
+        "correct": true,
+        "explanation": "Presentational components do not know about data sources — they receive everything via props."
+      }
+    ]
+  },
+  {
+    "question": "You have an OrderPage component of 400 lines: it loads an order, shows details, allows canceling the order, and shows change history. What is the best way to decompose it?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Split into OrderContainer (loading/logic) and OrderView (display)",
+        "correct": false,
+        "explanation": "This is better, but not enough. OrderView will still be large and have multiple responsibilities."
+      },
+      {
+        "text": "Leave as is — decomposition will complicate the code",
+        "correct": false,
+        "explanation": "400 lines with four areas of responsibility is a clear candidate for decomposition. Complexity will only grow."
+      },
+      {
+        "text": "Create a separate file for each function inside the component",
+        "correct": false,
+        "explanation": "Moving functions to separate files does not solve the problem of a single component managing everything."
+      },
+      {
+        "text": "Split into OrderContainer + OrderDetails + CancelOrderForm + OrderHistory",
+        "correct": true,
+        "explanation": "Each component has one responsibility: data loading, showing details, cancel form, history. This is correct decomposition by responsibilities."
+      }
+    ]
+  },
+  {
+    "question": "What is 'prop drilling' and why is it a problem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Passing handler functions as props",
+        "correct": false,
+        "explanation": "Passing callbacks is normal React practice, not prop drilling."
+      },
+      {
+        "text": "Passing too many props to a single component",
+        "correct": false,
+        "explanation": "This is a different problem — a wide component interface. Prop drilling is about passing through intermediate components."
+      },
+      {
+        "text": "Passing props through many levels of components that don't use them themselves",
+        "correct": true,
+        "explanation": "When userId passes through Page → Layout → Sidebar → Menu → Avatar, and Page, Layout, Sidebar, and Menu don't use it — that's prop drilling. Intermediate components know about foreign data."
+      },
+      {
+        "text": "Using the spread operator when passing props",
+        "correct": false,
+        "explanation": "Spread when passing props is a separate practice, not related to prop drilling."
+      }
+    ]
+  },
+  {
+    "question": "In which cases should you decompose a component?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The component is hard to describe in one sentence without using 'and'",
+        "correct": true,
+        "explanation": "If you have to say 'loads data AND shows a form AND validates' — that's multiple responsibilities."
+      },
+      {
+        "text": "The component contains a single useState hook",
+        "correct": false,
+        "explanation": "One useState is not a reason for decomposition. This is normal for a small component."
+      },
+      {
+        "text": "All of the above options are incorrect",
+        "correct": false,
+        "explanation": "Some of the listed options are indeed correct."
+      },
+      {
+        "text": "A new developer cannot understand the component in 30 seconds",
+        "correct": true,
+        "explanation": "Readability is an important criterion. If it takes a long time to figure out what a component does — it's time to decompose."
+      },
+      {
+        "text": "The component is used in two different places in the application",
+        "correct": true,
+        "explanation": "Reusability is one of the key signals for decomposition. Better to extract a component before duplication appears."
+      }
+    ]
+  },
+  {
+    "question": "A ProductCard component receives a product object as a whole. Inside, it only uses product.name and product.price. What is better?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Pass only name and price as separate props",
+        "correct": true,
+        "explanation": "Minimal interface is better. The component depends only on what it uses. Easier to test, easier to refactor."
+      },
+      {
+        "text": "Use React.memo for optimization",
+        "correct": false,
+        "explanation": "memo solves performance issues, not the problem of excessive dependencies in props."
+      },
+      {
+        "text": "Leave as is — passing the whole object is more convenient",
+        "correct": false,
+        "explanation": "Passing extra data complicates testing and makes dependencies implicit. The component knows about fields it doesn't use."
+      },
+      {
+        "text": "Destructure the object inside the component",
+        "correct": false,
+        "explanation": "Destructuring inside the component doesn't change the signature — it still depends on the whole product object."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following violates the Single Responsibility Principle?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A Button component changes style on hover via useState",
+        "correct": false,
+        "explanation": "Managing hover state via state is normal button UI-state, not an SRP violation."
+      },
+      {
+        "text": "A Modal component manages its open/closed state",
+        "correct": false,
+        "explanation": "Modal UI state (open/closed) is a normal responsibility of the Modal component itself."
+      },
+      {
+        "text": "A Form component simultaneously validates data, sends it to the server, and shows the result",
+        "correct": true,
+        "explanation": "Three different responsibilities: validation, sending, displaying results. Better to separate or extract logic into hooks."
+      },
+      {
+        "text": "A UserList component simultaneously loads users via fetch and renders their list",
+        "correct": true,
+        "explanation": "Data loading and display are different responsibilities. Should be split into UserListContainer and UserListView."
+      }
+    ]
+  },
+  {
+    "question": "What is the main practical benefit of separating into Container and Presentational components?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Automatic performance optimization",
+        "correct": false,
+        "explanation": "The pattern doesn't add automatic optimization — it's an architectural decision for readability and testability."
+      },
+      {
+        "text": "Reduced number of re-renders",
+        "correct": false,
+        "explanation": "This is not the main goal of the pattern. For render optimization, memo, useMemo, and useCallback are used."
+      },
+      {
+        "text": "Presentational components can be tested without API mocks",
+        "correct": true,
+        "explanation": "This is the main practical benefit. A Dumb component is tested simply: pass props — check output. No mocks, providers, or fetch needed."
+      },
+      {
+        "text": "Reduced bundle size",
+        "correct": false,
+        "explanation": "Splitting into Container/Presentational does not affect bundle size — the amount of code is roughly the same."
+      }
+    ]
+  },
+  {
+    "question": "When should you NOT decompose a component?",
+    "type": "single",
+    "options": [
+      {
+        "text": "When the component is hard to cover with a test",
+        "correct": false,
+        "explanation": "Testing difficulty is a signal for decomposition, not a reason to avoid it."
+      },
+      {
+        "text": "When the component is used in three places",
+        "correct": false,
+        "explanation": "Reusability is a good reason to decompose. This is exactly when decomposition is justified."
+      },
+      {
+        "text": "When multiple developers are working on the component simultaneously",
+        "correct": false,
+        "explanation": "Team work on one large file is an additional argument FOR decomposition, not against."
+      },
+      {
+        "text": "When the component contains 80 lines of JSX with a single logical area",
+        "correct": true,
+        "explanation": "80 lines with a single clear area of responsibility is fine. Decomposition for the sake of decomposition complicates code without benefit."
+      }
+    ]
+  },
+  {
+    "question": "You are refactoring a Dashboard component. The DataTable component has local state for sorting (sortField, sortDir). Is this a violation of the Presentational component pattern?",
+    "type": "single",
+    "options": [
+      {
+        "text": "You need to lift the state up and pass it via props",
+        "correct": false,
+        "explanation": "Lifting sorting state to the Dashboard level is unnecessary — the parent shouldn't know about table display details."
+      },
+      {
+        "text": "No, UI state (sorting, active tab) is acceptable in a Presentational component",
+        "correct": true,
+        "explanation": "Sorting is UI behavior of the table, not business data. Storing sortField/sortDir in DataTable is correct: the component manages its own display."
+      },
+      {
+        "text": "Yes, any state violates the Presentational component pattern",
+        "correct": false,
+        "explanation": "This is a common misconception. Presentational components can have UI state — state that relates to display, not to data."
+      },
+      {
+        "text": "It depends on the number of fields in state",
+        "correct": false,
+        "explanation": "The number of fields doesn't define pattern violation. What matters is the nature of the state: UI or data."
+      }
+    ]
+  }
+]

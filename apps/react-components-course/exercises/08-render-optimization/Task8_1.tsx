@@ -2,11 +2,23 @@ import { useState, useCallback, useRef } from 'react'
 import { useLanguage } from 'src/hooks'
 
 // ============================================
+// Task 8.1: Diagnose unnecessary renders in a chat app
 // Задание 8.1: Диагностика лишних рендеров в чат-приложении
 // ============================================
 //
+// Here's a chat app: MessageList, MessageInput, OnlineUsers.
+// Right now, every keystroke re-renders ALL three components.
+//
 // Перед тобой чат-приложение: MessageList, MessageInput, OnlineUsers.
 // Сейчас при вводе каждого символа ре-рендерятся ВСЕ три компонента.
+//
+// Task:
+// 1. Add render counters (useRef + counter in JSX) to all three components
+// 2. Verify the problem is real — observe the counters
+// 3. Move inputText state into MessageInput (state down)
+// 4. Wrap MessageList and OnlineUsers in React.memo
+// 5. Stabilize onSend via useCallback in the parent
+// 6. Verify that typing only re-renders MessageInput
 //
 // Задача:
 // 1. Добавь render counters (useRef + счётчик в JSX) во все три компонента
@@ -42,7 +54,9 @@ const ONLINE_USERS: OnlineUser[] = [
   { id: 'u3', name: 'Виктор', avatar: 'В', status: 'away' },
 ]
 
+// TODO: Add render counter (useRef) and display it in UI
 // TODO: Добавь render counter (useRef) и отобрази его в UI
+// TODO: Wrap in React.memo
 // TODO: Оберни в React.memo
 function MessageList({ messages }: { messages: Message[] }) {
   // const renderCount = useRef(0)
@@ -50,6 +64,7 @@ function MessageList({ messages }: { messages: Message[] }) {
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      {/* TODO: Add render counter badge */}
       {/* TODO: Добавь render counter badge */}
       {messages.map(msg => (
         <div key={msg.id} style={{ padding: '0.5rem', background: '#f5f5f5', borderRadius: '8px' }}>
@@ -61,9 +76,13 @@ function MessageList({ messages }: { messages: Message[] }) {
   )
 }
 
+// TODO: Add render counter (useRef) and display it in UI
 // TODO: Добавь render counter (useRef) и отобрази его в UI
+// TODO: Move inputText and setState INSIDE this component (state down)
 // TODO: Перенеси inputText и setState ВНУТРЬ этого компонента (state down)
+// TODO: Wrap in React.memo
 // TODO: Оберни в React.memo
+// TODO: Accept only onSend: (text: string) => void
 // TODO: Принимай только onSend: (text: string) => void
 function MessageInput({
   inputText,
@@ -79,6 +98,7 @@ function MessageInput({
 
   return (
     <div style={{ padding: '0.75rem', borderTop: '1px solid #eee' }}>
+      {/* TODO: Add render counter badge */}
       {/* TODO: Добавь render counter badge */}
       <div style={{ display: 'flex', gap: '0.5rem' }}>
         <input
@@ -95,7 +115,9 @@ function MessageInput({
   )
 }
 
+// TODO: Add render counter (useRef) and display it in UI
 // TODO: Добавь render counter (useRef) и отобрази его в UI
+// TODO: Wrap in React.memo
 // TODO: Оберни в React.memo
 function OnlineUsers({ users }: { users: OnlineUser[] }) {
   // const renderCount = useRef(0)
@@ -103,6 +125,7 @@ function OnlineUsers({ users }: { users: OnlineUser[] }) {
 
   return (
     <div style={{ width: 150, borderLeft: '1px solid #eee', padding: '0.75rem' }}>
+      {/* TODO: Add render counter badge */}
       {/* TODO: Добавь render counter badge */}
       <div style={{ fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>Онлайн</div>
       {users.map(user => (
@@ -119,9 +142,11 @@ export function Task8_1() {
   const { t } = useLanguage()
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
 
+  // TODO: Remove inputText and handleInputChange from parent — move into MessageInput
   // TODO: Удали inputText и handleInputChange из родителя — перенеси в MessageInput
   const [inputText, setInputText] = useState('')
 
+  // TODO: Wrap in useCallback
   // TODO: Обернуть в useCallback
   const handleSend = () => {
     if (!inputText.trim()) return
@@ -133,9 +158,9 @@ export function Task8_1() {
 
   return (
     <div className="exercise-container">
-      <h2>{t('task.title')} 8.1 — Чат: диагностика рендеров</h2>
+      <h2>{t('task.title')} 8.1 — Chat: render diagnosis</h2>
       <p style={{ color: '#888', fontStyle: 'italic', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
-        Сейчас при вводе текста ре-рендерятся все компоненты. Добавь счётчики, найди проблему, исправь.
+        Right now all components re-render on typing. Add counters, find the problem, fix it.
       </p>
 
       <div style={{ border: '1px solid #eee', borderRadius: '8px', overflow: 'hidden', height: 400, display: 'flex', flexDirection: 'column' }}>
@@ -146,6 +171,7 @@ export function Task8_1() {
           <MessageList messages={messages} />
           <OnlineUsers users={ONLINE_USERS} />
         </div>
+        {/* TODO: pass only onSend after refactoring */}
         {/* TODO: передай только onSend после рефакторинга */}
         <MessageInput
           inputText={inputText}
@@ -157,6 +183,7 @@ export function Task8_1() {
   )
 }
 
+// So TypeScript doesn't complain about unused imports before implementation
 // Чтобы TypeScript не ругался на неиспользуемые импорты до реализации
 void useState
 void useCallback

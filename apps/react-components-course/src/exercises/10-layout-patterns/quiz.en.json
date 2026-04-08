@@ -1,0 +1,132 @@
+[
+  {
+    "question": "What does createPortal do in React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Opens a new browser window and renders the component there",
+        "correct": false,
+        "explanation": "createPortal renders in the DOM of the current page, not in a new window."
+      },
+      {
+        "text": "Creates a new React context for passing data down the tree",
+        "correct": false,
+        "explanation": "That describes createContext, not createPortal."
+      },
+      {
+        "text": "Renders a React component into an arbitrary DOM node outside the parent hierarchy",
+        "correct": true,
+        "explanation": "createPortal(children, container) renders children physically into container (e.g., document.body), but the component remains part of the React tree."
+      },
+      {
+        "text": "Creates a lazy component that loads on demand",
+        "correct": false,
+        "explanation": "That describes React.lazy, not createPortal."
+      }
+    ]
+  },
+  {
+    "question": "You open a modal, but it's not visible — covered by another element. What most likely happened?",
+    "type": "single",
+    "options": [
+      {
+        "text": "You need to add display: block to the modal",
+        "correct": false,
+        "explanation": "The problem is CSS stacking context of the parent container, not the modal's display."
+      },
+      {
+        "text": "isOpen is set to true, but React hasn't updated the DOM yet",
+        "correct": false,
+        "explanation": "React synchronously updates the DOM before the next render. If isOpen=true, the component is already in the DOM."
+      },
+      {
+        "text": "The modal renders inside an element with overflow: hidden or a stacking context with a low z-index",
+        "correct": true,
+        "explanation": "A modal inside overflow: hidden is constrained by that container, and z-index only works within a single stacking context. createPortal into document.body solves this problem."
+      },
+      {
+        "text": "React doesn't support z-index above 1000",
+        "correct": false,
+        "explanation": "React doesn't limit z-index values — it's a browser CSS property with no upper limit."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following is NOT preserved for a component rendered via createPortal?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Application of CSS properties (overflow, z-index) of parent DOM nodes",
+        "correct": true,
+        "explanation": "Physically the portal is in document.body, so parent CSS (overflow: hidden, z-index) doesn't affect it. This is the primary purpose of portals."
+      },
+      {
+        "text": "Event bubbling through React parents",
+        "correct": false,
+        "explanation": "Events bubble through the React tree, not the DOM tree. A click inside the portal will reach the React parent."
+      },
+      {
+        "text": "Access to React Context from parent components",
+        "correct": false,
+        "explanation": "Context is preserved — the portal remains part of the React tree, despite being in a different place in the DOM."
+      },
+      {
+        "text": "Physical position of the DOM node inside the parent container",
+        "correct": true,
+        "explanation": "The portal's DOM node is in the target container (document.body), not inside the component's DOM parent."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between a layout component and a component with business logic?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A layout component knows WHERE to place content but doesn't know WHAT that content is. A business component knows WHAT to display but doesn't manage its own placement",
+        "correct": true,
+        "explanation": "This is separation of concerns (SoC). Layout handles structure, business component handles content."
+      },
+      {
+        "text": "Layout components are written only in CSS Grid/Flexbox, while business components use other CSS techniques",
+        "correct": false,
+        "explanation": "The difference is conceptual (SoC), not technical. Layout components can use any CSS techniques."
+      },
+      {
+        "text": "Layout components always use children, while business components receive data through props",
+        "correct": false,
+        "explanation": "This is partially true but not a complete definition. Business components can also use children."
+      },
+      {
+        "text": "A layout component cannot have state, while a business component can",
+        "correct": false,
+        "explanation": "A layout component can have state (e.g., sidebar open/closed state). The difference is in responsibility, not in the presence of state."
+      }
+    ]
+  },
+  {
+    "question": "A user opened two modals. On pressing Escape the first one closed, but page scrolling was unlocked — the second modal is still open. What went wrong?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Escape should only be bound to the topmost modal in the stack",
+        "correct": false,
+        "explanation": "This is correct for close logic, but doesn't explain the scroll problem."
+      },
+      {
+        "text": "Each modal independently manages overflow: hidden without accounting for the number of open modals",
+        "correct": true,
+        "explanation": "Scroll should only be unlocked when all modals are closed. Solution: a counter of open modals or checking that none remain open."
+      },
+      {
+        "text": "document.body.style.overflow doesn't work in useEffect",
+        "correct": false,
+        "explanation": "This works correctly. The problem is in the logic of counting open modals."
+      },
+      {
+        "text": "You should use a CSS class on body instead of inline style",
+        "correct": false,
+        "explanation": "The way the style is applied (class or inline) doesn't affect the logical error with counting."
+      }
+    ]
+  }
+]

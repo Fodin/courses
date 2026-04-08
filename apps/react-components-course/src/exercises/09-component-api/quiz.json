@@ -1,0 +1,267 @@
+[
+  {
+    "question": "Что такое discriminated union в контексте props компонента?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Props, которые TypeScript запрещает использовать вместе",
+        "correct": false,
+        "explanation": "Это похожая идея, но неточная формулировка. Discriminated union не 'запрещает', а структурирует: каждый вариант union определяет свой набор допустимых полей."
+      },
+      {
+        "text": "Union-тип с общим полем-дискриминатором, по которому TypeScript сужает тип",
+        "correct": true,
+        "explanation": "Discriminated union — это несколько типов объединённых через |, где одно общее поле (обычно 'variant' или 'type') однозначно определяет форму остальных props. TypeScript использует его для type narrowing."
+      },
+      {
+        "text": "Тип props, где все поля optional",
+        "correct": false,
+        "explanation": "Optional props — это антипаттерн: TypeScript не может определить, какие поля нужны вместе. Discriminated union — полная противоположность."
+      },
+      {
+        "text": "Набор boolean флагов вместо одного string поля",
+        "correct": false,
+        "explanation": "Boolean флаги — это антипаттерн, так как можно создать невалидные комбинации (isPrimary && isSecondary). Discriminated union делает невалидные состояния невыразимыми."
+      }
+    ]
+  },
+  {
+    "question": "Зачем нужен полиморфный `as` prop?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чтобы один компонент мог рендериться как разные HTML-элементы или компоненты, сохраняя типизацию",
+        "correct": true,
+        "explanation": "Button с as='a' рендерится как ссылка и TypeScript требует href. Button с as='button' требует onClick. Один компонент, один стиль, разная семантика — без дублирования кода."
+      },
+      {
+        "text": "Для переключения между светлой и тёмной темой компонента",
+        "correct": false,
+        "explanation": "Тема — это задача CSS или context. `as` prop отвечает за HTML-элемент или компонент, которым будет рендериться компонент."
+      },
+      {
+        "text": "Для передачи компонента в качестве обёртки через props",
+        "correct": false,
+        "explanation": "Это описывает паттерн 'wrapper component', но не `as` prop. `as` меняет что рендерится сам компонент, а не оборачивает его."
+      },
+      {
+        "text": "Для условного рендеринга дочерних компонентов",
+        "correct": false,
+        "explanation": "Условный рендеринг детей — это другой паттерн. `as` prop определяет тип корневого элемента самого компонента."
+      }
+    ]
+  },
+  {
+    "question": "Почему при реализации полиморфного компонента используют `ComponentPropsWithoutRef`, а не `ComponentPropsWithRef`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "ComponentPropsWithRef не поддерживает generics",
+        "correct": false,
+        "explanation": "Оба варианта поддерживают generics. Разница исключительно в наличии поля ref в результирующем типе."
+      },
+      {
+        "text": "WithRef устарел и удалён из React 18",
+        "correct": false,
+        "explanation": "ComponentPropsWithRef существует и используется. Разница — в наличии поля ref в типе props, а не в устаревании."
+      },
+      {
+        "text": "WithoutRef работает быстрее во время выполнения",
+        "correct": false,
+        "explanation": "Выбор между WithRef и WithoutRef влияет только на типизацию TypeScript, не на производительность рантайма."
+      },
+      {
+        "text": "WithRef создаёт коллизию с forwardRef — ref дублируется в props и в параметре forwardRef",
+        "correct": true,
+        "explanation": "ComponentPropsWithRef включает ref в тип объекта props. Если компонент используется с forwardRef, ref присутствует дважды: в props и как второй параметр коллбэка. WithoutRef убирает это дублирование."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть generic компонент Table<T>. Вы хотите добавить forwardRef. Почему это сложно в React 18?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Generic компоненты нельзя оборачивать в forwardRef по техническим ограничениям React",
+        "correct": false,
+        "explanation": "Технически можно — просто требует дополнительного усилия. Классический workaround: реализовать компонент, затем переопределить тип через type assertion."
+      },
+      {
+        "text": "forwardRef не работает с функциональными компонентами в React 18",
+        "correct": false,
+        "explanation": "forwardRef прекрасно работает с функциональными компонентами — это его основное применение. Проблема специфична для generic компонентов."
+      },
+      {
+        "text": "Ref и generic параметр T не могут иметь одно имя",
+        "correct": false,
+        "explanation": "Конфликт имён не является проблемой — TypeScript разграничивает параметры типа по области видимости. Реальная проблема в сигнатуре forwardRef."
+      },
+      {
+        "text": "forwardRef принимает фиксированную сигнатуру и не позволяет добавить generic параметр к обёрнутой функции",
+        "correct": true,
+        "explanation": "forwardRef<Ref, Props> имеет два типовых параметра для ref и props. Добавить третий T для generics напрямую нельзя — TypeScript теряет связь между Props<T> и T. Нужны workarounds: type assertion или declare function."
+      }
+    ]
+  },
+  {
+    "question": "Вы проектируете компонент уведомлений. У вас есть success, error, warning, info варианты. Как лучше типизировать?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "interface NotificationProps { isSuccess?: boolean; isError?: boolean; isWarning?: boolean; isInfo?: boolean; message: string }",
+        "correct": false,
+        "explanation": "Boolean флаги создают невалидные состояния: isSuccess && isError. TypeScript не защитит от этого. Это антипаттерн."
+      },
+      {
+        "text": "type NotificationVariant = 'success' | 'error' | 'warning' | 'info' и отдельный interface NotificationProps с полем variant: NotificationVariant",
+        "correct": true,
+        "explanation": "Вынести union в отдельный тип — хорошая практика для переиспользования. Если props одинаковые для всех вариантов, это оптимальное решение."
+      },
+      {
+        "text": "Все перечисленные варианты неверны",
+        "correct": false,
+        "explanation": "Некоторые из перечисленных вариантов действительно верны."
+      },
+      {
+        "text": "type NotificationProps = SuccessProps | ErrorProps | WarningProps | InfoProps где каждый тип имеет поле type",
+        "correct": true,
+        "explanation": "Discriminated union уместен, если у разных вариантов разные props. Например, error может требовать дополнительный errorCode, а success — redirectUrl."
+      },
+      {
+        "text": "type NotificationProps = { type: 'success' | 'error' | 'warning' | 'info'; message: string; onClose?: () => void }",
+        "correct": true,
+        "explanation": "Если все варианты имеют одинаковый набор props (только message и опциональный onClose), обычного union string literal достаточно. Discriminated union нужен когда props разные у разных вариантов."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если не передать `...rest` в нативный элемент внутри компонента?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "TypeScript выдаст ошибку компиляции",
+        "correct": false,
+        "explanation": "TypeScript не проверяет, что все принятые props пробрасываются вниз. Это логическая ошибка, не ошибка типов."
+      },
+      {
+        "text": "Обработчики событий onClick, onChange не будут вызываться",
+        "correct": true,
+        "explanation": "Если onClick передан снаружи, но не пробрасывается через ...rest на элемент — клик не вызовет обработчик. Это частая и трудно обнаруживаемая ошибка."
+      },
+      {
+        "text": "className переданный снаружи не будет применён к элементу",
+        "correct": true,
+        "explanation": "className — обычный prop. Без spread в элемент он потеряется: вы его примете в props, но не передадите дальше в DOM."
+      },
+      {
+        "text": "data-testid и aria-* атрибуты не попадут в DOM",
+        "correct": true,
+        "explanation": "data-* и aria-* атрибуты критичны для тестирования и доступности. Без spread они молча теряются — поведение компонента выглядит нормально, но тесты и скринридеры не работают."
+      }
+    ]
+  },
+  {
+    "question": "Зачем добавлять `displayName` компоненту, созданному через forwardRef?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это обязательное требование TypeScript",
+        "correct": false,
+        "explanation": "displayName — опциональное свойство. TypeScript не требует его. Это чисто для удобства разработки."
+      },
+      {
+        "text": "displayName нужен для SSR (серверного рендеринга)",
+        "correct": false,
+        "explanation": "displayName не влияет на SSR. Он используется исключительно инструментами разработки: React DevTools и error boundaries."
+      },
+      {
+        "text": "В React DevTools компонент будет называться 'ForwardRef' вместо читаемого имени",
+        "correct": true,
+        "explanation": "forwardRef оборачивает компонент и теряет имя функции. В DevTools это выглядит как 'ForwardRef' или 'Anonymous'. displayName = 'MyComponent' восстанавливает читаемое имя для отладки."
+      },
+      {
+        "text": "Без displayName компонент не получит ref",
+        "correct": false,
+        "explanation": "Получение ref никак не связано с displayName. ref работает независимо от наличия имени."
+      }
+    ]
+  },
+  {
+    "question": "Компонент Select<T> принимает items: T[], onSelect: (item: T) => void, getLabel: (item: T) => string. Как TypeScript выводит T при использовании компонента?",
+    "type": "single",
+    "options": [
+      {
+        "text": "T нужно указывать явно: <Select<User> items={users} ... />",
+        "correct": false,
+        "explanation": "Явное указание возможно, но не обязательно. TypeScript умеет выводить T из переданных аргументов — это называется type inference."
+      },
+      {
+        "text": "TypeScript выводит T автоматически из типа массива items",
+        "correct": true,
+        "explanation": "Если передать items={users} где users: User[], TypeScript выведет T = User. После этого onSelect будет типизирован как (item: User) => void, а getLabel как (item: User) => string — без явного указания."
+      },
+      {
+        "text": "T всегда будет unknown, если не указать явно",
+        "correct": false,
+        "explanation": "unknown — это тип для неизвестных значений. TypeScript выводит конкретный тип из контекста использования, не unknown."
+      },
+      {
+        "text": "Generic компоненты в React не поддерживают автоматический вывод типа",
+        "correct": false,
+        "explanation": "TypeScript поддерживает вывод generic параметров для generic функций, включая функциональные компоненты React. Это одно из главных преимуществ generic компонентов."
+      }
+    ]
+  },
+  {
+    "question": "Вы делаете компонент Heading, который должен рендериться как h1, h2, h3 в зависимости от контекста. Какой подход лучше?",
+    "type": "single",
+    "options": [
+      {
+        "text": "dangerouslySetInnerHTML с нужным тегом",
+        "correct": false,
+        "explanation": "dangerouslySetInnerHTML — для встраивания HTML-строк, не для выбора тега. Это неправильный инструмент для данной задачи и создаёт риски XSS."
+      },
+      {
+        "text": "Три отдельных компонента: H1, H2, H3",
+        "correct": false,
+        "explanation": "Три компонента с одинаковым кодом — дублирование. Если нужно изменить стиль или логику — менять придётся в трёх местах."
+      },
+      {
+        "text": "Полиморфный as prop: <Heading as='h1'> или <Heading as='h2'>",
+        "correct": true,
+        "explanation": "as prop идеален для этого случая. Один компонент, одна стилизация, разный HTML-элемент. TypeScript через ComponentPropsWithoutRef автоматически ограничит as значениями h1-h6."
+      },
+      {
+        "text": "Prop level: 1 | 2 | 3, внутри switch рендерить разные элементы",
+        "correct": false,
+        "explanation": "Работает, но теряется типизация HTML-атрибутов: TypeScript не знает что рендерится h1 или h2. as prop решает и задачу рендеринга, и задачу типизации одновременно."
+      }
+    ]
+  },
+  {
+    "question": "Что означает выражение: 'невалидные состояния должны быть невыразимы' в контексте TypeScript и props?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Нужно добавлять runtime-валидацию всех props через Zod или yup",
+        "correct": false,
+        "explanation": "Runtime-валидация — отдельная практика для данных из API. 'Невыразимые состояния' — это про статическую типизацию TypeScript на этапе компиляции, не runtime."
+      },
+      {
+        "text": "Нельзя создать объект props, который был бы логически противоречивым, без ошибки TypeScript",
+        "correct": true,
+        "explanation": "Именно это. Discriminated union делает противоречие видимым на этапе написания кода — до запуска, до code review, до деплоя."
+      },
+      {
+        "text": "TypeScript должен запрещать передачу onConfirm в вариант 'alert', где подтверждение не нужно",
+        "correct": true,
+        "explanation": "Если variant='alert' не должен принимать onConfirm, discriminated union делает это поле недоступным в этой ветке. TypeScript выдаст ошибку при попытке передать лишний prop."
+      },
+      {
+        "text": "Все props должны быть обязательными — никаких optional",
+        "correct": false,
+        "explanation": "Optional props сами по себе не проблема. Проблема — когда optional props семантически связаны между собой, и их комбинации не проверяются TypeScript'ом."
+      }
+    ]
+  }
+]

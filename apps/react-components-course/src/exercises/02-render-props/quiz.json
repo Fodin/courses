@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Что такое render prop в React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Пропс, принимающий функцию, которую компонент вызывает для получения JSX",
+        "correct": true,
+        "explanation": "Именно так: компонент получает функцию через пропс, вызывает её (передавая нужные данные) и встраивает результат в свой рендер."
+      },
+      {
+        "text": "HOC-функция, принимающая компонент и возвращающая новый компонент",
+        "correct": false,
+        "explanation": "Это описание Higher-Order Component (HOC), а не render prop. HOC оборачивает компонент, render prop передаёт функцию рендера."
+      },
+      {
+        "text": "Специальный атрибут React для управления рендерингом компонента",
+        "correct": false,
+        "explanation": "Никакого специального атрибута нет. Render prop — это паттерн проектирования, а не встроенная функциональность React."
+      },
+      {
+        "text": "Метод жизненного цикла, вызываемый перед рендером",
+        "correct": false,
+        "explanation": "Это описание метода shouldComponentUpdate или getSnapshotBeforeUpdate, но не render prop. Render prop — это паттерн передачи функции через пропс."
+      }
+    ]
+  },
+  {
+    "question": "Почему нельзя использовать хуки внутри render prop callback?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Потому что callback — это обычная функция, а не компонент React, и правила хуков не выполняются",
+        "correct": true,
+        "explanation": "Хуки можно использовать только внутри функциональных компонентов React или кастомных хуков. Callback в render prop — это просто функция, вызываемая внутри другого компонента."
+      },
+      {
+        "text": "Потому что render prop callback выполняется асинхронно",
+        "correct": false,
+        "explanation": "Render prop callback вызывается синхронно внутри функции render компонента. Причина запрета хуков в другом: callback не является компонентом React."
+      },
+      {
+        "text": "Потому что хуки работают только в классовых компонентах",
+        "correct": false,
+        "explanation": "Наоборот: хуки работают только в функциональных компонентах, не в классовых. Но и в callback-функциях хуки использовать нельзя."
+      },
+      {
+        "text": "Ограничение снято в React 18 — теперь хуки работают в любой функции",
+        "correct": false,
+        "explanation": "Это неверно. Правила хуков не изменились в React 18: хуки по-прежнему можно использовать только в функциональных компонентах и кастомных хуках."
+      }
+    ]
+  },
+  {
+    "question": "Вы делаете компонент DataList<T>. Как правильно объявить тип пропса renderItem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "renderItem: Function",
+        "correct": false,
+        "explanation": "Тип Function слишком широкий: он не описывает ни аргументы, ни возвращаемое значение. Компилятор не предупредит об ошибках внутри callback."
+      },
+      {
+        "text": "renderItem: (item: object) => ReactNode",
+        "correct": false,
+        "explanation": "object — слишком широкий тип, к его полям нельзя обращаться без приведения типов. Generic T сохраняет конкретный тип элементов массива."
+      },
+      {
+        "text": "renderItem: (item: any) => JSX.Element",
+        "correct": false,
+        "explanation": "any уничтожает типобезопасность: TypeScript не сможет проверить, что вы обращаетесь к существующим полям item. Используйте generic T."
+      },
+      {
+        "text": "renderItem: (item: T, index: number) => ReactNode",
+        "correct": true,
+        "explanation": "Именно так: generic-параметр T используется в типе item, что позволяет TypeScript автоматически выводить тип из массива data."
+      }
+    ]
+  },
+  {
+    "question": "В каких ситуациях render prop предпочтительнее кастомного хука? Выберите все подходящие варианты.",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Создаётся UI-примитив (Headless UI, Radix) с полным контролем рендера",
+        "correct": true,
+        "explanation": "Библиотеки headless-компонентов активно используют render props (или compound components) чтобы дать полный контроль над разметкой потребителю."
+      },
+      {
+        "text": "Компонент управляет ограниченной областью DOM (зона трекинга мыши, дропзона)",
+        "correct": false,
+        "explanation": "Когда логика завязана на конкретный DOM-элемент (onMouseMove, onDrop), render prop даёт компоненту управлять своим контейнером, а хук работает глобально."
+      },
+      {
+        "text": "Нужно переиспользовать логику fetch-запросов между компонентами",
+        "correct": false,
+        "explanation": "Для переиспользования логики без UI — хуки. useFetch/useQuery гораздо удобнее и не создают вложенности в JSX."
+      },
+      {
+        "text": "Нужно несколько функций рендера (renderItem, renderEmpty, renderHeader)",
+        "correct": true,
+        "explanation": "Несколько именованных render prop — естественный способ дать потребителю контроль над разными частями UI одного компонента."
+      }
+    ]
+  },
+  {
+    "question": "Чем function-as-children отличается от именованного render prop?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Именованный render prop делает назначение функции очевидным без чтения документации",
+        "correct": false,
+        "explanation": "renderItem явно говорит о том, что функция рендерит элемент списка. children как функция требует знания компонента, чтобы понять, что он с ней делает."
+      },
+      {
+        "text": "Function-as-children работает быстрее из-за особенностей React reconciler",
+        "correct": false,
+        "explanation": "Никакой разницы в производительности нет. Оба варианта вызывают функцию синхронно во время рендера."
+      },
+      {
+        "text": "При function-as-children невозможно передать несколько render-функций",
+        "correct": true,
+        "explanation": "У компонента только один children. Если нужны renderItem + renderEmpty + renderHeader — придётся использовать именованные пропсы."
+      },
+      {
+        "text": "Function-as-children передаётся через children, именованный — через явный пропс",
+        "correct": true,
+        "explanation": "Ключевое синтаксическое отличие: <Comp>{fn}</Comp> vs <Comp render={fn} />. Оба паттерна вызывают функцию одинаково."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если передать render prop как JSX-тег вместо вызова функции?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Render prop будет вызван как компонент — это допустимый способ использования",
+        "correct": false,
+        "explanation": "Это не допустимый способ. Когда пропс называется renderItem (с маленькой буквы), React не будет вызывать его как компонент. Используйте вызов функции: renderItem(item)."
+      },
+      {
+        "text": "React выбросит ошибку: компоненты должны начинаться с заглавной буквы, а пропс — строчная",
+        "correct": true,
+        "explanation": "React рассматривает теги с маленькой буквы как HTML-элементы. <renderItem /> попытается создать HTML-элемент 'renderItem', что приведёт к предупреждению и некорректному рендеру."
+      },
+      {
+        "text": "Всё будет работать — React автоматически поймёт, что это функция",
+        "correct": false,
+        "explanation": "React не определяет функции автоматически. <renderItem /> — это не то же самое, что renderItem(). Это разные операции."
+      },
+      {
+        "text": "TypeScript не даст скомпилировать такой код",
+        "correct": false,
+        "explanation": "TypeScript может пропустить это с предупреждением, но не обязательно ошибкой — зависит от настроек. Ошибка возникнет в рантайме."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть Toggle с render prop. Вам нужно добавить анимацию при открытии/закрытии через хук useAnimation. Как это сделать правильно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Использовать useEffect внутри render callback для запуска анимации",
+        "correct": false,
+        "explanation": "useEffect — тоже хук, его нельзя вызывать внутри callback. Правило одно для всех хуков: только в компонентах и кастомных хуках."
+      },
+      {
+        "text": "Добавить useAnimation внутрь самого Toggle",
+        "correct": false,
+        "explanation": "Toggle — generic-компонент, он не должен знать об анимации. Это нарушит принцип инверсии управления: потребитель теряет контроль над анимацией."
+      },
+      {
+        "text": "Вызвать useAnimation прямо внутри render callback Toggle",
+        "correct": false,
+        "explanation": "Нарушение правил хуков: callback в render prop — не компонент React. React не может отслеживать порядок вызовов хуков в обычных функциях."
+      },
+      {
+        "text": "Создать отдельный компонент AnimatedContent и использовать useAnimation внутри него, передав как renderItem",
+        "correct": true,
+        "explanation": "Хуки можно использовать только в компонентах. Вынесение логики в отдельный компонент — правильный паттерн. AnimatedContent получает isOpen и вызывает useAnimation."
+      }
+    ]
+  },
+  {
+    "question": "Как в TypeScript объявить дженерик-функцию в TSX-файле, чтобы <T> не воспринимался как JSX-тег?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Переименовать файл в .ts вместо .tsx",
+        "correct": false,
+        "explanation": "В .ts файлах нет JSX, и <T> не будет неоднозначным. Но тогда нельзя писать JSX — это не решение для компонента с JSX."
+      },
+      {
+        "text": "const DataList = <T>(props: DataListProps<T>) => ... — стрелочные функции не имеют этой проблемы",
+        "correct": false,
+        "explanation": "Стрелочные функции имеют ту же проблему в TSX! const DataList = <T> будет воспринят как начало JSX-тега. Нужна та же запятая: <T,>."
+      },
+      {
+        "text": "function DataList<T,>(...) — добавить запятую после T",
+        "correct": true,
+        "explanation": "Запятая — стандартный способ устранить неоднозначность в TSX: <T,> не может быть JSX-тегом, только generic-параметром."
+      },
+      {
+        "text": "function DataList<T extends object>(...) — добавить ограничение extends",
+        "correct": true,
+        "explanation": "Добавление extends чего угодно (object, unknown, {}) однозначно говорит TypeScript, что это generic-параметр, а не JSX-тег."
+      }
+    ]
+  },
+  {
+    "question": "Компонент MouseTracker отслеживает мышь через onMouseMove на контейнере. Пользователь жалуется, что координаты обновляются даже когда мышь вне области. В чём проблема?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Разработчик повесил обработчик на window вместо контейнера",
+        "correct": true,
+        "explanation": "Если прикрепить mousemove к window или document, события будут приходить отовсюду. onMouseMove на div-контейнере ограничивает трекинг областью этого элемента."
+      },
+      {
+        "text": "Проблема в браузере — onMouseMove всегда глобальный",
+        "correct": false,
+        "explanation": "Это неверно. onMouseMove в React работает через event bubbling, но если прикрепить к конкретному div — события приходят только при движении мыши над этим элементом и его потомками."
+      },
+      {
+        "text": "Нужно использовать onMouseEnter вместо onMouseMove",
+        "correct": false,
+        "explanation": "onMouseEnter срабатывает только при входе в элемент, а не при движении. Это не решит проблему и вообще не подходит для трекинга координат."
+      },
+      {
+        "text": "Компонент не очистил подписку на события в useEffect",
+        "correct": false,
+        "explanation": "Если использовался onMouseMove через JSX-атрибут (не addEventListener в useEffect), очистка не нужна — React управляет этим автоматически."
+      }
+    ]
+  },
+  {
+    "question": "Что лучше передать в render prop Toggle: только isOpen, или всю группу { isOpen, toggle, open, close }?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Передавать setIsOpen напрямую — так потребитель получит полный контроль",
+        "correct": false,
+        "explanation": "Передавать setState напрямую — плохая практика: потребитель может установить невалидное состояние или нарушить инварианты компонента. Лучше передавать именованные функции-действия."
+      },
+      {
+        "text": "Всю группу { isOpen, toggle, open, close } — потребитель выбирает что использовать",
+        "correct": true,
+        "explanation": "Богатый API даёт потребителю гибкость: dropdown использует toggle, modal — open/close отдельно, expandable — только toggle. Передавать только isOpen — перекладывать управление состоянием на потребителя."
+      },
+      {
+        "text": "Только isOpen — меньше props, чище API",
+        "correct": false,
+        "explanation": "Если передать только isOpen, потребитель не может изменить состояние — он не имеет доступа к setIsOpen. Нужно передавать и функции управления."
+      },
+      {
+        "text": "Только toggle — потребителю достаточно переключить состояние",
+        "correct": false,
+        "explanation": "Для модального окна нужны отдельные open и close: кнопка открытия вызывает open, клик на оверлей — close. toggle не всегда подходит."
+      }
+    ]
+  }
+]

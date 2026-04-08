@@ -1,0 +1,272 @@
+[
+  {
+    "question": "Что такое Higher-Order Component (HOC) в React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Компонент с большим количеством пропсов",
+        "correct": false,
+        "explanation": "Количество пропсов не имеет отношения к HOC. HOC — это паттерн оборачивания, а не характеристика компонента."
+      },
+      {
+        "text": "Хук, который возвращает JSX",
+        "correct": false,
+        "explanation": "Хуки не возвращают JSX — это нарушает правила хуков. HOC возвращает компонент (функцию), а не JSX напрямую."
+      },
+      {
+        "text": "Компонент, который рендерит другие компоненты через проп children",
+        "correct": false,
+        "explanation": "Это описание паттерна children/composition, а не HOC. HOC — это функция, а не компонент."
+      },
+      {
+        "text": "Функция, которая принимает компонент и возвращает новый усиленный компонент",
+        "correct": true,
+        "explanation": "Именно так: HOC = (Component) => EnhancedComponent. Это функция высшего порядка применительно к React-компонентам."
+      }
+    ]
+  },
+  {
+    "question": "Почему нельзя создавать HOC внутри функции рендера компонента?",
+    "type": "single",
+    "options": [
+      {
+        "text": "HOC не работают в функциональных компонентах",
+        "correct": false,
+        "explanation": "HOC прекрасно работают с функциональными компонентами. Проблема в другом."
+      },
+      {
+        "text": "TypeScript не может вывести типы для HOC внутри функций",
+        "correct": false,
+        "explanation": "TypeScript может вывести типы независимо от места создания HOC. Это не причина."
+      },
+      {
+        "text": "Это синтаксически запрещено в JavaScript",
+        "correct": false,
+        "explanation": "Синтаксически это абсолютно допустимо. Проблема не в синтаксисе, а в поведении React."
+      },
+      {
+        "text": "При каждом рендере создаётся новый тип компонента — React размонтирует и монтирует дерево заново",
+        "correct": true,
+        "explanation": "React сравнивает типы компонентов по ссылке. Если тип новый (новая функция при каждом рендере), React считает его другим компонентом и делает полный remount — теряется state, повторно срабатывают эффекты."
+      }
+    ]
+  },
+  {
+    "question": "Какой displayName следует устанавливать для HOC withAuth, оборачивающего компонент Dashboard?",
+    "type": "single",
+    "options": [
+      {
+        "text": "displayName устанавливать не нужно — React определяет его автоматически",
+        "correct": false,
+        "explanation": "React не может автоматически определить displayName для анонимных функций, возвращаемых HOC. Без displayName в DevTools будет нечитаемое дерево."
+      },
+      {
+        "text": "\"withAuth\"",
+        "correct": false,
+        "explanation": "Только имя HOC без имени компонента — непонятно, что именно обёрнуто. При нескольких использованиях withAuth все будут выглядеть одинаково."
+      },
+      {
+        "text": "\"withAuth(Dashboard)\"",
+        "correct": true,
+        "explanation": "Конвенция: имя HOC + имя оборачиваемого компонента в скобках. Это стандарт, принятый в React DevTools и большинстве библиотек."
+      },
+      {
+        "text": "\"Dashboard\"",
+        "correct": false,
+        "explanation": "Нельзя называть HOC именем оборачиваемого компонента — в DevTools будет путаница, какой именно Dashboard вы видите."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно типизировать HOC withLoading, чтобы он принимал компонент с пропсами P и добавлял isLoading?",
+    "type": "single",
+    "options": [
+      {
+        "text": "function withLoading(Component: React.ComponentType<any>)",
+        "correct": false,
+        "explanation": "any уничтожает типобезопасность — TypeScript не будет проверять пропсы оборачиваемого компонента."
+      },
+      {
+        "text": "function withLoading(Component: React.FC) — возвращает React.FC с isLoading",
+        "correct": false,
+        "explanation": "React.FC без параметра типа — это React.FC<{}>, теряются конкретные пропсы компонента. Не подходит для generic HOC."
+      },
+      {
+        "text": "function withLoading<P, Q>(Component: React.ComponentType<P>, extra: Q)",
+        "correct": false,
+        "explanation": "Лишний параметр Q здесь не нужен. Дополнительные пропсы HOC (isLoading) описываются через объектный тип в пересечении, а не отдельным generic."
+      },
+      {
+        "text": "function withLoading<P>(Component: React.ComponentType<P>) — возвращает компонент с P & { isLoading: boolean }",
+        "correct": true,
+        "explanation": "Generic параметр P захватывает тип пропсов оригинального компонента, а пересечение P & { isLoading: boolean } описывает пропсы обёртки. Это стандартная типизация HOC."
+      }
+    ]
+  },
+  {
+    "question": "Компонент ProfilePage нужно защитить авторизацией и показывать спиннер при загрузке. Как правильно применить оба HOC?",
+    "type": "single",
+    "options": [
+      {
+        "text": "const Enhanced = withAuth(withLoading(ProfilePage)) — withAuth снаружи, withLoading внутри",
+        "correct": true,
+        "explanation": "withAuth проверяет авторизацию первым. Если не авторизован — показывает форму входа. Если авторизован — передаёт управление withLoading, который показывает спиннер во время загрузки данных. Это правильный порядок."
+      },
+      {
+        "text": "const Enhanced = withLoading(withAuth(ProfilePage)) — withLoading снаружи, withAuth внутри",
+        "correct": false,
+        "explanation": "В этом порядке withLoading проверяет isLoading первым. Если загрузка, спиннер показывается ДО проверки авторизации — неавторизованный пользователь тоже видит спиннер вместо формы входа."
+      },
+      {
+        "text": "Порядок не имеет значения — оба варианта эквивалентны",
+        "correct": false,
+        "explanation": "Порядок критически важен. Внешний HOC выполняется первым. withAuth снаружи означает: сначала авторизация, потом загрузка — что логически верно."
+      },
+      {
+        "text": "HOC нельзя комбинировать напрямую — нужно использовать только compose()",
+        "correct": false,
+        "explanation": "Прямая вложенность работает, но менее читаема. compose() — удобная утилита, но не обязательное требование."
+      }
+    ]
+  },
+  {
+    "question": "Что делает функция compose при применении compose(withErrorBoundary, withAuth, withLoading)(MyComponent)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Создаёт один компонент-синглтон с объединённой логикой всех HOC",
+        "correct": false,
+        "explanation": "compose создаёт вложенные компоненты, не синглтон. Каждый HOC — отдельный слой в дереве компонентов React."
+      },
+      {
+        "text": "Применяет HOC слева направо: сначала withErrorBoundary, потом withAuth, потом withLoading",
+        "correct": false,
+        "explanation": "compose применяет справа налево (математическая конвенция). Крайний правый HOC (withLoading) — ближайший к компоненту."
+      },
+      {
+        "text": "Применяет HOC справа налево: withLoading(MyComponent), потом withAuth(...), потом withErrorBoundary(...)",
+        "correct": true,
+        "explanation": "Стандартная compose работает справа налево через reduceRight. Результат: withErrorBoundary(withAuth(withLoading(MyComponent))). withErrorBoundary — внешний слой, withLoading — внутренний."
+      },
+      {
+        "text": "Применяет все HOC одновременно, объединяя их пропсы",
+        "correct": false,
+        "explanation": "HOC применяются последовательно, создавая цепочку вложенных компонентов. Никакого параллельного применения нет."
+      }
+    ]
+  },
+  {
+    "question": "Когда предпочтительнее использовать HOC, а не хук?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Когда нужно условно рендерить компонент или показывать фолбэк (например, форму входа)",
+        "correct": true,
+        "explanation": "HOC удобен для паттерна 'если условие — рендери фолбэк, иначе — компонент'. Хук требует early return внутри компонента, что менее декларативно при переиспользовании."
+      },
+      {
+        "text": "Когда нужно отслеживать размер окна через window.addEventListener",
+        "correct": false,
+        "explanation": "Отслеживание размера окна — логика с useState/useEffect. Кастомный хук useWindowSize намного проще, лаконичнее и лучше тестируется."
+      },
+      {
+        "text": "Когда нужно реализовать ErrorBoundary",
+        "correct": true,
+        "explanation": "ErrorBoundary требует классового компонента с getDerivedStateFromError. HOC — идеальный способ обернуть классовый ErrorBoundary в удобный декоратор для функциональных компонентов."
+      },
+      {
+        "text": "Когда нужно совместимость с классовыми компонентами, которые не поддерживают хуки",
+        "correct": true,
+        "explanation": "Классовые компоненты не могут использовать хуки. HOC — единственный способ добавить логику (например, из контекста) в классовый компонент без его переписывания."
+      },
+      {
+        "text": "Когда нужно реализовать логику с useState и useEffect",
+        "correct": false,
+        "explanation": "Для логики с хуками — используйте кастомный хук. HOC для этого избыточен и создаёт лишний уровень в дереве компонентов."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик написал следующий код. Какая в нём проблема?",
+    "type": "single",
+    "options": [
+      {
+        "text": "HOC withAuth нельзя использовать с функциональными компонентами",
+        "correct": false,
+        "explanation": "HOC прекрасно работает с функциональными компонентами. Проблема в другом месте."
+      },
+      {
+        "text": "withAuth не может принимать компонент без пропсов",
+        "correct": false,
+        "explanation": "Компонент без пропсов — это React.ComponentType<{}>, что совершенно допустимо для HOC. Это не проблема."
+      },
+      {
+        "text": "Profile не передаёт все свои пропсы через spread",
+        "correct": false,
+        "explanation": "Это проблема реализации withAuth, а не вызова. Сам факт вызова HOC внутри компонента — критичнее."
+      },
+      {
+        "text": "const EnhancedProfile = withAuth(Profile) вызывается внутри функции Dashboard при каждом рендере",
+        "correct": true,
+        "explanation": "Если withAuth(Profile) вызывается внутри тела компонента Dashboard, каждый рендер Dashboard создаёт новый тип EnhancedProfile. React размонтирует и монтирует его заново, теряя state. HOC нужно вызывать на уровне модуля."
+      }
+    ]
+  },
+  {
+    "question": "Какой результат даст следующий compose: compose(f, g, h)(x), где f, g, h — HOC?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Все три HOC применяются одновременно",
+        "correct": false,
+        "explanation": "Невозможно применить несколько функций одновременно — они применяются строго последовательно, справа налево."
+      },
+      {
+        "text": "h(g(f(x)))",
+        "correct": false,
+        "explanation": "Это результат pipe (слева направо), не compose. compose применяет справа налево."
+      },
+      {
+        "text": "f(x), затем g(f(x)), затем h(g(f(x)))",
+        "correct": false,
+        "explanation": "Это применение слева направо (pipe). compose работает иначе — справа налево."
+      },
+      {
+        "text": "f(g(h(x)))",
+        "correct": true,
+        "explanation": "compose применяет функции справа налево: сначала h к x, потом g к результату, потом f. Это математическая конвенция функциональной композиции."
+      }
+    ]
+  },
+  {
+    "question": "При рефакторинге withWindowSize → useWindowSize. Что останется одинаковым в обоих реализациях?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Возвращаемые данные: width и height",
+        "correct": true,
+        "explanation": "Оба подхода предоставляют одинаковые данные — ширину и высоту окна. HOC передаёт их как пропсы, хук возвращает их как объект. Конечный результат для компонента одинаков."
+      },
+      {
+        "text": "Удаление слушателя (cleanup) при размонтировании",
+        "correct": true,
+        "explanation": "Оба варианта должны вызывать removeEventListener при cleanup — иначе утечка памяти. В HOC это в useEffect внутри возвращаемого компонента, в хуке — в useEffect самого хука."
+      },
+      {
+        "text": "Отображение дополнительного слоя в React DevTools",
+        "correct": false,
+        "explanation": "HOC добавляет слой withWindowSize(Component) в дерево. Хук не создаёт дополнительных компонентов — логика видна только в разделе Hooks компонента в DevTools."
+      },
+      {
+        "text": "Необходимость создавать новый компонент через вызов фабричной функции",
+        "correct": false,
+        "explanation": "HOC требует создания нового компонента: const Enhanced = withWindowSize(MyComponent). Хук вызывается прямо внутри компонента: const { width } = useWindowSize(). Это ключевое отличие."
+      },
+      {
+        "text": "Логика подписки на window.resize через addEventListener",
+        "correct": true,
+        "explanation": "Сама логика работы с DOM-событием идентична: useState для хранения размеров, useEffect для подписки и отписки. HOC просто содержит эту логику в обёрточном компоненте, хук — в самостоятельной функции."
+      }
+    ]
+  }
+]

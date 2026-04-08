@@ -1,0 +1,132 @@
+[
+  {
+    "question": "Что такое проп children в React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Всё, что помещается между открывающим и закрывающим тегом компонента",
+        "correct": true,
+        "explanation": "React автоматически передаёт содержимое между тегами в проп children"
+      },
+      {
+        "text": "Специальный массив дочерних компонентов",
+        "correct": false,
+        "explanation": "children не обязательно массив — это может быть один элемент, строка, null или массив"
+      },
+      {
+        "text": "Метод жизненного цикла для работы с дочерними элементами",
+        "correct": false,
+        "explanation": "children — это проп (данные), а не метод жизненного цикла"
+      },
+      {
+        "text": "Список вложенных компонентов, которые нужно явно передать через атрибут",
+        "correct": false,
+        "explanation": "children передаётся неявно — через JSX-вложенность, а не как явный атрибут"
+      }
+    ]
+  },
+  {
+    "question": "Какой тип TypeScript наиболее подходит для слота, который должен принимать JSX, строки и null?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React.ReactElement",
+        "correct": false,
+        "explanation": "ReactElement принимает только JSX-элементы, но не строки, числа или null"
+      },
+      {
+        "text": "string | React.ReactElement",
+        "correct": false,
+        "explanation": "Этот union неполный — пропускает числа, null, массивы. ReactNode покрывает всё"
+      },
+      {
+        "text": "JSX.Element",
+        "correct": false,
+        "explanation": "JSX.Element — это только JSX, не принимает строки или null"
+      },
+      {
+        "text": "React.ReactNode",
+        "correct": true,
+        "explanation": "ReactNode — самый широкий тип: JSX-элементы, строки, числа, массивы, null, undefined, boolean"
+      }
+    ]
+  },
+  {
+    "question": "Что из перечисленного является слотом в React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Специальный API React для вставки контента в определённое место",
+        "correct": false,
+        "explanation": "В React нет специального Slot API как в Web Components — слоты это просто пропсы с типом ReactNode"
+      },
+      {
+        "text": "Обычный проп с типом React.ReactNode, которому дано смысловое имя (header, footer, sidebar)",
+        "correct": true,
+        "explanation": "Слот — это соглашение, а не встроенный механизм. Это проп, который принимает ReactNode"
+      },
+      {
+        "text": "children с предопределённой структурой JSX",
+        "correct": false,
+        "explanation": "Слоты — это именованные пропсы, независимые от children"
+      },
+      {
+        "text": "Контекст React, который передаёт данные через дерево компонентов",
+        "correct": false,
+        "explanation": "Контекст — другой механизм. Слоты работают через пропсы, а не через Context API"
+      }
+    ]
+  },
+  {
+    "question": "Компонент Card получает проп footer?: React.ReactNode. Как правильно его отрендерить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "{footer !== undefined && <div className=\"footer\">{footer}</div>}",
+        "correct": false,
+        "explanation": "Почти верно, но footer может быть null или false — проверка !== undefined не покроет эти случаи"
+      },
+      {
+        "text": "<div className=\"footer\">{footer}</div>",
+        "correct": false,
+        "explanation": "Если footer не передан, отрендерится пустой <div> с padding/border, что нарушит внешний вид"
+      },
+      {
+        "text": "{footer && <div className=\"footer\">{footer}</div>}",
+        "correct": true,
+        "explanation": "Короткое замыкание && проверяет любое falsy значение (undefined, null, false) и не рендерит контейнер"
+      },
+      {
+        "text": "{footer ? <div className=\"footer\">{footer}</div> : <div />}",
+        "correct": false,
+        "explanation": "Рендерить пустой <div /> вместо ничего — ещё хуже: добавляет лишний узел в DOM"
+      }
+    ]
+  },
+  {
+    "question": "Вы строите Accordion. Какой подход предпочтителен с точки зрения композиции?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "<Accordion items={[{ title: 'Q1', content: 'A1' }]} />",
+        "correct": false,
+        "explanation": "Конфигурационный подход ограничивает возможности: title и content могут быть только строками, сложный JSX не поместится"
+      },
+      {
+        "text": "<Accordion><AccordionItem title=\"Q1\">A1</AccordionItem></Accordion>",
+        "correct": true,
+        "explanation": "Композиционный подход — каждый элемент независим, title и children принимают любой ReactNode"
+      },
+      {
+        "text": "Accordion хранит массив открытых индексов и передаёт состояние вниз",
+        "correct": false,
+        "explanation": "Это усложняет Accordion и делает его ответственным за логику дочерних элементов. При базовой композиции это не нужно"
+      },
+      {
+        "text": "AccordionItem управляет своим состоянием isOpen через useState",
+        "correct": true,
+        "explanation": "Каждый AccordionItem независим — они не знают друг о друге и управляют собственным состоянием"
+      }
+    ]
+  }
+]

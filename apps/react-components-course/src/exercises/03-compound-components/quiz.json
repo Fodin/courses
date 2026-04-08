@@ -1,0 +1,272 @@
+[
+  {
+    "question": "Какова главная цель паттерна Compound Components?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ускорить рендеринг компонентов через мемоизацию",
+        "correct": false,
+        "explanation": "Compound Components — архитектурный паттерн для API, не оптимизация производительности"
+      },
+      {
+        "text": "Избежать использования TypeScript в компонентах",
+        "correct": false,
+        "explanation": "Compound Components прекрасно работают с TypeScript и даже лучше типизируются, чем подход с render props"
+      },
+      {
+        "text": "Уменьшить количество файлов в проекте",
+        "correct": false,
+        "explanation": "Compound Components не сокращают количество файлов — наоборот, каждый sub-компонент может быть отдельной функцией"
+      },
+      {
+        "text": "Предоставить декларативный гибкий API вместо передачи всего через пропсы",
+        "correct": true,
+        "explanation": "Compound Components позволяют пользователю компонента контролировать структуру декларативно, избегая prop explosion"
+      }
+    ]
+  },
+  {
+    "question": "Почему рекомендуется использовать Context вместо React.Children + cloneElement?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Context быстрее работает на больших деревьях",
+        "correct": false,
+        "explanation": "Context может вызывать лишние ре-рендеры — это не аргумент в его пользу с точки зрения производительности"
+      },
+      {
+        "text": "TypeScript лучше типизирует Context, чем клонированные элементы",
+        "correct": true,
+        "explanation": "cloneElement с дополнительными пропсами теряет типы; Context строго типизирован через createContext<T>"
+      },
+      {
+        "text": "Context — явный контракт, cloneElement — неявная магия",
+        "correct": true,
+        "explanation": "С Context зависимость компонента от родителя явна через хук; cloneElement неявно добавляет пропсы без ведома получателя"
+      },
+      {
+        "text": "Для этого требуется специальная лицензия",
+        "correct": false,
+        "explanation": "Перечисленные технологии имеют open-source версии."
+      },
+      {
+        "text": "cloneElement работает только для прямых детей, Context — для любой вложенности",
+        "correct": true,
+        "explanation": "Context проходит сквозь любую глубину дерева, cloneElement передаёт пропсы только одному уровню вниз"
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если вызвать useTabsContext() вне компонента <Tabs>?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Context вернёт последнее сохранённое значение",
+        "correct": false,
+        "explanation": "Context не кешируется глобально — вне Provider всегда возвращается начальное значение (null в нашем случае)"
+      },
+      {
+        "text": "Ничего — React просто проигнорирует вызов",
+        "correct": false,
+        "explanation": "React не игнорирует вызовы хуков — если в хуке есть throw, он выбросит ошибку"
+      },
+      {
+        "text": "Вернётся undefined",
+        "correct": false,
+        "explanation": "createContext(null) возвращает null как начальное значение, а не undefined"
+      },
+      {
+        "text": "Будет выброшена ошибка с понятным сообщением, если хук реализован правильно",
+        "correct": true,
+        "explanation": "Правильная реализация: если ctx === null, throw new Error('...must be used within <Tabs>'). Это лучше, чем загадочный TypeError"
+      }
+    ]
+  },
+  {
+    "question": "Вы создаёте компонент <Select> с Compound Components. Как Select.Option узнаёт свой индекс в списке для клавиатурной навигации?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Option считает своих предыдущих сестринских элементов через DOM",
+        "correct": false,
+        "explanation": "Доступ к DOM для определения логического порядка — плохой подход, он хрупкий и нарушает React-модель"
+      },
+      {
+        "text": "Индекс не нужен — Option всегда знает, выбран ли он, по значению selected",
+        "correct": false,
+        "explanation": "Для отображения focused-состояния при навигации стрелками нужен focusedIndex — знать просто selected недостаточно"
+      },
+      {
+        "text": "Пользователь обязан передавать index явно: <Select.Option index={0} value='ru'>",
+        "correct": false,
+        "explanation": "Это возможно, но неудобно — пользователь должен вручную считать индексы. Хороший API делает это автоматически"
+      },
+      {
+        "text": "Option автоматически получает индекс через React.Children.map в корневом компоненте",
+        "correct": true,
+        "explanation": "SelectRoot обходит children через React.Children.map, собирает все value от Option-компонентов и хранит их в массиве options в контексте. Option смотрит свой индекс в этом массиве"
+      }
+    ]
+  },
+  {
+    "question": "Зачем использовать Object.assign(TabsRoot, { Tab, Panel, List }) вместо просто экспорта TabsRoot?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Позволяет писать <Tabs.Tab> вместо <TabsTab>, создавая namespaced API",
+        "correct": true,
+        "explanation": "Object.assign создаёт один объект с вложенными компонентами — это удобный namespaced API, понятный и автодополняемый"
+      },
+      {
+        "text": "Это единственный способ создать Compound Components в React",
+        "correct": false,
+        "explanation": "Можно также назначать статические свойства: TabsRoot.Tab = Tab. Object.assign — просто один из удобных способов"
+      },
+      {
+        "text": "Object.assign ускоряет рендеринг компонентов",
+        "correct": false,
+        "explanation": "Object.assign — это просто создание объекта с нужными свойствами, никакого влияния на производительность рендеринга"
+      },
+      {
+        "text": "TypeScript автоматически выводит типы sub-компонентов из результата Object.assign",
+        "correct": true,
+        "explanation": "Возвращаемый тип Object.assign включает типы всех добавленных свойств — автодополнение и проверка типов работают из коробки"
+      }
+    ]
+  },
+  {
+    "question": "В каком случае паттерн Compound Components НЕ является хорошим выбором?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Когда структура компонента фиксирована и пользователь не должен её менять",
+        "correct": true,
+        "explanation": "Если структура всегда одинакова (например, простая карточка с avatar + name + bio), prop-based API проще и понятнее"
+      },
+      {
+        "text": "Когда компонент используется в нескольких местах приложения",
+        "correct": false,
+        "explanation": "Переиспользование — хороший повод для Compound Components, они дают гибкость без переписывания компонента"
+      },
+      {
+        "text": "Когда у компонента есть несколько взаимосвязанных частей",
+        "correct": false,
+        "explanation": "Несколько взаимосвязанных частей — главный сигнал для применения Compound Components"
+      },
+      {
+        "text": "Когда компонент является частью дизайн-системы",
+        "correct": false,
+        "explanation": "Дизайн-системы — отличное место для Compound Components: они дают гибкость пользователям при сохранении консистентности"
+      }
+    ]
+  },
+  {
+    "question": "Как правильно организовать клавиатурную навигацию в Select.Options?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Добавить обработчик onKeyDown на корневой элемент компонента",
+        "correct": true,
+        "explanation": "onKeyDown на корневом div с tabIndex={0} — правильный подход: событие всплывает от кнопки Trigger, обрабатывается централизованно"
+      },
+      {
+        "text": "Все перечисленные варианты неверны",
+        "correct": false,
+        "explanation": "Некоторые из перечисленных вариантов действительно верны."
+      },
+      {
+        "text": "Обрабатывать keydown на window через addEventListener",
+        "correct": false,
+        "explanation": "Глобальные обработчики — плохая практика: они срабатывают даже когда Select не в фокусе и могут конфликтовать с другими компонентами"
+      },
+      {
+        "text": "Закрывать список при нажатии Escape",
+        "correct": true,
+        "explanation": "Escape для закрытия — стандартное ожидаемое поведение (ARIA Authoring Practices Guide), без него компонент неудобен для пользователей"
+      },
+      {
+        "text": "Вызывать e.preventDefault() при нажатии ArrowDown и ArrowUp",
+        "correct": true,
+        "explanation": "Без preventDefault() стрелки будут скроллить страницу параллельно с навигацией по опциям — это нежелательное поведение"
+      }
+    ]
+  },
+  {
+    "question": "Вы создаёте <Stepper> и хотите, чтобы каждый <Stepper.Step> знал свой порядковый номер без явной передачи stepIndex. Как это реализовать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Использовать useId() для генерации уникального id каждого Step",
+        "correct": false,
+        "explanation": "useId() генерирует уникальные строки, но не определяет порядок — это не решает задачу нумерации"
+      },
+      {
+        "text": "Каждый Step самостоятельно считает количество предыдущих Step через querySelectorAll",
+        "correct": false,
+        "explanation": "DOM-запросы для определения логического порядка — антипаттерн: хрупко, работает только после монтирования, нарушает React-модель"
+      },
+      {
+        "text": "Использовать React.Children.map в StepperRoot и передавать stepIndex через cloneElement",
+        "correct": true,
+        "explanation": "React.Children.map обходит children, cloneElement добавляет stepIndex каждому Step. Это классический способ автоматической нумерации дочерних компонентов"
+      },
+      {
+        "text": "Хранить totalSteps в ref и инкрементировать при монтировании каждого Step",
+        "correct": false,
+        "explanation": "Инкремент при монтировании ненадёжен: порядок монтирования не гарантирован, а при динамическом добавлении шагов счётчик сломается"
+      }
+    ]
+  },
+  {
+    "question": "Зачем добавлять displayName к sub-компонентам Compound Components?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Для корректной работы TypeScript",
+        "correct": false,
+        "explanation": "displayName — runtime-свойство только для отладки, TypeScript использует статические типы и не зависит от displayName"
+      },
+      {
+        "text": "Для работы серверного рендеринга (SSR)",
+        "correct": false,
+        "explanation": "SSR работает без displayName — это исключительно инструмент для разработчиков при отладке"
+      },
+      {
+        "text": "Для читаемых имён в React DevTools",
+        "correct": true,
+        "explanation": "Без displayName анонимные функции отображаются как Anonymous или Component в DevTools. С displayName 'Tabs.Tab' дерево становится читаемым"
+      },
+      {
+        "text": "Для оптимизации ре-рендеров через React.memo",
+        "correct": false,
+        "explanation": "React.memo использует ссылочное равенство компонента, а не displayName — это не связанные вещи"
+      }
+    ]
+  },
+  {
+    "question": "Чем отличается controlled-режим от uncontrolled-режима в Compound Components?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "В controlled-режиме state хранится снаружи компонента и передаётся через пропсы",
+        "correct": true,
+        "explanation": "Controlled: <Tabs activeTab={active} onTabChange={setActive}> — родитель контролирует состояние"
+      },
+      {
+        "text": "Хороший компонент поддерживает оба режима одновременно",
+        "correct": true,
+        "explanation": "Паттерн: если передан activeTab — используем его (controlled), иначе используем внутренний useState(defaultTab) (uncontrolled)"
+      },
+      {
+        "text": "Controlled-режим всегда быстрее из-за меньшего количества ре-рендеров",
+        "correct": false,
+        "explanation": "Controlled-режим может вызывать больше ре-рендеров, так как родительский компонент тоже ре-рендерится при изменении state"
+      },
+      {
+        "text": "В uncontrolled-режиме state хранится внутри компонента через useState",
+        "correct": true,
+        "explanation": "Uncontrolled: <Tabs defaultTab='home'> — компонент управляет состоянием самостоятельно, внешний код получает изменения через колбэк"
+      }
+    ]
+  }
+]

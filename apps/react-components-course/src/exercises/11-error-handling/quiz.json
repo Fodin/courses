@@ -1,0 +1,137 @@
+[
+  {
+    "question": "Почему Error Boundary нельзя реализовать как функциональный компонент?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это временное ограничение, которое уберут в React 19",
+        "correct": false,
+        "explanation": "Это архитектурное решение команды React: hooks не могут перехватывать ошибки из своего же render-вызова. Изменений не запланировано"
+      },
+      {
+        "text": "React требует getDerivedStateFromError и componentDidCatch, которые являются lifecycle-методами class-компонентов",
+        "correct": true,
+        "explanation": "Именно эти два метода делают компонент Error Boundary. У функциональных компонентов нет аналога для перехвата ошибок в фазе рендеринга"
+      },
+      {
+        "text": "Функциональные компоненты не поддерживают TypeScript",
+        "correct": false,
+        "explanation": "TypeScript отлично работает с функциональными компонентами — это не связано с Error Boundaries"
+      },
+      {
+        "text": "Функциональные компоненты не могут использовать useState",
+        "correct": false,
+        "explanation": "useState — основной хук для функциональных компонентов, это их главная особенность"
+      }
+    ]
+  },
+  {
+    "question": "Какие типы ошибок Error Boundary НЕ перехватывает?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Ошибки в async/await и Promise",
+        "correct": true,
+        "explanation": "Асинхронные ошибки происходят вне фазы рендеринга. Нужен useErrorHandler для их проброса"
+      },
+      {
+        "text": "Ошибки в render() дочернего компонента",
+        "correct": false,
+        "explanation": "Именно для этого и нужны Error Boundaries — они перехватывают ошибки в render дочерних компонентов"
+      },
+      {
+        "text": "Ошибки в самом ErrorBoundary",
+        "correct": true,
+        "explanation": "Boundary не может поймать собственные ошибки. Они передаются вверх к следующему boundary"
+      },
+      {
+        "text": "Ошибки в обработчиках событий (onClick, onChange)",
+        "correct": true,
+        "explanation": "Обработчики событий выполняются вне фазы рендеринга, поэтому boundary их не видит"
+      },
+      {
+        "text": "Ошибки в constructor() дочернего компонента",
+        "correct": false,
+        "explanation": "Ошибки в constructor дочернего компонента перехватываются ближайшим Error Boundary"
+      }
+    ]
+  },
+  {
+    "question": "Зачем в useErrorHandler используется паттерн setState(() => { throw error })?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Функция-обновитель setState вызывается React в фазе рендеринга, поэтому брошенная в ней ошибка попадает в Error Boundary",
+        "correct": true,
+        "explanation": "React вызывает updater-функцию во время reconciliation. Ошибка в этой функции воспринимается как ошибка рендеринга и перехватывается ближайшим boundary"
+      },
+      {
+        "text": "Это баг в React, который случайно работает",
+        "correct": false,
+        "explanation": "Это намеренный паттерн. React вызывает функцию-обновитель setState во время reconciliation — в фазе рендеринга"
+      },
+      {
+        "text": "throw внутри setState отменяет обновление state",
+        "correct": false,
+        "explanation": "throw прерывает выполнение функции-обновителя, и React обрабатывает это как ошибку рендеринга — передавая её в Error Boundary"
+      },
+      {
+        "text": "setState синхронный и выполняется сразу",
+        "correct": false,
+        "explanation": "setState асинхронен — React батчит обновления. Функция-обновитель вызывается позже, в фазе рендеринга"
+      }
+    ]
+  },
+  {
+    "question": "У вас есть dashboard с независимыми виджетами: Weather, News, Stocks, Calendar. Как правильно расставить Error Boundaries?",
+    "type": "single",
+    "options": [
+      {
+        "text": "ErrorBoundary только вокруг тех виджетов, которые могут упасть",
+        "correct": false,
+        "explanation": "Предугадать, какой виджет упадёт, невозможно. Защищайте все независимые секции превентивно"
+      },
+      {
+        "text": "Один ErrorBoundary вокруг всего Dashboard",
+        "correct": false,
+        "explanation": "При падении одного виджета пользователь потеряет весь dashboard. Это противоречит принципу graceful degradation"
+      },
+      {
+        "text": "ErrorBoundary не нужен — достаточно try/catch в fetch",
+        "correct": false,
+        "explanation": "try/catch в fetch не защитит от ошибок рендеринга (невалидные данные, null reference и т.д.)"
+      },
+      {
+        "text": "ErrorBoundary вокруг каждого виджета отдельно",
+        "correct": true,
+        "explanation": "Каждый виджет загружает данные независимо и может упасть по своим причинам. Изолированные boundaries обеспечивают graceful degradation"
+      }
+    ]
+  },
+  {
+    "question": "Fallback UI показывает ошибку, но у пользователя нет возможности её сбросить. Что это нарушает?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Принцип единственной ответственности",
+        "correct": false,
+        "explanation": "SRP касается структуры компонентов, а не наличия кнопки восстановления"
+      },
+      {
+        "text": "Порядок монтирования компонентов",
+        "correct": false,
+        "explanation": "Порядок монтирования не связан с наличием кнопки сброса ошибки"
+      },
+      {
+        "text": "Принцип открытости/закрытости",
+        "correct": false,
+        "explanation": "Open/Closed principle — из SOLID, касается расширяемости кода, не UX"
+      },
+      {
+        "text": "Recovery pattern: пользователь попал в тупик без возможности восстановить работу",
+        "correct": true,
+        "explanation": "Без resetErrorBoundary пользователь вынужден перезагружать страницу. Хороший UX всегда даёт способ выйти из ошибочного состояния"
+      }
+    ]
+  }
+]

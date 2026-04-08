@@ -1,0 +1,267 @@
+[
+  {
+    "question": "Почему рекомендуется разделять CartStateContext и CartDispatchContext вместо одного CartContext?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Так код выглядит чище и лаконичнее",
+        "correct": false,
+        "explanation": "Это субъективно, а сам паттерн скорее добавляет кода. Причина разделения — производительность."
+      },
+      {
+        "text": "Компоненты, использующие только dispatch, не будут ре-рендериться при изменении state",
+        "correct": true,
+        "explanation": "dispatch из useReducer стабилен — React гарантирует неизменность его референса. Если компонент подписан только на CartDispatchContext, он не ре-рендерится при добавлении товаров в корзину."
+      },
+      {
+        "text": "Два контекста позволяют использовать разные типы данных",
+        "correct": false,
+        "explanation": "TypeScript и так позволяет типизировать любой контекст. Разделение не связано с типизацией."
+      },
+      {
+        "text": "Context не может хранить одновременно state и функции",
+        "correct": false,
+        "explanation": "Context может хранить любые значения, включая объекты с state и функциями."
+      }
+    ]
+  },
+  {
+    "question": "Когда стоит использовать useReducer вместо useState?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Когда логика переходов сложная и условная",
+        "correct": true,
+        "explanation": "Reducer — чистая функция, которую легко читать, тестировать и расширять. Сложная логика в setState-коллбэках нечитаема."
+      },
+      {
+        "text": "Когда нужно логировать или воспроизводить историю действий",
+        "correct": true,
+        "explanation": "Действия (actions) явно описывают что произошло. Это упрощает отладку и позволяет реализовать undo/redo."
+      },
+      {
+        "text": "Когда несколько полей state всегда обновляются вместе",
+        "correct": false,
+        "explanation": "Например, { loading, data, error } — они всегда связаны. useReducer обновляет их атомарно в одном dispatch."
+      },
+      {
+        "text": "Когда компонент рендерит список из 100+ элементов",
+        "correct": false,
+        "explanation": "Количество отображаемых элементов не связано с выбором useState vs useReducer. Это вопрос оптимизации рендера, а не структуры state."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть NotificationProvider. Как правильно очистить setTimeout-таймеры при размонтировании компонента?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Хранить таймеры в useState и вызывать clearTimeout в обработчиках",
+        "correct": false,
+        "explanation": "При размонтировании обработчики не вызываются — таймеры утекут. Также setState в размонтированном компоненте вызовет warning."
+      },
+      {
+        "text": "Вызвать clearTimeout в componentWillUnmount",
+        "correct": false,
+        "explanation": "componentWillUnmount — это метод классовых компонентов. В функциональных компонентах используется функция очистки из useEffect."
+      },
+      {
+        "text": "React автоматически очищает все таймеры при размонтировании",
+        "correct": false,
+        "explanation": "React не очищает таймеры — это ответственность разработчика. Незачищенный таймер продолжит работать и может вызвать setState на уже размонтированном компоненте."
+      },
+      {
+        "text": "Вернуть функцию очистки из useEffect: return () => { timers.forEach(clearTimeout) }",
+        "correct": true,
+        "explanation": "useEffect с пустым массивом зависимостей выполняется один раз при монтировании. Возвращённая функция вызывается при размонтировании. Это стандартный паттерн cleanup."
+      }
+    ]
+  },
+  {
+    "question": "Вы создаёте корзину. Компонент AddToCartButton использует только dispatch({ type: 'ADD', item }). Правда ли, что он НЕ будет ре-рендериться при добавлении товаров в корзину?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Только если обернуть AddToCartButton в React.memo",
+        "correct": false,
+        "explanation": "React.memo защищает от ре-рендеров по props, но не от ре-рендеров из-за изменения контекста. Разделение контекстов решает проблему вернее."
+      },
+      {
+        "text": "Да, если компонент подписан только на CartDispatchContext (не на CartStateContext)",
+        "correct": true,
+        "explanation": "dispatch из useReducer стабилен — React гарантирует неизменность его референса между рендерами. CartDispatchContext.Provider value не меняется, поэтому потребители не ре-рендерятся."
+      },
+      {
+        "text": "Да, но только в React 18+ благодаря автоматическому батчингу",
+        "correct": false,
+        "explanation": "Батчинг объединяет несколько setState в один рендер, но не предотвращает ре-рендеры компонентов, подписанных на изменившийся контекст."
+      },
+      {
+        "text": "Нет, любой dispatch вызывает ре-рендер всего дерева",
+        "correct": false,
+        "explanation": "Ре-рендер вызывает изменение значения контекста. Если CartDispatchContext.value (dispatch) не изменился — потребители не ре-рендерятся."
+      }
+    ]
+  },
+  {
+    "question": "Что из перечисленного является преимуществом паттерна createStore с селекторами перед прямым useContext?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Компонент можно подписать только на нужную часть состояния",
+        "correct": true,
+        "explanation": "Селектор описывает, какой срез state нужен компоненту. Изменение несвязанных частей state не вызывает ре-рендер."
+      },
+      {
+        "text": "Устраняет необходимость писать боilerplate для каждого нового Provider",
+        "correct": true,
+        "explanation": "Фабрика createStore создаёт Provider + два контекста + два хука за один вызов. Новый стор добавляется одной строкой."
+      },
+      {
+        "text": "Все перечисленные варианты неверны",
+        "correct": false,
+        "explanation": "Некоторые из перечисленных вариантов действительно верны."
+      },
+      {
+        "text": "Позволяет создавать независимые сторы для разных областей приложения",
+        "correct": true,
+        "explanation": "Каждый вызов createStore создаёт новую пару контекстов. Сторы полностью независимы."
+      },
+      {
+        "text": "Автоматически сохраняет состояние в localStorage",
+        "correct": false,
+        "explanation": "createStore не работает с localStorage по умолчанию. Это нужно реализовывать отдельно."
+      }
+    ]
+  },
+  {
+    "question": "В каком из случаев Context + useReducer НЕ является оптимальным решением?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Тема оформления (светлая/тёмная) в масштабе всего приложения",
+        "correct": false,
+        "explanation": "Тема — идеальный кейс для Context. Простое состояние, нужно глобально, редко меняется."
+      },
+      {
+        "text": "Система нотификаций с auto-dismiss",
+        "correct": false,
+        "explanation": "Нотификации отлично реализуются через Context + useReducer или useState. Ограниченная область, простая очередь."
+      },
+      {
+        "text": "Кэш серверных данных с нормализацией, пагинацией и инвалидацией",
+        "correct": true,
+        "explanation": "Кэш данных с такой сложностью лучше доверить специализированным инструментам: React Query, SWR или Redux Toolkit Query. Context не подходит для сложного кэширования."
+      },
+      {
+        "text": "Корзина интернет-магазина: add, remove, clear",
+        "correct": false,
+        "explanation": "Корзина — классический пример для Context + useReducer. Ограниченная область, понятные действия, умеренная сложность."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть NotificationProvider. Вы хотите, чтобы функция notify была стабильной (не создавалась заново при каждом рендере). Как правильно её определить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "const notify = useCallback((message) => { setNotifications(prev => [...prev, ...]) }, [])",
+        "correct": true,
+        "explanation": "useCallback с пустым массивом зависимостей создаёт функцию один раз. Обновление state через функцию-обновитель (prev => ...) не требует добавлять state в зависимости."
+      },
+      {
+        "text": "const notifyRef = useRef((message) => { setNotifications(prev => [...prev, ...]) })",
+        "correct": false,
+        "explanation": "useRef стабилен, но функция в ref не обновляется при изменении замыканий. Это приведёт к stale closure проблемам."
+      },
+      {
+        "text": "const notify = useMemo(() => (message) => { ... }, [])",
+        "correct": false,
+        "explanation": "Технически работает, но семантически неправильно. useMemo предназначен для значений, useCallback — для функций. Используйте правильный инструмент."
+      },
+      {
+        "text": "const notify = (message) => { setNotifications(prev => [...prev, ...]) }",
+        "correct": false,
+        "explanation": "Без useCallback функция пересоздаётся при каждом рендере Provider. Все потребители NotificationContext получат новую ссылку и ре-рендерятся."
+      }
+    ]
+  },
+  {
+    "question": "Reducer получает action { type: 'DECREMENT', id: 'p1' } для товара с quantity: 1. Как правильно обработать этот случай?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Бросить ошибку: throw new Error('Cannot decrement below 0')",
+        "correct": false,
+        "explanation": "Ошибки в reducer приведут к краши компонента. Reducer должен всегда возвращать валидное состояние."
+      },
+      {
+        "text": "Сначала проверить quantity и если === 1 — диспатчить REMOVE вместо DECREMENT",
+        "correct": false,
+        "explanation": "Диспатчить actions внутри reducer нельзя — reducer должен быть чистой синхронной функцией без побочных эффектов."
+      },
+      {
+        "text": "Установить quantity в 0: items.map(i => i.id === id ? { ...i, quantity: 0 } : i)",
+        "correct": false,
+        "explanation": "Quantity 0 не имеет смысла в корзине — товар с нулевым количеством занимает место и запутывает пользователя."
+      },
+      {
+        "text": "Уменьшить quantity и отфильтровать элементы с quantity <= 0",
+        "correct": true,
+        "explanation": "Правильный подход: сначала уменьшаем quantity, затем фильтруем. Это атомарная операция без промежуточного невалидного состояния."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений верны для функции-reducer в useReducer?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Reducer может выполнять асинхронные операции (fetch, setTimeout)",
+        "correct": false,
+        "explanation": "Reducer должна быть синхронной чистой функцией. Для async операций используйте useEffect, Redux Thunk или Redux Saga."
+      },
+      {
+        "text": "Reducer должна возвращать новый объект state только при изменениях, иначе возвращать тот же объект",
+        "correct": true,
+        "explanation": "Если ничего не изменилось (case default), возвращайте тот же объект state. React сравнивает по ссылке и пропустит ре-рендер."
+      },
+      {
+        "text": "Reducer не должна мутировать входной state",
+        "correct": false,
+        "explanation": "React использует referential equality для обнаружения изменений. Мутация state не вызовет ре-рендер и приведёт к непредсказуемому поведению."
+      },
+      {
+        "text": "Reducer должна быть чистой функцией (pure function)",
+        "correct": true,
+        "explanation": "Чистая функция: одинаковые входные данные → одинаковый результат, нет побочных эффектов. React может вызвать reducer несколько раз в StrictMode."
+      }
+    ]
+  },
+  {
+    "question": "Вы используете createStore с селектором `useStore(s => s.todos.filter(t => !t.done))`. При каждом dispatch (даже не связанном с todos) компонент ре-рендерится. В чём проблема?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Селектор каждый раз возвращает новый массив, React считает значение изменившимся",
+        "correct": true,
+        "explanation": "filter() создаёт новый массив при каждом вызове. React сравнивает результат селектора через ===. Новый массив !== старому массиву, даже если содержимое одинаковое. Решение: использовать useMemo или библиотеку с deepEqual-сравнением."
+      },
+      {
+        "text": "createStore не поддерживает сложные селекторы с filter",
+        "correct": false,
+        "explanation": "createStore поддерживает любые функции-селекторы. Проблема не в createStore, а в referential equality результата."
+      },
+      {
+        "text": "Нужно вернуть из селектора строку или число вместо массива",
+        "correct": false,
+        "explanation": "Тип возвращаемого значения не решает проблему архитектурно. Если нужен массив — используйте мемоизацию."
+      },
+      {
+        "text": "Нужно обернуть компонент в React.memo",
+        "correct": false,
+        "explanation": "React.memo защищает от ре-рендеров по props, но не от ре-рендеров из-за изменения контекста. Это не решит проблему."
+      }
+    ]
+  }
+]

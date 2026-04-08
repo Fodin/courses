@@ -1,0 +1,132 @@
+[
+  {
+    "question": "Компонент `<DatePicker value={date} />` работает без `onChange`. TypeScript молчит. В чём ошибка в описании типов?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Нужно использовать перегрузки функции (function overloads) вместо union типов",
+        "correct": false,
+        "explanation": "Перегрузки работают для функций, но не для React-компонентов в стандартном паттерне. Discriminated union — правильный подход для компонентов."
+      },
+      {
+        "text": "ControlledProps должен использовать `never` для defaultValue, но `onChange` должен остаться опциональным",
+        "correct": false,
+        "explanation": "Если onChange опциональный, TypeScript не будет требовать его при передаче value. Нужен discriminated union, где в ControlledProps onChange обязателен."
+      },
+      {
+        "text": "Тип должен быть discriminated union: `ControlledProps` с обязательным `onChange`, `UncontrolledProps` с `value?: never`",
+        "correct": true,
+        "explanation": "Discriminated union через поля с never гарантирует: при передаче value TypeScript выбирает ControlledProps и требует onChange. Без value доступен только UncontrolledProps."
+      },
+      {
+        "text": "Нужно добавить `onChange?: (date: Date) => void` как опциональный prop",
+        "correct": false,
+        "explanation": "Опциональный onChange не решает проблему: value без onChange — нерабочее controlled состояние. TypeScript должен требовать оба prop вместе."
+      }
+    ]
+  },
+  {
+    "question": "Какую задачу решает хук useControllableState в паттерне controlled/uncontrolled?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Позволяет компоненту не знать, в каком режиме он работает: возвращает единый [value, setValue] независимо от источника состояния",
+        "correct": true,
+        "explanation": "Именно так. Хук принимает controlledValue, defaultValue и onChange — и возвращает пару [value, setValue]. Если controlledValue !== undefined, значение берётся снаружи. Иначе — из внутреннего useState."
+      },
+      {
+        "text": "Автоматически переключает компонент между режимами в зависимости от переданных props",
+        "correct": false,
+        "explanation": "Переключение режимов во время работы компонента — антипаттерн. Режим определяется при монтировании и не должен меняться. React даже выводит предупреждение при такой ситуации."
+      },
+      {
+        "text": "Предотвращает лишние ре-рендеры при смене режима",
+        "correct": false,
+        "explanation": "Смена режима (controlled/uncontrolled) во время работы — антипаттерн, и useControllableState её не предотвращает. Режим фиксируется при монтировании."
+      },
+      {
+        "text": "Синхронизирует состояние с localStorage",
+        "correct": false,
+        "explanation": "useControllableState не связан с localStorage. Его задача — абстрагировать выбор между внешним и внутренним состоянием."
+      }
+    ]
+  },
+  {
+    "question": "Headless компонент: в чём главное преимущество переноса ARIA-атрибутов в хук (triggerProps), а не в UI-компонент?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Уменьшается размер бандла компонента",
+        "correct": false,
+        "explanation": "Перенос ARIA в хук не влияет на размер бандла — это те же строки кода, просто в другом месте."
+      },
+      {
+        "text": "Кастомный UI, использующий только хук, автоматически получает корректную доступность через spread props",
+        "correct": true,
+        "explanation": "Это ключевое преимущество: `<button {...triggerProps}>` — и aria-expanded, aria-haspopup уже проставлены. Кастомный UI не теряет доступность."
+      },
+      {
+        "text": "Логика доступности тестируется независимо от UI — в unit-тестах хука",
+        "correct": true,
+        "explanation": "Верно. Можно написать тест на useDropdown, проверив что triggerProps содержит правильные ARIA-атрибуты — без рендеринга компонента."
+      },
+      {
+        "text": "TypeScript автоматически запрещает передачу неправильных ARIA значений",
+        "correct": false,
+        "explanation": "TypeScript типизирует ARIA-атрибуты через типы React (aria-haspopup: 'listbox' и т.д.), но это работает независимо от того, где атрибуты определены — в хуке или компоненте."
+      }
+    ]
+  },
+  {
+    "question": "State machine через discriminated union. Какой код вызовет ошибку TypeScript?",
+    "type": "single",
+    "options": [
+      {
+        "text": "`dispatch({ type: 'RESET' })`",
+        "correct": false,
+        "explanation": "RESET — валидный action, который возвращает состояние в idle. Ошибки TypeScript нет."
+      },
+      {
+        "text": "`if (state.status === 'idle') { console.log(state.orderId) }`",
+        "correct": true,
+        "explanation": "Ошибка TypeScript. В состоянии idle нет поля orderId. Discriminated union гарантирует: TypeScript сужает тип до { status: 'idle' }, где orderId не существует."
+      },
+      {
+        "text": "`switch (state.status) { case 'payment': ... }`",
+        "correct": false,
+        "explanation": "switch по полю status — стандартный паттерн narrowing. TypeScript корректно сузит тип в каждом case."
+      },
+      {
+        "text": "`if (state.status === 'confirmation') { console.log(state.orderId) }`",
+        "correct": false,
+        "explanation": "Корректный код. TypeScript сужает тип до { status: 'confirmation'; orderId: string } внутри if-блока, поэтому orderId доступен."
+      }
+    ]
+  },
+  {
+    "question": "В Capstone мини-библиотеке: зачем обёртывать Modal.Body в Error Boundary?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Error Boundary перехватывает async-ошибки при загрузке данных в модальном окне",
+        "correct": false,
+        "explanation": "Error Boundary не перехватывает async-ошибки (fetch, setTimeout). Для этого нужен паттерн useErrorHandler с пробрасыванием ошибки через setState."
+      },
+      {
+        "text": "Error Boundary позволяет Modal автоматически закрыться при ошибке",
+        "correct": false,
+        "explanation": "Error Boundary не закрывает Modal — он показывает fallback UI вместо упавшего содержимого. Логику закрытия нужно реализовать отдельно через onReset."
+      },
+      {
+        "text": "Пользователь видит осмысленный fallback вместо белого экрана при ошибке в контенте",
+        "correct": true,
+        "explanation": "Именно. Fallback может показать 'Что-то пошло не так' с кнопкой закрытия модального окна — это намного лучше, чем крашнутое приложение."
+      },
+      {
+        "text": "Ошибка в содержимом модального окна не должна разрушать всё приложение",
+        "correct": true,
+        "explanation": "Верно. Без Error Boundary ошибка в Modal.Body поднимется вверх по дереву и потенциально уничтожит весь UI. Boundary изолирует зону поражения."
+      }
+    ]
+  }
+]

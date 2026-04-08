@@ -1,0 +1,579 @@
+[
+  {
+    "question": "Что такое Dual Write Problem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ситуация, когда сервис последовательно пишет в БД и публикует событие в брокер без атомарной гарантии",
+        "correct": true,
+        "explanation": "Dual Write — это именно последовательная запись в два разных хранилища (DB + broker) без транзакционных гарантий. При сбое между операциями данные оказываются рассинхронизированы."
+      },
+      {
+        "text": "Ситуация, когда одно и то же событие публикуется дважды в один топик",
+        "correct": false,
+        "explanation": "Это дублирование сообщений (дубликаты), а не Dual Write Problem."
+      },
+      {
+        "text": "Ситуация, когда сервис поддерживает два разных формата сообщений",
+        "correct": false,
+        "explanation": "Это задача совместимости форматов, не имеющая отношения к Dual Write Problem."
+      },
+      {
+        "text": "Ситуация, когда два разных сервиса одновременно пишут в одну таблицу",
+        "correct": false,
+        "explanation": "Это конкурентный доступ, а не Dual Write Problem. Dual Write касается одного сервиса и двух разных систем хранения."
+      }
+    ]
+  },
+  {
+    "question": "Почему нельзя просто обернуть запись в DB и публикацию в Kafka в одну распределённую транзакцию (2PC)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "2PC работает только с NoSQL базами данных",
+        "correct": false,
+        "explanation": "Неверно. XA-транзакции исторически применялись с реляционными СУБД. Проблема в том, что Kafka их не поддерживает."
+      },
+      {
+        "text": "Координатор транзакции является единой точкой отказа",
+        "correct": true,
+        "explanation": "В 2PC координатор может зависнуть после отправки prepare, оставив участников в неопределённом состоянии — это классическая проблема blocking 2PC."
+      },
+      {
+        "text": "2PC значительно снижает производительность и создаёт риск длительных блокировок",
+        "correct": true,
+        "explanation": "Двухфазная фиксация требует удержания блокировок до завершения всех участников, что снижает пропускную способность и увеличивает задержки."
+      },
+      {
+        "text": "Kafka не поддерживает протокол 2PC (XA Transactions)",
+        "correct": true,
+        "explanation": "Kafka намеренно не реализует XA/2PC. Брокер сообщений не является участником распределённых транзакций с реляционными СУБД."
+      }
+    ]
+  },
+  {
+    "question": "Что гарантирует паттерн Transactional Outbox?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Что данные в DB и в Kafka всегда будут строго согласованы в реальном времени",
+        "correct": false,
+        "explanation": "Между коммитом транзакции и публикацией Relay-процессом есть задержка. Outbox обеспечивает eventual consistency, а не строгую мгновенную согласованность."
+      },
+      {
+        "text": "Что событие всегда будет опубликовано ровно один раз",
+        "correct": false,
+        "explanation": "Relay может прочитать и опубликовать событие несколько раз (at-least-once). Exactly-once требует дополнительных мер на уровне потребителя."
+      },
+      {
+        "text": "Exactly-once доставку событий в Kafka",
+        "correct": false,
+        "explanation": "Outbox гарантирует at-least-once, но не exactly-once. При повторной публикации Relay возможны дубликаты — их нужно устранять на стороне потребителя (idempotent consumer)."
+      },
+      {
+        "text": "Атомарность записи в основную таблицу и в таблицу outbox",
+        "correct": true,
+        "explanation": "Ключевая гарантия паттерна — обе записи (в orders и в outbox) выполняются в одной DB-транзакции. Либо обе успешны, либо обе откатаны. Это устраняет Dual Write Problem."
+      }
+    ]
+  },
+  {
+    "question": "Как работает Relay (Message Relay) в паттерне Transactional Outbox?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Он выполняется внутри той же DB-транзакции, что и основная запись",
+        "correct": false,
+        "explanation": "Relay работает асинхронно и независимо — именно в этом смысл паттерна. Публикация в брокер выполняется вне DB-транзакции."
+      },
+      {
+        "text": "Он периодически опрашивает outbox-таблицу на наличие непубликованных событий и публикует их в брокер",
+        "correct": true,
+        "explanation": "Relay читает строки со статусом 'pending', публикует их в Kafka, затем помечает как 'published' или удаляет. Этот цикл можно реализовать через polling или через CDC."
+      },
+      {
+        "text": "Он является частью Kafka и встроен в брокер",
+        "correct": false,
+        "explanation": "Relay — это отдельный сервис или процесс на стороне приложения, не часть Kafka."
+      },
+      {
+        "text": "Он перехватывает SQL-запросы к основной таблице и автоматически генерирует события",
+        "correct": false,
+        "explanation": "Это описание CDC (Change Data Capture), а не Relay. Relay работает с явной outbox-таблицей."
+      }
+    ]
+  },
+  {
+    "question": "Что такое CDC (Change Data Capture)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Протокол согласования данных между несколькими репликами Kafka",
+        "correct": false,
+        "explanation": "Репликацию внутри Kafka обеспечивает ISR (In-Sync Replicas). CDC — о захвате изменений из реляционных баз данных."
+      },
+      {
+        "text": "Паттерн кэширования, при котором кэш обновляется только при изменении данных",
+        "correct": false,
+        "explanation": "Это описание cache invalidation. CDC — о захвате изменений из БД, а не об управлении кэшем."
+      },
+      {
+        "text": "Механизм сжатия данных в Kafka для экономии дискового пространства",
+        "correct": false,
+        "explanation": "Это описание log compaction в Kafka. CDC — принципиально другая концепция, не связанная с хранением данных в брокере."
+      },
+      {
+        "text": "Паттерн репликации данных, при котором изменения в БД захватываются из журнала транзакций и передаются в другие системы",
+        "correct": true,
+        "explanation": "CDC читает WAL (PostgreSQL) или binlog (MySQL) и преобразует каждое изменение строки в событие, которое можно отправить в Kafka, другую БД или кэш."
+      }
+    ]
+  },
+  {
+    "question": "Какой механизм PostgreSQL использует Debezium для захвата изменений?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Периодические SELECT-запросы к таблице обновлённых строк",
+        "correct": false,
+        "explanation": "Это polling CDC. Debezium использует log-based CDC (WAL), что позволяет захватывать DELETE и не пропускать быстро созданные и удалённые записи."
+      },
+      {
+        "text": "Write-Ahead Log (WAL) через механизм логической репликации",
+        "correct": true,
+        "explanation": "Debezium использует PostgreSQL logical replication slot и читает WAL через pgoutput или wal2json плагины. Это low-overhead подход, не влияющий на производительность основных операций."
+      },
+      {
+        "text": "Binary Replication Protocol для копирования всей таблицы",
+        "correct": false,
+        "explanation": "Физическая репликация копирует весь файл данных, а не отдельные изменения. Debezium применяет логическую репликацию."
+      },
+      {
+        "text": "Triggers на таблицах",
+        "correct": false,
+        "explanation": "Триггеры — это один из подходов к polling-CDC, но не тот, что использует Debezium. Триггерный подход имеет накладные расходы на каждую операцию."
+      }
+    ]
+  },
+  {
+    "question": "В чём ключевое преимущество log-based CDC (WAL/binlog) перед polling CDC?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Значительно проще в реализации и не требует настройки БД",
+        "correct": false,
+        "explanation": "Наоборот, log-based CDC сложнее: требует настройки logical replication в PostgreSQL, управления replication slots, обработки schema changes."
+      },
+      {
+        "text": "Захватывает DELETE-операции без дополнительных изменений схемы",
+        "correct": true,
+        "explanation": "Polling CDC требует метки deleted_at или мягкого удаления, чтобы отследить удаления. WAL содержит DELETE-события нативно."
+      },
+      {
+        "text": "Не пропускает быстро созданные и удалённые строки между двумя опросами",
+        "correct": true,
+        "explanation": "Если строка создана и удалена между двумя polling-запросами, polling CDC её не увидит. WAL фиксирует все изменения в хронологическом порядке."
+      },
+      {
+        "text": "Для этого требуется специальная лицензия",
+        "correct": false,
+        "explanation": "Все перечисленные технологии имеют open-source версии."
+      },
+      {
+        "text": "Меньше нагрузки на БД при большом количестве изменений",
+        "correct": true,
+        "explanation": "WAL записывается в любом случае. Чтение WAL — асинхронная операция, не конкурирующая с основными запросами. Polling создаёт дополнительную нагрузку на БД."
+      }
+    ]
+  },
+  {
+    "question": "Какой формат CDC-события генерирует Debezium для операции UPDATE?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Событие с полями op='u', before (старые данные) и after (новые данные)",
+        "correct": true,
+        "explanation": "Debezium генерирует envelope с полями: op ('c' insert, 'u' update, 'd' delete), source (метаданные), before (состояние до), after (состояние после), ts_ms."
+      },
+      {
+        "text": "Два отдельных события: DELETE для старой строки и INSERT для новой",
+        "correct": false,
+        "explanation": "Debezium генерирует одно событие с op='u' и обоими полями before/after. Разбивка на два события противоречит семантике UPDATE."
+      },
+      {
+        "text": "Только новое состояние строки (after), без предыдущего",
+        "correct": false,
+        "explanation": "Debezium предоставляет оба поля: before и after. Поле before позволяет узнать, что именно изменилось — это критично для downstream потребителей."
+      },
+      {
+        "text": "SQL-строку `UPDATE table SET ... WHERE id=...`",
+        "correct": false,
+        "explanation": "Debezium генерирует структурированные JSON-события, а не SQL-строки. Это позволяет потребителям работать с данными без парсинга SQL."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Outbox Event Router в Debezium?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Механизм retry при недоступности Kafka",
+        "correct": false,
+        "explanation": "Retry-логика в Kafka Connect обрабатывается на уровне коннектора. Outbox Event Router — это трансформация маршрутизации событий."
+      },
+      {
+        "text": "Алгоритм определения порядка событий при параллельной обработке",
+        "correct": false,
+        "explanation": "Порядок событий в Kafka определяется partition key. Outbox Event Router маршрутизирует события по топикам, но не управляет порядком."
+      },
+      {
+        "text": "Балансировщик нагрузки между несколькими инстанциями Debezium",
+        "correct": false,
+        "explanation": "Debezium использует Kafka Connect с партиционированием для масштабирования, но Outbox Event Router — это трансформация сообщений, а не балансировщик."
+      },
+      {
+        "text": "Компонент Kafka Connect, который читает CDC-события из таблицы outbox и маршрутизирует их в разные топики на основе метаданных события",
+        "correct": true,
+        "explanation": "Debezium Outbox Event Router — это SMT (Single Message Transform), который извлекает поле aggregatetype из CDC-события и направляет его в соответствующий Kafka-топик, убирая технические поля outbox-таблицы."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Inbox Pattern (Transactional Inbox)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Паттерн, при котором входящее сообщение сохраняется в локальную inbox-таблицу в DB-транзакции вместе с обработкой бизнес-логики",
+        "correct": true,
+        "explanation": "Inbox Pattern — дополнение к Outbox Pattern для надёжного получения сообщений. Потребитель сначала сохраняет сообщение в inbox-таблицу, затем обрабатывает. Это гарантирует idempotency и защищает от потери при сбое после получения, но до обработки."
+      },
+      {
+        "text": "Буфер для временного хранения неотправленных исходящих событий",
+        "correct": false,
+        "explanation": "Это описание Outbox Pattern. Inbox Pattern — для входящих сообщений, Outbox — для исходящих."
+      },
+      {
+        "text": "Email-уведомление о новых сообщениях в очереди Kafka",
+        "correct": false,
+        "explanation": "Inbox Pattern — архитектурный паттерн надёжной обработки сообщений, не связанный с email."
+      },
+      {
+        "text": "Механизм приоритизации сообщений в очереди",
+        "correct": false,
+        "explanation": "Приоритизация в RabbitMQ реализуется через priority queues. Inbox Pattern — о надёжности обработки, а не о порядке."
+      }
+    ]
+  },
+  {
+    "question": "Почему Transactional Outbox обеспечивает at-least-once, а не exactly-once доставку?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Потому что Kafka не гарантирует доставку сообщений",
+        "correct": false,
+        "explanation": "Kafka с acks=all и min.insync.replicas даёт очень высокую гарантию сохранности. Проблема exactly-once в outbox — на стороне Relay, а не брокера."
+      },
+      {
+        "text": "Потому что транзакция базы данных может откатиться после публикации в Kafka",
+        "correct": false,
+        "explanation": "Это было бы проблемой без Outbox Pattern. С outbox публикация в Kafka происходит после успешного COMMIT транзакции."
+      },
+      {
+        "text": "Потому что Relay может опубликовать событие в Kafka, но упасть до обновления статуса в outbox — при перезапуске событие будет опубликовано повторно",
+        "correct": true,
+        "explanation": "Это классический сценарий: publish прошёл успешно, но UPDATE outbox SET status='published' не выполнился до краша. При следующем запуске Relay снова увидит pending-запись и опубликует её снова."
+      },
+      {
+        "text": "Потому что разные экземпляры Relay могут одновременно обработать одну запись",
+        "correct": false,
+        "explanation": "Это решается оптимистичной блокировкой или SELECT FOR UPDATE при чтении outbox. Основная причина at-least-once — потенциальный краш между publish и mark-as-sent."
+      }
+    ]
+  },
+  {
+    "question": "Как реализовать idempotent consumer для защиты от дублей при at-least-once доставке?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Увеличить replication factor Kafka до 3",
+        "correct": false,
+        "explanation": "Replication factor защищает от потери данных при отказе брокера, но не устраняет дубли на стороне потребителя."
+      },
+      {
+        "text": "Хранить обработанные message-id в базе данных и проверять наличие перед обработкой",
+        "correct": true,
+        "explanation": "Классический подход: INSERT INTO processed_messages (message_id) ... с уникальным индексом. При повторном получении INSERT нарушит уникальность — дубль обнаружен."
+      },
+      {
+        "text": "Включить idempotent producer в настройках Kafka Producer",
+        "correct": false,
+        "explanation": "Idempotent producer (enable.idempotence=true) устраняет дубли на стороне продюсера при ретраях. Он не помогает с дублями, возникающими из-за at-least-once логики Relay."
+      },
+      {
+        "text": "Делать бизнес-операции идемпотентными по своей природе (INSERT OR IGNORE, UPSERT)",
+        "correct": true,
+        "explanation": "Если операция сама по себе идемпотентна (например, UPDATE SET status='shipped' WHERE id=X), повторное применение не вызовет проблем — это наиболее элегантное решение."
+      }
+    ]
+  },
+  {
+    "question": "Какой способ реализации Relay-процесса является наиболее надёжным?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Polling с SELECT FOR UPDATE SKIP LOCKED для конкурентного чтения без блокировок",
+        "correct": true,
+        "explanation": "SELECT FOR UPDATE SKIP LOCKED — стандартный подход для надёжного polling: несколько экземпляров Relay могут работать параллельно, каждый забирает свою порцию строк без блокировки друг друга."
+      },
+      {
+        "text": "Обычный SELECT с сортировкой по created_at без блокировок",
+        "correct": false,
+        "explanation": "Без блокировок несколько экземпляров Relay могут обработать одну и ту же строку одновременно, что приведёт к дублям в Kafka."
+      },
+      {
+        "text": "Чтение WAL через CDC вместо polling-таблицы",
+        "correct": false,
+        "explanation": "CDC через WAL — это другой подход к реализации outbox (без явной polling-таблицы), но в данном вопросе спрашивается о надёжности polling-relay. Сам по себе выбор WAL vs polling не является ответом на вопрос о надёжности polling."
+      },
+      {
+        "text": "Прямая публикация в Kafka из триггера в PostgreSQL",
+        "correct": false,
+        "explanation": "Триггер не может напрямую публиковать в Kafka. Попытка сделать HTTP-вызов из триггера — антипаттерн, увеличивающий время транзакции и снижающий надёжность."
+      }
+    ]
+  },
+  {
+    "question": "Что такое WAL (Write-Ahead Log) в PostgreSQL?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Механизм версионирования строк для поддержки MVCC",
+        "correct": false,
+        "explanation": "MVCC реализуется через системные поля xmin/xmax в строках таблиц, а не через WAL. WAL — отдельный механизм для durability."
+      },
+      {
+        "text": "Очередь асинхронных запросов для уменьшения задержки на запись",
+        "correct": false,
+        "explanation": "WAL записывается синхронно (при synchronous_commit=on) перед подтверждением транзакции клиенту. Это снижает риск потери данных, а не задержку."
+      },
+      {
+        "text": "Индекс для ускорения записи в таблицы с большим количеством INSERT",
+        "correct": false,
+        "explanation": "WAL — журнал, а не индекс. Индексы ускоряют поиск (SELECT), а WAL обеспечивает durability транзакций."
+      },
+      {
+        "text": "Журнал транзакций, в который PostgreSQL записывает все изменения до их применения к основным файлам данных",
+        "correct": true,
+        "explanation": "WAL — основа надёжности PostgreSQL: каждое изменение сначала записывается в WAL, затем применяется к страницам данных. При сбое БД восстанавливается по WAL. CDC-инструменты (Debezium) читают WAL через logical replication."
+      }
+    ]
+  },
+  {
+    "question": "Как Debezium обрабатывает ситуацию, когда потребитель перезапускается и должен продолжить с места остановки?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Debezium делает полный снимок (snapshot) таблицы при каждом перезапуске",
+        "correct": false,
+        "explanation": "Полный snapshot делается только при первом запуске или при snapshot.mode=always. В обычном режиме Debezium продолжает с сохранённой позиции в WAL."
+      },
+      {
+        "text": "Kafka автоматически определяет пропущенные сообщения и переотправляет их",
+        "correct": false,
+        "explanation": "Kafka не знает, какие сообщения были «пропущены». Это ответственность Debezium — отслеживать позицию в WAL."
+      },
+      {
+        "text": "Через временные метки: Debezium читает все изменения за последний час",
+        "correct": false,
+        "explanation": "Временные метки ненадёжны для этой задачи. LSN — точный и монотонный идентификатор позиции, что делает его правильным выбором для отслеживания прогресса."
+      },
+      {
+        "text": "Через LSN (Log Sequence Number) — Debezium хранит позицию в WAL и продолжает с последнего подтверждённого LSN",
+        "correct": true,
+        "explanation": "LSN — монотонно возрастающий идентификатор позиции в WAL PostgreSQL. Debezium сохраняет offset (LSN) в Kafka Connect offset store. При перезапуске чтение возобновляется с сохранённой позиции."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть сервис заказов. После успешного сохранения заказа в БД сервис публикует событие OrderCreated в Kafka. Изредка заказы теряются — потребители не получают событие. В логах видно, что запись в БД прошла, но Kafka недоступна. Какое решение применить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Перейти на синхронную архитектуру: сначала публикация в Kafka, затем запись в БД",
+        "correct": false,
+        "explanation": "Это только меняет направление потери: теперь при сбое БД событие попадёт в Kafka, но заказ не сохранится. Проблема двойной записи остаётся."
+      },
+      {
+        "text": "Добавить retry с exponential backoff при публикации в Kafka",
+        "correct": false,
+        "explanation": "Retry уменьшит частоту потерь при кратковременных сбоях, но не устранит проблему полностью. При длительном сбое Kafka или перезапуске сервиса событие всё равно потеряется."
+      },
+      {
+        "text": "Включить transactions в Kafka Producer (transactional.id)",
+        "correct": false,
+        "explanation": "Kafka-транзакции обеспечивают атомарность публикации в несколько топиков внутри Kafka, но не решают проблему атомарности между Kafka и внешней БД."
+      },
+      {
+        "text": "Реализовать паттерн Transactional Outbox: сохранять событие в outbox-таблицу в той же транзакции, Relay-процесс публикует их в Kafka",
+        "correct": true,
+        "explanation": "Outbox — правильное решение. Событие сохраняется атомарно с заказом. Даже если Kafka недоступна неделю, Relay опубликует все накопленные события при восстановлении. Гарантия at-least-once."
+      }
+    ]
+  },
+  {
+    "question": "В каком случае лучше использовать CDC-based Outbox (через WAL) вместо polling-based Outbox?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Когда нужно захватывать изменения в таблицах, которые обновляются напрямую через SQL без прикладного кода",
+        "correct": true,
+        "explanation": "Если данные меняются напрямую через SQL (миграции, административные скрипты, другие сервисы), polling через явную outbox-таблицу не поможет. CDC через WAL захватывает все изменения независимо от источника."
+      },
+      {
+        "text": "Когда команда не имеет опыта работы с Kafka Connect и Debezium",
+        "correct": false,
+        "explanation": "Polling-relay значительно проще в реализации и эксплуатации. CDC через WAL требует настройки logical replication, Kafka Connect, управления replication slots — это сложнее."
+      },
+      {
+        "text": "Когда требуется минимальная задержка между записью в БД и публикацией в Kafka (near real-time)",
+        "correct": false,
+        "explanation": "Polling-relay добавляет задержку, равную интервалу опроса (обычно секунды). CDC через WAL реагирует на изменения почти мгновенно — latency измеряется миллисекундами."
+      },
+      {
+        "text": "Когда нагрузка на запись очень высокая и polling создаёт избыточные SELECT-запросы к БД",
+        "correct": true,
+        "explanation": "При высоком throughput polling-relay постоянно делает SELECT к outbox. CDC через WAL читает уже написанный журнал без дополнительной нагрузки на основные таблицы."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит с Debezium replication slot в PostgreSQL при длительной недоступности Debezium?",
+    "type": "single",
+    "options": [
+      {
+        "text": "PostgreSQL удаляет слот автоматически через 24 часа",
+        "correct": false,
+        "explanation": "PostgreSQL не удаляет inactive replication slots автоматически (по умолчанию). Это именно источник проблемы."
+      },
+      {
+        "text": "PostgreSQL автоматически переключается на polling-режим при недоступности Debezium",
+        "correct": false,
+        "explanation": "PostgreSQL не знает о Debezium. Replication slot просто остаётся inactive, удерживая WAL."
+      },
+      {
+        "text": "PostgreSQL не может очистить WAL-сегменты, занятые слотом, что приводит к неограниченному росту WAL на диске",
+        "correct": true,
+        "explanation": "Inactive replication slot удерживает WAL от удаления. Если Debezium не работает долго, WAL растёт, что может заполнить диск и вывести PostgreSQL из строя. Необходимо мониторить pg_replication_slots и устанавливать max_slot_wal_keep_size."
+      },
+      {
+        "text": "Debezium при перезапуске автоматически начинает с текущей позиции, пропуская пропущенные изменения",
+        "correct": false,
+        "explanation": "Debezium продолжает с позиции, сохранённой в offset store. Изменения не пропускаются — именно для этого slot и удерживает WAL. Проблема в размере накопленного WAL, а не в пропуске событий."
+      }
+    ]
+  },
+  {
+    "question": "Чем отличается структура CDC-события при UPDATE в Debezium от CDC-события при INSERT?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CDC-события не различают INSERT и UPDATE — оба имеют op='write'",
+        "correct": false,
+        "explanation": "Debezium использует op='c' (create/insert), op='u' (update), op='d' (delete), op='r' (read/snapshot). Операции строго различаются."
+      },
+      {
+        "text": "У INSERT поле before = null, у UPDATE оба поля before и after содержат данные",
+        "correct": true,
+        "explanation": "Это ключевая разница: INSERT — строка только что создана, предыдущего состояния нет (before = null, after = новая строка). UPDATE — была существующая строка (before = старые данные, after = новые данные)."
+      },
+      {
+        "text": "INSERT и UPDATE имеют одинаковую структуру, различаются только полем op",
+        "correct": false,
+        "explanation": "Структура различается: у INSERT before = null, у UPDATE before содержит предыдущие данные. Это важно для downstream потребителей, которым нужно знать, что именно изменилось."
+      },
+      {
+        "text": "У UPDATE поле after = null, так как строка перезаписана",
+        "correct": false,
+        "explanation": "after = null только у DELETE-события. У UPDATE поле after содержит актуальные данные после изменения."
+      }
+    ]
+  },
+  {
+    "question": "Что такое idempotent Kafka producer и когда его недостаточно?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Idempotent producer автоматически дедуплицирует сообщения на основе содержимого",
+        "correct": false,
+        "explanation": "Дедупликация основана на sequence number (монотонный счётчик) и producer ID — не на содержимом сообщения. Два разных сообщения с одинаковым содержимым будут переданы оба."
+      },
+      {
+        "text": "Для exactly-once semantics end-to-end нужна дополнительная идемпотентность на стороне потребителя",
+        "correct": true,
+        "explanation": "Даже с idempotent producer потребитель может получить сообщение несколько раз при перебалансировке или повторной обработке. Полный exactly-once требует координации между producer, Kafka и consumer."
+      },
+      {
+        "text": "Idempotent producer устраняет дубли, возникающие при ретраях продюсера (network errors, broker failures)",
+        "correct": true,
+        "explanation": "enable.idempotence=true добавляет sequence number к каждому сообщению. Брокер отбрасывает дубли, возникшие из-за повторных отправок при network errors."
+      },
+      {
+        "text": "Idempotent producer помогает, когда одно бизнес-событие обрабатывается несколькими Relay-экземплярами одновременно",
+        "correct": false,
+        "explanation": "Idempotent producer работает в рамках одной producer-сессии. Если два разных Relay-экземпляра опубликуют одно событие, это будут разные producer-сессии — дубль не будет обнаружен."
+      }
+    ]
+  },
+  {
+    "question": "Какую схему таблицы outbox рекомендуется использовать для Transactional Outbox?",
+    "type": "single",
+    "options": [
+      {
+        "text": "message_id (INT AUTO_INCREMENT), topic, body (TEXT), published (BOOLEAN)",
+        "correct": false,
+        "explanation": "Функционально работает, но не лучший вариант: INT вместо UUID может создать проблемы в распределённой среде, отсутствуют поля для routing и partition key."
+      },
+      {
+        "text": "row_id (INT), data (BLOB), timestamp (BIGINT)",
+        "correct": false,
+        "explanation": "Слишком минималистичная схема. Нет метаданных для маршрутизации событий, определения типа события и отслеживания статуса публикации."
+      },
+      {
+        "text": "id (UUID), aggregate_type, aggregate_id, event_type, payload (JSON), created_at, status",
+        "correct": true,
+        "explanation": "Это стандартная схема outbox-таблицы. aggregate_type определяет топик Kafka, aggregate_id используется как partition key, payload содержит данные события, status отслеживает публикацию."
+      },
+      {
+        "text": "event_id (UUID), kafka_topic, kafka_partition, kafka_offset, payload (JSON)",
+        "correct": false,
+        "explanation": "Outbox не должен знать заранее kafka_partition и kafka_offset — это определяет Kafka при публикации. Хранить эти значения в outbox означает ненужную связанность с деталями брокера."
+      }
+    ]
+  },
+  {
+    "question": "Вы хотите синхронизировать данные из PostgreSQL в Elasticsearch и Redis при каждом изменении заказа. Какой подход наиболее масштабируем?",
+    "type": "single",
+    "options": [
+      {
+        "text": "В сервисе добавить три вызова: обновить PostgreSQL, обновить Elasticsearch, обновить Redis",
+        "correct": false,
+        "explanation": "Это прямое Dual Write (в данном случае Triple Write). Три независимых операции без атомарности — при любом сбое данные рассинхронизируются. Плохо масштабируется при добавлении новых потребителей."
+      },
+      {
+        "text": "Настроить PostgreSQL streaming replication на Elasticsearch напрямую",
+        "correct": false,
+        "explanation": "PostgreSQL физическая репликация работает только между PostgreSQL-инстанциями. Elasticsearch не является PostgreSQL-репликой."
+      },
+      {
+        "text": "Использовать PostgreSQL NOTIFY/LISTEN для уведомления сервиса об изменениях",
+        "correct": false,
+        "explanation": "NOTIFY/LISTEN работает для простых случаев, но не масштабируется: уведомления теряются при перезапуске подписчика, нет буферизации, нет replay. Это не замена CDC для продакшена."
+      },
+      {
+        "text": "Настроить CDC через Debezium: читать WAL PostgreSQL, публиковать события в Kafka, отдельные Kafka Connect сinks писать в Elasticsearch и Redis",
+        "correct": true,
+        "explanation": "CDC + Kafka — масштабируемая шина данных. Сервис пишет только в PostgreSQL. Debezium захватывает изменения. Kafka Elasticsearch Sink Connector и Redis Sink Connector независимо синхронизируют данные. Добавление нового потребителя не требует изменений в сервисе."
+      }
+    ]
+  }
+]

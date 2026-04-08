@@ -1,0 +1,792 @@
+[
+  {
+    "question": "Что означает параметр producer acks=0?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Producer ждёт подтверждения только от leader-реплики",
+        "correct": false,
+        "explanation": "Подтверждение только от leader соответствует acks=1. Это компромисс между производительностью и надёжностью."
+      },
+      {
+        "text": "Producer ждёт подтверждения от всех ISR-реплик",
+        "correct": false,
+        "explanation": "Ожидание подтверждения от всех ISR соответствует acks=all (-1). Это самый надёжный, но самый медленный режим."
+      },
+      {
+        "text": "Producer не ждёт никакого подтверждения — fire-and-forget",
+        "correct": true,
+        "explanation": "При acks=0 producer отправляет сообщение и немедленно считает его доставленным. Максимальная производительность, но нет гарантий доставки — сообщение может потеряться при любом сбое."
+      },
+      {
+        "text": "Producer ждёт подтверждения от consumer",
+        "correct": false,
+        "explanation": "Kafka producer никогда не ждёт подтверждения от consumer — параметр acks описывает только взаимодействие producer и брокеров."
+      }
+    ]
+  },
+  {
+    "question": "Какая комбинация параметров обеспечивает наивысшую надёжность записи в Kafka?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "linger.ms=0",
+        "correct": false,
+        "explanation": "linger.ms влияет на задержку батчинга, но не на надёжность записи. Для надёжности важны acks и репликация."
+      },
+      {
+        "text": "min.insync.replicas=2",
+        "correct": true,
+        "explanation": "Совместно с acks=all это гарантирует, что данные записаны хотя бы на 2 реплики. Без этого параметра acks=all бесполезен при единственной ISR."
+      },
+      {
+        "text": "acks=all",
+        "correct": true,
+        "explanation": "acks=all требует подтверждения от всех ISR-реплик, что гарантирует сохранность записи даже при падении leader."
+      },
+      {
+        "text": "acks=1",
+        "correct": false,
+        "explanation": "acks=1 подтверждает запись только от leader. Если leader упадёт до репликации, данные потеряются. Это не максимальная надёжность."
+      }
+    ]
+  },
+  {
+    "question": "Что делает параметр enable.idempotence=true у Kafka producer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Включает сжатие сообщений для экономии трафика",
+        "correct": false,
+        "explanation": "Сжатие управляется параметром compression.type (none, gzip, snappy, lz4, zstd). Это не связано с идемпотентностью."
+      },
+      {
+        "text": "Producer получает ProducerID и порядковый номер — брокер отбрасывает дубликаты при ретраях",
+        "correct": true,
+        "explanation": "При enable.idempotence=true broker присваивает producer уникальный ProducerID. Каждое сообщение имеет порядковый номер (sequence number). Брокер детектирует и отбрасывает дубликаты при повторных отправках после сетевых сбоев."
+      },
+      {
+        "text": "Отключает ретраи для предотвращения дублирования сообщений",
+        "correct": false,
+        "explanation": "Идемпотентный producer, напротив, подразумевает включение ретраев (retries=MAX_INT). Именно идемпотентность позволяет повторять отправки без дублирования записей."
+      },
+      {
+        "text": "Гарантирует exactly-once семантику для потребителей",
+        "correct": false,
+        "explanation": "Идемпотентный producer гарантирует exactly-once только на уровне записи в брокер (в рамках одной сессии producer). Для полной exactly-once семантики между producer и consumer нужны транзакции."
+      }
+    ]
+  },
+  {
+    "question": "Какую стратегию партиционирования следует использовать для гарантии порядка событий одного пользователя?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Random — случайное распределение для балансировки",
+        "correct": false,
+        "explanation": "Random распределение нарушает порядок ещё хуже, чем round-robin. Порядок в Kafka гарантирован только внутри одной партиции."
+      },
+      {
+        "text": "Round-robin — равномерное распределение по всем партициям",
+        "correct": false,
+        "explanation": "Round-robin распределяет сообщения циклически, игнорируя ключ. События одного пользователя попадут в разные партиции, что нарушит порядок обработки."
+      },
+      {
+        "text": "Key-based — hash(userId) % numPartitions",
+        "correct": true,
+        "explanation": "При key-based партиционировании одинаковый ключ (userId) всегда даёт одну и ту же партицию через детерминированный хеш. Внутри партиции Kafka гарантирует порядок. Это стандартный подход для event sourcing пользовательских событий."
+      },
+      {
+        "text": "Custom — произвольная бизнес-логика",
+        "correct": false,
+        "explanation": "Кастомный партиционер позволяет реализовать любую логику, включая key-based. Но сам по себе custom не является ответом — нужно гарантировать, что сообщения с одинаковым userId идут в одну партицию."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт с consumer group 'orders' с 2 consumers при добавлении 3-го consumer в топик с 2 партициями?",
+    "type": "single",
+    "options": [
+      {
+        "text": "3-й consumer начнёт читать сообщения из начала топика",
+        "correct": false,
+        "explanation": "Consumer в группе получает конкретные партиции и читает с committed offset. Не назначенный consumer (idle) вообще не читает сообщений."
+      },
+      {
+        "text": "Каждый consumer получит по одной партиции, 3-й consumer будет обрабатывать обе",
+        "correct": false,
+        "explanation": "Одна партиция не может быть назначена нескольким consumers в одной группе. Это фундаментальное ограничение модели потребления в Kafka."
+      },
+      {
+        "text": "Kafka создаст новую партицию автоматически",
+        "correct": false,
+        "explanation": "Kafka не создаёт партиции автоматически при добавлении consumers. Изменение числа партиций — административная операция, которая сама запускает rebalancing."
+      },
+      {
+        "text": "Запустится rebalancing: 2 consumers получат по одной партиции, 3-й будет idle",
+        "correct": true,
+        "explanation": "Количество активных consumers в группе не может превышать количество партиций. После rebalancing 2 consumers получат по одной партиции, 3-й окажется без назначенных партиций (idle). Добавление consumers сверх числа партиций бесполезно для масштабирования."
+      }
+    ]
+  },
+  {
+    "question": "Что такое __consumer_offsets в Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Конфигурационный файл с настройками consumer group",
+        "correct": false,
+        "explanation": "__consumer_offsets — это внутренний Kafka топик, а не файл. Конфигурация consumers хранится в ZooKeeper или передаётся при создании consumer."
+      },
+      {
+        "text": "Log файл брокера с историей всех потреблённых сообщений",
+        "correct": false,
+        "explanation": "__consumer_offsets хранит только committed offset (числовые метки позиций), а не сами сообщения или их историю потребления."
+      },
+      {
+        "text": "Внутренний Kafka топик для хранения committed offset-ов всех consumer groups",
+        "correct": true,
+        "explanation": "__consumer_offsets — специальный топик с репликацией, в который broker записывает committed offset для каждой пары (group.id, topic, partition). При перезапуске consumer читает свой committed offset именно отсюда и продолжает с этой позиции."
+      },
+      {
+        "text": "Метрика JMX для мониторинга consumer lag",
+        "correct": false,
+        "explanation": "Consumer lag можно получить через JMX или kafka-consumer-groups.sh, но __consumer_offsets — это именно топик для хранения данных, а не метрика."
+      }
+    ]
+  },
+  {
+    "question": "Consumer обработал 100 сообщений, но не вызвал commitSync(). Что произойдёт при его аварийном перезапуске?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka автоматически сохранит прогресс через Write-Ahead Log",
+        "correct": false,
+        "explanation": "WAL в Kafka — это механизм надёжности записи самих данных в топик, а не механизм отслеживания прогресса consumer. Прогресс consumer хранится только в __consumer_offsets через явные коммиты."
+      },
+      {
+        "text": "100 сообщений будут обработаны повторно (at-least-once семантика)",
+        "correct": true,
+        "explanation": "Kafka хранит committed offset в __consumer_offsets. Без явного коммита после обработки, consumer при перезапуске вернётся к последнему committed offset и перечитает 100 сообщений. Это at-least-once поведение — сообщения гарантированно не потеряются, но могут быть обработаны дважды."
+      },
+      {
+        "text": "Сообщения будут пропущены — consumer продолжит с нового offset",
+        "correct": false,
+        "explanation": "Без коммита broker не знает о прогрессе consumer. При перезапуске consumer вернётся к последнему committed offset и перечитает сообщения."
+      },
+      {
+        "text": "Consumer получит ошибку и не сможет переподключиться",
+        "correct": false,
+        "explanation": "Отсутствие коммита не препятствует повторному подключению consumer. Он просто начнёт читать с последнего committed offset, перечитав необработанные (с его точки зрения) сообщения."
+      }
+    ]
+  },
+  {
+    "question": "Чем отличается auto commit от manual commit в Kafka consumer?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Auto commit (enable.auto.commit=true) периодически коммитит offset по таймеру (auto.commit.interval.ms)",
+        "correct": true,
+        "explanation": "По умолчанию auto.commit.interval.ms=5000. Это означает, что каждые 5 секунд consumer коммитит текущий offset независимо от состояния обработки."
+      },
+      {
+        "text": "Manual commit (commitSync/commitAsync) гарантирует exactly-once",
+        "correct": false,
+        "explanation": "Manual commit сам по себе не даёт exactly-once. Он позволяет управлять моментом коммита для достижения at-least-once. Для exactly-once нужны Kafka транзакции или идемпотентная обработка."
+      },
+      {
+        "text": "Manual commit позволяет коммитить offset только после успешной обработки сообщения",
+        "correct": true,
+        "explanation": "Именно это и является преимуществом manual commit: вы сами контролируете момент коммита — только после того, как сообщение успешно обработано и результат сохранён."
+      },
+      {
+        "text": "Это зависит исключительно от языка программирования",
+        "correct": false,
+        "explanation": "Это архитектурное решение, не зависящее от языка."
+      },
+      {
+        "text": "Auto commit может привести к потере сообщений при аварии (at-most-once) если commit произошёл до обработки",
+        "correct": true,
+        "explanation": "Если auto commit произошёл до завершения обработки и consumer упал, сообщения будут помечены как обработанные, хотя реально обработаны не были. Это at-most-once поведение."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Consumer Lag?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Разница между Committed Offset и Current Offset",
+        "correct": false,
+        "explanation": "Это называется 'gap' — количество обработанных, но ещё не закоммиченных сообщений. При краше они будут перечитаны. Consumer lag — это отставание от конца лога, а не от committed offset."
+      },
+      {
+        "text": "Разница между Log-End Offset и Current Offset — количество необработанных сообщений",
+        "correct": true,
+        "explanation": "Consumer Lag = Log-End Offset − Current Offset. Он показывает, насколько consumer отстал от producer. Растущий lag — признак того, что consumer не успевает обрабатывать входящий поток или завис. Мониторинг lag — стандартная практика в продакшене."
+      },
+      {
+        "text": "Время между отправкой и получением сообщения",
+        "correct": false,
+        "explanation": "Это сетевая задержка (latency), а не consumer lag. Lag измеряется в количестве сообщений, а не в единицах времени."
+      },
+      {
+        "text": "Количество повторных ретраев при ошибке обработки",
+        "correct": false,
+        "explanation": "Ретраи — это механизм надёжности доставки, не связанный напрямую с consumer lag. Lag — это отставание позиции чтения от конца лога."
+      }
+    ]
+  },
+  {
+    "question": "Вы реализуете кастомный партиционер для топика платёжных событий: транзакции суммой > $10000 должны всегда попадать в партицию 0 для приоритетной обработки. Какие риски это создаёт?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Кастомный партиционер нельзя использовать совместно с key-based партиционированием",
+        "correct": false,
+        "explanation": "Кастомный партиционер может сочетать любую логику, включая учёт ключа сообщения. Это не является техническим ограничением Kafka."
+      },
+      {
+        "text": "Порядок обработки крупных транзакций будет нарушен",
+        "correct": false,
+        "explanation": "Внутри партиции 0 порядок гарантирован. Все крупные транзакции, попавшие в эту партицию, будут обработаны в порядке поступления."
+      },
+      {
+        "text": "Партиция 0 может стать hot partition при высоком объёме крупных транзакций",
+        "correct": true,
+        "explanation": "Если большинство транзакций > $10000 (например, B2B платежи), партиция 0 получит непропорционально большую нагрузку. Consumer этой партиции станет узким местом системы."
+      },
+      {
+        "text": "Consumer партиции 0 должен быть мощнее остальных",
+        "correct": true,
+        "explanation": "Неравномерное распределение требует учёта при выделении ресурсов. Consumer, обрабатывающий партицию 0, может нуждаться в большем CPU/памяти или специальной приоритетной очереди."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит при Eager Rebalancing в Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Новый consumer получает партиции только после завершения обработки текущего батча",
+        "correct": false,
+        "explanation": "При Eager Rebalancing все consumers останавливаются немедленно, не дожидаясь завершения текущего батча. Именно это и называется 'stop-the-world'."
+      },
+      {
+        "text": "Все consumers группы останавливаются, все партиции отзываются и переназначаются заново",
+        "correct": true,
+        "explanation": "Eager Rebalancing — 'stop-the-world' подход: все consumers прекращают потребление, Group Coordinator отзывает все партиции, Group Leader вычисляет новое распределение, затем все consumers получают новые назначения. Это создаёт паузу 500ms-2s в зависимости от числа consumers и сложности кластера."
+      },
+      {
+        "text": "Consumer, покинувший группу, передаёт свои партиции соседнему consumer без остановки",
+        "correct": false,
+        "explanation": "Такое поведение — черта Cooperative Sticky, где только затронутые партиции меняют владельца. Eager всегда выполняет полный пересмотр всех назначений."
+      },
+      {
+        "text": "Только партиции нового consumer назначаются заново, остальные продолжают работу",
+        "correct": false,
+        "explanation": "Это описание Cooperative Sticky rebalancing. Eager — это противоположный подход: полная остановка всех и переназначение всех партиций."
+      }
+    ]
+  },
+  {
+    "question": "В чём ключевое преимущество CooperativeStickyAssignor перед EagerAssignor?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Только необходимые партиции перемещаются при rebalancing",
+        "correct": false,
+        "explanation": "CooperativeStickyAssignor делает инкрементальный rebalancing: если consumer-2 присоединился и нужно отдать ему 2 партиции, только эти 2 партиции временно останавливаются. Остальные 4 consumer продолжают работу непрерывно."
+      },
+      {
+        "text": "Sticky компонент сохраняет текущие назначения партиций при rebalancing",
+        "correct": true,
+        "explanation": "'Sticky' означает, что consumer старается сохранить уже имеющиеся партиции. Это минимизирует перемещение данных и сохраняет тепловые кэши consumer-ов."
+      },
+      {
+        "text": "Отсутствие stop-the-world паузы для consumers, чьи партиции не перемещаются",
+        "correct": true,
+        "explanation": "В отличие от Eager, Cooperative не прерывает consumers, которые сохраняют свои партиции. Это критично для систем с жёсткими требованиями к latency."
+      },
+      {
+        "text": "CooperativeStickyAssignor быстрее завершает rebalancing чем EagerAssignor",
+        "correct": false,
+        "explanation": "CooperativeStickyAssignor выполняет два round-trip к Group Coordinator вместо одного у Eager. По времени завершения он может быть медленнее, но зато не останавливает всю группу."
+      }
+    ]
+  },
+  {
+    "question": "Начиная с какой версии Kafka CooperativeStickyAssignor является доступным?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka 2.4",
+        "correct": true,
+        "explanation": "KIP-429 (Kafka Incremental Cooperative Rebalancing) был реализован в Kafka 2.4.0. CooperativeStickyAssignor стал доступен и рекомендован для продакшена начиная с этой версии."
+      },
+      {
+        "text": "Kafka 3.0",
+        "correct": false,
+        "explanation": "В Kafka 3.0 Cooperative rebalancing уже был зрелой возможностью, но появился он в 2.4. Начиная с 3.0, CooperativeStickyAssignor стал assignor-ом по умолчанию."
+      },
+      {
+        "text": "Kafka 2.0",
+        "correct": false,
+        "explanation": "В Kafka 2.0 CooperativeStickyAssignor ещё не существовал. Используйте Kafka 2.4+ для применения этой стратегии."
+      },
+      {
+        "text": "Kafka 1.0",
+        "correct": false,
+        "explanation": "В Kafka 1.x был только EagerAssignor (RangeAssignor, RoundRobinAssignor). Cooperative rebalancing появился значительно позже."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если обработка сообщения занимает 7 минут, а max.poll.interval.ms=300000 (5 минут)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Consumer получит предупреждение в логах, но продолжит работу",
+        "correct": false,
+        "explanation": "max.poll.interval.ms — это hard timeout, а не мягкое предупреждение. Превышение этого лимита приводит к принудительному исключению consumer из группы."
+      },
+      {
+        "text": "Consumer будет признан мёртвым, запустится rebalancing, партиции перейдут другому consumer",
+        "correct": true,
+        "explanation": "Если consumer не вызывает poll() в течение max.poll.interval.ms, Group Coordinator считает его мёртвым. Запускается rebalancing: партиции этого consumer передаются другим. Это частая причина 'неожиданных' rebalancing в системах с тяжёлой обработкой. Решение: увеличить max.poll.interval.ms или уменьшить batch size."
+      },
+      {
+        "text": "Сообщение будет автоматически откатано через транзакцию",
+        "correct": false,
+        "explanation": "max.poll.interval.ms не связан с транзакциями. Это таймаут между вызовами poll(), а не время выполнения транзакции."
+      },
+      {
+        "text": "Kafka заблокирует дальнейшую отправку сообщений этому consumer",
+        "correct": false,
+        "explanation": "Kafka не блокирует consumer — она считает его мёртвым и исключает из группы. Это запустит rebalancing, перераспределив партиции."
+      }
+    ]
+  },
+  {
+    "question": "Чем отличается session.timeout.ms от max.poll.interval.ms?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "max.poll.interval.ms — максимальное время между вызовами poll(), включая время обработки батча",
+        "correct": true,
+        "explanation": "В отличие от heartbeat (который отправляется в фоне), poll() вызывается в основном потоке обработки. Превышение max.poll.interval.ms означает, что приложение 'застряло' в обработке и не запрашивает новые сообщения."
+      },
+      {
+        "text": "session.timeout.ms должен быть больше max.poll.interval.ms",
+        "correct": false,
+        "explanation": "Наоборот: session.timeout.ms должен быть меньше max.poll.interval.ms. Heartbeat-механизм должен реагировать быстрее, чем таймаут обработки батча."
+      },
+      {
+        "text": "Оба параметра могут независимо привести к rebalancing при превышении",
+        "correct": true,
+        "explanation": "Каждый из этих параметров является независимым механизмом обнаружения 'мёртвого' consumer. session.timeout.ms обнаруживает сетевые сбои и краши процесса. max.poll.interval.ms обнаруживает зависание логики обработки."
+      },
+      {
+        "text": "session.timeout.ms — таймаут heartbeat: если consumer не шлёт heartbeat, считается мёртвым",
+        "correct": false,
+        "explanation": "Consumer отправляет heartbeats в фоновом потоке. Если heartbeat не поступал в течение session.timeout.ms (по умолчанию 45 секунд), Group Coordinator исключает consumer из группы."
+      }
+    ]
+  },
+  {
+    "question": "У вас 6 партиций и 4 consumers в группе. Как round-robin assignor распределит партиции?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Consumer-1: [0,1], Consumer-2: [2,3], Consumer-3: [4], Consumer-4: [5]",
+        "correct": false,
+        "explanation": "Такое распределение возможно при RangeAssignor, который назначает смежные партиции. RoundRobinAssignor чередует партиции для равномерности."
+      },
+      {
+        "text": "Все 4 consumers получают по 1.5 партиции — Kafka дробит партиции",
+        "correct": false,
+        "explanation": "Партиции неделимы. Kafka всегда назначает целые партиции. При 6 партициях и 4 consumers 2 consumer-а получат по 2 партиции, 2 — по одной."
+      },
+      {
+        "text": "Consumer-1: [0,4], Consumer-2: [1,5], Consumer-3: [2], Consumer-4: [3]",
+        "correct": true,
+        "explanation": "RoundRobinAssignor чередует партиции: P0→C1, P1→C2, P2→C3, P3→C4, P4→C1, P5→C2. Итог: C1=[0,4], C2=[1,5], C3=[2], C4=[3]. Это максимально равномерное распределение при 6 партициях и 4 consumers (2+2+1+1)."
+      },
+      {
+        "text": "Consumer-1: [0,1,2], Consumer-2: [3,4,5], Consumer-3: [], Consumer-4: []",
+        "correct": false,
+        "explanation": "Такое распределение (3+3+0+0) неравномерно. RoundRobinAssignor чередует назначения, а не группирует их подряд."
+      }
+    ]
+  },
+  {
+    "question": "Как hash(key) % numPartitions влияет на сообщения с одинаковым ключом?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Они дублируются во все партиции для надёжности",
+        "correct": false,
+        "explanation": "Kafka не дублирует сообщения по партициям — репликация происходит между брокерами, не партициями. Каждое сообщение попадает ровно в одну партицию."
+      },
+      {
+        "text": "Они всегда попадают в одну партицию, обеспечивая порядок обработки",
+        "correct": true,
+        "explanation": "Детерминированность хеш-функции гарантирует: одинаковый ключ → одинаковый хеш → одна и та же партиция. Это позволяет гарантировать порядок событий для одной сущности (пользователя, заказа, устройства) при условии, что количество партиций не меняется."
+      },
+      {
+        "text": "Они попадают в партицию с наименьшей загрузкой",
+        "correct": false,
+        "explanation": "Key-based партиционирование не учитывает текущую загрузку партиций. Если ключи распределены неравномерно, возникнут hot partitions — это известное ограничение подхода."
+      },
+      {
+        "text": "Они могут попасть в любую партицию — хеш недетерминирован",
+        "correct": false,
+        "explanation": "Хеш-функция детерминирована: для одинакового входа результат всегда одинаков. Именно это делает key-based партиционирование полезным."
+      }
+    ]
+  },
+  {
+    "question": "Что такое 'sticky' в CooperativeStickyAssignor?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Consumer не может быть удалён из группы принудительно",
+        "correct": false,
+        "explanation": "Любой consumer может быть исключён из группы при превышении session.timeout.ms или max.poll.interval.ms. Sticky assignor не влияет на механизмы обнаружения сбоев."
+      },
+      {
+        "text": "Consumer 'прилипает' к одному брокеру и не меняет соединение",
+        "correct": false,
+        "explanation": "Sticky не описывает сетевые соединения. Это характеристика назначения партиций, а не сетевой топологии."
+      },
+      {
+        "text": "Assignor старается сохранить текущие назначения партиций при rebalancing",
+        "correct": true,
+        "explanation": "'Sticky' означает 'прилипчивый' в контексте назначений партиций: при необходимости rebalancing assignor пытается оставить существующие назначения неизменными и переместить только те партиции, которые действительно нужно переназначить. Это сокращает перемещение данных и сохраняет эффективность кэшей consumer-ов."
+      },
+      {
+        "text": "Сообщения с одинаковым ключом всегда обрабатываются одним consumer",
+        "correct": false,
+        "explanation": "Это свойство key-based партиционирования, а не sticky assignor. CooperativeStickyAssignor описывает поведение при rebalancing, а не маршрутизацию сообщений."
+      }
+    ]
+  },
+  {
+    "question": "Вы замечаете постоянно растущий consumer lag в топике 'user-events'. Какие причины наиболее вероятны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Слишком частые rebalancing останавливают потребление",
+        "correct": true,
+        "explanation": "При каждом rebalancing все consumers (Eager) или часть consumers (Cooperative) временно прекращают чтение. Частые rebalancing (из-за нестабильных consumers или неправильно настроенных таймаутов) создают паузы, в которые lag накапливается."
+      },
+      {
+        "text": "Слишком большое количество партиций в топике",
+        "correct": false,
+        "explanation": "Большое число партиций само по себе не вызывает рост lag. Наоборот, больше партиций позволяет добавить consumers для параллельной обработки."
+      },
+      {
+        "text": "Consumer завис в долгой обработке одного сообщения (blocking operation)",
+        "correct": false,
+        "explanation": "Синхронный вызов внешней системы, deadlock или бесконечный retry в обработчике заблокирует consumer. Он не будет вызывать poll(), накопит lag и в итоге будет исключён из группы по max.poll.interval.ms."
+      },
+      {
+        "text": "Consumer обрабатывает сообщения медленнее, чем producer их публикует",
+        "correct": true,
+        "explanation": "Это основная причина роста lag. Если producer генерирует 10000 msg/s, а consumer обрабатывает 8000 msg/s, lag будет расти на 2000 сообщений каждую секунду."
+      }
+    ]
+  },
+  {
+    "question": "Какова правильная последовательность шагов при Eager Rebalancing при подключении нового consumer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Все partition-leader-ы приостанавливаются → новый consumer получает назначение → лидеры возобновляют работу",
+        "correct": false,
+        "explanation": "Partition leader — это брокер, хранящий основную копию партиции. Rebalancing затрагивает consumers, а не partition leaders на брокерах. Эти понятия не следует путать."
+      },
+      {
+        "text": "Новый consumer подключается → все останавливаются → все партиции отзываются → вычисляется новое распределение → все получают новые назначения → все возобновляют работу",
+        "correct": true,
+        "explanation": "Это точная последовательность Eager Rebalancing: (1) join, (2) stop-the-world, (3) revoke all, (4) Group Leader вычисляет назначения, (5) assign all, (6) resume. Каждый шаг занимает время, что и создаёт паузу 500ms-2s."
+      },
+      {
+        "text": "Group Coordinator исключает consumer с наименьшим числом партиций → перераспределяет их → добавляет нового",
+        "correct": false,
+        "explanation": "Group Coordinator не исключает consumers при join нового. Он оркестрирует полный пересмотр всех назначений, не выбирая 'жертву'."
+      },
+      {
+        "text": "Новый consumer подключается → получает свободные партиции → остальные продолжают работу",
+        "correct": false,
+        "explanation": "Это описывает идеальный сценарий, но не Eager Rebalancing. При Eager нет понятия 'свободные партиции' — все партиции отзываются и переназначаются заново."
+      }
+    ]
+  },
+  {
+    "question": "Вы хотите реализовать exactly-once обработку с Kafka. Что из перечисленного необходимо?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Kafka транзакции (transactional.id) для атомарной записи в несколько топиков",
+        "correct": true,
+        "explanation": "Для exactly-once в потоке обработки (read-process-write) нужны транзакции: атомарное чтение, обработка и запись результата с коммитом offset в рамках одной транзакции."
+      },
+      {
+        "text": "enable.idempotence=true на producer",
+        "correct": true,
+        "explanation": "Идемпотентный producer — первый шаг: он гарантирует, что повторная отправка при сбое не создаст дубликат в брокере. Это exactly-once на уровне записи в топик."
+      },
+      {
+        "text": "Это возможно только в облачных решениях",
+        "correct": false,
+        "explanation": "Это работает как в облаке, так и on-premise."
+      },
+      {
+        "text": "Достаточно acks=1 для гарантии exactly-once",
+        "correct": false,
+        "explanation": "acks=1 не гарантирует exactly-once. При сбое leader-а до репликации сообщение может быть потеряно. Для exactly-once нужны acks=all + идемпотентность + транзакции."
+      },
+      {
+        "text": "enable.auto.commit=false для ручного управления offset",
+        "correct": true,
+        "explanation": "При exactly-once нельзя доверять автоматическому коммиту. Коммит offset должен происходить атомарно вместе с записью результата обработки в рамках транзакции."
+      }
+    ]
+  },
+  {
+    "question": "Какое значение partitionCount лучше всего подойдёт для топика 'orders' с ожидаемой нагрузкой 10000 msg/s и 5 consumer-ами?",
+    "type": "single",
+    "options": [
+      {
+        "text": "1 — меньше overhead на управление",
+        "correct": false,
+        "explanation": "Одна партиция означает один consumer (остальные 4 будут idle). Параллелизм невозможен, топик станет узким местом при 10000 msg/s."
+      },
+      {
+        "text": "3 — стандартный минимум для отказоустойчивости",
+        "correct": false,
+        "explanation": "3 — это рекомендуемый фактор репликации (replication.factor), а не число партиций. При 3 партициях и 5 consumers — 2 consumer будут idle, параллелизм неполный."
+      },
+      {
+        "text": "5 — по одной партиции на consumer",
+        "correct": true,
+        "explanation": "5 партиций при 5 consumers — оптимальный баланс: каждый consumer получит ровно одну партицию, параллелизм максимален. Дополнительный запас: если нагрузка вырастет, можно добавить consumers до числа партиций. Если нужно больше 5 consumers — увеличить партиции. Важно: изменение числа партиций нарушает key-based порядок."
+      },
+      {
+        "text": "100 — чем больше, тем лучше масштабирование",
+        "correct": false,
+        "explanation": "Слишком много партиций создаёт overhead: больше open file handlers на брокере, большее время rebalancing, более высокая latency при репликации. Правило: партиций должно быть в разумных пределах, кратных ожидаемому числу consumers."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт с сообщениями в партиции при изменении числа партиций топика с 3 до 6?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Существующие сообщения остаются в своих партициях (0,1,2), новые сообщения могут попасть в 0-5",
+        "correct": true,
+        "explanation": "Добавление партиций не затрагивает существующие данные. Партиции 0, 1, 2 сохраняют свои сообщения. Но для key-based партиционирования это критично: hash(key) % 6 даст другой результат, чем hash(key) % 3. Сообщения одного пользователя теперь могут попасть в разные партиции, нарушая гарантию порядка."
+      },
+      {
+        "text": "Consumer group автоматически обновит назначения без rebalancing",
+        "correct": false,
+        "explanation": "Добавление партиций запускает rebalancing в consumer groups, читающих этот топик. Новые партиции нужно назначить consumers, что требует пересмотра всех назначений."
+      },
+      {
+        "text": "Все существующие сообщения будут перераспределены по 6 партициям",
+        "correct": false,
+        "explanation": "Kafka не перераспределяет уже записанные сообщения при добавлении партиций. Это было бы крайне дорогостоящей операцией."
+      },
+      {
+        "text": "Kafka вернёт ошибку — уменьшение числа партиций запрещено",
+        "correct": false,
+        "explanation": "Здесь речь об увеличении числа партиций (3→6), а не об уменьшении. Уменьшение действительно невозможно. Увеличение разрешено, но нарушает key-based порядок."
+      }
+    ]
+  },
+  {
+    "question": "Consumer вызвал poll() и получил 500 сообщений. Сколько вызовов commitSync() минимально нужно для гарантии at-least-once?",
+    "type": "single",
+    "options": [
+      {
+        "text": "0 — enable.auto.commit=true автоматически всё закоммитит",
+        "correct": false,
+        "explanation": "Вопрос о минимуме явных вызовов commitSync(). Кроме того, auto.commit не гарантирует at-least-once: он может закоммитить offset до завершения обработки."
+      },
+      {
+        "text": "500 — коммитить после каждого сообщения",
+        "correct": false,
+        "explanation": "Коммит после каждого сообщения технически возможен (at-least-once), но крайне неэффективен: 500 синхронных roundtrip к брокеру. Обычно коммитят батч целиком."
+      },
+      {
+        "text": "1 — один commitSync() после обработки всего батча из 500 сообщений",
+        "correct": true,
+        "explanation": "Один вызов commitSync() после успешной обработки всех 500 сообщений гарантирует at-least-once: если consumer упадёт до коммита, все 500 будут перечитаны. Если упадёт после коммита — ни одно не будет повторно обработано (при идемпотентной обработке это не проблема). Один батчевый коммит — баланс между надёжностью и производительностью."
+      },
+      {
+        "text": "2 — до и после обработки батча",
+        "correct": false,
+        "explanation": "Коммит до обработки — это at-most-once (может потерять сообщения при краше в процессе). Коммит после обработки — at-least-once. Двойной коммит избыточен."
+      }
+    ]
+  },
+  {
+    "question": "В вашей системе возникают частые rebalancing, хотя consumers не падают. Какой параметр стоит проверить в первую очередь?",
+    "type": "single",
+    "options": [
+      {
+        "text": "replication.factor — недостаточное число реплик",
+        "correct": false,
+        "explanation": "replication.factor влияет на надёжность хранения данных, но не вызывает rebalancing consumer groups."
+      },
+      {
+        "text": "batch.size у producer — слишком большие батчи замедляют consumer",
+        "correct": false,
+        "explanation": "batch.size влияет на эффективность записи producer-а. Это не вызывает rebalancing на стороне consumer."
+      },
+      {
+        "text": "log.retention.ms — слишком долгое хранение сообщений",
+        "correct": false,
+        "explanation": "log.retention.ms управляет хранением данных на диске. К rebalancing не имеет отношения."
+      },
+      {
+        "text": "max.poll.interval.ms — если обработка батча занимает больше этого значения",
+        "correct": true,
+        "explanation": "Это самая частая причина 'необъяснимых' rebalancing при живых consumers. Если бизнес-логика обработки занимает, например, 6 минут, а max.poll.interval.ms=300000ms (5 минут), consumer будет регулярно признаваться мёртвым и исключаться из группы. Решение: увеличить max.poll.interval.ms или уменьшить max.poll.records."
+      }
+    ]
+  },
+  {
+    "question": "Два consumer group — 'analytics' и 'billing' — читают один топик 'orders'. Как распределяются сообщения?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Группа с более ранним committed offset получает приоритет",
+        "correct": false,
+        "explanation": "У consumer groups нет приоритетов. Kafka не знает о 'важности' той или иной группы — все читают независимо."
+      },
+      {
+        "text": "Каждая consumer group получает все сообщения независимо от другой",
+        "correct": true,
+        "explanation": "Consumer groups полностью изолированы друг от друга. Каждая group хранит свой committed offset в __consumer_offsets и независимо читает все сообщения из топика. Это позволяет 'analytics' обрабатывать для аналитики, а 'billing' — для выставления счетов, причём каждая со своей скоростью."
+      },
+      {
+        "text": "Сообщения распределяются между группами: нечётные offset → analytics, чётные → billing",
+        "correct": false,
+        "explanation": "Kafka не делит сообщения между consumer groups. Каждая group получает все сообщения независимо."
+      },
+      {
+        "text": "Если billing отстаёт, analytics автоматически замедляется для синхронизации",
+        "correct": false,
+        "explanation": "Consumer groups не синхронизируются между собой. Kafka не управляет скоростью потребления — каждая группа работает в своём темпе."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт если committed offset окажется больше log-end offset (например, после уменьшения retention)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Поведение определяется параметром auto.offset.reset: 'latest' → конец лога, 'earliest' → начало",
+        "correct": true,
+        "explanation": "Если committed offset больше log-end offset (offset out of range), Kafka применяет стратегию auto.offset.reset. latest (по умолчанию) отправит consumer на конец текущего лога — это может пропустить часть данных. earliest — на начало. none — выбросит OffsetOutOfRangeException. Уменьшение retention может неожиданно сбросить позицию consumer."
+      },
+      {
+        "text": "Consumer заблокируется и не будет читать до ручного вмешательства",
+        "correct": false,
+        "explanation": "Consumer не блокируется в этой ситуации. Он применяет стратегию auto.offset.reset и продолжает работу (если не задан reset=none)."
+      },
+      {
+        "text": "Kafka автоматически восстановит удалённые сообщения из резервной копии",
+        "correct": false,
+        "explanation": "Kafka не имеет встроенного механизма автовосстановления удалённых по retention данных. Если данные удалены — они недоступны."
+      },
+      {
+        "text": "Consumer начнёт читать с offset 0 (beginning)",
+        "correct": false,
+        "explanation": "Поведение зависит от параметра auto.offset.reset. По умолчанию (latest) consumer начнёт с конца лога, а не с начала."
+      }
+    ]
+  },
+  {
+    "question": "Почему ack=all без min.insync.replicas=2 может быть бесполезен?",
+    "type": "single",
+    "options": [
+      {
+        "text": "min.insync.replicas настраивается только у consumer, а не у producer",
+        "correct": false,
+        "explanation": "min.insync.replicas — это параметр уровня топика (или брокера по умолчанию). Он влияет на запись producer-а: брокер отклонит запись с acks=all, если в ISR меньше min.insync.replicas реплик."
+      },
+      {
+        "text": "acks=all не работает с Kafka 3.0 и новее",
+        "correct": false,
+        "explanation": "acks=all (или acks=-1) поддерживается во всех версиях Kafka. Это один из ключевых параметров надёжности."
+      },
+      {
+        "text": "acks=all требует подтверждения только от leader реплики",
+        "correct": false,
+        "explanation": "acks=all требует подтверждения от всех реплик в ISR (In-Sync Replicas). Проблема не в количестве ожидаемых подтверждений."
+      },
+      {
+        "text": "Если ISR содержит только leader (остальные реплики отстали), acks=all подтверждает запись от одной реплики",
+        "correct": true,
+        "explanation": "ISR (In-Sync Replicas) — это текущий список актуальных реплик. Если follower-реплики отстали и выпали из ISR, в ISR останется только leader. acks=all получит подтверждение от одного лидера — что эквивалентно acks=1. Параметр min.insync.replicas=2 гарантирует, что запись будет отклонена, если в ISR меньше 2 реплик, вынуждая поддерживать актуальность реплик."
+      }
+    ]
+  },
+  {
+    "question": "Вы разрабатываете систему мониторинга IoT-устройств. Каждое устройство отправляет телеметрию каждую секунду. Важен порядок данных одного устройства. Какую стратегию партиционирования выбрать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Round-robin — равномерная нагрузка и простота реализации",
+        "correct": false,
+        "explanation": "Round-robin нарушит порядок: данные одного устройства будут попадать в разные партиции. Consumer не сможет гарантировать обработку в хронологическом порядке для конкретного устройства."
+      },
+      {
+        "text": "Все в одну партицию — строгий глобальный порядок",
+        "correct": false,
+        "explanation": "Одна партиция = один consumer = нет горизонтального масштабирования. При тысячах IoT устройств это станет узким местом. Key-based даёт порядок для каждого устройства при полной параллельности обработки разных устройств."
+      },
+      {
+        "text": "Custom partitioner — маршрутизировать по типу телеметрии (температура, давление, ток)",
+        "correct": false,
+        "explanation": "Кастомный партиционер по типу сенсора нарушит порядок данных одного устройства: данные о температуре и давлении одного устройства пойдут в разные партиции. Задача требует порядка данных одного устройства, а не по типу сенсора."
+      },
+      {
+        "text": "Key-based с device_id в качестве ключа",
+        "correct": true,
+        "explanation": "Использование device_id как ключа гарантирует: все данные одного устройства → одна партиция → строгий порядок обработки. При этом разные устройства равномерно распределяются по партициям (при равномерном распределении ID). Это классический паттерн для IoT, event sourcing и любых систем, где важен порядок событий для одной сущности."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт при Cooperative Rebalancing если consumer-2 покидает группу gracefully (вызов consumer.close())?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Остальные consumers не прерывают обработку своих партиций",
+        "correct": false,
+        "explanation": "В отличие от Eager, при Cooperative только партиции уходящего consumer временно переходят состояние rebalancing. Другие consumers продолжают обрабатывать свои партиции без остановки."
+      },
+      {
+        "text": "Consumer-2 добровольно отдаёт свои партиции перед уходом",
+        "correct": true,
+        "explanation": "При graceful shutdown consumer вызывает revoke для своих партиций до выхода из группы. Это позволяет Group Coordinator немедленно перераспределить партиции без ожидания session.timeout."
+      },
+      {
+        "text": "Необходимо два round-trip для завершения перераспределения",
+        "correct": true,
+        "explanation": "Cooperative Rebalancing всегда требует минимум два round-trip: первый — для revoke и согласования, второй — для финального назначения. Это цена за отсутствие stop-the-world паузы."
+      },
+      {
+        "text": "Все consumers получают сигнал и останавливают обработку на время перераспределения",
+        "correct": false,
+        "explanation": "Это описывает Eager Rebalancing (stop-the-world). При Cooperative graceful shutdown другие consumers не останавливаются — только партиции уходящего consumer переходят к новым владельцам."
+      }
+    ]
+  }
+]

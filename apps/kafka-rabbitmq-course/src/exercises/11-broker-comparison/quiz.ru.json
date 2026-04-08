@@ -1,0 +1,859 @@
+[
+  {
+    "question": "Какое ключевое архитектурное отличие Kafka от RabbitMQ в модели хранения сообщений?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka хранит сообщения только в оперативной памяти, RabbitMQ — на диске",
+        "correct": false,
+        "explanation": "Kafka хранит данные на диске (log-сегменты), используя page cache для производительности. RabbitMQ также поддерживает persistent очереди на диске"
+      },
+      {
+        "text": "Kafka хранит сообщения в append-only логе независимо от потребления, RabbitMQ удаляет сообщения после ACK",
+        "correct": true,
+        "explanation": "Это ключевое различие: Kafka — распределённый commit log, RabbitMQ — классическая очередь. Именно поэтому в Kafka возможен replay"
+      },
+      {
+        "text": "Kafka удаляет сообщения сразу после доставки, RabbitMQ хранит их вечно",
+        "correct": false,
+        "explanation": "Всё наоборот: RabbitMQ удаляет сообщения после ACK, Kafka хранит в логе по времени/размеру независимо от потребления"
+      },
+      {
+        "text": "Оба брокера используют одинаковую модель хранения, разница только в протоколе",
+        "correct": false,
+        "explanation": "Модели принципиально разные: log-based (Kafka) vs queue-based (RabbitMQ). Это влияет на replay, retention и семантику потребления"
+      }
+    ]
+  },
+  {
+    "question": "В чём принципиальная разница между Push и Pull моделями доставки?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Pull модель используется только для batch processing, Push — для real-time",
+        "correct": false,
+        "explanation": "Kafka (Pull) активно используется для real-time обработки. RabbitMQ (Push) — для task queues. Модель не определяет use case"
+      },
+      {
+        "text": "Push быстрее Pull при любых условиях",
+        "correct": false,
+        "explanation": "Не всегда: Pull может быть эффективнее при пакетной обработке. NATS Core (Push) — один из самых быстрых брокеров, но это не из-за модели Push"
+      },
+      {
+        "text": "При Pull модели consumer сам запрашивает сообщения и управляет своей скоростью; при Push брокер активно доставляет сообщения потребителю",
+        "correct": true,
+        "explanation": "Pull (Kafka): consumer вызывает poll() с нужным offset — естественный backpressure. Push (RabbitMQ): брокер отправляет по prefetch — нужна настройка QoS для контроля нагрузки"
+      },
+      {
+        "text": "Pull требует постоянного polling, что делает его хуже для latency",
+        "correct": false,
+        "explanation": "Kafka использует long polling (параметр fetch.min.bytes + fetch.max.wait.ms), минимизируя overhead. Latency Kafka определяется другими факторами (batch, replication)"
+      }
+    ]
+  },
+  {
+    "question": "Что такое 'умный брокер / тупой потребитель' в терминологии RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Брокер содержит сложную логику маршрутизации (Exchange, bindings, DLX), а consumer просто получает готовые сообщения по prefetch без управления состоянием",
+        "correct": true,
+        "explanation": "В RabbitMQ вся маршрутизация — на брокере: Exchange типы, routing keys, topic patterns, headers, DLX. Consumer пассивен — просто обрабатывает то, что пришло. Kafka наоборот: брокер 'тупой' (хранит лог), consumer 'умный' (управляет offset)"
+      },
+      {
+        "text": "Брокер имеет высокую вычислительную мощность, а consumer работает на слабом железе",
+        "correct": false,
+        "explanation": "Термин описывает архитектурную роль, а не характеристики железа. 'Smart broker' означает сложную логику маршрутизации на стороне брокера"
+      },
+      {
+        "text": "Consumer не может управлять offset и всегда читает с начала",
+        "correct": false,
+        "explanation": "В RabbitMQ нет концепции offset — сообщения удаляются после ACK. Consumer управляет ACK/NACK, но не offset"
+      },
+      {
+        "text": "Брокер кэширует сообщения в памяти, а потребитель читает напрямую с диска",
+        "correct": false,
+        "explanation": "Это неверное описание архитектуры. Термин 'smart broker' относится к маршрутизации, не к хранению"
+      }
+    ]
+  },
+  {
+    "question": "Когда следует выбирать NATS Core вместо NATS JetStream?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Когда нужен replay сообщений из прошлого",
+        "correct": false,
+        "explanation": "Replay требует persistence. NATS Core хранит сообщения только пока есть активные subscribers. Для replay нужен JetStream"
+      },
+      {
+        "text": "Когда потеря сообщений допустима и критична максимальная скорость и минимальная latency (live metrics, IoT telemetry, presence notifications)",
+        "correct": true,
+        "explanation": "NATS Core: до 10-20M msg/s, latency < 1ms. Идеален для случаев, где потеря сообщения при отсутствии subscriber — допустима: live dashboards, presence, control commands"
+      },
+      {
+        "text": "Когда нужна интеграция с Kubernetes",
+        "correct": false,
+        "explanation": "И NATS Core, и JetStream прекрасно работают с Kubernetes. Выбор между ними не зависит от среды деплоя"
+      },
+      {
+        "text": "Когда нужна гарантированная доставка сообщений",
+        "correct": false,
+        "explanation": "NATS Core — at-most-once (fire-and-forget). Для гарантированной доставки нужен NATS JetStream"
+      }
+    ]
+  },
+  {
+    "question": "Какие команды Redis Streams используются для реализации consumer group с ACK?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "XREADGROUP — читать сообщения в рамках consumer group",
+        "correct": true,
+        "explanation": "XREADGROUP GROUP groupname consumer STREAMS stream > — читает непрочитанные сообщения (>) для конкретного consumer в группе"
+      },
+      {
+        "text": "SUBSCRIBE — подписаться на канал",
+        "correct": false,
+        "explanation": "SUBSCRIBE — команда Redis Pub/Sub, не Streams. Streams используют XREAD/XREADGROUP для чтения"
+      },
+      {
+        "text": "XCOMMIT — зафиксировать транзакцию",
+        "correct": false,
+        "explanation": "Команды XCOMMIT не существует в Redis Streams. Транзакции Redis (MULTI/EXEC) используются отдельно от Streams API"
+      },
+      {
+        "text": "XADD — добавить сообщение в стрим",
+        "correct": true,
+        "explanation": "XADD добавляет запись в stream с auto-generated ID. Базовая команда для публикации"
+      },
+      {
+        "text": "XACK — подтвердить обработку сообщения",
+        "correct": true,
+        "explanation": "XACK stream group id — помечает сообщение как обработанное. Без ACK сообщение остаётся в Pending Entries List (PEL)"
+      }
+    ]
+  },
+  {
+    "question": "Что такое tiered storage в Apache Pulsar и чем он отличается от Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Tiered storage в Pulsar и Kafka работают одинаково",
+        "correct": false,
+        "explanation": "Tiered storage — архитектурное преимущество Pulsar: BookKeeper разделяет compute и storage изначально, offload встроен. В Kafka это появилось позже как add-on"
+      },
+      {
+        "text": "Tiered storage — возможность хранить горячие данные на SSD, тёплые на HDD, холодные автоматически переносить в S3/GCS. В Kafka этого нет из коробки",
+        "correct": true,
+        "explanation": "Pulsar + BookKeeper: горячие ledgers на быстром хранилище, автоматический offload старых данных в объектное хранилище (S3/GCS/Azure Blob) без изменения API для consumers. Kafka требует сторонних решений (Tiered Storage появился как experimental feature позже)"
+      },
+      {
+        "text": "Tiered storage позволяет Pulsar хранить сообщения только в памяти для максимальной скорости",
+        "correct": false,
+        "explanation": "Всё наоборот: tiered storage — про перемещение данных в более дешёвое долгосрочное хранилище (S3), а не про хранение в памяти"
+      },
+      {
+        "text": "Tiered storage — возможность использовать несколько дисков на одном брокере",
+        "correct": false,
+        "explanation": "Tiered storage — многоуровневое хранилище: hot/warm/cold данные в разных системах. Это не RAID или multi-disk конфигурация"
+      }
+    ]
+  },
+  {
+    "question": "Какой брокер обеспечивает самую низкую latency среди перечисленных?",
+    "type": "single",
+    "options": [
+      {
+        "text": "NATS (P99 < 1ms)",
+        "correct": true,
+        "explanation": "NATS написан на Go с минимальным overhead. Core NATS: P99 < 0.5ms, идеален для IoT, edge и real-time сценариев где latency критична"
+      },
+      {
+        "text": "RabbitMQ (1-5ms)",
+        "correct": false,
+        "explanation": "RabbitMQ имеет хорошую latency (sub-ms для in-memory), но NATS стабильно ниже. RabbitMQ хорош для low-latency RPC, но NATS быстрее"
+      },
+      {
+        "text": "Apache Kafka (P99 ~ 5-15ms)",
+        "correct": false,
+        "explanation": "Kafka оптимизирован для throughput, не для latency. P99 ~ 5-15ms при стандартных настройках"
+      },
+      {
+        "text": "Apache Pulsar (5-15ms)",
+        "correct": false,
+        "explanation": "Pulsar добавляет overhead от BookKeeper replication. P99 ~ 5-15ms, сопоставим с Kafka"
+      }
+    ]
+  },
+  {
+    "question": "В каком случае стоит выбрать RabbitMQ вместо Kafka?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Throughput > 1M msg/s",
+        "correct": false,
+        "explanation": "При throughput > 1M msg/s Kafka является лучшим выбором. RabbitMQ показывает 50-300K msg/s в зависимости от конфигурации"
+      },
+      {
+        "text": "Нужно хранить события за 6 месяцев для аналитики",
+        "correct": false,
+        "explanation": "Для долгосрочного хранения с replay — Kafka. RabbitMQ удаляет сообщения после ACK, хранение больших объёмов — не его сильная сторона"
+      },
+      {
+        "text": "Нужна сложная маршрутизация с topic patterns и headers",
+        "correct": true,
+        "explanation": "Exchange routing в RabbitMQ (direct/fanout/topic/headers) — уникальная возможность. В Kafka маршрутизации как таковой нет"
+      },
+      {
+        "text": "Нужны dead-letter queues (DLX) и priority queues",
+        "correct": true,
+        "explanation": "DLX и priority queues — нативные фичи RabbitMQ. В Kafka нет встроенного понятия 'failed message routing'"
+      },
+      {
+        "text": "Нужен RPC (request/reply) паттерн",
+        "correct": true,
+        "explanation": "RabbitMQ идеален для RPC: temporary reply queues, correlation_id, short TTL. Kafka для RPC крайне неудобен"
+      }
+    ]
+  },
+  {
+    "question": "Как устроено хранилище Apache Pulsar в отличие от Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Pulsar разделяет compute (stateless brokers) и storage (Apache BookKeeper). Brokers маршрутизируют, BookKeeper хранит WAL-ledgers",
+        "correct": true,
+        "explanation": "Это архитектурное преимущество: brokers и storage масштабируются независимо. Добавить broker — без rebalance данных. BookKeeper ensembles обеспечивают репликацию"
+      },
+      {
+        "text": "Pulsar хранит данные прямо на broker нодах, как Kafka",
+        "correct": false,
+        "explanation": "Это ключевое отличие: брокеры Pulsar stateless — они не хранят данные. Данные хранятся в Apache BookKeeper (отдельный кластер)"
+      },
+      {
+        "text": "Pulsar хранит сообщения только в памяти для максимальной скорости",
+        "correct": false,
+        "explanation": "BookKeeper использует WAL (Write-Ahead Log) с персистентным хранением. Tiered storage позволяет переносить данные в S3"
+      },
+      {
+        "text": "Pulsar использует ZooKeeper для хранения всех сообщений",
+        "correct": false,
+        "explanation": "ZooKeeper/etcd в Pulsar хранят только metadata (топологию, конфигурацию). Сообщения хранятся в BookKeeper"
+      }
+    ]
+  },
+  {
+    "question": "Что такое ISR (In-Sync Replicas) в Kafka и зачем это нужно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "ISR — список всех брокеров в кластере",
+        "correct": false,
+        "explanation": "ISR — только те реплики, которые синхронизированы с leader. Реплики, отстающие более чем на replica.lag.time.max.ms, выпадают из ISR"
+      },
+      {
+        "text": "ISR автоматически увеличивает количество партиций при нагрузке",
+        "correct": false,
+        "explanation": "ISR не связан с партиционированием. Изменение числа партиций — отдельная операция, ISR — механизм репликации"
+      },
+      {
+        "text": "ISR — тип индекса для быстрого поиска сообщений по offset",
+        "correct": false,
+        "explanation": "Индексы в Kafka — .index (offset → position) и .timeindex (timestamp → position). ISR — список реплик"
+      },
+      {
+        "text": "ISR — список реплик, синхронизированных с leader. При acks=all producer получает подтверждение только после записи во все ISR реплики",
+        "correct": true,
+        "explanation": "ISR обеспечивает durability: сообщение считается commited только когда все актуальные реплики его получили. Уменьшение ISR — признак проблем с latency или availability реплик"
+      }
+    ]
+  },
+  {
+    "question": "Почему Redis Streams не подходит для throughput > 1M msg/s?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Redis не может хранить более 1000 сообщений в одном stream",
+        "correct": false,
+        "explanation": "MAXLEN ограничивает размер, но это настраиваемый параметр. По умолчанию ограничений нет"
+      },
+      {
+        "text": "Redis использует single-threaded I/O для операций записи, что ограничивает пропускную способность одного stream",
+        "correct": true,
+        "explanation": "Redis исторически single-threaded для команд. Несмотря на Redis 6+ с multi-threaded I/O, основной event loop остаётся single-threaded. Для масштаба нужно шардировать по нескольким streams/ключам, что усложняет архитектуру"
+      },
+      {
+        "text": "Redis не поддерживает binary data в streams",
+        "correct": false,
+        "explanation": "Redis Streams поддерживают бинарные данные. Ограничение в производительности, не в типах данных"
+      },
+      {
+        "text": "Redis не поддерживает clustering",
+        "correct": false,
+        "explanation": "Redis Cluster поддерживается. Проблема в другом — архитектурное ограничение single-threaded writes"
+      }
+    ]
+  },
+  {
+    "question": "Какой тип подписки Pulsar обеспечивает гарантию что одинаковые ключи всегда обрабатываются одним и тем же consumer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Shared",
+        "correct": false,
+        "explanation": "Shared распределяет сообщения round-robin — без гарантии по ключу"
+      },
+      {
+        "text": "Failover",
+        "correct": false,
+        "explanation": "Failover — один активный consumer, другие в резерве. Ключи тут не при чём"
+      },
+      {
+        "text": "Key_Shared",
+        "correct": true,
+        "explanation": "Key_Shared: сообщения с одинаковым ключом всегда попадают к одному consumer. Аналог key-based partitioning в Kafka, но более гибкий"
+      },
+      {
+        "text": "Exclusive",
+        "correct": false,
+        "explanation": "Exclusive — один consumer для всей подписки. Это не key-based routing, а монополия на чтение"
+      }
+    ]
+  },
+  {
+    "question": "Вы разрабатываете систему обработки заказов интернет-магазина. Требования: replay событий за последние 30 дней, throughput 200K msg/s, команда из 5 разработчиков без опыта Kafka. Что выбрать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "RabbitMQ — проще в операционном управлении",
+        "correct": false,
+        "explanation": "RabbitMQ не поддерживает replay — сообщения удаляются после ACK. При требовании replay 30 дней RabbitMQ не подходит"
+      },
+      {
+        "text": "NATS JetStream — простой деплой, persistence, at-least-once, низкий порог входа",
+        "correct": true,
+        "explanation": "JetStream даёт: replay из Stream, throughput до 500K+ msg/s, один бинарный файл без зависимостей. Для команды без опыта Kafka — оптимальный выбор"
+      },
+      {
+        "text": "Redis Streams — уже в стеке как cache",
+        "correct": false,
+        "explanation": "200K msg/s — граница возможностей Redis Streams. При росте нагрузки потребуется шардирование. Если Redis уже есть — можно попробовать, но риск масштабирования выше"
+      },
+      {
+        "text": "Apache Pulsar — лучшая производительность",
+        "correct": false,
+        "explanation": "Pulsar — высокая операционная сложность (brokers + BookKeeper + ZooKeeper). Для маленькой команды без опыта — плохой выбор"
+      }
+    ]
+  },
+  {
+    "question": "Как NATS JetStream обеспечивает at-least-once доставку в отличие от Core NATS?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Сообщения сохраняются в персистентные Streams до явного ACK",
+        "correct": true,
+        "explanation": "JetStream хранит сообщения в файловом хранилище. Consumer должен явно вызвать msg.Ack() — только после этого сообщение считается обработанным"
+      },
+      {
+        "text": "Core NATS автоматически буферизует сообщения если subscriber недоступен",
+        "correct": false,
+        "explanation": "Core NATS — fire-and-forget. Если subscriber offline — сообщение теряется немедленно. Буферизации нет, это основная проблема Core NATS"
+      },
+      {
+        "text": "Сообщения автоматически дублируются на несколько серверов через Raft",
+        "correct": true,
+        "explanation": "JetStream использует RAFT для репликации (параметр Replicas в StreamConfig). Это обеспечивает durability при падении ноды"
+      },
+      {
+        "text": "Consumer sequence tracking — брокер отслеживает, какие сообщения доставлены",
+        "correct": true,
+        "explanation": "JetStream Consumer хранит sequence последнего ACKнутого сообщения. При reconnect consumer получает неподтверждённые сообщения заново"
+      }
+    ]
+  },
+  {
+    "question": "Что происходит с сообщением в Kafka после того, как Consumer Group его прочитала?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сообщение помечается как 'consumed' и не выдаётся другим group",
+        "correct": false,
+        "explanation": "Разные consumer groups читают одни и те же данные независимо. У каждой группы свой offset в __consumer_offsets"
+      },
+      {
+        "text": "Сообщение перемещается в архивную партицию",
+        "correct": false,
+        "explanation": "Kafka не перемещает сообщения. Они остаются на месте в сегменте лога до истечения retention"
+      },
+      {
+        "text": "Сообщение остаётся в логе, только offset consumer group продвигается. Удаление по retention policy (TTL или размер)",
+        "correct": true,
+        "explanation": "Это ключевое свойство Kafka: сообщение существует независимо от потребления. Разные consumer groups читают независимо. Удаление — только по log.retention.hours/bytes"
+      },
+      {
+        "text": "Сообщение немедленно удаляется из партиции",
+        "correct": false,
+        "explanation": "Это поведение очереди (RabbitMQ). В Kafka сообщение остаётся в логе — только offset consumer'а продвигается"
+      }
+    ]
+  },
+  {
+    "question": "Что такое XPENDING в контексте Redis Streams и зачем это нужно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "XPENDING показывает список сообщений доставленных но не подтверждённых (unACKed), что позволяет обнаруживать и повторно обрабатывать застрявшие сообщения",
+        "correct": true,
+        "explanation": "XPENDING + XCLAIM — механизм восстановления: если consumer умер не отправив ACK, другой consumer может забрать застрявшие сообщения через XCLAIM"
+      },
+      {
+        "text": "XPENDING используется для ограничения размера consumer group",
+        "correct": false,
+        "explanation": "Размер consumer group не ограничивается XPENDING. XPENDING — диагностический инструмент"
+      },
+      {
+        "text": "XPENDING блокирует запись в stream пока consumer не прочитал все сообщения",
+        "correct": false,
+        "explanation": "XPENDING — только команда просмотра. Она не блокирует никаких операций"
+      },
+      {
+        "text": "XPENDING показывает количество сообщений в очереди ожидающих записи",
+        "correct": false,
+        "explanation": "XPENDING показывает Pending Entries List — сообщения, доставленные через XREADGROUP но ещё не подтверждённые через XACK"
+      }
+    ]
+  },
+  {
+    "question": "Как Kafka KRaft отличается от классического подхода с ZooKeeper?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "KRaft ускоряет failover: переизбрание лидера занимает секунды вместо десятков секунд",
+        "correct": true,
+        "explanation": "ZooKeeper failover был медленным: нужно обновить Znode, уведомить брокеры. KRaft Raft-based election быстрее"
+      },
+      {
+        "text": "KRaft встраивает Raft-консенсус прямо в Kafka брокеры, eliminating ZooKeeper как отдельный кластер",
+        "correct": true,
+        "explanation": "KRaft (Kafka Raft Metadata) — metadata хранится в специальном topic __cluster_metadata внутри самой Kafka. Нет нужды в отдельном ZooKeeper кластере"
+      },
+      {
+        "text": "KRaft поддерживает значительно больше партиций (10M+ vs ~200K с ZooKeeper)",
+        "correct": true,
+        "explanation": "ZooKeeper имел ограничения по числу партиций из-за latency Znode операций. KRaft снимает это ограничение"
+      },
+      {
+        "text": "KRaft требует отдельного etcd кластера для хранения metadata",
+        "correct": false,
+        "explanation": "KRaft не требует etcd. Metadata хранится внутри Kafka в специальном partition. В etcd нет нужды"
+      }
+    ]
+  },
+  {
+    "question": "У вас IoT-платформа: 50K устройств отправляют телеметрию каждые 5 секунд. Данные нужны только для real-time дашборда, потеря 1-2% сообщений допустима. Какой брокер выбрать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Apache Pulsar — лучший для IoT",
+        "correct": false,
+        "explanation": "Pulsar — сложная инфраструктура. При допустимой потере данных и потребности в real-time, NATS Core значительно проще и быстрее"
+      },
+      {
+        "text": "Apache Kafka — надёжно и масштабируемо",
+        "correct": false,
+        "explanation": "Kafka — overkill: операционная сложность, at-least-once гарантии (которые не нужны), persistence (которая не нужна). 50K * 12 = 600K msg/min — Kafka справится, но это перебор"
+      },
+      {
+        "text": "NATS Core — fire-and-forget, sub-ms latency, минимальная инфраструктура",
+        "correct": true,
+        "explanation": "Условия идеально совпадают: потеря допустима → at-most-once, нужен real-time → низкая latency, IoT → NATS оптимизирован для этого. Один бинарник, никаких зависимостей"
+      },
+      {
+        "text": "RabbitMQ — надёжная очередь",
+        "correct": false,
+        "explanation": "RabbitMQ — push-based с ACK. Для fire-and-forget телеметрии где потеря допустима — излишне сложный выбор"
+      }
+    ]
+  },
+  {
+    "question": "Что означает параметр 'acks=all' в Kafka Producer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Producer получает ACK после записи во все ISR реплики — максимальная durability, выше latency",
+        "correct": true,
+        "explanation": "acks=all: наивысшая гарантия — сообщение commited только когда все актуальные реплики записали данные. Цена — latency растёт, throughput падает"
+      },
+      {
+        "text": "Producer подтверждает получение всем consumers",
+        "correct": false,
+        "explanation": "Producer взаимодействует только с брокером, не с consumers. acks — параметр надёжности записи, не доставки"
+      },
+      {
+        "text": "Producer ждёт подтверждения от всех брокеров в кластере",
+        "correct": false,
+        "explanation": "acks=all (или -1) означает подтверждение от всех реплик в ISR (In-Sync Replicas), а не от всех брокеров кластера"
+      },
+      {
+        "text": "Producer не ждёт никакого подтверждения (fire-and-forget)",
+        "correct": false,
+        "explanation": "acks=0 — fire-and-forget. acks=1 — подтверждение только от leader. acks=all — от всех ISR"
+      }
+    ]
+  },
+  {
+    "question": "Какие типы Exchange поддерживает RabbitMQ?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Fanout — отправить во все привязанные очереди",
+        "correct": true,
+        "explanation": "Fanout exchange игнорирует routing key — доставляет сообщение во все очереди, связанные с этим exchange. Используется для broadcast"
+      },
+      {
+        "text": "Topic — маршрутизация по паттернам (* и #)",
+        "correct": true,
+        "explanation": "Topic exchange: * — одно слово, # — ноль или более слов. Например, 'orders.*.failed' совпадает с 'orders.payment.failed'"
+      },
+      {
+        "text": "Partition — распределение по хэшу ключа",
+        "correct": false,
+        "explanation": "Partition exchange не существует в AMQP. Это концепция Kafka, не RabbitMQ. Consistent Hashing Exchange — сторонний плагин, не часть ядра"
+      },
+      {
+        "text": "Headers — маршрутизация по заголовкам сообщения",
+        "correct": true,
+        "explanation": "Headers exchange использует заголовки (properties) сообщения вместо routing key. Позволяет сложную маршрутизацию по нескольким атрибутам"
+      },
+      {
+        "text": "Direct — точное совпадение routing key",
+        "correct": true,
+        "explanation": "Direct exchange: сообщение идёт в очередь, binding которой точно совпадает с routing key. Например, routing_key='payment' → только очередь с binding 'payment'"
+      }
+    ]
+  },
+  {
+    "question": "Почему adding нового broker в Pulsar проще, чем в Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Брокеры Pulsar stateless — данные хранятся в BookKeeper. Добавление брокера не требует rebalance данных, в отличие от Kafka где партиции нужно перераспределять",
+        "correct": true,
+        "explanation": "В Kafka партиции привязаны к брокерам (данные живут локально). При добавлении брокера нужно переместить партиции. В Pulsar broker — просто маршрутизатор без данных, добавление мгновенно"
+      },
+      {
+        "text": "В Pulsar нет концепции партиций",
+        "correct": false,
+        "explanation": "В Pulsar есть партиции (partitioned topics). Разница в том, что данные партиций хранятся в BookKeeper, а не на брокере"
+      },
+      {
+        "text": "Pulsar автоматически создаёт новые партиции при добавлении брокера",
+        "correct": false,
+        "explanation": "Добавление брокера в Pulsar не создаёт партиции автоматически. Легкость масштабирования — из-за stateless природы брокеров"
+      },
+      {
+        "text": "Pulsar использует более быстрый алгоритм rebalancing",
+        "correct": false,
+        "explanation": "Дело не в скорости алгоритма, а в архитектурном решении: stateless brokers vs stateful brokers"
+      }
+    ]
+  },
+  {
+    "question": "Что такое 'log compaction' в Kafka и когда это используется?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Объединение мелких сегментов лога в один большой файл",
+        "correct": false,
+        "explanation": "Объединение файлов — это сегментация лога (log segments rolling), не log compaction. Compaction работает с ключами сообщений"
+      },
+      {
+        "text": "Сжатие данных с помощью lz4/snappy для экономии дискового пространства",
+        "correct": false,
+        "explanation": "Сжатие (compression) — отдельная функция (параметр compression.type). Log compaction — удаление старых записей по ключу"
+      },
+      {
+        "text": "Процесс, при котором для каждого уникального ключа в топике сохраняется только последнее значение — используется для event sourcing, change data capture, конфигураций",
+        "correct": true,
+        "explanation": "Log compaction: если key='user-123' встречается 100 раз, останется только последнее значение. Идеально для 'state of the world' — последнее состояние каждой сущности (changelog, database replica)"
+      },
+      {
+        "text": "Удаление дублирующихся сообщений с одинаковыми значениями",
+        "correct": false,
+        "explanation": "Log compaction не смотрит на значения. Он хранит только последнее сообщение для каждого уникального ключа — вне зависимости от значения"
+      }
+    ]
+  },
+  {
+    "question": "Вы мигрируете с RabbitMQ на Kafka. Какой паттерн миграции наиболее безопасен?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Использовать RabbitMQ Shovel plugin для пересылки сообщений в Kafka",
+        "correct": false,
+        "explanation": "Shovel — для RabbitMQ→RabbitMQ federation. Прямого плагина RabbitMQ→Kafka нет. Нужен custom connector"
+      },
+      {
+        "text": "Отключить RabbitMQ, запустить Kafka, переключить всех producers и consumers одновременно",
+        "correct": false,
+        "explanation": "Big-bang миграция — высокий риск: нет возможности сравнить результаты, откат сложен, downtime обязателен"
+      },
+      {
+        "text": "Двойная запись: producer пишет в RabbitMQ И Kafka параллельно, постепенно переключаем consumers на Kafka, затем отключаем RabbitMQ",
+        "correct": true,
+        "explanation": "Dual-write + gradual consumer migration: zero-downtime, возможность сравнивать результаты, лёгкий откат. Стандартный паттерн для migration без рисков"
+      },
+      {
+        "text": "Написать bridge-сервис который читает из RabbitMQ и пишет в Kafka",
+        "correct": false,
+        "explanation": "Bridge возможен, но это дополнительный SPOF и дополнительная latency. Dual-write на уровне producer безопаснее и надёжнее"
+      }
+    ]
+  },
+  {
+    "question": "Как влияет размер сообщения на throughput (msg/s) брокеров?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Kafka и Pulsar лучше сохраняют throughput при больших сообщениях благодаря batch и zero-copy",
+        "correct": false,
+        "explanation": "Kafka: zero-copy (sendfile) эффективно при больших payload. Batching амортизирует overhead на метаданные. При 100KB Kafka остаётся конкурентоспособной"
+      },
+      {
+        "text": "С ростом размера сообщения throughput в msg/s падает у всех брокеров",
+        "correct": true,
+        "explanation": "Фиксированная пропускная способность сети и диска: 1Gbps ÷ 1KB = 1M msg/s, 1Gbps ÷ 100KB = 10K msg/s. Физическое ограничение"
+      },
+      {
+        "text": "NATS Core теряет своё преимущество по latency при сообщениях > 10KB",
+        "correct": true,
+        "explanation": "NATS оптимизирован для маленьких сообщений (сотни байт — единицы KB). При 100KB+ сериализация и сетевой I/O становятся bottleneck, latency растёт"
+      },
+      {
+        "text": "RabbitMQ работает лучше всего с большими сообщениями (> 1MB)",
+        "correct": false,
+        "explanation": "RabbitMQ оптимален для маленьких сообщений (100B-10KB) — sub-ms latency. С ростом размера деградирует быстрее Kafka/Pulsar"
+      }
+    ]
+  },
+  {
+    "question": "Что такое Quorum Queue в RabbitMQ и чем отличается от Classic Queue?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Classic Queue — распределённая, Quorum Queue — локальная (на одном узле)",
+        "correct": false,
+        "explanation": "Всё наоборот: Quorum Queue реплицируется на нечётное число узлов (кворум). Classic Queue с mirroring тоже реплицируется, но менее надёжно"
+      },
+      {
+        "text": "Quorum Queue — очередь с гарантией кратного 2 числа сообщений",
+        "correct": false,
+        "explanation": "Quorum не связан с количеством сообщений. Это тип репликации, основанный на Raft-консенсусе"
+      },
+      {
+        "text": "Quorum Queue использует Raft-based репликацию для strong durability гарантий, Classic Queue использует устаревшую master/mirror репликацию",
+        "correct": true,
+        "explanation": "Quorum queues рекомендованы для production: Raft гарантирует консенсус при записи, better split-brain protection. Classic queues с mirroring имеют проблемы с consistency. Компромисс: Quorum queues медленнее для малых нагрузок"
+      },
+      {
+        "text": "Quorum Queue не поддерживает dead-letter exchanges",
+        "correct": false,
+        "explanation": "Quorum queues поддерживают DLX. Есть некоторые отличия от Classic (например, нет x-message-ttl на уровне очереди в старых версиях), но базовые функции включая DLX работают"
+      }
+    ]
+  },
+  {
+    "question": "Какой брокер лучше всего подходит для multi-tenant SaaS платформы с изоляцией между клиентами?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Redis Streams — уже используется как cache",
+        "correct": false,
+        "explanation": "Redis не имеет нативной multi-tenant архитектуры. Разделение по ключам возможно, но без policy-based изоляции"
+      },
+      {
+        "text": "Kafka — надёжный и масштабируемый",
+        "correct": false,
+        "explanation": "Kafka поддерживает multi-tenancy через namespace naming convention, но без нативной изоляции. Quota management есть, но недостаточен для строгой изоляции между tenants"
+      },
+      {
+        "text": "NATS — минимальная инфраструктура",
+        "correct": false,
+        "explanation": "NATS имеет accounts для изоляции, но не такую богатую multi-tenant функциональность как Pulsar"
+      },
+      {
+        "text": "Apache Pulsar — встроенная multi-tenant архитектура с Tenants, Namespaces, Topics и policy-based изоляцией",
+        "correct": true,
+        "explanation": "Pulsar разработан для multi-tenancy: Tenant → Namespace → Topic иерархия, policies per namespace (retention, replication, auth), resource quotas, ACL на уровне namespace"
+      }
+    ]
+  },
+  {
+    "question": "Как работает backpressure в Kafka Consumer в сравнении с RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "В Kafka backpressure невозможен — consumer всегда перегружается",
+        "correct": false,
+        "explanation": "Kafka имеет естественный backpressure: consumer сам вызывает poll(). Не вызываешь — не получаешь сообщений"
+      },
+      {
+        "text": "Оба брокера используют одинаковый механизм TCP flow control",
+        "correct": false,
+        "explanation": "TCP flow control существует, но прикладные механизмы разные. Kafka — pull, RabbitMQ — push с prefetch"
+      },
+      {
+        "text": "В RabbitMQ backpressure невозможен — нужно использовать Kafka",
+        "correct": false,
+        "explanation": "RabbitMQ поддерживает backpressure через prefetch_count. Это стандартная практика при работе с RabbitMQ"
+      },
+      {
+        "text": "Kafka: естественный backpressure — consumer не вызывает poll() и не получает данные. RabbitMQ: настраивается через prefetch_count — брокер не отправит больше N неподтверждённых сообщений",
+        "correct": true,
+        "explanation": "Pull модель Kafka = встроенный backpressure. Push модель RabbitMQ требует явной настройки QoS (basic.qos + prefetch_count). Без prefetch RabbitMQ может перегрузить slow consumer"
+      }
+    ]
+  },
+  {
+    "question": "Что такое 'exactly-once' семантика и какие брокеры её поддерживают?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Kafka поддерживает exactly-once через idempotent producer + transactional API",
+        "correct": true,
+        "explanation": "Kafka Transactions (enable.idempotence=true + transactional.id) обеспечивают exactly-once в Kafka Streams. Producer получает PID, брокер дедуплицирует по sequence number"
+      },
+      {
+        "text": "Exactly-once: каждое сообщение обрабатывается ровно один раз, даже при сбоях",
+        "correct": true,
+        "explanation": "Три семантики: at-most-once (потеря допустима), at-least-once (дубли допустимы), exactly-once (ни потери ни дублей). Последнее сложнее всего реализовать в распределённых системах"
+      },
+      {
+        "text": "NATS JetStream поддерживает exactly-once через message deduplication",
+        "correct": true,
+        "explanation": "JetStream deduplication: producer добавляет Nats-Msg-Id header, брокер дедуплицирует в окне времени (DuplicateWindow). Плюс pull consumer с double-ack"
+      },
+      {
+        "text": "Redis Streams поддерживает exactly-once через XACK",
+        "correct": false,
+        "explanation": "XACK даёт at-least-once. При сбое consumer без ACK сообщение доставляется снова (через XCLAIM). Exactly-once требует идемпотентности на уровне обработчика"
+      },
+      {
+        "text": "RabbitMQ поддерживает exactly-once из коробки",
+        "correct": false,
+        "explanation": "RabbitMQ не поддерживает exactly-once. Лучшее что есть — at-least-once с publisher confirms. Для exactly-once нужен idempotency на уровне приложения"
+      }
+    ]
+  },
+  {
+    "question": "Ваша команда уже использует Redis как cache. Появилась задача: простые task queues, ~50K задач/день, нет требования к replay. Что выбрать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "NATS JetStream — минимальная операционная сложность",
+        "correct": false,
+        "explanation": "NATS проще Kafka, но это всё равно новый сервис. Если Redis уже в стеке и нагрузка небольшая — Redis Streams предпочтительнее"
+      },
+      {
+        "text": "Развернуть RabbitMQ — больше функций",
+        "correct": false,
+        "explanation": "Новый сервис для 50K/день при уже имеющемся Redis — неоправданное усложнение. Redis Streams справится"
+      },
+      {
+        "text": "Добавить Apache Kafka — надёжно и масштабируемо",
+        "correct": false,
+        "explanation": "50K задач/день = ~0.6 msg/s. Kafka — огромный overkill для такой нагрузки. Операционная сложность неоправдана"
+      },
+      {
+        "text": "Redis Streams — использовать уже имеющуюся инфраструктуру, добавить XREADGROUP",
+        "correct": true,
+        "explanation": "50K/день — микронагрузка. Redis Streams XREADGROUP с ACK даёт at-least-once без нового сервиса. Идеальное решение когда Redis уже есть"
+      }
+    ]
+  },
+  {
+    "question": "Что такое 'Consumer Group' в Kafka и как он отличается от аналогичной концепции в Redis Streams?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "В обоих случаях offset/position хранится в самом брокере",
+        "correct": true,
+        "explanation": "Kafka: __consumer_offsets топик. Redis: Pending Entries List (PEL) + last-delivered-id для каждого consumer в группе. Оба хранят состояние на стороне брокера"
+      },
+      {
+        "text": "В Kafka разные Consumer Groups получают независимые копии сообщений; в Redis это невозможно",
+        "correct": false,
+        "explanation": "Redis Streams тоже поддерживают несколько consumer groups на одном stream — каждая группа читает независимо. Аналогично Kafka"
+      },
+      {
+        "text": "В Kafka Consumer Group каждая партиция назначается только одному consumer в группе — параллелизм через партиционирование",
+        "correct": true,
+        "explanation": "Kafka: partition → consumer 1:1 внутри группы. Максимальный параллелизм = число партиций. Consumer Group Coordinator управляет назначением через heartbeat"
+      },
+      {
+        "text": "В Redis XREADGROUP каждое сообщение доставляется одному consumer в группе через round-robin — параллелизм без partitioning",
+        "correct": true,
+        "explanation": "Redis Streams: нет концепции партиций. Сообщения из одного stream распределяются между consumers в группе автоматически. Проще, но нет гарантии порядка"
+      },
+      {
+        "text": "Все перечисленные варианты неверны",
+        "correct": false,
+        "explanation": "Некоторые из перечисленных вариантов действительно верны."
+      }
+    ]
+  },
+  {
+    "question": "Какой подход к гео-репликации встроен в Apache Pulsar, но отсутствует из коробки в Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Geo-replication в Pulsar работает только для Quorum Queue типов",
+        "correct": false,
+        "explanation": "Quorum Queues — концепция RabbitMQ, не Pulsar. В Pulsar все persistent topics поддерживают geo-replication"
+      },
+      {
+        "text": "Pulsar поддерживает только geo-replication внутри одного облачного провайдера",
+        "correct": false,
+        "explanation": "Pulsar geo-replication работает между любыми кластерами вне зависимости от провайдера — multi-cloud, on-premise + cloud и т.д."
+      },
+      {
+        "text": "Active-passive репликация между датацентрами",
+        "correct": false,
+        "explanation": "Active-passive реплакацию можно реализовать и в Kafka (MirrorMaker 2). Преимущество Pulsar — в нативной active-active реплакации"
+      },
+      {
+        "text": "Pulsar имеет встроенную geo-replication: topics автоматически реплицируются между несколькими кластерами в разных регионах без дополнительных инструментов",
+        "correct": true,
+        "explanation": "Pulsar geo-replication: достаточно настроить namespaceReplicationClusters. Kafka требует MirrorMaker 2 (отдельный компонент) или Confluent Replicator (платный)"
+      }
+    ]
+  },
+  {
+    "question": "Почему throughput Kafka значительно выше RabbitMQ при одинаковых условиях?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Batch writes: producer накапливает сообщения в batch перед отправкой, амортизируя network round-trips",
+        "correct": true,
+        "explanation": "linger.ms + batch.size: один network round-trip для 1000 сообщений vs 1000 round-trips. Именно поэтому Kafka сравнивают с high throughput, а не с RabbitMQ который оптимизирован для individual message delivery"
+      },
+      {
+        "text": "Zero-copy: sendfile() системный вызов передаёт данные из page cache в сеть минуя user space",
+        "correct": false,
+        "explanation": "Обычный путь: disk → kernel buffer → user space → socket buffer. Zero-copy: disk → kernel buffer → socket buffer. Экономия 1-2 CPU копирования на каждое сообщение"
+      },
+      {
+        "text": "Kafka написан на более быстром языке программирования",
+        "correct": false,
+        "explanation": "Kafka написан на Java/Scala, RabbitMQ на Erlang. Оба JVM/VM-based. Преимущество Kafka — в архитектурных решениях (sequential I/O, batch, zero-copy), а не в языке"
+      },
+      {
+        "text": "Sequential I/O + page cache: Kafka пишет последовательно в конец лога, что на порядок быстрее random I/O",
+        "correct": true,
+        "explanation": "Sequential write на HDD: 100-200MB/s. Random write: 1-2MB/s. Kafka exploit: всегда append-only, OS page cache кэширует последние данные"
+      }
+    ]
+  }
+]

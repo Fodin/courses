@@ -1,0 +1,677 @@
+[
+  {
+    "question": "Что такое Virtual Host (vhost) в RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Логическое пространство имён, изолирующее exchange, queue и bindings",
+        "correct": true,
+        "explanation": "Vhost предоставляет полную изоляцию: exchange, queue и bindings из разных vhost не видят друг друга даже внутри одного брокера."
+      },
+      {
+        "text": "Отдельный сервер брокера, поднятый в Docker",
+        "correct": false,
+        "explanation": "Vhost — логическая изоляция внутри одного брокера, не отдельный сервер."
+      },
+      {
+        "text": "Виртуальная машина, на которой работает RabbitMQ",
+        "correct": false,
+        "explanation": "Vhost — концепция внутри RabbitMQ, не связанная с виртуализацией инфраструктуры."
+      },
+      {
+        "text": "Тип exchange, маршрутизирующий сообщения по хосту назначения",
+        "correct": false,
+        "explanation": "Vhost не является типом exchange. Типы exchange: direct, fanout, topic, headers."
+      }
+    ]
+  },
+  {
+    "question": "В чём ключевое отличие Connection от Channel в AMQP?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Connection — физическое TCP-соединение, Channel — виртуальное соединение внутри него",
+        "correct": true,
+        "explanation": "Один Connection = один TCP-сокет. Внутри него можно открыть множество Channel для мультиплексирования операций без накладных расходов на TCP."
+      },
+      {
+        "text": "Connection используется для publish, Channel — для consume",
+        "correct": false,
+        "explanation": "И publish, и consume выполняются через Channel, а не напрямую через Connection."
+      },
+      {
+        "text": "Connection и Channel — это одно и то же, просто разные термины",
+        "correct": false,
+        "explanation": "Это разные концепции с разной ответственностью."
+      },
+      {
+        "text": "Connection — логическое, Channel — физическое TCP-соединение",
+        "correct": false,
+        "explanation": "Всё наоборот: Connection — физический TCP-сокет, Channel — виртуальное логическое соединение внутри него."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит, когда Channel закрывается с ошибкой?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Брокер автоматически создаёт новый Channel вместо закрытого",
+        "correct": false,
+        "explanation": "Брокер не создаёт Channel самостоятельно. Клиент должен явно открыть новый Channel."
+      },
+      {
+        "text": "Channel закрывается, Connection остаётся открытым",
+        "correct": true,
+        "explanation": "Изоляция ошибок — одно из главных преимуществ Channel. При ошибке в Channel (например, publish в несуществующий exchange) Connection остаётся живым."
+      },
+      {
+        "text": "Все сообщения, обрабатываемые через этот Channel, автоматически NACK'аются",
+        "correct": false,
+        "explanation": "При закрытии Channel неподтверждённые сообщения возвращаются в очередь брокером, но это не называется 'автоматический NACK'."
+      },
+      {
+        "text": "Закрывается весь Connection и все остальные Channel",
+        "correct": false,
+        "explanation": "Ошибка Channel не затрагивает Connection. Это ключевое преимущество мультиплексирования."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Binding в AMQP?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Параметр очереди, ограничивающий число сообщений",
+        "correct": false,
+        "explanation": "Ограничение числа сообщений задаётся через x-max-length — аргумент очереди, а не Binding."
+      },
+      {
+        "text": "Подписка consumer на очередь",
+        "correct": false,
+        "explanation": "Подписка consumer — это basic.consume. Binding — связь между exchange и queue, не между consumer и queue."
+      },
+      {
+        "text": "Правило маршрутизации, связывающее Exchange с Queue через binding key",
+        "correct": true,
+        "explanation": "Binding определяет, куда exchange должен направить сообщение. Exchange сопоставляет routing key сообщения с binding key, чтобы выбрать целевые очереди."
+      },
+      {
+        "text": "Физическое TCP-соединение между producer и broker",
+        "correct": false,
+        "explanation": "Физическое соединение — это Connection. Binding — логическая концепция маршрутизации."
+      }
+    ]
+  },
+  {
+    "question": "Exchange типа fanout получает сообщение с routing_key='orders.new'. Как он будет его маршрутизировать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Только в очереди, binding key которых совпадает с 'orders.new'",
+        "correct": false,
+        "explanation": "Fanout полностью игнорирует routing key и binding key."
+      },
+      {
+        "text": "Откажет в приёме — fanout не принимает сообщения с routing key",
+        "correct": false,
+        "explanation": "Fanout принимает любые сообщения, но игнорирует routing key при маршрутизации."
+      },
+      {
+        "text": "Использует только первую часть ключа ('orders') для поиска очереди",
+        "correct": false,
+        "explanation": "Частичное сопоставление routing key — это поведение topic exchange, не fanout."
+      },
+      {
+        "text": "Отправит во все очереди, привязанные к exchange, игнорируя routing key",
+        "correct": true,
+        "explanation": "Fanout — это broadcast. Он рассылает копию сообщения во все привязанные очереди, не обращая внимания на routing key."
+      }
+    ]
+  },
+  {
+    "question": "Что означает параметр `durable: true` для очереди?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Очередь не может быть удалена вручную через Management UI",
+        "correct": false,
+        "explanation": "Durable не защищает от ручного удаления. Это параметр персистентности, а не защиты от удаления."
+      },
+      {
+        "text": "Очередь автоматически восстанавливается при падении consumer",
+        "correct": false,
+        "explanation": "Durable не связан с поведением при падении consumer. При падении consumer неподтверждённые сообщения возвращаются в очередь независимо от durable."
+      },
+      {
+        "text": "Очередь переживает перезапуск брокера",
+        "correct": true,
+        "explanation": "Durable=true означает, что метаданные очереди сохраняются на диск. После перезапуска брокера очередь будет восстановлена. Но для сохранения сообщений также нужен delivery-mode=2 (persistent)."
+      },
+      {
+        "text": "Очередь хранит сообщения в памяти для быстрого доступа",
+        "correct": false,
+        "explanation": "Хранение в памяти не гарантирует переживание перезапуска. Durable означает запись метаданных очереди на диск."
+      }
+    ]
+  },
+  {
+    "question": "Сообщение помечено как persistent (delivery-mode=2), но очередь создана с durable=false. Что произойдёт при перезапуске брокера?",
+    "type": "single",
+    "options": [
+      {
+        "text": "RabbitMQ автоматически создаст durable-копию очереди для persistent сообщений",
+        "correct": false,
+        "explanation": "RabbitMQ не изменяет тип очереди автоматически. Ответственность за правильную конфигурацию лежит на разработчике."
+      },
+      {
+        "text": "Брокер откажется принять persistent сообщение в non-durable очередь",
+        "correct": false,
+        "explanation": "Брокер принимает сообщения с любым delivery-mode в любую очередь. Несоответствие не вызывает ошибку, но приводит к потере данных."
+      },
+      {
+        "text": "Сообщение потеряется вместе с очередью",
+        "correct": true,
+        "explanation": "Non-durable очередь не переживает рестарт брокера. При её исчезновении теряются все сообщения в ней, независимо от delivery-mode."
+      },
+      {
+        "text": "Сообщение сохранится, потому что оно persistent",
+        "correct": false,
+        "explanation": "Для сохранения нужны оба условия: persistent сообщение И durable очередь. Если очередь non-durable — она исчезнет при рестарте вместе с сообщениями."
+      }
+    ]
+  },
+  {
+    "question": "Что означает `basic.ack` с флагом `multiple=true` и `delivery-tag=10`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Подтверждается только сообщение с delivery-tag=10, остальные игнорируются",
+        "correct": false,
+        "explanation": "Это поведение multiple=false (одиночный ACK)."
+      },
+      {
+        "text": "Подтверждаются 10 копий одного сообщения",
+        "correct": false,
+        "explanation": "Delivery-tag — уникальный порядковый номер доставки, а не счётчик копий."
+      },
+      {
+        "text": "Подтверждаются 10 последних сообщений",
+        "correct": false,
+        "explanation": "multiple=true подтверждает все сообщения с delivery-tag от 1 до указанного значения, а не последние N сообщений."
+      },
+      {
+        "text": "Подтверждаются все сообщения с delivery-tag от 1 до 10 включительно",
+        "correct": true,
+        "explanation": "multiple=true означает cumulative ACK: брокер считает подтверждёнными все сообщения с delivery-tag <= указанному. Это эффективно для batch-обработки."
+      }
+    ]
+  },
+  {
+    "question": "Что такое prefetch count (basic.qos)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Максимальное количество consumer для одной очереди",
+        "correct": false,
+        "explanation": "Ограничение на количество consumer — это параметр `exclusive` очереди или `x-single-active-consumer`."
+      },
+      {
+        "text": "Максимальный размер одного сообщения в байтах",
+        "correct": false,
+        "explanation": "Ограничение размера сообщения — это frame-max в параметрах Connection, не prefetch."
+      },
+      {
+        "text": "Количество сообщений, которые брокер может отправить consumer без получения ACK",
+        "correct": true,
+        "explanation": "Prefetch limit не позволяет брокеру перегружать consumer. Если consumer получил N сообщений и не подтвердил ни одного, брокер не отправит N+1 до получения хотя бы одного ACK."
+      },
+      {
+        "text": "Количество сообщений, которые consumer получает за одну TCP-транзакцию",
+        "correct": false,
+        "explanation": "Prefetch не связан напрямую с TCP-транзакциями. Это flow-control механизм на уровне AMQP."
+      }
+    ]
+  },
+  {
+    "question": "На каком Channel всегда отправляются команды connection.start, connection.open и другие команды уровня соединения?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Channel 0 — зарезервирован для операций уровня Connection",
+        "correct": true,
+        "explanation": "Channel 0 — системный. Он зарезервирован протоколом для команд управления соединением. Пользовательские channel начинаются с 1."
+      },
+      {
+        "text": "Любой доступный channel — выбирается автоматически",
+        "correct": false,
+        "explanation": "Строго channel 0. AMQP-спецификация требует отправлять команды connection.* только через channel 0."
+      },
+      {
+        "text": "Channel 1 — первый открытый channel",
+        "correct": false,
+        "explanation": "Channel 1 — первый пользовательский channel, но команды соединения отправляются через специально зарезервированный channel."
+      },
+      {
+        "text": "Connection-команды отправляются вне channel — напрямую в TCP-поток",
+        "correct": false,
+        "explanation": "Все AMQP-команды обёрнуты в фреймы с channel-id. Для connection-команд channel-id всегда 0."
+      }
+    ]
+  },
+  {
+    "question": "Из каких частей состоит AMQP-фрейм?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "payload-size (4 байта)",
+        "correct": true,
+        "explanation": "Размер payload в байтах. Позволяет читать ровно нужное количество байт без маркеров разделения."
+      },
+      {
+        "text": "frame-type (1 байт)",
+        "correct": true,
+        "explanation": "Тип фрейма: 1=method, 2=header, 3=body, 4=heartbeat. Первый байт каждого фрейма."
+      },
+      {
+        "text": "message-uuid (16 байт)",
+        "correct": false,
+        "explanation": "UUID сообщения — это опциональное поле message-id в Header Frame, не обязательная часть заголовка фрейма."
+      },
+      {
+        "text": "frame-end (1 байт, значение 0xCE)",
+        "correct": true,
+        "explanation": "Инвариант протокола: последний байт каждого фрейма всегда 0xCE. Используется для обнаружения нарушений протокола."
+      },
+      {
+        "text": "channel-id (2 байта)",
+        "correct": true,
+        "explanation": "Идентификатор channel, к которому относится фрейм. Позволяет мультиплексировать несколько channel в одном Connection."
+      }
+    ]
+  },
+  {
+    "question": "Producer публикует сообщение через AMQP. В каком порядке отправляются фреймы?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Method → Header → Body (один или несколько)",
+        "correct": true,
+        "explanation": "Стандартный порядок: Method Frame (команда и её аргументы) → Header Frame (content properties: content-type, delivery-mode, priority) → один или несколько Body Frame (само тело сообщения)."
+      },
+      {
+        "text": "Header → Method → Body",
+        "correct": false,
+        "explanation": "Method Frame всегда первый — он содержит команду (basic.publish) и её аргументы."
+      },
+      {
+        "text": "Body → Header → Method",
+        "correct": false,
+        "explanation": "Неправильный порядок. Сначала должен идти Method Frame с параметрами команды."
+      },
+      {
+        "text": "Method → Body → Header",
+        "correct": false,
+        "explanation": "Header Frame всегда следует сразу за Method Frame, до Body Frame."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт с сообщением, если NACK отправлен с requeue=false и на exchange настроен dead-letter-exchange (DLX)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сообщение удаляется без следа",
+        "correct": false,
+        "explanation": "При наличии DLX сообщение не теряется. Именно для этого и нужен dead-letter-exchange."
+      },
+      {
+        "text": "Сообщение перенаправляется в dead-letter-exchange, откуда попадает в DLQ",
+        "correct": true,
+        "explanation": "DLX — это отдельный exchange для 'мёртвых' сообщений. NACK+requeue=false (или истёкший TTL, или переполнение очереди) направляет сообщение туда, оно маршрутизируется в Dead Letter Queue для ручного анализа."
+      },
+      {
+        "text": "Брокер повторно доставляет сообщение с флагом redelivered=true",
+        "correct": false,
+        "explanation": "Redelivered=true устанавливается при requeue=true. При requeue=false с DLX сообщение не переотправляется."
+      },
+      {
+        "text": "Сообщение возвращается в начало очереди",
+        "correct": false,
+        "explanation": "Возврат в очередь — это requeue=true. При requeue=false с DLX сообщение уходит в dead-letter queue."
+      }
+    ]
+  },
+  {
+    "question": "Что такое delivery-tag в AMQP?",
+    "type": "single",
+    "options": [
+      {
+        "text": "UUID сообщения, уникальный в рамках всего брокера",
+        "correct": false,
+        "explanation": "UUID сообщения — это поле message-id в header. Delivery-tag — порядковый счётчик в рамках одного channel."
+      },
+      {
+        "text": "Монотонно возрастающий счётчик доставок в рамках одного Channel",
+        "correct": true,
+        "explanation": "Delivery-tag начинается с 1 для каждого Channel и увеличивается при каждой доставке. Используется в basic.ack/nack для идентификации конкретной доставки."
+      },
+      {
+        "text": "Приоритет сообщения в очереди (от 0 до 9)",
+        "correct": false,
+        "explanation": "Приоритет задаётся полем priority в Header Frame. Delivery-tag — идентификатор для подтверждения."
+      },
+      {
+        "text": "Версия сообщения, увеличивается при каждой переотправке",
+        "correct": false,
+        "explanation": "Для переотправок флаг redelivered=true и поле attempt (в клиентских библиотеках). Delivery-tag — уникальный ID доставки, не версия."
+      }
+    ]
+  },
+  {
+    "question": "Ваш consumer использует prefetch=1 и тратит 5 секунд на обработку каждого сообщения. В очереди 100 сообщений. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Consumer будет получать по одному сообщению, обрабатывать его (5 сек), подтверждать, и только тогда получать следующее",
+        "correct": true,
+        "explanation": "Prefetch=1 — строгая последовательная обработка. Это защищает consumer от перегрузки, но снижает пропускную способность. Для ускорения нужно либо увеличить prefetch, либо запустить несколько consumer."
+      },
+      {
+        "text": "Брокер будет отправлять по 5 сообщений каждые 5 секунд",
+        "correct": false,
+        "explanation": "Брокер не знает о времени обработки. Он ориентируется только на количество неподтверждённых сообщений (prefetch count)."
+      },
+      {
+        "text": "RabbitMQ отключит consumer за медленную обработку",
+        "correct": false,
+        "explanation": "RabbitMQ не отключает consumer за медленную обработку. Consumer может держать сообщение сколько угодно (если не настроен consumer timeout в RabbitMQ 3.12+)."
+      },
+      {
+        "text": "Consumer получит все 100 сообщений сразу и будет обрабатывать их параллельно",
+        "correct": false,
+        "explanation": "Prefetch=1 означает, что брокер не отправит следующее сообщение пока не получит ACK за предыдущее."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих свойств относятся к Header Frame (content properties) в AMQP?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "delivery-mode (1=transient, 2=persistent)",
+        "correct": true,
+        "explanation": "delivery-mode в Header Frame указывает, должно ли сообщение быть записано на диск (2=persistent) или может храниться только в памяти (1=transient)."
+      },
+      {
+        "text": "routing-key",
+        "correct": false,
+        "explanation": "Routing key передаётся в Method Frame (basic.publish), не в Header Frame."
+      },
+      {
+        "text": "exchange",
+        "correct": false,
+        "explanation": "Имя exchange — часть Method Frame (basic.publish). Header Frame содержит только content properties."
+      },
+      {
+        "text": "content-type (например, 'application/json')",
+        "correct": true,
+        "explanation": "content-type — стандартное поле Header Frame, аналог HTTP Content-Type. Помогает consumer понять формат тела."
+      },
+      {
+        "text": "message-id",
+        "correct": true,
+        "explanation": "message-id — опциональный уникальный идентификатор сообщения в Header Frame. Полезен для idempotent processing."
+      },
+      {
+        "text": "priority (0-9)",
+        "correct": true,
+        "explanation": "Приоритет сообщения — поле Header Frame. Используется с priority queue (x-max-priority)."
+      }
+    ]
+  },
+  {
+    "question": "В чём разница между exchange типа topic и direct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Topic рассылает сообщения всем очередям, direct — только одной",
+        "correct": false,
+        "explanation": "Рассылка всем — это fanout. Topic с шаблоном может попасть в несколько очередей, но через matching, а не broadcast."
+      },
+      {
+        "text": "Direct работает только внутри одного vhost, topic — между vhost",
+        "correct": false,
+        "explanation": "Оба типа exchange работают только внутри своего vhost. Тип exchange не влияет на изоляцию vhost."
+      },
+      {
+        "text": "Topic быстрее direct, так как использует хэш-таблицу для поиска",
+        "correct": false,
+        "explanation": "Производительность в данном случае не главное отличие. Direct тоже использует точное сопоставление."
+      },
+      {
+        "text": "Direct сопоставляет routing key точно, topic поддерживает wildcard-шаблоны (* и #)",
+        "correct": true,
+        "explanation": "Direct: routing key должен точно совпасть с binding key. Topic: поддерживает * (одно слово) и # (ноль или более слов через точку). Например, binding key 'orders.#' поймает 'orders.new', 'orders.paid.v2' и т.д."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт с неподтверждёнными сообщениями (unacked), если consumer неожиданно отключится?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сообщения останутся в unacked-состоянии до следующего подключения consumer",
+        "correct": false,
+        "explanation": "При закрытии соединения брокер немедленно освобождает все unacked сообщения и возвращает их в очередь."
+      },
+      {
+        "text": "Сообщения отправятся в dead-letter-exchange",
+        "correct": false,
+        "explanation": "В DLX попадают сообщения с NACK+requeue=false или с истёкшим TTL. Разрыв соединения возвращает сообщения в основную очередь."
+      },
+      {
+        "text": "Брокер вернёт их в очередь с флагом redelivered=true",
+        "correct": true,
+        "explanation": "При закрытии TCP-соединения брокер возвращает все unacked сообщения в очередь. Флаг redelivered=true сигнализирует следующему consumer, что это повторная доставка."
+      },
+      {
+        "text": "Сообщения будут потеряны",
+        "correct": false,
+        "explanation": "Одна из гарантий AMQP — неподтверждённые сообщения не теряются при отключении consumer."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Publisher Confirms в RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Подтверждение producer'ом того, что он хочет отправить сообщение",
+        "correct": false,
+        "explanation": "Producer не должен ничего подтверждать брокеру перед отправкой. Publisher Confirms — это ответ брокера."
+      },
+      {
+        "text": "Настройка транзакционной записи — аналог SQL-транзакций",
+        "correct": false,
+        "explanation": "AMQP поддерживает транзакции (tx.select/commit/rollback), но Publisher Confirms — это более лёгкий асинхронный механизм подтверждений."
+      },
+      {
+        "text": "Механизм, при котором consumer подтверждает получение сообщения producer'у",
+        "correct": false,
+        "explanation": "Publisher Confirms — взаимодействие между producer и брокером, не между consumer и producer."
+      },
+      {
+        "text": "Механизм, при котором брокер подтверждает producer'у, что сообщение было сохранено в очередь",
+        "correct": true,
+        "explanation": "Без Publisher Confirms producer отправляет сообщения в 'fire-and-forget' режиме. С Confirms брокер отправляет basic.ack/nack producer'у после того, как сообщение записано на диск (для persistent) или принято в очередь."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений о Default Exchange в RabbitMQ верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Default Exchange автоматически привязан к каждой созданной очереди с binding key равным имени очереди",
+        "correct": true,
+        "explanation": "Это ключевое свойство Default Exchange. Binding создаётся автоматически при создании очереди, поэтому можно сразу отправить сообщение 'напрямую' в очередь по её имени."
+      },
+      {
+        "text": "Default Exchange имеет пустое имя (\"\")",
+        "correct": true,
+        "explanation": "Можно обратиться к Default Exchange, передав пустую строку в качестве имени exchange при basic.publish."
+      },
+      {
+        "text": "Default Exchange — это exchange типа fanout",
+        "correct": false,
+        "explanation": "Default Exchange — типа direct. Он маршрутизирует по точному совпадению routing key с именем очереди."
+      },
+      {
+        "text": "Default Exchange нельзя удалить или переконфигурировать",
+        "correct": true,
+        "explanation": "Default Exchange — системный, встроенный в брокер. Его нельзя удалить, изменить или создать binding к нему вручную."
+      }
+    ]
+  },
+  {
+    "question": "Ваш сервис отправляет важные заказы в RabbitMQ. Как гарантировать, что сообщение не потеряется при перезапуске брокера?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Использовать Publisher Confirms",
+        "correct": true,
+        "explanation": "Publisher Confirms позволяют producer'у убедиться, что сообщение было принято и записано брокером. Без этого producer не знает, дошло ли сообщение."
+      },
+      {
+        "text": "Объявить exchange с durable=true",
+        "correct": true,
+        "explanation": "Exchange тоже должен быть durable, иначе он исчезнет при рестарте и binding будет разорван."
+      },
+      {
+        "text": "Объявить очередь с durable=true",
+        "correct": true,
+        "explanation": "Durable очередь восстанавливается после рестарта брокера. Без этого очередь исчезнет вместе с сообщениями."
+      },
+      {
+        "text": "Отправлять сообщения с delivery-mode=2 (persistent)",
+        "correct": true,
+        "explanation": "Persistent сообщение записывается на диск. Без этого даже в durable очереди сообщения хранятся только в памяти и потеряются при рестарте."
+      },
+      {
+        "text": "Установить x-message-ttl на очередь",
+        "correct": false,
+        "explanation": "TTL ограничивает время жизни сообщения, что может привести к его удалению, а не сохранению."
+      }
+    ]
+  },
+  {
+    "question": "Что такое x-dead-letter-exchange (DLX) и когда сообщения туда попадают?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Сообщение попадает в DLX, если NACK с requeue=false",
+        "correct": true,
+        "explanation": "NACK+requeue=false — один из трёх триггеров DLX. Сообщение не возвращается в очередь и перенаправляется в DLX."
+      },
+      {
+        "text": "Сообщение попадает в DLX, если producer отправил его с delivery-mode=1",
+        "correct": false,
+        "explanation": "Delivery-mode влияет на персистентность, не на маршрутизацию в DLX. Transient сообщения не попадают в DLX по этой причине."
+      },
+      {
+        "text": "DLX — это exchange, в который брокер перенаправляет 'мёртвые' сообщения",
+        "correct": true,
+        "explanation": "DLX настраивается как аргумент очереди (x-dead-letter-exchange). Брокер автоматически публикует 'мёртвые' сообщения в этот exchange."
+      },
+      {
+        "text": "Сообщение попадает в DLX, если истёк его TTL (x-message-ttl)",
+        "correct": true,
+        "explanation": "Истечение TTL — второй триггер DLX. Если сообщение 'протухло', оно не удаляется, а перенаправляется в DLX."
+      },
+      {
+        "text": "Сообщение попадает в DLX, если очередь переполнена (x-max-length)",
+        "correct": true,
+        "explanation": "Переполнение — третий триггер DLX. Когда очередь достигает x-max-length, новые сообщения (или головные, в зависимости от overflow policy) перенаправляются в DLX."
+      }
+    ]
+  },
+  {
+    "question": "Вы открыли 100 Channel в одном Connection. Какой из вариантов корректно описывает ситуацию?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Создаётся 100 TCP-соединений с брокером",
+        "correct": false,
+        "explanation": "Channel использует мультиплексирование внутри одного TCP-соединения. 100 Channel — это одно TCP-соединение."
+      },
+      {
+        "text": "Брокер автоматически ограничит до 10 Channel на Connection",
+        "correct": false,
+        "explanation": "RabbitMQ не ограничивает число Channel по умолчанию (технически ограничен параметром channel-max в negotiate, по умолчанию 65535)."
+      },
+      {
+        "text": "Все 100 Channel мультиплексируются в одном TCP-соединении",
+        "correct": true,
+        "explanation": "В этом суть Channel. Одно дорогое TCP-соединение разделяется на 100 лёгких виртуальных Channel. Это позволяет избежать накладных расходов на handshake и авторизацию для каждой операции."
+      },
+      {
+        "text": "После 65 Channel производительность резко падает из-за ограничений протокола",
+        "correct": false,
+        "explanation": "Channel-max (65535) — теоретический предел протокола. На практике рекомендуется не злоупотреблять числом Channel, но жёсткого порога нет."
+      }
+    ]
+  },
+  {
+    "question": "Что означает флаг `redelivered=true` в доставленном сообщении?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Consumer должен немедленно его NACK'нуть, чтобы избежать цикла",
+        "correct": false,
+        "explanation": "Redelivered=true — информация для принятия решения, а не команда. Consumer должен обработать сообщение идемпотентно или проверить, не было ли оно уже успешно обработано."
+      },
+      {
+        "text": "Сообщение ранее было доставлено другому consumer (или тому же) и не было ACK'нуто",
+        "correct": true,
+        "explanation": "Redelivered=true означает, что брокер уже отправлял это сообщение раньше (но не получил ACK). Это сигнал для consumer проверить идемпотентность обработки — возможно, сообщение уже было обработано частично."
+      },
+      {
+        "text": "Сообщение было продублировано сетевым оборудованием",
+        "correct": false,
+        "explanation": "Сетевые дубликаты — отдельная проблема. Redelivered=true — это флаг на уровне AMQP, выставляемый брокером намеренно."
+      },
+      {
+        "text": "Сообщение было опубликовано producer'ом несколько раз",
+        "correct": false,
+        "explanation": "Redelivered не связан с поведением producer. Флаг выставляет брокер при переотправке."
+      }
+    ]
+  },
+  {
+    "question": "Heartbeat в AMQP — зачем он нужен?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Для регулярной синхронизации состояния очередей между узлами кластера",
+        "correct": false,
+        "explanation": "Синхронизация между нодами кластера — внутреннее дело брокера (Erlang distribution). Heartbeat — про клиентские соединения."
+      },
+      {
+        "text": "Для обнаружения разорванных TCP-соединений и 'мёртвых' клиентов",
+        "correct": true,
+        "explanation": "TCP не всегда обнаруживает разрывы сразу (особенно при NAT). Heartbeat-фреймы периодически отправляются в обе стороны. Если брокер не получает heartbeat от клиента в течение 2× heartbeat timeout, он закрывает соединение и освобождает ресурсы."
+      },
+      {
+        "text": "Для оповещения producer'а о скорости обработки consumer'ом",
+        "correct": false,
+        "explanation": "Backpressure и flow control в AMQP реализуются через prefetch и channel.flow, не через heartbeat."
+      },
+      {
+        "text": "Для синхронизации часов между брокером и клиентом",
+        "correct": false,
+        "explanation": "Синхронизация времени — задача NTP, не AMQP heartbeat."
+      }
+    ]
+  }
+]

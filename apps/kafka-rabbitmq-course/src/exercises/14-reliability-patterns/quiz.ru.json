@@ -1,0 +1,667 @@
+[
+  {
+    "question": "Какова формула задержки для Exponential Backoff?",
+    "type": "single",
+    "options": [
+      {
+        "text": "delay = baseDelay + multiplier * attempt",
+        "correct": false,
+        "explanation": "Это линейный рост с коэффициентом, не экспоненциальный."
+      },
+      {
+        "text": "delay = baseDelay * attempt",
+        "correct": false,
+        "explanation": "Это линейный backoff, а не экспоненциальный."
+      },
+      {
+        "text": "delay = baseDelay * multiplier^(attempt - 1)",
+        "correct": true,
+        "explanation": "Экспоненциальная формула: задержка растёт как степень multiplier. При attempt=1 delay = baseDelay * 1 = baseDelay."
+      },
+      {
+        "text": "delay = baseDelay^attempt",
+        "correct": false,
+        "explanation": "Эта формула не учитывает multiplier и быстро даёт огромные числа при большом baseDelay."
+      }
+    ]
+  },
+  {
+    "question": "Зачем добавлять Jitter к задержке при Exponential Backoff?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чтобы несколько клиентов не повторяли запросы одновременно (Thundering Herd)",
+        "correct": true,
+        "explanation": "Без jitter 1000 клиентов повторяют запрос точно в одно время — это Thundering Herd, шторм запросов. Jitter разбрасывает их во времени."
+      },
+      {
+        "text": "Чтобы увеличить суммарное время ожидания",
+        "correct": false,
+        "explanation": "Jitter не увеличивает суммарное время — он вносит случайность, чтобы разбросать клиентов во времени."
+      },
+      {
+        "text": "Чтобы задержка не превышала максимальное значение (cap)",
+        "correct": false,
+        "explanation": "Для ограничения задержки используется cap через Math.min, а не jitter."
+      },
+      {
+        "text": "Чтобы уменьшить количество попыток",
+        "correct": false,
+        "explanation": "Jitter никак не влияет на количество попыток — только на распределение задержек во времени."
+      }
+    ]
+  },
+  {
+    "question": "Для каких из перечисленных ошибок следует делать Retry?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "HTTP 429 Too Many Requests",
+        "correct": true,
+        "explanation": "Rate limiting — временное ограничение. Retry с увеличенной задержкой подходит."
+      },
+      {
+        "text": "HTTP 503 Service Unavailable",
+        "correct": true,
+        "explanation": "Временная перегрузка сервиса — классический случай для retry. Через некоторое время сервис восстановится."
+      },
+      {
+        "text": "Network Timeout",
+        "correct": true,
+        "explanation": "Сетевой таймаут — временная проблема, retry оправдан."
+      },
+      {
+        "text": "JsonParseException — битый JSON",
+        "correct": false,
+        "explanation": "Постоянная ошибка: данные сообщения повреждены и не исправятся от повтора. Это poison message."
+      },
+      {
+        "text": "HTTP 400 Bad Request",
+        "correct": false,
+        "explanation": "Данные запроса некорректны — повтор не изменит данные, ошибка воспроизведётся снова. Прямо в DLQ."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если не установить cap (максимальный предел) на задержку Exponential Backoff?",
+    "type": "single",
+    "options": [
+      {
+        "text": "При большом числе попыток задержка вырастет до нескольких часов или дней",
+        "correct": true,
+        "explanation": "Например, baseDelay=1s, multiplier=2, attempt=20: 1 * 2^19 = 524288 секунд ≈ 6 дней. Cap через Math.min(delay, maxDelay) обязателен."
+      },
+      {
+        "text": "Система автоматически ограничит задержку до разумного значения",
+        "correct": false,
+        "explanation": "Автоматического ограничения нет — разработчик должен явно добавить Math.min(delay, maxDelay)."
+      },
+      {
+        "text": "Система будет работать нормально",
+        "correct": false,
+        "explanation": "При большом числе попыток задержка вырастет до абсурдных значений — часов или дней."
+      },
+      {
+        "text": "Retry остановится раньше из-за ошибки переполнения числа",
+        "correct": false,
+        "explanation": "JavaScript безопасно обрабатывает большие числа через Infinity, но задержка в миллисекундах станет фактически бесконечной."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Full Jitter?",
+    "type": "single",
+    "options": [
+      {
+        "text": "delay = Math.random() * (prevDelay * 3 - baseDelay) + baseDelay",
+        "correct": false,
+        "explanation": "Это Decorrelated Jitter, рекомендованный AWS — другой алгоритм."
+      },
+      {
+        "text": "delay = calculatedDelay + Math.random() * baseDelay",
+        "correct": false,
+        "explanation": "Это не стандартная формула jitter — она добавляет случайность сверху, но не устраняет синхронизацию."
+      },
+      {
+        "text": "delay = calculatedDelay / 2 + Math.random() * (calculatedDelay / 2)",
+        "correct": false,
+        "explanation": "Это Equal Jitter: половина фиксирована, половина случайна."
+      },
+      {
+        "text": "delay = Math.random() * calculatedDelay",
+        "correct": true,
+        "explanation": "Full Jitter — полностью случайное значение в диапазоне [0, calculatedDelay]. Лучше всего разбрасывает клиентов во времени."
+      }
+    ]
+  },
+  {
+    "question": "Почему идемпотентность важна при at-least-once доставке?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чтобы уменьшить нагрузку на брокер",
+        "correct": false,
+        "explanation": "Идемпотентность не влияет на нагрузку брокера — она защищает от побочных эффектов при повторной обработке на стороне consumer-а."
+      },
+      {
+        "text": "Чтобы гарантировать порядок сообщений",
+        "correct": false,
+        "explanation": "Порядок сообщений — отдельная проблема, решаемая через partition key (Kafka) или routing key (RabbitMQ), а не идемпотентностью."
+      },
+      {
+        "text": "Чтобы ускорить обработку сообщений",
+        "correct": false,
+        "explanation": "Идемпотентность не ускоряет обработку — она добавляет проверку, что незначительно увеличивает латентность."
+      },
+      {
+        "text": "При at-least-once одно сообщение может доставиться несколько раз, идемпотентность предотвращает повторную обработку",
+        "correct": true,
+        "explanation": "Consumer может упасть после обработки, но до ack — брокер доставит сообщение снова. Идемпотентность гарантирует, что повтор не создаст двойных списаний, дублированных email и т.д."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Idempotency Key?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Индекс сообщения в топике Kafka",
+        "correct": false,
+        "explanation": "Offset в Kafka — это позиция в партиции, а не idempotency key. Они могут использоваться для дедупликации, но это не их основная роль."
+      },
+      {
+        "text": "Секретный ключ для шифрования сообщений",
+        "correct": false,
+        "explanation": "Idempotency Key не связан с шифрованием — это идентификатор для дедупликации."
+      },
+      {
+        "text": "Ключ для группировки связанных сообщений",
+        "correct": false,
+        "explanation": "Для группировки используют correlation ID или partition key — они решают другую задачу."
+      },
+      {
+        "text": "Уникальный идентификатор сообщения, используемый для определения дубликатов",
+        "correct": true,
+        "explanation": "Idempotency Key (обычно UUID или SHA-256) хранится в deduplications store. Перед обработкой проверяем: если этот ID уже видели — пропускаем."
+      }
+    ]
+  },
+  {
+    "question": "Какая команда Redis гарантирует атомарную запись ключа только если он не существует?",
+    "type": "single",
+    "options": [
+      {
+        "text": "SETNX key value",
+        "correct": false,
+        "explanation": "SETNX устаревшая команда, не поддерживает TTL в одной операции — нужен отдельный EXPIRE, что снова race condition."
+      },
+      {
+        "text": "SET key value EX ttl NX",
+        "correct": true,
+        "explanation": "NX (Not eXists) — атомарная операция: устанавливает значение только если ключ не существует. Возвращает null если ключ уже есть — это и есть признак дубликата."
+      },
+      {
+        "text": "SET key value EX ttl",
+        "correct": false,
+        "explanation": "Без NX флага SET перезапишет существующий ключ — не атомарная проверка."
+      },
+      {
+        "text": "EXISTS key + SET key value",
+        "correct": false,
+        "explanation": "Два отдельных команды — race condition: между EXISTS и SET другой consumer тоже может пройти проверку."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Poison Message?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Зашифрованное сообщение, которое нельзя прочитать",
+        "correct": false,
+        "explanation": "Poison message не связано с шифрованием."
+      },
+      {
+        "text": "Сообщение, которое постоянно вызывает ошибку при обработке и не может быть исправлено повторными попытками",
+        "correct": true,
+        "explanation": "Типичные причины: битый JSON, null в обязательном поле, несуществующий ресурс. Retry не помогает — данные не изменятся. Нужна изоляция в DLQ."
+      },
+      {
+        "text": "Сообщение с истёкшим TTL",
+        "correct": false,
+        "explanation": "Просроченные сообщения — отдельная концепция. Poison message — это сообщение с постоянной ошибкой обработки."
+      },
+      {
+        "text": "Очень большое сообщение, превышающее размерный лимит",
+        "correct": false,
+        "explanation": "Превышение размера — технический вопрос конфигурации. Это может стать причиной poison message, но само по себе не является определением."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Dead Letter Queue (DLQ)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Специальная очередь для сообщений, исчерпавших попытки обработки или содержащих постоянную ошибку",
+        "correct": true,
+        "explanation": "DLQ изолирует проблемные сообщения от основного потока. Они доступны для ручного анализа, фикса и повторной обработки (replay)."
+      },
+      {
+        "text": "Очередь для асинхронных ответов от consumer-ов",
+        "correct": false,
+        "explanation": "Для ответов используют Reply-To queues или callback queues — другой паттерн."
+      },
+      {
+        "text": "Резервная очередь для хранения копий всех сообщений",
+        "correct": false,
+        "explanation": "DLQ не является резервной копией — в ней оказываются только сообщения с ошибками."
+      },
+      {
+        "text": "Очередь с наивысшим приоритетом для критических сообщений",
+        "correct": false,
+        "explanation": "DLQ — это не очередь приоритетов, а очередь для сообщений, которые не удалось обработать."
+      }
+    ]
+  },
+  {
+    "question": "Как RabbitMQ отслеживает количество попыток доставки сообщения?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Через атрибут redelivered в сообщении",
+        "correct": false,
+        "explanation": "Флаг redelivered (boolean) показывает только факт повторной доставки — не счётчик попыток."
+      },
+      {
+        "text": "Через заголовок x-delivery-count в properties.headers",
+        "correct": true,
+        "explanation": "RabbitMQ автоматически устанавливает заголовок x-delivery-count при каждом nack/requeue. Consumer читает msg.properties.headers['x-delivery-count']."
+      },
+      {
+        "text": "Через отдельный API запрос к RabbitMQ Management",
+        "correct": false,
+        "explanation": "Management API предоставляет статистику очереди, но не счётчик доставок конкретного сообщения."
+      },
+      {
+        "text": "Через поле delivery_count в теле сообщения",
+        "correct": false,
+        "explanation": "Это поле в теле сообщения — контролируется приложением, а не брокером."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть consumer, который обрабатывает платёжные транзакции. Сервис платежей иногда возвращает 503. Какая стратегия правильная?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Игнорировать ошибки и продолжать обработку следующих сообщений",
+        "correct": false,
+        "explanation": "Игнорирование ошибок в платёжных транзакциях — потеря денег. Каждое сообщение должно быть обработано или явно перемещено в DLQ."
+      },
+      {
+        "text": "Retry с Exponential Backoff для 503, прямо в DLQ для 400",
+        "correct": true,
+        "explanation": "Правильная классификация: 503 — transient, retry оправдан; 400 — permanent (данные неверны), retry бессмысленен. После исчерпания попыток для 503 — тоже DLQ."
+      },
+      {
+        "text": "Всегда retry 10 раз с задержкой 1 секунда",
+        "correct": false,
+        "explanation": "Фиксированная задержка не защищает от Thundering Herd. 10 попыток с задержкой 1s — возможно слишком мало для реального восстановления сервиса."
+      },
+      {
+        "text": "Сразу отправлять в DLQ при любой ошибке",
+        "correct": false,
+        "explanation": "503 — временная ошибка, при повторе сервис может восстановиться. Сразу DLQ приведёт к потере легитимных транзакций."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Bloom Filter в контексте дедупликации?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Паттерн фильтрации сообщений по содержимому",
+        "correct": false,
+        "explanation": "Content-based filtering — другой паттерн, не связанный с Bloom Filter."
+      },
+      {
+        "text": "Очередь с приоритетами на основе веса сообщений",
+        "correct": false,
+        "explanation": "Priority Queue — совершенно другая структура данных."
+      },
+      {
+        "text": "Вероятностная структура данных, позволяющая быстро проверить принадлежность элемента без хранения самих элементов",
+        "correct": true,
+        "explanation": "Bloom Filter даёт false positive, но никогда false negative. Если он говорит 'не видели' — точно не видели. Экономит 90%+ запросов к Redis при высоком трафике."
+      },
+      {
+        "text": "Алгоритм шифрования idempotency keys",
+        "correct": false,
+        "explanation": "Bloom Filter — это структура данных для вероятностной проверки принадлежности, не алгоритм шифрования."
+      }
+    ]
+  },
+  {
+    "question": "Паттерн Outbox в связке с дедупликацией решает следующую проблему:",
+    "type": "single",
+    "options": [
+      {
+        "text": "Позволяет обрабатывать сообщения в строгом порядке",
+        "correct": false,
+        "explanation": "Порядок — отдельная задача, решаемая через partition key (Kafka) или single consumer per queue (RabbitMQ)."
+      },
+      {
+        "text": "Убирает необходимость в DLQ",
+        "correct": false,
+        "explanation": "Outbox + Dedup не устраняют необходимость в DLQ — DLQ для постоянных ошибок, а не дублей."
+      },
+      {
+        "text": "Гарантирует at-most-once доставку",
+        "correct": false,
+        "explanation": "Outbox гарантирует at-least-once публикацию, а не at-most-once. Дедупликация на consumer-е обеспечивает exactly-once processing."
+      },
+      {
+        "text": "Обеспечивает атомарность: событие записывается в БД вместе с бизнес-транзакцией, а дедупликация на consumer-е гарантирует exactly-once processing",
+        "correct": true,
+        "explanation": "Outbox: INSERT бизнес-данных + INSERT события в одной транзакции → at-least-once публикация. Dedup на consumer-е: если сообщение пришло дважды — обрабатываем только первый раз."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Circuit Breaker?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Паттерн, отслеживающий процент ошибок и временно блокирующий запросы к нездоровому сервису",
+        "correct": true,
+        "explanation": "Основная функция Circuit Breaker: при превышении порога ошибок переходит в OPEN состояние и немедленно возвращает ошибку без обращения к сервису."
+      },
+      {
+        "text": "Защищает от Thundering Herd при восстановлении сервиса",
+        "correct": true,
+        "explanation": "Пока CB в OPEN — клиенты не штурмуют сервис повторами. Переход в HALF_OPEN позволяет проверить готовность сервиса одним пробным запросом."
+      },
+      {
+        "text": "Это зависит исключительно от языка программирования",
+        "correct": false,
+        "explanation": "Это архитектурное решение, не зависящее от языка."
+      },
+      {
+        "text": "Имеет три состояния: CLOSED (нормальная работа), OPEN (все запросы блокируются), HALF_OPEN (пробный запрос)",
+        "correct": true,
+        "explanation": "Три состояния — ключевая характеристика Circuit Breaker. HALF_OPEN позволяет проверить, восстановился ли сервис."
+      },
+      {
+        "text": "Заменяет необходимость в Retry",
+        "correct": false,
+        "explanation": "Circuit Breaker и Retry — дополняющие паттерны. CB защищает от шторма запросов к мёртвому сервису, Retry обрабатывает конкретные временные сбои."
+      }
+    ]
+  },
+  {
+    "question": "У вас 500 инстансов consumer-а. Сервис упал. После восстановления все начинают retry одновременно. Что произойдёт без jitter?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сервис равномерно восстановит нагрузку",
+        "correct": false,
+        "explanation": "Без jitter все 500 инстансов повторяют в одно время — пик нагрузки повторяется снова и снова."
+      },
+      {
+        "text": "Thundering Herd: 500 инстансов одновременно атакуют восстанавливающийся сервис, снова его перегружая",
+        "correct": true,
+        "explanation": "Сервис только начал восстанавливаться — получает шторм из 500 запросов. Это может снова его уронить. Jitter разбрасывает попытки во времени, давая сервису плавно набрать нагрузку."
+      },
+      {
+        "text": "Circuit Breaker автоматически предотвратит это",
+        "correct": false,
+        "explanation": "Circuit Breaker помогает, но не решает проблему Thundering Herd полностью — нужен ещё jitter."
+      },
+      {
+        "text": "Retry завершится с ошибкой для всех инстансов",
+        "correct": false,
+        "explanation": "Retry не завершится сам по себе — проблема в синхронизации пиков нагрузки."
+      }
+    ]
+  },
+  {
+    "question": "Какой тип Idempotency Key лучше всего подходит для базы данных с B-Tree индексом?",
+    "type": "single",
+    "options": [
+      {
+        "text": "MD5 хэш от payload",
+        "correct": false,
+        "explanation": "MD5 — детерминированный, но случайно распределённый. Те же проблемы с B-Tree, что и у UUID v4. Плюс коллизии (хоть и редкие)."
+      },
+      {
+        "text": "Timestamp в миллисекундах",
+        "correct": false,
+        "explanation": "Не уникален при высокой нагрузке (несколько событий в одну миллисекунду). UUID v7 использует timestamp + случайный suffix для гарантии уникальности."
+      },
+      {
+        "text": "UUID v7 (монотонно возрастающий, time-based)",
+        "correct": true,
+        "explanation": "UUID v7 монотонно возрастает, поэтому новые записи всегда добавляются в конец B-Tree индекса — минимальная фрагментация, лучшая производительность вставок."
+      },
+      {
+        "text": "UUID v4 (случайный)",
+        "correct": false,
+        "explanation": "UUID v4 полностью случаен — записи в B-Tree индексе вставляются в случайных позициях, что приводит к частым page splits и фрагментации."
+      }
+    ]
+  },
+  {
+    "question": "Что правильно утверждать о дедупликации через Redis SET NX?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Гарантирует exactly-once обработку даже при падении consumer-а",
+        "correct": false,
+        "explanation": "Нет: если consumer обработал, записал в Redis, но упал до ack — сообщение придёт снова. Redis SET NX пройдёт, т.к. ключ уже есть — дубликат заблокируется. Но если consumer упал ДО записи в Redis — получим повторную обработку."
+      },
+      {
+        "text": "Необходимо устанавливать TTL чтобы хранилище не росло бесконечно",
+        "correct": false,
+        "explanation": "Без TTL с каждым новым сообщением Redis растёт. TTL 24 часа — стандартное решение: если сообщение не пришло повторно за сутки, ID можно удалить."
+      },
+      {
+        "text": "Операция атомарна — нет race condition между проверкой и записью",
+        "correct": true,
+        "explanation": "SET ... NX выполняется атомарно на уровне Redis — между проверкой существования и записью нет промежутка, где другой consumer мог бы вставить дубликат."
+      },
+      {
+        "text": "При перезапуске Redis все записи теряются — дубликат пройдёт повторно",
+        "correct": true,
+        "explanation": "In-memory Redis без persistence (RDB/AOF) теряет данные при рестарте. Для критических систем нужен Redis с persistence или PostgreSQL."
+      }
+    ]
+  },
+  {
+    "question": "Почему важно мониторить DLQ с алертами?",
+    "type": "single",
+    "options": [
+      {
+        "text": "DLQ блокирует работу основной очереди",
+        "correct": false,
+        "explanation": "Смысл DLQ именно в том, что она изолирует проблемные сообщения от основного потока — блокировки нет."
+      },
+      {
+        "text": "DLQ занимает много памяти брокера",
+        "correct": false,
+        "explanation": "Память — технический вопрос, настраиваемый через retention policy. Главная причина мониторинга — бизнес-потери."
+      },
+      {
+        "text": "DLQ автоматически повторяет обработку через час",
+        "correct": false,
+        "explanation": "DLQ не делает автоматический replay — это ручная операция или отдельный сервис. Без мониторинга никто не узнает, что нужно действовать."
+      },
+      {
+        "text": "Сообщения в DLQ — потерянные бизнес-события, без алертов они накапливаются незаметно",
+        "correct": true,
+        "explanation": "DLQ = необработанные заказы, платежи, уведомления. Без мониторинга через неделю обнаружится 10,000 пропущенных транзакций. Алерт при depth > N — обязательное требование."
+      }
+    ]
+  },
+  {
+    "question": "Что такое 'delivery count' и как он используется при обнаружении poison messages?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Приоритет сообщения в очереди",
+        "correct": false,
+        "explanation": "Приоритет — отдельный заголовок priority. Delivery count — счётчик попыток."
+      },
+      {
+        "text": "Количество consumer-ов, получивших сообщение одновременно",
+        "correct": false,
+        "explanation": "Delivery count — счётчик попыток доставки одному consumer-у, не количество получателей."
+      },
+      {
+        "text": "Размер пакета сообщений при batch-обработке",
+        "correct": false,
+        "explanation": "Batch size — отдельная настройка prefetch/batch, не связанная с delivery count."
+      },
+      {
+        "text": "Счётчик попыток доставки: при превышении maxDeliveries сообщение считается poison и отправляется в карантин/DLQ",
+        "correct": true,
+        "explanation": "Consumer проверяет headers['x-delivery-count']. Если deliveryCount >= maxDeliveries — сообщение не будет обработано, его надо изолировать в DLQ чтобы не зациклиться."
+      }
+    ]
+  },
+  {
+    "question": "Проект с 1000 RPS. Consumer обрабатывает платёжные события. Какую комбинацию паттернов выбрать для максимальной надёжности?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Circuit Breaker для downstream payment сервиса",
+        "correct": true,
+        "explanation": "При 1000 RPS падение payment сервиса без CB = 1000 таймаутов в секунду, нарастающий backlog. CB предотвратит это."
+      },
+      {
+        "text": "Синхронный retry без backoff для минимизации латентности",
+        "correct": false,
+        "explanation": "Синхронный retry без backoff = Thundering Herd при 1000 RPS. Это неприемлемо для высоконагруженной системы."
+      },
+      {
+        "text": "DLQ для неисправимых ошибок + алерты на глубину очереди",
+        "correct": true,
+        "explanation": "Платёжные события нельзя терять — DLQ + мониторинг обязательны для ручного анализа и replay."
+      },
+      {
+        "text": "Idempotency Key (Redis SET NX с TTL) для защиты от дублей",
+        "correct": true,
+        "explanation": "Платёжные события не должны обрабатываться дважды — двойное списание. Redis SET NX — атомарная защита."
+      },
+      {
+        "text": "Retry с Exponential Backoff + Full Jitter для временных ошибок",
+        "correct": true,
+        "explanation": "При 1000 RPS без jitter Thundering Herd при сбое гарантирован. Full Jitter разбросает 1000 consumer-ов во времени."
+      }
+    ]
+  },
+  {
+    "question": "Что означает 'Graceful Degradation'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Постепенное удаление устаревших API",
+        "correct": false,
+        "explanation": "API deprecation — управление жизненным циклом API, не паттерн надёжности."
+      },
+      {
+        "text": "Автоматическое масштабирование при увеличении нагрузки",
+        "correct": false,
+        "explanation": "Auto-scaling — реакция на нагрузку. Graceful degradation — реакция на недоступность зависимостей."
+      },
+      {
+        "text": "Немедленное отключение системы при первой ошибке",
+        "correct": false,
+        "explanation": "Это противоположность graceful degradation — fail-fast без возможности продолжить работу."
+      },
+      {
+        "text": "Система постепенно снижает функциональность при сбоях вместо полного падения, используя кэш и fallback значения",
+        "correct": true,
+        "explanation": "Graceful Degradation: недоступен pricing service → используем кэшированную цену → нет кэша → дефолтная цена → только тогда ошибка. Система работает на ограниченном функционале."
+      }
+    ]
+  },
+  {
+    "question": "Идемпотентна ли операция UPDATE balance = balance - 100 WHERE user_id = $1?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Да, если использовать idempotency key в WHERE условии",
+        "correct": false,
+        "explanation": "Idempotency key в WHERE не поможет — нужно изменить семантику операции: использовать SET balance = $new_value WHERE balance = $old_value, или проверять уже применённые транзакции."
+      },
+      {
+        "text": "Нет: повторный вызов уменьшит баланс ещё раз",
+        "correct": true,
+        "explanation": "f(x) = f(f(x)) — это требование идемпотентности. balance=1000: первый вызов → 900, второй → 800. Результат меняется. Операция НЕ идемпотентна."
+      },
+      {
+        "text": "Да, потому что UPDATE на одну строку",
+        "correct": false,
+        "explanation": "Идемпотентность определяется результатом, а не синтаксисом. Каждый вызов уменьшает баланс на 100 — это не идемпотентно."
+      },
+      {
+        "text": "Зависит от транзакционного уровня базы данных",
+        "correct": false,
+        "explanation": "Уровень изоляции транзакций влияет на конкурентный доступ, но не делает операцию идемпотентной."
+      }
+    ]
+  },
+  {
+    "question": "Как настроить RabbitMQ для автоматической отправки в DLQ после N неудачных попыток?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Через конфигурацию vhost в rabbitmq.conf",
+        "correct": false,
+        "explanation": "Параметры очереди настраиваются при объявлении очереди в коде или через Management UI, не через глобальный конфиг."
+      },
+      {
+        "text": "Через publisher confirm на стороне producer-а",
+        "correct": false,
+        "explanation": "Publisher confirms — механизм подтверждения публикации, не управление retry/DLQ на стороне consumer-а."
+      },
+      {
+        "text": "Через параметр x-max-delivery-count при объявлении очереди",
+        "correct": true,
+        "explanation": "assertQueue('main', { arguments: { 'x-max-delivery-count': 3, 'x-dead-letter-exchange': 'dlx' } }) — RabbitMQ сам переместит сообщение в DLQ после 3 nack/requeue."
+      },
+      {
+        "text": "Это невозможно — нужно реализовать счётчик вручную в коде consumer-а",
+        "correct": false,
+        "explanation": "RabbitMQ поддерживает x-max-delivery-count нативно. Ручная реализация возможна, но избыточна когда есть встроенный механизм."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт если consumer обработал сообщение успешно, но упал ДО отправки ack в RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Брокер откатит все изменения, сделанные consumer-ом",
+        "correct": false,
+        "explanation": "Брокер не знает о внутренних изменениях consumer-а — он управляет только доставкой сообщений, не бизнес-транзакциями."
+      },
+      {
+        "text": "Сообщение будет переотправлено consumer-у после reconnect, и без idempotency оно обработается второй раз",
+        "correct": true,
+        "explanation": "Это и есть at-least-once: RabbitMQ не получил ack → считает сообщение недоставленным → переотправляет. Без idempotency — двойная обработка. Именно поэтому idempotency key критически важен."
+      },
+      {
+        "text": "Сообщение автоматически переместится в DLQ",
+        "correct": false,
+        "explanation": "В DLQ попадают сообщения при nack или превышении delivery count, а не при обрыве соединения."
+      },
+      {
+        "text": "Сообщение будет потеряно — брокер удалит его из очереди",
+        "correct": false,
+        "explanation": "Без ack RabbitMQ не считает сообщение доставленным. После reconnect сообщение будет переотправлено."
+      }
+    ]
+  }
+]

@@ -1,0 +1,746 @@
+[
+  {
+    "question": "Как работает Direct Exchange при маршрутизации сообщения?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Маршрутизирует сообщение только в очереди, у которых binding key точно совпадает с routing key",
+        "correct": true,
+        "explanation": "Direct Exchange выполняет exact match: routing key сообщения должен буква в букву совпадать с binding key очереди."
+      },
+      {
+        "text": "Маршрутизирует по wildcard-паттернам с * и #",
+        "correct": false,
+        "explanation": "Это поведение Topic Exchange."
+      },
+      {
+        "text": "Маршрутизирует по заголовкам AMQP-сообщения",
+        "correct": false,
+        "explanation": "Это поведение Headers Exchange."
+      },
+      {
+        "text": "Рассылает сообщение во все привязанные очереди",
+        "correct": false,
+        "explanation": "Это поведение Fanout Exchange, а не Direct."
+      }
+    ]
+  },
+  {
+    "question": "Может ли один routing key в Direct Exchange маршрутизировать сообщение в несколько очередей?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Да, если несколько очередей имеют одинаковый binding key",
+        "correct": true,
+        "explanation": "Direct Exchange не ограничивает количество очередей с одним binding key. Это позволяет имитировать fanout-поведение для конкретного ключа."
+      },
+      {
+        "text": "Нет, Direct Exchange всегда отправляет только в одну очередь",
+        "correct": false,
+        "explanation": "Direct Exchange маршрутизирует по exact match, но несколько очередей могут иметь одинаковый binding key. В этом случае сообщение попадёт во все них."
+      },
+      {
+        "text": "Только если использовать специальный флаг при публикации",
+        "correct": false,
+        "explanation": "Никакого специального флага не требуется — это стандартное поведение Direct Exchange."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит с сообщением в Direct Exchange, если ни одна очередь не имеет совпадающего binding key?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сообщение автоматически возвращается в default exchange",
+        "correct": false,
+        "explanation": "Автоматического возврата нет. Для обработки unroutable сообщений нужно явно настроить alternate exchange."
+      },
+      {
+        "text": "Сообщение теряется (dropped), если не настроен alternate exchange",
+        "correct": true,
+        "explanation": "Unroutable сообщение по умолчанию теряется. Чтобы этого избежать, можно настроить alternate exchange или использовать флаг mandatory при публикации."
+      },
+      {
+        "text": "RabbitMQ выбрасывает исключение и разрывает соединение",
+        "correct": false,
+        "explanation": "RabbitMQ не разрывает соединение. Сообщение просто теряется (если не настроен mandatory flag или alternate exchange)."
+      },
+      {
+        "text": "Сообщение ждёт в exchange, пока не появится подходящая очередь",
+        "correct": false,
+        "explanation": "Exchange не хранит сообщения. Это роль очередей."
+      }
+    ]
+  },
+  {
+    "question": "Как Fanout Exchange обрабатывает routing key сообщения?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Требует, чтобы routing key был пустой строкой",
+        "correct": false,
+        "explanation": "Fanout Exchange принимает любой routing key, но никак его не использует."
+      },
+      {
+        "text": "Использует routing key только если он содержит символ *",
+        "correct": false,
+        "explanation": "Нет, Fanout Exchange игнорирует routing key независимо от его содержимого."
+      },
+      {
+        "text": "Использует routing key для фильтрации получателей",
+        "correct": false,
+        "explanation": "Fanout Exchange полностью игнорирует routing key — он рассылает сообщение во все привязанные очереди."
+      },
+      {
+        "text": "Полностью игнорирует routing key",
+        "correct": true,
+        "explanation": "Это ключевая характеристика Fanout Exchange: любой routing key при публикации игнорируется, сообщение рассылается широковещательно."
+      }
+    ]
+  },
+  {
+    "question": "Вы строите систему push-уведомлений: email-сервис, push-сервис и SMS-сервис должны получать каждое событие. Какой тип Exchange наиболее подходит?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Direct Exchange с одинаковым binding key для всех трёх очередей",
+        "correct": false,
+        "explanation": "Это будет работать, но Fanout Exchange семантически точнее отражает намерение: 'разослать всем подписчикам'. Direct с одним ключом — это имитация fanout."
+      },
+      {
+        "text": "Topic Exchange с паттерном #",
+        "correct": false,
+        "explanation": "Topic с паттерном # технически дублирует поведение Fanout, но является избыточным усложнением для этого сценария."
+      },
+      {
+        "text": "Fanout Exchange",
+        "correct": true,
+        "explanation": "Fanout Exchange идеально подходит для broadcast-сценариев: каждое событие автоматически доставляется во все привязанные очереди без настройки ключей."
+      },
+      {
+        "text": "Headers Exchange с x-match: any",
+        "correct": false,
+        "explanation": "Headers Exchange избыточно сложен для этого случая и имеет худшую производительность."
+      }
+    ]
+  },
+  {
+    "question": "Что означает символ * (звёздочка) в паттерне Topic Exchange?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ноль или более слов (сегментов)",
+        "correct": false,
+        "explanation": "Ноль или более слов — это символ #. Звёздочка * заменяет ровно одно слово."
+      },
+      {
+        "text": "Любой символ внутри одного слова",
+        "correct": false,
+        "explanation": "В Topic Exchange точка является разделителем сегментов, а * работает на уровне целых сегментов, а не отдельных символов."
+      },
+      {
+        "text": "Один или более сегментов",
+        "correct": false,
+        "explanation": "* — это строго одно слово. Для одного-или-более слов в AMQP нет отдельного символа."
+      },
+      {
+        "text": "Ровно одно слово (сегмент между точками)",
+        "correct": true,
+        "explanation": "* заменяет ровно один сегмент (слово между точками). Например, order.* совпадает с order.created, но НЕ с order.created.eu."
+      }
+    ]
+  },
+  {
+    "question": "Какой результат совпадения паттерна order.# с ключом order?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Совпадает, так как # заменяет ноль или более слов",
+        "correct": true,
+        "explanation": "order.# означает 'order, за которым следует точка и ноль-или-более слов'. # может совпасть с пустой строкой, поэтому order соответствует этому паттерну."
+      },
+      {
+        "text": "Зависит от настроек RabbitMQ",
+        "correct": false,
+        "explanation": "Поведение # строго определено стандартом AMQP: ноль или более слов. Это не настраивается."
+      },
+      {
+        "text": "Не совпадает, так как после order нет ни одного слова",
+        "correct": false,
+        "explanation": "Символ # заменяет НОЛЬ ИЛИ более слов, поэтому order.# совпадает с order (ноль дополнительных слов)."
+      }
+    ]
+  },
+  {
+    "question": "Паттерн *.paid.* совпадает с routing key order.paid.eu. Верно ли это?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Нет, order.paid.eu имеет 3 сегмента, а *.paid.* только 2",
+        "correct": false,
+        "explanation": "*.paid.* имеет 3 сегмента: *, paid, *. order.paid.eu тоже имеет 3 сегмента. Они совпадают."
+      },
+      {
+        "text": "Нет, * не может стоять в начале паттерна",
+        "correct": false,
+        "explanation": "* может стоять в любой позиции паттерна. *.paid.* — корректный паттерн."
+      },
+      {
+        "text": "Да, первый * = order, paid = paid, второй * = eu",
+        "correct": true,
+        "explanation": "Каждый * заменяет один сегмент: первый * → order, paid → paid (точное совпадение), второй * → eu. Паттерн совпадает."
+      }
+    ]
+  },
+  {
+    "question": "Что такое x-match в Headers Exchange?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Версия алгоритма маршрутизации RabbitMQ",
+        "correct": false,
+        "explanation": "x-match не является версией. Это параметр привязки, определяющий логику AND (all) или OR (any)."
+      },
+      {
+        "text": "Метод сжатия заголовков AMQP",
+        "correct": false,
+        "explanation": "x-match не имеет отношения к сжатию. Это логический параметр для выбора режима сравнения."
+      },
+      {
+        "text": "Максимальное количество заголовков, которые участвуют в сравнении",
+        "correct": false,
+        "explanation": "x-match не задаёт количество. Допустимые значения: 'all' и 'any'."
+      },
+      {
+        "text": "Специальный заголовок, задающий алгоритм сравнения заголовков привязки",
+        "correct": true,
+        "explanation": "x-match — это обязательный специальный заголовок при создании привязки. Значение 'all' требует совпадения всех заголовков, 'any' — хотя бы одного."
+      }
+    ]
+  },
+  {
+    "question": "Привязка имеет headers: { region: 'eu', tier: 'premium' } и x-match: all. Сообщение имеет headers: { region: 'eu', tier: 'standard', platform: 'mobile' }. Попадёт ли сообщение в эту очередь?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Нет, потому что в сообщении есть дополнительный заголовок platform",
+        "correct": false,
+        "explanation": "Дополнительные заголовки в сообщении не влияют на маршрутизацию. Важно только совпадение заголовков, указанных в привязке."
+      },
+      {
+        "text": "Нет, потому что tier: premium не совпадает с tier: standard",
+        "correct": true,
+        "explanation": "x-match: all — это логический AND. Оба заголовка привязки (region И tier) должны совпасть. region совпадает, но tier — нет, поэтому сообщение не маршрутизируется."
+      },
+      {
+        "text": "Да, потому что region: eu совпадает",
+        "correct": false,
+        "explanation": "x-match: all требует совпадения ВСЕХ заголовков привязки. tier: premium не совпадает с tier: standard, поэтому сообщение не будет маршрутизировано."
+      }
+    ]
+  },
+  {
+    "question": "Привязка имеет headers: { platform: 'mobile', platform2: 'tablet' } и x-match: any. Сообщение имеет headers: { platform: 'desktop', region: 'eu' }. Попадёт ли сообщение в очередь?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Да, потому что x-match: any = OR, а ключ platform присутствует в обоих",
+        "correct": false,
+        "explanation": "x-match: any сравнивает пары ключ+значение, а не только ключи. Наличие ключа platform недостаточно — значение тоже должно совпасть."
+      },
+      {
+        "text": "Нет, потому что ни platform: mobile, ни platform2: tablet не совпадают с заголовками сообщения",
+        "correct": true,
+        "explanation": "x-match: any требует, чтобы хотя бы один заголовок привязки совпал. platform: mobile ≠ desktop, platform2 отсутствует в сообщении. Ни одно условие не выполнено."
+      },
+      {
+        "text": "Да, потому что в сообщении есть ключ platform",
+        "correct": false,
+        "explanation": "x-match: any проверяет не только существование ключа, но и значение. platform: desktop не совпадает с platform: mobile."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Default Exchange в RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Topic Exchange с паттерном # для перехвата всех сообщений",
+        "correct": false,
+        "explanation": "Default Exchange — Direct Exchange с пустым именем, не Topic Exchange."
+      },
+      {
+        "text": "Специальный Fanout Exchange, созданный при старте брокера",
+        "correct": false,
+        "explanation": "Default Exchange — это Direct Exchange, а не Fanout."
+      },
+      {
+        "text": "Предустановленный Direct Exchange с пустым именем (\"\"), автоматически привязывающий каждую очередь к её имени",
+        "correct": true,
+        "explanation": "Default Exchange — это встроенный Direct Exchange с именем \"\". Каждая созданная очередь автоматически получает binding с routing key = имя очереди. Это позволяет отправить сообщение напрямую в очередь по её имени."
+      },
+      {
+        "text": "Exchange, используемый когда тип не указан при создании",
+        "correct": false,
+        "explanation": "Default Exchange — это конкретный встроенный exchange с пустым именем, а не просто 'exchange без типа'."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Alternate Exchange?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Резервный exchange, который получает сообщения, не маршрутизированные основным exchange",
+        "correct": true,
+        "explanation": "Alternate Exchange (AE) настраивается через аргумент alternate-exchange при создании exchange. Все unroutable сообщения перенаправляются в AE вместо того, чтобы быть потерянными."
+      },
+      {
+        "text": "Псевдоним (alias) для другого exchange",
+        "correct": false,
+        "explanation": "AE — это отдельный exchange, получающий unroutable сообщения, а не псевдоним."
+      },
+      {
+        "text": "Второй exchange, дублирующий все сообщения для резервирования",
+        "correct": false,
+        "explanation": "AE не дублирует сообщения. Он получает только те сообщения, которые не смог маршрутизировать основной exchange."
+      },
+      {
+        "text": "Exchange, автоматически создаваемый RabbitMQ при перегрузке",
+        "correct": false,
+        "explanation": "AE — явно настраиваемая функция, а не автоматический механизм балансировки нагрузки."
+      }
+    ]
+  },
+  {
+    "question": "В чём разница между binding key и routing key?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Binding key используется в Topic Exchange, routing key — в Direct Exchange",
+        "correct": false,
+        "explanation": "Оба термина применяются во всех типах exchange. Binding key — всегда атрибут привязки, routing key — атрибут сообщения."
+      },
+      {
+        "text": "Routing key задаётся при создании очереди, binding key — при публикации",
+        "correct": false,
+        "explanation": "Всё наоборот: binding key задаётся при создании привязки, routing key — при публикации сообщения."
+      },
+      {
+        "text": "Binding key задаётся при создании привязки (queue→exchange), routing key — при публикации сообщения",
+        "correct": true,
+        "explanation": "Binding key — атрибут привязки, определяющий условие маршрутизации. Routing key — атрибут сообщения, указываемый при publish. Direct Exchange сравнивает их на равенство."
+      },
+      {
+        "text": "Это одно и то же — оба термина взаимозаменяемы",
+        "correct": false,
+        "explanation": "Это разные понятия с разным контекстом применения."
+      }
+    ]
+  },
+  {
+    "question": "Какой тип Exchange имеет наихудшую производительность маршрутизации?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Direct Exchange",
+        "correct": false,
+        "explanation": "Direct Exchange использует хэш-таблицу для поиска совпадений — очень быстрая операция O(1)."
+      },
+      {
+        "text": "Fanout Exchange",
+        "correct": false,
+        "explanation": "Fanout Exchange имеет наилучшую производительность среди всех типов, так как не выполняет никакого сравнения — просто рассылает всем."
+      },
+      {
+        "text": "Headers Exchange",
+        "correct": true,
+        "explanation": "Headers Exchange должен сравнивать несколько пар ключ-значение для каждого сообщения и каждой привязки. Это O(N×M) операция против O(1) у Direct Exchange."
+      },
+      {
+        "text": "Topic Exchange",
+        "correct": false,
+        "explanation": "Topic Exchange быстрее Headers, хотя и требует pattern matching. Паттерны компилируются и оптимизируются."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений о Topic Exchange верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "# может заменять ноль слов (пустой суффикс)",
+        "correct": true,
+        "explanation": "Да, order.# совпадает с order (ноль дополнительных слов). # — ноль ИЛИ более слов."
+      },
+      {
+        "text": "Паттерн # эквивалентен Fanout Exchange (совпадает со всем)",
+        "correct": true,
+        "explanation": "Да, привязка с паттерном # получит все сообщения, так как # заменяет любое количество слов от 0 до бесконечности."
+      },
+      {
+        "text": "Один routing key может совпасть с несколькими паттернами одновременно",
+        "correct": true,
+        "explanation": "Да, сообщение будет доставлено во все очереди, чьи паттерны совпали с routing key — нет ограничения 'только первое совпадение'."
+      },
+      {
+        "text": "* может заменять несколько сегментов, разделённых точками",
+        "correct": false,
+        "explanation": "Нет, * заменяет строго один сегмент. Для нескольких сегментов нужен #."
+      },
+      {
+        "text": "Topic Exchange не поддерживает точное совпадение (без wildcards)",
+        "correct": false,
+        "explanation": "Topic Exchange поддерживает точное совпадение — просто используйте паттерн без * и #, например order.created. Это будет работать как Direct Exchange."
+      }
+    ]
+  },
+  {
+    "question": "Вы хотите маршрутизировать сообщения по географии и типу события: европейские заказы в одну очередь, все ошибки в другую, а все события из США — в третью. Какой тип Exchange подойдёт лучше всего?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Direct Exchange",
+        "correct": false,
+        "explanation": "Direct требует точного совпадения ключей. Паттерн 'все ошибки' (любой регион) потребовал бы регистрации каждого возможного ключа ошибки."
+      },
+      {
+        "text": "Headers Exchange",
+        "correct": false,
+        "explanation": "Headers Exchange может справиться с задачей, но Topic Exchange проще в настройке и быстрее для иерархической маршрутизации."
+      },
+      {
+        "text": "Fanout Exchange",
+        "correct": false,
+        "explanation": "Fanout рассылает всем — нет возможности фильтровать по географии или типу события."
+      },
+      {
+        "text": "Topic Exchange",
+        "correct": true,
+        "explanation": "Topic Exchange идеален для иерархических ключей вроде region.type: *.error → все ошибки, eu.# → всё европейское, us.# → всё американское. Гибко и масштабируемо."
+      }
+    ]
+  },
+  {
+    "question": "Что такое exchange-to-exchange binding в RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Механизм репликации exchange между нодами кластера",
+        "correct": false,
+        "explanation": "E2E binding — не о репликации. Это инструмент построения сложных маршрутизационных топологий."
+      },
+      {
+        "text": "Стандартная функция AMQP 0-9-1, позволяющая создавать цепочки exchange",
+        "correct": false,
+        "explanation": "Exchange-to-exchange binding — это расширение RabbitMQ, не входящее в стандарт AMQP 0-9-1."
+      },
+      {
+        "text": "Расширение RabbitMQ, позволяющее привязать один exchange к другому для создания конвейеров маршрутизации",
+        "correct": true,
+        "explanation": "RabbitMQ поддерживает E2E bindings: сообщения из одного exchange маршрутизируются в другой exchange, создавая многоуровневые маршрутизационные конвейеры. Это позволяет разделить логику маршрутизации."
+      },
+      {
+        "text": "Способ создать резервную копию exchange",
+        "correct": false,
+        "explanation": "E2E binding не создаёт резервных копий. Это инструмент для построения маршрутизационных конвейеров."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть Direct Exchange 'orders' с привязками: queue 'new-orders' → key 'order.created', queue 'eu-orders' → key 'order.created'. Сообщение публикуется с routing key 'order.created'. В какие очереди оно попадёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Только в 'new-orders' (первая совпавшая очередь)",
+        "correct": false,
+        "explanation": "Direct Exchange не останавливается на первом совпадении. Сообщение доставляется во ВСЕ очереди с совпадающим binding key."
+      },
+      {
+        "text": "Только в 'eu-orders' (последняя зарегистрированная привязка имеет приоритет)",
+        "correct": false,
+        "explanation": "Порядок регистрации привязок не имеет значения. Все совпавшие очереди получают сообщение."
+      },
+      {
+        "text": "Ни в одну — конфликт привязок",
+        "correct": false,
+        "explanation": "Конфликтов не существует. Несколько очередей с одним binding key — это легальная конфигурация."
+      },
+      {
+        "text": "В обе: 'new-orders' и 'eu-orders'",
+        "correct": true,
+        "explanation": "Direct Exchange маршрутизирует сообщение во все очереди, чьи binding keys совпадают с routing key. Обе очереди имеют binding key 'order.created', поэтому обе получат сообщение."
+      }
+    ]
+  },
+  {
+    "question": "Какие типы Exchange НЕ используют routing key для принятия решения о маршрутизации?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Headers Exchange",
+        "correct": true,
+        "explanation": "Headers Exchange маршрутизирует по заголовкам AMQP-сообщения, routing key игнорируется."
+      },
+      {
+        "text": "Direct Exchange",
+        "correct": false,
+        "explanation": "Direct Exchange строго использует routing key для exact match с binding keys."
+      },
+      {
+        "text": "Topic Exchange",
+        "correct": false,
+        "explanation": "Topic Exchange использует routing key для сравнения с wildcard-паттернами привязок."
+      },
+      {
+        "text": "Fanout Exchange",
+        "correct": true,
+        "explanation": "Fanout игнорирует routing key полностью — рассылает всем привязанным очередям."
+      }
+    ]
+  },
+  {
+    "question": "Вы строите A/B тестирование: 10% пользователей с флагом beta=true должны получать сообщения в очередь 'beta-queue', остальные — в 'stable-queue'. Какой тип Exchange лучше всего подходит?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Direct Exchange",
+        "correct": false,
+        "explanation": "Direct работает по routing key, но флаг beta — это атрибут пользователя (метаданные), который удобнее передавать как заголовок."
+      },
+      {
+        "text": "Headers Exchange",
+        "correct": true,
+        "explanation": "Headers Exchange идеально подходит: binding для 'beta-queue' содержит { beta: 'true' } с x-match: all, а 'stable-queue' обрабатывает сообщения, не попавшие в beta через alternate exchange или отдельную логику."
+      },
+      {
+        "text": "Topic Exchange с паттерном *.beta",
+        "correct": false,
+        "explanation": "Topic подходит для иерархических ключей, но флаг beta — это метаданные, не часть иерархии события. Headers Exchange семантически точнее."
+      },
+      {
+        "text": "Fanout Exchange",
+        "correct": false,
+        "explanation": "Fanout рассылает всем без фильтрации — нельзя разделить beta и stable пользователей."
+      }
+    ]
+  },
+  {
+    "question": "Какой паттерн Topic Exchange совпадёт с routing key user.login.mobile, но НЕ совпадёт с user.login?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "#.mobile",
+        "correct": true,
+        "explanation": "#.mobile: # = user.login, mobile = mobile. user.login.mobile — совпадает. user.login — не заканчивается на mobile, не совпадает."
+      },
+      {
+        "text": "user.#",
+        "correct": false,
+        "explanation": "user.# совпадает с обоими: user.login и user.login.mobile (# = ноль или более слов)."
+      },
+      {
+        "text": "user.login.*",
+        "correct": true,
+        "explanation": "user.login.* требует ровно одного сегмента после login. user.login.mobile (mobile = *) — совпадает. user.login — нет третьего сегмента, не совпадает."
+      },
+      {
+        "text": "user.*.*",
+        "correct": false,
+        "explanation": "user.*.* требует ровно двух сегментов после user: * = login, * = mobile. user.login.mobile — совпадает. user.login — только один сегмент, не совпадает."
+      }
+    ]
+  },
+  {
+    "question": "Сколько exchange существует в RabbitMQ по умолчанию (после первоначальной установки)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Семь предустановленных exchange: default (\"\"), amq.direct, amq.fanout, amq.topic, amq.headers, amq.match, amq.rabbitmq.trace",
+        "correct": true,
+        "explanation": "RabbitMQ создаёт 7 предустановленных exchange для каждого vhost. Имена amq.* зарезервированы и не могут использоваться для пользовательских exchange."
+      },
+      {
+        "text": "Четыре — по одному для каждого типа (Direct, Fanout, Topic, Headers)",
+        "correct": false,
+        "explanation": "Exchange предустановлено больше четырёх, включая специальные для трассировки и совместимости."
+      },
+      {
+        "text": "Ни одного — exchange создаются только программно",
+        "correct": false,
+        "explanation": "Default Exchange (\"\") и амq.* exchange создаются автоматически при создании vhost."
+      },
+      {
+        "text": "Один — Default Exchange",
+        "correct": false,
+        "explanation": "По умолчанию создаётся несколько предустановленных exchange, не только Default."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если вы попытаетесь создать exchange с именем, начинающимся на 'amq.'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "RabbitMQ вернёт ошибку ACCESS_REFUSED — имена amq.* зарезервированы",
+        "correct": true,
+        "explanation": "Пространство имён amq.* зарезервировано для предустановленных exchange RabbitMQ. Попытка создать exchange с таким именем завершится ошибкой ACCESS_REFUSED."
+      },
+      {
+        "text": "Exchange создастся, но с предупреждением в логах",
+        "correct": false,
+        "explanation": "RabbitMQ не просто предупреждает — он отклоняет такой запрос с ошибкой."
+      },
+      {
+        "text": "Exchange создастся только если указан тип Direct",
+        "correct": false,
+        "explanation": "Тип не имеет значения — имена amq.* зарезервированы для всех типов exchange."
+      },
+      {
+        "text": "Имя будет автоматически переименовано в usr.amq.имя",
+        "correct": false,
+        "explanation": "RabbitMQ не переименовывает, а возвращает ошибку."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих сценариев подходят для Fanout Exchange?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Cache invalidation на всех нодах кластера",
+        "correct": true,
+        "explanation": "При изменении данных нужно уведомить все инстансы — это broadcast, идеально для Fanout."
+      },
+      {
+        "text": "Маршрутизация заказов по регионам (EU → eu-orders, US → us-orders)",
+        "correct": false,
+        "explanation": "Это требует фильтрации по региону — нужен Direct или Topic Exchange, не Fanout."
+      },
+      {
+        "text": "Отправка уведомлений одновременно через email, push и SMS",
+        "correct": true,
+        "explanation": "Классический use case для Fanout: одно событие должно быть доставлено во все каналы уведомлений."
+      },
+      {
+        "text": "Обработка платёжных транзакций с гарантией ровно одной доставки",
+        "correct": false,
+        "explanation": "Платёжные транзакции требуют точного routing к конкретному обработчику. Fanout отправит транзакцию всем подписчикам, что неприемлемо."
+      },
+      {
+        "text": "Аудит-логирование всех событий системы",
+        "correct": true,
+        "explanation": "Подписка audit-service на все события через Fanout Exchange — типичный паттерн. Audit-очередь получает копию каждого сообщения."
+      }
+    ]
+  },
+  {
+    "question": "Паттерн #.# в Topic Exchange — сколько сегментов он требует?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Паттерн #.# является некорректным и вызовет ошибку",
+        "correct": false,
+        "explanation": "#.# — корректный паттерн, просто избыточный. RabbitMQ его примет."
+      },
+      {
+        "text": "Минимум 2 сегмента",
+        "correct": false,
+        "explanation": "# может соответствовать нулю слов. #.# может совпасть с пустым ключом или ключом из одного сегмента."
+      },
+      {
+        "text": "Ноль или более сегментов — совпадает с любым ключом включая пустой",
+        "correct": true,
+        "explanation": "#.# означает: ноль-или-более слов, точка, ноль-или-более слов. Это совпадает с любым routing key, включая пустую строку. Это избыточный эквивалент одного #."
+      },
+      {
+        "text": "Ровно 2 сегмента",
+        "correct": false,
+        "explanation": "Нет, # не требует наличия сегментов. #.# — это сверхподробная запись, эквивалентная простому #."
+      }
+    ]
+  },
+  {
+    "question": "Какое свойство связывает очередь с exchange в AMQP?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Binding",
+        "correct": true,
+        "explanation": "Binding — это связь между exchange и queue (или exchange и exchange). Создаётся командой queue.bind и определяет, при каких условиях сообщения маршрутизируются в данную очередь."
+      },
+      {
+        "text": "Route",
+        "correct": false,
+        "explanation": "Route — общий термин, но в AMQP конкретная сущность называется binding."
+      },
+      {
+        "text": "Link",
+        "correct": false,
+        "explanation": "Link — термин из AMQP 1.0. В AMQP 0-9-1 (который использует RabbitMQ) используется binding."
+      },
+      {
+        "text": "Subscription",
+        "correct": false,
+        "explanation": "Subscription — термин из других протоколов (MQTT, STOMP). В AMQP используется термин binding."
+      }
+    ]
+  },
+  {
+    "question": "Вы отправляете сообщение с routing key 'order.created.eu.premium'. Какие паттерны Topic Exchange с ним совпадут?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "order.*.*.*",
+        "correct": true,
+        "explanation": "order.*.*.* : order = order, * = created, * = eu, * = premium. Ровно 3 wildcard-сегмента. Совпадает."
+      },
+      {
+        "text": "order.#",
+        "correct": true,
+        "explanation": "order.# : order — точное совпадение, # = created.eu.premium (3 слова). Совпадает."
+      },
+      {
+        "text": "#.premium",
+        "correct": true,
+        "explanation": "#.premium : # = order.created.eu (3 слова), premium = premium. Совпадает."
+      },
+      {
+        "text": "*.created.eu.*",
+        "correct": true,
+        "explanation": "*.created.eu.* : * = order, created = created, eu = eu, * = premium. Совпадает."
+      },
+      {
+        "text": "order.created.*",
+        "correct": false,
+        "explanation": "order.created.* ожидает ровно один сегмент после created. Ключ имеет два: eu и premium. Не совпадает."
+      }
+    ]
+  },
+  {
+    "question": "В чём основное преимущество Headers Exchange перед Topic Exchange?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Поддерживает регулярные выражения в условиях маршрутизации",
+        "correct": false,
+        "explanation": "Headers Exchange не поддерживает regex. Только точное совпадение значений заголовков."
+      },
+      {
+        "text": "Позволяет маршрутизировать по нескольким атрибутам с логикой AND/OR без кодирования их в routing key",
+        "correct": true,
+        "explanation": "Headers Exchange позволяет использовать богатые метаданные (несколько заголовков) с логикой all/any без необходимости упаковывать все критерии в строку routing key. Это даёт большую семантическую гибкость."
+      },
+      {
+        "text": "Headers Exchange не требует объявления привязок",
+        "correct": false,
+        "explanation": "Привязки обязательны для Headers Exchange, как и для любого другого типа."
+      },
+      {
+        "text": "Headers Exchange работает быстрее",
+        "correct": false,
+        "explanation": "Headers Exchange работает медленнее Topic Exchange из-за необходимости сравнивать множество пар ключ-значение."
+      }
+    ]
+  }
+]

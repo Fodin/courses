@@ -1,0 +1,589 @@
+[
+  {
+    "question": "Что такое Consumer Lag в Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Задержка сети между producer и broker",
+        "correct": false,
+        "explanation": "Это network latency, не consumer lag. Lag относится к отставанию consumer от конца лога."
+      },
+      {
+        "text": "Количество партиций без назначенного consumer",
+        "correct": false,
+        "explanation": "Партиции без consumer — это проблема баланса, а не lag. Lag измеряется в количестве сообщений."
+      },
+      {
+        "text": "Время, которое сообщение провело в очереди до доставки",
+        "correct": false,
+        "explanation": "Это end-to-end latency. Consumer lag — это разность офсетов, а не временная метрика."
+      },
+      {
+        "text": "Разница между Log-End Offset и Committed Offset для consumer group",
+        "correct": true,
+        "explanation": "Consumer Lag = LEO - committed offset. Показывает, сколько сообщений consumer ещё не обработал."
+      }
+    ]
+  },
+  {
+    "question": "Какую JMX-метрику Kafka нужно отслеживать для мониторинга отставания consumer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "kafka.network:type=RequestMetrics,attribute=TotalTimeMs",
+        "correct": false,
+        "explanation": "Это метрика времени обработки запросов на broker, не отставание consumer."
+      },
+      {
+        "text": "kafka.consumer:type=consumer-fetch-manager-metrics,attribute=records-lag-max",
+        "correct": true,
+        "explanation": "records-lag-max показывает максимальный lag по всем назначенным партициям. Ключевая метрика для алертинга."
+      },
+      {
+        "text": "kafka.server:type=BrokerTopicMetrics,attribute=MessagesInPerSec",
+        "correct": false,
+        "explanation": "Это broker-side метрика входящих сообщений, не consumer lag."
+      },
+      {
+        "text": "kafka.log:type=LogFlushStats,attribute=LogFlushRateAndTimeMs",
+        "correct": false,
+        "explanation": "Это метрика скорости flush логов на диск, не consumer lag."
+      }
+    ]
+  },
+  {
+    "question": "Через какой API RabbitMQ можно получить глубину очереди (queue depth) программно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "HTTP Management API: GET /api/queues/{vhost}/{queue}",
+        "correct": true,
+        "explanation": "Management Plugin предоставляет REST API. Поле messages в ответе содержит текущую глубину очереди."
+      },
+      {
+        "text": "RabbitMQ CLI: rabbitmq-diagnostics status",
+        "correct": false,
+        "explanation": "diagnostics status показывает общее состояние ноды, но не удобен для программного получения метрик конкретной очереди."
+      },
+      {
+        "text": "AMQP команда queue.inspect",
+        "correct": false,
+        "explanation": "В AMQP протоколе нет команды inspect. Для мониторинга используется Management API или Prometheus exporter."
+      },
+      {
+        "text": "STOMP протокол, команда SUBSCRIBE с заголовком x-metrics",
+        "correct": false,
+        "explanation": "STOMP — это протокол передачи сообщений, а не метрик. Для метрик нужен Management API."
+      }
+    ]
+  },
+  {
+    "question": "Три столпа наблюдаемости (Three Pillars of Observability) — это:",
+    "type": "single",
+    "options": [
+      {
+        "text": "Метрики, логи и трейсы",
+        "correct": true,
+        "explanation": "Metrics (числовые временные ряды), Logs (структурированные события) и Traces (распределённые цепочки вызовов) — классическая триада observability."
+      },
+      {
+        "text": "CPU, память и сеть",
+        "correct": false,
+        "explanation": "Это конкретные ресурсы для мониторинга, а не столпы observability как дисциплины."
+      },
+      {
+        "text": "Мониторинг, алертинг и дашборды",
+        "correct": false,
+        "explanation": "Это инструменты работы с observability, а не сами столпы. Они строятся поверх метрик, логов и трейсов."
+      },
+      {
+        "text": "Prometheus, Grafana и Jaeger",
+        "correct": false,
+        "explanation": "Это конкретные инструменты (Prometheus — метрики, Grafana — визуализация, Jaeger — трейсинг), а не абстрактные концепции."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Correlation ID в контексте distributed tracing?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Идентификатор consumer group, обработавшей сообщение",
+        "correct": false,
+        "explanation": "Consumer group ID описывает группу потребителей, а не цепочку запроса. Correlation ID — это сквозной идентификатор конкретного бизнес-запроса."
+      },
+      {
+        "text": "Уникальный идентификатор, который пробрасывается через все сервисы и брокеры для связи событий одного запроса",
+        "correct": true,
+        "explanation": "Correlation ID (или Trace ID) позволяет объединить все логи, spans и события в одну цепочку, даже если они обрабатываются разными сервисами."
+      },
+      {
+        "text": "Порядковый номер сообщения в очереди RabbitMQ",
+        "correct": false,
+        "explanation": "Sequence number — это внутренняя метаданная брокера. Correlation ID устанавливается приложением и может иметь произвольный формат."
+      },
+      {
+        "text": "ID партиции Kafka, в которой хранится сообщение",
+        "correct": false,
+        "explanation": "Partition ID — это внутренняя деталь Kafka. Correlation ID — это бизнес-уровень идентификатор, проходящий через всю систему."
+      }
+    ]
+  },
+  {
+    "question": "OpenTelemetry предоставляет семантические конвенции для Kafka. Какой тег нужно установить для указания топика-назначения?",
+    "type": "single",
+    "options": [
+      {
+        "text": "span.destination",
+        "correct": false,
+        "explanation": "span.destination не существует в OTel спецификации. Атрибуты сообщений начинаются с messaging.*"
+      },
+      {
+        "text": "message.queue",
+        "correct": false,
+        "explanation": "Это не стандартный тег OpenTelemetry. Правильный атрибут: messaging.destination."
+      },
+      {
+        "text": "messaging.destination",
+        "correct": true,
+        "explanation": "По OTel Semantic Conventions для messaging: messaging.destination — топик или очередь, messaging.system — 'kafka', messaging.operation — 'send'/'receive'."
+      },
+      {
+        "text": "kafka.topic",
+        "correct": false,
+        "explanation": "kafka.topic — нестандартный тег. OpenTelemetry определяет общие конвенции messaging.* для всех брокеров."
+      }
+    ]
+  },
+  {
+    "question": "Waterfall-диаграмма в distributed tracing показывает:",
+    "type": "single",
+    "options": [
+      {
+        "text": "Граф зависимостей между сервисами в виде направленного ациклического графа",
+        "correct": false,
+        "explanation": "Граф зависимостей — это отдельный вид визуализации. Waterfall именно про временную последовательность."
+      },
+      {
+        "text": "Накопленную сумму лагов consumer groups во времени",
+        "correct": false,
+        "explanation": "Cumulative lag — это про consumer lag monitoring, не про tracing."
+      },
+      {
+        "text": "Количество запросов в секунду для каждого сервиса",
+        "correct": false,
+        "explanation": "RPS — это метрика throughput. Waterfall — это про конкретный запрос и его распределение по времени."
+      },
+      {
+        "text": "Каждый span как горизонтальную полоску, позиционированную по времени начала и ширине пропорционально длительности",
+        "correct": true,
+        "explanation": "Waterfall (каскадная диаграмма) отображает spans на временной шкале. Позиция left = startMs/totalMs, ширина = durationMs/totalMs."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно пробросить trace context через заголовки Kafka-сообщения согласно W3C TraceContext?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Передавать trace ID как первое поле в теле сообщения JSON",
+        "correct": false,
+        "explanation": "Встраивание в payload нарушает разделение ответственности. Заголовки — специально предназначенное место для метаданных."
+      },
+      {
+        "text": "Добавить trace ID в ключ сообщения Kafka",
+        "correct": false,
+        "explanation": "Ключ сообщения используется для partitioning, не для метаданных трейсинга. Правильное место — заголовки сообщения."
+      },
+      {
+        "text": "Добавить заголовок traceparent со значением вида 00-{traceId}-{spanId}-{flags}",
+        "correct": true,
+        "explanation": "W3C TraceContext определяет заголовок traceparent в формате version-traceId-parentSpanId-traceFlags. Kafka поддерживает произвольные заголовки сообщений."
+      },
+      {
+        "text": "Trace context в Kafka не пробрасывается — трейсинг работает только для HTTP",
+        "correct": false,
+        "explanation": "OpenTelemetry поддерживает инструментирование Kafka. Заголовки Kafka-сообщений используются так же, как HTTP-заголовки."
+      }
+    ]
+  },
+  {
+    "question": "Что такое SLI (Service Level Indicator)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Инцидент, при котором метрика нарушила целевое значение",
+        "correct": false,
+        "explanation": "Нарушение SLO называется burn rate или error budget exhaustion, а не SLI."
+      },
+      {
+        "text": "Договорённость с клиентом об уровне доступности сервиса",
+        "correct": false,
+        "explanation": "Это определение SLA (Service Level Agreement). SLI — это измеримый индикатор, SLO — целевое значение, SLA — юридическая договорённость."
+      },
+      {
+        "text": "Измеримая метрика, характеризующая уровень сервиса (например, процент успешных запросов)",
+        "correct": true,
+        "explanation": "SLI — конкретная числовая метрика: error rate, latency percentile, throughput. На основе SLI устанавливаются SLO."
+      },
+      {
+        "text": "Целевое числовое значение для метрики (например, доступность 99.9%)",
+        "correct": false,
+        "explanation": "Целевое значение — это SLO (Service Level Objective). SLI — сама метрика, SLO — её целевой порог."
+      }
+    ]
+  },
+  {
+    "question": "В Prometheus для мониторинга Kafka обычно используется:",
+    "type": "single",
+    "options": [
+      {
+        "text": "Grafana Agent читает метрики напрямую из Kafka logs на диске",
+        "correct": false,
+        "explanation": "Kafka logs — это данные сообщений, не метрики. Для метрик нужен JMX или специальный экспортёр."
+      },
+      {
+        "text": "Prometheus напрямую подключается к Kafka через встроенный /metrics endpoint",
+        "correct": false,
+        "explanation": "Kafka не имеет встроенного /metrics endpoint в формате Prometheus. Нужен экспортёр."
+      },
+      {
+        "text": "Kafka отправляет метрики push-методом прямо в Prometheus Pushgateway",
+        "correct": false,
+        "explanation": "Kafka не поддерживает push в Pushgateway из коробки. Prometheus использует pull-модель через экспортёры."
+      },
+      {
+        "text": "JMX Exporter или Kafka Exporter, преобразующие метрики в формат Prometheus",
+        "correct": true,
+        "explanation": "Kafka нативно экспортирует метрики через JMX. JMX Exporter (javaagent) или Kafka Exporter (отдельный процесс) конвертируют их в Prometheus-формат."
+      }
+    ]
+  },
+  {
+    "question": "Вы наблюдаете растущий consumer lag в analytics-consumer. Что из перечисленного НЕ является вероятной причиной?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Broker перезапустился и переназначил partition leadership",
+        "correct": true,
+        "explanation": "Временный leader election может вызвать паузу, но не устойчивый рост lag. Lag будет компенсирован после восстановления."
+      },
+      {
+        "text": "Consumer обрабатывает каждое сообщение медленнее из-за тяжёлых DB-запросов",
+        "correct": false,
+        "explanation": "Медленная обработка — прямая причина lag. Время потребления > время производства = накопление отставания."
+      },
+      {
+        "text": "Producer увеличил частоту отправки сообщений в топик",
+        "correct": false,
+        "explanation": "Рост producer throughput — типичная причина lag. Если consumer не успевает за producer, lag растёт."
+      },
+      {
+        "text": "Consumer instance упал, и partition остался без консьюмера",
+        "correct": false,
+        "explanation": "Если consumer упал и rebalance ещё не произошёл, необработанные сообщения накапливаются — lag растёт."
+      }
+    ]
+  },
+  {
+    "question": "Какие метрики являются ключевыми для мониторинга RabbitMQ? Выберите все подходящие.",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Количество exchange'ей в vhost",
+        "correct": false,
+        "explanation": "Количество exchanges — статическая конфигурационная метрика, не показатель здоровья системы."
+      },
+      {
+        "text": "messages (глубина очереди)",
+        "correct": true,
+        "explanation": "Queue depth — основная метрика. Рост означает, что consumers не успевают за producers."
+      },
+      {
+        "text": "deliver_get (скорость доставки)",
+        "correct": true,
+        "explanation": "Throughput доставки позволяет оценить consumer capacity и сравнить с publish rate."
+      },
+      {
+        "text": "messages_unacknowledged",
+        "correct": true,
+        "explanation": "Неподтверждённые сообщения показывают сообщения, которые переданы consumer, но ещё не обработаны. Высокое значение — признак медленного consumer или зависшего prefetch."
+      },
+      {
+        "text": "memory (использование памяти broker)",
+        "correct": true,
+        "explanation": "RabbitMQ буферизует сообщения в памяти. При достижении memory alarm broker блокирует publishers."
+      }
+    ]
+  },
+  {
+    "question": "Алерт с severity 'warning' vs 'critical' — в чём практическая разница при настройке?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Warning может иметь более длинный for-период (grace period) перед срабатыванием",
+        "correct": true,
+        "explanation": "Warning часто настраивается с for: 5m (алерт срабатывает только если условие держится 5 минут), критические — с for: 1m или 0."
+      },
+      {
+        "text": "Warning требует реакции в рабочее время, critical — немедленной реакции 24/7",
+        "correct": true,
+        "explanation": "Типичная практика: warning создаёт ticket или Slack-уведомление, critical поднимает on-call инженера в любое время суток."
+      },
+      {
+        "text": "Critical должен иметь более низкий порог, чем warning для той же метрики",
+        "correct": false,
+        "explanation": "Наоборот: critical порог выше, чем warning. Например: warning при lag > 1000, critical при lag > 5000."
+      },
+      {
+        "text": "Для critical всегда нужно два независимых правила для предотвращения false positive",
+        "correct": false,
+        "explanation": "Нет такого обязательного правила. Dead man's switch и другие паттерны используются ситуационно, не всегда."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Error Budget в контексте SLO?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Количество алертов, которые разрешено проигнорировать за месяц",
+        "correct": false,
+        "explanation": "Error budget — математическая концепция на основе SLI/SLO, а не разрешение игнорировать алерты."
+      },
+      {
+        "text": "Максимальное количество ошибок в секунду, которое система должна выдержать",
+        "correct": false,
+        "explanation": "Это описание capacity planning или load testing, не error budget. Error budget — про процент времени нормальной работы."
+      },
+      {
+        "text": "Допустимый объём ошибок/недоступности, который SLO позволяет иметь за период (100% - SLO%)",
+        "correct": true,
+        "explanation": "При SLO 99.9% error budget = 0.1% = ~43.8 минут в месяц. Пока бюджет не исчерпан — можно деплоить. Исчерпан — заморозка изменений."
+      },
+      {
+        "text": "Денежный бюджет на устранение ошибок в коде",
+        "correct": false,
+        "explanation": "Error budget — это не финансовая концепция, а измеримый запас допустимых нарушений SLO."
+      }
+    ]
+  },
+  {
+    "question": "Span в distributed tracing имеет поле parentId. Что происходит, когда parentId = null?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Span был создан асинхронно и не имеет родительского контекста",
+        "correct": false,
+        "explanation": "Асинхронные операции также имеют parentId — они наследуют контекст через propagation в заголовках сообщений."
+      },
+      {
+        "text": "Это root span — начало цепочки, породившее все дочерние spans",
+        "correct": true,
+        "explanation": "Root span (parentId: null) — точка входа в систему, например, HTTP-запрос к API Gateway. Все остальные spans имеют родителя."
+      },
+      {
+        "text": "Span был потерян и не может быть привязан к trace",
+        "correct": false,
+        "explanation": "Orphan span — это span с parentId, родителя которого нет в trace. Span с parentId: null — это intentional root, а не orphan."
+      },
+      {
+        "text": "Span принадлежит внешнему сервису, трейсинг которого не поддерживается",
+        "correct": false,
+        "explanation": "Для внешних необъснённых сервисов может создаваться пустой placeholder-span, но null parentId специфически означает root."
+      }
+    ]
+  },
+  {
+    "question": "Вы настраиваете алертинг для Kafka consumer lag. Какие пороги срабатывания имеют смысл в production?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Warning при lag > N сообщений (где N соответствует ~5-10 минутам обработки)",
+        "correct": true,
+        "explanation": "Относительный порог (в единицах времени, а не абсолютных числах) надёжнее: при throughput 100 msg/s lag 3000 = 30 сек — уже warning."
+      },
+      {
+        "text": "Warning при lag > 1 сообщение в любое время",
+        "correct": false,
+        "explanation": "Слишком низкий порог вызовет шквал false positive алертов при каждом небольшом всплеске нагрузки."
+      },
+      {
+        "text": "Алерт при отсутствии committed offset commits за последние N минут (dead consumer)",
+        "correct": true,
+        "explanation": "Dead man's switch: если consumer живёт, но не продвигает offset — это признак зависания. Важно отслеживать отдельно от величины lag."
+      },
+      {
+        "text": "Critical при lag растёт быстрее определённой скорости (derivative alert)",
+        "correct": true,
+        "explanation": "Алерт на скорость роста lag (rate of change) позволяет обнаружить проблему раньше, чем достигнут абсолютный порог."
+      },
+      {
+        "text": "Critical при lag = 0 (consumer всегда должен быть в 0)",
+        "correct": false,
+        "explanation": "Lag = 0 постоянно — нереалистично и не нужно. Небольшой lag нормален. Алертить нужно на рост, а не на любой ненулевой lag."
+      }
+    ]
+  },
+  {
+    "question": "Инструмент Grafana используется совместно с Prometheus. Какова роль каждого?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Prometheus — хранение и запросы к метрикам (TSDB + PromQL), Grafana — визуализация дашбордов",
+        "correct": true,
+        "explanation": "Prometheus собирает, хранит метрики и предоставляет язык запросов PromQL. Grafana строит дашборды, подключаясь к Prometheus как data source."
+      },
+      {
+        "text": "Prometheus — визуализация, Grafana — сбор метрик с сервисов",
+        "correct": false,
+        "explanation": "Роли перепутаны. Prometheus (pull-based scraping) собирает метрики, Grafana визуализирует через подключённые data sources."
+      },
+      {
+        "text": "Grafana хранит метрики, Prometheus строит алерты",
+        "correct": false,
+        "explanation": "Grafana не является TSDB по умолчанию. Alertmanager (часть экосистемы Prometheus) обрабатывает алерты."
+      },
+      {
+        "text": "Оба инструмента взаимозаменяемы и делают одно и то же",
+        "correct": false,
+        "explanation": "Они дополняют друг друга: Prometheus — TSDB и язык запросов, Grafana — UI для визуализации и алертинга."
+      }
+    ]
+  },
+  {
+    "question": "Какой из следующих сценариев демонстрирует проблему, которую решает distributed tracing, но НЕ решают только метрики и логи?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Запрос прошёл через 5 сервисов, общая задержка 3.8 секунды, но непонятно, в каком именно сервисе произошло замедление",
+        "correct": true,
+        "explanation": "Трейсинг даёт точный ответ: span с service B и durationMs 3600 — виновник. Метрики покажут общую задержку, но не распределение по сервисам для конкретного запроса."
+      },
+      {
+        "text": "Брокер сообщений недоступен и все producers получают ошибки подключения",
+        "correct": false,
+        "explanation": "Это обнаруживается через метрики (connection errors) и логи (connection refused). Трейсинг здесь не даёт преимущества."
+      },
+      {
+        "text": "Consumer lag превысил 10000 сообщений в трёх партициях",
+        "correct": false,
+        "explanation": "Это классически обнаруживается через consumer lag метрики. Трейсинг не нужен для этой задачи."
+      },
+      {
+        "text": "Сервис использует 95% памяти и скоро упадёт по OOM",
+        "correct": false,
+        "explanation": "OOM обнаруживается через метрики использования памяти и алертинг. Трейсинг к этому не относится."
+      }
+    ]
+  },
+  {
+    "question": "В каком из следующих случаев алерт Consumer Lag FIRING — это нормально и не требует немедленного вмешательства?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Плановое ночное batch-задание запускается и обрабатывает накопленные сообщения — lag временно растёт перед тем, как упасть",
+        "correct": false,
+        "explanation": "В этом случае lag падает, не растёт. Это не причина для firing алерта."
+      },
+      {
+        "text": "Deployment нового consumer — несколько секунд нет активного consumer, lag чуть вырос",
+        "correct": true,
+        "explanation": "Краткосрочный lag во время rolling deployment ожидаем. Алерт с for: 5m позволяет избежать ложных срабатываний в таких ситуациях."
+      },
+      {
+        "text": "Producer начал отправлять в 10 раз больше сообщений и consumer не успевает",
+        "correct": false,
+        "explanation": "Устойчивый рост lag из-за перегрузки consumer требует масштабирования или throttling producer."
+      },
+      {
+        "text": "Consumer упал и не перезапускается уже 20 минут",
+        "correct": false,
+        "explanation": "20 минут без consumer — это реальный инцидент, требующий немедленного вмешательства."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Span Status 'slow' в контексте задания? Выберите корректное описание.",
+    "type": "single",
+    "options": [
+      {
+        "text": "Официальный статус OpenTelemetry, означающий превышение SLO latency",
+        "correct": false,
+        "explanation": "OpenTelemetry определяет три статуса: Unset, Ok, Error. 'slow' — нестандартный, введён для наглядности в учебном примере."
+      },
+      {
+        "text": "Пользовательский статус для учебного демо, означающий, что операция завершилась успешно, но заняла аномально долгое время",
+        "correct": true,
+        "explanation": "В OpenTelemetry официальные статусы: Unset, Ok, Error. 'slow' — кастомный статус для визуализации в задании: операция не упала, но выбивается по времени."
+      },
+      {
+        "text": "HTTP статус 429 Too Many Requests, вызвавший throttling",
+        "correct": false,
+        "explanation": "429 — это HTTP-код, не span status. В OTel он отображается как атрибут http.status_code, span status при этом обычно Error."
+      },
+      {
+        "text": "Признак того, что span находится в очереди и ожидает выполнения",
+        "correct": false,
+        "explanation": "Span создаётся в момент начала операции и завершается по её окончании. Нет статуса 'ожидает'."
+      }
+    ]
+  },
+  {
+    "question": "Какие инструменты входят в OpenTelemetry (OTel) экосистему? Выберите все подходящие.",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "OTel Collector (агент/сервис для получения, обработки и экспорта телеметрии)",
+        "correct": true,
+        "explanation": "OTel Collector принимает данные в разных форматах (OTLP, Jaeger, Zipkin), применяет processors и отправляет в backend (Jaeger, Tempo, Datadog)."
+      },
+      {
+        "text": "Prometheus (time-series database для метрик)",
+        "correct": false,
+        "explanation": "Prometheus — независимый проект CNCF. OTel SDK может экспортировать метрики в формате Prometheus, но Prometheus не является частью OTel."
+      },
+      {
+        "text": "Jaeger (UI для хранения и визуализации трейсов)",
+        "correct": false,
+        "explanation": "Jaeger — отдельный open-source проект для хранения и визуализации трейсов. OTel может экспортировать в Jaeger, но Jaeger не часть OTel."
+      },
+      {
+        "text": "OTel SDK (библиотеки инструментирования для Java, Go, Python и других языков)",
+        "correct": true,
+        "explanation": "OTel SDK — основа: auto-instrumentation и manual API для создания spans, метрик и логов в коде приложения."
+      },
+      {
+        "text": "OTLP (OpenTelemetry Protocol — стандартный протокол передачи телеметрии)",
+        "correct": true,
+        "explanation": "OTLP — vendor-neutral протокол для передачи метрик, логов и трейсов. Поддерживается в gRPC и HTTP/JSON транспортах."
+      }
+    ]
+  },
+  {
+    "question": "Команда настраивает алертинг для Kafka в production. Consumer lag у groups внезапно вырос до 50000 сообщений. Что нужно сделать в первую очередь?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Немедленно добавить больше consumer instances для увеличения параллелизма",
+        "correct": false,
+        "explanation": "Без понимания причины масштабирование может не помочь. Если проблема в медленном DB — больше consumers лишь создадут больше нагрузки на DB."
+      },
+      {
+        "text": "Перезапустить broker, так как lag не должен расти до таких значений",
+        "correct": false,
+        "explanation": "Перезапуск broker при высоком lag усугубит ситуацию: rebalancing займёт время, за которое lag вырастет ещё больше."
+      },
+      {
+        "text": "Проверить distributed traces — найти span с аномальной длительностью на стороне consumer, чтобы определить, где именно затор",
+        "correct": true,
+        "explanation": "Трейсы покажут, какая именно операция в consumer стала медленной: DB, внешний сервис или логика обработки. Это направит в нужную сторону быстрее, чем метрики."
+      },
+      {
+        "text": "Удалить накопленные сообщения из топика, чтобы уменьшить lag",
+        "correct": false,
+        "explanation": "Удаление сообщений — потеря данных. Это недопустимо без анализа причины и согласования с бизнесом."
+      }
+    ]
+  }
+]

@@ -1,0 +1,657 @@
+[
+  {
+    "question": "Что такое KStream в Kafka Streams?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Таблица последних значений по каждому ключу",
+        "correct": false,
+        "explanation": "Это описание KTable, а не KStream. KTable обновляет значение при появлении новой записи с тем же ключом."
+      },
+      {
+        "text": "Очередь сообщений с гарантией FIFO внутри одной партиции",
+        "correct": false,
+        "explanation": "Kafka гарантирует порядок внутри партиции на уровне хранения, но KStream — это абстракция потоковой обработки, а не описание очереди."
+      },
+      {
+        "text": "Внутренний топик для хранения changelog-а",
+        "correct": false,
+        "explanation": "Changelog-топики — это внутренние топики Kafka Streams для восстановления state store после сбоя, а не KStream."
+      },
+      {
+        "text": "Неограниченный поток событий, где каждая запись независима",
+        "correct": true,
+        "explanation": "KStream — это абстракция unbounded stream. Каждая запись (key, value) рассматривается как отдельное событие без связи с предыдущими записями с тем же ключом."
+      }
+    ]
+  },
+  {
+    "question": "Чем KTable принципиально отличается от KStream?",
+    "type": "single",
+    "options": [
+      {
+        "text": "KTable всегда хранит данные в памяти, KStream — на диске",
+        "correct": false,
+        "explanation": "KTable использует state store (по умолчанию RocksDB на диске), а не только память. KStream вообще не хранит состояние — он обрабатывает события по мере поступления."
+      },
+      {
+        "text": "KTable требует отдельного Kafka Streams приложения",
+        "correct": false,
+        "explanation": "KTable и KStream — это абстракции одного API и могут использоваться в одном приложении, часто совместно (например, KStream-KTable join)."
+      },
+      {
+        "text": "KTable хранит только последнее значение для каждого ключа (upsert-семантика)",
+        "correct": true,
+        "explanation": "KTable моделирует changelog таблицу: новая запись с существующим ключом обновляет значение, null-значение удаляет запись. Это аналог materialized view."
+      },
+      {
+        "text": "KTable не поддерживает windowing-операции",
+        "correct": false,
+        "explanation": "KTable поддерживает windowing через windowed KTable. Ограничения KTable связаны с семантикой upsert, а не с отсутствием поддержки окон."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит при вызове groupBy() в Kafka Streams?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka Streams останавливает обработку до завершения группировки",
+        "correct": false,
+        "explanation": "Kafka Streams — потоковая система, она не останавливается. groupBy() просто добавляет шаг repartitioning в топологию, обработка продолжается непрерывно."
+      },
+      {
+        "text": "Создаётся внутренний repartition-топик для перераспределения данных по новому ключу",
+        "correct": true,
+        "explanation": "groupBy() меняет ключ записи, что требует repartitioning. Kafka Streams автоматически создаёт внутренний топик и перенаправляет данные через него, чтобы гарантировать: все записи с одним ключом попадут в одну задачу."
+      },
+      {
+        "text": "groupBy() — синоним map() в Kafka Streams",
+        "correct": false,
+        "explanation": "map() трансформирует ключ и значение без repartitioning. groupBy() явно запускает repartitioning для гарантии корректной группировки."
+      },
+      {
+        "text": "Данные группируются в памяти без записи в Kafka",
+        "correct": false,
+        "explanation": "Группировка по новому ключу требует repartitioning через Kafka — иначе данные могут оказаться в разных задачах и агрегация будет некорректной."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Tumbling Window в Kafka Streams?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Окно, размер которого увеличивается по мере роста нагрузки",
+        "correct": false,
+        "explanation": "В Kafka Streams нет автоматически расширяющихся окон. Tumbling window всегда имеет фиксированный размер, заданный при создании."
+      },
+      {
+        "text": "Скользящее окно, которое сдвигается на каждое новое событие",
+        "correct": false,
+        "explanation": "Это описание Sliding window. В Kafka Streams оно создаётся через slidingWindows() или sessionWindows(). Tumbling window фиксировано и не сдвигается с каждым событием."
+      },
+      {
+        "text": "Окно на основе сессий с динамическим размером",
+        "correct": false,
+        "explanation": "Session window группирует события по активности пользователя с фиксированным inactivity gap. Tumbling window — это строгие временные интервалы фиксированного размера."
+      },
+      {
+        "text": "Фиксированное по времени окно без перекрытий: каждое событие входит ровно в одно окно",
+        "correct": true,
+        "explanation": "Tumbling window делит время на непересекающиеся сегменты одинакового размера (например, каждый час с 00:00 до 01:00, с 01:00 до 02:00 и т.д.). Каждое событие принадлежит ровно одному окну."
+      }
+    ]
+  },
+  {
+    "question": "Зачем Kafka Streams использует RocksDB в качестве state store?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "RocksDB поддерживает операции range scan, необходимые для windowed queries",
+        "correct": true,
+        "explanation": "Windowed state store хранит ключи в формате (originalKey, windowStart) и использует range scan RocksDB для извлечения всех записей из нужного временного окна."
+      },
+      {
+        "text": "После рестарта приложения state восстанавливается из changelog-топика в Kafka",
+        "correct": true,
+        "explanation": "Каждый state store имеет backing changelog-топик в Kafka. При перезапуске Kafka Streams реплицирует изменения из changelog-топика обратно в RocksDB."
+      },
+      {
+        "text": "RocksDB обеспечивает репликацию между несколькими инстансами Kafka Streams",
+        "correct": false,
+        "explanation": "RocksDB — локальное хранилище. Репликацию и fault tolerance обеспечивает changelog-топик в Kafka, а не сам RocksDB."
+      },
+      {
+        "text": "RocksDB хранит данные на диске, что позволяет обрабатывать объёмы данных, превышающие RAM",
+        "correct": false,
+        "explanation": "RocksDB — embedded key-value хранилище на диске с LSM-деревом. Это позволяет state store работать с данными, которые не помещаются в оперативную память."
+      }
+    ]
+  },
+  {
+    "question": "Что означает cleanup.policy=compact для Kafka топика?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka удаляет все сообщения старше retention.ms",
+        "correct": false,
+        "explanation": "Удаление по времени — это политика cleanup.policy=delete (по умолчанию). При cleanup.policy=compact данные не удаляются по времени, а компактируются по ключу."
+      },
+      {
+        "text": "Kafka периодически оставляет только последнюю запись для каждого ключа, удаляя устаревшие",
+        "correct": true,
+        "explanation": "Log compaction запускает cleaner thread, который сканирует сегменты лога и удаляет все записи, для которых существует более новая запись с тем же ключом. Результат: топик работает как key-value store с полной историей последних значений."
+      },
+      {
+        "text": "Kafka сжимает данные на диске с помощью gzip-алгоритма",
+        "correct": false,
+        "explanation": "Компрессия данных в Kafka настраивается отдельно через compression.type (gzip, snappy, lz4, zstd). Это не связано с cleanup.policy=compact."
+      },
+      {
+        "text": "Kafka ограничивает размер лога максимальным количеством записей",
+        "correct": false,
+        "explanation": "Ограничение по количеству записей не является частью log compaction. cleanup.policy=compact работает с ключами, а не с количеством записей."
+      }
+    ]
+  },
+  {
+    "question": "Что такое tombstone-запись в Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Запись, которую не смог обработать consumer — отправляется в Dead Letter Queue",
+        "correct": false,
+        "explanation": "Записи в DLQ (Dead Letter Queue) — это паттерн обработки ошибок в consumer-е, не связанный с tombstone. Tombstone — концепция исключительно log compaction."
+      },
+      {
+        "text": "Запись с непустым ключом и value=null, которая сигнализирует об удалении ключа",
+        "correct": true,
+        "explanation": "Tombstone — это запись вида (key, null). После log compaction tombstone-запись удаляется вместе со всеми предыдущими записями этого ключа, что эффективно стирает его из compacted топика."
+      },
+      {
+        "text": "Последняя запись в партиции, после которой new consumer получит offset LEO",
+        "correct": false,
+        "explanation": "LEO (Log End Offset) — это технический термин позиционирования в логе. Tombstone — это запись с null-значением для семантики удаления в compacted топике."
+      },
+      {
+        "text": "Служебная запись Kafka с offset=-1, обозначающая конец лога",
+        "correct": false,
+        "explanation": "Специального offset=-1 для конца лога не существует. Tombstone — это обычная запись с null-значением, используемая в compacted топиках."
+      }
+    ]
+  },
+  {
+    "question": "Для каких сценариев лучше всего подходят compacted topics?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Финансовые транзакции — хранение всей истории платежей",
+        "correct": false,
+        "explanation": "Финансовые транзакции требуют полной истории, поэтому нужен cleanup.policy=delete с большим retention. Compaction удалит все записи кроме последней для каждого transaction_id, что неприемлемо."
+      },
+      {
+        "text": "User profiles — хранение актуального профиля пользователя по user_id",
+        "correct": true,
+        "explanation": "Compacted topic идеален: ключ = user_id, значение = JSON профиля. Новые consumer-ы получат только последнюю версию профиля каждого пользователя, а не всю историю изменений."
+      },
+      {
+        "text": "Materialized views для Kafka Streams KTable",
+        "correct": true,
+        "explanation": "Kafka Streams использует compacted topics для backing changelog-топиков KTable. Это позволяет восстановить состояние KTable из топика, не читая всю историю изменений."
+      },
+      {
+        "text": "Product catalog — актуальные данные о товарах по SKU",
+        "correct": true,
+        "explanation": "Product catalog — классический use case. Ключ = SKU, значение = атрибуты товара. Compacted topic гарантирует, что новый consumer получит актуальные данные о всех товарах."
+      }
+    ]
+  },
+  {
+    "question": "Что такое idempotent producer в Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Producer, который не делает повторных попыток при ошибке (retries=0)",
+        "correct": false,
+        "explanation": "Ровно наоборот: idempotent producer устанавливает retries=Integer.MAX_VALUE по умолчанию. Безопасность при повторных попытках обеспечивается sequence numbers, а не их отсутствием."
+      },
+      {
+        "text": "Producer с транзакционным API для записи в несколько топиков",
+        "correct": false,
+        "explanation": "Транзакционный producer расширяет idempotent producer, добавляя атомарность через несколько топиков. Idempotent producer — более базовая концепция в рамках одной сессии."
+      },
+      {
+        "text": "Producer, который гарантирует exactly-once доставку в пределах одной сессии без дублей даже при retry",
+        "correct": true,
+        "explanation": "Idempotent producer включается через enable.idempotence=true. Каждый batch получает sequence number. Брокер отклоняет повторные batch с тем же sequence number, предотвращая дублирование при ретраях."
+      },
+      {
+        "text": "Producer, который сжимает все сообщения для экономии пропускной способности",
+        "correct": false,
+        "explanation": "Компрессия настраивается через compression.type и не связана с idempotence. Idempotent producer добавляет гарантии доставки, а не сжатие."
+      }
+    ]
+  },
+  {
+    "question": "Какие параметры ОБЯЗАТЕЛЬНО должны быть настроены для транзакционного producer-а?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "group.id — идентификатор consumer group для координации транзакций",
+        "correct": false,
+        "explanation": "group.id — параметр consumer, не producer. Transaction Coordinator координирует транзакции на основе transactional.id, а не group.id."
+      },
+      {
+        "text": "transactional.id — уникальный идентификатор продюсера для фенсинга зомби",
+        "correct": true,
+        "explanation": "transactional.id обязателен. Он позволяет Transaction Coordinator идентифицировать producer-а и использовать epoch для гарантии того, что зомби-продюсер не завершит транзакцию нового инстанса."
+      },
+      {
+        "text": "acks=all — обязательно для гарантии durability в транзакциях",
+        "correct": true,
+        "explanation": "Транзакционный producer принудительно использует acks=all. Это гарантирует, что данные записаны во все ISR-реплики перед commit, обеспечивая durability."
+      },
+      {
+        "text": "enable.idempotence=true — автоматически включается при задании transactional.id",
+        "correct": true,
+        "explanation": "Транзакционный producer требует idempotence. Kafka автоматически устанавливает enable.idempotence=true при наличии transactional.id, но лучше явно указывать."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Transaction Coordinator в Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Consumer group coordinator, расширенный для поддержки транзакций",
+        "correct": false,
+        "explanation": "Consumer group coordinator и Transaction Coordinator — разные роли. Consumer group coordinator управляет __consumer_offsets, а Transaction Coordinator — __transaction_state."
+      },
+      {
+        "text": "Специальный брокер (или роль брокера), управляющий состоянием транзакций через топик __transaction_state",
+        "correct": true,
+        "explanation": "Transaction Coordinator — брокер, которому назначена роль координатора для конкретного transactional.id (по hash). Он ведёт журнал транзакций в __transaction_state и управляет их жизненным циклом."
+      },
+      {
+        "text": "Отдельный сервис, который нужно запустить рядом с Kafka",
+        "correct": false,
+        "explanation": "Transaction Coordinator — встроенная роль обычных брокеров Kafka. Отдельный процесс запускать не нужно. Coordinator определяется автоматически по hash(transactional.id) % 50."
+      },
+      {
+        "text": "ZooKeeper-нода, хранящая метаданные транзакций",
+        "correct": false,
+        "explanation": "Начиная с Kafka 2.8+ ZooKeeper заменяется на KRaft. Транзакционное состояние хранится в топике __transaction_state на обычных брокерах, не в ZooKeeper."
+      }
+    ]
+  },
+  {
+    "question": "Как Transaction Coordinator определяет, какой брокер координирует транзакцию для данного transactional.id?",
+    "type": "single",
+    "options": [
+      {
+        "text": "hash(transactional.id) % количество_партиций_в___transaction_state",
+        "correct": true,
+        "explanation": "По умолчанию __transaction_state имеет 50 партиций. Coordinator вычисляет hash(transactional.id) % 50 и назначает брокер-лидер соответствующей партиции координатором транзакции."
+      },
+      {
+        "text": "Producer сам выбирает Coordinator при инициализации",
+        "correct": false,
+        "explanation": "Producer не выбирает Coordinator — он спрашивает любой брокер, который возвращает адрес нужного Coordinator-а на основе hash(transactional.id)."
+      },
+      {
+        "text": "Coordinator — всегда брокер с наименьшим broker.id",
+        "correct": false,
+        "explanation": "Использование фиксированного брокера создало бы hot spot. Хеш от transactional.id обеспечивает равномерное распределение транзакций по всем брокерам."
+      },
+      {
+        "text": "Coordinator назначается случайно при каждом beginTransaction()",
+        "correct": false,
+        "explanation": "Coordinator детерминирован для конкретного transactional.id — это принципиально важно для идемпотентности и фенсинга. Случайное назначение нарушило бы гарантии exactly-once."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт с сообщениями в Kafka при вызове abortTransaction()?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сообщения физически удаляются из Kafka",
+        "correct": false,
+        "explanation": "Kafka — immutable log. Физического удаления при abort не происходит. Сообщения остаются в логе, но маркируются как abort, и consumer с read_committed их игнорирует."
+      },
+      {
+        "text": "Сообщения остаются видимы всем consumer-ам с любым isolation level",
+        "correct": false,
+        "explanation": "Consumer с isolation.level=read_committed не увидит сообщения aborted транзакции. Consumer с read_uncommitted увидит их, но это нежелательное поведение для большинства сценариев."
+      },
+      {
+        "text": "Transaction Coordinator отправляет abort markers во все партиции, которых коснулась транзакция — consumer-ы с read_committed эти сообщения не увидят",
+        "correct": true,
+        "explanation": "После abort Coordinator записывает ABORTED в __transaction_state и рассылает abort markers в каждую партицию. Consumer с isolation.level=read_committed пропускает все сообщения до abort marker."
+      },
+      {
+        "text": "Producer автоматически повторяет отправку всех сообщений транзакции",
+        "correct": false,
+        "explanation": "После abort никакой автоматической повторной отправки нет. Приложение само решает, нужно ли начать новую транзакцию и повторить бизнес-операцию."
+      }
+    ]
+  },
+  {
+    "question": "Чем isolation.level=read_committed отличается от read_uncommitted у Kafka consumer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "read_uncommitted отключает consumer group rebalancing",
+        "correct": false,
+        "explanation": "Rebalancing определяется параметрами consumer group (session.timeout.ms, heartbeat.interval.ms) и не зависит от isolation.level."
+      },
+      {
+        "text": "read_committed требует шифрования сообщений SSL/TLS",
+        "correct": false,
+        "explanation": "isolation.level не связан с шифрованием. Это параметр видимости транзакционных данных, а не безопасности сети."
+      },
+      {
+        "text": "read_committed автоматически подтверждает offset только для успешных транзакций",
+        "correct": false,
+        "explanation": "auto.commit работает на основе времени или ручного вызова commitSync()/commitAsync(), независимо от isolation.level. Управление offset — отдельная ответственность."
+      },
+      {
+        "text": "read_committed видит только завершённые транзакции; read_uncommitted видит все сообщения включая незавершённые транзакции",
+        "correct": true,
+        "explanation": "read_committed: consumer ждёт commit marker перед тем, как отдать сообщения приложению. read_uncommitted (по умолчанию): consumer получает все сообщения немедленно, включая те, что могут быть отменены."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Kafka Connect?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Модуль Kafka для балансировки нагрузки между партициями",
+        "correct": false,
+        "explanation": "Балансировка партиций — это задача брокеров (partition reassignment). Kafka Connect — это интеграционный слой между Kafka и внешними системами."
+      },
+      {
+        "text": "Фреймворк для интеграции Kafka с внешними системами через готовые коннекторы Source и Sink",
+        "correct": true,
+        "explanation": "Kafka Connect — scalable и fault-tolerant фреймворк. Source connector читает данные из внешней системы (БД, файлы) и пишет в Kafka. Sink connector читает из Kafka и пишет во внешнюю систему."
+      },
+      {
+        "text": "Библиотека для создания Kafka producer и consumer в Java-приложениях",
+        "correct": false,
+        "explanation": "Java-клиенты — это kafka-clients библиотека. Kafka Connect — это отдельная система с worker-процессами, REST API и коннекторами, работающая независимо от приложений."
+      },
+      {
+        "text": "Инструмент для мониторинга Kafka кластера через JMX-метрики",
+        "correct": false,
+        "explanation": "Мониторинг JMX-метрик — это задача для Prometheus JMX Exporter, Grafana или Confluent Control Center. Kafka Connect предназначен для интеграции данных."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Single Message Transform (SMT) в Kafka Connect?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Инструмент для schema evolution в Schema Registry",
+        "correct": false,
+        "explanation": "Schema evolution управляется Schema Registry и Avro-схемами. SMT — это трансформации данных на уровне Kafka Connect pipeline, не управление схемами."
+      },
+      {
+        "text": "Метод для разделения одного сообщения на несколько",
+        "correct": false,
+        "explanation": "Стандартные SMT не разделяют одно сообщение на несколько. Для fan-out нужно Kafka Streams или кастомный коннектор. SMT работает в режиме 1-to-1: одно входное → одно выходное сообщение."
+      },
+      {
+        "text": "Транзакционная операция для атомарной записи нескольких сообщений",
+        "correct": false,
+        "explanation": "Транзакции в Kafka Connect — отдельная концепция (exactly.once.support). SMT — это трансформации содержимого сообщений, не транзакции."
+      },
+      {
+        "text": "Лёгкая трансформация, применяемая к каждому сообщению по мере прохождения через коннектор",
+        "correct": true,
+        "explanation": "SMT — это плагины для простых преобразований: добавление/удаление полей, переименование топиков, фильтрация по условию, маскирование чувствительных данных. Они применяются без отдельного Kafka Streams приложения."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Schema Registry и зачем он нужен?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka-топик для хранения конфигурации брокеров",
+        "correct": false,
+        "explanation": "Конфигурация брокеров хранится в ZooKeeper или KRaft (internal quorum). Schema Registry — это отдельный сервис для управления схемами данных, не конфигурацией кластера."
+      },
+      {
+        "text": "Инструмент для валидации сообщений перед записью в Kafka",
+        "correct": false,
+        "explanation": "Хотя Schema Registry косвенно обеспечивает совместимость схем, его основная задача — централизованное хранение и версионирование схем, а не валидация в real-time."
+      },
+      {
+        "text": "Централизованное хранилище схем (Avro, Protobuf, JSON Schema) для версионирования и совместимости",
+        "correct": true,
+        "explanation": "Schema Registry хранит схемы и их версии. Producer сериализует данные с schema ID в payload. Consumer получает schema ID, загружает схему из Registry и десериализует данные. Это обеспечивает совместимость между разными версиями producer и consumer."
+      },
+      {
+        "text": "REST API для мониторинга топиков и consumer groups",
+        "correct": false,
+        "explanation": "Мониторинг топиков и групп — это задача Kafka Admin API или Confluent Control Center. Schema Registry отвечает исключительно за управление схемами."
+      }
+    ]
+  },
+  {
+    "question": "Какие режимы совместимости Schema Registry предотвращают поломку существующих consumer-ов?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "NONE — любые изменения схемы разрешены без проверки совместимости",
+        "correct": false,
+        "explanation": "NONE отключает проверку совместимости — это не защита от поломки, а её отсутствие. При NONE можно легко сломать production consumer-ы несовместимым изменением схемы."
+      },
+      {
+        "text": "FULL — обе схемы совместимы в обоих направлениях одновременно",
+        "correct": true,
+        "explanation": "FULL = BACKWARD + FORWARD. Самый строгий режим: можно безопасно обновлять и producer, и consumer в любом порядке. Достигается добавлением полей с дефолтными значениями."
+      },
+      {
+        "text": "FORWARD — старая схема может читать данные, записанные с новой схемой",
+        "correct": true,
+        "explanation": "FORWARD совместимость позволяет обновить producer до новой схемы, пока consumer ещё использует старую. Старые consumer-ы смогут десериализовать новые сообщения."
+      },
+      {
+        "text": "BACKWARD — новая схема может читать данные, записанные со старой схемой",
+        "correct": true,
+        "explanation": "BACKWARD совместимость позволяет обновить consumer до новой схемы, пока producer ещё использует старую. Новые consumer-ы смогут десериализовать старые сообщения."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Avro и почему он популярен для Kafka?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Avro-схема поддерживает эволюцию через optional-поля с дефолтными значениями",
+        "correct": true,
+        "explanation": "Добавление поля с default в Avro-схему — это FULL совместимое изменение. Producer с новой схемой и consumer со старой продолжат работать, что критично для rolling deployments."
+      },
+      {
+        "text": "Avro — бинарный формат сериализации, значительно компактнее JSON",
+        "correct": true,
+        "explanation": "Бинарная сериализация Avro в среднем в 3-5 раз компактнее JSON. При высоких нагрузках это существенно снижает затраты на storage и network в Kafka кластере."
+      },
+      {
+        "text": "Avro — это язык запросов для анализа данных в Kafka Streams",
+        "correct": false,
+        "explanation": "Avro — это формат сериализации данных, не язык запросов. Kafka Streams имеет свой DSL (map, filter, groupBy, aggregate). Для SQL-подобных запросов существует ksqlDB."
+      },
+      {
+        "text": "Avro включает schema ID прямо в payload сообщения Kafka",
+        "correct": true,
+        "explanation": "Confluent Schema Registry использует wire format: [magic byte 0x00][schema_id (4 bytes)][avro binary data]. Consumer читает schema_id и загружает нужную схему из Registry."
+      },
+      {
+        "text": "Все перечисленные варианты неверны",
+        "correct": false,
+        "explanation": "Некоторые из перечисленных вариантов действительно верны."
+      }
+    ]
+  },
+  {
+    "question": "Вы строите систему e-commerce. Сервис заказов должен атомарно: списать деньги, зарезервировать товар и отправить уведомление — всё через Kafka. Какой механизм вы используете?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Compacted topic с ключом transaction_id для идемпотентности",
+        "correct": false,
+        "explanation": "Compacted topics обеспечивают хранение последнего значения по ключу, но не атомарность операций между несколькими топиками. Это решение для других задач (state store, materialized view)."
+      },
+      {
+        "text": "Kafka Streams с KTable для отслеживания состояния",
+        "correct": false,
+        "explanation": "Kafka Streams отлично подходит для потоковой обработки, но не решает задачу атомарной записи в несколько топиков в рамках одного бизнес-события. Для этого нужны транзакции на уровне producer."
+      },
+      {
+        "text": "Kafka Transactions: beginTransaction() → produce в payments/inventory/notifications → commitTransaction()",
+        "correct": true,
+        "explanation": "Транзакционный API Kafka гарантирует атомарность записи в несколько топиков. Либо все три сообщения видны consumer-ам (после commit), либо ни одно (после abort). Это именно то, что нужно для согласованности между сервисами."
+      },
+      {
+        "text": "Отдельные produce-вызовы без транзакции — достаточно idempotent producer",
+        "correct": false,
+        "explanation": "Idempotent producer гарантирует отсутствие дублей в рамках одного топика, но не атомарность между несколькими топиками. При сбое между produce-вызовами часть сообщений запишется, часть — нет."
+      }
+    ]
+  },
+  {
+    "question": "У вас Kafka Streams приложение зависает на GroupBy + Aggregate шаге. Какова наиболее вероятная причина?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka Streams не поддерживает Aggregate без Schema Registry",
+        "correct": false,
+        "explanation": "Schema Registry необязателен для Kafka Streams. Aggregate работает с любым Serde (serializer/deserializer). Schema Registry нужен для совместимости схем, не для работы Aggregate."
+      },
+      {
+        "text": "GroupBy требует acks=all у producer, но в конфиге стоит acks=1",
+        "correct": false,
+        "explanation": "Kafka Streams управляет своим producer внутренне и не зависит от внешней конфигурации acks для GroupBy. Зависание на GroupBy связано с repartitioning или state store, но не с acks."
+      },
+      {
+        "text": "State store заполнился: RocksDB исчерпал место на диске или memory mapped files",
+        "correct": true,
+        "explanation": "GroupBy + Aggregate накапливают состояние в RocksDB. При больших объёмах данных и малом retention у windows RocksDB может занять всё доступное место. Нужно мониторить disk usage и настраивать window retention."
+      },
+      {
+        "text": "Топик не поддерживает GroupBy — нужно сначала создать compacted topic",
+        "correct": false,
+        "explanation": "GroupBy работает с любым топиком независимо от cleanup.policy. Compacted topic нужен для materialized views, а не как предусловие для GroupBy."
+      }
+    ]
+  },
+  {
+    "question": "Команда деплоит новую версию Schema Registry-схемы с удалённым обязательным полем. Какой режим совместимости это нарушит?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "FORWARD — старый consumer упадёт при попытке десериализовать сообщение без ожидаемого обязательного поля",
+        "correct": true,
+        "explanation": "FORWARD совместимость требует, чтобы старые consumer-ы могли читать новые данные. Если старая схема ожидает обязательное поле, а новые сообщения его не содержат — десериализация провалится."
+      },
+      {
+        "text": "FULL — нарушается и BACKWARD, и FORWARD одновременно",
+        "correct": true,
+        "explanation": "FULL = BACKWARD + FORWARD. Если нарушается FORWARD (удаление обязательного поля), то нарушается и FULL. Schema Registry с FULL_TRANSITIVE отклонит такое изменение."
+      },
+      {
+        "text": "NONE — при этом режиме проверка не выполняется и изменение пройдёт",
+        "correct": false,
+        "explanation": "NONE не является режимом несовместимости — это отсутствие проверки. При NONE регистрация схемы пройдёт, но production системы могут сломаться в runtime."
+      },
+      {
+        "text": "BACKWARD — новый consumer не сможет читать старые сообщения без этого поля",
+        "correct": false,
+        "explanation": "Удаление обязательного поля нарушает FORWARD совместимость (старый consumer не сможет читать новые сообщения). Для BACKWARD проверяется обратное: новая схема должна читать старые данные."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит с zombie producer в контексте Kafka транзакций?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Зомби-продюсер может завершить транзакцию нового producer-а",
+        "correct": false,
+        "explanation": "Именно от этого защищает epoch-based fencing. Старый producer (меньший epoch) не может коммитить или абортировать транзакцию нового producer (больший epoch)."
+      },
+      {
+        "text": "transactional.id следует менять при каждом перезапуске во избежание конфликтов",
+        "correct": false,
+        "explanation": "Ровно наоборот: transactional.id должен быть стабильным при перезапусках. Именно стабильность ID позволяет Coordinator восстановить контекст транзакции и применить epoch-fencing."
+      },
+      {
+        "text": "Старый producer изолируется через epoch: если он попытается commit — Coordinator отклонит запрос с ошибкой InvalidProducerEpoch",
+        "correct": true,
+        "explanation": "При перезапуске producer с тем же transactional.id Coordinator инкрементирует epoch. Старый producer (зомби) при любой операции с Coordinator получит InvalidProducerEpoch и не сможет навредить."
+      },
+      {
+        "text": "Зомби-продюсер блокируется на уровне сети Kafka кластером",
+        "correct": false,
+        "explanation": "Kafka не блокирует сетевые соединения для изоляции зомби. Фенсинг происходит логически через epoch: Coordinator отклоняет устаревшие запросы, а не блокирует TCP-соединения."
+      }
+    ]
+  },
+  {
+    "question": "Каковы ключевые отличия KStream-KTable join от KStream-KStream join?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "KStream-KTable join поддерживает left join, inner join, но не outer join",
+        "correct": true,
+        "explanation": "KStream-KTable поддерживает inner join (только совпадения) и left join (все KStream-события, null если нет в KTable). Outer join семантически не имеет смысла с KTable — KTable всегда присутствует как lookup."
+      },
+      {
+        "text": "KStream-KTable join: KTable сторона не требует windowing — используется текущее значение по ключу",
+        "correct": true,
+        "explanation": "KTable хранит актуальное состояние по ключу. При join KStream-записи с KTable lookup происходит по текущему значению KTable без временного окна. Это классический enrichment-паттерн."
+      },
+      {
+        "text": "KStream-KTable join всегда выполняется быстрее, так как KTable хранится в памяти",
+        "correct": false,
+        "explanation": "KTable использует RocksDB (по умолчанию на диске), а не только память. Скорость join зависит от I/O и конфигурации, а не от типа join. KStream-KTable join может быть медленнее при cache miss."
+      },
+      {
+        "text": "KStream-KStream join требует временного окна (JoinWindows) для сопоставления событий",
+        "correct": true,
+        "explanation": "Два неограниченных потока невозможно join без временного ограничения. JoinWindows задаёт период, в течение которого событие из одного потока ждёт совпадающего события из другого."
+      }
+    ]
+  },
+  {
+    "question": "Вы настраиваете compacted topic для хранения конфигурации сервисов. Сервис перезапустился и должен получить актуальное состояние всей конфигурации. Как он это сделает?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Compacted topic не подходит для этого сценария — нужен обычный топик с малым retention",
+        "correct": false,
+        "explanation": "Compacted topic — идеальный выбор для конфигурации. Малый retention рискует удалить редко изменяемые конфиги до перезапуска сервиса. Compaction же гарантирует, что последнее значение никогда не удалится."
+      },
+      {
+        "text": "Consumer читает топик с beginning, получает все compacted-записи и строит in-memory map актуальных значений",
+        "correct": true,
+        "explanation": "Именно для этого создан compacted topic. После compaction в топике есть только последние значения всех ключей. Consumer, стартующий с auto.offset.reset=earliest, прочитает всё состояние и построит актуальный снепшот."
+      },
+      {
+        "text": "Consumer делает REST-запрос к Schema Registry для получения актуального состояния",
+        "correct": false,
+        "explanation": "Schema Registry хранит схемы, не бизнес-данные конфигурации. Актуальное состояние конфигурации читается из самого compacted топика."
+      },
+      {
+        "text": "Consumer подписывается только на новые сообщения — старая конфигурация не нужна",
+        "correct": false,
+        "explanation": "При перезапуске сервиса нужна вся актуальная конфигурация, а не только изменения с момента последнего запуска. Compacted topic позволяет восстановить полное состояние именно для этого сценария."
+      }
+    ]
+  }
+]

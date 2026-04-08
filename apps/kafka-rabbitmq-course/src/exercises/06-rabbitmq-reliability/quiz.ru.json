@@ -1,0 +1,678 @@
+[
+  {
+    "question": "Что такое Publisher Confirms в RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Транзакционный механизм RabbitMQ для гарантии exactly-once",
+        "correct": false,
+        "explanation": "Publisher Confirms не обеспечивают exactly-once. Для транзакций существует отдельный AMQP tx механизм, но он медленнее и редко используется в production."
+      },
+      {
+        "text": "Механизм, при котором producer ждёт ACK от брокера перед публикацией следующего сообщения",
+        "correct": false,
+        "explanation": "Не совсем точно — это описывает только режим individual. Publisher Confirms в целом — это протокол подтверждения доставки брокером."
+      },
+      {
+        "text": "Расширение AMQP, которое позволяет брокеру уведомлять producer об успешном или неуспешном получении сообщения",
+        "correct": true,
+        "explanation": "Publisher Confirms — это расширение протокола AMQP, при котором брокер отправляет ACK или NACK producerу, подтверждая факт получения и сохранения сообщения."
+      },
+      {
+        "text": "Механизм дублирования сообщений для обеспечения надёжности",
+        "correct": false,
+        "explanation": "Дублирование — отдельный паттерн. Publisher Confirms подтверждают доставку, а не дублируют сообщения."
+      }
+    ]
+  },
+  {
+    "question": "Какие режимы Publisher Confirms существуют в RabbitMQ?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Transactional (подтверждение через AMQP-транзакцию)",
+        "correct": false,
+        "explanation": "Транзакции (tx.select/tx.commit) — отдельный механизм, не является режимом Publisher Confirms. Они несовместимы: нельзя использовать confirms и транзакции на одном channel."
+      },
+      {
+        "text": "Individual (одно подтверждение на одно сообщение)",
+        "correct": false,
+        "explanation": "Individual confirms — producer отправляет сообщение и ждёт ACK/NACK для каждого сообщения отдельно."
+      },
+      {
+        "text": "Async (асинхронные подтверждения через callback)",
+        "correct": true,
+        "explanation": "Async confirms — producer отправляет все сообщения без ожидания, ACK/NACK приходят асинхронно в callback (listener)."
+      },
+      {
+        "text": "Batch (одно подтверждение на группу сообщений)",
+        "correct": true,
+        "explanation": "Batch confirms — producer отправляет N сообщений, затем ждёт ACK с multiple=true, подтверждающий все теги до указанного."
+      }
+    ]
+  },
+  {
+    "question": "Что означает поле multiple=true в basicAck(deliveryTag=10, multiple=true)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Брокер подтверждает все сообщения с deliveryTag <= 10",
+        "correct": true,
+        "explanation": "multiple=true означает кумулятивное подтверждение: все сообщения с deliveryTag от 1 до 10 (включительно) считаются подтверждёнными."
+      },
+      {
+        "text": "Брокер подтверждает каждое 10-е сообщение",
+        "correct": false,
+        "explanation": "deliveryTag — монотонно возрастающий номер каждого сообщения на канале. multiple=true подтверждает все теги до указанного, а не каждый N-й."
+      },
+      {
+        "text": "Брокер подтверждает только сообщение с deliveryTag=10",
+        "correct": false,
+        "explanation": "Это поведение при multiple=false. При multiple=true подтверждаются все сообщения до указанного тега включительно."
+      },
+      {
+        "text": "Брокер отправляет одно подтверждение на 10 сообщений",
+        "correct": false,
+        "explanation": "Число 10 здесь — значение deliveryTag (порядковый номер), а не количество сообщений."
+      }
+    ]
+  },
+  {
+    "question": "Какой режим Publisher Confirms обеспечивает максимальную пропускную способность?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Все режимы одинаковы по производительности",
+        "correct": false,
+        "explanation": "Режимы существенно различаются: individual < batch < async по пропускной способности."
+      },
+      {
+        "text": "Async confirms",
+        "correct": true,
+        "explanation": "Async confirms — максимальная пропускная способность: producer не блокируется, все сообщения отправляются немедленно, подтверждения обрабатываются в отдельном callback без блокировки основного потока."
+      },
+      {
+        "text": "Individual confirms",
+        "correct": false,
+        "explanation": "Individual confirms — самый медленный режим: 1 RTT на каждое сообщение. Пропускная способность ограничена задержкой сети."
+      },
+      {
+        "text": "Batch confirms",
+        "correct": false,
+        "explanation": "Batch confirms быстрее individual, но producer всё равно ждёт ACK после каждого батча перед отправкой следующего."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит при получении basicNack в режиме batch confirms?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Брокер автоматически повторяет доставку",
+        "correct": false,
+        "explanation": "Publisher Confirms — ответственность producer. Брокер сообщает об ошибке через NACK, но не повторяет за producer."
+      },
+      {
+        "text": "Сообщения теряются безвозвратно",
+        "correct": false,
+        "explanation": "Нет, NACK — это сигнал ошибки. Producer должен обработать NACK (повторить отправку или записать в error log)."
+      },
+      {
+        "text": "Нужно повторно отправить только то сообщение, которое получило NACK",
+        "correct": false,
+        "explanation": "В batch confirms producer не отслеживает индивидуальные сообщения внутри батча. При NACK с multiple=true неизвестно, какое именно сообщение не прошло."
+      },
+      {
+        "text": "Нужно повторно отправить весь батч сообщений",
+        "correct": true,
+        "explanation": "При NACK в batch режиме producer должен повторить весь батч, так как неизвестно, какое именно сообщение вызвало ошибку. Это недостаток batch режима по сравнению с async."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Auto ACK (autoAck=true) у consumer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Consumer подтверждает сообщение автоматически после успешной обработки",
+        "correct": false,
+        "explanation": "Это описывает ручное ACK после обработки. Auto ACK отправляет подтверждение сразу при получении сообщения из сети, до начала обработки."
+      },
+      {
+        "text": "Consumer автоматически подтверждает сообщение сразу при получении из сети",
+        "correct": true,
+        "explanation": "При autoAck=true брокер считает сообщение доставленным сразу после отправки по сети, не ожидая явного basicAck от consumer. Это быстро, но небезопасно: если consumer упадёт до обработки, сообщение потеряется."
+      },
+      {
+        "text": "Брокер повторяет доставку при сбое consumer",
+        "correct": false,
+        "explanation": "При autoAck=true брокер не повторяет доставку — сообщение считается обработанным сразу. Повторная доставка возможна только при manual ACK."
+      },
+      {
+        "text": "Consumer подтверждает батч сообщений одновременно",
+        "correct": false,
+        "explanation": "Это описание multiple ACK. Auto ACK — режим подписки, при котором каждое сообщение подтверждается автоматически без вызова basicAck."
+      }
+    ]
+  },
+  {
+    "question": "В чём основная проблема режима autoAck=true?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Потеря сообщений при сбое consumer до завершения обработки",
+        "correct": true,
+        "explanation": "При autoAck=true брокер удаляет сообщение из очереди сразу после отправки. Если consumer получил сообщение, но упал до завершения обработки — сообщение потеряно безвозвратно."
+      },
+      {
+        "text": "Дублирование сообщений при перезапуске брокера",
+        "correct": false,
+        "explanation": "Дублирование при manual ACK — да (если ACK не дошёл до перезапуска). При autoAck проблема обратная: возможна потеря, но не дублирование."
+      },
+      {
+        "text": "Невозможность использовать prefetch с autoAck",
+        "correct": false,
+        "explanation": "Prefetch с autoAck можно использовать, но он практически не имеет смысла: брокер всё равно отправляет сообщения сразу, не ожидая ACK."
+      },
+      {
+        "text": "Низкая производительность из-за лишних сетевых вызовов",
+        "correct": false,
+        "explanation": "Наоборот: autoAck быстрее, потому что не нужно отправлять дополнительный ACK-пакет от consumer к брокеру."
+      }
+    ]
+  },
+  {
+    "question": "Что делает basicNack(deliveryTag, multiple=false, requeue=true)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Удаляет сообщение из очереди без повторной доставки",
+        "correct": false,
+        "explanation": "Это поведение при requeue=false. При requeue=true сообщение возвращается в очередь."
+      },
+      {
+        "text": "Подтверждает сообщение и перемещает его в dead letter exchange",
+        "correct": false,
+        "explanation": "Перемещение в DLX происходит при requeue=false (если настроен dead-letter-exchange). При requeue=true сообщение возвращается в обычную очередь."
+      },
+      {
+        "text": "Отклоняет сообщение и возвращает его в очередь для повторной доставки",
+        "correct": true,
+        "explanation": "basicNack(tag, false, true) отклоняет одно сообщение (multiple=false) и возвращает его в очередь (requeue=true), после чего оно будет доставлено снова."
+      },
+      {
+        "text": "Останавливает consumer и сбрасывает все незавершённые сообщения",
+        "correct": false,
+        "explanation": "basicNack не останавливает consumer. Он только сигнализирует брокеру об отклонении конкретного сообщения."
+      }
+    ]
+  },
+  {
+    "question": "В чём разница между basicNack и basicReject?",
+    "type": "single",
+    "options": [
+      {
+        "text": "basicReject быстрее, basicNack надёжнее",
+        "correct": false,
+        "explanation": "Скорость и надёжность здесь не при чём. Разница в возможности отклонить несколько сообщений сразу."
+      },
+      {
+        "text": "basicNack стандарт AMQP, basicReject — расширение RabbitMQ",
+        "correct": false,
+        "explanation": "Наоборот: basicReject — стандарт AMQP 0-9-1, basicNack — расширение RabbitMQ. basicReject не поддерживает multiple."
+      },
+      {
+        "text": "basicReject перемещает в DLX, basicNack — нет",
+        "correct": false,
+        "explanation": "Оба метода перемещают сообщение в DLX при requeue=false, если настроен dead-letter-exchange. Поведение одинаковое в этом отношении."
+      },
+      {
+        "text": "basicNack поддерживает multiple=true (отклонить сразу несколько сообщений), basicReject — только одно",
+        "correct": true,
+        "explanation": "basicReject может отклонить только одно сообщение за раз (нет поля multiple). basicNack — расширение RabbitMQ, которое добавляет поле multiple для пакетного отклонения."
+      }
+    ]
+  },
+  {
+    "question": "Что такое prefetchCount (basicQos) в RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Максимальный размер сообщения, которое брокер принимает от producer",
+        "correct": false,
+        "explanation": "Размер сообщения ограничивается параметром max-message-size, не prefetchCount. QoS относится к количеству, а не размеру."
+      },
+      {
+        "text": "Максимальное количество сообщений в очереди",
+        "correct": false,
+        "explanation": "Максимальный размер очереди задаётся параметром x-max-length при объявлении очереди. prefetchCount — настройка consumer."
+      },
+      {
+        "text": "Количество сообщений, которые брокер может отправить consumer без получения ACK",
+        "correct": true,
+        "explanation": "prefetchCount ограничивает количество unacknowledged сообщений у consumer. Как только лимит достигнут, брокер не отправляет новые сообщения до получения ACK."
+      },
+      {
+        "text": "Количество очередей, которые может читать один consumer",
+        "correct": false,
+        "explanation": "Количество очередей для consumer настраивается отдельно (через привязки). prefetchCount — ограничение по количеству необработанных сообщений."
+      }
+    ]
+  },
+  {
+    "question": "Вы наблюдаете: быстрый consumer обрабатывает 80% сообщений, медленный — 20%, хотя оба подключены к одной очереди. Что вероятнее всего настроено?",
+    "type": "single",
+    "options": [
+      {
+        "text": "prefetchCount > 1 у обоих consumers",
+        "correct": true,
+        "explanation": "При высоком prefetchCount быстрый consumer быстро освобождает слоты и получает новые сообщения, медленный накапливает в буфере. Итог: быстрый получает значительно больше — это ожидаемое поведение."
+      },
+      {
+        "text": "prefetchCount = 1 у обоих consumers",
+        "correct": false,
+        "explanation": "При prefetchCount=1 сообщения распределяются строго round-robin (поровну), и медленный consumer получил бы ~50%."
+      },
+      {
+        "text": "Ошибка конфигурации — такое невозможно при равных настройках",
+        "correct": false,
+        "explanation": "Такое поведение нормально и ожидаемо при prefetchCount > 1. Это называется work stealing или fair dispatch."
+      },
+      {
+        "text": "autoAck=true у быстрого consumer",
+        "correct": false,
+        "explanation": "autoAck влияет на надёжность, но не напрямую на распределение нагрузки. Проблема неравномерного распределения решается через prefetchCount."
+      }
+    ]
+  },
+  {
+    "question": "Почему prefetchCount=0 (unlimitied) опасен в production?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Брокер не сможет обработать ACK от consumer",
+        "correct": false,
+        "explanation": "Количество ACK не ограничено. Проблема в клиентской части (memory), а не в обработке ACK брокером."
+      },
+      {
+        "text": "При сбое consumer все сообщения из его буфера вернутся в очередь и нагрузят систему",
+        "correct": true,
+        "explanation": "Если consumer упадёт, все unacknowledged сообщения из его буфера вернутся в очередь и будут распределены заново — это может создать пиковую нагрузку."
+      },
+      {
+        "text": "Медленный consumer заблокирует получение сообщений для других consumers",
+        "correct": false,
+        "explanation": "Если один consumer взял все сообщения без ограничения, другие consumers в той же группе будут простаивать, пока первый не обработает свой буфер."
+      },
+      {
+        "text": "Consumer может получить все сообщения из очереди сразу и упасть из-за OOM",
+        "correct": true,
+        "explanation": "Без ограничений брокер отправит все сообщения из очереди consumer сразу. Если очередь большая — consumer получит огромный буфер в памяти и может упасть с Out of Memory."
+      }
+    ]
+  },
+  {
+    "question": "Что означает persistent message (delivery-mode=2) в RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сообщение хранится вечно в очереди без TTL",
+        "correct": false,
+        "explanation": "delivery-mode=2 отвечает за выживание после перезапуска, но не отключает TTL. Если задан message TTL, сообщение удалится по истечении времени независимо от delivery-mode."
+      },
+      {
+        "text": "Сообщение сохраняется в RAM для быстрого доступа",
+        "correct": false,
+        "explanation": "Это описание transient сообщения (delivery-mode=1) — хранится только в RAM."
+      },
+      {
+        "text": "Сообщение доставляется exactly-once",
+        "correct": false,
+        "explanation": "delivery-mode=2 не гарантирует exactly-once. При сбоях может быть повторная доставка (at-least-once)."
+      },
+      {
+        "text": "Сообщение записывается на диск и переживает перезапуск брокера",
+        "correct": true,
+        "explanation": "delivery-mode=2 означает, что брокер записывает сообщение на диск (fsync). Если брокер перезапустится, сообщение будет восстановлено — но только если очередь также объявлена как durable."
+      }
+    ]
+  },
+  {
+    "question": "Какое условие ОБЯЗАТЕЛЬНО для выживания сообщения после перезапуска брокера?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Очередь объявлена с durable=true",
+        "correct": true,
+        "explanation": "Non-durable очередь исчезает при перезапуске вместе со всеми сообщениями, независимо от delivery-mode."
+      },
+      {
+        "text": "Сообщение опубликовано с delivery-mode=2 (persistent)",
+        "correct": true,
+        "explanation": "Даже в durable очереди transient сообщения (delivery-mode=1) не сохраняются на диске и теряются при перезапуске."
+      },
+      {
+        "text": "Publisher Confirms включены на channel",
+        "correct": false,
+        "explanation": "Publisher Confirms подтверждают доставку сообщения брокеру, но не влияют на персистентность. Для выживания при перезапуске нужны durable очередь и delivery-mode=2."
+      },
+      {
+        "text": "Consumer подтвердил получение сообщения (basicAck)",
+        "correct": false,
+        "explanation": "ACK от consumer удаляет сообщение из очереди. Для выживания при перезапуске важен durable флаг очереди и delivery-mode=2, а не ACK."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт с persistent сообщением в non-durable очереди при перезапуске брокера?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сообщение потеряется вместе с очередью",
+        "correct": true,
+        "explanation": "Non-durable очередь не переживает перезапуск. Даже если сообщение было persistent, без durable очереди ему негде храниться после рестарта."
+      },
+      {
+        "text": "Сообщение переместится в default durable очередь",
+        "correct": false,
+        "explanation": "RabbitMQ не перемещает сообщения автоматически. Non-durable очередь со всем содержимым просто удаляется при перезапуске."
+      },
+      {
+        "text": "Брокер вернёт ошибку при публикации persistent сообщения в non-durable очередь",
+        "correct": false,
+        "explanation": "RabbitMQ принимает persistent сообщения в non-durable очереди без ошибок. Это ответственность разработчика — следить за совместимостью конфигурации."
+      },
+      {
+        "text": "Сообщение выживет — оно записано на диск",
+        "correct": false,
+        "explanation": "Нет. Non-durable очередь исчезает при перезапуске полностью, независимо от delivery-mode сообщений внутри неё."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Message TTL (x-message-ttl) в RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Время, после которого сообщение удаляется из очереди, если не было доставлено",
+        "correct": true,
+        "explanation": "x-message-ttl задаёт максимальное время нахождения сообщения в очереди. По истечении TTL сообщение либо удаляется, либо отправляется в DLX (если настроен)."
+      },
+      {
+        "text": "Максимальное время обработки сообщения у consumer",
+        "correct": false,
+        "explanation": "Consumer timeout — отдельная концепция (heartbeat, connection timeout). TTL относится к времени жизни сообщения в очереди."
+      },
+      {
+        "text": "Количество раз, которое сообщение может быть повторно доставлено",
+        "correct": false,
+        "explanation": "Количество повторных доставок отслеживается через заголовок x-death и x-delivery-count. TTL — это время, не счётчик."
+      },
+      {
+        "text": "Время жизни самой очереди (queue TTL)",
+        "correct": false,
+        "explanation": "Это x-expires — TTL для очереди. x-message-ttl — TTL для сообщений внутри очереди."
+      }
+    ]
+  },
+  {
+    "question": "Вы разрабатываете систему обработки платёжных транзакций через RabbitMQ. Какую конфигурацию выбрать?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Publisher Confirms (async mode) для контроля доставки",
+        "correct": false,
+        "explanation": "Async Publisher Confirms гарантируют, что broker получил сообщение. При NACK producer может повторить отправку, что критично для финансовых данных."
+      },
+      {
+        "text": "Сообщения с delivery-mode=2 (persistent)",
+        "correct": true,
+        "explanation": "Транзакции нельзя терять. delivery-mode=2 сохраняет сообщения на диск, они переживут перезапуск вместе с durable очередью."
+      },
+      {
+        "text": "autoAck=true у consumer для максимальной производительности",
+        "correct": false,
+        "explanation": "autoAck=true для платёжных данных недопустимо: если consumer упадёт между получением и обработкой — транзакция потеряется. Нужен manual ACK после успешной обработки."
+      },
+      {
+        "text": "Очередь с durable=true",
+        "correct": true,
+        "explanation": "Платёжные данные критичны. durable=true гарантирует, что очередь переживёт перезапуск брокера."
+      }
+    ]
+  },
+  {
+    "question": "Почему AMQP-транзакции (tx.select/tx.commit) редко используются в production?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Транзакции несовместимы с durable очередями",
+        "correct": false,
+        "explanation": "Транзакции совместимы с durable очередями. Проблема в другом — в производительности."
+      },
+      {
+        "text": "Транзакции работают только с одной очередью за раз",
+        "correct": false,
+        "explanation": "Транзакции в AMQP работают на уровне channel и могут охватывать публикации в несколько очередей. Но это не влияет на причину их непопулярности."
+      },
+      {
+        "text": "Транзакции не поддерживаются в RabbitMQ 3.x и новее",
+        "correct": false,
+        "explanation": "Транзакции поддерживаются в RabbitMQ, но из-за катастрофической потери производительности их не используют в production."
+      },
+      {
+        "text": "Транзакции снижают пропускную способность в 250 раз по сравнению с Publisher Confirms",
+        "correct": true,
+        "explanation": "Официальные бенчмарки RabbitMQ показывают, что транзакционный режим примерно в 250 раз медленнее Publisher Confirms. Publisher Confirms при сравнимых гарантиях значительно эффективнее."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Queue TTL (x-expires)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Срок действия binding между exchange и очередью",
+        "correct": false,
+        "explanation": "Bindings в RabbitMQ не имеют TTL. x-expires относится к самой очереди."
+      },
+      {
+        "text": "Время, после которого сообщение удаляется из очереди",
+        "correct": false,
+        "explanation": "Это x-message-ttl. x-expires — TTL для самой очереди, а не для сообщений."
+      },
+      {
+        "text": "Время, через которое неиспользуемая очередь автоматически удаляется брокером",
+        "correct": true,
+        "explanation": "x-expires задаёт период бездействия (нет consumers и нет новых сообщений). Если очередь не используется это время — брокер удаляет её автоматически."
+      },
+      {
+        "text": "Максимальное время работы consumer до переподключения",
+        "correct": false,
+        "explanation": "Время жизни consumer-соединения управляется через heartbeat и connection timeout, не через x-expires."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно обработать basicNack в async Publisher Confirms, чтобы не потерять сообщения?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Переключиться на individual confirms — они надёжнее",
+        "correct": false,
+        "explanation": "Individual confirms не решают проблему NACK, они лишь замедляют процесс. Обработка NACK необходима в любом режиме."
+      },
+      {
+        "text": "Закрыть и переоткрыть channel — это сбросит состояние",
+        "correct": false,
+        "explanation": "Пересоздание channel сбрасывает deliveryTag, но не решает проблему: сообщения, получившие NACK, всё равно нужно явно обработать и отправить повторно."
+      },
+      {
+        "text": "Сохранять отправленные сообщения в outbox и удалять только после ACK; при NACK — повторить",
+        "correct": true,
+        "explanation": "Надёжный паттерн: хранить неподтверждённые сообщения в памяти или persistence store. При ACK — удалить, при NACK — поставить в очередь для повторной отправки."
+      },
+      {
+        "text": "Игнорировать NACK — брокер повторит доставку сам",
+        "correct": false,
+        "explanation": "Брокер не повторяет публикацию за producer. Publisher Confirms — ответственность на стороне producer."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит с очередью при параметре exclusive=true?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сообщения в очереди шифруются",
+        "correct": false,
+        "explanation": "exclusive не имеет отношения к шифрованию. RabbitMQ поддерживает TLS для шифрования транспорта, но это настраивается иначе."
+      },
+      {
+        "text": "Очередь принадлежит одному connection и удаляется при его закрытии",
+        "correct": true,
+        "explanation": "Exclusive очередь может быть использована только тем connection, который её создал, и автоматически удаляется при закрытии этого connection. Используется для временных ответных очередей (reply-to)."
+      },
+      {
+        "text": "Очередь недоступна для чтения другими приложениями",
+        "correct": false,
+        "explanation": "Эксклюзивность привязана к connection, а не к приложению. Один consumer может создать exclusive очередь и другие connections не смогут к ней подключиться."
+      },
+      {
+        "text": "К очереди может подключиться только один consumer одновременно",
+        "correct": false,
+        "explanation": "Это описание single-active-consumer (x-single-active-consumer). Exclusive очередь привязана к connection, не к consumer."
+      }
+    ]
+  },
+  {
+    "question": "Что значит mandatory=true при basicPublish?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Брокер обязательно сохраняет сообщение на диск",
+        "correct": false,
+        "explanation": "Персистентность контролируется delivery-mode, не mandatory. mandatory отвечает за маршрутизацию."
+      },
+      {
+        "text": "Брокер гарантирует доставку сообщения хотя бы в одну очередь, иначе возвращает его producer",
+        "correct": true,
+        "explanation": "С mandatory=true брокер пытается смаршрутизировать сообщение в очередь. Если подходящей очереди нет — сообщение возвращается producer через basicReturn callback. Без mandatory сообщение просто теряется."
+      },
+      {
+        "text": "Сообщение имеет высший приоритет доставки",
+        "correct": false,
+        "explanation": "Приоритет сообщений задаётся через x-priority. mandatory относится к маршрутизации, не к приоритету."
+      },
+      {
+        "text": "Consumer обязан подтвердить получение сообщения",
+        "correct": false,
+        "explanation": "mandatory — параметр публикации (producer side). Обязательность ACK от consumer настраивается отдельно."
+      }
+    ]
+  },
+  {
+    "question": "У вас очередь с x-message-ttl=5000 и настроен dead-letter-exchange. Что произойдёт с сообщением через 5 секунд, если его никто не обработал?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сообщение удаляется без следа",
+        "correct": false,
+        "explanation": "Это поведение при TTL без DLX. Если настроен dead-letter-exchange, сообщение не удаляется, а перемещается."
+      },
+      {
+        "text": "Брокер повторно доставляет сообщение consumer с задержкой",
+        "correct": false,
+        "explanation": "TTL + DLX — это паттерн delayed retry, но он требует специальной настройки (очередь-задержка с DLX обратно). По умолчанию при TTL+DLX сообщение просто перемещается."
+      },
+      {
+        "text": "Сообщение возвращается producer через basicReturn",
+        "correct": false,
+        "explanation": "basicReturn используется с mandatory=true при отсутствии маршрута. TTL-истечение отправляет в DLX, если он настроен."
+      },
+      {
+        "text": "Сообщение перемещается в dead letter exchange",
+        "correct": true,
+        "explanation": "При наличии x-dead-letter-exchange истёкшее сообщение становится 'dead' и публикуется в DLX с заголовком x-death, содержащим причину (expired) и исходную очередь."
+      }
+    ]
+  },
+  {
+    "question": "В каком порядке приходят ACK в режиме async Publisher Confirms?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сначала все ACK, потом все NACK",
+        "correct": false,
+        "explanation": "ACK и NACK могут перемежаться в любом порядке. Порядок определяется состоянием брокера, не типом ответа."
+      },
+      {
+        "text": "Строго в порядке отправки (deliveryTag 1, 2, 3...)",
+        "correct": false,
+        "explanation": "В async режиме ACK не гарантированно приходят в порядке отправки. Брокер может подтверждать сообщения в любом порядке."
+      },
+      {
+        "text": "Батчами, один ACK с multiple=true на каждые 10 сообщений",
+        "correct": false,
+        "explanation": "Batch ACK с multiple=true — характеристика batch режима. В async режиме каждое сообщение получает отдельный ACK, но асинхронно и в произвольном порядке."
+      },
+      {
+        "text": "В любом порядке, не обязательно совпадающем с порядком отправки",
+        "correct": true,
+        "explanation": "Async confirms не гарантируют порядок подтверждений. Producer должен хранить Map<deliveryTag, message> и обрабатывать ACK/NACK в callback без привязки к порядку."
+      }
+    ]
+  },
+  {
+    "question": "Вы видите, что после перезапуска брокера все очереди на месте, но сообщения потеряны. Какова наиболее вероятная причина?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Publisher Confirms не были включены на channel",
+        "correct": false,
+        "explanation": "Publisher Confirms не влияют на персистентность. Без Confirms producer просто не знает об ошибке, но проблема потери при перезапуске — в delivery-mode сообщений."
+      },
+      {
+        "text": "Сообщения опубликованы с delivery-mode=1 (transient)",
+        "correct": true,
+        "explanation": "Durable очереди переживают перезапуск, но transient сообщения (delivery-mode=1) в них не сохраняются на диск и теряются. Нужно delivery-mode=2."
+      },
+      {
+        "text": "Consumer успел обработать все сообщения до перезапуска",
+        "correct": false,
+        "explanation": "Если consumer обработал и подтвердил сообщения — это нормальная работа системы, не потеря. Вопрос описывает потерю."
+      },
+      {
+        "text": "Очереди объявлены как non-durable",
+        "correct": false,
+        "explanation": "Если очереди non-durable, они исчезли бы вместе с сообщениями. Раз очереди есть — они durable. Значит проблема в сообщениях."
+      }
+    ]
+  },
+  {
+    "question": "Как называется паттерн, при котором producer сохраняет сообщение в локальную БД перед отправкой в брокер, а отдельный процесс читает таблицу и отправляет неотправленные?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Saga pattern",
+        "correct": false,
+        "explanation": "Saga — паттерн управления распределёнными транзакциями. Здесь описан другой паттерн надёжной публикации."
+      },
+      {
+        "text": "Dead Letter Queue",
+        "correct": false,
+        "explanation": "DLQ — механизм RabbitMQ для обработки необработанных сообщений. Outbox — паттерн на стороне producer для надёжной публикации."
+      },
+      {
+        "text": "Event Sourcing",
+        "correct": false,
+        "explanation": "Event Sourcing — паттерн хранения состояния через лог событий. Outbox используется совместно с ES, но это разные концепции."
+      },
+      {
+        "text": "Transactional Outbox",
+        "correct": true,
+        "explanation": "Transactional Outbox — паттерн надёжной публикации: сообщение сохраняется в таблицу outbox в рамках той же DB-транзакции, что и бизнес-данные. Relay-процесс читает outbox и публикует в брокер. Гарантирует at-least-once даже при сбоях брокера."
+      }
+    ]
+  }
+]

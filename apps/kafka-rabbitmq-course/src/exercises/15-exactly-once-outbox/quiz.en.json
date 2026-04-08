@@ -1,0 +1,579 @@
+[
+  {
+    "question": "What is the Dual Write Problem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A situation where a service sequentially writes to a DB and publishes an event to a broker without atomic guarantee",
+        "correct": true,
+        "explanation": "Dual Write is precisely the sequential write to two different storage systems (DB + broker) without transactional guarantees. If a failure occurs between operations, the data becomes desynchronized."
+      },
+      {
+        "text": "A situation where the same event is published twice to the same topic",
+        "correct": false,
+        "explanation": "This is message duplication (duplicates), not the Dual Write Problem."
+      },
+      {
+        "text": "A situation where a service maintains two different message formats",
+        "correct": false,
+        "explanation": "This is a format compatibility concern, unrelated to the Dual Write Problem."
+      },
+      {
+        "text": "A situation where two different services write to the same table simultaneously",
+        "correct": false,
+        "explanation": "This is concurrent access, not the Dual Write Problem. Dual Write concerns a single service and two different storage systems."
+      }
+    ]
+  },
+  {
+    "question": "Why can't you simply wrap a DB write and a Kafka publication in a single distributed transaction (2PC)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "2PC only works with NoSQL databases",
+        "correct": false,
+        "explanation": "Incorrect. XA transactions were historically used with relational DBMS. The issue is that Kafka does not support them."
+      },
+      {
+        "text": "The transaction coordinator is a single point of failure",
+        "correct": true,
+        "explanation": "In 2PC, the coordinator can hang after sending prepare, leaving participants in an indeterminate state — this is the classic blocking 2PC problem."
+      },
+      {
+        "text": "2PC significantly reduces performance and creates a risk of prolonged locks",
+        "correct": true,
+        "explanation": "Two-phase commit requires holding locks until all participants complete, which reduces throughput and increases latency."
+      },
+      {
+        "text": "Kafka does not support the 2PC protocol (XA Transactions)",
+        "correct": true,
+        "explanation": "Kafka deliberately does not implement XA/2PC. A message broker is not a participant in distributed transactions with relational databases."
+      }
+    ]
+  },
+  {
+    "question": "What does the Transactional Outbox pattern guarantee?",
+    "type": "single",
+    "options": [
+      {
+        "text": "That data in the DB and Kafka will always be strictly consistent in real time",
+        "correct": false,
+        "explanation": "There is a delay between the transaction commit and the Relay process publishing. Outbox ensures eventual consistency, not strict instantaneous consistency."
+      },
+      {
+        "text": "That an event will always be published exactly once",
+        "correct": false,
+        "explanation": "The Relay may read and publish an event multiple times (at-least-once). Exactly-once requires additional measures at the consumer level."
+      },
+      {
+        "text": "Exactly-once delivery of events to Kafka",
+        "correct": false,
+        "explanation": "Outbox guarantees at-least-once, not exactly-once. Duplicate publications by the Relay can occur — they must be handled on the consumer side (idempotent consumer)."
+      },
+      {
+        "text": "Atomicity of writes to both the main table and the outbox table",
+        "correct": true,
+        "explanation": "The key guarantee of the pattern — both writes (to orders and to outbox) are executed in a single DB transaction. Either both succeed or both are rolled back. This eliminates the Dual Write Problem."
+      }
+    ]
+  },
+  {
+    "question": "How does the Relay (Message Relay) work in the Transactional Outbox pattern?",
+    "type": "single",
+    "options": [
+      {
+        "text": "It executes within the same DB transaction as the main write",
+        "correct": false,
+        "explanation": "The Relay runs asynchronously and independently — this is precisely the point of the pattern. Publishing to the broker is done outside the DB transaction."
+      },
+      {
+        "text": "It periodically polls the outbox table for unpublished events and publishes them to the broker",
+        "correct": true,
+        "explanation": "The Relay reads rows with 'pending' status, publishes them to Kafka, then marks them as 'published' or deletes them. This cycle can be implemented via polling or CDC."
+      },
+      {
+        "text": "It is part of Kafka and built into the broker",
+        "correct": false,
+        "explanation": "The Relay is a separate service or process on the application side, not part of Kafka."
+      },
+      {
+        "text": "It intercepts SQL queries to the main table and automatically generates events",
+        "correct": false,
+        "explanation": "This describes CDC (Change Data Capture), not the Relay. The Relay works with an explicit outbox table."
+      }
+    ]
+  },
+  {
+    "question": "What is CDC (Change Data Capture)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A data synchronization protocol between multiple Kafka replicas",
+        "correct": false,
+        "explanation": "Kafka replication is handled by ISR (In-Sync Replicas). CDC is about capturing changes from relational databases."
+      },
+      {
+        "text": "A caching pattern where the cache is updated only when data changes",
+        "correct": false,
+        "explanation": "This describes cache invalidation. CDC is about capturing changes from a database, not cache management."
+      },
+      {
+        "text": "A Kafka data compression mechanism to save disk space",
+        "correct": false,
+        "explanation": "This describes log compaction in Kafka. CDC is a fundamentally different concept unrelated to broker data storage."
+      },
+      {
+        "text": "A data replication pattern where changes in a database are captured from the transaction log and forwarded to other systems",
+        "correct": true,
+        "explanation": "CDC reads the WAL (PostgreSQL) or binlog (MySQL) and converts each row change into an event that can be sent to Kafka, another database, or a cache."
+      }
+    ]
+  },
+  {
+    "question": "Which PostgreSQL mechanism does Debezium use to capture changes?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Periodic SELECT queries to a table of updated rows",
+        "correct": false,
+        "explanation": "This is polling CDC. Debezium uses log-based CDC (WAL), which allows capturing DELETEs and not missing quickly created and deleted rows."
+      },
+      {
+        "text": "Write-Ahead Log (WAL) through the logical replication mechanism",
+        "correct": true,
+        "explanation": "Debezium uses PostgreSQL logical replication slots and reads the WAL via pgoutput or wal2json plugins. This is a low-overhead approach that does not affect the performance of main operations."
+      },
+      {
+        "text": "Binary Replication Protocol to copy the entire table",
+        "correct": false,
+        "explanation": "Physical replication copies the entire data file, not individual changes. Debezium uses logical replication."
+      },
+      {
+        "text": "Triggers on tables",
+        "correct": false,
+        "explanation": "Triggers are one approach to polling-CDC, but not what Debezium uses. The trigger approach adds overhead to every operation."
+      }
+    ]
+  },
+  {
+    "question": "What is the key advantage of log-based CDC (WAL/binlog) over polling CDC?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "It is significantly simpler to implement and does not require database configuration",
+        "correct": false,
+        "explanation": "On the contrary, log-based CDC is more complex: it requires setting up logical replication in PostgreSQL, managing replication slots, and handling schema changes."
+      },
+      {
+        "text": "It captures DELETE operations without additional schema changes",
+        "correct": true,
+        "explanation": "Polling CDC requires a deleted_at flag or soft delete to track deletions. The WAL natively contains DELETE events."
+      },
+      {
+        "text": "It does not miss quickly created and deleted rows between two polls",
+        "correct": true,
+        "explanation": "If a row is created and deleted between two polling queries, polling CDC will not see it. The WAL records all changes in chronological order."
+      },
+      {
+        "text": "It requires a special license",
+        "correct": false,
+        "explanation": "All of the listed technologies have open-source versions."
+      },
+      {
+        "text": "Less load on the database with a high volume of changes",
+        "correct": true,
+        "explanation": "The WAL is written regardless. Reading the WAL is an asynchronous operation that does not compete with main queries. Polling creates additional load on the database."
+      }
+    ]
+  },
+  {
+    "question": "What format of CDC event does Debezium generate for an UPDATE operation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An event with fields op='u', before (old data), and after (new data)",
+        "correct": true,
+        "explanation": "Debezium generates an envelope with fields: op ('c' insert, 'u' update, 'd' delete), source (metadata), before (state before), after (state after), ts_ms."
+      },
+      {
+        "text": "Two separate events: DELETE for the old row and INSERT for the new",
+        "correct": false,
+        "explanation": "Debezium generates a single event with op='u' and both before/after fields. Splitting into two events contradicts UPDATE semantics."
+      },
+      {
+        "text": "Only the new row state (after), without the previous",
+        "correct": false,
+        "explanation": "Debezium provides both fields: before and after. The before field allows knowing exactly what changed — this is critical for downstream consumers."
+      },
+      {
+        "text": "The SQL string `UPDATE table SET ... WHERE id=...`",
+        "correct": false,
+        "explanation": "Debezium generates structured JSON events, not SQL strings. This allows consumers to work with data without parsing SQL."
+      }
+    ]
+  },
+  {
+    "question": "What is the Outbox Event Router in Debezium?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A retry mechanism when Kafka is unavailable",
+        "correct": false,
+        "explanation": "Retry logic in Kafka Connect is handled at the connector level. The Outbox Event Router is an event routing transformation."
+      },
+      {
+        "text": "An algorithm for determining event order during parallel processing",
+        "correct": false,
+        "explanation": "Event order in Kafka is determined by the partition key. The Outbox Event Router routes events to topics but does not manage ordering."
+      },
+      {
+        "text": "A load balancer between multiple Debezium instances",
+        "correct": false,
+        "explanation": "Debezium uses Kafka Connect with partitioning for scaling, but the Outbox Event Router is a message transformation, not a load balancer."
+      },
+      {
+        "text": "A Kafka Connect component that reads CDC events from the outbox table and routes them to different topics based on event metadata",
+        "correct": true,
+        "explanation": "The Debezium Outbox Event Router is an SMT (Single Message Transform) that extracts the aggregatetype field from the CDC event and routes it to the corresponding Kafka topic, removing technical fields from the outbox table."
+      }
+    ]
+  },
+  {
+    "question": "What is the Inbox Pattern (Transactional Inbox)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A pattern where an incoming message is saved to a local inbox table in a DB transaction together with business logic processing",
+        "correct": true,
+        "explanation": "The Inbox Pattern is an addition to the Outbox Pattern for reliable message reception. The consumer first saves the message to an inbox table, then processes it. This guarantees idempotency and protects against loss if a failure occurs after reception but before processing."
+      },
+      {
+        "text": "A buffer for temporarily storing unsent outgoing events",
+        "correct": false,
+        "explanation": "This describes the Outbox Pattern. The Inbox Pattern is for incoming messages, Outbox is for outgoing."
+      },
+      {
+        "text": "Email notification about new messages in the Kafka queue",
+        "correct": false,
+        "explanation": "The Inbox Pattern is an architectural pattern for reliable message processing, unrelated to email."
+      },
+      {
+        "text": "A mechanism for prioritizing messages in a queue",
+        "correct": false,
+        "explanation": "Prioritization in RabbitMQ is implemented through priority queues. The Inbox Pattern is about processing reliability, not order."
+      }
+    ]
+  },
+  {
+    "question": "Why does Transactional Outbox provide at-least-once, not exactly-once delivery?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Because Kafka does not guarantee message delivery",
+        "correct": false,
+        "explanation": "Kafka with acks=all and min.insync.replicas provides a very high guarantee of durability. The exactly-once problem in outbox is on the Relay side, not the broker."
+      },
+      {
+        "text": "Because a database transaction can roll back after publication to Kafka",
+        "correct": false,
+        "explanation": "This would be a problem without the Outbox Pattern. With outbox, publication to Kafka happens after a successful transaction COMMIT."
+      },
+      {
+        "text": "Because the Relay may publish an event to Kafka but crash before updating the outbox status — on restart, the event will be published again",
+        "correct": true,
+        "explanation": "This is a classic scenario: the publish succeeded, but UPDATE outbox SET status='published' did not execute before the crash. On the next run, the Relay will see the pending record again and republish it."
+      },
+      {
+        "text": "Because different Relay instances can simultaneously process the same record",
+        "correct": false,
+        "explanation": "This is solved by optimistic locking or SELECT FOR UPDATE when reading the outbox. The main reason for at-least-once is the potential crash between publish and mark-as-sent."
+      }
+    ]
+  },
+  {
+    "question": "How to implement an idempotent consumer to protect against duplicates with at-least-once delivery?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Increase the Kafka replication factor to 3",
+        "correct": false,
+        "explanation": "The replication factor protects against data loss on broker failure, but does not eliminate duplicates on the consumer side."
+      },
+      {
+        "text": "Store processed message IDs in the database and check for existence before processing",
+        "correct": true,
+        "explanation": "A classic approach: INSERT INTO processed_messages (message_id) ... with a unique index. On duplicate receipt, INSERT will violate uniqueness — the duplicate is detected."
+      },
+      {
+        "text": "Enable idempotent producer in Kafka Producer settings",
+        "correct": false,
+        "explanation": "The idempotent producer (enable.idempotence=true) eliminates duplicates on the producer side during retries. It does not help with duplicates arising from the Relay's at-least-once logic."
+      },
+      {
+        "text": "Make business operations idempotent by nature (INSERT OR IGNORE, UPSERT)",
+        "correct": true,
+        "explanation": "If the operation itself is idempotent (e.g., UPDATE SET status='shipped' WHERE id=X), repeated application will not cause issues — this is the most elegant solution."
+      }
+    ]
+  },
+  {
+    "question": "Which Relay process implementation is the most reliable?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Polling with SELECT FOR UPDATE SKIP LOCKED for concurrent reading without blocking",
+        "correct": true,
+        "explanation": "SELECT FOR UPDATE SKIP LOCKED is a standard approach for reliable polling: multiple Relay instances can work in parallel, each taking its own batch of rows without blocking each other."
+      },
+      {
+        "text": "A plain SELECT sorted by created_at without locks",
+        "correct": false,
+        "explanation": "Without locks, multiple Relay instances can process the same row simultaneously, leading to duplicates in Kafka."
+      },
+      {
+        "text": "Reading WAL via CDC instead of polling the table",
+        "correct": false,
+        "explanation": "CDC via WAL is a different approach to implementing outbox (without an explicit polling table), but this question asks about the reliability of polling relay. Choosing WAL vs polling is not itself an answer about polling reliability."
+      },
+      {
+        "text": "Direct publication to Kafka from a PostgreSQL trigger",
+        "correct": false,
+        "explanation": "A trigger cannot directly publish to Kafka. Attempting to make an HTTP call from a trigger is an anti-pattern that increases transaction time and reduces reliability."
+      }
+    ]
+  },
+  {
+    "question": "What is the WAL (Write-Ahead Log) in PostgreSQL?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A row versioning mechanism to support MVCC",
+        "correct": false,
+        "explanation": "MVCC is implemented through xmin/xmax system fields in table rows, not through the WAL. The WAL is a separate mechanism for durability."
+      },
+      {
+        "text": "A queue of asynchronous requests to reduce write latency",
+        "correct": false,
+        "explanation": "The WAL is written synchronously (with synchronous_commit=on) before confirming the transaction to the client. This reduces the risk of data loss, not latency."
+      },
+      {
+        "text": "An index to speed up writes to tables with many INSERTs",
+        "correct": false,
+        "explanation": "The WAL is a log, not an index. Indexes speed up lookups (SELECT), while the WAL ensures transaction durability."
+      },
+      {
+        "text": "A transaction log where PostgreSQL records all changes before applying them to the main data files",
+        "correct": true,
+        "explanation": "The WAL is the foundation of PostgreSQL reliability: every change is first written to the WAL, then applied to data pages. In case of a crash, the database is recovered from the WAL. CDC tools (Debezium) read the WAL through logical replication."
+      }
+    ]
+  },
+  {
+    "question": "How does Debezium handle the situation when a consumer restarts and needs to resume from where it stopped?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Debezium takes a full snapshot of the table on every restart",
+        "correct": false,
+        "explanation": "A full snapshot is only taken on first startup or with snapshot.mode=always. In normal operation, Debezium continues from the saved WAL position."
+      },
+      {
+        "text": "Kafka automatically detects missing messages and resends them",
+        "correct": false,
+        "explanation": "Kafka does not know which messages were 'missed'. It is Debezium's responsibility to track the position in the WAL."
+      },
+      {
+        "text": "Via timestamps: Debezium reads all changes for the last hour",
+        "correct": false,
+        "explanation": "Timestamps are unreliable for this task. LSN is a precise and monotonically increasing identifier, making it the correct choice for tracking progress."
+      },
+      {
+        "text": "Via LSN (Log Sequence Number) — Debezium stores the position in the WAL and continues from the last confirmed LSN",
+        "correct": true,
+        "explanation": "LSN is a monotonically increasing identifier for a position in the PostgreSQL WAL. Debezium saves the offset (LSN) in the Kafka Connect offset store. On restart, reading resumes from the saved position."
+      }
+    ]
+  },
+  {
+    "question": "You have an order service. After successfully saving an order to the database, the service publishes an OrderCreated event to Kafka. Occasionally, orders are lost — consumers do not receive the event. Logs show the DB write succeeded, but Kafka is unavailable. Which solution should you apply?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Switch to synchronous architecture: first publish to Kafka, then write to the DB",
+        "correct": false,
+        "explanation": "This only reverses the direction of loss: now if the DB fails, the event will reach Kafka but the order won't be saved. The dual write problem remains."
+      },
+      {
+        "text": "Add retry with exponential backoff when publishing to Kafka",
+        "correct": false,
+        "explanation": "Retry will reduce the frequency of losses during short-term failures, but does not eliminate the problem entirely. During a prolonged Kafka outage or service restart, the event will still be lost."
+      },
+      {
+        "text": "Enable transactions in the Kafka Producer (transactional.id)",
+        "correct": false,
+        "explanation": "Kafka transactions ensure atomicity of publishing to multiple topics within Kafka, but do not solve the atomicity problem between Kafka and an external database."
+      },
+      {
+        "text": "Implement the Transactional Outbox pattern: save the event to an outbox table in the same transaction, and a Relay process publishes them to Kafka",
+        "correct": true,
+        "explanation": "Outbox is the correct solution. The event is saved atomically with the order. Even if Kafka is down for a week, the Relay will publish all accumulated events when it recovers. At-least-once guarantee."
+      }
+    ]
+  },
+  {
+    "question": "In which case is it better to use CDC-based Outbox (via WAL) instead of polling-based Outbox?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "When you need to capture changes in tables that are updated directly via SQL without application code",
+        "correct": true,
+        "explanation": "If data is modified directly via SQL (migrations, administrative scripts, other services), polling through an explicit outbox table will not help. CDC via WAL captures all changes regardless of source."
+      },
+      {
+        "text": "When the team has no experience with Kafka Connect and Debezium",
+        "correct": false,
+        "explanation": "A polling relay is significantly simpler to implement and operate. CDC via WAL requires setting up logical replication, Kafka Connect, and managing replication slots — this is more complex."
+      },
+      {
+        "text": "When minimal latency between DB write and Kafka publication is required (near real-time)",
+        "correct": true,
+        "explanation": "A polling relay adds latency equal to the polling interval (usually seconds). CDC via WAL reacts to changes almost instantly — latency is measured in milliseconds."
+      },
+      {
+        "text": "When the write load is very high and polling creates excessive SELECT queries to the database",
+        "correct": true,
+        "explanation": "At high throughput, a polling relay constantly queries the outbox. CDC via WAL reads an already-written log without additional load on the main tables."
+      }
+    ]
+  },
+  {
+    "question": "What happens to the Debezium replication slot in PostgreSQL when Debezium is unavailable for a long time?",
+    "type": "single",
+    "options": [
+      {
+        "text": "PostgreSQL automatically removes the slot after 24 hours",
+        "correct": false,
+        "explanation": "PostgreSQL does not automatically remove inactive replication slots (by default). This is exactly the source of the problem."
+      },
+      {
+        "text": "PostgreSQL automatically switches to polling mode when Debezium is unavailable",
+        "correct": false,
+        "explanation": "PostgreSQL does not know about Debezium. The replication slot simply remains inactive, retaining WAL."
+      },
+      {
+        "text": "PostgreSQL cannot clean up WAL segments held by the slot, leading to unbounded WAL growth on disk",
+        "correct": true,
+        "explanation": "An inactive replication slot prevents WAL deletion. If Debezium is down for a long time, WAL grows and can fill the disk, taking PostgreSQL down. It is necessary to monitor pg_replication_slots and set max_slot_wal_keep_size."
+      },
+      {
+        "text": "On restart, Debezium automatically starts from the current position, skipping missed changes",
+        "correct": false,
+        "explanation": "Debezium continues from the position saved in the offset store. Changes are not skipped — this is why the slot retains WAL. The problem is the accumulated WAL size, not missed events."
+      }
+    ]
+  },
+  {
+    "question": "How does the structure of a CDC event for UPDATE in Debezium differ from a CDC event for INSERT?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CDC events do not distinguish between INSERT and UPDATE — both have the same structure",
+        "correct": false,
+        "explanation": "Debezium uses op='c' (create/insert), op='u' (update), op='d' (delete), op='r' (read/snapshot). Operations are strictly distinguished."
+      },
+      {
+        "text": "INSERT has before = null, UPDATE has both before and after fields containing data",
+        "correct": true,
+        "explanation": "This is the key difference: INSERT — the row was just created, there is no previous state (before = null, after = new row). UPDATE — there was an existing row (before = old data, after = new data)."
+      },
+      {
+        "text": "INSERT and UPDATE have the same structure, differing only in the op field",
+        "correct": false,
+        "explanation": "The structure differs: for INSERT before = null, for UPDATE before contains previous data. This is important for downstream consumers who need to know exactly what changed."
+      },
+      {
+        "text": "UPDATE has after = null because the row is overwritten",
+        "correct": false,
+        "explanation": "after = null only for DELETE events. For UPDATE, the after field contains the actual data after the change."
+      }
+    ]
+  },
+  {
+    "question": "What is an idempotent Kafka producer and when is it insufficient?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The idempotent producer automatically deduplicates messages based on content",
+        "correct": false,
+        "explanation": "Deduplication is based on a sequence number (monotonic counter) and producer ID — not on message content. Two different messages with the same content will both be delivered."
+      },
+      {
+        "text": "For exactly-once semantics end-to-end, additional idempotency on the consumer side is needed",
+        "correct": true,
+        "explanation": "Even with an idempotent producer, the consumer may receive a message multiple times during rebalancing or reprocessing. Full exactly-once requires coordination between producer, Kafka, and consumer."
+      },
+      {
+        "text": "The idempotent producer eliminates duplicates arising from producer retries (network errors, broker failures)",
+        "correct": true,
+        "explanation": "enable.idempotence=true adds a sequence number to each message. The broker discards duplicates caused by resends due to network errors."
+      },
+      {
+        "text": "The idempotent producer helps when the same business event is processed by multiple Relay instances simultaneously",
+        "correct": false,
+        "explanation": "The idempotent producer works within a single producer session. If two different Relay instances publish the same event, these are different producer sessions — the duplicate will not be detected."
+      }
+    ]
+  },
+  {
+    "question": "What outbox table schema is recommended for Transactional Outbox?",
+    "type": "single",
+    "options": [
+      {
+        "text": "message_id (INT AUTO_INCREMENT), topic, body (TEXT), published (BOOLEAN)",
+        "correct": false,
+        "explanation": "Functionally works, but not the best option: INT instead of UUID can cause issues in a distributed environment, and there are no fields for routing and partition key."
+      },
+      {
+        "text": "row_id (INT), data (BLOB), timestamp (BIGINT)",
+        "correct": false,
+        "explanation": "Too minimal a schema. No metadata for event routing, event type identification, or publication status tracking."
+      },
+      {
+        "text": "id (UUID), aggregate_type, aggregate_id, event_type, payload (JSON), created_at, status",
+        "correct": true,
+        "explanation": "This is the standard outbox table schema. aggregate_type determines the Kafka topic, aggregate_id is used as the partition key, payload contains event data, and status tracks publication."
+      },
+      {
+        "text": "event_id (UUID), kafka_topic, kafka_partition, kafka_offset, payload (JSON)",
+        "correct": false,
+        "explanation": "The outbox should not know kafka_partition and kafka_offset in advance — Kafka determines these at publication. Storing these values in the outbox means unnecessary coupling to broker internals."
+      }
+    ]
+  },
+  {
+    "question": "You want to synchronize data from PostgreSQL to Elasticsearch and Redis on every order change. Which approach is the most scalable?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add three calls in the service: update PostgreSQL, update Elasticsearch, update Redis",
+        "correct": false,
+        "explanation": "This is direct Dual Write (in this case, Triple Write). Three independent operations without atomicity — data will desynchronize on any failure. Scales poorly when adding new consumers."
+      },
+      {
+        "text": "Set up PostgreSQL streaming replication to Elasticsearch directly",
+        "correct": false,
+        "explanation": "PostgreSQL physical replication only works between PostgreSQL instances. Elasticsearch is not a PostgreSQL replica."
+      },
+      {
+        "text": "Use PostgreSQL NOTIFY/LISTEN to notify the service of changes",
+        "correct": false,
+        "explanation": "NOTIFY/LISTEN works for simple cases but does not scale: notifications are lost on subscriber restart, there is no buffering, no replay. This is not a replacement for CDC in production."
+      },
+      {
+        "text": "Set up CDC via Debezium: read PostgreSQL WAL, publish events to Kafka, separate Kafka Connect sinks write to Elasticsearch and Redis",
+        "correct": true,
+        "explanation": "CDC + Kafka is a scalable data bus. The service only writes to PostgreSQL. Debezium captures changes. Kafka Elasticsearch Sink Connector and Redis Sink Connector independently synchronize data. Adding a new consumer requires no changes to the service."
+      }
+    ]
+  }
+]

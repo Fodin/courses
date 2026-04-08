@@ -3,6 +3,7 @@ import { useLanguage } from 'src/hooks'
 
 // ============================================================
 // Задание 17.3: Выбор архитектуры — кейс
+// Task 17.3: Architecture Decision — Case Study
 // ============================================================
 //
 // Goal: build an interactive architecture decision trainer.
@@ -10,29 +11,29 @@ import { useLanguage } from 'src/hooks'
 // then the component evaluates the answer on a 10-point scale and
 // provides detailed feedback.
 
-// TODO: Define the Scenario interface.
+// TODO: Define the Scenario interface. / Определите интерфейс Scenario.
 // Fields: id: string, title: string, description: string,
 //         requirements: string[], constraints: string[], scale: string
 // interface Scenario { ... }
 
-// TODO: Define the ArchOption interface.
+// TODO: Define the ArchOption interface. / Определите интерфейс ArchOption.
 // Fields: id: string, label: string, icon: string, description: string
 // interface ArchOption { ... }
 
-// TODO: Define the Pattern interface.
+// TODO: Define the Pattern interface. / Определите интерфейс Pattern.
 // Fields: id: string, label: string, icon: string, description: string
 // interface Pattern { ... }
 
-// TODO: Define the ScenarioAnswer interface.
+// TODO: Define the ScenarioAnswer interface. / Определите интерфейс ScenarioAnswer.
 // Fields: broker: string, patterns: string[]
 // interface ScenarioAnswer { ... }
 
-// TODO: Define the EvaluationResult interface.
+// TODO: Define the EvaluationResult interface. / Определите интерфейс EvaluationResult.
 // Fields: score: number, maxScore: number, feedback: string[],
 //         verdict: 'excellent' | 'good' | 'partial' | 'poor'
 // interface EvaluationResult { ... }
 
-// TODO: Declare SCENARIOS: Scenario[] — 3 scenarios:
+// TODO: Declare SCENARIOS: Scenario[] — 3 scenarios: / Объявите SCENARIOS: Scenario[] — 3 сценария:
 // 1. id: 'ecommerce', title: 'E-commerce платформа'
 //    description: 'Маркетплейс с 500 продавцами, 100k пользователей в день. Заказы, оплата, склад, уведомления.'
 //    requirements: guaranteed command delivery, historical event log, multiple independent consumers, priority routing
@@ -50,23 +51,23 @@ import { useLanguage } from 'src/hooks'
 //    scale: '30k transfers/day, p99 latency < 3s'
 // const SCENARIOS: Scenario[] = [...]
 
-// TODO: Declare ARCH_OPTIONS: ArchOption[] — 4 options:
+// TODO: Declare ARCH_OPTIONS: ArchOption[] — 4 options: / Объявите ARCH_OPTIONS: ArchOption[] — 4 варианта:
 // { id: 'kafka-only',    label: 'Только Kafka',                icon: 'K', description: 'Apache Kafka как единственный брокер' }
 // { id: 'rabbitmq-only', label: 'Только RabbitMQ',             icon: 'R', description: 'RabbitMQ как единственный брокер' }
 // { id: 'hybrid',        label: 'Гибрид (RabbitMQ + Kafka)',   icon: 'H', description: 'RabbitMQ для команд, Kafka для событий' }
 // { id: 'pulsar',        label: 'Apache Pulsar',               icon: 'P', description: 'Унифицированный брокер с поддержкой обеих моделей' }
 // const ARCH_OPTIONS: ArchOption[] = [...]
 
-// TODO: Declare PATTERNS: Pattern[] — 8 patterns:
+// TODO: Declare PATTERNS: Pattern[] — 8 patterns: / Объявите PATTERNS: Pattern[] — 8 паттернов:
 // saga, cqrs, outbox (Transactional Outbox), dlq, event-source (Event Sourcing),
 // priority (Priority Queue), competing (Competing Consumers), fanout (Fan-out / Pub-Sub)
 // const PATTERNS: Pattern[] = [...]
 
-// TODO: Define the ScoringRule interface.
+// TODO: Define the ScoringRule interface. / Определите интерфейс ScoringRule.
 // Fields: broker: string[], patterns: string[], reason: string
 // interface ScoringRule { ... }
 
-// TODO: Declare SCORING: Record<string, ScoringRule> — scoring rules per scenario:
+// TODO: Declare SCORING: Record<string, ScoringRule> — scoring rules per scenario: / Объявите SCORING: Record<string, ScoringRule> — правила оценки для каждого сценария:
 // ecommerce: broker: ['hybrid', 'kafka-only'], patterns: ['saga', 'outbox', 'dlq', 'fanout', 'priority']
 //   reason: 'E-commerce: гибрид оптимален — RabbitMQ для routing команд по приоритету, Kafka для аудит-лога событий...'
 // iot: broker: ['kafka-only', 'pulsar'], patterns: ['competing', 'fanout', 'event-source']
@@ -75,77 +76,79 @@ import { useLanguage } from 'src/hooks'
 //   reason: 'Fintech: RabbitMQ (или гибрид) с Saga — exactly-once через publisher confirms + ack...'
 // const SCORING: Record<string, ScoringRule> = { ... }
 
-// TODO: Declare VERDICT_CONFIG with label, color, bg, border for each verdict:
+// TODO: Declare VERDICT_CONFIG with label, color, bg, border for each verdict: / Объявите VERDICT_CONFIG с label, color, bg, border для каждого вердикта:
 // excellent → { label: 'Отлично!', color: '#38a169', bg: '#f0fff4', border: '#68d391' }
 // good      → { label: 'Хорошо!', color: '#3182ce', bg: '#ebf8ff', border: '#90cdf4' }
 // partial   → { label: 'Частично верно', color: '#d69e2e', bg: '#fffbeb', border: '#f6e05e' }
 // poor      → { label: 'Нужно пересмотреть', color: '#e53e3e', bg: '#fff5f5', border: '#fc8181' }
 // const VERDICT_CONFIG = { ... }
 
-// TODO: Implement evaluateAnswer(scenarioId: string, answer: ScenarioAnswer): EvaluationResult
+// TODO: Implement evaluateAnswer(scenarioId: string, answer: ScenarioAnswer): EvaluationResult / Реализуйте evaluateAnswer
 // maxScore = 10
-// Broker scoring (4 points):
+// Broker scoring (4 points): / Оценка брокера (4 балла):
 //   - if SCORING[scenarioId].broker.includes(answer.broker) → +4 points,
 //     push feedback: `Выбор брокера правильный (${label})`
 //   - else push feedback: `Брокер не оптимален. Лучше: ${correct options joined}`
-// Pattern scoring (up to 6 points):
+// Pattern scoring (up to 6 points): / Оценка паттернов (до 6 баллов):
 //   - matchedPatterns = answer.patterns that are in scoring.patterns
 //   - wrongPatterns  = answer.patterns not in scoring.patterns
 //   - missedPatterns = scoring.patterns not in answer.patterns
 //   - score += Math.min(6, matchedPatterns.length * 2)
 //   - push feedback for matched / wrong / missed patterns (if any)
-// Always push: `Обоснование: ${scoring.reason}`
+// Always push: `Обоснование: ${scoring.reason}` / Всегда добавляйте: `Обоснование: ${scoring.reason}`
 // verdict: score >= 9 → 'excellent', >= 7 → 'good', >= 4 → 'partial', else 'poor'
 // function evaluateAnswer(scenarioId: string, answer: ScenarioAnswer): EvaluationResult { ... }
 
 export function Task17_3() {
   const { t } = useLanguage()
 
-  // TODO: Declare state:
-  // scenarioIdx: number — current scenario index (initial: 0)
-  // selectedBroker: string — chosen broker id (initial: '')
-  // selectedPatterns: string[] — chosen pattern ids (initial: [])
+  // TODO: Declare state: / Объявите состояние:
+  // scenarioIdx: number — current scenario index (initial: 0) / индекс текущего сценария
+  // selectedBroker: string — chosen broker id (initial: '') / выбранный id брокера
+  // selectedPatterns: string[] — chosen pattern ids (initial: []) / выбранные id паттернов
   // result: EvaluationResult | null (initial: null)
   const [scenarioIdx, setScenarioIdx] = useState(0)
   const [selectedBroker, setSelectedBroker] = useState('')
   const [selectedPatterns, setSelectedPatterns] = useState<string[]>([])
   const [result, setResult] = useState<any>(null)
 
-  // TODO: Derive scenario = SCENARIOS[scenarioIdx]
+  // TODO: Derive scenario = SCENARIOS[scenarioIdx] / Получите scenario = SCENARIOS[scenarioIdx]
 
-  // TODO: Implement handleScenarioChange(idx: number):
+  // TODO: Implement handleScenarioChange(idx: number): / Реализуйте handleScenarioChange
   // setScenarioIdx(idx), reset selectedBroker, selectedPatterns, result.
+  // установите scenarioIdx, сбросьте selectedBroker, selectedPatterns, result.
   const handleScenarioChange = (idx: number) => {
     // TODO: implement
   }
 
-  // TODO: Implement togglePattern(id: string):
-  // If id is already in selectedPatterns → remove it, else add it.
-  // Reset result to null.
+  // TODO: Implement togglePattern(id: string): / Реализуйте togglePattern
+  // If id is already in selectedPatterns → remove it, else add it. / Если id уже в selectedPatterns → удалить, иначе добавить.
+  // Reset result to null. / Сбросьте result в null.
   const togglePattern = (id: string) => {
     // TODO: implement
   }
 
-  // TODO: Implement handleBrokerChange(id: string):
-  // Set selectedBroker to id, reset result to null.
+  // TODO: Implement handleBrokerChange(id: string): / Реализуйте handleBrokerChange
+  // Set selectedBroker to id, reset result to null. / Установите selectedBroker в id, сбросьте result в null.
   const handleBrokerChange = (id: string) => {
     // TODO: implement
   }
 
-  // TODO: Implement handleEvaluate:
+  // TODO: Implement handleEvaluate: / Реализуйте handleEvaluate:
   // Guard: if !selectedBroker || selectedPatterns.length === 0, return.
-  // Otherwise call evaluateAnswer and set result.
+  // Защита: если !selectedBroker || selectedPatterns.length === 0, вернуть.
+  // Otherwise call evaluateAnswer and set result. / Иначе вызовите evaluateAnswer и установите result.
   const handleEvaluate = () => {
     // TODO: implement
   }
 
-  // TODO: Implement handleReset:
-  // Clear selectedBroker, selectedPatterns, result.
+  // TODO: Implement handleReset: / Реализуйте handleReset:
+  // Clear selectedBroker, selectedPatterns, result. / Очистите selectedBroker, selectedPatterns, result.
   const handleReset = () => {
     // TODO: implement
   }
 
-  // TODO: Derive verdictCfg = result ? VERDICT_CONFIG[result.verdict] : null
+  // TODO: Derive verdictCfg = result ? VERDICT_CONFIG[result.verdict] : null / Получите verdictCfg
 
   return (
     <div className="exercise-container">
@@ -155,16 +158,16 @@ export function Task17_3() {
         Компонент оценит твой выбор и объяснит правильный ответ.
       </p>
 
-      {/* TODO: Scenario tabs — three buttons, one per SCENARIO.
-          Active tab: blue background, white text.
-          Clicking a tab calls handleScenarioChange(idx). */}
+      {/* TODO: Scenario tabs — three buttons, one per SCENARIO. / Вкладки сценариев — три кнопки, по одной на SCENARIO.
+          Active tab: blue background, white text. / Активная вкладка: синий фон, белый текст.
+          Clicking a tab calls handleScenarioChange(idx). / Клик по вкладке вызывает handleScenarioChange(idx). */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
         {/* TODO: render scenario tabs */}
       </div>
 
-      {/* TODO: Scenario card — show scenario.title, scenario.description,
-          two columns (Requirements / Constraints), and a scale badge.
-          Requirements in blue header, Constraints in red header. */}
+      {/* TODO: Scenario card — show scenario.title, scenario.description, / Карточка сценария — покажите scenario.title, scenario.description,
+          two columns (Requirements / Constraints), and a scale badge. / две колонки (Requirements / Constraints) и бейдж масштаба.
+          Requirements in blue header, Constraints in red header. / Requirements с синим заголовком, Constraints с красным. */}
       <div style={{
         padding: '1rem',
         background: '#f8f9fa',
@@ -175,10 +178,10 @@ export function Task17_3() {
         {/* TODO: render scenario details */}
       </div>
 
-      {/* TODO: Broker selection — label "Выбери брокер сообщений:", then 4 option cards.
-          Each card shows icon badge, label, and description.
-          Selected card: blue border + light blue background.
-          Clicking a card calls handleBrokerChange(opt.id). */}
+      {/* TODO: Broker selection — label "Выбери брокер сообщений:", then 4 option cards. / Выбор брокера — метка "Выбери брокер сообщений:", затем 4 карточки.
+          Each card shows icon badge, label, and description. / Каждая карточка показывает иконку, метку и описание.
+          Selected card: blue border + light blue background. / Выбранная карточка: синяя рамка + светло-голубой фон.
+          Clicking a card calls handleBrokerChange(opt.id). / Клик по карточке вызывает handleBrokerChange(opt.id). */}
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.6rem', color: '#2d3748' }}>
           Выбери брокер сообщений:
@@ -188,10 +191,10 @@ export function Task17_3() {
         </div>
       </div>
 
-      {/* TODO: Pattern selection — label "Выбери необходимые паттерны (можно несколько):", then 8 cards.
-          Each card shows checkmark (when selected), label, and description.
-          Selected card: green border + light green background.
-          Clicking toggles via togglePattern(pt.id). */}
+      {/* TODO: Pattern selection — label "Выбери необходимые паттерны (можно несколько):", then 8 cards. / Выбор паттернов — метка "Выбери необходимые паттерны (можно несколько):", затем 8 карточек.
+          Each card shows checkmark (when selected), label, and description. / Каждая карточка показывает галочку (при выборе), метку и описание.
+          Selected card: green border + light green background. / Выбранная карточка: зелёная рамка + светло-зелёный фон.
+          Clicking toggles via togglePattern(pt.id). / Клик переключает через togglePattern(pt.id). */}
       <div style={{ marginBottom: '1.25rem' }}>
         <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.6rem', color: '#2d3748' }}>
           Выбери необходимые паттерны (можно несколько):
@@ -201,18 +204,18 @@ export function Task17_3() {
         </div>
       </div>
 
-      {/* TODO: Action buttons:
-          - "Оценить архитектуру" (blue): calls handleEvaluate,
-            disabled when !selectedBroker || selectedPatterns.length === 0
-          - "Сбросить" (grey): calls handleReset */}
+      {/* TODO: Action buttons: / Кнопки действий:
+          - "Оценить архитектуру" (blue): calls handleEvaluate, / вызывает handleEvaluate,
+            disabled when !selectedBroker || selectedPatterns.length === 0 / неактивна когда !selectedBroker || selectedPatterns.length === 0
+          - "Сбросить" (grey): calls handleReset / вызывает handleReset */}
       <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
         {/* TODO: render buttons */}
       </div>
 
-      {/* TODO: Result block — only render when result is not null.
-          Show score (result.score / result.maxScore), verdict label with
-          styled background from verdictCfg, and each feedback string
-          as a separate paragraph. */}
+      {/* TODO: Result block — only render when result is not null. / Блок результата — рендерить только когда result не null.
+          Show score (result.score / result.maxScore), verdict label with / Покажите оценку, метку вердикта с
+          styled background from verdictCfg, and each feedback string / стилизованным фоном из verdictCfg и каждую строку feedback
+          as a separate paragraph. / как отдельный параграф. */}
       {result && (
         <div style={{
           padding: '1rem',

@@ -1,0 +1,792 @@
+[
+  {
+    "question": "What does the parameter producer acks=0 mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Producer waits for confirmation only from the leader replica",
+        "correct": false,
+        "explanation": "Confirmation only from the leader corresponds to acks=1. This is a compromise between performance and reliability."
+      },
+      {
+        "text": "Producer waits for confirmation from all ISR replicas",
+        "correct": false,
+        "explanation": "Waiting for confirmation from all ISRs corresponds to acks=all (-1). This is the most reliable but slowest mode."
+      },
+      {
+        "text": "Producer does not wait for any confirmation — fire-and-forget",
+        "correct": true,
+        "explanation": "With acks=0, the producer sends the message and immediately considers it delivered. Maximum performance, but no delivery guarantees — the message may be lost on any failure."
+      },
+      {
+        "text": "Producer waits for confirmation from the consumer",
+        "correct": false,
+        "explanation": "A Kafka producer never waits for confirmation from the consumer — the acks parameter only describes the interaction between the producer and brokers."
+      }
+    ]
+  },
+  {
+    "question": "Which combination of parameters ensures the highest write reliability in Kafka?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "linger.ms=0",
+        "correct": false,
+        "explanation": "linger.ms affects batching delay, not write reliability. For reliability, acks and replication settings matter more."
+      },
+      {
+        "text": "min.insync.replicas=2",
+        "correct": true,
+        "explanation": "Together with acks=all, this guarantees that data is written to at least 2 replicas. Without this parameter, acks=all is useless with only a single ISR."
+      },
+      {
+        "text": "acks=all",
+        "correct": true,
+        "explanation": "acks=all requires confirmation from all ISR replicas, which guarantees data survival even if the leader fails."
+      },
+      {
+        "text": "acks=1",
+        "correct": false,
+        "explanation": "acks=1 confirms the write only from the leader. If the leader fails before replication, data is lost. This is not maximum reliability."
+      }
+    ]
+  },
+  {
+    "question": "What does enable.idempotence=true do for a Kafka producer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Enables message compression to save bandwidth",
+        "correct": false,
+        "explanation": "Compression is controlled by compression.type (none, gzip, snappy, lz4, zstd). This is unrelated to idempotence."
+      },
+      {
+        "text": "The producer gets a ProducerID and sequence number — the broker discards duplicates on retries",
+        "correct": true,
+        "explanation": "With enable.idempotence=true, the broker assigns the producer a unique ProducerID. Each message has a sequence number. The broker detects and discards duplicates on resend after network failures."
+      },
+      {
+        "text": "Disables retries to prevent message duplication",
+        "correct": false,
+        "explanation": "An idempotent producer, on the contrary, implies retries are enabled (retries=MAX_INT). Idempotence is what allows resending without duplicating records."
+      },
+      {
+        "text": "Guarantees exactly-once semantics for consumers",
+        "correct": false,
+        "explanation": "An idempotent producer guarantees exactly-once only at the broker write level (within one producer session). For full exactly-once semantics between producer and consumer, transactions are needed."
+      }
+    ]
+  },
+  {
+    "question": "Which partitioning strategy should be used to guarantee ordering of events for a single user?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Random — random distribution for load balancing",
+        "correct": false,
+        "explanation": "Random distribution breaks ordering even worse than round-robin. In Kafka, ordering is guaranteed only within a single partition."
+      },
+      {
+        "text": "Round-robin — even distribution across all partitions",
+        "correct": false,
+        "explanation": "Round-robin distributes messages cyclically, ignoring the key. Events from one user will land in different partitions, breaking processing order."
+      },
+      {
+        "text": "Key-based — hash(userId) % numPartitions",
+        "correct": true,
+        "explanation": "With key-based partitioning, the same key (userId) always produces the same partition via a deterministic hash. Within a partition, Kafka guarantees ordering. This is the standard approach for event sourcing of user events."
+      },
+      {
+        "text": "Custom — arbitrary business logic",
+        "correct": false,
+        "explanation": "A custom partitioner allows implementing any logic, including key-based. But 'custom' by itself is not the answer — you need to guarantee that messages with the same userId go to one partition."
+      }
+    ]
+  },
+  {
+    "question": "What happens to consumer group 'orders' with 2 consumers when a 3rd consumer is added to a topic with 2 partitions?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The 3rd consumer will start reading messages from the beginning of the topic",
+        "correct": false,
+        "explanation": "A consumer in a group receives specific partitions and reads from the committed offset. An unassigned consumer (idle) does not read any messages at all."
+      },
+      {
+        "text": "Each consumer gets one partition, the 3rd consumer will handle both",
+        "correct": false,
+        "explanation": "One partition cannot be assigned to multiple consumers in the same group. This is a fundamental limitation of Kafka's consumption model."
+      },
+      {
+        "text": "Kafka will automatically create a new partition",
+        "correct": false,
+        "explanation": "Kafka does not create partitions automatically when consumers are added. Changing the number of partitions is an administrative operation, which itself triggers rebalancing."
+      },
+      {
+        "text": "Rebalancing starts: 2 consumers get one partition each, the 3rd will be idle",
+        "correct": true,
+        "explanation": "The number of active consumers in a group cannot exceed the number of partitions. After rebalancing, 2 consumers get one partition each, the 3rd ends up without assigned partitions (idle). Adding consumers beyond the number of partitions is useless for scaling."
+      }
+    ]
+  },
+  {
+    "question": "What is __consumer_offsets in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A configuration file with consumer group settings",
+        "correct": false,
+        "explanation": "__consumer_offsets is an internal Kafka topic, not a file. Consumer configuration is stored in ZooKeeper or passed when creating the consumer."
+      },
+      {
+        "text": "A broker log file with the history of all consumed messages",
+        "correct": false,
+        "explanation": "__consumer_offsets stores only committed offsets (numeric position markers), not the messages themselves or their consumption history."
+      },
+      {
+        "text": "An internal Kafka topic for storing committed offsets of all consumer groups",
+        "correct": true,
+        "explanation": "__consumer_offsets is a replicated special topic in which the broker writes the committed offset for each (group.id, topic, partition) pair. On restart, the consumer reads its committed offset from here and continues from that position."
+      },
+      {
+        "text": "A JMX metric for monitoring consumer lag",
+        "correct": false,
+        "explanation": "Consumer lag can be obtained via JMX or kafka-consumer-groups.sh, but __consumer_offsets is specifically a topic for storing data, not a metric."
+      }
+    ]
+  },
+  {
+    "question": "A consumer processed 100 messages but did not call commitSync(). What happens on an emergency restart?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka will automatically save progress via Write-Ahead Log",
+        "correct": false,
+        "explanation": "WAL in Kafka is a mechanism for reliably writing data to the topic itself, not for tracking consumer progress. Consumer progress is stored only in __consumer_offsets through explicit commits."
+      },
+      {
+        "text": "100 messages will be processed again (at-least-once semantics)",
+        "correct": true,
+        "explanation": "Kafka stores the committed offset in __consumer_offsets. Without an explicit commit after processing, on restart the consumer will return to the last committed offset and re-read the 100 messages. This is at-least-once behavior — messages are guaranteed not to be lost, but may be processed twice."
+      },
+      {
+        "text": "Messages will be skipped — the consumer will continue from a new offset",
+        "correct": false,
+        "explanation": "Without a commit, the broker does not know about the consumer's progress. On restart, the consumer returns to the last committed offset and re-reads messages."
+      },
+      {
+        "text": "The consumer will get an error and will not be able to reconnect",
+        "correct": false,
+        "explanation": "The absence of a commit does not prevent reconnection. The consumer will simply start reading from the last committed offset, re-reading messages it considers unprocessed."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between auto commit and manual commit in a Kafka consumer?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Auto commit (enable.auto.commit=true) periodically commits offsets on a timer (auto.commit.interval.ms)",
+        "correct": true,
+        "explanation": "By default auto.commit.interval.ms=5000. This means every 5 seconds the consumer commits the current offset regardless of processing status."
+      },
+      {
+        "text": "Manual commit (commitSync/commitAsync) guarantees exactly-once",
+        "correct": false,
+        "explanation": "Manual commit alone does not provide exactly-once. It allows controlling the commit moment to achieve at-least-once. For exactly-once, Kafka transactions or idempotent processing are needed."
+      },
+      {
+        "text": "Manual commit allows committing the offset only after successful message processing",
+        "correct": true,
+        "explanation": "This is the advantage of manual commit: you control the commit moment — only after the message has been successfully processed and the result saved."
+      },
+      {
+        "text": "It depends entirely on the programming language",
+        "correct": false,
+        "explanation": "This is an architectural decision, not dependent on the programming language."
+      },
+      {
+        "text": "Auto commit can lead to lost messages on a crash (at-most-once) if commit happened before processing",
+        "correct": true,
+        "explanation": "If an auto commit occurs before processing completes and the consumer crashes, messages will be marked as processed although they were not actually handled. This is at-most-once behavior."
+      }
+    ]
+  },
+  {
+    "question": "What is Consumer Lag?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The difference between Committed Offset and Current Offset",
+        "correct": false,
+        "explanation": "This is called the 'gap' — the number of processed but not yet committed messages. On crash, they will be re-read. Consumer lag is the distance from the end of the log, not from the committed offset."
+      },
+      {
+        "text": "The difference between Log-End Offset and Current Offset — the number of unprocessed messages",
+        "correct": true,
+        "explanation": "Consumer Lag = Log-End Offset − Current Offset. It shows how far behind the consumer is from the producer. A growing lag is a sign that the consumer cannot keep up with the incoming stream or is stuck. Monitoring lag is standard practice in production."
+      },
+      {
+        "text": "The time between sending and receiving a message",
+        "correct": false,
+        "explanation": "This is network latency, not consumer lag. Lag is measured in number of messages, not in time units."
+      },
+      {
+        "text": "The number of retry attempts on processing error",
+        "correct": false,
+        "explanation": "Retries are a delivery reliability mechanism, not directly related to consumer lag. Lag is the gap between the read position and the end of the log."
+      }
+    ]
+  },
+  {
+    "question": "You are implementing a custom partitioner for a payment events topic: transactions over $10,000 should always go to partition 0 for priority processing. What risks does this create?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A custom partitioner cannot be used together with key-based partitioning",
+        "correct": false,
+        "explanation": "A custom partitioner can combine any logic, including considering the message key. This is not a technical limitation of Kafka."
+      },
+      {
+        "text": "The order of processing large transactions will be broken",
+        "correct": false,
+        "explanation": "Within partition 0, ordering is guaranteed. All large transactions landing in this partition will be processed in order of arrival."
+      },
+      {
+        "text": "Partition 0 may become a hot partition with a high volume of large transactions",
+        "correct": true,
+        "explanation": "If most transactions are > $10,000 (e.g., B2B payments), partition 0 will receive a disproportionate load. The consumer of this partition becomes a system bottleneck."
+      },
+      {
+        "text": "The consumer of partition 0 must be more powerful than the others",
+        "correct": true,
+        "explanation": "Uneven distribution requires resource planning. The consumer handling partition 0 may need more CPU/memory or a special priority queue."
+      }
+    ]
+  },
+  {
+    "question": "What happens during Eager Rebalancing in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The new consumer receives partitions only after the current batch finishes processing",
+        "correct": false,
+        "explanation": "With Eager Rebalancing, all consumers stop immediately, without waiting for the current batch to finish. This is exactly what 'stop-the-world' means."
+      },
+      {
+        "text": "All consumers in the group stop, all partitions are revoked and reassigned from scratch",
+        "correct": true,
+        "explanation": "Eager Rebalancing is a 'stop-the-world' approach: all consumers cease consumption, the Group Coordinator revokes all partitions, the Group Leader computes a new distribution, then all consumers receive new assignments. This creates a pause of 500ms-2s depending on the number of consumers and cluster complexity."
+      },
+      {
+        "text": "The consumer that left the group passes its partitions to a neighboring consumer without stopping",
+        "correct": false,
+        "explanation": "This behavior is characteristic of Cooperative Sticky, where only affected partitions change ownership. Eager always performs a full review of all assignments."
+      },
+      {
+        "text": "Only the new consumer's partitions are reassigned, others continue working",
+        "correct": false,
+        "explanation": "This describes Cooperative Sticky rebalancing. Eager is the opposite approach: full stop of all consumers and reassignment of all partitions."
+      }
+    ]
+  },
+  {
+    "question": "What is the key advantage of CooperativeStickyAssignor over EagerAssignor?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Only necessary partitions are moved during rebalancing",
+        "correct": true,
+        "explanation": "CooperativeStickyAssignor does incremental rebalancing: if consumer-2 joins and needs 2 partitions, only these 2 partitions are temporarily stopped. The other 4 consumers continue working uninterrupted."
+      },
+      {
+        "text": "The Sticky component preserves current partition assignments during rebalancing",
+        "correct": true,
+        "explanation": "'Sticky' means the consumer tries to keep its existing partitions. This minimizes data movement and preserves consumer warm caches."
+      },
+      {
+        "text": "No stop-the-world pause for consumers whose partitions are not moved",
+        "correct": true,
+        "explanation": "Unlike Eager, Cooperative does not interrupt consumers that keep their partitions. This is critical for systems with strict latency requirements."
+      },
+      {
+        "text": "CooperativeStickyAssignor completes rebalancing faster than EagerAssignor",
+        "correct": false,
+        "explanation": "CooperativeStickyAssignor performs two round-trips to the Group Coordinator instead of one for Eager. In terms of completion time, it may be slower, but it does not stop the entire group."
+      }
+    ]
+  },
+  {
+    "question": "Starting from which Kafka version is CooperativeStickyAssignor available?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka 2.4",
+        "correct": true,
+        "explanation": "KIP-429 (Kafka Incremental Cooperative Rebalancing) was implemented in Kafka 2.4.0. CooperativeStickyAssignor became available and recommended for production starting from this version."
+      },
+      {
+        "text": "Kafka 3.0",
+        "correct": false,
+        "explanation": "In Kafka 3.0, Cooperative rebalancing was already a mature feature, but it appeared in 2.4. Starting from 3.0, CooperativeStickyAssignor became the default assignor."
+      },
+      {
+        "text": "Kafka 2.0",
+        "correct": false,
+        "explanation": "In Kafka 2.0, CooperativeStickyAssignor did not yet exist. Use Kafka 2.4+ to use this strategy."
+      },
+      {
+        "text": "Kafka 1.0",
+        "correct": false,
+        "explanation": "In Kafka 1.x, only EagerAssignor (RangeAssignor, RoundRobinAssignor) existed. Cooperative rebalancing appeared significantly later."
+      }
+    ]
+  },
+  {
+    "question": "What happens if message processing takes 7 minutes and max.poll.interval.ms=300000 (5 minutes)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The consumer will receive a warning in logs but continue working",
+        "correct": false,
+        "explanation": "max.poll.interval.ms is a hard timeout, not a soft warning. Exceeding this limit results in forced removal of the consumer from the group."
+      },
+      {
+        "text": "The consumer will be considered dead, rebalancing will start, partitions will transfer to another consumer",
+        "correct": true,
+        "explanation": "If the consumer does not call poll() within max.poll.interval.ms, the Group Coordinator considers it dead. Rebalancing is triggered: this consumer's partitions are transferred to others. This is a frequent cause of 'unexpected' rebalancing in systems with heavy processing. Solution: increase max.poll.interval.ms or decrease batch size."
+      },
+      {
+        "text": "The message will be automatically rolled back via a transaction",
+        "correct": false,
+        "explanation": "max.poll.interval.ms is not related to transactions. This is a timeout between poll() calls, not a transaction execution time."
+      },
+      {
+        "text": "Kafka will block further message delivery to this consumer",
+        "correct": false,
+        "explanation": "Kafka does not block the consumer — it considers it dead and removes it from the group. This triggers rebalancing, redistributing partitions."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between session.timeout.ms and max.poll.interval.ms?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "max.poll.interval.ms — maximum time between poll() calls, including batch processing time",
+        "correct": true,
+        "explanation": "Unlike heartbeat (which is sent in the background), poll() is called in the main processing thread. Exceeding max.poll.interval.ms means the application is 'stuck' in processing and not requesting new messages."
+      },
+      {
+        "text": "session.timeout.ms should be greater than max.poll.interval.ms",
+        "correct": false,
+        "explanation": "The opposite: session.timeout.ms should be less than max.poll.interval.ms. The heartbeat mechanism should react faster than the batch processing timeout."
+      },
+      {
+        "text": "Both parameters can independently trigger rebalancing when exceeded",
+        "correct": true,
+        "explanation": "Each of these parameters is an independent mechanism for detecting a 'dead' consumer. session.timeout.ms detects network failures and process crashes. max.poll.interval.ms detects processing hangs."
+      },
+      {
+        "text": "session.timeout.ms — heartbeat timeout: if the consumer does not send a heartbeat, it is considered dead",
+        "correct": true,
+        "explanation": "The consumer sends heartbeats in a background thread. If no heartbeat is received within session.timeout.ms (default 45 seconds), the Group Coordinator removes the consumer from the group."
+      }
+    ]
+  },
+  {
+    "question": "You have 6 partitions and 4 consumers in a group. How will the round-robin assignor distribute partitions?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Consumer-1: [0,1], Consumer-2: [2,3], Consumer-3: [4], Consumer-4: [5]",
+        "correct": false,
+        "explanation": "This distribution is possible with RangeAssignor, which assigns contiguous partitions. RoundRobinAssignor interleaves partitions for evenness."
+      },
+      {
+        "text": "All 4 consumers get 1.5 partitions each — Kafka splits partitions",
+        "correct": false,
+        "explanation": "Partitions are indivisible. Kafka always assigns whole partitions. With 6 partitions and 4 consumers, 2 consumers get 2 partitions each, 2 get one each."
+      },
+      {
+        "text": "Consumer-1: [0,4], Consumer-2: [1,5], Consumer-3: [2], Consumer-4: [3]",
+        "correct": true,
+        "explanation": "RoundRobinAssignor interleaves: P0→C1, P1→C2, P2→C3, P3→C4, P4→C1, P5→C2. Result: C1=[0,4], C2=[1,5], C3=[2], C4=[3]. This is the most even distribution with 6 partitions and 4 consumers (2+2+1+1)."
+      },
+      {
+        "text": "Consumer-1: [0,1,2], Consumer-2: [3,4,5], Consumer-3: [], Consumer-4: []",
+        "correct": false,
+        "explanation": "This distribution (3+3+0+0) is uneven. RoundRobinAssignor interleaves assignments, not grouping them consecutively."
+      }
+    ]
+  },
+  {
+    "question": "How does hash(key) % numPartitions affect messages with the same key?",
+    "type": "single",
+    "options": [
+      {
+        "text": "They are duplicated to all partitions for reliability",
+        "correct": false,
+        "explanation": "Kafka does not duplicate messages across partitions — replication happens between brokers, not partitions. Each message lands in exactly one partition."
+      },
+      {
+        "text": "They always land in the same partition, ensuring processing order",
+        "correct": true,
+        "explanation": "The determinism of the hash function guarantees: same key → same hash → same partition. This allows guaranteeing the order of events for a single entity (user, order, device) provided the number of partitions does not change."
+      },
+      {
+        "text": "They land in the partition with the least load",
+        "correct": false,
+        "explanation": "Key-based partitioning does not account for current partition load. If keys are unevenly distributed, hot partitions will occur — this is a known limitation of the approach."
+      },
+      {
+        "text": "They can land in any partition — the hash is non-deterministic",
+        "correct": false,
+        "explanation": "The hash function is deterministic: for the same input, the result is always the same. This is exactly what makes key-based partitioning useful."
+      }
+    ]
+  },
+  {
+    "question": "What does 'sticky' mean in CooperativeStickyAssignor?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A consumer cannot be forcibly removed from the group",
+        "correct": false,
+        "explanation": "Any consumer can be excluded from the group if session.timeout.ms or max.poll.interval.ms is exceeded. The sticky assignor does not affect failure detection mechanisms."
+      },
+      {
+        "text": "A consumer 'sticks' to one broker and does not change its connection",
+        "correct": false,
+        "explanation": "Sticky does not describe network connections. It is a characteristic of partition assignment, not network topology."
+      },
+      {
+        "text": "The assignor tries to preserve current partition assignments during rebalancing",
+        "correct": true,
+        "explanation": "'Sticky' means 'adhesive' in the context of partition assignments: when rebalancing is necessary, the assignor tries to keep existing assignments unchanged and move only those partitions that truly need reassignment. This reduces data movement and preserves the efficiency of consumer caches."
+      },
+      {
+        "text": "Messages with the same key are always processed by one consumer",
+        "correct": false,
+        "explanation": "This is a property of key-based partitioning, not the sticky assignor. CooperativeStickyAssignor describes behavior during rebalancing, not message routing."
+      }
+    ]
+  },
+  {
+    "question": "You notice a constantly growing consumer lag in the 'user-events' topic. Which causes are most likely?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Too frequent rebalancing stops consumption",
+        "correct": true,
+        "explanation": "With each rebalancing, all consumers (Eager) or some consumers (Cooperative) temporarily stop reading. Frequent rebalancing (due to unstable consumers or misconfigured timeouts) creates pauses during which lag accumulates."
+      },
+      {
+        "text": "Too many partitions in the topic",
+        "correct": false,
+        "explanation": "A large number of partitions by itself does not cause lag growth. On the contrary, more partitions allow adding consumers for parallel processing."
+      },
+      {
+        "text": "The consumer is stuck in long processing of a single message (blocking operation)",
+        "correct": true,
+        "explanation": "A synchronous call to an external system, deadlock, or infinite retry in the handler will block the consumer. It will not call poll(), accumulate lag, and eventually be excluded from the group by max.poll.interval.ms."
+      },
+      {
+        "text": "The consumer processes messages slower than the producer publishes them",
+        "correct": true,
+        "explanation": "This is the primary cause of lag growth. If the producer generates 10000 msg/s and the consumer processes 8000 msg/s, lag will grow by 2000 messages every second."
+      }
+    ]
+  },
+  {
+    "question": "What is the correct sequence of steps during Eager Rebalancing when a new consumer connects?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All partition-leaders pause → new consumer gets assigned → leaders resume",
+        "correct": false,
+        "explanation": "Partition leader is the broker holding the primary copy of the partition. Rebalancing affects consumers, not partition leaders on brokers. These concepts should not be confused."
+      },
+      {
+        "text": "New consumer connects → all stop → all partitions revoked → new distribution computed → all get new assignments → all resume",
+        "correct": true,
+        "explanation": "This is the exact sequence of Eager Rebalancing: (1) join, (2) stop-the-world, (3) revoke all, (4) Group Leader computes assignments, (5) assign all, (6) resume. Each step takes time, creating the 500ms-2s pause."
+      },
+      {
+        "text": "Group Coordinator excludes the consumer with the fewest partitions → redistributes them → adds the new one",
+        "correct": false,
+        "explanation": "The Group Coordinator does not exclude consumers when a new one joins. It orchestrates a full review of all assignments, not picking a 'victim'."
+      },
+      {
+        "text": "New consumer connects → gets free partitions → others continue working",
+        "correct": false,
+        "explanation": "This describes an ideal scenario, but not Eager Rebalancing. With Eager, there is no concept of 'free partitions' — all partitions are revoked and reassigned from scratch."
+      }
+    ]
+  },
+  {
+    "question": "You want to implement exactly-once processing with Kafka. Which of the following is necessary?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Kafka transactions (transactional.id) for atomic writes to multiple topics",
+        "correct": true,
+        "explanation": "For exactly-once in a processing pipeline (read-process-write), transactions are needed: atomic read, processing, and write of the result with offset commit within a single transaction."
+      },
+      {
+        "text": "enable.idempotence=true on the producer",
+        "correct": true,
+        "explanation": "An idempotent producer is the first step: it guarantees that a resend on failure will not create a duplicate in the broker. This is exactly-once at the topic write level."
+      },
+      {
+        "text": "This is only possible in cloud solutions",
+        "correct": false,
+        "explanation": "This works both in the cloud and on-premise."
+      },
+      {
+        "text": "acks=1 is sufficient for exactly-once guarantee",
+        "correct": false,
+        "explanation": "acks=1 does not guarantee exactly-once. If the leader fails before replication, the message may be lost. For exactly-once, acks=all + idempotence + transactions are needed."
+      },
+      {
+        "text": "enable.auto.commit=false for manual offset management",
+        "correct": true,
+        "explanation": "With exactly-once, you cannot trust automatic commit. The offset commit must happen atomically together with writing the processing result within a transaction."
+      }
+    ]
+  },
+  {
+    "question": "What partitionCount is best for an 'orders' topic with expected load of 10000 msg/s and 5 consumers?",
+    "type": "single",
+    "options": [
+      {
+        "text": "1 — less management overhead",
+        "correct": false,
+        "explanation": "One partition means only one consumer (the other 4 will be idle). Parallelism is impossible, the topic becomes a bottleneck at 10000 msg/s."
+      },
+      {
+        "text": "3 — standard minimum for fault tolerance",
+        "correct": false,
+        "explanation": "3 is the recommended replication factor, not the number of partitions. With 3 partitions and 5 consumers — 2 consumers will be idle, parallelism is incomplete."
+      },
+      {
+        "text": "5 — one partition per consumer",
+        "correct": true,
+        "explanation": "5 partitions with 5 consumers — optimal balance: each consumer gets exactly one partition, parallelism is maximal. Additional headroom: if load grows, more consumers can be added up to the number of partitions. If more than 5 consumers are needed — increase partitions. Important: changing the number of partitions breaks key-based ordering."
+      },
+      {
+        "text": "100 — the more, the better the scaling",
+        "correct": false,
+        "explanation": "Too many partitions create overhead: more open file handlers on the broker, longer rebalancing time, higher replication latency. Rule of thumb: the number of partitions should be reasonable, a multiple of the expected number of consumers."
+      }
+    ]
+  },
+  {
+    "question": "What happens to messages in a partition when the number of partitions in a topic changes from 3 to 6?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Existing messages stay in their partitions (0,1,2), new messages can land in 0-5",
+        "correct": true,
+        "explanation": "Adding partitions does not affect existing data. Partitions 0, 1, 2 retain their messages. But for key-based partitioning this is critical: hash(key) % 6 will give a different result than hash(key) % 3. Messages from the same user may now land in different partitions, breaking the ordering guarantee."
+      },
+      {
+        "text": "The consumer group will automatically update assignments without rebalancing",
+        "correct": false,
+        "explanation": "Adding partitions triggers rebalancing in consumer groups reading that topic. New partitions need to be assigned to consumers, requiring a review of all assignments."
+      },
+      {
+        "text": "All existing messages will be redistributed across 6 partitions",
+        "correct": false,
+        "explanation": "Kafka does not redistribute already written messages when adding partitions. That would be an extremely expensive operation."
+      },
+      {
+        "text": "Kafka will return an error — decreasing the number of partitions is forbidden",
+        "correct": false,
+        "explanation": "Here we are talking about increasing partitions (3→6), not decreasing. Decreasing is indeed impossible. Increasing is allowed, but breaks key-based ordering."
+      }
+    ]
+  },
+  {
+    "question": "A consumer called poll() and received 500 messages. What is the minimum number of commitSync() calls needed for an at-least-once guarantee?",
+    "type": "single",
+    "options": [
+      {
+        "text": "0 — enable.auto.commit=true will automatically commit everything",
+        "correct": false,
+        "explanation": "The question is about the minimum number of explicit commitSync() calls. Also, auto.commit does not guarantee at-least-once: it may commit the offset before processing completes."
+      },
+      {
+        "text": "500 — commit after each message",
+        "correct": false,
+        "explanation": "Committing after each message is technically possible (at-least-once), but highly inefficient: 500 synchronous round-trips to the broker. Usually, the entire batch is committed at once."
+      },
+      {
+        "text": "1 — one commitSync() after processing the entire batch of 500 messages",
+        "correct": true,
+        "explanation": "One commitSync() call after successful processing of all 500 messages guarantees at-least-once: if the consumer crashes before commit, all 500 will be re-read. If it crashes after commit — none will be reprocessed (with idempotent processing, this is not a problem). One batch commit is a balance between reliability and performance."
+      },
+      {
+        "text": "2 — before and after processing the batch",
+        "correct": false,
+        "explanation": "Committing before processing is at-most-once (may lose messages on crash during processing). Committing after processing is at-least-once. Double commit is redundant."
+      }
+    ]
+  },
+  {
+    "question": "Your system experiences frequent rebalancing, although consumers are not crashing. Which parameter should you check first?",
+    "type": "single",
+    "options": [
+      {
+        "text": "replication.factor — insufficient number of replicas",
+        "correct": false,
+        "explanation": "replication.factor affects data storage reliability but does not cause consumer group rebalancing."
+      },
+      {
+        "text": "batch.size on the producer — too large batches slow down the consumer",
+        "correct": false,
+        "explanation": "batch.size affects producer write efficiency. It does not cause rebalancing on the consumer side."
+      },
+      {
+        "text": "log.retention.ms — storing messages too long",
+        "correct": false,
+        "explanation": "log.retention.ms controls data storage on disk. It has no relation to rebalancing."
+      },
+      {
+        "text": "max.poll.interval.ms — if batch processing takes more than this value",
+        "correct": true,
+        "explanation": "This is the most common cause of 'unexplained' rebalancing with live consumers. If business logic processing takes, for example, 6 minutes, and max.poll.interval.ms=300000ms (5 minutes), the consumer will regularly be declared dead and excluded from the group. Solution: increase max.poll.interval.ms or decrease max.poll.records."
+      }
+    ]
+  },
+  {
+    "question": "Two consumer groups — 'analytics' and 'billing' — read the same 'orders' topic. How are messages distributed?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The group with the earlier committed offset gets priority",
+        "correct": false,
+        "explanation": "Consumer groups have no priorities. Kafka does not know about the 'importance' of any group — all read independently."
+      },
+      {
+        "text": "Each consumer group receives all messages independently of the other",
+        "correct": true,
+        "explanation": "Consumer groups are completely isolated from each other. Each group stores its own committed offset in __consumer_offsets and independently reads all messages from the topic. This allows 'analytics' to process for analytics, and 'billing' for invoicing, each at their own pace."
+      },
+      {
+        "text": "Messages are split between groups: odd offsets → analytics, even → billing",
+        "correct": false,
+        "explanation": "Kafka does not divide messages between consumer groups. Each group receives all messages independently."
+      },
+      {
+        "text": "If billing falls behind, analytics automatically slows down to synchronize",
+        "correct": false,
+        "explanation": "Consumer groups do not synchronize with each other. Kafka does not manage consumption speed — each group works at its own pace."
+      }
+    ]
+  },
+  {
+    "question": "What happens if the committed offset becomes greater than the log-end offset (e.g., after retention reduction)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Behavior is determined by auto.offset.reset: 'latest' → end of log, 'earliest' → beginning",
+        "correct": true,
+        "explanation": "If the committed offset is greater than the log-end offset (offset out of range), Kafka applies the auto.offset.reset strategy. latest (default) will send the consumer to the end of the current log — this may skip some data. earliest — to the beginning. none — throws OffsetOutOfRangeException. Reducing retention can unexpectedly reset the consumer position."
+      },
+      {
+        "text": "The consumer will be blocked and will not read until manual intervention",
+        "correct": false,
+        "explanation": "The consumer is not blocked in this situation. It applies the auto.offset.reset strategy and continues (unless reset=none is set)."
+      },
+      {
+        "text": "Kafka will automatically restore deleted messages from a backup copy",
+        "correct": false,
+        "explanation": "Kafka has no built-in mechanism for automatically restoring data deleted by retention. If data is deleted — it is unavailable."
+      },
+      {
+        "text": "The consumer will start reading from offset 0 (beginning)",
+        "correct": false,
+        "explanation": "Behavior depends on the auto.offset.reset parameter. By default (latest) the consumer will start from the end of the log, not the beginning."
+      }
+    ]
+  },
+  {
+    "question": "Why can acks=all without min.insync.replicas=2 be useless?",
+    "type": "single",
+    "options": [
+      {
+        "text": "min.insync.replicas is configured only on the consumer, not the producer",
+        "correct": false,
+        "explanation": "min.insync.replicas is a topic-level parameter (or broker default). It affects producer writes: the broker will reject a write with acks=all if the ISR has fewer than min.insync.replicas replicas."
+      },
+      {
+        "text": "acks=all does not work with Kafka 3.0 and newer",
+        "correct": false,
+        "explanation": "acks=all (or acks=-1) is supported in all Kafka versions. This is one of the key reliability parameters."
+      },
+      {
+        "text": "acks=all requires confirmation only from the leader replica",
+        "correct": false,
+        "explanation": "acks=all requires confirmation from all replicas in the ISR (In-Sync Replicas). The problem is not the number of expected confirmations."
+      },
+      {
+        "text": "If ISR contains only the leader (other replicas fell behind), acks=all confirms a write from a single replica",
+        "correct": true,
+        "explanation": "ISR (In-Sync Replicas) is the current list of up-to-date replicas. If follower replicas fell behind and dropped out of ISR, only the leader remains in ISR. acks=all will get confirmation from a single leader — which is equivalent to acks=1. The parameter min.insync.replicas=2 guarantees that a write will be rejected if the ISR has fewer than 2 replicas, forcing replicas to stay current."
+      }
+    ]
+  },
+  {
+    "question": "You are developing an IoT device monitoring system. Each device sends telemetry every second. Order of data for a single device is important. Which partitioning strategy should you choose?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Round-robin — even load and simple implementation",
+        "correct": false,
+        "explanation": "Round-robin will break ordering: data from one device will land in different partitions. The consumer cannot guarantee processing in chronological order for a specific device."
+      },
+      {
+        "text": "All in one partition — strict global ordering",
+        "correct": false,
+        "explanation": "One partition = one consumer = no horizontal scaling. With thousands of IoT devices this becomes a bottleneck. Key-based gives ordering per device with full parallelism across different devices."
+      },
+      {
+        "text": "Custom partitioner — route by telemetry type (temperature, pressure, current)",
+        "correct": false,
+        "explanation": "A custom partitioner by sensor type will break ordering for one device: temperature and pressure data from the same device will go to different partitions. The task requires ordering of data for one device, not by sensor type."
+      },
+      {
+        "text": "Key-based with device_id as the key",
+        "correct": true,
+        "explanation": "Using device_id as the key guarantees: all data from one device → one partition → strict processing order. At the same time, different devices are evenly distributed across partitions (with uniform ID distribution). This is a classic pattern for IoT, event sourcing, and any system where ordering of events for a single entity matters."
+      }
+    ]
+  },
+  {
+    "question": "What happens during Cooperative Rebalancing if consumer-2 gracefully leaves the group (consumer.close() called)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Other consumers do not interrupt processing of their partitions",
+        "correct": true,
+        "explanation": "Unlike Eager, with Cooperative only the leaving consumer's partitions temporarily enter rebalancing state. Other consumers continue processing their partitions without stopping."
+      },
+      {
+        "text": "Consumer-2 voluntarily gives up its partitions before leaving",
+        "correct": true,
+        "explanation": "On graceful shutdown, the consumer calls revoke for its partitions before leaving the group. This allows the Group Coordinator to immediately redistribute partitions without waiting for session.timeout."
+      },
+      {
+        "text": "Two round-trips are required to complete redistribution",
+        "correct": true,
+        "explanation": "Cooperative Rebalancing always requires at least two round-trips: the first for revoke and agreement, the second for final assignment. This is the price for avoiding a stop-the-world pause."
+      },
+      {
+        "text": "All consumers receive a signal and stop processing during redistribution",
+        "correct": false,
+        "explanation": "This describes Eager Rebalancing (stop-the-world). With Cooperative graceful shutdown, other consumers do not stop — only the leaving consumer's partitions transition to new owners."
+      }
+    ]
+  }
+]

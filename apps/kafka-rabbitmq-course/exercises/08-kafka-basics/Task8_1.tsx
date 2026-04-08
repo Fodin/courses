@@ -2,21 +2,21 @@ import { useState } from 'react'
 import { useLanguage } from '@courses/platform'
 
 // ============================================
-// Задание 8.1: Кластер Kafka — брокеры и контроллер
+// Task 8.1: Kafka Cluster — Brokers and Controller
 // ============================================
 //
-// Цель: реализовать интерактивную визуализацию кластера Kafka из 3 брокеров.
-// Пользователь может кликать на брокеры, видеть их партиции (leader/follower, ISR),
-// симулировать падение контроллера и переключаться между режимами KRaft и ZooKeeper.
+// Goal: implement an interactive visualization of a 3-broker Kafka cluster.
+// The user can click on brokers, see their partitions (leader/follower, ISR),
+// simulate a controller crash and switch between KRaft and ZooKeeper modes.
 
-// TODO: Определи интерфейс Partition:
+// TODO: Define Partition interface:
 //   id: number
 //   topic: string
 //   role: 'leader' | 'follower'
 //   isr: boolean
 // interface Partition { ... }
 
-// TODO: Определи интерфейс Broker:
+// TODO: Define Broker interface:
 //   id: number
 //   host: string
 //   port: number
@@ -27,7 +27,7 @@ import { useLanguage } from '@courses/platform'
 //   bgColor: string
 // interface Broker { ... }
 
-// TODO: Создай константу initialBrokers: Broker[] — массив из 3 брокеров:
+// TODO: Create constant initialBrokers: Broker[] — array of 3 brokers:
 //   Broker 1: kafka-1:9092, isController: true, rack: 'rack-a', color: '#1565C0', bgColor: '#E3F2FD'
 //     partitions: orders[0] leader ISR, orders[1] follower ISR,
 //                 payments[0] leader ISR, payments[1] follower NOT ISR
@@ -42,78 +42,78 @@ import { useLanguage } from '@courses/platform'
 export function Task8_1() {
   const { t } = useLanguage()
 
-  // TODO: Состояние selectedBroker: number | null — ID выбранного брокера
+  // TODO: State selectedBroker: number | null — ID of the selected broker
   const [selectedBroker, setSelectedBroker] = useState<number | null>(null)
 
-  // TODO: Состояние brokers: Broker[] — инициализировать из initialBrokers
+  // TODO: State brokers: Broker[] — initialize from initialBrokers
   const [brokers, setBrokers] = useState<unknown[]>([])
 
-  // TODO: Состояние log: string[] — лог событий кластера
+  // TODO: State log: string[] — cluster event log
   const [log, setLog] = useState<string[]>([])
 
-  // TODO: Состояние mode: 'zookeeper' | 'kraft' — режим управления кластером (по умолчанию 'kraft')
+  // TODO: State mode: 'zookeeper' | 'kraft' — cluster management mode (default 'kraft')
   const [mode, setMode] = useState<string>('kraft')
 
-  // TODO: Реализуй вспомогательную функцию addLog(msg: string):
-  //   - Добавляет строку `[HH:MM:SS] msg` в начало лога
-  //   - Ограничивает лог 12 записями
+  // TODO: Implement helper function addLog(msg: string):
+  //   - Prepends `[HH:MM:SS] msg` to the log
+  //   - Limits log to 12 entries
   const addLog = (_msg: string) => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
-  // TODO: Реализуй функцию simulateControllerFailover():
-  //   1. Находит текущего контроллера (brokers.find(b => b.isController))
-  //   2. Случайно выбирает нового контроллера из остальных (Math.random())
-  //   3. Обновляет brokers: у нового isController: true, у остальных false
-  //   4. Добавляет в лог:
-  //      - `Broker-N упал. Начинается выбор нового контроллера...`
-  //      - `Broker-M стал новым контроллером (KRaft Raft consensus / ZooKeeper election)`
-  //   5. Если selectedBroker === упавший контроллер, переключает на нового
+  // TODO: Implement function simulateControllerFailover():
+  //   1. Find the current controller (brokers.find(b => b.isController))
+  //   2. Randomly pick a new controller from the rest (Math.random())
+  //   3. Update brokers: new one gets isController: true, others false
+  //   4. Add to log:
+  //      - `Broker-N crashed. Starting controller election...`
+  //      - `Broker-M became new controller (KRaft Raft consensus / ZooKeeper election)`
+  //   5. If selectedBroker === crashed controller, switch to the new one
   const simulateControllerFailover = () => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '960px' }}>
       <h2 style={{ marginBottom: '0.25rem' }}>{t('task.8.1')}</h2>
       <p style={{ color: '#666', marginBottom: '1rem', fontSize: '0.9rem' }}>
-        Кластер Apache Kafka из 3 брокеров. Кликни на брокер, чтобы увидеть его партиции.
+        Apache Kafka cluster with 3 brokers. Click on a broker to see its partitions.
       </p>
 
-      {/* TODO: Кнопки переключения режима — 'kraft' | 'zookeeper'
-          Активный режим: background '#1565C0', цвет '#fff', fontWeight 700
-          Неактивный режим: background '#fff', цвет '#333', border '1px solid #ddd' */}
+      {/* TODO: Mode toggle buttons — 'kraft' | 'zookeeper'
+          Active mode: background '#1565C0', color '#fff', fontWeight 700
+          Inactive mode: background '#fff', color '#333', border '1px solid #ddd' */}
 
-      {/* TODO: Блок кластера (background '#f8f9fa', borderRadius '12px', padding '1.25rem'):
-          - Слева: блок KRaft Controller (иконка ⚙️, надпись 'KRaft Controller / built-in Raft')
-            или ZooKeeper (иконка 🐘, надпись 'ZooKeeper / external cluster')
+      {/* TODO: Cluster block (background '#f8f9fa', borderRadius '12px', padding '1.25rem'):
+          - Left: KRaft Controller block (icon ⚙️, label 'KRaft Controller / built-in Raft')
+            or ZooKeeper (icon 🐘, label 'ZooKeeper / external cluster')
             border: '2px solid #E65100', background: '#FFF3E0'
-          - Стрелка ⟷ между блоком управления и брокерами
-          - Карточки брокеров: кликабельные, при клике setSelectedBroker(id)
-            У контроллера: бейдж CONTROLLER в position absolute top-right,
-            background '#E65100', цвет '#fff'
-            Поля: иконка 🖥️, Broker-N (цвет broker.color), host:port, rack (серый), N партиций */}
+          - Arrow ⟷ between control block and brokers
+          - Broker cards: clickable, on click setSelectedBroker(id)
+            For controller: CONTROLLER badge in position absolute top-right,
+            background '#E65100', color '#fff'
+            Fields: icon 🖥️, Broker-N (color broker.color), host:port, rack (gray), N partitions */}
 
-      {/* TODO: Панель партиций выбранного брокера (если selectedBroker !== null):
-          - Заголовок "Broker-N — партиции" цвета broker.color
-          - Карточки партиций: topic[id], роль (★ Leader / ○ Follower), ISR статус (✅ ISR / ❌ Out of ISR)
-          - Leader — border цвета брокера, background '#fff'
+      {/* TODO: Partition panel for selected broker (if selectedBroker !== null):
+          - Header "Broker-N — partitions" in broker.color
+          - Partition cards: topic[id], role (★ Leader / ○ Follower), ISR status (✅ ISR / ❌ Out of ISR)
+          - Leader — border in broker color, background '#fff'
           - Follower — border '#ccc', background '#f5f5f5' */}
 
-      {/* TODO: Кнопки действий:
-          - "Симулировать падение контроллера" → simulateControllerFailover() (background '#C62828')
-          - "Сбросить кластер" → setBrokers(initialBrokers) (background '#f5f5f5') */}
+      {/* TODO: Action buttons:
+          - "Simulate Controller Crash" → simulateControllerFailover() (background '#C62828')
+          - "Reset Cluster" → setBrokers(initialBrokers) (background '#f5f5f5') */}
 
-      {/* TODO: Информационная панель (background '#FFF8E1', border '1px solid #FFE082'):
-          KRaft: 'Контроллер встроен в брокер. Используется Raft-консенсус...'
-          ZooKeeper: 'ZooKeeper — внешний сервис для хранения метаданных. Устарел...' */}
+      {/* TODO: Info panel (background '#FFF8E1', border '1px solid #FFE082'):
+          KRaft: 'Controller is built into the broker. Uses Raft consensus...'
+          ZooKeeper: 'ZooKeeper — external service for metadata storage. Deprecated...' */}
 
-      {/* TODO: Лог событий кластера (если log.length > 0):
-          - Тёмный терминал (background '#0d1117', цвет '#58a6ff')
-          - Кнопка "Очистить" → setLog([]) */}
+      {/* TODO: Cluster event log (if log.length > 0):
+          - Dark terminal (background '#0d1117', color '#58a6ff')
+          - "Clear" button → setLog([]) */}
 
       <div style={{ color: '#aaa', fontSize: '0.85rem', marginTop: '2rem' }}>
-        TODO: реализовать интерфейс задания
+        TODO: implement the task UI
       </div>
     </div>
   )

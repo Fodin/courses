@@ -1,0 +1,542 @@
+[
+  {
+    "question": "Which transport protocol does gRPC use, unlike classical REST?",
+    "type": "single",
+    "options": [
+      {
+        "text": "WebSocket",
+        "correct": false,
+        "explanation": "WebSocket is a separate protocol for half-duplex communication. gRPC is not built on WebSocket."
+      },
+      {
+        "text": "HTTP/2",
+        "correct": true,
+        "explanation": "gRPC runs over HTTP/2, which allows multiplexing requests in a single connection and using bidirectional streams."
+      },
+      {
+        "text": "HTTP/1.1",
+        "correct": false,
+        "explanation": "HTTP/1.1 is used with REST. It does not support stream multiplexing."
+      },
+      {
+        "text": "Raw TCP",
+        "correct": false,
+        "explanation": "gRPC uses HTTP/2, not raw TCP. HTTP/2 itself runs over TCP."
+      }
+    ]
+  },
+  {
+    "question": "What is the main advantage of Protocol Buffers (Protobuf) over JSON?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Fast serialization and deserialization",
+        "correct": true,
+        "explanation": "The binary format allows parsing data significantly faster than text-based JSON, especially for large payloads."
+      },
+      {
+        "text": "Human-readable without tools",
+        "correct": false,
+        "explanation": "Protobuf's binary format is unreadable without a decoder. JSON, by contrast, can be read directly."
+      },
+      {
+        "text": "Strong typing via .proto schema",
+        "correct": true,
+        "explanation": "The .proto schema explicitly defines field types. This enables generation of type-safe client and server code."
+      },
+      {
+        "text": "Binary encoding — smaller message size",
+        "correct": true,
+        "explanation": "Protobuf encodes data into a binary format, resulting in 3–10x smaller size compared to text-based JSON."
+      }
+    ]
+  },
+  {
+    "question": "What is a cascading failure in distributed systems?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Simultaneous deployment of multiple services",
+        "correct": false,
+        "explanation": "This describes a rolling deployment, not a cascading failure."
+      },
+      {
+        "text": "Gradual degradation of database performance",
+        "correct": false,
+        "explanation": "Database degradation is a separate issue. A cascading failure involves the spread of failure between services."
+      },
+      {
+        "text": "Spread of failure from one service to its dependent services",
+        "correct": true,
+        "explanation": "A cascading failure occurs when the crash of one downstream service causes accumulating timeouts and overload of upstream services, eventually taking down the entire chain."
+      },
+      {
+        "text": "Updating configuration on multiple servers simultaneously",
+        "correct": false,
+        "explanation": "This describes synchronous configuration updates, unrelated to cascading failures."
+      }
+    ]
+  },
+  {
+    "question": "In which state does the Circuit Breaker block all requests to a failed service?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Open",
+        "correct": true,
+        "explanation": "In the Open state, the CB blocks requests to the failed service and immediately returns an error without waiting for a timeout. This prevents cascading failures."
+      },
+      {
+        "text": "Disabled",
+        "correct": false,
+        "explanation": "Disabled is not a standard Circuit Breaker state in the pattern."
+      },
+      {
+        "text": "Closed",
+        "correct": false,
+        "explanation": "In the Closed state, the CB allows all requests through. This is the normal operating mode."
+      },
+      {
+        "text": "Half-Open",
+        "correct": false,
+        "explanation": "In the Half-Open state, the CB allows a limited number of test requests to check whether the service has recovered."
+      }
+    ]
+  },
+  {
+    "question": "Which Service Discovery mechanisms exist?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Broadcast discovery: services announce themselves via broadcast packets",
+        "correct": false,
+        "explanation": "Broadcast is a technique from mDNS/Bonjour for local networks. This approach is not used in production microservices."
+      },
+      {
+        "text": "Client-side discovery: the client queries the registry and selects an instance",
+        "correct": true,
+        "explanation": "The client gets a list of instances from a registry (e.g., Eureka) and implements load balancing itself."
+      },
+      {
+        "text": "Server-side discovery: the client contacts a load balancer, which queries the registry",
+        "correct": true,
+        "explanation": "The client is unaware of the registry — it talks to a load balancer (AWS ALB, Nginx), which finds the instance itself."
+      },
+      {
+        "text": "This approach is outdated and no longer used",
+        "correct": false,
+        "explanation": "This approach is actively used in modern systems."
+      },
+      {
+        "text": "DNS-based discovery: service addresses are stored in DNS records",
+        "correct": true,
+        "explanation": "Kubernetes uses DNS for service discovery: a service name resolves to an IP via the internal DNS."
+      }
+    ]
+  },
+  {
+    "question": "What happens during a synchronous call if the downstream service is unresponsive and no timeout is configured?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The thread will be blocked indefinitely, exhausting the thread pool",
+        "correct": true,
+        "explanation": "Without a timeout, the thread hangs forever. Under high request load, the thread pool gets exhausted and the entire upstream service stops responding — a classic cascading failure."
+      },
+      {
+        "text": "The OS automatically closes the TCP connection after 5 seconds",
+        "correct": false,
+        "explanation": "TCP keepalive can be configured, but by default it does not close connections quickly. The OS does not compensate for missing timeouts in the application."
+      },
+      {
+        "text": "The HTTP client automatically retries the request after 30 seconds",
+        "correct": false,
+        "explanation": "HTTP clients do not have retry logic by default. Behavior depends on configuration."
+      },
+      {
+        "text": "The request returns an empty response immediately",
+        "correct": false,
+        "explanation": "Without a timeout, the thread waits indefinitely and does not return an empty response."
+      }
+    ]
+  },
+  {
+    "question": "What is an API Gateway and what functions does it perform?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Storing user session state",
+        "correct": false,
+        "explanation": "An API Gateway is typically stateless. Session storage is the responsibility of a separate store (Redis, etc.)."
+      },
+      {
+        "text": "Request authentication and authorization",
+        "correct": true,
+        "explanation": "The API Gateway centrally verifies tokens and access rights, freeing each service from this responsibility."
+      },
+      {
+        "text": "Rate limiting and throttling",
+        "correct": true,
+        "explanation": "The Gateway can limit the number of requests from a client, protecting the backend from overload."
+      },
+      {
+        "text": "Single entry point for clients to microservices",
+        "correct": true,
+        "explanation": "The API Gateway accepts all client requests and routes them to the appropriate services, hiding internal topology."
+      }
+    ]
+  },
+  {
+    "question": "What is the BFF (Backend for Frontend) pattern?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A pattern for synchronizing databases between services",
+        "correct": false,
+        "explanation": "Database synchronization is a task for event-driven architecture (Saga, CQRS). BFF is unrelated to databases."
+      },
+      {
+        "text": "A pattern where each client type (web, mobile) has its own backend aggregator",
+        "correct": true,
+        "explanation": "BFF creates a separate API layer for each specific client: a mobile BFF returns compact data, a web BFF returns expanded data. This saves clients from over-fetching/under-fetching."
+      },
+      {
+        "text": "A pattern for load balancing frontend servers",
+        "correct": false,
+        "explanation": "Frontend load balancing is handled by a CDN or load balancer. BFF is an aggregating backend service."
+      },
+      {
+        "text": "A browser-side response caching pattern",
+        "correct": false,
+        "explanation": "BFF is a server-side architectural pattern, unrelated to browser caching."
+      }
+    ]
+  },
+  {
+    "question": "Which load balancing algorithm distributes requests sequentially across instances in a round-robin fashion?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Least Connections",
+        "correct": false,
+        "explanation": "Least Connections sends a request to the instance with the fewest active connections, not sequentially."
+      },
+      {
+        "text": "IP Hash",
+        "correct": false,
+        "explanation": "IP Hash always directs the same client (by IP) to the same instance — for session affinity, not for even distribution."
+      },
+      {
+        "text": "Random",
+        "correct": false,
+        "explanation": "Random picks a random instance without any ordering."
+      },
+      {
+        "text": "Round-Robin",
+        "correct": true,
+        "explanation": "Round-Robin sequentially cycles through the instance list: request 1 → instance A, request 2 → instance B, request 3 → instance A, etc."
+      }
+    ]
+  },
+  {
+    "question": "In which Circuit Breaker state are a few test requests allowed through to check service recovery?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Degraded",
+        "correct": false,
+        "explanation": "Degraded is not a standard Circuit Breaker state."
+      },
+      {
+        "text": "Closed",
+        "correct": false,
+        "explanation": "In the Closed state, the CB allows all requests through — this is the normal operating mode."
+      },
+      {
+        "text": "Open",
+        "correct": false,
+        "explanation": "In the Open state, the CB blocks all requests without exception."
+      },
+      {
+        "text": "Half-Open",
+        "correct": true,
+        "explanation": "Half-Open is a transitional state after the Open timeout. The CB allows one (or a few) test request(s). If successful, it transitions to Closed; if not, it goes back to Open."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following are disadvantages of synchronous communication between microservices?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Debugging complexity — request tracing cannot be used",
+        "correct": false,
+        "explanation": "Distributed tracing (Jaeger, Zipkin) works perfectly with synchronous calls. Tracing is a solvable problem."
+      },
+      {
+        "text": "Accumulated latency across a chain of calls (latency amplification)",
+        "correct": true,
+        "explanation": "The total response delay to the client equals the sum of delays of all services in the chain. With 5 services at 50ms each, that is 250ms just in waiting."
+      },
+      {
+        "text": "Risk of cascading failures as the number of services grows",
+        "correct": true,
+        "explanation": "The deeper the chain of synchronous calls, the higher the risk of a cascade if any link fails."
+      },
+      {
+        "text": "Tight temporal coupling — both services must be available simultaneously",
+        "correct": true,
+        "explanation": "In a synchronous call, the caller waits for a response. If the callee is unavailable, the caller cannot complete the request either."
+      },
+      {
+        "text": "This is only possible in cloud solutions",
+        "correct": false,
+        "explanation": "It works both in the cloud and on-premise."
+      }
+    ]
+  },
+  {
+    "question": "How does a health check assist Service Discovery?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Allows the registry to exclude unhealthy instances from the routing pool",
+        "correct": true,
+        "explanation": "Health checks periodically verify each instance. Unhealthy ones are marked as such and stop receiving traffic until they recover."
+      },
+      {
+        "text": "Balances load across regions",
+        "correct": false,
+        "explanation": "Global load balancing is the job of a Global Load Balancer (e.g., AWS Route 53). Health checks only verify instance status."
+      },
+      {
+        "text": "Speeds up registration of new instances in the registry",
+        "correct": false,
+        "explanation": "Health checks do not affect registration speed. Registration happens at service startup."
+      },
+      {
+        "text": "Encrypts data transfer between services",
+        "correct": false,
+        "explanation": "Encryption is the job of TLS/mTLS. Health checks verify availability, not connection security."
+      }
+    ]
+  },
+  {
+    "question": "You have service A synchronously calling B, which calls C. Service C is down. What happens without a Circuit Breaker with a 30-second timeout?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only service B gets the error; A returns a fallback value to the client",
+        "correct": false,
+        "explanation": "Without a CB and fallback logic, A blocks waiting for B, which waits for C. There is no automatic fallback."
+      },
+      {
+        "text": "Kubernetes automatically restarts service C",
+        "correct": false,
+        "explanation": "K8s restarts a pod if the liveness probe fails, but this takes time and does not speed up responses to current requests."
+      },
+      {
+        "text": "Service A immediately returns a 503 error",
+        "correct": false,
+        "explanation": "A 503 would only be returned after the timeout expires. Without a CB, there is no fast-fail mechanism."
+      },
+      {
+        "text": "The client receives a response after ~60 seconds — the combined timeout of A→B plus B→C",
+        "correct": true,
+        "explanation": "A waits for B (30s), B waits for C (30s). The client gets an error only after 60 seconds. During this time, both A's and B's threads are occupied and cannot serve other requests."
+      }
+    ]
+  },
+  {
+    "question": "What distinguishes gRPC streaming from a regular unary gRPC call?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Streaming automatically adds retry for each message",
+        "correct": false,
+        "explanation": "Retry with streaming is the application's responsibility. gRPC does not add automatic retries for streams."
+      },
+      {
+        "text": "Bidirectional streaming: both sides exchange message streams simultaneously",
+        "correct": true,
+        "explanation": "Bidirectional streaming is suitable for chat, collaborative editing, and other real-time interaction scenarios."
+      },
+      {
+        "text": "Server streaming: the server sends multiple messages in response to a single request",
+        "correct": true,
+        "explanation": "Server streaming allows continuous data streaming to the client, for example, for real-time updates or large data sets."
+      },
+      {
+        "text": "It requires a special license",
+        "correct": false,
+        "explanation": "All the mentioned technologies have open-source versions."
+      },
+      {
+        "text": "Client streaming: the client sends a stream of messages, the server replies with one",
+        "correct": true,
+        "explanation": "Useful for file uploads or batched data sending without creating a separate connection for each chunk."
+      }
+    ]
+  },
+  {
+    "question": "Why does each field in a .proto file have a numeric tag (e.g., `string name = 2`)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "To sort fields alphabetically during encoding",
+        "correct": false,
+        "explanation": "The protocol does not sort fields by tag during serialization. The order is determined by the program, not the tag value."
+      },
+      {
+        "text": "To identify fields in the binary format instead of string names",
+        "correct": true,
+        "explanation": "In the binary Protobuf format, the field name is not transmitted — only the numeric tag. This is what gives compactness. The tag must remain stable across schema versions."
+      },
+      {
+        "text": "To specify field validation priority",
+        "correct": false,
+        "explanation": "Protobuf does not have built-in validation. Tags are solely for field identification during serialization."
+      },
+      {
+        "text": "For automatic API version numbering",
+        "correct": false,
+        "explanation": "API versioning is a separate concern (packages, imports). The numeric tag identifies a field, not a version."
+      }
+    ]
+  },
+  {
+    "question": "What problem does the Retry pattern with exponential backoff solve for transient failures?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Automatically switches traffic to a backup data center",
+        "correct": false,
+        "explanation": "Data center failover is the job of DNS, a Global Load Balancer, or DNS-based discovery. Retry does not manage topology."
+      },
+      {
+        "text": "Compresses retried requests to reduce traffic",
+        "correct": false,
+        "explanation": "Retry does not affect compression. Compression is a separate HTTP/gRPC setting."
+      },
+      {
+        "text": "Guarantees exactly-once message delivery",
+        "correct": false,
+        "explanation": "Retry during a synchronous call can lead to duplicate operations (at-least-once). Exactly-once requires idempotency or request identifiers."
+      },
+      {
+        "text": "Prevents simultaneous overload of a recovering service by retried requests",
+        "correct": true,
+        "explanation": "Exponential backoff: first retry after 1s, second after 2s, third after 4s. This gives the service time to recover and avoids the thundering herd problem — when all clients simultaneously bombard it with retries."
+      }
+    ]
+  },
+  {
+    "question": "In which cases is gRPC preferable to REST?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "All of the above are incorrect",
+        "correct": false,
+        "explanation": "Some of the listed options are indeed correct."
+      },
+      {
+        "text": "Teams from different organizations using different programming languages",
+        "correct": true,
+        "explanation": "Protobuf generates type-safe clients in dozens of languages. This is more convenient than manually writing REST clients from an OpenAPI specification."
+      },
+      {
+        "text": "Real-time data streaming (bidirectional streaming)",
+        "correct": true,
+        "explanation": "HTTP/2 and gRPC streaming natively support bidirectional data streams, which are difficult to implement via REST."
+      },
+      {
+        "text": "Public API for third-party developers",
+        "correct": false,
+        "explanation": "For public APIs, REST/OpenAPI is preferable: better readability, browser support, and a broad ecosystem of tools."
+      },
+      {
+        "text": "Internal inter-service communication with high performance requirements",
+        "correct": true,
+        "explanation": "gRPC with Protobuf provides lower latency and smaller message sizes. For internal APIs, this is more important than JSON readability."
+      }
+    ]
+  },
+  {
+    "question": "What happens if, with Round-Robin load balancing, one instance becomes unhealthy but is not removed from the pool?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Some requests will fail — those that land on the unhealthy instance",
+        "correct": true,
+        "explanation": "Round-Robin does not know about instance health without health check integration. Every Nth request will hit the failed service and end with an error or timeout."
+      },
+      {
+        "text": "All requests will fail — the load balancer stops",
+        "correct": false,
+        "explanation": "The load balancer continues working, but some requests will be directed to the non-functional instance."
+      },
+      {
+        "text": "The load balancer automatically doubles traffic to remaining healthy instances",
+        "correct": false,
+        "explanation": "Without explicit health check integration, the load balancer continues sending requests to the unhealthy instance."
+      },
+      {
+        "text": "Round-Robin skips the unhealthy instance on the next iteration",
+        "correct": false,
+        "explanation": "Basic Round-Robin does not check health. Automatic exclusion requires integration with health checks (as in Nginx upstream with passive health checks)."
+      }
+    ]
+  },
+  {
+    "question": "What behavior does the Circuit Breaker exhibit after successful test requests in the Half-Open state?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Transitions to the Open state and blocks new requests",
+        "correct": false,
+        "explanation": "The CB goes to Open only on failure. Success indicates recovery."
+      },
+      {
+        "text": "Transitions to the Closed state — normal operation resumes",
+        "correct": true,
+        "explanation": "Successful test requests confirm that the downstream service has recovered. The CB closes and starts allowing all traffic."
+      },
+      {
+        "text": "Remains in Half-Open for continued monitoring",
+        "correct": false,
+        "explanation": "Half-Open is a temporary state. After successful tests, the CB closes and returns to normal operation."
+      },
+      {
+        "text": "Removes the unhealthy instance from the Service Registry",
+        "correct": false,
+        "explanation": "The CB does not manage the Service Registry. Deregistration is the responsibility of the service itself or a separate health check agent."
+      }
+    ]
+  },
+  {
+    "question": "Which Service Discovery approach is used in Kubernetes by default?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Broadcast via UDP multicast within the namespace",
+        "correct": false,
+        "explanation": "Kubernetes does not use UDP broadcast. All service discovery is built on etcd, kube-proxy, and CoreDNS."
+      },
+      {
+        "text": "Client-side discovery via the Eureka library",
+        "correct": false,
+        "explanation": "Eureka is a Netflix/Spring Cloud product. Kubernetes uses its own service discovery mechanism."
+      },
+      {
+        "text": "Manual IP configuration through ConfigMap",
+        "correct": false,
+        "explanation": "Hardcoding IPs violates the principle of dynamic service discovery. K8s specifically abstracts IPs behind DNS names and ClusterIPs."
+      },
+      {
+        "text": "DNS-based discovery: each Service receives a DNS name inside the cluster",
+        "correct": true,
+        "explanation": "In K8s, each Service is accessible by `service-name.namespace.svc.cluster.local`. CoreDNS resolves the name to a ClusterIP, which balances traffic across Endpoints (pods)."
+      }
+    ]
+  }
+]

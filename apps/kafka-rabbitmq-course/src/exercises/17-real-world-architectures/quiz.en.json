@@ -1,0 +1,532 @@
+[
+  {
+    "question": "You are designing an e-commerce platform with 100k orders per day. Each order must go through payment and inventory reservation. Payment commands must be delivered reliably, and all events need to be stored as an audit log for a year. Which architecture is optimal?",
+    "type": "single",
+    "options": [
+      {
+        "text": "RabbitMQ only",
+        "correct": false,
+        "explanation": "RabbitMQ does not support replay of historical events — if you need to reprocess audit data from the past year, the data will be lost."
+      },
+      {
+        "text": "Kafka only for commands and events",
+        "correct": false,
+        "explanation": "Kafka is possible but suboptimal for commands: no priority-based routing, harder to implement routing by operation type. Better to separate responsibilities."
+      },
+      {
+        "text": "HTTP/REST between services without a broker",
+        "correct": false,
+        "explanation": "Synchronous communication creates tight coupling and does not provide guaranteed delivery — if PaymentService is unavailable, the order will be lost."
+      },
+      {
+        "text": "Hybrid: RabbitMQ for commands, Kafka for events",
+        "correct": true,
+        "explanation": "Classic choice for e-commerce: RabbitMQ ensures guaranteed delivery of commands with routing and priority queues, Kafka stores immutable event audit logs. Separation of responsibilities."
+      }
+    ]
+  },
+  {
+    "question": "An IoT system receives data from 50,000 sensors at 1 message per second. The ML team wants to retrain models on historical data. Which broker should you choose?",
+    "type": "single",
+    "options": [
+      {
+        "text": "ActiveMQ",
+        "correct": false,
+        "explanation": "ActiveMQ is not optimized for such throughput and does not support long-term storage with event-sourcing-style replay."
+      },
+      {
+        "text": "Kafka",
+        "correct": true,
+        "explanation": "Kafka is ideal for IoT: high throughput (50k+ msg/sec), 30-day data retention, replay for ML models, partitioning by device_id for ordered processing."
+      },
+      {
+        "text": "RabbitMQ",
+        "correct": false,
+        "explanation": "RabbitMQ does not support replay of historical data and is not designed for 50k msg/sec in long-term storage. Messages are deleted after acknowledgment."
+      },
+      {
+        "text": "Redis Pub/Sub",
+        "correct": false,
+        "explanation": "Redis Pub/Sub does not store messages — after delivery, data is lost. No replay, no persistence."
+      }
+    ]
+  },
+  {
+    "question": "What is the key difference between RabbitMQ and Kafka in a hybrid architecture?",
+    "type": "single",
+    "options": [
+      {
+        "text": "RabbitMQ is faster, Kafka is more reliable",
+        "correct": false,
+        "explanation": "This is an oversimplification. RabbitMQ is fast for command routing, but Kafka is also reliable. The key difference is not speed but the consumption model."
+      },
+      {
+        "text": "RabbitMQ — push model for commands, Kafka — pull model for events with log storage",
+        "correct": true,
+        "explanation": "RabbitMQ delivers messages to consumers (smart broker), messages are deleted after ACK. Kafka stores an immutable log, consumers manage offsets themselves — ideal for events and replay."
+      },
+      {
+        "text": "RabbitMQ only works within a single datacenter",
+        "correct": false,
+        "explanation": "RabbitMQ supports federation and clustering. The datacenter limitation is an incorrect statement."
+      },
+      {
+        "text": "RabbitMQ only for JSON, Kafka for binary data",
+        "correct": false,
+        "explanation": "Both brokers support arbitrary message formats. The difference is not in data format."
+      }
+    ]
+  },
+  {
+    "question": "A banking transfer service uses Saga Pattern. Which broker and patterns are most critical for this scenario?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Kafka only for transaction replay",
+        "correct": false,
+        "explanation": "Transaction replay is not the main requirement for a Fintech Saga. What matters more is exactly-once delivery of each step, which RabbitMQ implements more easily."
+      },
+      {
+        "text": "RabbitMQ (publisher confirms + manual ACK)",
+        "correct": true,
+        "explanation": "RabbitMQ with publisher confirms provides exactly-once semantics within a single Saga step. Manual ACK ensures the message won't be lost during a failure."
+      },
+      {
+        "text": "Dead Letter Queue",
+        "correct": true,
+        "explanation": "DLQ is mandatory for Fintech: stuck transactions (exceeding retry limits) must go to a separate queue for manual review, not block the main flow."
+      },
+      {
+        "text": "Transactional Outbox",
+        "correct": true,
+        "explanation": "Outbox guarantees that the Saga initiation event is published atomically with the database write. Without it, the command could be lost during a failure between writing and publishing."
+      }
+    ]
+  },
+  {
+    "question": "What is the Strangler Fig pattern in the context of migrating from a monolith to microservices with a broker?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Gradual replacement of monolith functions, where new services 'wrap around' it and intercept traffic",
+        "correct": true,
+        "explanation": "Strangler Fig (by analogy with the strangler fig tree) — new microservices gradually take over parts of the monolith's functionality. The monolith continues to operate until fully replaced."
+      },
+      {
+        "text": "Running a message broker inside the monolith",
+        "correct": false,
+        "explanation": "This is an embedded broker — the wrong approach. Strangler Fig is about gradual function extraction, not embedding a broker."
+      },
+      {
+        "text": "Complete shutdown of the monolith and simultaneous launch of all microservices",
+        "correct": false,
+        "explanation": "This is called Big Bang migration — an extremely risky approach. Strangler Fig is its opposite."
+      },
+      {
+        "text": "Duplicating all monolith data in Kafka before migration",
+        "correct": false,
+        "explanation": "Data duplication is a separate operation (CDC, Change Data Capture), not the Strangler Fig pattern itself."
+      }
+    ]
+  },
+  {
+    "question": "In an ELK + Kafka pipeline for centralized logging — why put Kafka between services and Logstash instead of sending logs directly?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "This only works in cloud solutions",
+        "correct": false,
+        "explanation": "This works both in the cloud and on-premise."
+      },
+      {
+        "text": "Partitioning logs by service for parallel processing",
+        "correct": true,
+        "explanation": "Each service writes to its own topic (logs.service-name), Logstash reads topics in parallel with multiple consumer groups — horizontal scaling."
+      },
+      {
+        "text": "Encrypting logs before saving to Elasticsearch",
+        "correct": false,
+        "explanation": "Kafka does not encrypt data automatically. Encryption is configured separately. This is not a reason to add Kafka to the pipeline."
+      },
+      {
+        "text": "Replay logs when recovering Elasticsearch after a failure",
+        "correct": true,
+        "explanation": "If Elasticsearch is down for 2 hours, Kafka allows replaying logs for that period after recovery. Without Kafka, 2 hours of logs are lost."
+      },
+      {
+        "text": "Buffering during peak loads (spike protection)",
+        "correct": true,
+        "explanation": "Kafka absorbs spikes: if Logstash temporarily cannot keep up, logs accumulate in topics and are processed with delay. Without a buffer — log loss during overload."
+      }
+    ]
+  },
+  {
+    "question": "You are designing a notification system for e-commerce: when an order is created, you need to send email, SMS, and push. Which pattern is most appropriate?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Dead Letter Queue",
+        "correct": false,
+        "explanation": "DLQ is for error handling, not for routing a single event to multiple recipients."
+      },
+      {
+        "text": "Priority Queue — notifications by importance",
+        "correct": false,
+        "explanation": "Priority Queue manages processing order but does not solve the task of delivering one event to multiple recipients."
+      },
+      {
+        "text": "Fan-out / Pub-Sub — one event delivered to all subscribers",
+        "correct": true,
+        "explanation": "Fan-out is ideal: OrderCreated → EmailService, SMSService, PushService. Each service independently processes the event. In Kafka, this is implemented via different consumer groups."
+      },
+      {
+        "text": "Competing Consumers — multiple workers read from the same queue",
+        "correct": false,
+        "explanation": "Competing Consumers means each message is processed by only one worker. You need to deliver one event to all three recipients."
+      }
+    ]
+  },
+  {
+    "question": "In which scenario is Event Sourcing a mandatory (not just desirable) choice?",
+    "type": "single",
+    "options": [
+      {
+        "text": "When the history of all changes is itself a valuable asset (financial journals, audit, GDPR)",
+        "correct": true,
+        "explanation": "Event Sourcing is mandatory when you need to reconstruct any past system state, audit every change, or comply with regulatory requirements."
+      },
+      {
+        "text": "When the system works with only one broker",
+        "correct": false,
+        "explanation": "Event Sourcing does not depend on the number of brokers. It is a pattern for storing state as a sequence of events."
+      },
+      {
+        "text": "When you need to speed up read queries",
+        "correct": false,
+        "explanation": "Event Sourcing typically slows down read queries (you need to replay the log). To speed up reads, use CQRS with a separate read model."
+      },
+      {
+        "text": "When you only need to store the current state of an object",
+        "correct": false,
+        "explanation": "This describes traditional CRUD architecture. Event Sourcing addresses the opposite problem — storing change history, not just the final state."
+      }
+    ]
+  },
+  {
+    "question": "What is 'capacity planning' for a Kafka cluster?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Calculating the number of partitions based on throughput and consumer instance count",
+        "correct": true,
+        "explanation": "Partitions are the unit of parallelism in Kafka. The number of partitions must be at least the number of consumer instances in a group. Formula: partitions = max_throughput / throughput_per_partition."
+      },
+      {
+        "text": "Planning disk space considering retention policy",
+        "correct": true,
+        "explanation": "disk_size = msg_rate × avg_msg_size × retention_days × replication_factor. For IoT (50k msg/sec × 1KB × 30 days × 3) this is ~120 TB."
+      },
+      {
+        "text": "Determining replication factor to ensure reliability",
+        "correct": true,
+        "explanation": "Replication factor affects reliability (RF=3 survives loss of 2 brokers) and disk space used. This is a key capacity planning parameter."
+      },
+      {
+        "text": "Estimating network latency between broker and ZooKeeper",
+        "correct": false,
+        "explanation": "Network latency affects performance, but 'capacity planning' is primarily about throughput, storage, and partition count."
+      }
+    ]
+  },
+  {
+    "question": "The 'God Queue' anti-pattern in the context of RabbitMQ is:",
+    "type": "single",
+    "options": [
+      {
+        "text": "One massive queue for all message types from all services",
+        "correct": true,
+        "explanation": "God Queue — when all services write all message types to a single queue. Problems: slow messages block fast ones, impossible to scale workers independently, monitoring becomes useless."
+      },
+      {
+        "text": "Using multiple exchanges for the same message type",
+        "correct": false,
+        "explanation": "Multiple exchanges for the same type is normal practice with routing. God Queue is a different anti-pattern."
+      },
+      {
+        "text": "Too high prefetch count on a consumer",
+        "correct": false,
+        "explanation": "High prefetch is a performance anti-pattern, but not 'God Queue'."
+      },
+      {
+        "text": "Using topic exchange instead of direct",
+        "correct": false,
+        "explanation": "Choosing an exchange type is an architectural decision, not an anti-pattern. Topic exchange is often preferable to direct for flexible routing."
+      }
+    ]
+  },
+  {
+    "question": "When migrating a monolith to microservices using CDC (Change Data Capture) — what happens?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Services directly read from the monolith's database",
+        "correct": false,
+        "explanation": "Direct access of multiple services to a single database creates tight coupling. CDC works differently."
+      },
+      {
+        "text": "Changes in the monolith's DB are published to Kafka as events via reading WAL / binlog",
+        "correct": true,
+        "explanation": "CDC reads the database transaction log (WAL in PostgreSQL, binlog in MySQL) and converts each change into a Kafka event. New services subscribe to events without touching the monolith's database."
+      },
+      {
+        "text": "The monolith is completely rewritten before switching to a broker",
+        "correct": false,
+        "explanation": "This contradicts the essence of CDC — gradual migration without stopping the monolith."
+      },
+      {
+        "text": "Kafka replicates the database between datacenters",
+        "correct": false,
+        "explanation": "Kafka can be used for data replication between datacenters (MirrorMaker), but this is not the definition of CDC."
+      }
+    ]
+  },
+  {
+    "question": "You see that consumer lag in Kafka is constantly growing. Which of the following is the correct response?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Check for blocking operations or external calls within the processing loop",
+        "correct": true,
+        "explanation": "A common cause of slow consumer is a synchronous HTTP request or database call inside the poll loop. This should be moved to an async pipeline."
+      },
+      {
+        "text": "Increase the number of partitions and add consumer instances to the group",
+        "correct": true,
+        "explanation": "Consumer lag = production outpaces consumption. Adding partitions and consumers increases processing parallelism."
+      },
+      {
+        "text": "Increase retention.ms so messages aren't deleted",
+        "correct": false,
+        "explanation": "Increasing retention won't reduce lag — messages aren't being deleted anyway while the consumer hasn't read them (if lag > 0, the consumer just can't keep up)."
+      },
+      {
+        "text": "Optimize business logic within the consumer to reduce processing latency",
+        "correct": true,
+        "explanation": "If each message takes a long time to process, even with more consumers the lag will grow. Optimizing logic is the first thing to check."
+      }
+    ]
+  },
+  {
+    "question": "Why is the 'Synchronous Saga' anti-pattern (where the Saga coordinator waits for a synchronous response from each step) problematic?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Due to incompatibility with RabbitMQ",
+        "correct": false,
+        "explanation": "RabbitMQ supports the RPC pattern (reply_to, correlation_id). The problem with Synchronous Saga is not the broker."
+      },
+      {
+        "text": "Due to cascading dependencies: failure of any service blocks the entire chain and transaction lifetime is limited by timeouts",
+        "correct": true,
+        "explanation": "With synchronous Saga, a failure or slow response from PaymentService blocks OrderService for the entire wait time. A chain of 5 services at 200ms each = 1 second latency + cascade failure risk."
+      },
+      {
+        "text": "Because synchronous Saga does not support compensating transactions",
+        "correct": false,
+        "explanation": "Compensations are possible even in the synchronous variant. The problem lies elsewhere — in cascading failure and high latency."
+      },
+      {
+        "text": "Because Saga does not support synchronous communication",
+        "correct": false,
+        "explanation": "Saga can technically be implemented synchronously. The issue is not feasibility but consequences."
+      }
+    ]
+  },
+  {
+    "question": "Which pattern is used when you need to separate write operations (commands) and read operations (queries) with different data models?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Dead Letter Queue",
+        "correct": false,
+        "explanation": "DLQ — for isolating erroneous messages. Not related to read/write separation."
+      },
+      {
+        "text": "Competing Consumers",
+        "correct": false,
+        "explanation": "Competing Consumers — a scaling pattern for processing, not for separating commands and queries."
+      },
+      {
+        "text": "Saga Pattern",
+        "correct": false,
+        "explanation": "Saga — for distributed transactions with compensations. Read/write separation is a different pattern."
+      },
+      {
+        "text": "CQRS (Command Query Responsibility Segregation)",
+        "correct": true,
+        "explanation": "CQRS separates the command model (write side, optimized for writing) and the query model (read side, optimized for reading). Kafka is often used to synchronize the read model from write-side events."
+      }
+    ]
+  },
+  {
+    "question": "In an e-commerce architecture, after OrderService successfully writes an order to PostgreSQL, it must publish OrderCreated to Kafka. Without additional patterns, what could go wrong?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Solution — Transactional Outbox: the event is written in the same PostgreSQL transaction, then read by a separate process and published to Kafka",
+        "correct": true,
+        "explanation": "Outbox Pattern atomically saves the event together with the order in PostgreSQL. A separate relay process reads the outbox table and publishes events to Kafka — no duplication possible."
+      },
+      {
+        "text": "Write to PostgreSQL succeeded, but Kafka is temporarily unavailable — event is lost",
+        "correct": true,
+        "explanation": "Dual Write Problem: two operations are not atomic. If Kafka fails after a successful DB write — downstream services won't learn about the order."
+      },
+      {
+        "text": "Event published to Kafka, but PostgreSQL transaction was rolled back — duplicate",
+        "correct": true,
+        "explanation": "Reverse situation: the event was sent, but the order was not saved. PaymentService will start processing a non-existent order."
+      },
+      {
+        "text": "Kafka does not support JSON format",
+        "correct": false,
+        "explanation": "Kafka supports any message format, including JSON. This is not a Dual Write problem."
+      }
+    ]
+  },
+  {
+    "question": "Apache Pulsar is positioned as a replacement for both Kafka and RabbitMQ. Which of the following are real advantages of Pulsar?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Tiered storage: hot data in memory, cold data in S3/HDFS",
+        "correct": true,
+        "explanation": "Pulsar natively supports tiered storage — old segments are automatically moved to cloud storage. This reduces the cost of storing historical data."
+      },
+      {
+        "text": "Three times faster than Kafka under any load",
+        "correct": false,
+        "explanation": "Performance depends on the scenario. Pulsar is not always faster than Kafka, especially with simple use cases with a single consumer."
+      },
+      {
+        "text": "Built-in support for multi-tenancy and namespace isolation",
+        "correct": true,
+        "explanation": "Pulsar is designed from the ground up for SaaS scenarios: each tenant gets an isolated namespace with independent quotas and policies."
+      },
+      {
+        "text": "Support for both queues and streaming (topics) in a unified system",
+        "correct": true,
+        "explanation": "Pulsar supports multiple subscription models: Exclusive (like RabbitMQ queue), Shared (competing consumers), Failover, and Key_Shared — without needing two brokers."
+      }
+    ]
+  },
+  {
+    "question": "During RabbitMQ load testing, you discover that when more than 100k messages accumulate in a queue, performance drops sharply. What is the reason?",
+    "type": "single",
+    "options": [
+      {
+        "text": "RabbitMQ starts paging messages to disk (flow control) when memory fills up",
+        "correct": true,
+        "explanation": "RabbitMQ uses memory-based architecture. When memory_high_watermark is exceeded (default 40% of RAM), flow control kicks in: the broker blocks publishers and actively pages messages to disk."
+      },
+      {
+        "text": "Consumer cannot confirm messages fast enough",
+        "correct": false,
+        "explanation": "A slow consumer is a consequence of queue buildup, not the cause of the broker's own performance degradation."
+      },
+      {
+        "text": "RabbitMQ does not support more than 100k messages",
+        "correct": false,
+        "explanation": "RabbitMQ supports millions of messages in a queue. The limitation is not in quantity."
+      },
+      {
+        "text": "Queue consumes all CPU sorting messages",
+        "correct": false,
+        "explanation": "RabbitMQ does not sort regular queues (only priority queues). CPU issues from message accumulation are not caused by sorting."
+      }
+    ]
+  },
+  {
+    "question": "Which metrics are most critical for SLA monitoring in a hybrid (RabbitMQ + Kafka) architecture?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Number of active connections to the broker",
+        "correct": false,
+        "explanation": "Connections are a useful metric for capacity planning, but not for SLA. A high number of connections does not mean service degradation."
+      },
+      {
+        "text": "Number of messages in the Dead Letter Queue",
+        "correct": true,
+        "explanation": "DLQ growth is a signal of systemic problems: consumer failures, incorrect message format, retry limit exceeded. Every message in DLQ is a potentially lost operation."
+      },
+      {
+        "text": "This requires a special license",
+        "correct": false,
+        "explanation": "All listed technologies have open-source versions."
+      },
+      {
+        "text": "Consumer lag in Kafka (offset from end of log)",
+        "correct": true,
+        "explanation": "Consumer lag directly shows how far behind downstream services are from real time. High lag = SLA degradation."
+      },
+      {
+        "text": "Queue depth in RabbitMQ",
+        "correct": true,
+        "explanation": "Growing queue depth in RabbitMQ means the consumer cannot keep up. Critical for commands — payment processing or reservation delays directly affect the user."
+      }
+    ]
+  },
+  {
+    "question": "A fintech service uses Saga Pattern for transfers. A client initiated a transfer, DebitService debited funds, but CreditService has been unavailable for 10 minutes. What should the system do?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Move the message to DLQ and complete the Saga",
+        "correct": false,
+        "explanation": "Moving to DLQ without compensation leaves funds in an indeterminate state. DLQ should alert the operator, but funds still need to be returned."
+      },
+      {
+        "text": "Initiate a compensating transaction: refund money via CancelDebit and notify the client",
+        "correct": true,
+        "explanation": "Saga Compensation: when a Saga cannot complete, already-executed steps must be rolled back. CancelDebit returns funds, the client receives an error notification — system state is consistent."
+      },
+      {
+        "text": "Wait indefinitely until CreditService recovers",
+        "correct": false,
+        "explanation": "Indefinite waiting violates SLA and blocks resources. Client funds will be stuck for an undetermined period."
+      },
+      {
+        "text": "Mark the transaction as 'successful' and process later",
+        "correct": false,
+        "explanation": "Recording a debit without a credit as a 'successful operation' means losing client money. Unacceptable in a financial system."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following are signs of a well-designed event-driven architecture?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Event schemas are versioned and changed in a backward-compatible way",
+        "correct": true,
+        "explanation": "Schema evolution is a critical aspect of event-driven systems. Adding new optional fields should not break existing consumers. Avro / Protobuf with Schema Registry are used for this."
+      },
+      {
+        "text": "Services directly call each other's methods to guarantee delivery",
+        "correct": false,
+        "explanation": "Direct calls create tight coupling and kill the idea of event-driven architecture. Delivery guarantee is provided by the broker, not direct calls."
+      },
+      {
+        "text": "Events contain enough data for processing without additional queries (self-contained events)",
+        "correct": true,
+        "explanation": "Self-contained events reduce coupling: the consumer should not need to call back to the producer's API for details. OrderCreated contains all order fields."
+      },
+      {
+        "text": "Each service publishes events about its state changes without knowledge of subscribers",
+        "correct": true,
+        "explanation": "This is the principle of loose coupling: the producer is independent of the consumer. OrderService publishes OrderCreated without knowing who processes it — EmailService, AnalyticsService, or InventoryService."
+      }
+    ]
+  }
+]

@@ -2,52 +2,52 @@ import { useState } from 'react'
 import { useLanguage } from '@courses/platform'
 
 // ============================================
-// Задание 5.1: Direct Exchange
+// Task 5.1: Direct Exchange
 // ============================================
 //
-// Цель: реализовать симулятор Direct Exchange.
-// Direct Exchange маршрутизирует сообщение только в те очереди,
-// у которых binding key точно совпадает с routing key сообщения.
+// Goal: implement a Direct Exchange simulator.
+// Direct Exchange routes a message only to queues
+// whose binding key exactly matches the message's routing key.
 //
-// Одна и та же очередь может иметь несколько binding keys.
-// Один routing key может связывать несколько очередей.
+// A single queue can have multiple binding keys.
+// One routing key can bind multiple queues.
 
-// TODO: Определи интерфейс DirectBinding:
-//   queue: string         — имя очереди
-//   routingKey: string    — ключ привязки (exact match)
-//   color: string         — цвет для визуализации
-//   bgColor: string       — фоновый цвет
-//   messages: string[]    — последние сообщения в очереди
+// TODO: Define the DirectBinding interface:
+//   queue: string         — queue name
+//   routingKey: string    — binding key (exact match)
+//   color: string         — color for visualization
+//   bgColor: string       — background color
+//   messages: string[]    — recent messages in the queue
 // interface DirectBinding { ... }
 
-// TODO: Определи интерфейс DirectMessage:
+// TODO: Define the DirectMessage interface:
 //   id: number
 //   routingKey: string
 //   payload: string
 //   timestamp: string
 // interface DirectMessage { ... }
 
-// TODO: Создай массив initialDirectBindings с 4 привязками:
+// TODO: Create the initialDirectBindings array with 4 bindings:
 //   1. queue: 'orders.new',       routingKey: 'order.created'
 //   2. queue: 'orders.paid',      routingKey: 'order.paid'
 //   3. queue: 'orders.cancelled', routingKey: 'order.cancelled'
-//   4. queue: 'notifications',    routingKey: 'order.created'  ← та же очередь, что у #1!
+//   4. queue: 'notifications',    routingKey: 'order.created'  ← same queue as #1!
 // const initialDirectBindings: DirectBinding[] = [...]
 
-// TODO: Создай массив directRoutingKeys с 5 примерами ключей:
+// TODO: Create the directRoutingKeys array with 5 example keys:
 //   'order.created', 'order.paid', 'order.cancelled', 'order.shipped', 'user.registered'
 // const directRoutingKeys: string[] = [...]
 
 export function Task5_1() {
   const { t } = useLanguage()
 
-  // TODO: Объяви состояния:
-  //   bindings       — массив DirectBinding (initialDirectBindings)
-  //   selectedKey    — выбранный routing key (string, по умолчанию 'order.created')
-  //   customKey      — пользовательский routing key (string, по умолчанию '')
-  //   animating      — список имён очередей в анимации (string[])
-  //   log            — лог сообщений (DirectMessage[])
-  //   messageCount   — счётчик отправленных сообщений (number, 0)
+  // TODO: Declare state variables:
+  //   bindings       — array of DirectBinding (initialDirectBindings)
+  //   selectedKey    — selected routing key (string, default 'order.created')
+  //   customKey      — custom routing key (string, default '')
+  //   animating      — list of queue names being animated (string[])
+  //   log            — message log (DirectMessage[])
+  //   messageCount   — counter of sent messages (number, 0)
   const [bindings, setBindings] = useState<string[]>([])
   const [selectedKey, setSelectedKey] = useState('order.created')
   const [customKey, setCustomKey] = useState('')
@@ -55,46 +55,46 @@ export function Task5_1() {
   const [log, setLog] = useState<string[]>([])
   const [messageCount, setMessageCount] = useState(0)
 
-  // TODO: Реализуй функцию publish():
-  //   1. Определи активный ключ: customKey.trim() если не пустой, иначе selectedKey
-  //   2. Получи временную метку через new Date().toLocaleTimeString()
-  //   3. Найди все привязки с routingKey === активный ключ → matched[]
-  //   4. Обнови bindings: добавь строку вида `[ts] routing_key="${key}"` в начало messages
-  //      (только для совпавших, сохраняй не более 5 сообщений: .slice(0, 4))
-  //   5. Установи animating = matched.map(b => b.queue)
-  //   6. Увеличь messageCount
-  //   7. Создай объект DirectMessage и добавь его в начало log (не более 10 записей)
-  //   8. Через 900 мс сбрось animating в []
+  // TODO: Implement the publish() function:
+  //   1. Determine the active key: customKey.trim() if not empty, otherwise selectedKey
+  //   2. Get timestamp via new Date().toLocaleTimeString()
+  //   3. Find all bindings with routingKey === active key → matched[]
+  //   4. Update bindings: add a string like `[ts] routing_key="${key}"` to the start of messages
+  //      (only for matched ones, keep at most 5 messages: .slice(0, 4))
+  //   5. Set animating = matched.map(b => b.queue)
+  //   6. Increment messageCount
+  //   7. Create a DirectMessage object and add it to the start of log (at most 10 entries)
+  //   8. After 900ms, reset animating to []
   const publish = () => {
-    // TODO: реализовать
+    // TODO: implement
     console.log('TODO: publish()')
   }
 
-  // TODO: Реализуй функцию clearQueues():
-  //   - Сбрасывает messages в [] для каждой привязки
-  //   - Очищает log
+  // TODO: Implement the clearQueues() function:
+  //   - Resets messages to [] for each binding
+  //   - Clears the log
   const clearQueues = () => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '960px' }}>
       <h2 style={{ marginBottom: '0.25rem' }}>{t('task.5.1')}</h2>
       <p style={{ color: '#666', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-        Direct Exchange направляет сообщение только в те очереди, у которых routing key точно совпадает с ключом сообщения.
+        Direct Exchange routes a message only to queues whose routing key exactly matches the message key.
       </p>
 
-      {/* TODO: Схема архитектуры (Producer → Exchange → Queues)
-          Отобрази горизонтальную схему:
-          - Блок Producer с иконкой 📤 и текущим routing key
-          - Стрелка → с подписью PUBLISH
-          - Блок Direct Exchange с иконкой 🔀
-          - Для каждой привязки: badge с routingKey → линия → блок очереди
+      {/* TODO: Architecture diagram (Producer → Exchange → Queues)
+          Display a horizontal diagram:
+          - Producer block with icon 📤 and current routing key
+          - Arrow → labeled PUBLISH
+          - Direct Exchange block with icon 🔀
+          - For each binding: badge with routingKey → line → queue block
 
-          Визуальные состояния:
-          - Binding key подсвечивается если совпадает с текущим ключом
-          - Очередь подсвечивается если isAnimating (animating.includes(b.queue))
-          - Внутри очереди: имя, счётчик "N msg", последнее сообщение
+          Visual states:
+          - Binding key highlighted if it matches the current key
+          - Queue highlighted if isAnimating (animating.includes(b.queue))
+          - Inside queue: name, "N msg" counter, last message
       */}
       <div
         style={{
@@ -105,34 +105,34 @@ export function Task5_1() {
         }}
       >
         <div style={{ color: '#999', textAlign: 'center', padding: '2rem', fontSize: '0.9rem' }}>
-          TODO: Отобразить схему Direct Exchange
+          TODO: Display Direct Exchange diagram
           <br />
-          <small>Producer → Exchange → [{bindings.length} очередей]</small>
+          <small>Producer → Exchange → [{bindings.length} queues]</small>
         </div>
       </div>
 
-      {/* TODO: Панель управления (2 колонки):
-          Левая:
-          - Заголовок "Выбрать routing key"
-          - Кнопки для каждого ключа из directRoutingKeys
-          - Поле ввода своего ключа (customKey)
+      {/* TODO: Control panel (2 columns):
+          Left:
+          - Heading "Select routing key"
+          - Buttons for each key from directRoutingKeys
+          - Input field for custom key (customKey)
 
-          Правая:
-          - Псевдокод AMQP: channel.basicPublish(exchange, routingKey, body)
-          - Кнопки "Опубликовать" и "Очистить"
-          - Лог маршрутизации (тёмный терминал)
+          Right:
+          - AMQP pseudocode: channel.basicPublish(exchange, routingKey, body)
+          - "Publish" and "Clear" buttons
+          - Routing log (dark terminal)
       */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
         <div>
-          <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Выбрать routing key</h3>
+          <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Select routing key</h3>
           <div style={{ color: '#999', fontSize: '0.85rem' }}>
-            TODO: кнопки для каждого ключа + поле ввода своего
+            TODO: buttons for each key + custom key input
           </div>
         </div>
         <div>
-          <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Публикация</h3>
+          <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Publish</h3>
           <div style={{ color: '#999', fontSize: '0.85rem', marginBottom: '0.75rem' }}>
-            TODO: псевдокод channel.basicPublish(...)
+            TODO: pseudocode channel.basicPublish(...)
           </div>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button
@@ -163,16 +163,16 @@ export function Task5_1() {
               Очистить
             </button>
           </div>
-          {/* TODO: отобразить log в виде тёмного терминала */}
+          {/* TODO: display log as a dark terminal */}
           {log.length > 0 && (
             <div style={{ marginTop: '1rem', padding: '0.75rem', background: '#1a1a2e', borderRadius: '8px', color: '#00ff88', fontFamily: 'monospace', fontSize: '0.75rem' }}>
-              TODO: отобразить лог маршрутизации
+              TODO: display routing log
             </div>
           )}
         </div>
       </div>
 
-      {/* TODO: Информационный блок о принципах Direct Exchange */}
+      {/* TODO: Informational block about Direct Exchange principles */}
       <div
         style={{
           padding: '1rem',
@@ -182,9 +182,9 @@ export function Task5_1() {
           border: '1px solid #90CAF9',
         }}
       >
-        <strong>Как работает Direct Exchange:</strong>
+        <strong>How Direct Exchange works:</strong>
         <ul style={{ margin: '0.5rem 0 0 1.25rem', lineHeight: '1.7' }}>
-          <li>TODO: добавить принципы работы Direct Exchange</li>
+          <li>TODO: add Direct Exchange principles</li>
         </ul>
       </div>
     </div>

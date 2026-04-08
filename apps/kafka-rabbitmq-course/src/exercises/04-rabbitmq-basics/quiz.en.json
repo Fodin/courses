@@ -1,0 +1,579 @@
+[
+  {
+    "question": "What programming language is RabbitMQ written in and why is this important?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Go — because goroutines allow handling thousands of connections",
+        "correct": false,
+        "explanation": "RabbitMQ is not written in Go. Go appeared later and does not have the same reliability mechanisms as Erlang/OTP."
+      },
+      {
+        "text": "Java — because JVM provides cross-platform compatibility",
+        "correct": false,
+        "explanation": "RabbitMQ is not written in Java. Although JVM is popular, it does not provide the reliability guarantees that were required for a message broker."
+      },
+      {
+        "text": "Erlang — because it was created for telecommunication systems requiring nine nines (99.9999999%) availability",
+        "correct": true,
+        "explanation": "Erlang was developed at Ericsson for telephone exchanges that must never stop. This gave RabbitMQ lightweight processes, supervision trees, hot code swapping, and built-in fault isolation."
+      },
+      {
+        "text": "C++ — because a low-level language provides maximum performance",
+        "correct": false,
+        "explanation": "RabbitMQ is not written in C++. Performance is important, but Erlang was chosen primarily for reliability and fault tolerance."
+      }
+    ]
+  },
+  {
+    "question": "What is a Supervision Tree in Erlang/OTP and how does it affect RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A tool for profiling performance of Erlang applications",
+        "correct": false,
+        "explanation": "A Supervision Tree is not a profiling tool. It is an architectural pattern for managing process lifecycles."
+      },
+      {
+        "text": "A hierarchy of supervising processes: when a child process crashes, the supervisor automatically restarts it",
+        "correct": true,
+        "explanation": "Supervision Trees allow RabbitMQ to automatically recover from failures. A crash of one connection or channel does not kill the broker — the supervisor detects the failure and restarts only the crashed process."
+      },
+      {
+        "text": "A data structure for storing message routes in a bindings tree",
+        "correct": false,
+        "explanation": "Supervision Tree has nothing to do with message routing. It is a process lifecycle management mechanism in Erlang/OTP."
+      },
+      {
+        "text": "A mechanism for replicating data between cluster nodes",
+        "correct": false,
+        "explanation": "Data replication is provided by Quorum Queue through the Raft algorithm. Supervision Tree is responsible for supervising processes within a single node."
+      }
+    ]
+  },
+  {
+    "question": "How does an Erlang process differ from a system thread (OS thread)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Creating an Erlang process takes microseconds, creating a system thread takes milliseconds",
+        "correct": true,
+        "explanation": "Fast creation allows RabbitMQ to instantly accept new connections without the overhead typical of system threads."
+      },
+      {
+        "text": "An Erlang process weighs ~300 bytes, a system thread ~2 MB of stack",
+        "correct": true,
+        "explanation": "Because of this minimal size, BEAM can hold millions of Erlang processes. RabbitMQ creates a separate process for each TCP connection."
+      },
+      {
+        "text": "Erlang processes are isolated: an exception in one does not affect others",
+        "correct": true,
+        "explanation": "Isolation is a key property. A failure in one client connection does not affect thousands of other connections."
+      },
+      {
+        "text": "Erlang processes share memory for fast data exchange",
+        "correct": false,
+        "explanation": "Erlang processes do not share memory — this is a fundamental feature of the actor model. Data exchange happens only through message passing."
+      }
+    ]
+  },
+  {
+    "question": "What is Hot Code Loading in Erlang and how does RabbitMQ use this capability?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Dynamic plugin loading without restarting the broker",
+        "correct": false,
+        "explanation": "Although plugins can be enabled without a full restart, Hot Code Loading is a more fundamental mechanism for updating the module code itself."
+      },
+      {
+        "text": "Caching frequently used modules in memory for faster operation",
+        "correct": false,
+        "explanation": "This describes a caching mechanism, not Hot Code Loading. Hot Code Loading is about replacing live code without stopping the system."
+      },
+      {
+        "text": "Loading a new version of a module while the system is running without stopping — the system holds both current and old versions simultaneously",
+        "correct": true,
+        "explanation": "Thanks to Hot Code Loading, RabbitMQ supports zero-downtime patch upgrades (e.g., 3.12.3 → 3.12.4). New calls go to the current version, old processes finish in the old version."
+      },
+      {
+        "text": "Compiling Erlang code to native machine code at startup for maximum speed",
+        "correct": false,
+        "explanation": "This describes the JIT compiler, not Hot Code Loading. Although BEAM supports JIT since OTP 24, it is a separate mechanism."
+      }
+    ]
+  },
+  {
+    "question": "What is the fundamental difference between a Disk Node and a RAM Node in a RabbitMQ cluster?",
+    "type": "single",
+    "options": [
+      {
+        "text": "RAM Node stores messages in memory for speed, Disk Node writes all messages to disk",
+        "correct": false,
+        "explanation": "This is a common misconception! The node type does not determine where messages are stored. Durable messages in durable queues are always written to disk regardless of node type."
+      },
+      {
+        "text": "RAM Node does not support Quorum Queues and cannot be part of a cluster",
+        "correct": false,
+        "explanation": "A RAM Node can be part of a cluster and work with Quorum Queues. The limitation is different: a RAM Node does not persist metadata across restarts."
+      },
+      {
+        "text": "RAM Node stores only metadata (queue declarations, exchanges, bindings) in memory; Disk Node stores metadata on disk",
+        "correct": true,
+        "explanation": "Node type affects only metadata storage. A Disk Node restores cluster structure from disk on restart, a RAM Node loses metadata. At least one Disk Node is required in a cluster."
+      },
+      {
+        "text": "Disk Node is 10 times slower than RAM Node for all operations",
+        "correct": false,
+        "explanation": "The speed difference only applies to metadata operations (declare/delete). For normal message publishing and consuming, there is no difference."
+      }
+    ]
+  },
+  {
+    "question": "How does a Quorum Queue fundamentally differ from a Classic Queue with mirroring?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Quorum Queue does not require an odd number of replicas",
+        "correct": false,
+        "explanation": "Quorum Queue requires an odd number of replicas (3, 5, 7) for Raft to work correctly: a majority (quorum) is needed for decision making."
+      },
+      {
+        "text": "It depends entirely on the programming language",
+        "correct": false,
+        "explanation": "This is an architectural decision, not dependent on the programming language."
+      },
+      {
+        "text": "Quorum Queue uses the Raft algorithm for replication consensus",
+        "correct": true,
+        "explanation": "Raft provides strict consistency guarantees. Classic mirrored queues did not use Raft and could lose unsynchronized messages during failover."
+      },
+      {
+        "text": "Quorum Queue guarantees that a message is saved on a majority of nodes before confirming to the producer",
+        "correct": true,
+        "explanation": "A publisher confirm is only sent after the majority of replicas have written the message. This eliminates data loss on leader failure."
+      },
+      {
+        "text": "Synchronizing a new replica in Quorum Queue happens gradually without blocking the queue",
+        "correct": true,
+        "explanation": "In Classic mirrored queues, adding a new mirror could block the queue during synchronization. Quorum Queue implements incremental replication via the Raft log."
+      }
+    ]
+  },
+  {
+    "question": "When are RabbitMQ Streams preferable to Quorum Queues?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "When multiple independent services need to read the same event stream from different positions",
+        "correct": true,
+        "explanation": "In classic queues, a message is deleted after delivery. A Stream allows each consumer group to have its own offset and read independently — like Kafka consumer groups."
+      },
+      {
+        "text": "When you need to guarantee that each message is processed by exactly one consumer",
+        "correct": false,
+        "explanation": "For 'exactly-one consumer' semantics, a classic queue or Quorum Queue is more suitable. Streams are designed for scenarios with multiple independent readers."
+      },
+      {
+        "text": "When you need to implement replay — reprocess events from the beginning or a specific position",
+        "correct": true,
+        "explanation": "Streams do not delete messages after delivery. A new consumer can start from offset 0 and read the entire event history within the retention period."
+      },
+      {
+        "text": "When the publish rate exceeds 100,000 messages per second",
+        "correct": true,
+        "explanation": "Streams are optimized for high throughput and consume fewer resources at large volumes than Quorum Queues, thanks to a simplified consumption model."
+      }
+    ]
+  },
+  {
+    "question": "What happens to RabbitMQ when memory usage exceeds vm_memory_high_watermark?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All incoming and outgoing connections are closed to redistribute memory",
+        "correct": false,
+        "explanation": "Connections are not closed. Only publishing connections are blocked; consuming connections continue to work normally."
+      },
+      {
+        "text": "RabbitMQ automatically increases the memory limit to 80%",
+        "correct": false,
+        "explanation": "RabbitMQ does not increase the limit on its own. It applies flow control and starts paging (writing messages to disk) to reduce pressure."
+      },
+      {
+        "text": "The broker immediately shuts down and drops all messages",
+        "correct": false,
+        "explanation": "RabbitMQ does not shut down when the watermark is exceeded. That would be catastrophic behavior for a production system."
+      },
+      {
+        "text": "Flow control begins: publishing connections transition to a blocked state, message consumption continues",
+        "correct": true,
+        "explanation": "Flow control is a backpressure mechanism. The broker blocks publishers, giving consumers time to 'drain' accumulated messages and free memory. The connection changes status from running to blocked."
+      }
+    ]
+  },
+  {
+    "question": "What three types of permissions exist in RabbitMQ and what does each allow?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "configure — allows declare/delete of queues, exchanges, and purging queues",
+        "correct": true,
+        "explanation": "The configure permission is the most 'dangerous' of the three. It allows creating and deleting resources. Applications typically do not need this permission in production."
+      },
+      {
+        "text": "read — allows only viewing statistics through the Management UI",
+        "correct": false,
+        "explanation": "The read permission is not about the Management UI (for that, user tags are used). Read permission allows getting messages: basic.get, basic.consume, and creating bindings through the queue."
+      },
+      {
+        "text": "write — allows publishing messages (basic.publish) and creating bindings through the exchange",
+        "correct": true,
+        "explanation": "Write permission is needed by a publisher. Without it, an attempt to publish a message will result in an ACCESS_REFUSED error."
+      },
+      {
+        "text": "read — allows getting messages (basic.get, basic.consume) and creating bindings through the queue",
+        "correct": true,
+        "explanation": "Read permission is needed by a consumer. A binding from the queue side requires read on the queue, a binding from the exchange side requires write on the exchange."
+      }
+    ]
+  },
+  {
+    "question": "User app_user has permissions: configure='', write='orders\\..*', read='orders\\..*|payments\\..*'. What can they do?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Publish a message to exchange with routing key audit.events",
+        "correct": false,
+        "explanation": "The pattern write='orders\\..*' does not match 'audit.events'. The publish will be rejected by the broker."
+      },
+      {
+        "text": "Create a new queue notifications.email",
+        "correct": false,
+        "explanation": "configure='' means an empty pattern — no resources can be created. An attempt to declare a queue will result in an ACCESS_REFUSED error."
+      },
+      {
+        "text": "Read messages from the queue payments.pending",
+        "correct": true,
+        "explanation": "The pattern read='orders\\..*|payments\\..*' matches 'payments.pending'. Consumption is allowed."
+      },
+      {
+        "text": "Publish a message to exchange with routing key orders.created",
+        "correct": true,
+        "explanation": "The pattern write='orders\\..*' matches 'orders.created'. Publishing is allowed."
+      }
+    ]
+  },
+  {
+    "question": "What is a Virtual Host in RabbitMQ? Which analogy best describes its purpose?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A group of users with the same access rights to the broker",
+        "correct": false,
+        "explanation": "A vhost is a resource isolation space (exchanges, queues), not a user grouping. One user can have access to multiple vhosts."
+      },
+      {
+        "text": "A separate connection port — each vhost listens on its own TCP port",
+        "correct": false,
+        "explanation": "Virtual Host does not create a separate port. All vhosts are accessible through the same port 5672. The vhost is specified when establishing a connection."
+      },
+      {
+        "text": "A database in PostgreSQL: one server, multiple isolated spaces with their own tables and permissions",
+        "correct": true,
+        "explanation": "An excellent analogy. Just as one PostgreSQL server holds multiple databases, RabbitMQ holds multiple vhosts. Each has its own exchanges, queues, bindings — complete isolation."
+      },
+      {
+        "text": "A virtual machine running inside RabbitMQ for load isolation",
+        "correct": false,
+        "explanation": "A Virtual Host is not a virtual machine. It is a logical namespace, not a separate isolated process with its own CPU/RAM resources."
+      }
+    ]
+  },
+  {
+    "question": "The command `rabbitmqctl set_permissions -p /production app_user '' '.*' '.*'` — what does it do and what is its practical meaning?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Allows app_user to publish and read messages from any resources, but not to create or delete them",
+        "correct": true,
+        "explanation": "configure='' (cannot create/delete anything), write='.*' (publish to any exchange), read='.*' (read from any queue). Good practice for application users."
+      },
+      {
+        "text": "Grants full access to everything in /production, including creating and deleting resources",
+        "correct": false,
+        "explanation": "No. Configure (the first pattern) is an empty string, which means create/delete is prohibited. This is an intentional restriction."
+      },
+      {
+        "text": "The command is invalid: an empty string will cause a pattern parsing error",
+        "correct": false,
+        "explanation": "An empty string in a pattern is a valid value in RabbitMQ. It means 'no resource matches' — a complete prohibition on operations of that type."
+      },
+      {
+        "text": "Grants app_user administrator rights in the vhost /production",
+        "correct": false,
+        "explanation": "Administrator rights in the Management UI are determined by user tags (administrator), not by vhost permissions. This set_permissions does not affect broker management."
+      }
+    ]
+  },
+  {
+    "question": "What does the messages_unacknowledged metric show in the Management UI and why is it important?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The number of messages that have been delivered to consumers but not yet acknowledged (no ack received)",
+        "correct": true,
+        "explanation": "Until the consumer sends a basic.ack, the broker holds the message as unacknowledged. If a consumer crashes without acking, the message is returned to the queue. A high unacknowledged count may indicate a slow or hung consumer."
+      },
+      {
+        "text": "The number of messages published without the mandatory flag (that did not find a queue)",
+        "correct": false,
+        "explanation": "Messages without a recipient (unroutable) are a separate category. messages_unacknowledged is about messages being processed by consumers."
+      },
+      {
+        "text": "The number of messages waiting in the dead-letter exchange",
+        "correct": false,
+        "explanation": "Dead-letter messages are messages rejected by a consumer (nack/reject) or expired by TTL. They go to a DLX and are counted as normal messages in the target queue."
+      },
+      {
+        "text": "The number of messages the broker has not yet saved to disk",
+        "correct": false,
+        "explanation": "This describes in-flight writes to disk. messages_unacknowledged is about something else: messages delivered to consumers but not yet acknowledged (ack not received)."
+      }
+    ]
+  },
+  {
+    "question": "In the Management UI you see: queue orders.created — publishRate=500/s, deliverRate=200/s, messages=47000 and growing. What is the problem and how do you solve it?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The broker is overloaded with disk operations — switch the node to RAM mode",
+        "correct": false,
+        "explanation": "The symptom describes lagging consumers, not a disk problem. Switching to RAM mode will not help — it affects metadata, not message processing speed."
+      },
+      {
+        "text": "The exchange is misconfigured — messages are being duplicated",
+        "correct": false,
+        "explanation": "If messages were being duplicated, deliverRate would be higher than publishRate. In this case, the picture is the opposite — the problem is on the consumer side."
+      },
+      {
+        "text": "The Classic queue type needs to be replaced with Stream to increase read speed",
+        "correct": false,
+        "explanation": "Changing the queue type will not solve the problem if the consumer itself is slow. A Stream would add offset management complexity but would not speed up processing."
+      },
+      {
+        "text": "Consumers cannot handle the load: deliverRate (200) < publishRate (500). You need to scale consumers",
+        "correct": true,
+        "explanation": "The queue is building up because producers are writing 2.5x faster than consumers can process. The solution: increase the number of consumers or optimize their code. Also check the prefetch count."
+      }
+    ]
+  },
+  {
+    "question": "What port does the RabbitMQ Management Plugin use by default and what does it provide?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Port 15672 — Web UI for monitoring and managing the broker",
+        "correct": true,
+        "explanation": "The Management Plugin listens on port 15672 by default. It provides a dashboard with metrics, management of vhosts, users, and queues."
+      },
+      {
+        "text": "Port 15672 — binary protocol for cluster synchronization",
+        "correct": false,
+        "explanation": "Cluster synchronization via the Erlang Distribution Protocol uses a different port (25672). The Management Plugin provides only an HTTP/REST interface."
+      },
+      {
+        "text": "Port 15672 — REST API for automation (creating queues, vhosts, managing permissions)",
+        "correct": true,
+        "explanation": "The Management Plugin provides a full HTTP API. Through it you can automate everything: from creating a vhost to publishing test messages."
+      },
+      {
+        "text": "Port 5672 — the main AMQP protocol for applications",
+        "correct": false,
+        "explanation": "Port 5672 is AMQP, but it belongs to the main broker, not the Management Plugin. The Management Plugin runs on 15672."
+      }
+    ]
+  },
+  {
+    "question": "The command `rabbitmqctl export_definitions /tmp/defs.json` — what does it export?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only performance metrics from the last 24 hours",
+        "correct": false,
+        "explanation": "Metrics are stored in memory by the Management Plugin and are not exported by the export_definitions command. For metrics, use Prometheus/Grafana integration."
+      },
+      {
+        "text": "Broker logs in structured JSON format",
+        "correct": false,
+        "explanation": "Logs are stored in separate files (usually in /var/log/rabbitmq/). export_definitions is about configuration, not logs."
+      },
+      {
+        "text": "Broker configuration: vhosts, users, permissions, exchanges, queues, bindings, policies",
+        "correct": true,
+        "explanation": "Definitions are the full configuration: all declared resources and access rights. Used for configuration backup, migration between servers, or infrastructure as code."
+      },
+      {
+        "text": "Only messages from all queues in JSON format",
+        "correct": false,
+        "explanation": "Messages are application data, not broker configuration. export_definitions exports structure and settings, not queue contents."
+      }
+    ]
+  },
+  {
+    "question": "You are adding a new service and want it to only read messages from the queue reports.daily, without the ability to create resources or publish. What permissions should you grant?",
+    "type": "single",
+    "options": [
+      {
+        "text": "No permissions needed — by default users can read from all queues",
+        "correct": false,
+        "explanation": "RabbitMQ uses a deny-by-default principle. Without explicitly granted permissions, a user has no access to anything in the vhost."
+      },
+      {
+        "text": "configure='', write='', read='.*'",
+        "correct": false,
+        "explanation": "This would allow reading from all queues in the vhost, not just reports.daily. It is better to restrict access to a specific pattern."
+      },
+      {
+        "text": "configure='.*', write='.*', read='.*' — full access is safest",
+        "correct": false,
+        "explanation": "This violates the principle of least privilege. If the service is compromised, an attacker would gain full control of the broker. Excessive permissions are a serious security issue."
+      },
+      {
+        "text": "configure='', write='', read='reports\\.daily'",
+        "correct": true,
+        "explanation": "These are exactly the minimum necessary permissions: no creating/deleting resources, no publishing — only reading from a specific queue. The pattern 'reports\\.daily' must be escaped: in regex a dot matches any character, so a backslash is needed."
+      }
+    ]
+  },
+  {
+    "question": "What happens if 2 out of 3 nodes in a cluster (all Disk Nodes) crash simultaneously, and those nodes host the Quorum Queue replicas?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The cluster automatically creates a new replica from the remaining data within seconds",
+        "correct": false,
+        "explanation": "To create a new replica, a live node is needed that can be added to the cluster. There is no automatic self-recovery when quorum is lost — at least one crashed node must be brought back."
+      },
+      {
+        "text": "Messages are automatically transferred to the remaining node and the queue works in degraded mode",
+        "correct": false,
+        "explanation": "A Quorum Queue does not automatically degrade to a single replica — that would be unsafe. When quorum is insufficient, the queue stops to protect data from divergence."
+      },
+      {
+        "text": "The queue becomes unavailable because there is no quorum: for 3 replicas at least 2 are required",
+        "correct": true,
+        "explanation": "Raft requires a majority: for 3 nodes that is 2. With 2 nodes down, the single remaining node cannot form a quorum and the queue becomes unavailable."
+      },
+      {
+        "text": "The queue continues to work normally because at least one node is alive",
+        "correct": false,
+        "explanation": "A Quorum Queue requires quorum — a majority of replicas (2 out of 3). If only 1 node is alive, there is no quorum and the queue transitions to an unavailable state."
+      }
+    ]
+  },
+  {
+    "question": "How does rabbitmq.conf differ from advanced.config? When should you use advanced.config?",
+    "type": "single",
+    "options": [
+      {
+        "text": "rabbitmq.conf applies immediately (hot reload), advanced.config only after a restart",
+        "correct": false,
+        "explanation": "Both files require a broker restart for most changes to take effect. Some Management Plugin settings can be changed via the API without a restart, but this is not related to the file format."
+      },
+      {
+        "text": "advanced.config completely replaces rabbitmq.conf — there is no point in using both",
+        "correct": false,
+        "explanation": "No. The files complement each other. rabbitmq.conf is read first; advanced.config allows you to specify things that cannot be expressed in INI format."
+      },
+      {
+        "text": "rabbitmq.conf is for production, advanced.config is only for development",
+        "correct": false,
+        "explanation": "Both files are used in production. The difference is not the environment, but the capabilities: advanced.config is needed for settings not available through INI format."
+      },
+      {
+        "text": "rabbitmq.conf — INI-like format for most settings; advanced.config — Erlang term format for complex low-level settings (TCP tuning, specific plugin parameters)",
+        "correct": true,
+        "explanation": "Both files can be used simultaneously — they complement each other. For most configuration, rabbitmq.conf is sufficient. advanced.config is needed, for example, for fine-tuning TCP buffers or specific Erlang runtime parameters."
+      }
+    ]
+  },
+  {
+    "question": "The rabbitmq_shovel plugin is designed for:",
+    "type": "single",
+    "options": [
+      {
+        "text": "Monitoring and alerting when queues build up",
+        "correct": false,
+        "explanation": "Monitoring is the job of the Management Plugin and Prometheus exporter. Shovel is about moving data between queues or brokers."
+      },
+      {
+        "text": "Transferring messages from one queue/broker to another — for example, replication between data centers or data migration",
+        "correct": true,
+        "explanation": "Shovel connects to a source (queue or exchange) and transfers messages to a destination, which may be on another broker. Useful for: DR replication, migration between versions, traffic splitting."
+      },
+      {
+        "text": "Federating RabbitMQ clusters for global routing",
+        "correct": false,
+        "explanation": "There is a separate rabbitmq_federation plugin for federation. Shovel works more simply: reads from source, writes to destination, without complex federation topology."
+      },
+      {
+        "text": "Compressing messages to reduce network load",
+        "correct": false,
+        "explanation": "Message compression is not a built-in RabbitMQ feature and is not related to the shovel plugin. Compression is typically implemented at the application level."
+      }
+    ]
+  },
+  {
+    "question": "User admin has the 'administrator' tag, user monitor has the 'monitoring' tag. What is the practical difference between these tags?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "monitoring cannot connect to the broker via the AMQP protocol",
+        "correct": false,
+        "explanation": "Tags do not restrict AMQP connections. A user with any tag can connect via AMQP if they have permissions in the desired vhost."
+      },
+      {
+        "text": "administrator automatically receives all permissions (configure/write/read) in all vhosts",
+        "correct": false,
+        "explanation": "The administrator tag only grants rights in the Management UI. For AMQP access (publishing/reading messages), you must explicitly grant permissions via set_permissions — these are independent mechanisms."
+      },
+      {
+        "text": "administrator can create/delete users and vhosts through the Management UI",
+        "correct": true,
+        "explanation": "The administrator tag gives full access to management through the Management UI: users, vhosts, policies, cluster."
+      },
+      {
+        "text": "monitoring can view statistics and metrics of all vhosts without management rights",
+        "correct": true,
+        "explanation": "The monitoring tag is designed for read-only access to statistics. It is suitable for monitoring systems (Grafana, Prometheus scripts) that need metrics but do not need management capabilities."
+      }
+    ]
+  },
+  {
+    "question": "You are deploying RabbitMQ in Docker. In docker-compose.yml you have RABBITMQ_DEFAULT_VHOST=/production. What happens on the first startup?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The setting is ignored — you cannot set a default vhost via environment variables in Docker",
+        "correct": false,
+        "explanation": "RabbitMQ supports configuration via environment variables in Docker. RABBITMQ_DEFAULT_VHOST is a standard way to set the initial vhost."
+      },
+      {
+        "text": "Both vhosts will be created: '/' (system) and '/production'. The default user gets permissions in '/production'",
+        "correct": true,
+        "explanation": "RABBITMQ_DEFAULT_VHOST sets the vhost for the default user. RabbitMQ always creates the '/' vhost — this is standard behavior and cannot be disabled."
+      },
+      {
+        "text": "The broker will not start because you should use 'production' without a slash instead of '/'",
+        "correct": false,
+        "explanation": "RabbitMQ correctly handles vhost names with slashes. '/production' is a valid name. The broker will start normally."
+      },
+      {
+        "text": "Only the vhost /production will be created, the default vhost '/' will not be created",
+        "correct": false,
+        "explanation": "RabbitMQ always creates the default vhost '/'. RABBITMQ_DEFAULT_VHOST only indicates which vhost to consider primary for the default user, but does not replace the standard one."
+      }
+    ]
+  }
+]

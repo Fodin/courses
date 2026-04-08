@@ -1,0 +1,746 @@
+[
+  {
+    "question": "How does Direct Exchange route a message?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Routes the message only to queues whose binding key exactly matches the routing key",
+        "correct": true,
+        "explanation": "Direct Exchange performs an exact match: the message's routing key must match the queue's binding key letter for letter."
+      },
+      {
+        "text": "Routes by wildcard patterns using * and #",
+        "correct": false,
+        "explanation": "That is the behavior of Topic Exchange."
+      },
+      {
+        "text": "Routes by AMQP message headers",
+        "correct": false,
+        "explanation": "That is the behavior of Headers Exchange."
+      },
+      {
+        "text": "Broadcasts the message to all bound queues",
+        "correct": false,
+        "explanation": "That is the behavior of Fanout Exchange, not Direct."
+      }
+    ]
+  },
+  {
+    "question": "Can a single routing key in Direct Exchange route a message to multiple queues?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Yes, if multiple queues have the same binding key",
+        "correct": true,
+        "explanation": "Direct Exchange does not limit the number of queues with the same binding key. This allows imitating fanout behavior for a specific key."
+      },
+      {
+        "text": "No, Direct Exchange always sends to only one queue",
+        "correct": false,
+        "explanation": "Direct Exchange routes by exact match, but multiple queues can have the same binding key. In that case, the message will be delivered to all of them."
+      },
+      {
+        "text": "Only if a special flag is used during publishing",
+        "correct": false,
+        "explanation": "No special flag is required — this is standard Direct Exchange behavior."
+      }
+    ]
+  },
+  {
+    "question": "What happens to a message in Direct Exchange if no queue has a matching binding key?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The message is automatically returned to the default exchange",
+        "correct": false,
+        "explanation": "There is no automatic return. To handle unroutable messages, you need to explicitly configure an alternate exchange."
+      },
+      {
+        "text": "The message is lost (dropped) unless an alternate exchange is configured",
+        "correct": true,
+        "explanation": "Unroutable messages are lost by default. To avoid this, you can configure an alternate exchange or use the mandatory flag when publishing."
+      },
+      {
+        "text": "RabbitMQ throws an exception and closes the connection",
+        "correct": false,
+        "explanation": "RabbitMQ does not close the connection. The message is simply lost (unless mandatory flag or alternate exchange is configured)."
+      },
+      {
+        "text": "The message waits in the exchange until a matching queue appears",
+        "correct": false,
+        "explanation": "Exchanges do not store messages. That is the role of queues."
+      }
+    ]
+  },
+  {
+    "question": "How does Fanout Exchange handle the message's routing key?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Requires the routing key to be an empty string",
+        "correct": false,
+        "explanation": "Fanout Exchange accepts any routing key, but does not use it in any way."
+      },
+      {
+        "text": "Uses the routing key only if it contains the symbol *",
+        "correct": false,
+        "explanation": "No, Fanout Exchange ignores the routing key regardless of its content."
+      },
+      {
+        "text": "Uses the routing key to filter recipients",
+        "correct": false,
+        "explanation": "Fanout Exchange completely ignores the routing key — it broadcasts the message to all bound queues."
+      },
+      {
+        "text": "Completely ignores the routing key",
+        "correct": true,
+        "explanation": "This is the key characteristic of Fanout Exchange: any routing key provided at publish time is ignored, and the message is broadcast to all bound queues."
+      }
+    ]
+  },
+  {
+    "question": "You are building a push notification system: email service, push service, and SMS service must all receive every event. Which Exchange type is most suitable?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Direct Exchange with the same binding key for all three queues",
+        "correct": false,
+        "explanation": "This would work, but Fanout Exchange semantically better expresses the intent: 'send to all subscribers'. Direct with a single key is an imitation of fanout."
+      },
+      {
+        "text": "Topic Exchange with pattern #",
+        "correct": false,
+        "explanation": "Topic with pattern # technically duplicates Fanout behavior, but is an unnecessary complication for this scenario."
+      },
+      {
+        "text": "Fanout Exchange",
+        "correct": true,
+        "explanation": "Fanout Exchange is ideal for broadcast scenarios: every event is automatically delivered to all bound queues without key configuration."
+      },
+      {
+        "text": "Headers Exchange with x-match: any",
+        "correct": false,
+        "explanation": "Headers Exchange is overly complex for this case and has worse performance."
+      }
+    ]
+  },
+  {
+    "question": "What does the symbol * (asterisk) mean in a Topic Exchange pattern?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Zero or more words (segments)",
+        "correct": false,
+        "explanation": "Zero or more words is the symbol #. The asterisk * replaces exactly one word."
+      },
+      {
+        "text": "Any character within a single word",
+        "correct": false,
+        "explanation": "In Topic Exchange, the dot is a segment separator, and * works at the level of entire segments, not individual characters."
+      },
+      {
+        "text": "One or more segments",
+        "correct": false,
+        "explanation": "* is strictly one word. AMQP has no separate symbol for one-or-more words."
+      },
+      {
+        "text": "Exactly one word (segment between dots)",
+        "correct": true,
+        "explanation": "* replaces exactly one segment (word between dots). For example, order.* matches order.created, but NOT order.created.eu."
+      }
+    ]
+  },
+  {
+    "question": "What is the matching result of the pattern order.# with the key order?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Matches, because # replaces zero or more words",
+        "correct": true,
+        "explanation": "order.# means 'order, followed by a dot and zero-or-more words'. # can match an empty string, so order matches this pattern."
+      },
+      {
+        "text": "Depends on RabbitMQ settings",
+        "correct": false,
+        "explanation": "The behavior of # is strictly defined by the AMQP standard: zero or more words. It is not configurable."
+      },
+      {
+        "text": "Does not match, because there are no words after order",
+        "correct": false,
+        "explanation": "The symbol # replaces ZERO or more words, so order.# matches order (zero additional words)."
+      }
+    ]
+  },
+  {
+    "question": "Does the pattern *.paid.* match the routing key order.paid.eu?",
+    "type": "single",
+    "options": [
+      {
+        "text": "No, order.paid.eu has 3 segments, but *.paid.* has only 2",
+        "correct": false,
+        "explanation": "*.paid.* has 3 segments: *, paid, *. order.paid.eu also has 3 segments. They match."
+      },
+      {
+        "text": "No, * cannot appear at the start of a pattern",
+        "correct": false,
+        "explanation": "* can appear in any position of the pattern. *.paid.* is a valid pattern."
+      },
+      {
+        "text": "Yes, first * = order, paid = paid, second * = eu",
+        "correct": true,
+        "explanation": "Each * replaces one segment: first * → order, paid → paid (exact match), second * → eu. The pattern matches."
+      }
+    ]
+  },
+  {
+    "question": "What is x-match in Headers Exchange?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The version of the RabbitMQ routing algorithm",
+        "correct": false,
+        "explanation": "x-match is not a version. It is a binding parameter that determines AND (all) or OR (any) logic."
+      },
+      {
+        "text": "An AMQP header compression method",
+        "correct": false,
+        "explanation": "x-match has nothing to do with compression. It is a logical parameter for selecting the comparison mode."
+      },
+      {
+        "text": "The maximum number of headers involved in comparison",
+        "correct": false,
+        "explanation": "x-match does not specify a count. Valid values are 'all' and 'any'."
+      },
+      {
+        "text": "A special header that defines the header comparison algorithm",
+        "correct": true,
+        "explanation": "x-match is a mandatory special header set when creating a binding. Value 'all' requires all headers to match, 'any' — at least one."
+      }
+    ]
+  },
+  {
+    "question": "A binding has headers: { region: 'eu', tier: 'premium' } and x-match: all. A message has headers: { region: 'eu', tier: 'standard', platform: 'mobile' }. Will the message be routed to this queue?",
+    "type": "single",
+    "options": [
+      {
+        "text": "No, because the message has an additional header platform",
+        "correct": false,
+        "explanation": "Additional headers in the message do not affect routing. Only the headers specified in the binding matter."
+      },
+      {
+        "text": "No, because tier: premium does not match tier: standard",
+        "correct": true,
+        "explanation": "x-match: all is a logical AND. Both binding headers (region AND tier) must match. region matches, but tier does not, so the message is not routed."
+      },
+      {
+        "text": "Yes, because region: eu matches",
+        "correct": false,
+        "explanation": "x-match: all requires ALL binding headers to match. tier: premium does not match tier: standard, so the message will not be routed."
+      }
+    ]
+  },
+  {
+    "question": "A binding has headers: { platform: 'mobile', platform2: 'tablet' } and x-match: any. A message has headers: { platform: 'desktop', region: 'eu' }. Will the message be routed to this queue?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Yes, because x-match: any = OR, and the key platform is present in both",
+        "correct": false,
+        "explanation": "x-match: any compares key+value pairs, not just keys. Having the key platform is not enough — the value must also match."
+      },
+      {
+        "text": "No, because neither platform: mobile nor platform2: tablet matches the message headers",
+        "correct": true,
+        "explanation": "x-match: any requires at least one binding header to match. platform: mobile ≠ desktop, platform2 is absent from the message. Neither condition is met."
+      },
+      {
+        "text": "Yes, because the message has the key platform",
+        "correct": false,
+        "explanation": "x-match: any checks not only the key existence but also the value. platform: desktop does not match platform: mobile."
+      }
+    ]
+  },
+  {
+    "question": "What is the Default Exchange in RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A Topic Exchange with pattern # for catching all messages",
+        "correct": false,
+        "explanation": "The Default Exchange is a Direct Exchange with an empty name, not a Topic Exchange."
+      },
+      {
+        "text": "A special Fanout Exchange created at broker startup",
+        "correct": false,
+        "explanation": "The Default Exchange is a Direct Exchange, not Fanout."
+      },
+      {
+        "text": "A pre-installed Direct Exchange with an empty name (\"\"), automatically binding each queue to its name",
+        "correct": true,
+        "explanation": "The Default Exchange is a built-in Direct Exchange with the name \"\". Each created queue automatically receives a binding with routing key = queue name. This allows sending a message directly to a queue by its name."
+      },
+      {
+        "text": "An exchange used when the type is not specified during creation",
+        "correct": false,
+        "explanation": "The Default Exchange is a specific built-in exchange with an empty name, not just 'an exchange without a type'."
+      }
+    ]
+  },
+  {
+    "question": "What is an Alternate Exchange?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A fallback exchange that receives messages not routed by the primary exchange",
+        "correct": true,
+        "explanation": "Alternate Exchange (AE) is configured via the alternate-exchange argument when creating an exchange. All unroutable messages are redirected to AE instead of being lost."
+      },
+      {
+        "text": "An alias for another exchange",
+        "correct": false,
+        "explanation": "AE is a separate exchange that receives unroutable messages, not an alias."
+      },
+      {
+        "text": "A second exchange that duplicates all messages for redundancy",
+        "correct": false,
+        "explanation": "AE does not duplicate messages. It only receives messages that the primary exchange could not route."
+      },
+      {
+        "text": "An exchange automatically created by RabbitMQ under load",
+        "correct": false,
+        "explanation": "AE is an explicitly configured feature, not an automatic load-balancing mechanism."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between binding key and routing key?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Binding key is used in Topic Exchange, routing key — in Direct Exchange",
+        "correct": false,
+        "explanation": "Both terms apply to all exchange types. Binding key is always a binding attribute, routing key is a message attribute."
+      },
+      {
+        "text": "Routing key is set when creating a queue, binding key — when publishing",
+        "correct": false,
+        "explanation": "It is the other way around: binding key is set when creating a binding, routing key — when publishing a message."
+      },
+      {
+        "text": "Binding key is set when creating a binding (queue→exchange), routing key — when publishing a message",
+        "correct": true,
+        "explanation": "Binding key is a binding attribute that defines the routing condition. Routing key is a message attribute specified at publish time. Direct Exchange compares them for equality."
+      },
+      {
+        "text": "They are the same thing — both terms are interchangeable",
+        "correct": false,
+        "explanation": "These are different concepts with different application contexts."
+      }
+    ]
+  },
+  {
+    "question": "Which Exchange type has the worst routing performance?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Direct Exchange",
+        "correct": false,
+        "explanation": "Direct Exchange uses a hash table for lookups — a very fast O(1) operation."
+      },
+      {
+        "text": "Fanout Exchange",
+        "correct": false,
+        "explanation": "Fanout Exchange has the best performance among all types because it performs no comparison — it simply broadcasts to all."
+      },
+      {
+        "text": "Headers Exchange",
+        "correct": true,
+        "explanation": "Headers Exchange must compare multiple key-value pairs for each message and each binding. This is an O(N×M) operation versus O(1) for Direct Exchange."
+      },
+      {
+        "text": "Topic Exchange",
+        "correct": false,
+        "explanation": "Topic Exchange is faster than Headers, even though it requires pattern matching. Patterns are compiled and optimized."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following statements about Topic Exchange are true?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "# can replace zero words (empty suffix)",
+        "correct": true,
+        "explanation": "Yes, order.# matches order (zero additional words). # means zero OR more words."
+      },
+      {
+        "text": "The pattern # is equivalent to Fanout Exchange (matches everything)",
+        "correct": true,
+        "explanation": "Yes, a binding with pattern # will receive all messages, since # replaces any number of words from 0 to infinity."
+      },
+      {
+        "text": "A single routing key can match multiple patterns simultaneously",
+        "correct": true,
+        "explanation": "Yes, the message will be delivered to all queues whose patterns matched the routing key — there is no 'first match only' restriction."
+      },
+      {
+        "text": "* can replace multiple dot-separated segments",
+        "correct": false,
+        "explanation": "No, * replaces exactly one segment. Use # for multiple segments."
+      },
+      {
+        "text": "Topic Exchange does not support exact matching (without wildcards)",
+        "correct": false,
+        "explanation": "Topic Exchange supports exact matching — just use a pattern without * and #, e.g., order.created. It will work like Direct Exchange."
+      }
+    ]
+  },
+  {
+    "question": "You want to route messages by geography and event type: European orders to one queue, all errors to another, and all US events to a third. Which Exchange type is best suited?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Direct Exchange",
+        "correct": false,
+        "explanation": "Direct requires exact key matching. The pattern 'all errors' (any region) would require registering every possible error key."
+      },
+      {
+        "text": "Headers Exchange",
+        "correct": false,
+        "explanation": "Headers Exchange could handle this task, but Topic Exchange is simpler to configure and faster for hierarchical routing."
+      },
+      {
+        "text": "Fanout Exchange",
+        "correct": false,
+        "explanation": "Fanout broadcasts to everyone — no ability to filter by geography or event type."
+      },
+      {
+        "text": "Topic Exchange",
+        "correct": true,
+        "explanation": "Topic Exchange is ideal for hierarchical keys like region.type: *.error → all errors, eu.# → all European, us.# → all US. Flexible and scalable."
+      }
+    ]
+  },
+  {
+    "question": "What is exchange-to-exchange binding in RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A mechanism for replicating exchanges between cluster nodes",
+        "correct": false,
+        "explanation": "E2E binding is not about replication. It is a tool for building complex routing topologies."
+      },
+      {
+        "text": "A standard AMQP 0-9-1 feature that allows chaining exchanges",
+        "correct": false,
+        "explanation": "Exchange-to-exchange binding is a RabbitMQ extension, not part of the AMQP 0-9-1 standard."
+      },
+      {
+        "text": "A RabbitMQ extension that allows binding one exchange to another to create routing pipelines",
+        "correct": true,
+        "explanation": "RabbitMQ supports E2E bindings: messages from one exchange are routed to another exchange, creating multi-level routing pipelines. This allows separating routing logic."
+      },
+      {
+        "text": "A way to create a backup of an exchange",
+        "correct": false,
+        "explanation": "E2E binding does not create backups. It is a tool for building routing pipelines."
+      }
+    ]
+  },
+  {
+    "question": "You have a Direct Exchange 'orders' with bindings: queue 'new-orders' → key 'order.created', queue 'eu-orders' → key 'order.created'. A message is published with routing key 'order.created'. Which queues will it reach?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only 'new-orders' (first matching queue)",
+        "correct": false,
+        "explanation": "Direct Exchange does not stop at the first match. The message is delivered to ALL queues with a matching binding key."
+      },
+      {
+        "text": "Only 'eu-orders' (last registered binding has priority)",
+        "correct": false,
+        "explanation": "Binding registration order does not matter. All matching queues receive the message."
+      },
+      {
+        "text": "None — binding conflict",
+        "correct": false,
+        "explanation": "Conflicts do not exist. Multiple queues with the same binding key is a valid configuration."
+      },
+      {
+        "text": "Both: 'new-orders' and 'eu-orders'",
+        "correct": true,
+        "explanation": "Direct Exchange routes the message to all queues whose binding keys match the routing key. Both queues have binding key 'order.created', so both will receive the message."
+      }
+    ]
+  },
+  {
+    "question": "Which Exchange types do NOT use the routing key to make routing decisions?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Headers Exchange",
+        "correct": true,
+        "explanation": "Headers Exchange routes by AMQP message headers; the routing key is ignored."
+      },
+      {
+        "text": "Direct Exchange",
+        "correct": false,
+        "explanation": "Direct Exchange strictly uses the routing key for exact match with binding keys."
+      },
+      {
+        "text": "Topic Exchange",
+        "correct": false,
+        "explanation": "Topic Exchange uses the routing key to compare with binding wildcard patterns."
+      },
+      {
+        "text": "Fanout Exchange",
+        "correct": true,
+        "explanation": "Fanout completely ignores the routing key — it broadcasts to all bound queues."
+      }
+    ]
+  },
+  {
+    "question": "You are building A/B testing: 10% of users with flag beta=true should receive messages in queue 'beta-queue', the rest — in 'stable-queue'. Which Exchange type is best suited?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Direct Exchange",
+        "correct": false,
+        "explanation": "Direct works by routing key, but the beta flag is a user attribute (metadata) more conveniently passed as a header."
+      },
+      {
+        "text": "Headers Exchange",
+        "correct": true,
+        "explanation": "Headers Exchange is ideal: binding for 'beta-queue' contains { beta: 'true' } with x-match: all, and 'stable-queue' handles messages not matched to beta via alternate exchange or separate logic."
+      },
+      {
+        "text": "Topic Exchange with pattern *.beta",
+        "correct": false,
+        "explanation": "Topic is suited for hierarchical keys, but the beta flag is metadata, not part of the event hierarchy. Headers Exchange is semantically more accurate."
+      },
+      {
+        "text": "Fanout Exchange",
+        "correct": false,
+        "explanation": "Fanout broadcasts to everyone without filtering — you cannot separate beta and stable users."
+      }
+    ]
+  },
+  {
+    "question": "Which Topic Exchange pattern(s) will match routing key user.login.mobile, but NOT match user.login?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "#.mobile",
+        "correct": true,
+        "explanation": "#.mobile: # = user.login, mobile = mobile. user.login.mobile — matches. user.login — does not end with mobile, does not match."
+      },
+      {
+        "text": "user.#",
+        "correct": false,
+        "explanation": "user.# matches both: user.login and user.login.mobile (# = zero or more words)."
+      },
+      {
+        "text": "user.login.*",
+        "correct": true,
+        "explanation": "user.login.* requires exactly one segment after login. user.login.mobile (mobile = *) — matches. user.login — no third segment, does not match."
+      },
+      {
+        "text": "user.*.*",
+        "correct": false,
+        "explanation": "user.*.* requires exactly two segments after user: * = login, * = mobile. user.login.mobile — matches. user.login — only one segment, does not match. Wait — the question asks for patterns that match user.login.mobile but NOT user.login. user.*.* matches user.login.mobile and does NOT match user.login, so this should be correct too."
+      }
+    ]
+  },
+  {
+    "question": "How many exchanges exist in RabbitMQ by default (after initial installation)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Seven pre-installed exchanges: default (\"\"), amq.direct, amq.fanout, amq.topic, amq.headers, amq.match, amq.rabbitmq.trace",
+        "correct": true,
+        "explanation": "RabbitMQ creates 7 pre-installed exchanges for each vhost. The amq.* names are reserved and cannot be used for user-defined exchanges."
+      },
+      {
+        "text": "Four — one for each type (Direct, Fanout, Topic, Headers)",
+        "correct": false,
+        "explanation": "There are more than four pre-installed exchanges, including special ones like amq.rabbitmq.trace."
+      },
+      {
+        "text": "None — exchanges are only created programmatically",
+        "correct": false,
+        "explanation": "The Default Exchange (\"\") and amq.* exchanges are created automatically when a vhost is created."
+      },
+      {
+        "text": "One — the Default Exchange",
+        "correct": false,
+        "explanation": "Several pre-installed exchanges are created by default, not only the Default Exchange."
+      }
+    ]
+  },
+  {
+    "question": "What happens if you try to create an exchange with a name starting with 'amq.'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "RabbitMQ returns an ACCESS_REFUSED error — amq.* names are reserved",
+        "correct": true,
+        "explanation": "The amq.* namespace is reserved for RabbitMQ's pre-installed exchanges. Attempting to create an exchange with such a name will result in an ACCESS_REFUSED error."
+      },
+      {
+        "text": "The exchange is created but with a warning in the logs",
+        "correct": false,
+        "explanation": "RabbitMQ does not just warn — it rejects such a request with an error."
+      },
+      {
+        "text": "The exchange is created only if the Direct type is specified",
+        "correct": false,
+        "explanation": "The type does not matter — amq.* names are reserved for all exchange types."
+      },
+      {
+        "text": "The name is automatically renamed to usr.amq.name",
+        "correct": false,
+        "explanation": "RabbitMQ does not rename anything — it returns an error."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following scenarios are suitable for Fanout Exchange?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Cache invalidation on all cluster nodes",
+        "correct": true,
+        "explanation": "When data changes, all instances need to be notified — this is broadcasting, ideal for Fanout."
+      },
+      {
+        "text": "Routing orders by region (EU → eu-orders, US → us-orders)",
+        "correct": false,
+        "explanation": "This requires filtering by region — Direct or Topic Exchange is needed, not Fanout."
+      },
+      {
+        "text": "Sending notifications simultaneously through email, push, and SMS",
+        "correct": true,
+        "explanation": "A classic Fanout use case: one event must be delivered to all notification channels."
+      },
+      {
+        "text": "Processing payment transactions with exactly-once delivery guarantee",
+        "correct": false,
+        "explanation": "Payment transactions require precise routing to a specific handler. Fanout would send the transaction to all subscribers, which is unacceptable."
+      },
+      {
+        "text": "Audit logging of all system events",
+        "correct": true,
+        "explanation": "Subscribing audit-service to all events via Fanout Exchange is a common pattern. The audit queue receives a copy of every message."
+      }
+    ]
+  },
+  {
+    "question": "The pattern #.# in Topic Exchange — how many segments does it require?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The pattern #.# is invalid and will cause an error",
+        "correct": false,
+        "explanation": "#.# is a valid pattern, just redundant. RabbitMQ will accept it."
+      },
+      {
+        "text": "Minimum 2 segments",
+        "correct": false,
+        "explanation": "# can match zero words. #.# can match an empty key or a single-segment key."
+      },
+      {
+        "text": "Zero or more segments — matches any key including empty",
+        "correct": true,
+        "explanation": "#.# means: zero-or-more words, dot, zero-or-more words. This matches any routing key, including an empty string. It is a redundant equivalent of a single #."
+      },
+      {
+        "text": "Exactly 2 segments",
+        "correct": false,
+        "explanation": "No, # does not require segments. #.# is a verbose form equivalent to a single #."
+      }
+    ]
+  },
+  {
+    "question": "Which property links a queue to an exchange in AMQP?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Binding",
+        "correct": true,
+        "explanation": "A binding is the link between an exchange and a queue (or exchange and exchange). Created with the queue.bind command, it defines the conditions under which messages are routed to the queue."
+      },
+      {
+        "text": "Route",
+        "correct": false,
+        "explanation": "Route is a general term, but in AMQP the specific entity is called a binding."
+      },
+      {
+        "text": "Link",
+        "correct": false,
+        "explanation": "Link is a term from AMQP 1.0. In AMQP 0-9-1 (used by RabbitMQ), the term binding is used."
+      },
+      {
+        "text": "Subscription",
+        "correct": false,
+        "explanation": "Subscription is a term from other protocols (MQTT, STOMP). In AMQP, the term binding is used."
+      }
+    ]
+  },
+  {
+    "question": "You publish a message with routing key 'order.created.eu.premium'. Which Topic Exchange patterns will match it?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "order.*.*.*",
+        "correct": true,
+        "explanation": "order.*.*.* : order = order, * = created, * = eu, * = premium. Exactly 3 wildcard segments. Matches."
+      },
+      {
+        "text": "order.#",
+        "correct": true,
+        "explanation": "order.# : order — exact match, # = created.eu.premium (3 words). Matches."
+      },
+      {
+        "text": "#.premium",
+        "correct": true,
+        "explanation": "#.premium : # = order.created.eu (3 words), premium = premium. Matches."
+      },
+      {
+        "text": "*.created.eu.*",
+        "correct": true,
+        "explanation": "*.created.eu.* : * = order, created = created, eu = eu, * = premium. Matches."
+      },
+      {
+        "text": "order.created.*",
+        "correct": false,
+        "explanation": "order.created.* expects exactly one segment after created. The key has two: eu and premium. Does not match."
+      }
+    ]
+  },
+  {
+    "question": "What is the main advantage of Headers Exchange over Topic Exchange?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Supports regular expressions in routing conditions",
+        "correct": false,
+        "explanation": "Headers Exchange does not support regex. Only exact matching of header values."
+      },
+      {
+        "text": "Allows routing by multiple attributes with AND/OR logic without encoding them in the routing key",
+        "correct": true,
+        "explanation": "Headers Exchange allows using rich metadata (multiple headers) with all/any logic without needing to pack all criteria into a routing key string. This provides greater semantic flexibility."
+      },
+      {
+        "text": "Headers Exchange does not require declaring bindings",
+        "correct": false,
+        "explanation": "Bindings are required for Headers Exchange, just as for any other type."
+      },
+      {
+        "text": "Headers Exchange is faster",
+        "correct": false,
+        "explanation": "Headers Exchange is slower than Topic Exchange due to the need to compare multiple key-value pairs."
+      }
+    ]
+  }
+]

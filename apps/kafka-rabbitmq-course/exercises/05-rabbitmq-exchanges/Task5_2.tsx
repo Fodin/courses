@@ -2,29 +2,29 @@ import { useState } from 'react'
 import { useLanguage } from '@courses/platform'
 
 // ============================================
-// Задание 5.2: Fanout Exchange
+// Task 5.2: Fanout Exchange
 // ============================================
 //
-// Цель: реализовать симулятор Fanout Exchange.
-// Fanout Exchange игнорирует routing key и рассылает сообщение
-// во ВСЕ привязанные (active: true) очереди.
+// Goal: implement a Fanout Exchange simulator.
+// Fanout Exchange ignores the routing key and broadcasts the message
+// to ALL bound (active: true) queues.
 //
-// Ключевые особенности:
-// - Routing key принимается, но полностью игнорируется при маршрутизации
-// - Можно динамически добавлять и удалять привязки (очереди)
-// - Можно временно отключить привязку (unbind) не удаляя очередь
+// Key features:
+// - Routing key is accepted but completely ignored during routing
+// - Bindings (queues) can be dynamically added and removed
+// - A binding can be temporarily disabled (unbind) without deleting the queue
 
-// TODO: Определи интерфейс FanoutQueue:
+// TODO: Define the FanoutQueue interface:
 //   id: string
 //   name: string
 //   color: string
 //   bgColor: string
 //   messages: string[]
-//   active: boolean   ← если false, очередь не получает сообщения
+//   active: boolean   ← if false, the queue does not receive messages
 // interface FanoutQueue { ... }
 
-// TODO: Объяви массив queueColors из 3 объектов { color, bgColor }
-// для циклического назначения цветов новым очередям:
+// TODO: Declare the queueColors array of 3 objects { color, bgColor }
+// for cyclically assigning colors to new queues:
 //   { color: '#E65100', bgColor: '#FFF3E0' }
 //   { color: '#00838F', bgColor: '#E0F7FA' }
 //   { color: '#AD1457', bgColor: '#FCE4EC' }
@@ -33,13 +33,13 @@ import { useLanguage } from '@courses/platform'
 export function Task5_2() {
   const { t } = useLanguage()
 
-  // TODO: Объяви состояния:
-  //   queues        — массив FanoutQueue (3 начальных очереди)
-  //   animating     — boolean (анимация отправки)
-  //   routingKey    — string (ввод пользователя, игнорируется при маршрутизации)
+  // TODO: Declare state variables:
+  //   queues        — array of FanoutQueue (3 initial queues)
+  //   animating     — boolean (send animation)
+  //   routingKey    — string (user input, ignored during routing)
   //   messageCount  — number
-  //   log           — string[] (лог рассылок)
-  //   newQueueName  — string (поле ввода имени новой очереди)
+  //   log           — string[] (broadcast log)
+  //   newQueueName  — string (input field for new queue name)
   const [queues, setQueues] = useState<string[]>([])
   const [animating, setAnimating] = useState(false)
   const [routingKey, setRoutingKey] = useState('user.registered')
@@ -47,63 +47,63 @@ export function Task5_2() {
   const [log, setLog] = useState<string[]>([])
   const [newQueueName, setNewQueueName] = useState('')
 
-  // TODO: Инициализируй начальные очереди в useState выше:
+  // TODO: Initialize the initial queues in useState above:
   //   { id: 'q1', name: 'email-notifications', color: '#1565C0', bgColor: '#E3F2FD', messages: [], active: true }
   //   { id: 'q2', name: 'push-notifications',  color: '#2E7D32', bgColor: '#E8F5E9', messages: [], active: true }
   //   { id: 'q3', name: 'analytics-events',    color: '#6A1B9A', bgColor: '#F3E5F5', messages: [], active: true }
 
-  // TODO: Реализуй функцию publish():
-  //   1. Найди activeQueues = queues.filter(q => q.active)
-  //   2. Установи animating = true
-  //   3. Через 600 мс (setTimeout):
-  //      - Добавь строку `[ts] msg#N routing_key="${routingKey}"` в messages каждой активной очереди
-  //      - Добавь строку лога: `[ts] FANOUT msg#N → K очередей: name1, name2, ...`
-  //      - Сбрось animating = false
+  // TODO: Implement the publish() function:
+  //   1. Find activeQueues = queues.filter(q => q.active)
+  //   2. Set animating = true
+  //   3. After 600ms (setTimeout):
+  //      - Add a log string `[ts] msg#N routing_key="${routingKey}"` to messages of each active queue
+  //      - Add a log string: `[ts] FANOUT msg#N → K queues: name1, name2, ...`
+  //      - Reset animating = false
   const publish = () => {
-    // TODO: реализовать
+    // TODO: implement
     console.log('TODO: publish()')
   }
 
-  // TODO: Реализуй функцию toggleQueue(id: string):
-  //   Переключает active у очереди с данным id
+  // TODO: Implement the toggleQueue(id: string) function:
+  //   Toggles active on the queue with the given id
   const toggleQueue = (_id: string) => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
-  // TODO: Реализуй функцию addQueue():
-  //   1. Проверь, что newQueueName.trim() не пустой
-  //   2. Определи цвет: queueColors[queues.length % queueColors.length]
-  //   3. Добавь новую очередь с id = `q${Date.now()}`
-  //   4. Очисти newQueueName
+  // TODO: Implement the addQueue() function:
+  //   1. Check that newQueueName.trim() is not empty
+  //   2. Determine color: queueColors[queues.length % queueColors.length]
+  //   3. Add a new queue with id = `q${Date.now()}`
+  //   4. Clear newQueueName
   const addQueue = () => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
-  // TODO: Реализуй функцию removeQueue(id: string):
-  //   Удаляет очередь из массива
+  // TODO: Implement the removeQueue(id: string) function:
+  //   Removes the queue from the array
   const removeQueue = (_id: string) => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
-  // TODO: Реализуй функцию clearAll():
-  //   Сбрасывает messages во всех очередях и очищает log
+  // TODO: Implement the clearAll() function:
+  //   Resets messages in all queues and clears the log
   const clearAll = () => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '960px' }}>
       <h2 style={{ marginBottom: '0.25rem' }}>{t('task.5.2')}</h2>
       <p style={{ color: '#666', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-        Fanout Exchange рассылает каждое сообщение во ВСЕ привязанные очереди. Routing key полностью игнорируется.
+        Fanout Exchange broadcasts every message to ALL bound queues. Routing key is completely ignored.
       </p>
 
-      {/* TODO: Схема (Producer → Fanout Exchange → список очередей)
-          - Exchange подсвечивается при animating
-          - Каждая очередь с opacity 0.35 если active: false
-          - Для каждой очереди: кнопки "unbind"/"bind" и "✕" (удалить)
-          - Анимированная стрелка → при animating && q.active
-          - Показывать последнее сообщение и счётчик msg
+      {/* TODO: Diagram (Producer → Fanout Exchange → list of queues)
+          - Exchange highlighted when animating
+          - Each queue with opacity 0.35 if active: false
+          - For each queue: "unbind"/"bind" buttons and "✕" (delete)
+          - Animated arrow → when animating && q.active
+          - Show last message and msg counter
       */}
       <div
         style={{
@@ -114,27 +114,27 @@ export function Task5_2() {
         }}
       >
         <div style={{ color: '#999', textAlign: 'center', padding: '2rem', fontSize: '0.9rem' }}>
-          TODO: Отобразить схему Fanout Exchange
+          TODO: Display Fanout Exchange diagram
           <br />
-          <small>Producer → Exchange → [{queues.length} очередей]</small>
+          <small>Producer → Exchange → [{queues.length} queues]</small>
         </div>
       </div>
 
-      {/* TODO: Панель управления (2 колонки):
-          Левая:
-          - Поле routing key с подписью "(игнорируется Fanout)"
-          - Кнопки "Broadcast" и "Очистить"
-          - Поле + кнопка "+ Bind" для добавления новой очереди
+      {/* TODO: Control panel (2 columns):
+          Left:
+          - Routing key field with label "(ignored by Fanout)"
+          - "Broadcast" and "Clear" buttons
+          - Field + "+ Bind" button for adding a new queue
 
-          Правая:
-          - Лог рассылок (тёмный терминал) или заглушка "Нажмите Broadcast"
+          Right:
+          - Broadcast log (dark terminal) or placeholder "Press Broadcast"
       */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
         <div>
-          <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Управление</h3>
+          <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Controls</h3>
           <div style={{ marginBottom: '0.75rem' }}>
             <label style={{ fontSize: '0.85rem', color: '#666', display: 'block', marginBottom: '4px' }}>
-              Routing key (игнорируется Fanout):
+              Routing key (ignored by Fanout):
             </label>
             <input
               value={routingKey}
@@ -180,13 +180,13 @@ export function Task5_2() {
               Очистить
             </button>
           </div>
-          {/* TODO: поле ввода newQueueName + кнопка addQueue */}
+          {/* TODO: input field for newQueueName + addQueue button */}
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <input
               value={newQueueName}
               onChange={e => setNewQueueName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addQueue()}
-              placeholder="новая очередь..."
+              placeholder="new queue..."
               style={{
                 flex: 1,
                 padding: '0.5rem',
@@ -214,8 +214,8 @@ export function Task5_2() {
         </div>
 
         <div>
-          <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Лог рассылок</h3>
-          {/* TODO: если log не пустой — тёмный терминал с записями, иначе — заглушка */}
+          <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Broadcast log</h3>
+          {/* TODO: if log is not empty — dark terminal with entries, otherwise — placeholder */}
           <div
             style={{
               padding: '2rem',
@@ -226,16 +226,16 @@ export function Task5_2() {
               fontSize: '0.85rem',
             }}
           >
-            Нажмите "Broadcast" для отправки
+            Press "Broadcast" to send
           </div>
         </div>
       </div>
 
-      {/* TODO: Блок сценариев использования Fanout Exchange (4 пункта с иконками):
-          📧 Уведомления пользователям (email + push + SMS)
-          📊 Рассылка событий в несколько аналитических систем
-          🔄 Cache invalidation во всех нодах кластера
-          📡 Трансляция live-данных нескольким потребителям
+      {/* TODO: Block with Fanout Exchange use case scenarios (4 items with icons):
+          📧 Notifications to users (email + push + SMS)
+          📊 Event broadcasting to multiple analytics systems
+          🔄 Cache invalidation across all cluster nodes
+          📡 Live data broadcast to multiple consumers
       */}
       <div
         style={{
@@ -246,9 +246,9 @@ export function Task5_2() {
           border: '1px solid #A5D6A7',
         }}
       >
-        <strong>Сценарии использования Fanout Exchange:</strong>
+        <strong>Fanout Exchange use cases:</strong>
         <div style={{ color: '#999', marginTop: '0.5rem' }}>
-          TODO: добавить 4 сценария использования с иконками
+          TODO: add 4 use case scenarios with icons
         </div>
       </div>
     </div>

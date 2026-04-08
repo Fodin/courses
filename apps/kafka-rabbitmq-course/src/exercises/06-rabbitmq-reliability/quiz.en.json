@@ -1,0 +1,678 @@
+[
+  {
+    "question": "What are Publisher Confirms in RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A transactional RabbitMQ mechanism for exactly-once guarantees",
+        "correct": false,
+        "explanation": "Publisher Confirms do not provide exactly-once. A separate AMQP tx mechanism exists for transactions, but it is slower and rarely used in production."
+      },
+      {
+        "text": "A mechanism where the producer waits for an ACK from the broker before publishing the next message",
+        "correct": false,
+        "explanation": "Not quite accurate — this describes only the individual mode. Publisher Confirms in general are a protocol for the broker to confirm message delivery."
+      },
+      {
+        "text": "An AMQP extension that allows the broker to notify the producer about successful or unsuccessful message receipt",
+        "correct": true,
+        "explanation": "Publisher Confirms are an AMQP protocol extension where the broker sends ACK or NACK to the producer, confirming receipt and storage of the message."
+      },
+      {
+        "text": "A message duplication mechanism for ensuring reliability",
+        "correct": false,
+        "explanation": "Duplication is a separate pattern. Publisher Confirms confirm delivery, not message duplication."
+      }
+    ]
+  },
+  {
+    "question": "Which Publisher Confirms modes exist in RabbitMQ?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Transactional (confirmation via AMQP transaction)",
+        "correct": false,
+        "explanation": "Transactions (tx.select/tx.commit) are a separate mechanism, not a Publisher Confirms mode. They are incompatible: confirms and transactions cannot be used on the same channel."
+      },
+      {
+        "text": "Individual (one confirmation per message)",
+        "correct": false,
+        "explanation": "Individual confirms — the producer sends a message and waits for ACK/NACK for each message individually."
+      },
+      {
+        "text": "Async (asynchronous confirmations via callback)",
+        "correct": true,
+        "explanation": "Async confirms — the producer sends all messages without waiting, ACK/NACK arrive asynchronously in a callback (listener)."
+      },
+      {
+        "text": "Batch (one confirmation for a group of messages)",
+        "correct": true,
+        "explanation": "Batch confirms — the producer sends N messages, then waits for an ACK with multiple=true, confirming all tags up to the specified one."
+      }
+    ]
+  },
+  {
+    "question": "What does multiple=true mean in basicAck(deliveryTag=10, multiple=true)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The broker confirms all messages with deliveryTag <= 10",
+        "correct": true,
+        "explanation": "multiple=true means cumulative confirmation: all messages with deliveryTag from 1 to 10 (inclusive) are considered confirmed."
+      },
+      {
+        "text": "The broker confirms every 10th message",
+        "correct": false,
+        "explanation": "deliveryTag is a monotonically increasing number for each message on the channel. multiple=true confirms all tags up to the specified one, not every Nth message."
+      },
+      {
+        "text": "The broker confirms only the message with deliveryTag=10",
+        "correct": false,
+        "explanation": "This is the behavior with multiple=false. With multiple=true, all messages up to and including the specified tag are confirmed."
+      },
+      {
+        "text": "The broker sends one confirmation for 10 messages",
+        "correct": false,
+        "explanation": "The number 10 here is the deliveryTag value (sequence number), not the count of messages."
+      }
+    ]
+  },
+  {
+    "question": "Which Publisher Confirms mode provides maximum throughput?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All modes have the same performance",
+        "correct": false,
+        "explanation": "Modes differ significantly in performance: individual < batch < async in throughput."
+      },
+      {
+        "text": "Async confirms",
+        "correct": true,
+        "explanation": "Async confirms — maximum throughput: the producer does not block, all messages are sent immediately, confirmations are handled in a separate callback without blocking the main thread."
+      },
+      {
+        "text": "Individual confirms",
+        "correct": false,
+        "explanation": "Individual confirms — the slowest mode: 1 RTT per message. Throughput is limited by network latency."
+      },
+      {
+        "text": "Batch confirms",
+        "correct": false,
+        "explanation": "Batch confirms are faster than individual, but the producer still waits for ACK after each batch before sending the next one."
+      }
+    ]
+  },
+  {
+    "question": "What happens when basicNack is received in batch confirms mode?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The broker automatically retries delivery",
+        "correct": false,
+        "explanation": "Publisher Confirms place responsibility on the producer. The broker reports the error via NACK but does not retry on behalf of the producer."
+      },
+      {
+        "text": "Messages are lost permanently",
+        "correct": false,
+        "explanation": "No, NACK is an error signal. The producer must handle NACK (retry or log the error)."
+      },
+      {
+        "text": "Only the message that received NACK needs to be resent",
+        "correct": false,
+        "explanation": "In batch confirms, the producer does not track individual messages within the batch. With NACK and multiple=true, it is unknown which specific message failed."
+      },
+      {
+        "text": "The entire batch of messages must be resent",
+        "correct": true,
+        "explanation": "On NACK in batch mode, the producer must resend the entire batch since it is unknown which specific message caused the error. This is a drawback of batch mode compared to async."
+      }
+    ]
+  },
+  {
+    "question": "What is Auto ACK (autoAck=true) on a consumer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The consumer automatically confirms the message after successful processing",
+        "correct": false,
+        "explanation": "This describes manual ACK after processing. Auto ACK sends confirmation immediately upon receiving the message from the network, before processing begins."
+      },
+      {
+        "text": "The consumer automatically confirms the message immediately upon receiving it from the network",
+        "correct": true,
+        "explanation": "With autoAck=true, the broker considers the message delivered as soon as it is sent over the network, without waiting for an explicit basicAck from the consumer. This is fast but unsafe: if the consumer crashes before processing, the message is lost."
+      },
+      {
+        "text": "The broker retries delivery when the consumer fails",
+        "correct": false,
+        "explanation": "With autoAck=true, the broker does not retry delivery — the message is considered processed immediately. Redelivery is only possible with manual ACK."
+      },
+      {
+        "text": "The consumer confirms a batch of messages simultaneously",
+        "correct": false,
+        "explanation": "This describes multiple ACK. Auto ACK is a subscription mode where each message is confirmed automatically without calling basicAck."
+      }
+    ]
+  },
+  {
+    "question": "What is the main problem with autoAck=true?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Message loss when the consumer crashes before completing processing",
+        "correct": true,
+        "explanation": "With autoAck=true, the broker removes the message from the queue immediately after sending it. If the consumer received the message but crashed before processing — the message is permanently lost."
+      },
+      {
+        "text": "Message duplication on broker restart",
+        "correct": false,
+        "explanation": "Duplication occurs with manual ACK (if ACK did not reach before restart). With autoAck, the problem is the opposite: possible loss, not duplication."
+      },
+      {
+        "text": "Inability to use prefetch with autoAck",
+        "correct": false,
+        "explanation": "Prefetch can be used with autoAck, but it makes little practical sense: the broker sends messages immediately anyway, without waiting for ACK."
+      },
+      {
+        "text": "Low performance due to extra network calls",
+        "correct": false,
+        "explanation": "On the contrary: autoAck is faster because no additional ACK packet needs to be sent from consumer to broker."
+      }
+    ]
+  },
+  {
+    "question": "What does basicNack(deliveryTag, multiple=false, requeue=true) do?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Removes the message from the queue without redelivery",
+        "correct": false,
+        "explanation": "This is the behavior with requeue=false. With requeue=true, the message is returned to the queue."
+      },
+      {
+        "text": "Confirms the message and moves it to a dead letter exchange",
+        "correct": false,
+        "explanation": "Moving to DLX occurs with requeue=false (if a dead-letter-exchange is configured). With requeue=true, the message returns to the normal queue."
+      },
+      {
+        "text": "Rejects the message and returns it to the queue for redelivery",
+        "correct": true,
+        "explanation": "basicNack(tag, false, true) rejects a single message (multiple=false) and returns it to the queue (requeue=true), after which it will be delivered again."
+      },
+      {
+        "text": "Stops the consumer and resets all uncompleted messages",
+        "correct": false,
+        "explanation": "basicNack does not stop the consumer. It only signals the broker to reject a specific message."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between basicNack and basicReject?",
+    "type": "single",
+    "options": [
+      {
+        "text": "basicReject is faster, basicNack is more reliable",
+        "correct": false,
+        "explanation": "Speed and reliability are not the issue here. The difference is the ability to reject multiple messages at once."
+      },
+      {
+        "text": "basicNack is an AMQP standard, basicReject is a RabbitMQ extension",
+        "correct": false,
+        "explanation": "The opposite is true: basicReject is AMQP 0-9-1 standard, basicNack is a RabbitMQ extension. basicReject does not support multiple."
+      },
+      {
+        "text": "basicReject moves to DLX, basicNack does not",
+        "correct": false,
+        "explanation": "Both methods move the message to DLX with requeue=false if a dead-letter-exchange is configured. The behavior is identical in this regard."
+      },
+      {
+        "text": "basicNack supports multiple=true (reject multiple messages at once), basicReject — only one",
+        "correct": true,
+        "explanation": "basicReject can only reject one message at a time (no multiple field). basicNack is a RabbitMQ extension that adds the multiple field for batch rejection."
+      }
+    ]
+  },
+  {
+    "question": "What is prefetchCount (basicQos) in RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The maximum message size that the broker accepts from the producer",
+        "correct": false,
+        "explanation": "Message size is limited by the max-message-size parameter, not prefetchCount. QoS relates to count, not size."
+      },
+      {
+        "text": "The maximum number of messages in a queue",
+        "correct": false,
+        "explanation": "The maximum queue size is set by the x-max-length parameter when declaring the queue. prefetchCount is a consumer setting."
+      },
+      {
+        "text": "The number of messages the broker can send to a consumer without receiving ACK",
+        "correct": true,
+        "explanation": "prefetchCount limits the number of unacknowledged messages a consumer can have. Once the limit is reached, the broker does not send new messages until it receives ACK."
+      },
+      {
+        "text": "The number of queues a single consumer can read",
+        "correct": false,
+        "explanation": "The number of queues for a consumer is configured separately (via bindings). prefetchCount limits the number of unprocessed messages."
+      }
+    ]
+  },
+  {
+    "question": "You observe: a fast consumer processes 80% of messages, a slow consumer — 20%, although both are connected to the same queue. What is most likely configured?",
+    "type": "single",
+    "options": [
+      {
+        "text": "prefetchCount > 1 for both consumers",
+        "correct": true,
+        "explanation": "With a high prefetchCount, the fast consumer quickly frees slots and receives new messages, while the slow one accumulates them in its buffer. Result: the fast consumer gets significantly more — this is expected behavior."
+      },
+      {
+        "text": "prefetchCount = 1 for both consumers",
+        "correct": false,
+        "explanation": "With prefetchCount=1, messages are distributed strictly round-robin (equally), and the slow consumer would get ~50%."
+      },
+      {
+        "text": "A configuration error — this is impossible with equal settings",
+        "correct": false,
+        "explanation": "This behavior is normal and expected with prefetchCount > 1. It is called work stealing or fair dispatch."
+      },
+      {
+        "text": "autoAck=true on the fast consumer",
+        "correct": false,
+        "explanation": "autoAck affects reliability but not directly load distribution. The uneven distribution problem is solved through prefetchCount."
+      }
+    ]
+  },
+  {
+    "question": "Why is prefetchCount=0 (unlimited) dangerous in production?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The broker won't be able to process ACKs from the consumer",
+        "correct": false,
+        "explanation": "The number of ACKs is not limited. The problem is on the client side (memory), not in broker ACK processing."
+      },
+      {
+        "text": "If the consumer crashes, all messages from its buffer will return to the queue and overload the system",
+        "correct": true,
+        "explanation": "If the consumer crashes, all unacknowledged messages from its buffer will return to the queue and be redistributed — this can create a load spike."
+      },
+      {
+        "text": "A slow consumer will block message reception for other consumers",
+        "correct": false,
+        "explanation": "If one consumer took all messages without a limit, other consumers in the same group will be idle until the first one processes its buffer."
+      },
+      {
+        "text": "A consumer may receive all messages from the queue at once and crash due to OOM",
+        "correct": true,
+        "explanation": "Without limits, the broker will send all messages from the queue to the consumer at once. If the queue is large, the consumer will get a huge in-memory buffer and may crash with Out of Memory."
+      }
+    ]
+  },
+  {
+    "question": "What does a persistent message (delivery-mode=2) mean in RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The message is stored forever in the queue without TTL",
+        "correct": false,
+        "explanation": "delivery-mode=2 ensures survival across restarts but does not disable TTL. If a message TTL is set, the message will be removed after the time expires regardless of delivery-mode."
+      },
+      {
+        "text": "The message is kept in RAM for fast access",
+        "correct": false,
+        "explanation": "This describes a transient message (delivery-mode=1) — stored only in RAM."
+      },
+      {
+        "text": "The message is delivered exactly once",
+        "correct": false,
+        "explanation": "delivery-mode=2 does not guarantee exactly-once. In case of failures, redelivery may occur (at-least-once)."
+      },
+      {
+        "text": "The message is written to disk and survives a broker restart",
+        "correct": true,
+        "explanation": "delivery-mode=2 means the broker writes the message to disk (fsync). If the broker restarts, the message will be restored — but only if the queue is also declared as durable."
+      }
+    ]
+  },
+  {
+    "question": "What condition is REQUIRED for a message to survive a broker restart?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The queue is declared with durable=true",
+        "correct": true,
+        "explanation": "A non-durable queue disappears on restart along with all messages, regardless of delivery-mode."
+      },
+      {
+        "text": "The message is published with delivery-mode=2 (persistent)",
+        "correct": true,
+        "explanation": "Even in a durable queue, transient messages (delivery-mode=1) are not saved to disk and are lost on restart."
+      },
+      {
+        "text": "Publisher Confirms are enabled on the channel",
+        "correct": false,
+        "explanation": "Publisher Confirms confirm message delivery to the broker but do not affect persistence. For survival across restarts, a durable queue and delivery-mode=2 are needed."
+      },
+      {
+        "text": "The consumer confirmed receipt of the message (basicAck)",
+        "correct": false,
+        "explanation": "An ACK from the consumer removes the message from the queue. For survival across restarts, the durable flag of the queue and delivery-mode=2 matter, not the ACK."
+      }
+    ]
+  },
+  {
+    "question": "What happens to a persistent message in a non-durable queue when the broker restarts?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The message is lost along with the queue",
+        "correct": true,
+        "explanation": "A non-durable queue does not survive a restart. Even if the message was persistent, without a durable queue there is nowhere to store it after restart."
+      },
+      {
+        "text": "The message is moved to the default durable queue",
+        "correct": false,
+        "explanation": "RabbitMQ does not automatically move messages. A non-durable queue with all its contents is simply removed on restart."
+      },
+      {
+        "text": "The broker returns an error when publishing a persistent message to a non-durable queue",
+        "correct": false,
+        "explanation": "RabbitMQ accepts persistent messages in non-durable queues without errors. It is the developer's responsibility to ensure configuration compatibility."
+      },
+      {
+        "text": "The message survives — it was written to disk",
+        "correct": false,
+        "explanation": "No. A non-durable queue disappears completely on restart, regardless of the delivery-mode of messages within it."
+      }
+    ]
+  },
+  {
+    "question": "What is Message TTL (x-message-ttl) in RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The time after which a message is removed from the queue if it has not been delivered",
+        "correct": true,
+        "explanation": "x-message-ttl sets the maximum time a message can stay in the queue. After TTL expires, the message is either removed or sent to a DLX (if configured)."
+      },
+      {
+        "text": "The maximum processing time for a message by the consumer",
+        "correct": false,
+        "explanation": "Consumer timeout is a separate concept (heartbeat, connection timeout). TTL refers to the message's lifetime in the queue."
+      },
+      {
+        "text": "The number of times a message can be redelivered",
+        "correct": false,
+        "explanation": "The number of redeliveries is tracked via the x-death header and x-delivery-count. TTL is a time limit, not a counter."
+      },
+      {
+        "text": "The lifetime of the queue itself (queue TTL)",
+        "correct": false,
+        "explanation": "That is x-expires — TTL for the queue. x-message-ttl is TTL for messages within the queue."
+      }
+    ]
+  },
+  {
+    "question": "You are developing a payment transaction processing system via RabbitMQ. Which configuration should you choose?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Publisher Confirms (async mode) for delivery control",
+        "correct": true,
+        "explanation": "Async Publisher Confirms guarantee that the broker received the message. On NACK, the producer can retry, which is critical for financial data."
+      },
+      {
+        "text": "Messages with delivery-mode=2 (persistent)",
+        "correct": true,
+        "explanation": "Transactions must not be lost. delivery-mode=2 saves messages to disk, they survive a restart together with a durable queue."
+      },
+      {
+        "text": "autoAck=true on the consumer for maximum performance",
+        "correct": false,
+        "explanation": "autoAck=true is unacceptable for payment data: if the consumer crashes between receipt and processing — the transaction is lost. Manual ACK after successful processing is required."
+      },
+      {
+        "text": "Queue with durable=true",
+        "correct": true,
+        "explanation": "Payment data is critical. durable=true ensures the queue survives a broker restart."
+      }
+    ]
+  },
+  {
+    "question": "Why are AMQP transactions (tx.select/tx.commit) rarely used in production?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Transactions are incompatible with durable queues",
+        "correct": false,
+        "explanation": "Transactions are compatible with durable queues. The problem lies elsewhere — in performance."
+      },
+      {
+        "text": "Transactions work with only one queue at a time",
+        "correct": false,
+        "explanation": "AMQP transactions work at the channel level and can span publications to multiple queues. But this does not affect the reason for their unpopularity."
+      },
+      {
+        "text": "Transactions are not supported in RabbitMQ 3.x and newer",
+        "correct": false,
+        "explanation": "Transactions are supported in RabbitMQ, but due to catastrophic performance loss, they are not used in production."
+      },
+      {
+        "text": "Transactions reduce throughput by 250x compared to Publisher Confirms",
+        "correct": true,
+        "explanation": "Official RabbitMQ benchmarks show that transactional mode is approximately 250 times slower than Publisher Confirms. Publisher Confirms are significantly more efficient with comparable guarantees."
+      }
+    ]
+  },
+  {
+    "question": "What is Queue TTL (x-expires)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The validity period of a binding between an exchange and a queue",
+        "correct": false,
+        "explanation": "Bindings in RabbitMQ do not have TTL. x-expires refers to the queue itself."
+      },
+      {
+        "text": "The time after which a message is removed from the queue",
+        "correct": false,
+        "explanation": "That is x-message-ttl. x-expires is TTL for the queue itself, not for messages."
+      },
+      {
+        "text": "The time after which an unused queue is automatically deleted by the broker",
+        "correct": true,
+        "explanation": "x-expires sets a period of inactivity (no consumers and no new messages). If the queue is unused for this time — the broker deletes it automatically."
+      },
+      {
+        "text": "The maximum operating time of a consumer before reconnection",
+        "correct": false,
+        "explanation": "Consumer connection lifetime is managed via heartbeat and connection timeout, not through x-expires."
+      }
+    ]
+  },
+  {
+    "question": "How should you handle basicNack in async Publisher Confirms to avoid losing messages?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Switch to individual confirms — they are more reliable",
+        "correct": false,
+        "explanation": "Individual confirms do not solve the NACK problem, they only slow down the process. NACK handling is necessary in any mode."
+      },
+      {
+        "text": "Close and reopen the channel — this will reset the state",
+        "correct": false,
+        "explanation": "Recreating the channel resets deliveryTag but does not solve the problem: messages that received NACK still need to be explicitly handled and resent."
+      },
+      {
+        "text": "Store sent messages in an outbox and delete only after ACK; on NACK — retry",
+        "correct": true,
+        "explanation": "A reliable pattern: store unconfirmed messages in memory or a persistence store. On ACK — delete, on NACK — queue for resending."
+      },
+      {
+        "text": "Ignore NACK — the broker will retry delivery itself",
+        "correct": false,
+        "explanation": "The broker does not republish on behalf of the producer. Publisher Confirms place responsibility on the producer side."
+      }
+    ]
+  },
+  {
+    "question": "What happens to a queue with exclusive=true?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Messages in the queue are encrypted",
+        "correct": false,
+        "explanation": "exclusive has nothing to do with encryption. RabbitMQ supports TLS for transport encryption, but that is configured differently."
+      },
+      {
+        "text": "The queue belongs to a single connection and is deleted when it closes",
+        "correct": true,
+        "explanation": "An exclusive queue is bound to the connection that created it. When that connection closes, the queue and all its messages are automatically deleted."
+      },
+      {
+        "text": "The queue is unavailable for reading by other applications",
+        "correct": false,
+        "explanation": "Exclusivity is tied to the connection, not the application. A single consumer can create an exclusive queue and other connections cannot connect to it."
+      },
+      {
+        "text": "Only one consumer can connect to the queue at a time",
+        "correct": false,
+        "explanation": "This describes single-active-consumer (x-single-active-consumer). An exclusive queue is bound to a connection, not to a consumer."
+      }
+    ]
+  },
+  {
+    "question": "What does mandatory=true mean in basicPublish?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The broker always saves the message to disk",
+        "correct": false,
+        "explanation": "Persistence is controlled by delivery-mode, not mandatory. mandatory relates to routing."
+      },
+      {
+        "text": "The broker guarantees message delivery to at least one queue, otherwise returns it to the producer",
+        "correct": true,
+        "explanation": "With mandatory=true, the broker attempts to route the message to a queue. If no suitable queue exists — the message is returned to the producer via the basicReturn callback. Without mandatory, the message is simply lost."
+      },
+      {
+        "text": "The message has the highest delivery priority",
+        "correct": false,
+        "explanation": "Message priority is set via x-priority. mandatory relates to routing, not priority."
+      },
+      {
+        "text": "The consumer is required to confirm message receipt",
+        "correct": false,
+        "explanation": "mandatory is a publish parameter (producer side). Consumer ACK obligation is configured separately."
+      }
+    ]
+  },
+  {
+    "question": "You have a queue with x-message-ttl=5000 and a configured dead-letter-exchange. What happens to a message after 5 seconds if nobody processes it?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The message is deleted without a trace",
+        "correct": false,
+        "explanation": "This is the behavior with TTL but no DLX. If a dead-letter-exchange is configured, the message is not deleted but moved."
+      },
+      {
+        "text": "The broker redelivers the message to the consumer with a delay",
+        "correct": false,
+        "explanation": "TTL + DLX is a delayed retry pattern, but it requires special setup (a delay queue with DLX back). By default with TTL+DLX, the message is simply moved."
+      },
+      {
+        "text": "The message is returned to the producer via basicReturn",
+        "correct": false,
+        "explanation": "basicReturn is used with mandatory=true when there is no route. TTL expiration sends to DLX if configured."
+      },
+      {
+        "text": "The message is moved to the dead letter exchange",
+        "correct": true,
+        "explanation": "With an x-dead-letter-exchange configured, the expired message becomes 'dead' and is published to the DLX with an x-death header containing the reason (expired) and the original queue."
+      }
+    ]
+  },
+  {
+    "question": "In what order do ACKs arrive in async Publisher Confirms mode?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All ACKs first, then all NACKs",
+        "correct": false,
+        "explanation": "ACKs and NACKs can interleave in any order. The order depends on broker state, not the response type."
+      },
+      {
+        "text": "Strictly in send order (deliveryTag 1, 2, 3...)",
+        "correct": false,
+        "explanation": "In async mode, ACKs do not necessarily arrive in send order. The broker can confirm messages in any order."
+      },
+      {
+        "text": "In batches, one ACK with multiple=true for every 10 messages",
+        "correct": false,
+        "explanation": "Batch ACK with multiple=true is a characteristic of batch mode. In async mode, each message receives a separate ACK, but asynchronously and in arbitrary order."
+      },
+      {
+        "text": "In any order, not necessarily matching the send order",
+        "correct": true,
+        "explanation": "Async confirms do not guarantee confirmation order. The producer must store a Map<deliveryTag, message> and handle ACK/NACK in the callback without relying on order."
+      }
+    ]
+  },
+  {
+    "question": "You see that after a broker restart all queues are in place, but messages are lost. What is the most likely cause?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Publisher Confirms were not enabled on the channel",
+        "correct": false,
+        "explanation": "Publisher Confirms do not affect persistence. Without Confirms, the producer simply does not know about the error, but the cause of loss on restart is the delivery-mode of messages."
+      },
+      {
+        "text": "Messages were published with delivery-mode=1 (transient)",
+        "correct": true,
+        "explanation": "Durable queues survive a restart, but transient messages (delivery-mode=1) in them are not saved to disk and are lost. delivery-mode=2 is needed."
+      },
+      {
+        "text": "The consumer managed to process all messages before the restart",
+        "correct": false,
+        "explanation": "If the consumer processed and confirmed the messages — this is normal system operation, not a loss. The question describes a loss."
+      },
+      {
+        "text": "The queues were declared as non-durable",
+        "correct": false,
+        "explanation": "If the queues were non-durable, they would have disappeared along with the messages. Since the queues exist — they are durable. So the problem is with the messages."
+      }
+    ]
+  },
+  {
+    "question": "What is the pattern called where the producer saves a message to a local database before sending it to the broker, and a separate process reads the table and sends unsent messages?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Saga pattern",
+        "correct": false,
+        "explanation": "Saga is a distributed transaction management pattern. A different reliable publication pattern is described here."
+      },
+      {
+        "text": "Dead Letter Queue",
+        "correct": false,
+        "explanation": "DLQ is a RabbitMQ mechanism for handling unprocessed messages. Outbox is a producer-side pattern for reliable publication."
+      },
+      {
+        "text": "Event Sourcing",
+        "correct": false,
+        "explanation": "Event Sourcing is a state storage pattern via event log. Outbox is used alongside ES, but they are different concepts."
+      },
+      {
+        "text": "Transactional Outbox",
+        "correct": true,
+        "explanation": "Transactional Outbox is a reliable publication pattern: the message is saved to an outbox table within the same DB transaction as the business data. A relay process reads the outbox and publishes to the broker. Guarantees at-least-once even with broker failures."
+      }
+    ]
+  }
+]

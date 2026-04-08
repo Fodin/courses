@@ -1,0 +1,740 @@
+[
+  {
+    "question": "What is Apache Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Message broker with AMQP support",
+        "correct": false,
+        "explanation": "Kafka does not implement AMQP. It uses its own protocol. AMQP is used in RabbitMQ."
+      },
+      {
+        "text": "Distributed event streaming platform",
+        "correct": true,
+        "explanation": "Apache Kafka is a distributed event streaming platform that provides publishing, storing, processing, and subscribing to streams of records in real time."
+      },
+      {
+        "text": "Key-value caching system",
+        "correct": false,
+        "explanation": "Kafka is not a caching system. It provides long-term persistent storage of event streams."
+      },
+      {
+        "text": "Relational database for storing events",
+        "correct": false,
+        "explanation": "Kafka is not a relational database. It does not support SQL queries and stores data as a log, not tables."
+      }
+    ]
+  },
+  {
+    "question": "What is a broker in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A client that reads messages",
+        "correct": false,
+        "explanation": "A client that reads messages is called a consumer. A broker is a server-side component."
+      },
+      {
+        "text": "A component for transforming messages on the fly",
+        "correct": false,
+        "explanation": "Message transformation is performed by Kafka Streams or ksqlDB, not by the broker."
+      },
+      {
+        "text": "A single server node in the cluster that stores partitions and handles requests",
+        "correct": true,
+        "explanation": "A broker is an individual Kafka server process that stores partitions (log segments), handles producer and consumer requests, and replicates data among other brokers."
+      },
+      {
+        "text": "An external service for storing cluster metadata",
+        "correct": false,
+        "explanation": "Metadata is stored by ZooKeeper (legacy) or the built-in KRaft controller. The broker stores the actual data."
+      }
+    ]
+  },
+  {
+    "question": "What role does the controller play in a Kafka cluster?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Manages partition leader election",
+        "correct": false,
+        "explanation": "The controller is responsible for electing a new leader when the current one fails. This is one of its key tasks."
+      },
+      {
+        "text": "Coordinates partition reassignment when brokers are added",
+        "correct": true,
+        "explanation": "When the cluster topology changes (adding/removing brokers), the controller coordinates partition reassignment."
+      },
+      {
+        "text": "Stores cluster metadata: list of brokers, topics, partitions",
+        "correct": true,
+        "explanation": "The controller (in KRaft mode) stores the full registry of cluster metadata, replacing ZooKeeper."
+      },
+      {
+        "text": "Directly handles producer and consumer requests",
+        "correct": false,
+        "explanation": "Handling producer/consumer requests is the job of regular brokers (partition leaders). The controller manages the cluster, not the data."
+      }
+    ]
+  },
+  {
+    "question": "What is the key difference between KRaft and ZooKeeper in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "KRaft embeds cluster management directly into the broker, eliminating ZooKeeper as an external dependency",
+        "correct": true,
+        "explanation": "KRaft (Kafka Raft Metadata mode) embeds cluster metadata management directly into Kafka brokers using the Raft algorithm. ZooKeeper was an external service that was deprecated in Kafka 3.x and removed in Kafka 4.0."
+      },
+      {
+        "text": "KRaft works only with a single broker, ZooKeeper works with multiple",
+        "correct": false,
+        "explanation": "KRaft supports multi-broker clusters. This statement is incorrect."
+      },
+      {
+        "text": "KRaft provides higher message throughput",
+        "correct": false,
+        "explanation": "KRaft does not directly affect data throughput. Its advantage is managing metadata without external dependencies."
+      },
+      {
+        "text": "KRaft replaces the replication protocol between brokers",
+        "correct": false,
+        "explanation": "KRaft replaces only the metadata management layer (control plane). Data replication between brokers remains unchanged."
+      }
+    ]
+  },
+  {
+    "question": "What happens during a controller failover in KRaft mode?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The Raft algorithm automatically elects a new leader among the voting controllers",
+        "correct": true,
+        "explanation": "KRaft uses the Raft algorithm for consensus. When the leader fails, the voting nodes hold an election and automatically choose a new leader."
+      },
+      {
+        "text": "A new controller is assigned to the broker with the lowest ID",
+        "correct": false,
+        "explanation": "In the Raft algorithm, leader election is not determined by node ID. The candidate that receives the majority of votes wins."
+      },
+      {
+        "text": "The entire cluster stops until manual administrator intervention",
+        "correct": false,
+        "explanation": "Kafka is designed for high availability. Controller failover happens automatically."
+      },
+      {
+        "text": "ZooKeeper elects a new controller via ephemeral nodes",
+        "correct": false,
+        "explanation": "This is the mechanism of the old ZooKeeper mode. In KRaft mode, ZooKeeper is absent."
+      }
+    ]
+  },
+  {
+    "question": "What is a topic in Apache Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A group of consumers reading a single data stream",
+        "correct": false,
+        "explanation": "This describes a consumer group. A topic is a message category, not a consumer group."
+      },
+      {
+        "text": "A connection between a producer and a consumer",
+        "correct": false,
+        "explanation": "A topic is not a connection. Producers and consumers are not directly connected — they interact through the broker via the topic."
+      },
+      {
+        "text": "A physical file on disk storing a single message",
+        "correct": false,
+        "explanation": "A topic is a logical abstraction. Data is physically stored in segment files within partitions."
+      },
+      {
+        "text": "A named channel (category) for organizing message streams",
+        "correct": true,
+        "explanation": "A topic is a named category or channel to which producers publish messages and from which consumers read. A topic is split into one or more partitions."
+      }
+    ]
+  },
+  {
+    "question": "Why are topics split into multiple partitions?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "For horizontal scaling of reads and writes",
+        "correct": true,
+        "explanation": "Each partition can be served by a separate broker and read by a separate consumer in a group, enabling horizontal throughput scaling."
+      },
+      {
+        "text": "To preserve message ordering for messages with the same key",
+        "correct": true,
+        "explanation": "Messages with the same key always go to the same partition, guaranteeing their ordering. Ordering across different partitions is not guaranteed."
+      },
+      {
+        "text": "For parallel processing by different consumers in a consumer group",
+        "correct": false,
+        "explanation": "A consumer group distributes partitions among its members. Maximum parallelism is limited by the number of partitions."
+      },
+      {
+        "text": "To encrypt data in each partition with a separate key",
+        "correct": false,
+        "explanation": "Partitions are not designed for separate encryption. Encryption in Kafka is configured at the transport level (TLS) or on the payload."
+      }
+    ]
+  },
+  {
+    "question": "How does Kafka determine which partition a message with a given key goes to?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Random partition on each send",
+        "correct": false,
+        "explanation": "Random distribution would break ordering for messages with the same key. This is not how the DefaultPartitioner works."
+      },
+      {
+        "text": "Round-robin by partition number",
+        "correct": false,
+        "explanation": "Round-robin is only applied to messages without a key (key=null). When a key is present, a hash function is used."
+      },
+      {
+        "text": "hash(key) % numPartitions",
+        "correct": true,
+        "explanation": "Kafka (DefaultPartitioner) computes a hash of the key (Murmur2) and takes the remainder modulo the number of partitions. This guarantees that messages with the same key always go to the same partition."
+      },
+      {
+        "text": "The producer picks the partition based on message size",
+        "correct": false,
+        "explanation": "Message size does not affect partition selection. It is determined by the key via a hash function."
+      }
+    ]
+  },
+  {
+    "question": "What is an offset in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A monotonically increasing integer identifier of a record within a partition",
+        "correct": true,
+        "explanation": "An offset is a unique sequential number assigned to each record in a partition. It starts at 0, strictly increases, and never repeats. A consumer tracks its offset to know where to read from."
+      },
+      {
+        "text": "The size of the message in bytes",
+        "correct": false,
+        "explanation": "Message size is a separate attribute. The offset is a positional number, not a size."
+      },
+      {
+        "text": "The timestamp of the record in UTC",
+        "correct": false,
+        "explanation": "The timestamp is a separate `timestamp` field. The offset is a positional number, not a time."
+      },
+      {
+        "text": "The index of the topic in the cluster",
+        "correct": false,
+        "explanation": "An offset is an attribute of a record within a specific partition, not a topic index."
+      }
+    ]
+  },
+  {
+    "question": "What does append-only log mean in the context of Kafka?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Sequential writes to disk provide high throughput",
+        "correct": true,
+        "explanation": "Sequential I/O operations on disk are orders of magnitude faster than random I/O. The append-only log is a key source of Kafka's performance."
+      },
+      {
+        "text": "It requires a special license",
+        "correct": false,
+        "explanation": "All listed technologies have open-source versions."
+      },
+      {
+        "text": "Consumers can only read records in offset order",
+        "correct": false,
+        "explanation": "Consumers can seek to any offset and read in any order. Append-only refers to writes, not reads."
+      },
+      {
+        "text": "New records are only added to the end of the log",
+        "correct": true,
+        "explanation": "Kafka uses append-only semantics: producers always add new records to the end of a partition. This enables sequential I/O operations."
+      },
+      {
+        "text": "Existing records cannot be modified or deleted prematurely",
+        "correct": true,
+        "explanation": "Records in Kafka are immutable. They are only deleted after the retention period expires or the retention size is reached, but not individually."
+      }
+    ]
+  },
+  {
+    "question": "What is replication factor in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The synchronization frequency between brokers in milliseconds",
+        "correct": false,
+        "explanation": "Synchronization frequency is controlled by parameters like replica.fetch.min.bytes / replica.lag.time.max.ms, not the replication factor."
+      },
+      {
+        "text": "The number of topic partitions",
+        "correct": false,
+        "explanation": "The number of partitions is the `partitions` parameter. Replication factor is a separate setting."
+      },
+      {
+        "text": "The number of copies of each partition stored on different brokers",
+        "correct": true,
+        "explanation": "Replication factor determines how many full copies of each partition are stored in the cluster. RF=3 means one leader copy and two follower copies on different brokers."
+      },
+      {
+        "text": "The maximum number of consumers in a consumer group",
+        "correct": false,
+        "explanation": "Maximum parallelism in a consumer group is limited by the number of partitions, not the replication factor."
+      }
+    ]
+  },
+  {
+    "question": "What is ISR (In-Sync Replicas)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A list of topics available for writing",
+        "correct": false,
+        "explanation": "ISR refers to replicas of a specific partition, not topics."
+      },
+      {
+        "text": "The set of partition replicas that are fully synchronized with the leader",
+        "correct": true,
+        "explanation": "ISR is the set of replicas that are sufficiently up-to-date (not lagging behind the leader by more than replica.lag.time.max.ms). Only replicas in the ISR can become the new leader during failover."
+      },
+      {
+        "text": "Replicas that are waiting to synchronize with the leader",
+        "correct": false,
+        "explanation": "Replicas that fall behind the leader are removed from the ISR. ISR contains only up-to-date replicas."
+      },
+      {
+        "text": "A list of all brokers in the cluster that are operational",
+        "correct": false,
+        "explanation": "ISR is a subset of replicas for a specific partition, not a list of all cluster brokers."
+      }
+    ]
+  },
+  {
+    "question": "Why might a replica fall out of the ISR?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The broker with the replica crashed or became unavailable",
+        "correct": true,
+        "explanation": "When a broker becomes unavailable, its replicas stop fetching data from the leader and are removed from the ISR after replica.lag.time.max.ms."
+      },
+      {
+        "text": "The broker ran out of disk space",
+        "correct": true,
+        "explanation": "If a broker cannot write data due to lack of disk space, it stops synchronizing and is removed from the ISR."
+      },
+      {
+        "text": "The replica cannot keep up with fetching records from the leader within replica.lag.time.max.ms",
+        "correct": true,
+        "explanation": "If a follower lags behind the leader for longer than the allowed time (default 30 seconds), it is excluded from the ISR until it catches up."
+      },
+      {
+        "text": "A consumer stopped reading from that partition",
+        "correct": false,
+        "explanation": "Consumer activity does not affect the ISR. ISR depends only on the state of follower replicas relative to the leader."
+      },
+      {
+        "text": "It requires a special license",
+        "correct": false,
+        "explanation": "All listed technologies have open-source versions."
+      }
+    ]
+  },
+  {
+    "question": "What happens when a partition leader crashes?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The partition enters read-only mode until manual intervention",
+        "correct": false,
+        "explanation": "Failover in Kafka is automatic. The partition continues accepting writes after a new leader is elected."
+      },
+      {
+        "text": "The controller elects a new leader from the ISR, and Kafka continues operating",
+        "correct": true,
+        "explanation": "The controller detects the leader crash and elects a new leader from the ISR. Clients are redirected to the new leader. Data is preserved because ISR replicas are synchronized with the crashed leader."
+      },
+      {
+        "text": "All partition data is lost until the leader is restored",
+        "correct": false,
+        "explanation": "Data is not lost if replication factor > 1. A new leader is elected from the ISR and continues serving requests."
+      },
+      {
+        "text": "The producer automatically switches to a backup cluster",
+        "correct": false,
+        "explanation": "Automatic failover to another cluster (MirrorMaker) is configured separately. Basic failover happens within a single cluster."
+      }
+    ]
+  },
+  {
+    "question": "How is data stored physically in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In a distributed hash table (DHT) across all brokers",
+        "correct": false,
+        "explanation": "Kafka does not use a DHT. Each partition is stored on specific brokers according to the replication assignment."
+      },
+      {
+        "text": "In one large file per topic",
+        "correct": false,
+        "explanation": "Data is stored in segments at the partition level, not in a single file per topic. A single file would become too large and inefficient."
+      },
+      {
+        "text": "In segment files for each partition on each broker",
+        "correct": true,
+        "explanation": "Each partition is stored as a set of segment files (*.log) on the broker. The active segment accepts new writes; when log.segment.bytes is reached, a new segment is created. Old segments are deleted according to the retention policy."
+      },
+      {
+        "text": "In memory, with periodic flushes to disk",
+        "correct": false,
+        "explanation": "Kafka writes directly to disk (via the OS page cache), ensuring persistent storage. Data is not stored only in memory."
+      }
+    ]
+  },
+  {
+    "question": "What is page cache and why does Kafka use it extensively?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The OS file system cache that allows reading data from memory instead of disk",
+        "correct": true,
+        "explanation": "Page cache is part of the OS virtual memory where disk data is cached. Kafka writes to files that the OS caches in RAM. Active consumers read from the page cache rather than disk — this provides high speed without GC overhead."
+      },
+      {
+        "text": "A producer write buffer before sending to the broker",
+        "correct": false,
+        "explanation": "This describes the RecordAccumulator on the producer side. Page cache is a server-side OS-level concept."
+      },
+      {
+        "text": "A broker metadata cache for faster offset lookups",
+        "correct": false,
+        "explanation": "For offset lookups, Kafka uses .index files. Page cache is the OS file system cache for data."
+      },
+      {
+        "text": "A Kafka-specific message cache in JVM memory",
+        "correct": false,
+        "explanation": "Page cache is the operating system's file system cache (not JVM). Kafka deliberately relies on it rather than implementing its own cache in the JVM heap."
+      }
+    ]
+  },
+  {
+    "question": "What is zero-copy in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A compression technology that makes messages take no disk space",
+        "correct": false,
+        "explanation": "Zero-copy has nothing to do with compression. It is an OS system call for efficient data transfer."
+      },
+      {
+        "text": "Messages are transferred without serialization and deserialization",
+        "correct": false,
+        "explanation": "Zero-copy refers to transferring bytes from the file system to the network socket without copying through user space, not to serialization."
+      },
+      {
+        "text": "An OS optimization where data is transferred from page cache to the network without copying to user space",
+        "correct": true,
+        "explanation": "Zero-copy (sendfile syscall) allows transferring data directly from page cache to the network interface, bypassing user space buffers. This reduces the number of copies from 4 to 2 and lowers CPU usage."
+      },
+      {
+        "text": "A mode of operation without data replication between brokers",
+        "correct": false,
+        "explanation": "Zero-copy is an optimization for delivering data to consumers, unrelated to replication."
+      }
+    ]
+  },
+  {
+    "question": "Why are sequential I/O operations critical for Kafka's performance?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Sequential operations are orders of magnitude faster than random ones, allowing Kafka to achieve hundreds of MB/s on ordinary disks",
+        "correct": true,
+        "explanation": "The append-only log ensures strictly sequential writes. The OS optimizes these operations through read-ahead and write-behind buffering. On HDDs, sequential I/O can be 1000+ times faster than random I/O."
+      },
+      {
+        "text": "Random I/O is faster on SSDs, so Kafka uses sequential I/O only for HDDs",
+        "correct": false,
+        "explanation": "Sequential I/O is faster than random I/O on both HDDs and SSDs. The difference is even more pronounced on HDDs due to mechanical limitations. Kafka is optimized for sequential I/O regardless of disk type."
+      },
+      {
+        "text": "Sequential operations allow compressing data on the fly",
+        "correct": false,
+        "explanation": "Compression in Kafka (compression.type) is configured separately and is not related to I/O operation sequencing."
+      },
+      {
+        "text": "Sequential operations do not require fsync on every write",
+        "correct": false,
+        "explanation": "Skipping fsync is a separate setting (log.flush.interval.messages). This is not the definition of sequential I/O."
+      }
+    ]
+  },
+  {
+    "question": "You create a topic with 3 partitions and replication factor=3. The cluster has 2 brokers. What happens?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The topic is created successfully, extra replicas are ignored",
+        "correct": false,
+        "explanation": "Kafka does not ignore replicas. If RF exceeds the number of brokers, the topic will not be created."
+      },
+      {
+        "text": "Kafka automatically reduces the replication factor to 2",
+        "correct": false,
+        "explanation": "Kafka does not change parameters automatically. You must explicitly specify a valid replication factor."
+      },
+      {
+        "text": "Kafka returns an error: replication factor cannot exceed the number of brokers",
+        "correct": true,
+        "explanation": "Kafka requires that the replication factor does not exceed the number of available brokers, since each replica must reside on a separate broker. With RF=3 and two brokers, creation fails with InvalidReplicationFactorException."
+      },
+      {
+        "text": "Two replicas end up on the same broker",
+        "correct": false,
+        "explanation": "Kafka never places two replicas of the same partition on one broker — this would defeat the purpose of replication."
+      }
+    ]
+  },
+  {
+    "question": "What happens to messages if a producer sends them without a key (key=null)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All keyless messages go to partition 0",
+        "correct": false,
+        "explanation": "Sending all messages to one partition would create a hotspot and break load balancing."
+      },
+      {
+        "text": "Messages are distributed across partitions using round-robin or sticky strategy",
+        "correct": true,
+        "explanation": "For keyless messages, the DefaultPartitioner uses round-robin (in older versions) or sticky partitioning (since Kafka 2.4+): it accumulates messages in one partition until sending a batch, then switches to the next."
+      },
+      {
+        "text": "Messages are rejected by the broker with an error",
+        "correct": false,
+        "explanation": "Keys are optional in Kafka. Keyless messages are accepted by the broker and distributed across partitions."
+      },
+      {
+        "text": "The producer computes a hash of the message value to determine the partition",
+        "correct": false,
+        "explanation": "The hash is computed only for the key, not the value. When key=null, the round-robin/sticky strategy is used."
+      }
+    ]
+  },
+  {
+    "question": "Command: `kafka-topics.sh --create --topic orders --partitions 6 --replication-factor 3`. What is the minimum number of brokers needed?",
+    "type": "single",
+    "options": [
+      {
+        "text": "3 (based on replication factor)",
+        "correct": true,
+        "explanation": "Replication factor=3 means each partition needs 3 different brokers (each replica on its own). With 3 brokers this is feasible: each of the 6 partitions will have replicas on all 3 brokers."
+      },
+      {
+        "text": "1 (everything can run on a single broker)",
+        "correct": false,
+        "explanation": "With a single broker you cannot create RF=3, since Kafka requires replicas to be stored on different brokers."
+      },
+      {
+        "text": "18 (6 partitions x 3 replicas)",
+        "correct": false,
+        "explanation": "A single broker can store replicas of multiple partitions. The minimum is 3 brokers (matching the replication factor)."
+      },
+      {
+        "text": "6 (matching the number of partitions)",
+        "correct": false,
+        "explanation": "The minimum number of brokers is determined by the replication factor, not the number of partitions. Multiple partitions can reside on a single broker."
+      }
+    ]
+  },
+  {
+    "question": "A consumer group reads a topic with 4 partitions. The group has 6 consumers. How is the load distributed?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka automatically creates 2 new partitions for the remaining consumers",
+        "correct": false,
+        "explanation": "Kafka does not create partitions automatically when consumers are added. The number of partitions is set when the topic is created."
+      },
+      {
+        "text": "Messages are evenly split into 6 parts among all consumers",
+        "correct": false,
+        "explanation": "Distribution happens at the partition level, not individual messages. A partition cannot be split among multiple consumers in the same group."
+      },
+      {
+        "text": "Each consumer reads from all 4 partitions simultaneously",
+        "correct": false,
+        "explanation": "Each partition is assigned to only one consumer in the group. Simultaneous reading of the same partition by multiple consumers in the same group is not allowed."
+      },
+      {
+        "text": "4 consumers are active (one per partition), 2 consumers are idle",
+        "correct": true,
+        "explanation": "The number of parallel readers is limited by the number of partitions. If there are more consumers than partitions, the extras will be idle. This is why you need to plan enough partitions during design."
+      }
+    ]
+  },
+  {
+    "question": "How does Kafka guarantee message ordering for a specific entity (e.g., all events of one user)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The consumer group automatically merges messages from different partitions by key",
+        "correct": false,
+        "explanation": "Consumer groups do not perform key-based merging. Each consumer reads its assigned partitions independently."
+      },
+      {
+        "text": "It sets global ordering by timestamp via NTP synchronization",
+        "correct": false,
+        "explanation": "Global time-based ordering is unachievable in distributed systems due to clock skew. Kafka does not guarantee global ordering."
+      },
+      {
+        "text": "It enables an ordered=true parameter when creating the topic",
+        "correct": false,
+        "explanation": "Kafka has no ordered parameter. Ordering is achieved through proper partition key selection."
+      },
+      {
+        "text": "It uses userId as the key: all user events go to one partition where ordering is guaranteed",
+        "correct": true,
+        "explanation": "Kafka guarantees ordering within a partition. By using userId as the key, all events for one user go to the same partition (via hash(userId) % N), and the consumer reads them in offset order."
+      }
+    ]
+  },
+  {
+    "question": "What happens if a consumer crashes while processing a message and does not commit the offset?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The message is permanently marked as processed",
+        "correct": false,
+        "explanation": "Without a commit, Kafka does not know the message was processed. After reconnecting, the consumer starts from the last committed offset."
+      },
+      {
+        "text": "After reconnecting, the consumer re-reads the message from the last committed offset",
+        "correct": true,
+        "explanation": "Kafka stores the committed offset for each (consumer group, partition) pair. If a consumer crashes without committing, it will re-read the message upon recovery. This is 'at-least-once' delivery semantics."
+      },
+      {
+        "text": "The message is deleted from the partition as unprocessed",
+        "correct": false,
+        "explanation": "Kafka does not delete messages based on processing status. Deletion only occurs according to the retention policy."
+      },
+      {
+        "text": "The Kafka cluster automatically rolls back the offset to the previous position",
+        "correct": false,
+        "explanation": "Kafka does not roll back offsets automatically. Managing committed offsets is the consumer's responsibility."
+      }
+    ]
+  },
+  {
+    "question": "You observe that one partition receives 80% of all messages (hotspot). What is the most likely cause?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The consumer group has too few members",
+        "correct": false,
+        "explanation": "The number of consumers affects read speed, not the distribution of writes across partitions."
+      },
+      {
+        "text": "Uneven key value distribution: most messages share the same key",
+        "correct": true,
+        "explanation": "Hotspots occur when keys are not granular enough (e.g., all messages have key='default' or most have key='us-east'). Same key means same partition. Solution: use more granular keys (userId, orderId) or a custom partitioner."
+      },
+      {
+        "text": "Too high a replication factor overloads the leader",
+        "correct": false,
+        "explanation": "Replication factor does not cause hotspots on a specific partition. All partitions are replicated equally."
+      },
+      {
+        "text": "Brokers are not time-synchronized (clock skew)",
+        "correct": false,
+        "explanation": "Clock skew affects timestamps, not message distribution across partitions."
+      }
+    ]
+  },
+  {
+    "question": "What was the status of ZooKeeper in Kafka 3.x and what happened to it in Kafka 4.0?",
+    "type": "single",
+    "options": [
+      {
+        "text": "ZooKeeper was deprecated in Kafka 3.x, fully removed in Kafka 4.0, KRaft became the only mode",
+        "correct": true,
+        "explanation": "KIP-833 and subsequent KIPs completed the migration: in Kafka 3.3 KRaft became production-ready, in Kafka 3.x ZooKeeper was deprecated, and in Kafka 4.0 ZooKeeper support was removed entirely."
+      },
+      {
+        "text": "ZooKeeper remained an optional component in Kafka 4.0",
+        "correct": false,
+        "explanation": "ZooKeeper is not supported in Kafka 4.0. Clusters must use KRaft mode."
+      },
+      {
+        "text": "ZooKeeper was replaced by etcd in Kafka 4.0",
+        "correct": false,
+        "explanation": "ZooKeeper was replaced by the built-in KRaft (Raft consensus), not etcd."
+      },
+      {
+        "text": "ZooKeeper became the primary mode in Kafka 4.0",
+        "correct": false,
+        "explanation": "Exactly the opposite: ZooKeeper was deprecated in Kafka 3.x and fully removed in Kafka 4.0."
+      }
+    ]
+  },
+  {
+    "question": "How many controllers simultaneously manage a Kafka cluster in KRaft mode?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only one — the active leader controller (the other voter nodes are in standby)",
+        "correct": true,
+        "explanation": "In KRaft, a set of voter nodes (usually 3 or 5) is designated, among which the Raft algorithm elects a single active leader. The other voter nodes are in standby and are ready to take over the leader role during failover."
+      },
+      {
+        "text": "Two controllers: primary and secondary in active-active mode",
+        "correct": false,
+        "explanation": "The Raft algorithm operates on a single-leader principle. Two simultaneously active leaders are not possible — this would break consensus."
+      },
+      {
+        "text": "Every broker is a controller simultaneously",
+        "correct": false,
+        "explanation": "In KRaft, only some brokers are designated as voters (voting participants), and among them only one is the active controller leader."
+      },
+      {
+        "text": "The number of controllers equals the replication factor",
+        "correct": false,
+        "explanation": "The number of KRaft controller voter nodes is configured separately from topic replication factor."
+      }
+    ]
+  },
+  {
+    "question": "Rack awareness in Kafka — what is it and why is it needed?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Protection against data loss when an entire rack or availability zone fails",
+        "correct": false,
+        "explanation": "If all replicas in one rack go down together with the rack, data would be lost. Rack awareness minimizes this risk."
+      },
+      {
+        "text": "Automatic cluster scaling under increased load",
+        "correct": false,
+        "explanation": "Rack awareness is about replica placement, not automatic scaling."
+      },
+      {
+        "text": "Placing partition replicas on brokers in different racks or availability zones",
+        "correct": true,
+        "explanation": "Rack awareness ensures that replicas of a partition are distributed across different physical racks or availability zones. This protects against data loss if an entire rack fails."
+      },
+      {
+        "text": "Configured via the broker.rack parameter when starting a broker",
+        "correct": true,
+        "explanation": "Each broker is assigned a rack label via the broker.rack parameter. Kafka uses these labels when selecting brokers for replicas."
+      }
+    ]
+  }
+]

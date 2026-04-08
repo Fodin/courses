@@ -1,0 +1,641 @@
+[
+  {
+    "question": "What is a Dead Letter Exchange (DLX) in RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A special type of exchange that automatically deletes messages after first delivery",
+        "correct": false,
+        "explanation": "DLX does not delete messages — it forwards them to another queue under certain conditions"
+      },
+      {
+        "text": "An exchange to which RabbitMQ automatically publishes messages that have become 'dead' (rejected, expired, or pushed out of an overflowed queue)",
+        "correct": true,
+        "explanation": "DLX accepts messages that cannot be processed in the main queue: NACK without requeue, TTL expired, queue overflow"
+      },
+      {
+        "text": "An exchange that routes messages only to empty queues",
+        "correct": false,
+        "explanation": "DLX does not have this behavior. DLX receives messages that cannot be processed in the source queue"
+      },
+      {
+        "text": "A backup exchange used only when the main exchange is unavailable",
+        "correct": false,
+        "explanation": "This describes an Alternate Exchange. DLX is a separate mechanism for 'dead' messages"
+      }
+    ]
+  },
+  {
+    "question": "How do you configure a DLX for the `orders.queue` queue?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Pass the `x-dead-letter-exchange` argument when declaring the queue",
+        "correct": true,
+        "explanation": "When calling `queueDeclare`, you need to pass the `x-dead-letter-exchange` argument with a value — the name of the DLX. Optionally, you can also specify `x-dead-letter-routing-key`"
+      },
+      {
+        "text": "Add an `x-dead-letter-exchange` header to each message",
+        "correct": false,
+        "explanation": "DLX is configured at the queue level once during declaration, not in each message"
+      },
+      {
+        "text": "Set the `dead-letter-exchange` parameter in the broker configuration",
+        "correct": false,
+        "explanation": "DLX is configured at the queue level via arguments, not via global broker configuration"
+      },
+      {
+        "text": "Create a binding between the main queue and the DLX",
+        "correct": false,
+        "explanation": "Bindings are configured between an exchange and a queue, not between two exchanges. DLX is specified as a queue argument"
+      }
+    ]
+  },
+  {
+    "question": "Under which three conditions does a message become 'dead' and get routed to the DLX?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The queue reached its maximum length (x-max-length) and overflow-policy = dead-letter",
+        "correct": true,
+        "explanation": "When a queue overflows with the dead-letter policy, the oldest messages are pushed to the DLX — the third reason"
+      },
+      {
+        "text": "The message TTL expired (per-message TTL or queue's x-message-ttl)",
+        "correct": true,
+        "explanation": "If a message's lifetime expired while it was at the head of the queue — this is the second reason for dead-lettering"
+      },
+      {
+        "text": "The producer sent the message with an x-dead: true header",
+        "correct": false,
+        "explanation": "No such header exists. Dead-lettering happens automatically under three conditions, not via a producer header"
+      },
+      {
+        "text": "The consumer sends a NACK with requeue=false",
+        "correct": true,
+        "explanation": "NACK (or basic.reject) without requeue — one of the three reasons for dead-lettering"
+      },
+      {
+        "text": "The consumer did not acknowledge the message within the consumer timeout",
+        "correct": false,
+        "explanation": "By default, consumer timeout (30 min in RabbitMQ 3.12+) closes the channel but does not route the message to DLX — it returns to the queue"
+      }
+    ]
+  },
+  {
+    "question": "What does the `x-dead-letter-routing-key` argument do when configuring a DLX?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Replaces the original routing key of the message when publishing it to the DLX",
+        "correct": true,
+        "explanation": "If this argument is not set, the original routing key is used. If set — it replaces the original when publishing to the DLX"
+      },
+      {
+        "text": "Sets the name of the Dead Letter Queue where dead messages go",
+        "correct": false,
+        "explanation": "The queue name is determined by DLX bindings, not by this argument. `x-dead-letter-routing-key` sets the routing key"
+      },
+      {
+        "text": "Filters messages: only those with a matching routing key are sent to the DLX",
+        "correct": false,
+        "explanation": "There is no filtering: all dead messages go to the DLX. This argument only overrides the routing key"
+      },
+      {
+        "text": "Sets the name of the DLX where dead messages will be routed",
+        "correct": false,
+        "explanation": "The DLX name is set via `x-dead-letter-exchange`. `x-dead-letter-routing-key` sets the routing key override"
+      }
+    ]
+  },
+  {
+    "question": "How do you configure TTL for all messages in a queue?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Set the `expiration` header in each message",
+        "correct": false,
+        "explanation": "The `expiration` header sets per-message TTL, not queue-level TTL. For queue-level TTL, use `x-message-ttl`"
+      },
+      {
+        "text": "Pass the `x-message-ttl` argument (value in ms) when declaring the queue",
+        "correct": true,
+        "explanation": "`x-message-ttl` sets the maximum lifetime of a message in the queue in milliseconds. Applies to all messages"
+      },
+      {
+        "text": "Use the `ttl` parameter in the exchange configuration",
+        "correct": false,
+        "explanation": "TTL is configured at the queue level (x-message-ttl) or per message (expiration), not at the exchange"
+      },
+      {
+        "text": "Pass the `x-expires` argument when declaring the queue",
+        "correct": false,
+        "explanation": "`x-expires` sets the time after which an unused queue will be deleted. For message TTL, use `x-message-ttl`"
+      }
+    ]
+  },
+  {
+    "question": "What is an Alternate Exchange in RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A second instance of an exchange for load balancing",
+        "correct": false,
+        "explanation": "RabbitMQ does not use AE for load balancing. AE is a handler for messages that did not find a matching binding"
+      },
+      {
+        "text": "An exchange for backing up messages before delivery",
+        "correct": false,
+        "explanation": "AE does not copy messages — it only accepts those that the main exchange could not route to any queue"
+      },
+      {
+        "text": "An exchange that becomes active when the main exchange is unavailable",
+        "correct": false,
+        "explanation": "This is not a failover mechanism. Alternate Exchange receives messages that could not be routed by the main exchange"
+      },
+      {
+        "text": "An exchange that receives messages not routed by the main exchange (unroutable messages)",
+        "correct": true,
+        "explanation": "Alternate Exchange (AE) is set via the `alternate-exchange` argument when declaring an exchange. All unroutable messages are directed to it"
+      }
+    ]
+  },
+  {
+    "question": "How do you configure a Priority Queue with a priority range of 0-10?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Pass the `x-max-priority: 10` argument when declaring the queue",
+        "correct": true,
+        "explanation": "`x-max-priority` enables priority support and sets the maximum level. After that, producers can set priority in message headers"
+      },
+      {
+        "text": "Use an exchange of type `priority` instead of standard types",
+        "correct": false,
+        "explanation": "No such exchange type exists. Priorities are implemented via the `x-max-priority` argument when declaring the queue"
+      },
+      {
+        "text": "Create 11 separate queues, one for each priority level",
+        "correct": false,
+        "explanation": "RabbitMQ supports native priority queues — no need to create multiple queues manually"
+      },
+      {
+        "text": "Set the `priority-queue: enabled` parameter in rabbitmq.conf",
+        "correct": false,
+        "explanation": "Priority queues are enabled on a specific queue via the `x-max-priority` argument, not via global configuration"
+      }
+    ]
+  },
+  {
+    "question": "How does a producer set message priority in a Priority Queue?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Sets the `priority` field in the message's Basic.Properties",
+        "correct": true,
+        "explanation": "Priority is set in Basic.Properties when publishing. The value must be within the queue's [0, x-max-priority] range"
+      },
+      {
+        "text": "Passes the priority in the message body in the `_priority` field",
+        "correct": false,
+        "explanation": "RabbitMQ does not read the message body to determine priority. Priority is set via Basic.Properties"
+      },
+      {
+        "text": "Adds an `x-priority` header in the message headers table",
+        "correct": false,
+        "explanation": "The header is simply `priority` (in AMQP Basic.Properties), not `x-priority` in headers"
+      },
+      {
+        "text": "Uses a special routing key like `priority.10.order`",
+        "correct": false,
+        "explanation": "The routing key does not affect priority. Priority is a message property in Basic.Properties"
+      }
+    ]
+  },
+  {
+    "question": "How does the RPC pattern work via RabbitMQ? Select all correct statements.",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The client subscribes to its reply-to queue and waits for a message with the matching correlation-id",
+        "correct": true,
+        "explanation": "The client filters incoming responses by correlation-id, ignoring other responses in the queue"
+      },
+      {
+        "text": "The client creates a temporary queue to receive the response and passes its name in the reply-to property of the message",
+        "correct": true,
+        "explanation": "A temporary exclusive queue is created by the client. Its name is passed to the server via reply-to so the server knows where to publish the response"
+      },
+      {
+        "text": "The server must know the client queue name in advance, before receiving the request",
+        "correct": false,
+        "explanation": "That is exactly why reply-to exists: the server learns the queue name from the request header, not from pre-known configuration"
+      },
+      {
+        "text": "The client generates a unique correlation-id and passes it in the request; the server returns the same value in the response",
+        "correct": true,
+        "explanation": "correlation-id allows the client to match a response to a request when multiple RPC calls are in flight simultaneously"
+      },
+      {
+        "text": "RPC must use Direct Reply-to (amq.rabbitmq.reply-to) — without it the pattern does not work",
+        "correct": false,
+        "explanation": "Direct Reply-to is a RabbitMQ optimization that avoids creating a separate queue, but is not mandatory. RPC works with regular queues too"
+      }
+    ]
+  },
+  {
+    "question": "A client sent an RPC request, but there is no response after 5 seconds. What is the correct timeout handling strategy?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Wait another 5 seconds — RabbitMQ guarantees delivery, the response will definitely arrive",
+        "correct": false,
+        "explanation": "RabbitMQ guarantees delivery to the queue, but not the server response time. The client must handle timeouts independently"
+      },
+      {
+        "text": "Set x-message-ttl on the rpc.queue so expired requests are not processed by the server",
+        "correct": false,
+        "explanation": "TTL on rpc.queue helps avoid processing old requests, but the client must still independently handle the response wait timeout"
+      },
+      {
+        "text": "Resend the same request with the same correlation-id",
+        "correct": false,
+        "explanation": "Resending with the same correlation-id may cause duplicate processing. Better to create a new request with a new correlation-id or return an error"
+      },
+      {
+        "text": "Set a timeout on the client side; when triggered — return an error and remove the reply-to queue",
+        "correct": true,
+        "explanation": "The client is responsible for timing out. After timeout, unsubscribe from the reply-to queue to avoid receiving a late response for the next call"
+      }
+    ]
+  },
+  {
+    "question": "What does the `correlation-id` parameter mean in the RPC pattern?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A unique identifier of the queue where the server publishes the response",
+        "correct": false,
+        "explanation": "The response queue identifier is `reply-to`. `correlation-id` identifies a specific call, not a queue"
+      },
+      {
+        "text": "An identifier that the client generates for the request and that the server must return unchanged in the response, so the client can match request and response",
+        "correct": true,
+        "explanation": "This is critical for concurrent calls: a single client may have multiple outstanding RPC calls and distinguishes them by correlation-id"
+      },
+      {
+        "text": "The protocol version used for this RPC call",
+        "correct": false,
+        "explanation": "correlation-id is not a protocol version. It is an identifier for a specific request to match with its response"
+      },
+      {
+        "text": "A session identifier automatically generated by RabbitMQ for tracking message chains",
+        "correct": false,
+        "explanation": "RabbitMQ does not generate correlation-id automatically — the client generates it for each RPC call"
+      }
+    ]
+  },
+  {
+    "question": "How are Delayed Messages implemented in RabbitMQ?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Via the `x-delivery-time` parameter when publishing a message",
+        "correct": false,
+        "explanation": "No such parameter exists in standard RabbitMQ. The plugin uses the `x-delay` header (number of milliseconds), not an absolute time"
+      },
+      {
+        "text": "Via a queue with `x-message-ttl` and DLX: the message expires and lands in the target queue",
+        "correct": true,
+        "explanation": "Classic workaround before the plugin appeared: a message is published to an intermediate queue with TTL, upon expiration — dead-lettered to the target queue"
+      },
+      {
+        "text": "Via the `rabbitmq-delayed-message-exchange` plugin, which adds the `x-delayed-message` exchange type",
+        "correct": true,
+        "explanation": "The official plugin allows publishing messages with an `x-delay` header (in ms). The exchange holds the message for the specified time, then routes it"
+      },
+      {
+        "text": "Via a built-in `x-delayed` exchange type, available in RabbitMQ without plugins",
+        "correct": false,
+        "explanation": "There is no built-in `x-delayed` type. You need the `rabbitmq-delayed-message-exchange` plugin or the TTL + DLX workaround"
+      }
+    ]
+  },
+  {
+    "question": "What is a Lazy Queue in RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A low-priority queue that is processed only when there are no messages in other queues",
+        "correct": false,
+        "explanation": "RabbitMQ has no such 'lazy priority' mechanism for queues. Lazy Queue refers to the message storage strategy"
+      },
+      {
+        "text": "A queue that delays message processing by a fixed interval",
+        "correct": false,
+        "explanation": "This describes Delayed Messages, not Lazy Queue. Lazy Queue defines the storage strategy: in RAM or directly on disk"
+      },
+      {
+        "text": "A queue that is created only on first access (on demand)",
+        "correct": false,
+        "explanation": "This describes passive queue declaration (queueDeclarePassive). Lazy Queue is a different mechanism related to message storage"
+      },
+      {
+        "text": "A queue that stores message bodies on disk (not in RAM) as early as possible, reducing memory usage",
+        "correct": true,
+        "explanation": "Lazy Queue (`x-queue-mode: lazy` argument) writes messages to disk immediately. This reduces RAM consumption at the cost of higher disk I/O, ideal for long queues"
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between Shovel and Federation in RabbitMQ?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Federation links exchanges or queues between brokers, forming a logically unified exchange without physically moving messages until there is a subscriber",
+        "correct": true,
+        "explanation": "Federation creates an 'upstream' link between brokers. Messages flow only when there is a subscriber on the downstream broker — this is more efficient than Shovel for fan-out scenarios"
+      },
+      {
+        "text": "Shovel moves (or copies) messages between queues or exchanges, including across different brokers",
+        "correct": false,
+        "explanation": "Shovel is a plugin for moving messages. It connects to a source (queue or exchange), reads messages, and publishes them to the destination on the same or another broker"
+      },
+      {
+        "text": "Shovel and Federation are interchangeable tools with identical behavior",
+        "correct": false,
+        "explanation": "They solve different tasks: Shovel — reliable message transport/migration; Federation — logical linking of exchanges/queues between clusters"
+      },
+      {
+        "text": "Federation is suitable for connecting geographically distributed clusters, Shovel — for reliable one-time migration or continuous transfer",
+        "correct": true,
+        "explanation": "Federation is designed for WAN scenarios with unstable connections between data centers. Shovel is simpler and suited for specific data movement tasks"
+      }
+    ]
+  },
+  {
+    "question": "You have a `payments.queue` queue with DLX configured to `payments.dlx`. A consumer receives a message and calls `basicNack(deliveryTag, false, false)`. What happens to the message?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The message returns to the front of `payments.queue` for reprocessing",
+        "correct": false,
+        "explanation": "The `requeue=false` parameter in NACK forbids requeueing. The message goes to the DLX"
+      },
+      {
+        "text": "The message will be published to `payments.dlx` with the original routing key (or the overridden x-dead-letter-routing-key)",
+        "correct": true,
+        "explanation": "NACK with requeue=false is one of the three reasons for dead-lettering. The message is routed to the DLX with the routing key from x-dead-letter-routing-key or the original"
+      },
+      {
+        "text": "The message will be immediately redelivered to the same consumer",
+        "correct": false,
+        "explanation": "Immediate redelivery happens with `basicNack(tag, false, true)` (requeue=true). With requeue=false the message goes to the DLX"
+      },
+      {
+        "text": "The message will be permanently deleted from the broker",
+        "correct": false,
+        "explanation": "If a DLX is configured, the message is not deleted — it is routed to the DLX. Without a DLX it would indeed be deleted"
+      }
+    ]
+  },
+  {
+    "question": "What is the recommended maximum value for `x-max-priority` and why?",
+    "type": "single",
+    "options": [
+      {
+        "text": "No more than 10 — RabbitMQ uses a separate queue per priority level, so large values increase memory and CPU overhead",
+        "correct": true,
+        "explanation": "Each priority level requires a separate data structure inside the broker. A value of 10 provides a good balance between flexibility and performance"
+      },
+      {
+        "text": "Exactly 2 — RabbitMQ only supports binary prioritization (high/low)",
+        "correct": false,
+        "explanation": "RabbitMQ supports up to 255 levels, but recommends no more than 10. There is no 2-level restriction"
+      },
+      {
+        "text": "The x-max-priority value does not affect performance",
+        "correct": false,
+        "explanation": "Each priority level adds overhead. RabbitMQ officially recommends limiting the value to the number of actually used priorities"
+      },
+      {
+        "text": "Maximum 255 — this is the AMQP protocol limit",
+        "correct": false,
+        "explanation": "Technically AMQP allows priority up to 255, but RabbitMQ documentation does not recommend values above 10 for performance reasons"
+      }
+    ]
+  },
+  {
+    "question": "How does the TTL + DLX scheme work for delayed messages without the plugin?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The message is published directly with an x-expires header, RabbitMQ delivers it only after this time expires",
+        "correct": false,
+        "explanation": "`x-expires` is a queue TTL (time until an empty queue is deleted), not a message delivery delay. No such mechanism exists without the plugin"
+      },
+      {
+        "text": "The message is saved in the application database and published to RabbitMQ via a scheduler",
+        "correct": false,
+        "explanation": "This is an external scheduler (not a RabbitMQ solution). The question is about implementation within RabbitMQ using built-in mechanisms"
+      },
+      {
+        "text": "The message is published to the main queue with x-delay, the broker delays delivery itself",
+        "correct": false,
+        "explanation": "This is the behavior of the `rabbitmq-delayed-message-exchange` plugin. Without the plugin, you need the TTL + DLX workaround"
+      },
+      {
+        "text": "The message is published to an intermediate queue with x-message-ttl. After TTL expires, the message is dead-lettered to the DLX, which routes it to the target queue",
+        "correct": true,
+        "explanation": "Classic workaround: intermediate queue with TTL = delay. DLX = target exchange. After TTL expires, the message is 'delivered' via DLX to the target queue"
+      }
+    ]
+  },
+  {
+    "question": "You have a Priority Queue with x-max-priority=10. You add messages with priorities: 3, 10, 1, 7, 5. In what order will the consumer receive them?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The order is unpredictable — RabbitMQ does not guarantee order in Priority Queue",
+        "correct": false,
+        "explanation": "RabbitMQ guarantees priority order: highest first. Within the same priority — FIFO within that level"
+      },
+      {
+        "text": "10, 7, 5, 3, 1 — in descending priority order",
+        "correct": true,
+        "explanation": "RabbitMQ delivers messages with the highest priority first. At equal priority — FIFO"
+      },
+      {
+        "text": "3, 10, 1, 7, 5 — in order of arrival (FIFO)",
+        "correct": false,
+        "explanation": "Priority Queue breaks FIFO order in favor of priority. Messages with the highest priority go first"
+      },
+      {
+        "text": "1, 3, 5, 7, 10 — in ascending priority order",
+        "correct": false,
+        "explanation": "High priority means earlier delivery, not later. The order is descending"
+      }
+    ]
+  },
+  {
+    "question": "What happens if a producer sets a priority higher than the queue's x-max-priority?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The message will be published to the queue with priority 0 (minimum)",
+        "correct": false,
+        "explanation": "The value is truncated to x-max-priority (maximum), not to 0 (minimum)"
+      },
+      {
+        "text": "The message will be rejected with an AMQP error",
+        "correct": false,
+        "explanation": "RabbitMQ does not reject such messages. The priority value is truncated to x-max-priority"
+      },
+      {
+        "text": "The message will go to the DLX as invalid",
+        "correct": false,
+        "explanation": "DLX is not used for invalid priorities. RabbitMQ simply truncates the value"
+      },
+      {
+        "text": "The message gets a priority equal to x-max-priority (the value is truncated)",
+        "correct": true,
+        "explanation": "RabbitMQ automatically caps priority to x-max-priority. The message is published successfully, but with the maximum possible priority"
+      }
+    ]
+  },
+  {
+    "question": "You want unrouted messages not to be lost. Which mechanism should you use?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Set the mandatory=true flag when publishing",
+        "correct": true,
+        "explanation": "With mandatory=true, the broker returns the message to the producer via basic.return if no matching binding is found. You need to handle basic.return"
+      },
+      {
+        "text": "This approach is deprecated and no longer used",
+        "correct": false,
+        "explanation": "This approach is actively used in modern systems."
+      },
+      {
+        "text": "Configure a DLX on the target queue",
+        "correct": false,
+        "explanation": "DLX works with messages already in a queue. For unroutable messages (that never reached any queue), you need AE or mandatory"
+      },
+      {
+        "text": "Enable publisher confirms and handle nack confirmations on the producer side",
+        "correct": true,
+        "explanation": "With no binding match and mandatory=true, the broker returns the message to the producer. With publisher confirms, you can detect and handle this situation"
+      },
+      {
+        "text": "Configure an Alternate Exchange for the source exchange",
+        "correct": true,
+        "explanation": "AE intercepts messages for which there is no matching binding. You can route them to a fanout exchange → queue for analysis"
+      }
+    ]
+  },
+  {
+    "question": "What is `x-max-length` and how does it interact with DLX?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Maximum number of messages in a queue; on overflow, the oldest messages are pushed to the DLX (if `overflow` = `reject-publish-dlx`)",
+        "correct": true,
+        "explanation": "With x-max-length and policy `overflow: reject-publish-dlx`, old messages from the head of the queue are sent to the DLX. By default they are simply discarded"
+      },
+      {
+        "text": "Maximum number of consumers for a queue; when the limit is reached, new consumers connect via DLX",
+        "correct": false,
+        "explanation": "x-max-length is not related to consumers. It limits the number of messages in the queue"
+      },
+      {
+        "text": "Maximum size of a single message in bytes; if exceeded, the message goes to DLX",
+        "correct": false,
+        "explanation": "`x-max-length` is the maximum number of messages in a queue, not message size. For byte-size limits, use `x-max-length-bytes`"
+      },
+      {
+        "text": "Maximum length of a message's routing key; too-long keys are routed to DLX",
+        "correct": false,
+        "explanation": "No such mechanism exists. `x-max-length` is the limit on the number of messages in a queue"
+      }
+    ]
+  },
+  {
+    "question": "You are designing a task processing system. Tasks with priority=10 should be processed immediately, and priority=1 — in the background. Under high load, background tasks are not processed at all. How do you solve this problem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Enable Lazy Queue — disk-based storage automatically balances processing by priority",
+        "correct": false,
+        "explanation": "Lazy Queue affects where messages are stored (RAM vs disk), not the order of processing by priority"
+      },
+      {
+        "text": "Configure x-max-length with overflow=reject-publish-dlx for low-priority tasks",
+        "correct": false,
+        "explanation": "Dead-lettering would redirect tasks, but not solve the problem: high-priority tasks will still be processed first, and low-priority ones will wait"
+      },
+      {
+        "text": "Increase x-max-priority to 100 to give more room for priority levels",
+        "correct": false,
+        "explanation": "More priority levels do not solve the starvation problem for low-priority tasks — they will still be displaced by high-priority ones"
+      },
+      {
+        "text": "Use separate queues for different priority levels and assign separate consumers to each",
+        "correct": true,
+        "explanation": "Guaranteed resource allocation for each priority level prevents starvation. This is called rate limiting by priority and is a reliable strategy"
+      }
+    ]
+  },
+  {
+    "question": "When using RPC via RabbitMQ, which exchange type is most logical to use for rpc.queue?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Direct — the client publishes a request with a routing key, RabbitMQ routes it to a specific server queue",
+        "correct": true,
+        "explanation": "Direct exchange with binding key = rpc.queue name ensures precise delivery. Each server reads from its own queue. Multiple servers = load balancing via competing consumers"
+      },
+      {
+        "text": "Headers — to route requests by operation type in headers",
+        "correct": false,
+        "explanation": "Headers exchange technically works but is excessive for RPC. Direct routing via Direct exchange is simpler and more performant"
+      },
+      {
+        "text": "Topic — so multiple types of servers can subscribe to different request patterns",
+        "correct": false,
+        "explanation": "Topic exchange is possible for complex routing scenarios, but for basic RPC, Direct exchange is a simpler and more obvious choice"
+      },
+      {
+        "text": "Fanout — so all servers receive the request simultaneously",
+        "correct": false,
+        "explanation": "Fanout broadcasts the message to all queues — the request would be processed by multiple servers, leading to multiple responses to a single request"
+      }
+    ]
+  },
+  {
+    "question": "Why must the correlation-id in the RPC pattern be unique per request, not per client?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Because RabbitMQ automatically routes the response to the correct reply-to queue by correlation-id",
+        "correct": false,
+        "explanation": "RabbitMQ routes the response by the queue name from the reply-to header, not by correlation-id. Correlation-id is used by the client for matching"
+      },
+      {
+        "text": "Because RabbitMQ uses correlation-id for message deduplication",
+        "correct": false,
+        "explanation": "RabbitMQ does not deduplicate by correlation-id. Uniqueness is needed for the client to match responses with requests"
+      },
+      {
+        "text": "Because a single client may simultaneously have multiple outstanding RPC calls and must know which response corresponds to which request",
+        "correct": true,
+        "explanation": "If a client sent 3 requests in parallel and receives responses, it checks the correlation-id of each response against its list of pending calls"
+      },
+      {
+        "text": "Because the server returns only one response per correlation-id, so reusing it would lead to data loss",
+        "correct": false,
+        "explanation": "This is a consequence, not the cause. The root reason: the client uses correlation-id to match responses with requests during concurrent calls"
+      }
+    ]
+  }
+]

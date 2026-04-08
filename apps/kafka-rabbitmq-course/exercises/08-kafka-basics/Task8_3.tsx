@@ -2,14 +2,14 @@ import { useState } from 'react'
 import { useLanguage } from '@courses/platform'
 
 // ============================================
-// Задание 8.3: Topics и Partitions
+// Task 8.3: Topics and Partitions
 // ============================================
 //
-// Цель: реализовать визуализацию партиционирования Kafka.
-// Пользователь создаёт topics, отправляет сообщения с ключами
-// и наблюдает, как ключ через хэш-функцию определяет партицию.
+// Goal: implement a visualization of Kafka partitioning.
+// The user creates topics, sends messages with keys,
+// and observes how the key determines the partition via a hash function.
 
-// TODO: Определи интерфейс TopicConfig:
+// TODO: Define TopicConfig interface:
 //   name: string
 //   partitions: number
 //   replicationFactor: number
@@ -17,7 +17,7 @@ import { useLanguage } from '@courses/platform'
 //   bgColor: string
 // interface TopicConfig { ... }
 
-// TODO: Определи интерфейс Message83:
+// TODO: Define Message83 interface:
 //   id: number
 //   key: string
 //   value: string
@@ -26,16 +26,16 @@ import { useLanguage } from '@courses/platform'
 //   color: string
 // interface Message83 { ... }
 
-// TODO: Реализуй функцию hashKey(key: string, partitions: number): number:
-//   - Murmur2-подобный хэш:
+// TODO: Implement function hashKey(key: string, partitions: number): number:
+//   - Murmur2-like hash:
 //     let hash = 0
 //     for (let i = 0; i < key.length; i++) {
 //       hash = ((hash << 5) - hash + key.charCodeAt(i)) | 0
 //     }
-//   - Возвращает Math.abs(hash) % partitions
+//   - Returns Math.abs(hash) % partitions
 // function hashKey(key: string, partitions: number): number { ... }
 
-// TODO: Создай константу TOPIC_COLORS — массив из 3 объектов { color, bgColor }:
+// TODO: Create constant TOPIC_COLORS — array of 3 objects { color, bgColor }:
 //   [0]: { color: '#1565C0', bgColor: '#E3F2FD' }
 //   [1]: { color: '#6A1B9A', bgColor: '#F3E5F5' }
 //   [2]: { color: '#2E7D32', bgColor: '#E8F5E9' }
@@ -44,113 +44,113 @@ import { useLanguage } from '@courses/platform'
 export function Task8_3() {
   const { t } = useLanguage()
 
-  // TODO: Состояние topics: TopicConfig[] — инициализировать двумя топиками:
+  // TODO: State topics: TopicConfig[] — initialize with two topics:
   //   { name: 'orders',   partitions: 3, replicationFactor: 2, ...TOPIC_COLORS[0] }
   //   { name: 'payments', partitions: 2, replicationFactor: 2, ...TOPIC_COLORS[1] }
   const [topics, setTopics] = useState<unknown[]>([])
 
-  // TODO: Состояние selectedTopic: string — выбранный topic (по умолчанию 'orders')
+  // TODO: State selectedTopic: string — selected topic (default 'orders')
   const [selectedTopic, setSelectedTopic] = useState('orders')
 
-  // TODO: Состояние messages: Record<string, Message83[]> — сообщения по топикам
-  //   Начальное значение: { orders: [], payments: [] }
+  // TODO: State messages: Record<string, Message83[]> — messages by topic
+  //   Initial value: { orders: [], payments: [] }
   const [messages, setMessages] = useState<Record<string, unknown[]>>({ orders: [], payments: [] })
 
-  // TODO: Состояние newTopicName: string — имя нового создаваемого топика
+  // TODO: State newTopicName: string — name of the new topic being created
   const [newTopicName, setNewTopicName] = useState('')
 
-  // TODO: Состояние newTopicPartitions: number — количество партиций (по умолчанию 3)
+  // TODO: State newTopicPartitions: number — number of partitions (default 3)
   const [newTopicPartitions, setNewTopicPartitions] = useState(3)
 
-  // TODO: Состояние msgKey: string — ключ отправляемого сообщения (по умолчанию 'user-1')
+  // TODO: State msgKey: string — key of the message being sent (default 'user-1')
   const [msgKey, setMsgKey] = useState('user-1')
 
-  // TODO: Состояние msgValue: string — значение сообщения (по умолчанию '{"amount":100}')
+  // TODO: State msgValue: string — value of the message (default '{"amount":100}')
   const [msgValue, setMsgValue] = useState('{"amount":100}')
 
-  // TODO: Состояние msgLog: string[] — лог отправки (последние 16 записей)
+  // TODO: State msgLog: string[] — send log (last 16 entries)
   const [msgLog, setMsgLog] = useState<string[]>([])
 
-  // TODO: Состояние nextId: number — счётчик ID сообщений (по умолчанию 1)
+  // TODO: State nextId: number — message ID counter (default 1)
   const [nextId, setNextId] = useState(1)
 
-  // TODO: Вычисли currentTopic = topics.find(t => t.name === selectedTopic)
+  // TODO: Compute currentTopic = topics.find(t => t.name === selectedTopic)
   // const currentTopic = ...
 
-  // TODO: Реализуй функцию sendMessage():
-  //   1. Проверяет: currentTopic, msgKey и msgValue не пустые
-  //   2. Вычисляет partition = hashKey(msgKey.trim(), currentTopic.partitions)
-  //   3. Вычисляет offset = количество уже существующих сообщений в этой партиции
-  //   4. Создаёт Message83: { id: nextId, key, value, partition, offset, color: currentTopic.color }
-  //   5. Добавляет в messages[currentTopic.name]
-  //   6. Увеличивает nextId на 1
-  //   7. В msgLog добавляет ДВЕ строки:
+  // TODO: Implement function sendMessage():
+  //   1. Checks: currentTopic, msgKey and msgValue are not empty
+  //   2. Computes partition = hashKey(msgKey.trim(), currentTopic.partitions)
+  //   3. Computes offset = count of existing messages in that partition
+  //   4. Creates Message83: { id: nextId, key, value, partition, offset, color: currentTopic.color }
+  //   5. Adds to messages[currentTopic.name]
+  //   6. Increments nextId by 1
+  //   7. Adds TWO lines to msgLog:
   //      `[SEND] topic=NAME key="KEY" → partition=P offset=O`
   //      `  hash("KEY") % N = P`
-  //   8. Ограничивает msgLog до 16 записей
+  //   8. Limits msgLog to 16 entries
   const sendMessage = () => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
-  // TODO: Реализуй функцию addTopic():
-  //   1. Проверяет: newTopicName не пустое И топик с таким именем ещё не существует
-  //   2. Выбирает цвет: TOPIC_COLORS[topics.length % TOPIC_COLORS.length]
-  //   3. Добавляет новый TopicConfig в topics
-  //   4. Инициализирует messages[newTopicName] = []
-  //   5. Переключает selectedTopic на новый топик
-  //   6. Очищает newTopicName
+  // TODO: Implement function addTopic():
+  //   1. Checks: newTopicName is not empty AND topic with that name does not exist
+  //   2. Picks color: TOPIC_COLORS[topics.length % TOPIC_COLORS.length]
+  //   3. Adds new TopicConfig to topics
+  //   4. Initializes messages[newTopicName] = []
+  //   5. Switches selectedTopic to the new topic
+  //   6. Clears newTopicName
   const addTopic = () => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
-  // TODO: Реализуй вспомогательную функцию getPartitionMessages(topicName: string, partition: number): Message83[]:
-  //   Возвращает (messages[topicName] || []).filter(m => m.partition === partition)
+  // TODO: Implement helper function getPartitionMessages(topicName: string, partition: number): Message83[]:
+  //   Returns (messages[topicName] || []).filter(m => m.partition === partition)
   // const getPartitionMessages = (topicName: string, partition: number) => { ... }
 
-  // TODO: Вычисли totalMessages = Object.values(messages).flat().length
+  // TODO: Compute totalMessages = Object.values(messages).flat().length
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '1000px' }}>
       <h2 style={{ marginBottom: '0.25rem' }}>{t('task.8.3')}</h2>
       <p style={{ color: '#666', marginBottom: '1rem', fontSize: '0.9rem' }}>
-        Создавай topics, отправляй сообщения с ключами и наблюдай за партиционированием.
+        Create topics, send messages with keys, and observe partitioning in action.
       </p>
 
-      {/* TODO: Панель статистики (3 карточки: Topics, Всего партиций, Сообщений):
-          - topics.length, сумма партиций, totalMessages
-          - Цвета: '#1565C0', '#6A1B9A', '#2E7D32' */}
+      {/* TODO: Stats panel (3 cards: Topics, Total partitions, Messages):
+          - topics.length, sum of partitions, totalMessages
+          - Colors: '#1565C0', '#6A1B9A', '#2E7D32' */}
 
-      {/* TODO: Кнопки-таблетки для каждого топика:
-          - Активный: border и цвет topic.color, background topic.bgColor, fontWeight 700
-          - Неактивный: border '#ddd', background '#fff'
-          - Текст: "name (Np)" */}
+      {/* TODO: Topic pill buttons for each topic:
+          - Active: border and color topic.color, background topic.bgColor, fontWeight 700
+          - Inactive: border '#ddd', background '#fff'
+          - Text: "name (Np)" */}
 
-      {/* TODO: Форма создания топика (background '#f5f5f5', borderRadius '8px'):
-          - Input имени топика
-          - Select количества партиций: [1, 2, 3, 4, 6, 8]
-          - Кнопка "Создать Topic" → addTopic()
-          - Кнопка disabled (background '#ccc') если newTopicName пустое */}
+      {/* TODO: Create topic form (background '#f5f5f5', borderRadius '8px'):
+          - Topic name input
+          - Partition count select: [1, 2, 3, 4, 6, 8]
+          - "Create Topic" button → addTopic()
+          - Button disabled (background '#ccc') if newTopicName is empty */}
 
-      {/* TODO: Визуализация партиций выбранного топика (если currentTopic существует):
-          - Заголовок: "Topic: NAME — N партиций, replication factor: RF"
-          - Горизонтальный ряд колонок (display flex, gap '0.75rem', overflowX 'auto'):
-            * Каждая колонка — одна партиция
-            * Заголовок колонки: "Partition N (X msg)" на фоне topic.color, цвет '#fff'
-            * Тело колонки: background topic.bgColor, minHeight 120px
-            * Карточки сообщений: offset=N, key, value (с truncation)
-            * Если сообщений нет — текст "Нет сообщений" серым */}
+      {/* TODO: Partition visualization for selected topic (if currentTopic exists):
+          - Header: "Topic: NAME — N partitions, replication factor: RF"
+          - Horizontal row of columns (display flex, gap '0.75rem', overflowX 'auto'):
+            * Each column — one partition
+            * Column header: "Partition N (X msg)" on topic.color background, color '#fff'
+            * Column body: background topic.bgColor, minHeight 120px
+            * Message cards: offset=N, key, value (with truncation)
+            * If no messages — "No messages" text in gray */}
 
-      {/* TODO: Форма отправки сообщения:
-          - Заголовок "Отправить сообщение"
-          - Input key (width 160px, monospace) и Input value (flex 1)
-          - Кнопка "Отправить" → sendMessage() (цвет currentTopic?.color || '#1565C0') */}
+      {/* TODO: Send message form:
+          - Header "Send message"
+          - Input key (width 160px, monospace) and Input value (flex 1)
+          - "Send" button → sendMessage() (color currentTopic?.color || '#1565C0') */}
 
-      {/* TODO: Лог отправки (если msgLog.length > 0):
-          - Тёмный терминал (background '#0d1117', цвет '#58a6ff', maxHeight 200px)
-          - Кнопка "Очистить" → setMsgLog([]) */}
+      {/* TODO: Send log (if msgLog.length > 0):
+          - Dark terminal (background '#0d1117', color '#58a6ff', maxHeight 200px)
+          - "Clear" button → setMsgLog([]) */}
 
       <div style={{ color: '#aaa', fontSize: '0.85rem', marginTop: '2rem' }}>
-        TODO: реализовать интерфейс задания
+        TODO: implement the task UI
       </div>
     </div>
   )

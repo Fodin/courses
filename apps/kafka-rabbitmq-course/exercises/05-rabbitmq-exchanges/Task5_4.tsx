@@ -2,40 +2,40 @@ import { useState } from 'react'
 import { useLanguage } from '@courses/platform'
 
 // ============================================
-// Задание 5.4: Headers Exchange и сравнение типов
+// Task 5.4: Headers Exchange and type comparison
 // ============================================
 //
-// Цель: реализовать симулятор Headers Exchange и интерактивное сравнение
-// всех 4 типов Exchange (Direct, Fanout, Topic, Headers).
+// Goal: implement a Headers Exchange simulator and an interactive comparison
+// of all 4 Exchange types (Direct, Fanout, Topic, Headers).
 //
-// Headers Exchange маршрутизирует по заголовкам AMQP-сообщения (не по routing key).
-// Каждая привязка имеет набор ожидаемых заголовков и режим x-match:
-//   x-match: all — ВСЕ заголовки привязки должны совпасть с заголовками сообщения
-//   x-match: any — ХОТЯ БЫ ОДИН заголовок должен совпасть
+// Headers Exchange routes by AMQP message headers (not by routing key).
+// Each binding has a set of expected headers and an x-match mode:
+//   x-match: all — ALL binding headers must match the message headers
+//   x-match: any — AT LEAST ONE header must match
 
-// TODO: Определи интерфейс HeadersBinding:
+// TODO: Define the HeadersBinding interface:
 //   id: string
 //   queue: string
-//   headers: Record<string, string>   — ожидаемые заголовки привязки
+//   headers: Record<string, string>   — expected binding headers
 //   xMatch: 'all' | 'any'
 //   color: string
 //   bgColor: string
 // interface HeadersBinding { ... }
 
-// TODO: Определи интерфейс ExchangeType:
+// TODO: Define the ExchangeType interface:
 //   name: string          — 'Direct' | 'Fanout' | 'Topic' | 'Headers'
-//   icon: string          — эмодзи
+//   icon: string          — emoji
 //   color: string
 //   bgColor: string
-//   routing: string       — описание алгоритма маршрутизации
-//   speed: string         — производительность
-//   complexity: string    — сложность конфигурации
-//   useCases: string[]    — сценарии использования
-//   when: string          — когда выбирать этот тип
-//   example: string       — пример использования
+//   routing: string       — routing algorithm description
+//   speed: string         — performance
+//   complexity: string    — configuration complexity
+//   useCases: string[]    — use cases
+//   when: string          — when to choose this type
+//   example: string       — usage example
 // interface ExchangeType { ... }
 
-// TODO: Создай массив headersBindings с 4 фиксированными привязками:
+// TODO: Create the headersBindings array with 4 fixed bindings:
 //   {
 //     id: 'h1', queue: 'eu-mobile-orders',
 //     headers: { region: 'eu', platform: 'mobile' }, xMatch: 'all',
@@ -58,22 +58,22 @@ import { useLanguage } from '@courses/platform'
 //   }
 // const headersBindings: HeadersBinding[] = [...]
 
-// TODO: Создай массив exchangeTypes с данными для всех 4 типов:
-//   Direct:  icon '🎯', routing 'Точное совпадение routing key', speed 'Высокая', complexity 'Простой'
-//   Fanout:  icon '📢', routing 'Routing key игнорируется — всем', speed 'Очень высокая', complexity 'Самый простой'
-//   Topic:   icon '🌿', routing 'Wildcard паттерны (* и #)', speed 'Высокая', complexity 'Средний'
-//   Headers: icon '🏷️', routing 'Совпадение заголовков AMQP (x-match: all/any)', speed 'Низкая', complexity 'Сложный'
+// TODO: Create the exchangeTypes array with data for all 4 types:
+//   Direct:  icon '🎯', routing 'Exact routing key match', speed 'High', complexity 'Simple'
+//   Fanout:  icon '📢', routing 'Routing key ignored — broadcasts to all', speed 'Very high', complexity 'Simplest'
+//   Topic:   icon '🌿', routing 'Wildcard patterns (* and #)', speed 'High', complexity 'Medium'
+//   Headers: icon '🏷️', routing 'AMQP header match (x-match: all/any)', speed 'Low', complexity 'Complex'
 // const exchangeTypes: ExchangeType[] = [...]
 
 export function Task5_4() {
   const { t } = useLanguage()
 
-  // TODO: Объяви состояния:
-  //   messageHeaders — Record<string, string>: начальные заголовки { region: 'eu', platform: 'mobile', tier: 'standard' }
-  //   headerInput    — { key: string, value: string } — поля для добавления заголовка
-  //   view           — 'headers' | 'comparison' (переключение вкладок)
-  //   activeExchange — string (активный тип в режиме сравнения, по умолчанию 'Direct')
-  //   log            — string[] (лог публикаций)
+  // TODO: Declare state variables:
+  //   messageHeaders — Record<string, string>: initial headers { region: 'eu', platform: 'mobile', tier: 'standard' }
+  //   headerInput    — { key: string, value: string } — fields for adding a header
+  //   view           — 'headers' | 'comparison' (tab switching)
+  //   activeExchange — string (active type in comparison mode, default 'Direct')
+  //   log            — string[] (publication log)
   const [messageHeaders, setMessageHeaders] = useState<Record<string, string>>({
     region: 'eu',
     platform: 'mobile',
@@ -84,52 +84,52 @@ export function Task5_4() {
   const [activeExchange, setActiveExchange] = useState('Direct')
   const [log, setLog] = useState<string[]>([])
 
-  // TODO: Реализуй функцию matchHeaders(binding: HeadersBinding): boolean
-  //   Для каждого заголовка binding проверь: messageHeaders[k] === v
-  //   Если xMatch === 'all': checks.every(Boolean)
-  //   Если xMatch === 'any': checks.some(Boolean)
+  // TODO: Implement the matchHeaders(binding: HeadersBinding): boolean function
+  //   For each binding header check: messageHeaders[k] === v
+  //   If xMatch === 'all': checks.every(Boolean)
+  //   If xMatch === 'any': checks.some(Boolean)
   const matchHeaders = (_binding: unknown): boolean => {
-    // TODO: реализовать
+    // TODO: implement
     return false
   }
 
-  // TODO: Вычисли matchedBindings как производное:
+  // TODO: Compute matchedBindings as a derived value:
   //   const matchedBindings = headersBindings.filter(matchHeaders)
   const matchedBindings: unknown[] = []
 
-  // TODO: Реализуй функцию publish():
-  //   1. Получи временную метку
-  //   2. Собери строку заголовков: `key1=val1, key2=val2`
-  //   3. Запишем в log: `[ts] HEADERS {headers} → queue1, queue2` или `→ UNROUTABLE`
+  // TODO: Implement the publish() function:
+  //   1. Get timestamp
+  //   2. Build a header string: `key1=val1, key2=val2`
+  //   3. Write to log: `[ts] HEADERS {headers} → queue1, queue2` or `→ UNROUTABLE`
   const publish = () => {
-    // TODO: реализовать
+    // TODO: implement
     console.log('TODO: publish()')
   }
 
-  // TODO: Реализуй функцию addHeader():
-  //   1. Проверь, что headerInput.key.trim() не пустой
-  //   2. Добавь { [key]: value } в messageHeaders
-  //   3. Очисти headerInput
+  // TODO: Implement the addHeader() function:
+  //   1. Check that headerInput.key.trim() is not empty
+  //   2. Add { [key]: value } to messageHeaders
+  //   3. Clear headerInput
   const addHeader = () => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
-  // TODO: Реализуй функцию removeHeader(key: string):
-  //   Создай копию messageHeaders без данного ключа и установи её
+  // TODO: Implement the removeHeader(key: string) function:
+  //   Create a copy of messageHeaders without the given key and set it
   const removeHeader = (_key: string) => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '960px' }}>
       <h2 style={{ marginBottom: '0.25rem' }}>{t('task.5.4')}</h2>
       <p style={{ color: '#666', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-        Headers Exchange маршрутизирует по заголовкам AMQP. Затем — сравнение всех 4 типов Exchange.
+        Headers Exchange routes by AMQP headers. Then — comparison of all 4 Exchange types.
       </p>
 
-      {/* TODO: Переключатель вкладок ("🏷️ Headers Exchange" | "📊 Сравнение типов")
-          Активная вкладка: border и background '#6A1B9A', цвет '#fff'
-          Неактивная: border '#ddd', background '#fff'
+      {/* TODO: Tab switcher ("🏷️ Headers Exchange" | "📊 Type comparison")
+          Active tab: border and background '#6A1B9A', color '#fff'
+          Inactive tab: border '#ddd', background '#fff'
       */}
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
         {(['headers', 'comparison'] as const).map(v => (
@@ -147,24 +147,24 @@ export function Task5_4() {
               fontSize: '0.9rem',
             }}
           >
-            {v === 'headers' ? '🏷️ Headers Exchange' : '📊 Сравнение типов'}
+            {v === 'headers' ? '🏷️ Headers Exchange' : '📊 Type comparison'}
           </button>
         ))}
       </div>
 
       {view === 'headers' ? (
-        /* ---- Вкладка Headers Exchange ---- */
+        /* ---- Headers Exchange tab ---- */
         <div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
 
-            {/* Левая: редактор заголовков + кнопка публикации */}
+            {/* Left: header editor + publish button */}
             <div>
-              <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Заголовки сообщения</h3>
+              <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Message headers</h3>
 
-              {/* TODO: Блок текущих заголовков:
-                  - Шапка "AMQP message headers" на сером фоне
-                  - Для каждой пары [key, value]: показать key (фиолетовый) + value (зелёный) + кнопка ✕
-                  - removeHeader при клике на ✕
+              {/* TODO: Current headers block:
+                  - Header "AMQP message headers" on grey background
+                  - For each [key, value] pair: show key (purple) + value (green) + ✕ button
+                  - removeHeader on ✕ click
               */}
               <div style={{ border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden', marginBottom: '0.75rem' }}>
                 <div style={{ background: '#f5f5f5', padding: '0.5rem 0.75rem', fontSize: '0.75rem', color: '#888', fontFamily: 'monospace' }}>
@@ -190,18 +190,18 @@ export function Task5_4() {
                 ))}
               </div>
 
-              {/* TODO: Форма добавления заголовка: поле key + поле value + кнопка "+" */}
+              {/* TODO: Add header form: key field + value field + "+" button */}
               <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                 <input
                   value={headerInput.key}
                   onChange={e => setHeaderInput(prev => ({ ...prev, key: e.target.value }))}
-                  placeholder="ключ"
+                  placeholder="key"
                   style={{ flex: 1, padding: '0.4rem', border: '1px solid #ddd', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.8rem' }}
                 />
                 <input
                   value={headerInput.value}
                   onChange={e => setHeaderInput(prev => ({ ...prev, value: e.target.value }))}
-                  placeholder="значение"
+                  placeholder="value"
                   style={{ flex: 1, padding: '0.4rem', border: '1px solid #ddd', borderRadius: '6px', fontFamily: 'monospace', fontSize: '0.8rem' }}
                 />
                 <button
@@ -220,28 +220,28 @@ export function Task5_4() {
               </button>
             </div>
 
-            {/* TODO: Правая: список привязок с детальной проверкой
-                Заголовок: "Bindings (N совпадений)"
-                Для каждой привязки — карточка:
-                  - Подсвечена (цветная рамка + bgColor), если matchHeaders(b)
-                  - Имя очереди (цветное)
-                  - Badge "x-match: all" или "x-match: any" (синий/оранжевый)
-                  - Иконка ✅ или ❌
-                  - Детальная проверка заголовков: каждый заголовок привязки отображается
-                    как badge с цветом: зелёный если messageHeaders[k] === v, красный если нет
-                    Показывает ожидаемое значение и фактическое (got: actual)
+            {/* TODO: Right: list of bindings with detailed header checks
+                Heading: "Bindings (N matches)"
+                For each binding — a card:
+                  - Highlighted (colored border + bgColor) if matchHeaders(b)
+                  - Queue name (colored)
+                  - Badge "x-match: all" or "x-match: any" (blue/orange)
+                  - ✅ or ❌ icon
+                  - Detailed header check: each binding header displayed
+                    as a badge with color: green if messageHeaders[k] === v, red if not
+                    Shows expected value and actual (got: actual)
             */}
             <div>
               <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-                Bindings ({matchedBindings.length} совпадений)
+                Bindings ({matchedBindings.length} matches)
               </h3>
               <div style={{ color: '#999', fontSize: '0.85rem' }}>
-                TODO: отобразить привязки с детальной проверкой заголовков
+                TODO: display bindings with detailed header checks
               </div>
             </div>
           </div>
 
-          {/* TODO: Лог публикаций (тёмный терминал), если log не пустой */}
+          {/* TODO: Publication log (dark terminal), if log is not empty */}
           {log.length > 0 && (
             <div style={{ background: '#1a1a2e', color: '#00ff88', fontFamily: 'monospace', fontSize: '0.75rem', padding: '0.75rem', borderRadius: '8px', maxHeight: '130px', overflowY: 'auto' }}>
               {log.map((line, i) => <div key={i}>{line}</div>)}
@@ -249,43 +249,43 @@ export function Task5_4() {
           )}
         </div>
       ) : (
-        /* ---- Вкладка Сравнение типов ---- */
+        /* ---- Type Comparison tab ---- */
         <div>
-          {/* TODO: Кнопки-переключатели для 4 типов Exchange
-              Для каждого типа из exchangeTypes:
-                - Активная кнопка: border и bgColor типа
-                - Показывает icon + name
+          {/* TODO: Switcher buttons for 4 Exchange types
+              For each type from exchangeTypes:
+                - Active button: border and bgColor of the type
+                - Shows icon + name
           */}
           <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
             <div style={{ color: '#999', fontSize: '0.85rem' }}>
-              TODO: кнопки выбора типа Exchange (Direct, Fanout, Topic, Headers)
+              TODO: Exchange type selection buttons (Direct, Fanout, Topic, Headers)
             </div>
           </div>
 
-          {/* TODO: Карточка активного типа Exchange
-              Показывает 2 колонки:
-              Левая: алгоритм маршрутизации, производительность, сложность, пример
-              Правая: список сценариев использования, когда выбирать
+          {/* TODO: Active Exchange type card
+              Shows 2 columns:
+              Left: routing algorithm, performance, complexity, example
+              Right: list of use cases, when to choose
           */}
           <div style={{ border: '2px solid #ddd', borderRadius: '12px', padding: '1.25rem', background: '#f9f9f9', marginBottom: '1.5rem' }}>
             <div style={{ color: '#999', fontSize: '0.85rem' }}>
-              TODO: карточка с характеристиками активного типа Exchange ({activeExchange})
+              TODO: card with characteristics of the active Exchange type ({activeExchange})
             </div>
           </div>
 
-          {/* TODO: Таблица сравнения всех 4 типов
-              Строки: тип Exchange | маршрутизация | скорость | сложность
-              Активная строка подсвечена
+          {/* TODO: Comparison table of all 4 types
+              Rows: Exchange type | routing | speed | complexity
+              Active row highlighted
           */}
           <div style={{ border: '1px solid #ddd', borderRadius: '8px', overflow: 'hidden', fontSize: '0.85rem' }}>
             <div style={{ background: '#f5f5f5', padding: '0.5rem 0.75rem', fontWeight: 700, display: 'grid', gridTemplateColumns: '100px 1fr 100px 100px', gap: '0.5rem' }}>
-              <div>Тип</div>
-              <div>Маршрутизация</div>
-              <div>Скорость</div>
-              <div>Сложность</div>
+              <div>Type</div>
+              <div>Routing</div>
+              <div>Speed</div>
+              <div>Complexity</div>
             </div>
             <div style={{ color: '#999', padding: '0.75rem', fontSize: '0.85rem' }}>
-              TODO: строки таблицы для каждого типа из exchangeTypes
+              TODO: table rows for each type from exchangeTypes
             </div>
           </div>
         </div>

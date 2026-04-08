@@ -2,50 +2,50 @@ import { useState } from 'react'
 import { useLanguage } from '@courses/platform'
 
 // ============================================
-// Задание 5.3: Topic Exchange
+// Task 5.3: Topic Exchange
 // ============================================
 //
-// Цель: реализовать симулятор Topic Exchange с поддержкой wildcard-паттернов.
+// Goal: implement a Topic Exchange simulator with wildcard pattern support.
 //
-// Правила Topic Exchange:
-//   * (звёздочка) — заменяет ровно одно слово (сегмент между точками)
-//   # (решётка)   — заменяет ноль или более слов
+// Topic Exchange rules:
+//   * (asterisk) — replaces exactly one word (segment between dots)
+//   # (hash)     — replaces zero or more words
 //
-// Примеры:
-//   order.*     совпадает с order.created, НО НЕ с order.created.eu
-//   order.#     совпадает с order, order.created, order.created.eu
-//   *.paid.*    совпадает с order.paid.eu, invoice.paid.us
-//   #.error     совпадает с system.error, order.process.error
+// Examples:
+//   order.*     matches order.created, but NOT order.created.eu
+//   order.#     matches order, order.created, order.created.eu
+//   *.paid.*    matches order.paid.eu, invoice.paid.us
+//   #.error     matches system.error, order.process.error
 
-// TODO: Определи интерфейс TopicBinding:
+// TODO: Define the TopicBinding interface:
 //   id: string
-//   pattern: string   — wildcard-паттерн привязки
-//   queue: string     — имя очереди
+//   pattern: string   — binding wildcard pattern
+//   queue: string     — queue name
 //   color: string
 //   bgColor: string
 // interface TopicBinding { ... }
 
-// TODO: Реализуй функцию matchTopicPattern(pattern: string, key: string): boolean
-//   Алгоритм: разбей pattern и key на сегменты по точке.
-//   Итерируй одновременно по pp (сегменты паттерна) и kp (сегменты ключа):
-//     - pp[pi] === '#': если последний — return true
-//                       иначе — рекурсивно перебери pp.slice(pi+1) против kp.slice(j..N)
+// TODO: Implement the matchTopicPattern(pattern: string, key: string): boolean function
+//   Algorithm: split pattern and key into segments by dot.
+//   Iterate simultaneously over pp (pattern segments) and kp (key segments):
+//     - pp[pi] === '#': if last segment — return true
+//                       else — recursively try pp.slice(pi+1) against kp.slice(j..N)
 //     - pp[pi] === '*': pp++, kp++
 //     - pp[pi] === kp[ki]: pp++, kp++
-//     - иначе: return false
-//   После цикла: пропусти оставшиеся '#' в паттерне.
-//   Return true только если оба итератора достигли конца.
+//     - otherwise: return false
+//   After the loop: skip remaining '#' in the pattern.
+//   Return true only if both iterators reached the end.
 // function matchTopicPattern(pattern: string, key: string): boolean { ... }
 
-// TODO: Реализуй функцию highlightPattern(pattern: string, key: string): React.ReactNode[]
-//   Возвращает массив <span> элементов для каждого сегмента паттерна:
-//     - Сегменты разделены точками (отображать в сером цвете)
-//     - Wildcard (*,#): цвет '#E65100' (оранжевый), fontWeight: 700
-//     - Совпадающие: цвет '#2E7D32' (зелёный), fontWeight: 700
-//     - Несовпадающие: цвет '#C62828' (красный)
+// TODO: Implement the highlightPattern(pattern: string, key: string): React.ReactNode[] function
+//   Returns an array of <span> elements for each pattern segment:
+//     - Segments separated by dots (displayed in grey)
+//     - Wildcard (*,#): color '#E65100' (orange), fontWeight: 700
+//     - Matching: color '#2E7D32' (green), fontWeight: 700
+//     - Non-matching: color '#C62828' (red)
 // function highlightPattern(pattern: string, key: string): React.ReactNode[] { ... }
 
-// TODO: Создай массив initialTopicBindings из 5 привязок:
+// TODO: Create the initialTopicBindings array with 5 bindings:
 //   { id: 'b1', pattern: 'order.#',         queue: 'all-orders',   color: '#1565C0', bgColor: '#E3F2FD' }
 //   { id: 'b2', pattern: 'order.created.*', queue: 'new-orders',   color: '#2E7D32', bgColor: '#E8F5E9' }
 //   { id: 'b3', pattern: '*.paid.*',        queue: 'payments',     color: '#6A1B9A', bgColor: '#F3E5F5' }
@@ -53,7 +53,7 @@ import { useLanguage } from '@courses/platform'
 //   { id: 'b5', pattern: '#.error',         queue: 'error-handler',color: '#C62828', bgColor: '#FFEBEE' }
 // const initialTopicBindings: TopicBinding[] = [...]
 
-// TODO: Создай массив topicExamples из 8 примеров routing keys:
+// TODO: Create the topicExamples array with 8 routing key examples:
 //   'order.created.eu', 'order.paid.us', 'order.cancelled.eu', 'order.error',
 //   'user.registered', 'user.login.mobile', 'payment.processed.us', 'system.error'
 // const topicExamples: string[] = [...]
@@ -61,61 +61,61 @@ import { useLanguage } from '@courses/platform'
 export function Task5_3() {
   const { t } = useLanguage()
 
-  // TODO: Объяви состояния:
-  //   bindings   — массив TopicBinding (initialTopicBindings)
-  //   routingKey — string (текущий ключ, по умолчанию 'order.created.eu')
-  //   newPattern — string (ввод нового паттерна)
-  //   newQueue   — string (ввод имени новой очереди)
-  //   log        — массив { key: string, matched: string[], ts: string }
+  // TODO: Declare state variables:
+  //   bindings   — array of TopicBinding (initialTopicBindings)
+  //   routingKey — string (current key, default 'order.created.eu')
+  //   newPattern — string (new pattern input)
+  //   newQueue   — string (new queue name input)
+  //   log        — array of { key: string, matched: string[], ts: string }
   const [bindings, setBindings] = useState<string[]>([])
   const [routingKey, setRoutingKey] = useState('order.created.eu')
   const [newPattern, setNewPattern] = useState('')
   const [newQueue, setNewQueue] = useState('')
   const [log, setLog] = useState<Array<{ key: string; matched: string[]; ts: string }>>([])
 
-  // TODO: Вычисли matchedBindings как производное:
+  // TODO: Compute matchedBindings as a derived value:
   //   const matchedBindings = bindings.filter(b => matchTopicPattern(b.pattern, routingKey))
   const matchedBindings: string[] = []
 
-  // TODO: Реализуй функцию publish():
-  //   1. Получи временную метку
-  //   2. Найди совпавшие очереди через matchTopicPattern
-  //   3. Добавь запись в log (не более 10)
+  // TODO: Implement the publish() function:
+  //   1. Get timestamp
+  //   2. Find matched queues via matchTopicPattern
+  //   3. Add an entry to log (at most 10)
   const publish = () => {
-    // TODO: реализовать
+    // TODO: implement
     console.log('TODO: publish()')
   }
 
-  // TODO: Реализуй функцию addBinding():
-  //   1. Проверь, что newPattern.trim() и newQueue.trim() не пустые
-  //   2. Добавь новую привязку, назначив цвет по индексу (3 варианта):
+  // TODO: Implement the addBinding() function:
+  //   1. Check that newPattern.trim() and newQueue.trim() are not empty
+  //   2. Add a new binding, assigning a color by index (3 options):
   //      { color: '#00838F', bgColor: '#E0F7FA' }
   //      { color: '#AD1457', bgColor: '#FCE4EC' }
   //      { color: '#558B2F', bgColor: '#F1F8E9' }
-  //   3. Очисти newPattern и newQueue
+  //   3. Clear newPattern and newQueue
   const addBinding = () => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
-  // TODO: Реализуй функцию removeBinding(id: string):
-  //   Фильтрует bindings, оставляя только те у которых id !== переданного
+  // TODO: Implement the removeBinding(id: string) function:
+  //   Filters bindings, keeping only those where id !== the given one
   const removeBinding = (_id: string) => {
-    // TODO: реализовать
+    // TODO: implement
   }
 
   return (
     <div style={{ padding: '1rem', fontFamily: 'sans-serif', maxWidth: '960px' }}>
       <h2 style={{ marginBottom: '0.25rem' }}>{t('task.5.3')}</h2>
       <p style={{ color: '#666', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-        Topic Exchange маршрутизирует по паттернам.{' '}
-        <code style={{ background: '#f5f5f5', padding: '1px 4px' }}>*</code> — ровно одно слово,{' '}
-        <code style={{ background: '#f5f5f5', padding: '1px 4px' }}>#</code> — ноль или более слов.
+        Topic Exchange routes by patterns.{' '}
+        <code style={{ background: '#f5f5f5', padding: '1px 4px' }}>*</code> — exactly one word,{' '}
+        <code style={{ background: '#f5f5f5', padding: '1px 4px' }}>#</code> — zero or more words.
       </p>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-        {/* Левая колонка: ввод routing key + примеры + форма добавления binding */}
+        {/* Left column: routing key input + examples + add binding form */}
         <div>
-          <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Routing Key для отправки</h3>
+          <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Routing Key to send</h3>
           <input
             value={routingKey}
             onChange={e => setRoutingKey(e.target.value)}
@@ -131,27 +131,27 @@ export function Task5_3() {
             }}
           />
 
-          {/* TODO: Кнопки-примеры из topicExamples
-              - При клике устанавливают routingKey
-              - Активная кнопка (routingKey === ex) имеет другой стиль
+          {/* TODO: Example buttons from topicExamples
+              - On click, set the routingKey
+              - Active button (routingKey === ex) has a different style
           */}
-          <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.5rem' }}>Примеры (нажмите):</div>
+          <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.5rem' }}>Examples (click):</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-            <div style={{ color: '#999', fontSize: '0.8rem' }}>TODO: кнопки примеров</div>
+            <div style={{ color: '#999', fontSize: '0.8rem' }}>TODO: example buttons</div>
           </div>
 
-          {/* TODO: Форма добавления нового binding
-              - Поле ввода паттерна (placeholder "паттерн: order.*.eu")
-              - Поле ввода очереди (placeholder "имя очереди: eu-orders")
-              - Кнопка "+ Добавить binding"
+          {/* TODO: Add new binding form
+              - Pattern input field (placeholder "pattern: order.*.eu")
+              - Queue name input (placeholder "queue name: eu-orders")
+              - "+ Add binding" button
           */}
           <div style={{ marginTop: '1.25rem' }}>
-            <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Добавить binding</h3>
+            <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>Add binding</h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <input
                 value={newPattern}
                 onChange={e => setNewPattern(e.target.value)}
-                placeholder="паттерн: order.*.eu"
+                placeholder="pattern: order.*.eu"
                 style={{
                   padding: '0.5rem',
                   border: '1px solid #ddd',
@@ -163,7 +163,7 @@ export function Task5_3() {
               <input
                 value={newQueue}
                 onChange={e => setNewQueue(e.target.value)}
-                placeholder="имя очереди: eu-orders"
+                placeholder="queue name: eu-orders"
                 style={{
                   padding: '0.5rem',
                   border: '1px solid #ddd',
@@ -184,35 +184,35 @@ export function Task5_3() {
                   fontSize: '0.85rem',
                 }}
               >
-                + Добавить binding
+                + Add binding
               </button>
             </div>
           </div>
         </div>
 
-        {/* TODO: Правая колонка: список привязок
-            Заголовок: "Bindings (N совпадений из M)"
-            Для каждой привязки — карточка:
-              - Цветная рамка если isMatch (matchTopicPattern)
-              - Паттерн с подсветкой: если совпадение — highlightPattern(b.pattern, routingKey)
-                                      иначе — серый текст
-              - Имя очереди → queue
-              - Иконка ✅ или ❌
-              - Кнопка "✕" для removeBinding
+        {/* TODO: Right column: list of bindings
+            Heading: "Bindings (N matches out of M)"
+            For each binding — a card:
+              - Colored border if isMatch (matchTopicPattern)
+              - Pattern with highlighting: if match — highlightPattern(b.pattern, routingKey)
+                                        otherwise — grey text
+              - Queue name → queue
+              - ✅ or ❌ icon
+              - "✕" button for removeBinding
         */}
         <div>
           <h3 style={{ marginBottom: '0.75rem', fontSize: '0.95rem' }}>
-            Bindings ({matchedBindings.length} совпадений из {bindings.length})
+            Bindings ({matchedBindings.length} matches out of {bindings.length})
           </h3>
           <div style={{ color: '#999', fontSize: '0.85rem' }}>
-            TODO: отобразить список привязок с подсветкой совпадений
+            TODO: display list of bindings with match highlighting
           </div>
         </div>
       </div>
 
-      {/* TODO: Кнопка "Опубликовать" + строка о текущих совпадениях
-          Если matchedBindings.length > 0: "→ Попадёт в: queue1, queue2"
-          Иначе: "→ Нет совпадений — сообщение будет потеряно"
+      {/* TODO: "Publish" button + line about current matches
+          If matchedBindings.length > 0: "→ Will go to: queue1, queue2"
+          Otherwise: "→ No matches — message will be lost"
       */}
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
         <button
@@ -231,11 +231,11 @@ export function Task5_3() {
           Опубликовать
         </button>
         <div style={{ fontSize: '0.85rem', color: '#999', paddingTop: '0.75rem' }}>
-          TODO: показать куда попадёт сообщение
+          TODO: show where the message will go
         </div>
       </div>
 
-      {/* TODO: Лог (тёмный терминал), если log не пустой */}
+      {/* TODO: Log (dark terminal), if log is not empty */}
       {log.length > 0 && (
         <div
           style={{
@@ -250,25 +250,25 @@ export function Task5_3() {
             marginBottom: '1.5rem',
           }}
         >
-          TODO: отобразить log
+          TODO: display log
         </div>
       )}
 
-      {/* TODO: Блок-справочник по wildcard-символам (2 колонки):
-          * (звёздочка): описание + 3 примера с ✅/❌
-          # (решётка):   описание + 3 примера с ✅/❌
+      {/* TODO: Wildcard symbols reference block (2 columns):
+          * (asterisk): description + 3 examples with ✅/❌
+          # (hash):     description + 3 examples with ✅/❌
       */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
         <div style={{ padding: '1rem', background: '#FFF3E0', borderRadius: '8px', border: '1px solid #FFCC80', fontSize: '0.85rem' }}>
-          <strong style={{ color: '#E65100' }}>* (звёздочка)</strong>
+          <strong style={{ color: '#E65100' }}>* (asterisk)</strong>
           <ul style={{ margin: '0.5rem 0 0 1.25rem', lineHeight: '1.7', color: '#999' }}>
-            <li>TODO: описание и примеры</li>
+            <li>TODO: description and examples</li>
           </ul>
         </div>
         <div style={{ padding: '1rem', background: '#E8F5E9', borderRadius: '8px', border: '1px solid #A5D6A7', fontSize: '0.85rem' }}>
-          <strong style={{ color: '#2E7D32' }}># (решётка)</strong>
+          <strong style={{ color: '#2E7D32' }}># (hash)</strong>
           <ul style={{ margin: '0.5rem 0 0 1.25rem', lineHeight: '1.7', color: '#999' }}>
-            <li>TODO: описание и примеры</li>
+            <li>TODO: description and examples</li>
           </ul>
         </div>
       </div>

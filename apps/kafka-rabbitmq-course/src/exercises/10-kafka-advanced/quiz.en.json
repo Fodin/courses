@@ -1,0 +1,657 @@
+[
+  {
+    "question": "What is a KStream in Kafka Streams?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A table of the latest values for each key",
+        "correct": false,
+        "explanation": "This describes a KTable, not a KStream. A KTable updates the value when a new record with the same key appears."
+      },
+      {
+        "text": "A message queue with FIFO guarantee within a single partition",
+        "correct": false,
+        "explanation": "Kafka guarantees ordering within a partition at the storage level, but KStream is a stream processing abstraction, not a queue description."
+      },
+      {
+        "text": "An internal topic for storing changelog",
+        "correct": false,
+        "explanation": "Changelog topics are internal Kafka Streams topics for restoring state store after a failure, not KStream."
+      },
+      {
+        "text": "An unbounded stream of events where each record is independent",
+        "correct": true,
+        "explanation": "KStream is an unbounded stream abstraction. Each (key, value) record is treated as an independent event with no relation to previous records with the same key."
+      }
+    ]
+  },
+  {
+    "question": "How does KTable fundamentally differ from KStream?",
+    "type": "single",
+    "options": [
+      {
+        "text": "KTable always stores data in memory, KStream — on disk",
+        "correct": false,
+        "explanation": "KTable uses a state store (RocksDB on disk by default), not just memory. KStream doesn't store state at all — it processes events as they arrive."
+      },
+      {
+        "text": "KTable requires a separate Kafka Streams application",
+        "correct": false,
+        "explanation": "KTable and KStream are abstractions of the same API and can be used in one application, often together (e.g., KStream-KTable join)."
+      },
+      {
+        "text": "KTable stores only the latest value for each key (upsert semantics)",
+        "correct": true,
+        "explanation": "KTable models a changelog table: a new record with an existing key updates the value, a null value deletes the record. This is analogous to a materialized view."
+      },
+      {
+        "text": "KTable does not support windowing operations",
+        "correct": false,
+        "explanation": "KTable supports windowing through windowed KTable. KTable limitations are related to upsert semantics, not lack of window support."
+      }
+    ]
+  },
+  {
+    "question": "What happens when you call groupBy() in Kafka Streams?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka Streams stops processing until grouping is complete",
+        "correct": false,
+        "explanation": "Kafka Streams is a streaming system — it doesn't stop. groupBy() simply adds a repartitioning step to the topology, processing continues uninterrupted."
+      },
+      {
+        "text": "An internal repartition topic is created to redistribute data by the new key",
+        "correct": true,
+        "explanation": "groupBy() changes the record key, which requires repartitioning. Kafka Streams automatically creates an internal topic and routes data through it to guarantee: all records with the same key end up in the same task."
+      },
+      {
+        "text": "groupBy() is synonymous with map() in Kafka Streams",
+        "correct": false,
+        "explanation": "map() transforms key and value without repartitioning. groupBy() explicitly triggers repartitioning to guarantee correct grouping."
+      },
+      {
+        "text": "Data is grouped in memory without writing to Kafka",
+        "correct": false,
+        "explanation": "Grouping by a new key requires repartitioning through Kafka — otherwise data may end up in different tasks and aggregation would be incorrect."
+      }
+    ]
+  },
+  {
+    "question": "What is a Tumbling Window in Kafka Streams?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A window whose size increases as load grows",
+        "correct": false,
+        "explanation": "Kafka Streams has no auto-expanding windows. Tumbling windows always have a fixed size set at creation."
+      },
+      {
+        "text": "A sliding window that shifts with each new event",
+        "correct": false,
+        "explanation": "This describes a Sliding window. In Kafka Streams it's created via slidingWindows() or sessionWindows(). Tumbling windows are fixed and don't shift with each event."
+      },
+      {
+        "text": "A session-based window with dynamic size",
+        "correct": false,
+        "explanation": "Session windows group events by user activity with a fixed inactivity gap. Tumbling windows are strict fixed-size time intervals."
+      },
+      {
+        "text": "A fixed-time window without overlaps: each event belongs to exactly one window",
+        "correct": true,
+        "explanation": "Tumbling windows divide time into non-overlapping segments of the same size (e.g., every hour from 00:00 to 01:00, 01:00 to 02:00, etc.). Each event belongs to exactly one window."
+      }
+    ]
+  },
+  {
+    "question": "Why does Kafka Streams use RocksDB as a state store?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "RocksDB supports range scan operations needed for windowed queries",
+        "correct": true,
+        "explanation": "Windowed state store stores keys in (originalKey, windowStart) format and uses RocksDB range scan to retrieve all records from a specific time window."
+      },
+      {
+        "text": "After application restart, state is restored from the changelog topic in Kafka",
+        "correct": true,
+        "explanation": "Each state store has a backing changelog topic in Kafka. On restart, Kafka Streams replicates changes from the changelog topic back into RocksDB."
+      },
+      {
+        "text": "RocksDB provides replication between multiple Kafka Streams instances",
+        "correct": false,
+        "explanation": "RocksDB is a local store. Replication and fault tolerance are provided by the changelog topic in Kafka, not by RocksDB itself."
+      },
+      {
+        "text": "RocksDB stores data on disk, allowing processing of data volumes exceeding RAM",
+        "correct": true,
+        "explanation": "RocksDB is an embedded disk-based key-value store with an LSM-tree. This allows the state store to work with data that doesn't fit in memory."
+      }
+    ]
+  },
+  {
+    "question": "What does cleanup.policy=compact mean for a Kafka topic?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka deletes all messages older than retention.ms",
+        "correct": false,
+        "explanation": "Time-based deletion is the cleanup.policy=delete policy (default). With cleanup.policy=compact, data is not deleted by time but compacted by key."
+      },
+      {
+        "text": "Kafka periodically keeps only the latest record for each key, removing older ones",
+        "correct": true,
+        "explanation": "Log compaction runs a cleaner thread that scans log segments and removes all records for which a newer record with the same key exists. Result: the topic works as a key-value store with full history of latest values."
+      },
+      {
+        "text": "Kafka compresses data on disk using gzip algorithm",
+        "correct": false,
+        "explanation": "Data compression in Kafka is configured separately via compression.type (gzip, snappy, lz4, zstd). This is unrelated to cleanup.policy=compact."
+      },
+      {
+        "text": "Kafka limits the log size by maximum number of records",
+        "correct": false,
+        "explanation": "Record count limiting is not part of log compaction. cleanup.policy=compact works with keys, not record count."
+      }
+    ]
+  },
+  {
+    "question": "What is a tombstone record in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A record that the consumer couldn't process — sent to Dead Letter Queue",
+        "correct": false,
+        "explanation": "DLQ (Dead Letter Queue) records are an error handling pattern in the consumer, unrelated to tombstones. Tombstone is purely a log compaction concept."
+      },
+      {
+        "text": "A record with a non-empty key and value=null, signaling key deletion",
+        "correct": true,
+        "explanation": "A tombstone is a (key, null) record. After log compaction, the tombstone is removed along with all previous records of that key, effectively erasing it from the compacted topic."
+      },
+      {
+        "text": "The last record in a partition, after which a new consumer gets offset LEO",
+        "correct": false,
+        "explanation": "LEO (Log End Offset) is a technical positioning term in the log. A tombstone is a null-valued record used for deletion semantics in compacted topics."
+      },
+      {
+        "text": "A special Kafka record with offset=-1 marking the end of the log",
+        "correct": false,
+        "explanation": "No special offset=-1 exists for end of log. A tombstone is a normal record with a null value, used in compacted topics."
+      }
+    ]
+  },
+  {
+    "question": "Which scenarios are best suited for compacted topics?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Financial transactions — storing full payment history",
+        "correct": false,
+        "explanation": "Financial transactions require full history, so cleanup.policy=delete with large retention is needed. Compaction would remove all records except the latest for each transaction_id, which is unacceptable."
+      },
+      {
+        "text": "User profiles — storing the current user profile by user_id",
+        "correct": true,
+        "explanation": "A compacted topic is ideal: key = user_id, value = profile JSON. New consumers receive only the latest version of each user's profile, not the entire change history."
+      },
+      {
+        "text": "Materialized views for Kafka Streams KTable",
+        "correct": true,
+        "explanation": "Kafka Streams uses compacted topics for KTable backing changelog topics. This allows restoring KTable state from the topic without reading the entire change history."
+      },
+      {
+        "text": "Product catalog — current product data by SKU",
+        "correct": true,
+        "explanation": "Product catalog is a classic use case. Key = SKU, value = product attributes. A compacted topic guarantees that a new consumer receives current data for all products."
+      }
+    ]
+  },
+  {
+    "question": "What is an idempotent producer in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A producer that doesn't retry on error (retries=0)",
+        "correct": false,
+        "explanation": "Exactly the opposite: idempotent producer sets retries=Integer.MAX_VALUE by default. Safety on retries is provided by sequence numbers, not by their absence."
+      },
+      {
+        "text": "A producer with transactional API for writing to multiple topics",
+        "correct": false,
+        "explanation": "A transactional producer extends the idempotent producer by adding atomicity across multiple topics. The idempotent producer is a more basic concept within a single session."
+      },
+      {
+        "text": "A producer that guarantees exactly-once delivery within a single session without duplicates even on retry",
+        "correct": true,
+        "explanation": "Idempotent producer is enabled via enable.idempotence=true. Each batch gets a sequence number. The broker rejects duplicate batches with the same sequence number, preventing duplication on retries."
+      },
+      {
+        "text": "A producer that compresses all messages to save bandwidth",
+        "correct": false,
+        "explanation": "Compression is configured via compression.type and is unrelated to idempotence. Idempotent producer adds delivery guarantees, not compression."
+      }
+    ]
+  },
+  {
+    "question": "Which parameters MUST be configured for a transactional producer?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "group.id — consumer group identifier for transaction coordination",
+        "correct": false,
+        "explanation": "group.id is a consumer parameter, not a producer parameter. The Transaction Coordinator coordinates transactions based on transactional.id, not group.id."
+      },
+      {
+        "text": "transactional.id — unique producer identifier for zombie fencing",
+        "correct": true,
+        "explanation": "transactional.id is required. It allows the Transaction Coordinator to identify the producer and use epoch to guarantee that a zombie producer cannot complete a transaction of a new instance."
+      },
+      {
+        "text": "acks=all — required for durability guarantee in transactions",
+        "correct": true,
+        "explanation": "A transactional producer forces acks=all. This guarantees data is written to all ISR replicas before commit, ensuring durability."
+      },
+      {
+        "text": "enable.idempotence=true — automatically enabled when transactional.id is set",
+        "correct": true,
+        "explanation": "A transactional producer requires idempotence. Kafka automatically sets enable.idempotence=true when transactional.id is present, but it's better to specify it explicitly."
+      }
+    ]
+  },
+  {
+    "question": "What is a Transaction Coordinator in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A Consumer Group Coordinator extended to support transactions",
+        "correct": false,
+        "explanation": "Consumer Group Coordinator and Transaction Coordinator are different roles. Consumer Group Coordinator manages __consumer_offsets, while Transaction Coordinator manages __transaction_state."
+      },
+      {
+        "text": "A special broker (or broker role) that manages transaction state via the __transaction_state topic",
+        "correct": true,
+        "explanation": "The Transaction Coordinator is a broker assigned the coordinator role for a specific transactional.id (by hash). It maintains the transaction log in __transaction_state and manages their lifecycle."
+      },
+      {
+        "text": "A separate service that must be run alongside Kafka",
+        "correct": false,
+        "explanation": "The Transaction Coordinator is a built-in role of regular Kafka brokers. No separate process needs to be started. The Coordinator is determined automatically by hash(transactional.id) % 50."
+      },
+      {
+        "text": "A ZooKeeper node storing transaction metadata",
+        "correct": false,
+        "explanation": "Starting with Kafka 2.8+ ZooKeeper is replaced by KRaft. Transaction state is stored in the __transaction_state topic on regular brokers, not in ZooKeeper."
+      }
+    ]
+  },
+  {
+    "question": "How does the Transaction Coordinator determine which broker coordinates a transaction for a given transactional.id?",
+    "type": "single",
+    "options": [
+      {
+        "text": "hash(transactional.id) % number_of_partitions_in___transaction_state",
+        "correct": true,
+        "explanation": "By default __transaction_state has 50 partitions. The Coordinator computes hash(transactional.id) % 50 and assigns the broker leader of the corresponding partition as the transaction coordinator."
+      },
+      {
+        "text": "The producer itself chooses the Coordinator during initialization",
+        "correct": false,
+        "explanation": "The producer doesn't choose the Coordinator — it asks any broker, which returns the address of the required Coordinator based on hash(transactional.id)."
+      },
+      {
+        "text": "The Coordinator is always the broker with the lowest broker.id",
+        "correct": false,
+        "explanation": "Using a fixed broker would create a hot spot. Hashing by transactional.id ensures even distribution of transactions across all brokers."
+      },
+      {
+        "text": "The Coordinator is assigned randomly on each beginTransaction()",
+        "correct": false,
+        "explanation": "The Coordinator is deterministic for a given transactional.id — this is essential for idempotence and fencing. Random assignment would break exactly-once guarantees."
+      }
+    ]
+  },
+  {
+    "question": "What happens to messages in Kafka when abortTransaction() is called?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Messages are physically deleted from Kafka",
+        "correct": false,
+        "explanation": "Kafka is an immutable log. No physical deletion occurs on abort. Messages remain in the log but are marked as aborted, and consumers with read_committed ignore them."
+      },
+      {
+        "text": "Messages remain visible to all consumers with any isolation level",
+        "correct": false,
+        "explanation": "Consumers with isolation.level=read_committed will not see messages from an aborted transaction. Consumers with read_uncommitted will see them, but this is undesirable for most scenarios."
+      },
+      {
+        "text": "The Transaction Coordinator sends abort markers to all partitions touched by the transaction — consumers with read_committed won't see these messages",
+        "correct": true,
+        "explanation": "After abort, the Coordinator writes ABORTED to __transaction_state and sends abort markers to each partition. Consumers with isolation.level=read_committed skip all messages up to the abort marker."
+      },
+      {
+        "text": "The producer automatically retries sending all transaction messages",
+        "correct": false,
+        "explanation": "After abort there is no automatic retry. The application itself decides whether to start a new transaction and repeat the business operation."
+      }
+    ]
+  },
+  {
+    "question": "How does isolation.level=read_committed differ from read_uncommitted in a Kafka consumer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "read_uncommitted disables consumer group rebalancing",
+        "correct": false,
+        "explanation": "Rebalancing is determined by consumer group parameters (session.timeout.ms, heartbeat.interval.ms) and does not depend on isolation.level."
+      },
+      {
+        "text": "read_committed requires SSL/TLS message encryption",
+        "correct": false,
+        "explanation": "isolation.level is unrelated to encryption. It's a transactional data visibility parameter, not a network security parameter."
+      },
+      {
+        "text": "read_committed automatically confirms offset only for successful transactions",
+        "correct": false,
+        "explanation": "auto.commit works on a time basis or via manual commitSync()/commitAsync() calls, independently of isolation.level. Offset management is a separate responsibility."
+      },
+      {
+        "text": "read_committed sees only committed transactions; read_uncommitted sees all messages including uncommitted ones",
+        "correct": true,
+        "explanation": "read_committed: the consumer waits for a commit marker before delivering messages to the application. read_uncommitted (default): the consumer receives all messages immediately, including those that may be rolled back."
+      }
+    ]
+  },
+  {
+    "question": "What is Kafka Connect?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A Kafka module for load balancing between partitions",
+        "correct": false,
+        "explanation": "Partition balancing is a broker task (partition reassignment). Kafka Connect is an integration layer between Kafka and external systems."
+      },
+      {
+        "text": "A framework for integrating Kafka with external systems via ready-made Source and Sink connectors",
+        "correct": true,
+        "explanation": "Kafka Connect is a scalable and fault-tolerant framework. A Source connector reads data from an external system (DB, files) and writes to Kafka. A Sink connector reads from Kafka and writes to an external system."
+      },
+      {
+        "text": "A library for creating Kafka producers and consumers in Java applications",
+        "correct": false,
+        "explanation": "Java clients are the kafka-clients library. Kafka Connect is a separate system with worker processes, REST API, and connectors, running independently of applications."
+      },
+      {
+        "text": "A tool for monitoring a Kafka cluster via JMX metrics",
+        "correct": false,
+        "explanation": "JMX metrics monitoring is a task for Prometheus JMX Exporter, Grafana, or Confluent Control Center. Kafka Connect is designed for data integration."
+      }
+    ]
+  },
+  {
+    "question": "What is Single Message Transform (SMT) in Kafka Connect?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A tool for schema evolution in Schema Registry",
+        "correct": false,
+        "explanation": "Schema evolution is managed by Schema Registry and Avro schemas. SMT is data transformations at the Kafka Connect pipeline level, not schema management."
+      },
+      {
+        "text": "A method for splitting one message into multiple",
+        "correct": false,
+        "explanation": "Standard SMTs don't split one message into multiple. For fan-out you need Kafka Streams or a custom connector. SMT operates in 1-to-1 mode: one input → one output message."
+      },
+      {
+        "text": "A transactional operation for atomic writing of multiple messages",
+        "correct": false,
+        "explanation": "Transactions in Kafka Connect are a separate concept (exactly.once.support). SMTs are message content transformations, not transactions."
+      },
+      {
+        "text": "A lightweight transformation applied to each message as it passes through the connector",
+        "correct": true,
+        "explanation": "SMTs are plugins for simple transformations: adding/removing fields, renaming topics, conditional filtering, masking sensitive data. They are applied without a separate Kafka Streams application."
+      }
+    ]
+  },
+  {
+    "question": "What is Schema Registry and why is it needed?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A Kafka topic for storing broker configuration",
+        "correct": false,
+        "explanation": "Broker configuration is stored in ZooKeeper or KRaft (internal quorum). Schema Registry is a separate service for managing data schemas, not cluster configuration."
+      },
+      {
+        "text": "A tool for validating messages before writing to Kafka",
+        "correct": false,
+        "explanation": "Although Schema Registry indirectly ensures schema compatibility, its primary purpose is centralized storage and versioning of schemas, not real-time validation."
+      },
+      {
+        "text": "A centralized store of schemas (Avro, Protobuf, JSON Schema) for versioning and compatibility",
+        "correct": true,
+        "explanation": "Schema Registry stores schemas and their versions. The producer serializes data with a schema ID in the payload. The consumer gets the schema ID, loads the schema from the Registry, and deserializes the data. This ensures compatibility between different producer and consumer versions."
+      },
+      {
+        "text": "A REST API for monitoring topics and consumer groups",
+        "correct": false,
+        "explanation": "Topic and group monitoring is a task for Kafka Admin API or Confluent Control Center. Schema Registry deals exclusively with schema management."
+      }
+    ]
+  },
+  {
+    "question": "Which Schema Registry compatibility modes prevent breaking existing consumers?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "NONE — any schema changes are allowed without compatibility checking",
+        "correct": false,
+        "explanation": "NONE disables compatibility checking — this is not protection from breaking, but absence of it. With NONE you can easily break production consumers with an incompatible schema change."
+      },
+      {
+        "text": "FULL — both schemas are compatible in both directions simultaneously",
+        "correct": true,
+        "explanation": "FULL = BACKWARD + FORWARD. The strictest mode: you can safely update both producer and consumer in any order. Achieved by adding fields with default values."
+      },
+      {
+        "text": "FORWARD — the old schema can read data written with the new schema",
+        "correct": true,
+        "explanation": "FORWARD compatibility allows updating the producer to a new schema while the consumer still uses the old one. Old consumers can deserialize new messages."
+      },
+      {
+        "text": "BACKWARD — the new schema can read data written with the old schema",
+        "correct": true,
+        "explanation": "BACKWARD compatibility allows updating the consumer to a new schema while the producer still uses the old one. New consumers can deserialize old data."
+      }
+    ]
+  },
+  {
+    "question": "What is Avro and why is it popular for Kafka?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Avro schema supports evolution through optional fields with default values",
+        "correct": true,
+        "explanation": "Adding a field with a default in an Avro schema is a FULL-compatible change. A producer with the new schema and a consumer with the old one will continue to work, which is critical for rolling deployments."
+      },
+      {
+        "text": "Avro is a binary serialization format, significantly more compact than JSON",
+        "correct": true,
+        "explanation": "Avro binary serialization is on average 3-5 times more compact than JSON. Under high loads this significantly reduces storage and network costs in the Kafka cluster."
+      },
+      {
+        "text": "Avro is a query language for analyzing data in Kafka Streams",
+        "correct": false,
+        "explanation": "Avro is a data serialization format, not a query language. Kafka Streams has its own DSL (map, filter, groupBy, aggregate). For SQL-like queries there is ksqlDB."
+      },
+      {
+        "text": "Avro includes schema ID directly in the Kafka message payload",
+        "correct": true,
+        "explanation": "Confluent Schema Registry uses wire format: [magic byte 0x00][schema_id (4 bytes)][avro binary data]. The consumer reads the schema_id and loads the appropriate schema from the Registry."
+      },
+      {
+        "text": "All of the above options are incorrect",
+        "correct": false,
+        "explanation": "Some of the listed options are indeed correct."
+      }
+    ]
+  },
+  {
+    "question": "You are building an e-commerce system. The order service must atomically: charge money, reserve inventory, and send a notification — all through Kafka. Which mechanism do you use?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A compacted topic with transaction_id key for idempotence",
+        "correct": false,
+        "explanation": "Compacted topics ensure storage of the latest value per key, but not atomicity of operations across multiple topics. This is a solution for different tasks (state store, materialized view)."
+      },
+      {
+        "text": "Kafka Streams with KTable for tracking state",
+        "correct": false,
+        "explanation": "Kafka Streams is great for stream processing but doesn't solve the task of atomic writes to multiple topics within a single business event. For that you need producer-level transactions."
+      },
+      {
+        "text": "Kafka Transactions: beginTransaction() → produce to payments/inventory/notifications → commitTransaction()",
+        "correct": true,
+        "explanation": "Kafka's transactional API guarantees atomic writes to multiple topics. Either all three messages are visible to consumers (after commit), or none (after abort). This is exactly what's needed for consistency between services."
+      },
+      {
+        "text": "Separate produce calls without transactions — idempotent producer is enough",
+        "correct": false,
+        "explanation": "An idempotent producer guarantees no duplicates within a single topic, but not atomicity across multiple topics. On failure between produce calls, some messages will be written and some won't."
+      }
+    ]
+  },
+  {
+    "question": "Your Kafka Streams application is hanging on a GroupBy + Aggregate step. What is the most likely cause?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka Streams doesn't support Aggregate without Schema Registry",
+        "correct": false,
+        "explanation": "Schema Registry is not required for Kafka Streams. Aggregate works with any Serde (serializer/deserializer). Schema Registry is needed for schema compatibility, not for Aggregate functionality."
+      },
+      {
+        "text": "GroupBy requires acks=all from the producer, but the config has acks=1",
+        "correct": false,
+        "explanation": "Kafka Streams manages its producer internally and doesn't depend on external acks configuration for GroupBy. Hanging on GroupBy is related to repartitioning or state store, not acks."
+      },
+      {
+        "text": "State store filled up: RocksDB ran out of disk space or memory mapped files",
+        "correct": true,
+        "explanation": "GroupBy + Aggregate accumulates state in RocksDB. With large data volumes and small window retention, RocksDB can fill up available disk space. You need to monitor disk usage and configure window retention."
+      },
+      {
+        "text": "The topic doesn't support GroupBy — you need to create a compacted topic first",
+        "correct": false,
+        "explanation": "GroupBy works with any topic regardless of cleanup.policy. Compacted topics are needed for materialized views, not as a prerequisite for GroupBy."
+      }
+    ]
+  },
+  {
+    "question": "A team deploys a new version of a Schema Registry schema with a required field removed. Which compatibility mode does this violate?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "FORWARD — the old consumer will crash trying to deserialize a message without the expected required field",
+        "correct": true,
+        "explanation": "FORWARD compatibility requires that old consumers can read new data. If the old schema expects a required field and new messages don't contain it — deserialization will fail."
+      },
+      {
+        "text": "FULL — both BACKWARD and FORWARD are violated simultaneously",
+        "correct": true,
+        "explanation": "FULL = BACKWARD + FORWARD. If FORWARD is violated (removing a required field), then FULL is also violated. Schema Registry with FULL_TRANSITIVE will reject such a change."
+      },
+      {
+        "text": "NONE — with this mode no check is performed and the change will pass",
+        "correct": false,
+        "explanation": "NONE is not an incompatibility mode — it's absence of checking. With NONE the schema registration will pass, but production systems may break at runtime."
+      },
+      {
+        "text": "BACKWARD — the new consumer won't be able to read old messages without that field",
+        "correct": false,
+        "explanation": "Removing a required field violates FORWARD compatibility (old consumer can't read new messages). BACKWARD checks the opposite: the new schema must be able to read old data."
+      }
+    ]
+  },
+  {
+    "question": "What happens to a zombie producer in the context of Kafka transactions?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A zombie producer can complete a transaction of a new producer",
+        "correct": false,
+        "explanation": "This is exactly what epoch-based fencing prevents. An old producer (lower epoch) cannot commit or abort a transaction of a new producer (higher epoch)."
+      },
+      {
+        "text": "The transactional.id should be changed on every restart to avoid conflicts",
+        "correct": false,
+        "explanation": "Exactly the opposite: the transactional.id should be stable across restarts. It's the stability of the ID that allows the Coordinator to restore transaction context and apply epoch-fencing."
+      },
+      {
+        "text": "The old producer is isolated via epoch: if it tries to commit — the Coordinator rejects the request with InvalidProducerEpoch error",
+        "correct": true,
+        "explanation": "On restart of a producer with the same transactional.id, the Coordinator increments the epoch. The old producer (zombie) will receive InvalidProducerEpoch on any operation with the Coordinator and cannot cause harm."
+      },
+      {
+        "text": "The zombie producer is blocked at the network level by the Kafka cluster",
+        "correct": false,
+        "explanation": "Kafka doesn't block network connections to isolate zombies. Fencing happens logically through epoch: the Coordinator rejects stale requests, not by blocking TCP connections."
+      }
+    ]
+  },
+  {
+    "question": "What are the key differences between KStream-KTable join and KStream-KStream join?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "KStream-KTable join supports left join, inner join, but not outer join",
+        "correct": true,
+        "explanation": "KStream-KTable supports inner join (matches only) and left join (all KStream events, null if not in KTable). Outer join semantically doesn't make sense with KTable — KTable is always present as a lookup."
+      },
+      {
+        "text": "KStream-KTable join: the KTable side doesn't require windowing — the current value by key is used",
+        "correct": true,
+        "explanation": "KTable stores the current state by key. When joining a KStream record with KTable, the lookup uses the current KTable value without a time window. This is the classic enrichment pattern."
+      },
+      {
+        "text": "KStream-KTable join is always faster because KTable is stored in memory",
+        "correct": false,
+        "explanation": "KTable uses RocksDB (on disk by default), not just memory. Join speed depends on I/O and configuration, not on join type. KStream-KTable join can be slower on cache miss."
+      },
+      {
+        "text": "KStream-KStream join requires a time window (JoinWindows) to match events",
+        "correct": true,
+        "explanation": "Two unbounded streams cannot be joined without a time constraint. JoinWindows specifies the period during which an event from one stream waits for a matching event from the other."
+      }
+    ]
+  },
+  {
+    "question": "You are setting up a compacted topic for service configuration storage. A service has restarted and needs to get the current state of the entire configuration. How does it do that?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A compacted topic isn't suitable for this scenario — a regular topic with small retention is needed",
+        "correct": false,
+        "explanation": "A compacted topic is the ideal choice for configuration. Small retention risks deleting rarely-changing configs before the service restarts. Compaction guarantees that the latest value is never deleted."
+      },
+      {
+        "text": "The consumer reads the topic from the beginning, receives all compacted records, and builds an in-memory map of current values",
+        "correct": true,
+        "explanation": "This is exactly what a compacted topic is designed for. After compaction, the topic contains only the latest values for all keys. A consumer starting with auto.offset.reset=earliest will read the entire state and build a current snapshot."
+      },
+      {
+        "text": "The consumer makes a REST request to Schema Registry to get the current state",
+        "correct": false,
+        "explanation": "Schema Registry stores schemas, not business configuration data. The current configuration state is read from the compacted topic itself."
+      },
+      {
+        "text": "The consumer subscribes only to new messages — old configuration isn't needed",
+        "correct": false,
+        "explanation": "On service restart you need the entire current configuration, not just changes since the last startup. A compacted topic allows restoring the full state precisely for this scenario."
+      }
+    ]
+  }
+]

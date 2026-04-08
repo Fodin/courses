@@ -1,0 +1,574 @@
+[
+  {
+    "question": "What is the main difference between asynchronous and synchronous communication from the sender's perspective?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The sender uses a different network protocol (UDP instead of TCP)",
+        "correct": false,
+        "explanation": "The transport protocol does not determine synchronicity/asynchronicity of communication. You can make a synchronous call over UDP and an asynchronous one over TCP."
+      },
+      {
+        "text": "The sender sends a message and immediately continues working without waiting for a response",
+        "correct": true,
+        "explanation": "This is exactly what makes communication asynchronous — the sender is decoupled from the receiver in time. It puts a message in a queue and returns to its work."
+      },
+      {
+        "text": "The sender and receiver run on different servers",
+        "correct": false,
+        "explanation": "Distribution and asynchronicity are independent properties. A call between different servers can be fully synchronous (HTTP REST)."
+      },
+      {
+        "text": "The sender processes the response in a separate thread",
+        "correct": false,
+        "explanation": "This describes multithreading, not asynchronous communication. Asynchronicity is about time decoupling, not about threads of execution."
+      }
+    ]
+  },
+  {
+    "question": "What is temporal coupling and why is it a problem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A shared database used by multiple services",
+        "correct": false,
+        "explanation": "This is shared database coupling — a separate antipattern. Temporal coupling is about time dependency, not about data storage."
+      },
+      {
+        "text": "Excessively long request processing time in a single service",
+        "correct": false,
+        "explanation": "This is simply latency, not coupling. Temporal coupling is about availability dependency, not about speed."
+      },
+      {
+        "text": "Identical timeouts across all services in a chain",
+        "correct": false,
+        "explanation": "Identical timeouts are a configuration antipattern, but not temporal coupling."
+      },
+      {
+        "text": "Time-based dependency between services: all must be available simultaneously for a request to succeed",
+        "correct": true,
+        "explanation": "Temporal coupling means services are linked in time. If Payment Service is unavailable, the entire synchronous call Order → Payment → Inventory fails, even if Inventory Service is fine."
+      }
+    ]
+  },
+  {
+    "question": "What is the key difference between Point-to-Point queues and Pub/Sub?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In P2P each message is received by exactly one consumer, in Pub/Sub — by all topic subscribers",
+        "correct": true,
+        "explanation": "This is the fundamental difference. P2P guarantees that only one worker processes a message. Pub/Sub provides fan-out: every subscriber gets a full copy of the message."
+      },
+      {
+        "text": "P2P only works within a single datacenter, Pub/Sub — globally",
+        "correct": false,
+        "explanation": "Neither pattern has geographical limitations. This is a difference in delivery semantics, not network topology."
+      },
+      {
+        "text": "P2P uses a push model, Pub/Sub — a pull model",
+        "correct": false,
+        "explanation": "The delivery model (push/pull) is independent of the pattern. RabbitMQ P2P uses push, Kafka Pub/Sub — pull."
+      },
+      {
+        "text": "P2P is faster than Pub/Sub due to fewer recipients",
+        "correct": false,
+        "explanation": "Performance depends on implementation and load, not on the pattern. Pub/Sub can be faster with the right architecture."
+      }
+    ]
+  },
+  {
+    "question": "What delivery semantics does at-least-once provide?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A message is delivered only if the consumer is free at the time of sending",
+        "correct": false,
+        "explanation": "This describes fire-and-forget without a queue. At-least-once stores the message and retries delivery regardless of consumer readiness."
+      },
+      {
+        "text": "A message will be delivered one or more times — duplicates are possible, but loss is unacceptable",
+        "correct": true,
+        "explanation": "At-least-once: the broker retries delivery until it receives an acknowledgement. If a consumer crashes after processing but before sending the ack — the message will be redelivered. The consumer must be idempotent."
+      },
+      {
+        "text": "A message will be sent, but delivery is not guaranteed",
+        "correct": false,
+        "explanation": "This is at-most-once. At-least-once guarantees delivery at least once, sacrificing uniqueness."
+      },
+      {
+        "text": "A message will be delivered exactly once with no duplicates",
+        "correct": false,
+        "explanation": "This is exactly-once semantics. It is significantly more complex to implement and requires transactionality or idempotent operations."
+      }
+    ]
+  },
+  {
+    "question": "When is it appropriate to use at-most-once semantics?",
+    "type": "single",
+    "options": [
+      {
+        "text": "For financial transactions and payments",
+        "correct": false,
+        "explanation": "For payments, message loss is catastrophic. You need at-least-once or exactly-once with idempotency checks."
+      },
+      {
+        "text": "For metrics and telemetry where loss of individual data points is acceptable, but duplicates would skew statistics",
+        "correct": true,
+        "explanation": "Losing one metric data point is non-critical — the trend is visible from thousands of others. But a duplicate could distort aggregation (count, sum). At-most-once is the right choice."
+      },
+      {
+        "text": "For order processing in e-commerce",
+        "correct": false,
+        "explanation": "Losing an order is unacceptable. For critical business events, you need at least at-least-once semantics."
+      },
+      {
+        "text": "For synchronizing user data between services",
+        "correct": false,
+        "explanation": "Losing a synchronization event will lead to data inconsistency. Reliable delivery is needed."
+      }
+    ]
+  },
+  {
+    "question": "What is exactly-once semantics and why is it complex to implement?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Requires coordination between broker and consumer for atomic processing and ack",
+        "correct": true,
+        "explanation": "The broker must know that the message was processed AND ack was received atomically. This requires transactionality or idempotent operations at the application level."
+      },
+      {
+        "text": "Achieved automatically when using any message queue",
+        "correct": false,
+        "explanation": "No, most queues default to at-least-once. Exactly-once requires special configuration (Kafka transactions, idempotent consumers)."
+      },
+      {
+        "text": "Each message is processed exactly once — no losses and no duplicates",
+        "correct": true,
+        "explanation": "This is the definition of exactly-once. Achieved through a combination of idempotent producers, transactional consumers, and two-phase commit."
+      },
+      {
+        "text": "On network failure, it is impossible to distinguish 'not delivered' from 'delivered, but ack was lost'",
+        "correct": true,
+        "explanation": "This is exactly the challenge. If the ack is lost — the broker thinks the message wasn't delivered, and retries. Without idempotency, you get duplicated processing."
+      }
+    ]
+  },
+  {
+    "question": "Competing Consumers is a pattern where multiple consumers connect to a single queue. What happens when you add a new consumer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Each new message is now delivered to all consumers simultaneously",
+        "correct": false,
+        "explanation": "This is Pub/Sub fan-out behavior, not a P2P queue. In Competing Consumers, each message is still received by exactly one consumer."
+      },
+      {
+        "text": "Throughput increases: the new consumer starts processing from the queue, increasing parallelism",
+        "correct": true,
+        "explanation": "Competing Consumers is a classic horizontal scaling approach. Each consumer picks up one message from the shared queue. More consumers → faster queue drain."
+      },
+      {
+        "text": "The queue creates separate copies of messages for each consumer",
+        "correct": false,
+        "explanation": "In a P2P queue there is no copying. One message instance — one consumer. If you need copies, use Pub/Sub."
+      },
+      {
+        "text": "Old consumers stop and wait for the new one to gain experience",
+        "correct": false,
+        "explanation": "All consumers compete for messages simultaneously. There is no queueing or 'experience'."
+      }
+    ]
+  },
+  {
+    "question": "What is backpressure in the context of message queues?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Backing up the queue to disk under high load",
+        "correct": false,
+        "explanation": "This is persistency/durability, a separate broker characteristic. Backpressure is about dynamic data flow management."
+      },
+      {
+        "text": "A mechanism where an overloaded consumer signals the producer to slow down",
+        "correct": true,
+        "explanation": "Backpressure is an 'I can't keep up' signal. Without it, the queue grows unbounded until memory is exhausted. Implemented via flow control, bounded queues, or explicit throttling."
+      },
+      {
+        "text": "Load balancing between multiple broker instances",
+        "correct": false,
+        "explanation": "This is clustering/sharding. Backpressure works within a single data flow producer → queue → consumer."
+      },
+      {
+        "text": "Retrying messages after a consumer failure",
+        "correct": false,
+        "explanation": "This is retry/redelivery mechanism, part of at-least-once semantics. Backpressure is about regulating production speed, not recovery from failures."
+      }
+    ]
+  },
+  {
+    "question": "What is eventual consistency in the context of asynchronous architecture?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A guarantee that all operations will eventually complete successfully",
+        "correct": false,
+        "explanation": "Eventual consistency is about data consistency, not operation success. An operation may be completed, but data may not yet be synchronized."
+      },
+      {
+        "text": "A caching strategy where data is updated lazily",
+        "correct": false,
+        "explanation": "Caching is a performance optimization mechanism. Eventual consistency is a property of distributed systems, related to the CAP theorem."
+      },
+      {
+        "text": "The final state of a database after all transactions complete",
+        "correct": false,
+        "explanation": "This is closer to describing transactional systems with ACID guarantees. Eventual consistency contrasts with strong consistency, not with transactions."
+      },
+      {
+        "text": "Data across different services will become consistent after some time, but not necessarily instantly",
+        "correct": true,
+        "explanation": "After publishing an event, Order Service knows about the order, but Inventory Service may update its data a second later. In between — there is temporary inconsistency that is 'resolved' asynchronously."
+      }
+    ]
+  },
+  {
+    "question": "In which situation is message ordering critically important?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Sending email notifications about promotions",
+        "correct": false,
+        "explanation": "The order of promotional emails usually doesn't matter. Each email is independent, there is no causal relationship between them."
+      },
+      {
+        "text": "Applying changes to a replicated state machine (RAFT, Paxos)",
+        "correct": true,
+        "explanation": "In state machine replication, the order of commands determines the final state. account.debit(100) before account.credit(50) yields a different result than the reverse order."
+      },
+      {
+        "text": "Collecting CPU usage metrics from multiple servers",
+        "correct": false,
+        "explanation": "Metrics are usually processed independently with timestamps. Slight shuffling does not affect final aggregations."
+      },
+      {
+        "text": "Processing order lifecycle events: created → paid → shipped → delivered",
+        "correct": true,
+        "explanation": "You cannot receive a 'shipped' event before 'paid' — this would break business logic. The order determines valid state transitions."
+      }
+    ]
+  },
+  {
+    "question": "What is the fire-and-forget pattern and what are its limitations?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Does not guarantee delivery: a message may be lost due to broker or network failure",
+        "correct": true,
+        "explanation": "This is the main limitation. Without ack, the sender doesn't know about the loss. Only suitable for cases where data loss is acceptable."
+      },
+      {
+        "text": "Suitable for cases where latency is more important than reliability (analytics, logs, tracking)",
+        "correct": true,
+        "explanation": "For click logging or user behavior tracking, losing 0.1% of events is non-critical. The minimal overhead allows processing millions of events per second."
+      },
+      {
+        "text": "Guarantees that each message will be processed exactly once",
+        "correct": false,
+        "explanation": "No, fire-and-forget provides no delivery guarantees. This is at-most-once at its worst."
+      },
+      {
+        "text": "The sender sends a message without waiting for delivery or processing confirmation",
+        "correct": true,
+        "explanation": "Fire-and-forget is the most 'lightweight' way of communication. No blocking, no acknowledgement, no guarantees. The sender doesn't know whether the message arrived."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between Command, Event, and Query in the context of messaging?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Command and Event are interchangeable — the difference is only in naming",
+        "correct": false,
+        "explanation": "The difference is conceptual. Command creates coupling to the receiver (someone MUST process it). Event — a declaration of fact, receivers are optional."
+      },
+      {
+        "text": "Query — a data request expecting a synchronous response",
+        "correct": true,
+        "explanation": "Query breaks the async messaging principle — it requires a response. Therefore, in pure event-driven systems, Query is usually implemented via synchronous REST/gRPC, not through a queue."
+      },
+      {
+        "text": "Command — an explicit instruction to do something (ProcessPayment), addressed to a specific service",
+        "correct": true,
+        "explanation": "Command expresses intent. Named in imperative mood: ProcessOrder, SendEmail, DeactivateUser. There is a specific recipient."
+      },
+      {
+        "text": "Event — a fact that something happened (OrderPlaced), without binding to a recipient",
+        "correct": true,
+        "explanation": "Event — a declaration of fact in the past tense. The publisher doesn't know and doesn't care who will subscribe. This is the foundation of event-driven architecture."
+      }
+    ]
+  },
+  {
+    "question": "You have an e-commerce system. Order Service creates an order and needs to notify Payment Service, Inventory Service, and Email Service. Which pattern is the best choice?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Point-to-Point: three separate queues, Order Service explicitly sends to each one",
+        "correct": false,
+        "explanation": "Order Service becomes dependent on the list of downstream services. Adding a new service requires changes to Order Service — violating the Open/Closed principle."
+      },
+      {
+        "text": "Direct access to each service's database from Order Service",
+        "correct": false,
+        "explanation": "Shared database coupling — the worst option. Breaks data isolation, complicates schemas, makes it impossible to scale services independently."
+      },
+      {
+        "text": "Synchronous call: Order Service sequentially calls all three services via HTTP",
+        "correct": false,
+        "explanation": "Temporal coupling: if Email Service is unavailable — the order isn't created. Latencies add up. Scaling is harder. This is an antipattern for this task."
+      },
+      {
+        "text": "Pub/Sub: Order Service publishes an OrderCreated event, each service subscribes independently",
+        "correct": true,
+        "explanation": "Order Service doesn't know and shouldn't know about other services. Pub/Sub provides full decoupling. Adding a new subscriber (e.g., Analytics) requires no changes to Order Service."
+      }
+    ]
+  },
+  {
+    "question": "What happens to queued messages if the consumer is unavailable for some time?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Messages are lost because there is no one to receive them",
+        "correct": false,
+        "explanation": "With a durable queue, messages are persisted. Loss is only possible with an in-memory queue without replication and when the broker stops."
+      },
+      {
+        "text": "The producer automatically switches to a synchronous call",
+        "correct": false,
+        "explanation": "There is no automatic fallback mechanism. The producer continues to put messages in the queue, unaware of the consumer's state."
+      },
+      {
+        "text": "The broker automatically restarts the consumer",
+        "correct": false,
+        "explanation": "Orchestration (restarting failed services) is the job of Kubernetes/Docker Swarm, not the message broker. The broker only stores and delivers messages."
+      },
+      {
+        "text": "Messages are stored in the queue and will be processed when the consumer comes back online",
+        "correct": true,
+        "explanation": "This is the key advantage of asynchronicity — temporal decoupling. Producer and consumer don't need to be available simultaneously. The queue acts as a buffer."
+      }
+    ]
+  },
+  {
+    "question": "Why do Competing Consumers help during a load spike?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The producer automatically slows down when the queue overflows",
+        "correct": false,
+        "explanation": "This is backpressure, a separate mechanism. Competing Consumers itself doesn't slow down the producer — it just processes already accumulated messages."
+      },
+      {
+        "text": "During a spike, the consumer switches to a faster processing algorithm",
+        "correct": false,
+        "explanation": "The consumer doesn't change its algorithm based on load. Adaptation happens by increasing the number of consumers, not the speed of each one."
+      },
+      {
+        "text": "The broker automatically scales consumers as the queue grows",
+        "correct": false,
+        "explanation": "Auto-scaling is the job of an orchestrator (Kubernetes HPA), not the broker. The broker only stores messages."
+      },
+      {
+        "text": "The queue absorbs peak load: the producer quickly puts messages in, consumers process at their own pace",
+        "correct": true,
+        "explanation": "The queue is a buffer between uneven incoming event flow and steady processing rate. A spike of 10000 req/s is smoothed to a steady 1000 req/s with enough consumers."
+      }
+    ]
+  },
+  {
+    "question": "What is the fan-in pattern in the context of messaging?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Multiple producers send messages to a single queue or topic, one consumer processes everything",
+        "correct": true,
+        "explanation": "Fan-in is the reverse of fan-out. Multiple sources converge to a single consumer. Example: logs from 100 services → one queue → centralized log processor."
+      },
+      {
+        "text": "A consumer reads from multiple queues simultaneously, merging the streams",
+        "correct": false,
+        "explanation": "This is closer to a merge/join pattern. Fan-in in the classical sense — many producers converging to a single collection point."
+      },
+      {
+        "text": "Splitting one large message into parts before sending",
+        "correct": false,
+        "explanation": "This is message chunking or splitting. Fan-in is about flow topology, not message size."
+      },
+      {
+        "text": "One producer sends a message, multiple consumers receive a copy",
+        "correct": false,
+        "explanation": "This is fan-out / Pub/Sub. Fan-in is many sources converging to one recipient."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following are disadvantages of asynchronous communication?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "More difficult to debug and trace distributed transactions",
+        "correct": true,
+        "explanation": "Distributed tracing (Jaeger, Zipkin) is mandatory. Without it, it's hard to understand why an order wasn't processed: is the problem in the producer, broker, or consumer?"
+      },
+      {
+        "text": "The producer is blocked until the consumer finishes processing",
+        "correct": false,
+        "explanation": "This describes synchronous communication. An async-producer is not blocked at all — that's the essence of asynchronicity."
+      },
+      {
+        "text": "Error handling complexity: no direct way to return an error to the sender",
+        "correct": true,
+        "explanation": "In a synchronous call, an error is returned immediately. In an async system, you need dead letter queues, error topics, or a separate return channel — this complicates the architecture."
+      },
+      {
+        "text": "Data may be temporarily inconsistent between services (eventual consistency)",
+        "correct": true,
+        "explanation": "After publishing an event, different services update at different times. The system must be designed so that temporary inconsistency is acceptable."
+      }
+    ]
+  },
+  {
+    "question": "You are designing a system for processing payment transactions. A consumer received a message and started deducting money, but crashed before sending an ack. The broker will redeliver the message. How should you handle this correctly?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use a global lock for the duration of transaction processing",
+        "correct": false,
+        "explanation": "Distributed locks are an antipattern for scalable systems. They reduce throughput and can lead to deadlock."
+      },
+      {
+        "text": "Implement an idempotent consumer: check the unique transaction_id before processing, ignore duplicates",
+        "correct": true,
+        "explanation": "Idempotency is the standard solution for at-least-once. Store processed transaction_ids in a datastore. On redelivery — found existing id → operation is skipped."
+      },
+      {
+        "text": "Switch to at-most-once — then there will be no redeliveries",
+        "correct": false,
+        "explanation": "At-most-once is dangerous for payments — the original message could have been lost. Better to have duplicates you can filter than to lose a transaction."
+      },
+      {
+        "text": "Increase the ack timeout to a value exceeding the maximum processing time",
+        "correct": false,
+        "explanation": "This reduces the probability of the issue but doesn't eliminate it. The consumer could still crash on the 101st second with a 100-second timeout."
+      }
+    ]
+  },
+  {
+    "question": "What does 'decoupling' mean in the context of Pub/Sub architecture?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The subscriber doesn't know which specific service published the message",
+        "correct": true,
+        "explanation": "The subscriber subscribes to a topic, not to a specific service. If the publisher is replaced — the subscriber continues to work without changes."
+      },
+      {
+        "text": "The publisher is guaranteed to receive confirmation from each subscriber",
+        "correct": false,
+        "explanation": "In classical Pub/Sub, the publisher receives no response from subscribers — that's the essence of decoupling. Tracking processing requires a separate mechanism."
+      },
+      {
+        "text": "The publisher and subscriber can run on different programming languages",
+        "correct": true,
+        "explanation": "Language independence is a consequence of decoupling. The broker speaks a neutral 'language' (JSON, Protobuf). Java publisher and Python subscriber are compatible through a shared schema."
+      },
+      {
+        "text": "The publisher doesn't know how many and which subscribers exist",
+        "correct": true,
+        "explanation": "The publisher publishes to a topic and doesn't care about receivers. You can add 10 new subscribers — the publisher won't know or change anything."
+      }
+    ]
+  },
+  {
+    "question": "Why is a synchronous chain of 5 services (each 100ms) less resilient than an asynchronous one with a queue?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Unavailability of any link makes the entire request fail",
+        "correct": true,
+        "explanation": "Chain success probability = P1 × P2 × P3 × P4 × P5. With 99% uptime per service: 0.99^5 ≈ 95% chain uptime. Reliability decreases with more services."
+      },
+      {
+        "text": "Synchronous calls are always slower than asynchronous at the network stack level",
+        "correct": false,
+        "explanation": "At the level of a single request, synchronous HTTP can be faster (no broker overhead). Asynchronicity wins not in single-request latency, but in system throughput and resilience."
+      },
+      {
+        "text": "Total delay adds up: 5 × 100ms = 500ms minimum, even without failures",
+        "correct": true,
+        "explanation": "In a synchronous chain, latencies add up. One slow service (100ms → 1000ms) paralyses the entire user request."
+      },
+      {
+        "text": "A synchronous chain consumes more memory due to open connections",
+        "correct": true,
+        "explanation": "Each pending request holds a thread and HTTP connection. Under high load, this leads to thread starvation."
+      }
+    ]
+  },
+  {
+    "question": "A team decides: 'We'll use async messaging everywhere — it's better.' What's wrong with this approach?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Eventual consistency is unacceptable for operations requiring strict consistency (authentication, access control)",
+        "correct": true,
+        "explanation": "'Your access rights will update in a few seconds' — unacceptable for security. Authorization requires a synchronous response with current data."
+      },
+      {
+        "text": "Async systems cannot be monitored or debugged",
+        "correct": false,
+        "explanation": "Async systems are harder, but not impossible. Distributed tracing, structured logging, correlation IDs — standard tooling for observability in async architectures."
+      },
+      {
+        "text": "Error handling complexity increases: DLQs, retry policies, circuit breakers are needed",
+        "correct": true,
+        "explanation": "In a synchronous world, an error is returned immediately. In async, you need dead letter queues for unprocessable messages, retry policies with exponential backoff, and monitoring for all of this."
+      },
+      {
+        "text": "For operations requiring immediate response (checking product availability before purchase), async adds unnecessary complexity",
+        "correct": true,
+        "explanation": "The user clicked 'Buy' — you need to know RIGHT NOW whether the product is in stock. An async request waiting for a response via queue is more complex and slower than a direct synchronous call."
+      }
+    ]
+  },
+  {
+    "question": "What is a dead letter queue (DLQ)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A backup copy of the main queue in case of broker failure",
+        "correct": false,
+        "explanation": "This is a replica/mirror queue. DLQ is about handling consumer-level errors, not broker fault tolerance."
+      },
+      {
+        "text": "A highest-priority queue for urgent messages",
+        "correct": false,
+        "explanation": "This is a priority queue. DLQ is for messages that couldn't be processed, not for urgent ones."
+      },
+      {
+        "text": "A separate queue for messages that couldn't be processed after several attempts",
+        "correct": true,
+        "explanation": "DLQ is a 'quarantine' for problematic messages. Instead of infinite retrying (or silent loss), the message is moved to a DLQ for manual analysis or special processing."
+      },
+      {
+        "text": "Temporary message storage during planned maintenance",
+        "correct": false,
+        "explanation": "Buffering during maintenance is provided by the queue itself (durable queue). DLQ is specifically for messages with processing errors."
+      }
+    ]
+  }
+]

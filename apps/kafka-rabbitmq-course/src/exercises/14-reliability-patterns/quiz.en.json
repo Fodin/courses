@@ -1,0 +1,667 @@
+[
+  {
+    "question": "What is the delay formula for Exponential Backoff?",
+    "type": "single",
+    "options": [
+      {
+        "text": "delay = baseDelay + multiplier * attempt",
+        "correct": false,
+        "explanation": "This is linear growth with a coefficient, not exponential."
+      },
+      {
+        "text": "delay = baseDelay * attempt",
+        "correct": false,
+        "explanation": "This is linear backoff, not exponential."
+      },
+      {
+        "text": "delay = baseDelay * multiplier^(attempt - 1)",
+        "correct": true,
+        "explanation": "Exponential formula: delay grows as a power of multiplier. At attempt=1, delay = baseDelay * 1 = baseDelay."
+      },
+      {
+        "text": "delay = baseDelay^attempt",
+        "correct": false,
+        "explanation": "This formula does not account for multiplier and quickly produces huge numbers with large baseDelay."
+      }
+    ]
+  },
+  {
+    "question": "Why add Jitter to the delay in Exponential Backoff?",
+    "type": "single",
+    "options": [
+      {
+        "text": "To prevent multiple clients from retrying simultaneously (Thundering Herd)",
+        "correct": true,
+        "explanation": "Without jitter, 1000 clients retry at exactly the same time — this is Thundering Herd, a request storm. Jitter spreads them out over time."
+      },
+      {
+        "text": "To increase the total wait time",
+        "correct": false,
+        "explanation": "Jitter does not increase total wait time — it introduces randomness to spread clients over time."
+      },
+      {
+        "text": "To ensure the delay does not exceed the maximum value (cap)",
+        "correct": false,
+        "explanation": "Delay capping is done with Math.min, not jitter."
+      },
+      {
+        "text": "To reduce the number of retry attempts",
+        "correct": false,
+        "explanation": "Jitter does not affect the number of retry attempts — it only affects the distribution of delays over time."
+      }
+    ]
+  },
+  {
+    "question": "For which of the listed errors should you perform a Retry?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "HTTP 429 Too Many Requests",
+        "correct": true,
+        "explanation": "Rate limiting is a temporary restriction. Retry with increased delay is appropriate."
+      },
+      {
+        "text": "HTTP 503 Service Unavailable",
+        "correct": true,
+        "explanation": "Temporary service overload — a classic retry case. The service will recover after some time."
+      },
+      {
+        "text": "Network Timeout",
+        "correct": true,
+        "explanation": "Network timeout is a transient issue, retry is justified."
+      },
+      {
+        "text": "JsonParseException — corrupted JSON",
+        "correct": false,
+        "explanation": "Permanent error: the message data is corrupted and won't be fixed by retrying. This is a poison message."
+      },
+      {
+        "text": "HTTP 400 Bad Request",
+        "correct": false,
+        "explanation": "Request data is invalid — retrying will reproduce the same error. Send directly to DLQ."
+      }
+    ]
+  },
+  {
+    "question": "What happens if you don't set a cap (maximum limit) on Exponential Backoff delay?",
+    "type": "single",
+    "options": [
+      {
+        "text": "With a large number of attempts, the delay can grow to hours or days",
+        "correct": true,
+        "explanation": "For example, baseDelay=1s, multiplier=2, attempt=20: 1 * 2^19 = 524288 seconds ≈ 6 days. A cap via Math.min(delay, maxDelay) is mandatory."
+      },
+      {
+        "text": "The system will automatically limit the delay to a reasonable value",
+        "correct": false,
+        "explanation": "There is no automatic limit — the developer must explicitly add Math.min(delay, maxDelay)."
+      },
+      {
+        "text": "The system will work normally",
+        "correct": false,
+        "explanation": "With a large number of attempts, the delay will grow to absurd values — hours or days."
+      },
+      {
+        "text": "The retry will stop earlier due to a number overflow error",
+        "correct": false,
+        "explanation": "JavaScript safely handles large numbers via Infinity, but the delay in milliseconds becomes effectively infinite."
+      }
+    ]
+  },
+  {
+    "question": "What is Full Jitter?",
+    "type": "single",
+    "options": [
+      {
+        "text": "delay = Math.random() * (prevDelay * 3 - baseDelay) + baseDelay",
+        "correct": false,
+        "explanation": "This is Decorrelated Jitter, recommended by AWS — a different algorithm."
+      },
+      {
+        "text": "delay = calculatedDelay + Math.random() * baseDelay",
+        "correct": false,
+        "explanation": "This is not a standard jitter formula — it adds randomness on top but does not eliminate synchronization."
+      },
+      {
+        "text": "delay = calculatedDelay / 2 + Math.random() * (calculatedDelay / 2)",
+        "correct": false,
+        "explanation": "This is Equal Jitter: half is fixed, half is random."
+      },
+      {
+        "text": "delay = Math.random() * calculatedDelay",
+        "correct": true,
+        "explanation": "Full Jitter — a completely random value in the range [0, calculatedDelay]. It best spreads clients over time."
+      }
+    ]
+  },
+  {
+    "question": "Why is idempotency important with at-least-once delivery?",
+    "type": "single",
+    "options": [
+      {
+        "text": "To reduce load on the broker",
+        "correct": false,
+        "explanation": "Idempotency does not affect broker load — it protects against side effects from re-processing on the consumer side."
+      },
+      {
+        "text": "To guarantee message ordering",
+        "correct": false,
+        "explanation": "Message ordering is a separate issue, solved via partition key (Kafka) or routing key (RabbitMQ), not idempotency."
+      },
+      {
+        "text": "To speed up message processing",
+        "correct": false,
+        "explanation": "Idempotency does not speed up processing — it adds a check that slightly increases latency."
+      },
+      {
+        "text": "With at-least-once, a message may be delivered multiple times; idempotency prevents duplicate processing",
+        "correct": true,
+        "explanation": "A consumer may crash after processing but before ack — the broker will redeliver the message. Idempotency guarantees that a retry won't create double charges, duplicated emails, etc."
+      }
+    ]
+  },
+  {
+    "question": "What is an Idempotency Key?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A message index in a Kafka topic",
+        "correct": false,
+        "explanation": "Offset in Kafka is the position in a partition, not an idempotency key. They can be used for deduplication, but that's not their primary role."
+      },
+      {
+        "text": "A secret key for encrypting messages",
+        "correct": false,
+        "explanation": "Idempotency Key is not related to encryption — it is an identifier for deduplication."
+      },
+      {
+        "text": "A key for grouping related messages",
+        "correct": false,
+        "explanation": "Correlation ID or partition key is used for grouping — they solve a different task."
+      },
+      {
+        "text": "A unique message identifier used to detect duplicates",
+        "correct": true,
+        "explanation": "An Idempotency Key (usually UUID or SHA-256) is stored in a deduplications store. Before processing, we check: if this ID was already seen — skip it."
+      }
+    ]
+  },
+  {
+    "question": "Which Redis command guarantees an atomic write of a key only if it does not already exist?",
+    "type": "single",
+    "options": [
+      {
+        "text": "SETNX key value",
+        "correct": false,
+        "explanation": "SETNX is a deprecated command that does not support TTL in a single operation — a separate EXPIRE is needed, which is again a race condition."
+      },
+      {
+        "text": "SET key value EX ttl NX",
+        "correct": true,
+        "explanation": "NX (Not eXists) — an atomic operation: sets the value only if the key does not exist. Returns null if the key already exists — this is the duplicate indicator."
+      },
+      {
+        "text": "SET key value EX ttl",
+        "correct": false,
+        "explanation": "Without the NX flag, SET will overwrite an existing key — not an atomic check."
+      },
+      {
+        "text": "EXISTS key + SET key value",
+        "correct": false,
+        "explanation": "Two separate commands — race condition: between EXISTS and SET another consumer can also pass the check."
+      }
+    ]
+  },
+  {
+    "question": "What is a Poison Message?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An encrypted message that cannot be read",
+        "correct": false,
+        "explanation": "Poison message is not related to encryption."
+      },
+      {
+        "text": "A message that consistently causes an error during processing and cannot be fixed by retrying",
+        "correct": true,
+        "explanation": "Typical causes: corrupted JSON, null in a required field, non-existent resource. Retry does not help — the data will not change. Isolation in DLQ is required."
+      },
+      {
+        "text": "A message with an expired TTL",
+        "correct": false,
+        "explanation": "Expired messages are a separate concept. A poison message is one with a permanent processing error."
+      },
+      {
+        "text": "A very large message exceeding a size limit",
+        "correct": false,
+        "explanation": "Size exceeding is a configuration issue. It can cause a poison message, but is not the definition itself."
+      }
+    ]
+  },
+  {
+    "question": "What is a Dead Letter Queue (DLQ)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A special queue for messages that have exhausted processing attempts or contain a permanent error",
+        "correct": true,
+        "explanation": "DLQ isolates problematic messages from the main flow. They are available for manual analysis, fixing, and replay."
+      },
+      {
+        "text": "A queue for asynchronous responses from consumers",
+        "correct": false,
+        "explanation": "Responses use Reply-To queues or callback queues — a different pattern."
+      },
+      {
+        "text": "A backup queue for storing copies of all messages",
+        "correct": false,
+        "explanation": "DLQ is not a backup — it only contains messages that failed processing."
+      },
+      {
+        "text": "A highest-priority queue for critical messages",
+        "correct": false,
+        "explanation": "DLQ is not a priority queue — it is a queue for messages that could not be processed."
+      }
+    ]
+  },
+  {
+    "question": "How does RabbitMQ track the number of delivery attempts for a message?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Via the redelivered attribute in the message",
+        "correct": false,
+        "explanation": "The redelivered flag (boolean) only shows the fact of redelivery — not a counter of attempts."
+      },
+      {
+        "text": "Via the x-delivery-count header in properties.headers",
+        "correct": true,
+        "explanation": "RabbitMQ automatically sets the x-delivery-count header on each nack/requeue. The consumer reads msg.properties.headers['x-delivery-count']."
+      },
+      {
+        "text": "Via a separate API request to RabbitMQ Management",
+        "correct": false,
+        "explanation": "Management API provides queue statistics, but not the delivery counter for a specific message."
+      },
+      {
+        "text": "Via a delivery_count field in the message body",
+        "correct": false,
+        "explanation": "A field in the message body is controlled by the application, not the broker."
+      }
+    ]
+  },
+  {
+    "question": "You have a consumer processing payment transactions. The payment service sometimes returns 503. Which strategy is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ignore errors and continue processing subsequent messages",
+        "correct": false,
+        "explanation": "Ignoring errors in payment transactions means losing money. Each message must be processed or explicitly moved to DLQ."
+      },
+      {
+        "text": "Retry with Exponential Backoff for 503, direct to DLQ for 400",
+        "correct": true,
+        "explanation": "Correct classification: 503 — transient, retry is justified; 400 — permanent (data is invalid), retry is pointless. After exhausting retry attempts for 503 — also DLQ."
+      },
+      {
+        "text": "Always retry 10 times with a 1 second delay",
+        "correct": false,
+        "explanation": "Fixed delay does not protect against Thundering Herd. 10 attempts with 1s delay — may be too little for real service recovery."
+      },
+      {
+        "text": "Send to DLQ immediately on any error",
+        "correct": false,
+        "explanation": "503 is a transient error; on retry the service may recover. Immediate DLQ will result in loss of legitimate transactions."
+      }
+    ]
+  },
+  {
+    "question": "What is a Bloom Filter in the context of deduplication?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A pattern for filtering messages by content",
+        "correct": false,
+        "explanation": "Content-based filtering is a different pattern, not related to Bloom Filter."
+      },
+      {
+        "text": "A priority queue based on message weight",
+        "correct": false,
+        "explanation": "Priority Queue is a completely different data structure."
+      },
+      {
+        "text": "A probabilistic data structure that allows quick membership checks without storing the actual elements",
+        "correct": true,
+        "explanation": "Bloom Filter gives false positives but never false negatives. If it says 'not seen' — definitely not seen. Saves 90%+ Redis queries under high traffic."
+      },
+      {
+        "text": "An encryption algorithm for idempotency keys",
+        "correct": false,
+        "explanation": "Bloom Filter is a data structure for probabilistic membership checking, not an encryption algorithm."
+      }
+    ]
+  },
+  {
+    "question": "The Outbox pattern in combination with deduplication solves the following problem:",
+    "type": "single",
+    "options": [
+      {
+        "text": "Allows processing messages in strict order",
+        "correct": false,
+        "explanation": "Ordering is a separate task solved via partition key (Kafka) or single consumer per queue (RabbitMQ)."
+      },
+      {
+        "text": "Eliminates the need for DLQ",
+        "correct": false,
+        "explanation": "Outbox + Dedup do not eliminate the need for DLQ — DLQ is for permanent errors, not duplicates."
+      },
+      {
+        "text": "Guarantees at-most-once delivery",
+        "correct": false,
+        "explanation": "Outbox guarantees at-least-once publication, not at-most-once. Deduplication on the consumer side ensures exactly-once processing."
+      },
+      {
+        "text": "Ensures atomicity: the event is written to the DB along with the business transaction, and deduplication on the consumer guarantees exactly-once processing",
+        "correct": true,
+        "explanation": "Outbox: INSERT business data + INSERT event in one transaction → at-least-once publication. Dedup on consumer: if a message arrives twice — process only the first time."
+      }
+    ]
+  },
+  {
+    "question": "What is a Circuit Breaker?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A pattern that tracks the error rate and temporarily blocks requests to an unhealthy service",
+        "correct": true,
+        "explanation": "Main function of Circuit Breaker: when the error threshold is exceeded, it transitions to OPEN state and immediately returns an error without contacting the service."
+      },
+      {
+        "text": "Protects against Thundering Herd during service recovery",
+        "correct": true,
+        "explanation": "While CB is OPEN — clients do not storm the service with retries. Transition to HALF_OPEN allows checking service readiness with a single probe request."
+      },
+      {
+        "text": "It depends entirely on the programming language",
+        "correct": false,
+        "explanation": "This is an architectural decision, not language-dependent."
+      },
+      {
+        "text": "Has three states: CLOSED (normal operation), OPEN (all requests blocked), HALF_OPEN (probe request)",
+        "correct": true,
+        "explanation": "Three states — a key characteristic of Circuit Breaker. HALF_OPEN allows checking if the service has recovered."
+      },
+      {
+        "text": "Replaces the need for Retry",
+        "correct": false,
+        "explanation": "Circuit Breaker and Retry are complementary patterns. CB protects against request storms to a dead service, Retry handles specific transient failures."
+      }
+    ]
+  },
+  {
+    "question": "You have 500 consumer instances. The service is down. After recovery they all retry simultaneously. What happens without jitter?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The service will evenly handle the load",
+        "correct": false,
+        "explanation": "Without jitter, all 500 instances retry at the same time — the load peak repeats again and again."
+      },
+      {
+        "text": "Thundering Herd: 500 instances simultaneously attack the recovering service, overloading it again",
+        "correct": true,
+        "explanation": "The service has just started recovering — gets a storm of 500 requests. This can knock it down again. Jitter spreads attempts over time, allowing the service to gradually ramp up load."
+      },
+      {
+        "text": "Circuit Breaker will automatically prevent this",
+        "correct": false,
+        "explanation": "Circuit Breaker helps, but does not fully solve the Thundering Herd problem — jitter is also needed."
+      },
+      {
+        "text": "The retry will fail for all instances",
+        "correct": false,
+        "explanation": "Retry will not fail on its own — the problem is synchronization of load peaks."
+      }
+    ]
+  },
+  {
+    "question": "Which type of Idempotency Key is best suited for a database with a B-Tree index?",
+    "type": "single",
+    "options": [
+      {
+        "text": "MD5 hash of payload",
+        "correct": false,
+        "explanation": "MD5 is deterministic but randomly distributed. Same B-Tree issues as UUID v4. Plus collisions (albeit rare)."
+      },
+      {
+        "text": "Timestamp in milliseconds",
+        "correct": false,
+        "explanation": "Not unique under high load (multiple events in one millisecond). UUID v7 uses timestamp + random suffix for uniqueness guarantee."
+      },
+      {
+        "text": "UUID v7 (monotonically increasing, time-based)",
+        "correct": true,
+        "explanation": "UUID v7 is monotonically increasing, so new records are always appended to the end of the B-Tree index — minimal fragmentation, best insertion performance."
+      },
+      {
+        "text": "UUID v4 (random)",
+        "correct": false,
+        "explanation": "UUID v4 is completely random — records are inserted at random positions in the B-Tree index, leading to frequent page splits and fragmentation."
+      }
+    ]
+  },
+  {
+    "question": "Which statements are correct about deduplication via Redis SET NX?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Guarantees exactly-once processing even if the consumer crashes",
+        "correct": false,
+        "explanation": "No: if the consumer processed, wrote to Redis, but crashed before ack — the message will arrive again. Redis SET NX will block it since the key already exists. But if the consumer crashed BEFORE writing to Redis — we get re-processing."
+      },
+      {
+        "text": "TTL must be set to prevent the store from growing infinitely",
+        "correct": true,
+        "explanation": "Without TTL, Redis grows with each new message. TTL of 24 hours is a standard solution: if a message does not arrive again within a day, the ID can be deleted."
+      },
+      {
+        "text": "The operation is atomic — no race condition between check and write",
+        "correct": true,
+        "explanation": "SET ... NX executes atomically at the Redis level — there is no gap between existence check and write where another consumer could insert a duplicate."
+      },
+      {
+        "text": "On Redis restart, all records are lost — a duplicate will pass through again",
+        "correct": true,
+        "explanation": "In-memory Redis without persistence (RDB/AOF) loses data on restart. For critical systems, Redis with persistence or PostgreSQL is needed."
+      }
+    ]
+  },
+  {
+    "question": "Why is it important to monitor DLQ with alerts?",
+    "type": "single",
+    "options": [
+      {
+        "text": "DLQ blocks the main queue from working",
+        "correct": false,
+        "explanation": "The purpose of DLQ is precisely to isolate problematic messages from the main flow — there is no blocking."
+      },
+      {
+        "text": "DLQ consumes a lot of broker memory",
+        "correct": false,
+        "explanation": "Memory is a configurable issue via retention policy. The main reason for monitoring is business losses."
+      },
+      {
+        "text": "DLQ automatically retries processing after an hour",
+        "correct": false,
+        "explanation": "DLQ does not do automatic replay — this is a manual operation or a separate service. Without monitoring, no one will know action is needed."
+      },
+      {
+        "text": "Messages in DLQ are lost business events; without alerts they accumulate unnoticed",
+        "correct": true,
+        "explanation": "DLQ = unprocessed orders, payments, notifications. Without monitoring, 10,000 missed transactions may be discovered after a week. An alert on depth > N is mandatory."
+      }
+    ]
+  },
+  {
+    "question": "What is 'delivery count' and how is it used to detect poison messages?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Message priority in the queue",
+        "correct": false,
+        "explanation": "Priority is a separate header. Delivery count is an attempt counter."
+      },
+      {
+        "text": "The number of consumers that received the message simultaneously",
+        "correct": false,
+        "explanation": "Delivery count is a counter of delivery attempts to a single consumer, not the number of recipients."
+      },
+      {
+        "text": "The batch size of messages in batch processing",
+        "correct": false,
+        "explanation": "Batch size is a separate prefetch/batch setting, not related to delivery count."
+      },
+      {
+        "text": "A delivery attempt counter: when maxDeliveries is exceeded, the message is considered poison and sent to quarantine/DLQ",
+        "correct": true,
+        "explanation": "The consumer checks headers['x-delivery-count']. If deliveryCount >= maxDeliveries — the message should not be processed further and must be isolated in DLQ to avoid infinite looping."
+      }
+    ]
+  },
+  {
+    "question": "A project with 1000 RPS. A consumer processes payment events. Which combination of patterns to choose for maximum reliability?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Circuit Breaker for the downstream payment service",
+        "correct": true,
+        "explanation": "At 1000 RPS, payment service failure without CB = 1000 timeouts per second, growing backlog. CB prevents this."
+      },
+      {
+        "text": "Synchronous retry without backoff to minimize latency",
+        "correct": false,
+        "explanation": "Synchronous retry without backoff = Thundering Herd at 1000 RPS. This is unacceptable for a high-load system."
+      },
+      {
+        "text": "DLQ for unfixable errors + alerts on queue depth",
+        "correct": true,
+        "explanation": "Payment events cannot be lost — DLQ + monitoring is mandatory for manual analysis and replay."
+      },
+      {
+        "text": "Idempotency Key (Redis SET NX with TTL) for duplicate protection",
+        "correct": true,
+        "explanation": "Payment events must not be processed twice — double charging. Redis SET NX is atomic protection."
+      },
+      {
+        "text": "Retry with Exponential Backoff + Full Jitter for transient errors",
+        "correct": true,
+        "explanation": "At 1000 RPS, without jitter Thundering Herd is guaranteed on failure. Full Jitter spreads 1000 consumers over time."
+      }
+    ]
+  },
+  {
+    "question": "What does 'Graceful Degradation' mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Gradual removal of deprecated APIs",
+        "correct": false,
+        "explanation": "API deprecation is API lifecycle management, not a reliability pattern."
+      },
+      {
+        "text": "Automatic scaling under increased load",
+        "correct": false,
+        "explanation": "Auto-scaling is a load response. Graceful degradation is a response to dependency unavailability."
+      },
+      {
+        "text": "Immediate system shutdown on the first error",
+        "correct": false,
+        "explanation": "This is the opposite of graceful degradation — fail-fast without the ability to continue operating."
+      },
+      {
+        "text": "The system gradually reduces functionality during failures instead of crashing completely, using cache and fallback values",
+        "correct": true,
+        "explanation": "Graceful Degradation: pricing service unavailable → use cached price → no cache → default price → only then error. The system operates with reduced functionality."
+      }
+    ]
+  },
+  {
+    "question": "Is the operation UPDATE balance = balance - 100 WHERE user_id = $1 idempotent?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Yes, if using an idempotency key in the WHERE clause",
+        "correct": false,
+        "explanation": "An idempotency key in WHERE won't help — you need to change the operation semantics: use SET balance = $new_value WHERE balance = $old_value, or check already-applied transactions."
+      },
+      {
+        "text": "No: a repeated call will decrease the balance again",
+        "correct": true,
+        "explanation": "f(x) = f(f(x)) — this is the idempotency requirement. balance=1000: first call → 900, second → 800. The result changes. The operation is NOT idempotent."
+      },
+      {
+        "text": "Yes, because UPDATE affects a single row",
+        "correct": false,
+        "explanation": "Idempotency is determined by the result, not the syntax. Each call decreases the balance by 100 — this is not idempotent."
+      },
+      {
+        "text": "Depends on the database transaction isolation level",
+        "correct": false,
+        "explanation": "Transaction isolation level affects concurrent access, but does not make an operation idempotent."
+      }
+    ]
+  },
+  {
+    "question": "How to configure RabbitMQ to automatically send to DLQ after N failed attempts?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Via vhost configuration in rabbitmq.conf",
+        "correct": false,
+        "explanation": "Queue parameters are set when declaring the queue in code or via Management UI, not through a global config."
+      },
+      {
+        "text": "Via publisher confirm on the producer side",
+        "correct": false,
+        "explanation": "Publisher confirms is a publication confirmation mechanism, not retry/DLQ management on the consumer side."
+      },
+      {
+        "text": "Via the x-max-delivery-count parameter when declaring the queue",
+        "correct": true,
+        "explanation": "assertQueue('main', { arguments: { 'x-max-delivery-count': 3, 'x-dead-letter-exchange': 'dlx' } }) — RabbitMQ will automatically move the message to DLQ after 3 nack/requeue cycles."
+      },
+      {
+        "text": "This is impossible — you need to implement a counter manually in the consumer code",
+        "correct": false,
+        "explanation": "RabbitMQ natively supports x-max-delivery-count. Manual implementation is possible but redundant when a built-in mechanism exists."
+      }
+    ]
+  },
+  {
+    "question": "What happens if a consumer processes a message successfully but crashes BEFORE sending ack to RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The broker will roll back all changes made by the consumer",
+        "correct": false,
+        "explanation": "The broker does not know about the consumer's internal changes — it only manages message delivery, not business transactions."
+      },
+      {
+        "text": "The message will be redelivered to the consumer after reconnect, and without idempotency it will be processed a second time",
+        "correct": true,
+        "explanation": "This is exactly at-least-once: RabbitMQ did not receive ack → considers the message undelivered → redelivers. Without idempotency — double processing. This is why an idempotency key is critically important."
+      },
+      {
+        "text": "The message will automatically be moved to DLQ",
+        "correct": false,
+        "explanation": "DLQ receives messages on nack or delivery count exceeded, not on connection drop."
+      },
+      {
+        "text": "The message will be lost — the broker will delete it from the queue",
+        "correct": false,
+        "explanation": "Without ack, RabbitMQ does not consider the message delivered. After reconnect the message will be redelivered."
+      }
+    ]
+  }
+]

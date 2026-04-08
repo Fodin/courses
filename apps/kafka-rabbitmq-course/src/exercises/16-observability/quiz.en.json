@@ -1,0 +1,589 @@
+[
+  {
+    "question": "What is Consumer Lag in Kafka?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Network latency between producer and broker",
+        "correct": false,
+        "explanation": "This is network latency, not consumer lag. Lag refers to the consumer falling behind the end of the log."
+      },
+      {
+        "text": "Number of partitions without an assigned consumer",
+        "correct": false,
+        "explanation": "Partitions without a consumer are a rebalancing issue, not lag. Lag is measured in number of messages."
+      },
+      {
+        "text": "Time a message spent in the queue before delivery",
+        "correct": false,
+        "explanation": "This is end-to-end latency. Consumer lag is the offset difference, not a time metric."
+      },
+      {
+        "text": "The difference between Log-End Offset and Committed Offset for a consumer group",
+        "correct": true,
+        "explanation": "Consumer Lag = LEO - committed offset. It shows how many messages the consumer has not yet processed."
+      }
+    ]
+  },
+  {
+    "question": "Which JMX metric should Kafka track for monitoring consumer lag?",
+    "type": "single",
+    "options": [
+      {
+        "text": "kafka.network:type=RequestMetrics,attribute=TotalTimeMs",
+        "correct": false,
+        "explanation": "This is a broker request processing time metric, not consumer lag."
+      },
+      {
+        "text": "kafka.consumer:type=consumer-fetch-manager-metrics,attribute=records-lag-max",
+        "correct": true,
+        "explanation": "records-lag-max shows the maximum lag across all assigned partitions. This is the key metric for alerting."
+      },
+      {
+        "text": "kafka.server:type=BrokerTopicMetrics,attribute=MessagesInPerSec",
+        "correct": false,
+        "explanation": "This is a broker-side incoming message rate metric, not consumer lag."
+      },
+      {
+        "text": "kafka.log:type=LogFlushStats,attribute=LogFlushRateAndTimeMs",
+        "correct": false,
+        "explanation": "This is a log flush-to-disk rate metric, not consumer lag."
+      }
+    ]
+  },
+  {
+    "question": "Through which RabbitMQ API can you programmatically obtain queue depth?",
+    "type": "single",
+    "options": [
+      {
+        "text": "HTTP Management API: GET /api/queues/{vhost}/{queue}",
+        "correct": true,
+        "explanation": "The Management Plugin provides a REST API. The 'messages' field in the response contains the current queue depth."
+      },
+      {
+        "text": "RabbitMQ CLI: rabbitmq-diagnostics status",
+        "correct": false,
+        "explanation": "The diagnostics status shows overall node health but is not convenient for programmatically obtaining metrics for a specific queue."
+      },
+      {
+        "text": "AMQP command queue.inspect",
+        "correct": false,
+        "explanation": "There is no inspect command in the AMQP protocol. Monitoring uses the Management API or Prometheus exporter."
+      },
+      {
+        "text": "STOMP protocol, SUBSCRIBE command with x-metrics header",
+        "correct": false,
+        "explanation": "STOMP is a messaging protocol, not a metrics protocol. Use the Management API for metrics."
+      }
+    ]
+  },
+  {
+    "question": "The Three Pillars of Observability are:",
+    "type": "single",
+    "options": [
+      {
+        "text": "Metrics, logs, and traces",
+        "correct": true,
+        "explanation": "Metrics (numerical time series), Logs (structured events), and Traces (distributed call chains) — the classic observability triad."
+      },
+      {
+        "text": "CPU, memory, and network",
+        "correct": false,
+        "explanation": "These are specific resources to monitor, not the pillars of observability as a discipline."
+      },
+      {
+        "text": "Monitoring, alerting, and dashboards",
+        "correct": false,
+        "explanation": "These are observability tools, not the pillars themselves. They are built on top of metrics, logs, and traces."
+      },
+      {
+        "text": "Prometheus, Grafana, and Jaeger",
+        "correct": false,
+        "explanation": "These are specific tools (Prometheus — metrics, Grafana — visualization, Jaeger — tracing), not abstract concepts."
+      }
+    ]
+  },
+  {
+    "question": "What is a Correlation ID in the context of distributed tracing?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The identifier of a consumer group that processed the message",
+        "correct": false,
+        "explanation": "A consumer group ID describes a group of consumers, not a request chain. A Correlation ID is an end-to-end identifier for a specific business request."
+      },
+      {
+        "text": "A unique identifier propagated through all services and brokers to correlate events of a single request",
+        "correct": true,
+        "explanation": "A Correlation ID (or Trace ID) allows all logs, spans, and events to be linked into a single chain, even when processed by different services."
+      },
+      {
+        "text": "The sequence number of a message in a RabbitMQ queue",
+        "correct": false,
+        "explanation": "A sequence number is internal broker metadata. A Correlation ID is set by the application and can have an arbitrary format."
+      },
+      {
+        "text": "The Kafka partition ID where the message is stored",
+        "correct": false,
+        "explanation": "A partition ID is an internal Kafka detail. A Correlation ID is a business-level identifier that flows through the entire system."
+      }
+    ]
+  },
+  {
+    "question": "OpenTelemetry provides semantic conventions for Kafka. Which tag should be set to specify the destination topic?",
+    "type": "single",
+    "options": [
+      {
+        "text": "span.destination",
+        "correct": false,
+        "explanation": "span.destination does not exist in the OTel specification. Messaging attributes start with messaging.*"
+      },
+      {
+        "text": "message.queue",
+        "correct": false,
+        "explanation": "This is not a standard OpenTelemetry tag. The correct attribute is messaging.destination."
+      },
+      {
+        "text": "messaging.destination",
+        "correct": true,
+        "explanation": "Per OTel Semantic Conventions for messaging: messaging.destination is the topic or queue, messaging.system is 'kafka', messaging.operation is 'send'/'receive'."
+      },
+      {
+        "text": "kafka.topic",
+        "correct": false,
+        "explanation": "kafka.topic is a non-standard tag. OpenTelemetry defines common messaging.* conventions for all message brokers."
+      }
+    ]
+  },
+  {
+    "question": "A waterfall diagram in distributed tracing shows:",
+    "type": "single",
+    "options": [
+      {
+        "text": "A dependency graph between services as a directed acyclic graph",
+        "correct": false,
+        "explanation": "A dependency graph is a separate type of visualization. A waterfall is specifically about temporal sequence."
+      },
+      {
+        "text": "The cumulative sum of consumer group lags over time",
+        "correct": false,
+        "explanation": "Cumulative lag is about consumer lag monitoring, not tracing."
+      },
+      {
+        "text": "The number of requests per second for each service",
+        "correct": false,
+        "explanation": "RPS is a throughput metric. A waterfall is about a specific request and its distribution over time."
+      },
+      {
+        "text": "Each span as a horizontal bar positioned by start time and width proportional to duration",
+        "correct": true,
+        "explanation": "A waterfall (cascading diagram) displays spans on a timeline. Position left = startMs/totalMs, width = durationMs/totalMs."
+      }
+    ]
+  },
+  {
+    "question": "How should trace context be propagated through Kafka message headers according to W3C TraceContext?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Pass the trace ID as the first field in the JSON message body",
+        "correct": false,
+        "explanation": "Embedding in the payload violates separation of concerns. Headers are the designated place for metadata."
+      },
+      {
+        "text": "Add the trace ID to the Kafka message key",
+        "correct": false,
+        "explanation": "The message key is used for partitioning, not for tracing metadata. The correct place is message headers."
+      },
+      {
+        "text": "Add a traceparent header with a value in the format 00-{traceId}-{spanId}-{flags}",
+        "correct": true,
+        "explanation": "W3C TraceContext defines the traceparent header in the format version-traceId-parentSpanId-traceFlags. Kafka supports arbitrary message headers."
+      },
+      {
+        "text": "Trace context cannot be propagated in Kafka — tracing only works for HTTP",
+        "correct": false,
+        "explanation": "OpenTelemetry supports Kafka instrumentation. Kafka message headers are used the same way as HTTP headers."
+      }
+    ]
+  },
+  {
+    "question": "What is an SLI (Service Level Indicator)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An incident where a metric violated its target value",
+        "correct": false,
+        "explanation": "An SLO violation is called a burn rate or error budget exhaustion, not an SLI."
+      },
+      {
+        "text": "An agreement with a client on service availability level",
+        "correct": false,
+        "explanation": "This is the definition of an SLA (Service Level Agreement). SLI is a measurable indicator, SLO is the target, SLA is the legal agreement."
+      },
+      {
+        "text": "A measurable metric that characterizes service level (e.g., percentage of successful requests)",
+        "correct": true,
+        "explanation": "SLI is a concrete numeric metric: error rate, latency percentile, throughput. SLOs are set based on SLIs."
+      },
+      {
+        "text": "A target numeric value for a metric (e.g., 99.9% availability)",
+        "correct": false,
+        "explanation": "The target value is the SLO (Service Level Objective). SLI is the metric itself, SLO is its target threshold."
+      }
+    ]
+  },
+  {
+    "question": "In Prometheus, Kafka monitoring typically uses:",
+    "type": "single",
+    "options": [
+      {
+        "text": "Grafana Agent reads metrics directly from Kafka logs on disk",
+        "correct": false,
+        "explanation": "Kafka logs are message data, not metrics. An exporter is needed for metrics."
+      },
+      {
+        "text": "Prometheus connects directly to Kafka via a built-in /metrics endpoint",
+        "correct": false,
+        "explanation": "Kafka does not have a built-in Prometheus-format /metrics endpoint. An exporter is needed."
+      },
+      {
+        "text": "Kafka pushes metrics directly to the Prometheus Pushgateway",
+        "correct": false,
+        "explanation": "Kafka does not support push to the Pushgateway out of the box. Prometheus uses a pull model via exporters."
+      },
+      {
+        "text": "JMX Exporter or Kafka Exporter, converting metrics to Prometheus format",
+        "correct": true,
+        "explanation": "Kafka natively exports metrics via JMX. JMX Exporter (javaagent) or Kafka Exporter (separate process) convert them to Prometheus format."
+      }
+    ]
+  },
+  {
+    "question": "You observe growing consumer lag in analytics-consumer. Which of the following is NOT a likely cause?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A broker restarted and reassigned partition leadership",
+        "correct": true,
+        "explanation": "A temporary leader election may cause a pause, but not sustained lag growth. Lag will be recovered after the leader is restored."
+      },
+      {
+        "text": "The consumer processes each message more slowly due to heavy DB queries",
+        "correct": false,
+        "explanation": "Slow processing is a direct cause of lag. Consumption time > production time = accumulating lag."
+      },
+      {
+        "text": "The producer has increased its message send frequency to the topic",
+        "correct": false,
+        "explanation": "Increased producer throughput is a typical cause of lag. If the consumer cannot keep up with the producer, lag grows."
+      },
+      {
+        "text": "A consumer instance crashed and the partition was left without a consumer",
+        "correct": false,
+        "explanation": "If the consumer crashed and rebalance has not yet occurred, unprocessed messages accumulate — lag grows."
+      }
+    ]
+  },
+  {
+    "question": "Which metrics are key for RabbitMQ monitoring? Select all that apply.",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Number of exchanges in a vhost",
+        "correct": false,
+        "explanation": "The number of exchanges is a static configuration metric, not a health indicator."
+      },
+      {
+        "text": "messages (queue depth)",
+        "correct": true,
+        "explanation": "Queue depth is the primary metric. Growth means consumers cannot keep up with producers."
+      },
+      {
+        "text": "deliver_get (delivery throughput)",
+        "correct": true,
+        "explanation": "Delivery throughput allows assessing consumer capacity and comparing it to the publish rate."
+      },
+      {
+        "text": "messages_unacknowledged",
+        "correct": true,
+        "explanation": "Unacknowledged messages show messages sent to the consumer but not yet processed. A high value indicates a slow consumer or stuck prefetch."
+      },
+      {
+        "text": "memory (broker memory usage)",
+        "correct": true,
+        "explanation": "RabbitMQ buffers messages in memory. When the memory alarm is reached, the broker blocks publishers."
+      }
+    ]
+  },
+  {
+    "question": "Alert severity 'warning' vs 'critical' — what is the practical difference when configuring?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Warning may have a longer for-period (grace period) before firing",
+        "correct": true,
+        "explanation": "Warnings are often configured with for: 5m (alert only fires if the condition holds for 5 minutes), critical alerts with for: 1m or 0."
+      },
+      {
+        "text": "Warning requires action during business hours, critical — immediate action 24/7",
+        "correct": true,
+        "explanation": "Typical practice: warning creates a ticket or Slack notification, critical pages the on-call engineer at any time of day."
+      },
+      {
+        "text": "Critical should have a lower threshold than warning for the same metric",
+        "correct": false,
+        "explanation": "The opposite: the critical threshold is higher than warning. For example: warning at lag > 1000, critical at lag > 5000."
+      },
+      {
+        "text": "Critical always requires two independent rules to prevent false positives",
+        "correct": false,
+        "explanation": "There is no such mandatory rule. Dead man's switch and other patterns are used situationally, not always."
+      }
+    ]
+  },
+  {
+    "question": "What is Error Budget in the context of SLO?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The number of alerts that can be ignored in a month",
+        "correct": false,
+        "explanation": "Error budget is a mathematical concept based on SLI/SLO, not permission to ignore alerts."
+      },
+      {
+        "text": "The maximum number of errors per second the system must withstand",
+        "correct": false,
+        "explanation": "This describes capacity planning or load testing, not error budget. Error budget is about the percentage of normal operation time."
+      },
+      {
+        "text": "The allowable amount of errors/unavailability that the SLO permits over a period (100% - SLO%)",
+        "correct": true,
+        "explanation": "With SLO 99.9%, error budget = 0.1% = ~43.8 minutes per month. While the budget is not exhausted — deployments are fine. Exhausted — change freeze."
+      },
+      {
+        "text": "A monetary budget for fixing code errors",
+        "correct": false,
+        "explanation": "Error budget is not a financial concept — it is a measurable margin of allowable SLO violations."
+      }
+    ]
+  },
+  {
+    "question": "A span in distributed tracing has a parentId field. What happens when parentId = null?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The span was created asynchronously and has no parent context",
+        "correct": false,
+        "explanation": "Asynchronous operations also have a parentId — they inherit context through propagation in message headers."
+      },
+      {
+        "text": "This is a root span — the start of the chain that spawned all child spans",
+        "correct": true,
+        "explanation": "Root span (parentId: null) is the entry point into the system, e.g., an HTTP request to the API Gateway. All other spans have a parent."
+      },
+      {
+        "text": "The span was lost and cannot be attached to the trace",
+        "correct": false,
+        "explanation": "An orphan span is one with a parentId whose parent is missing from the trace. A span with parentId: null is an intentional root, not an orphan."
+      },
+      {
+        "text": "The span belongs to an external service whose tracing is not supported",
+        "correct": false,
+        "explanation": "For external uninstrumented services, a placeholder span may be created, but null parentId specifically means root."
+      }
+    ]
+  },
+  {
+    "question": "You are configuring alerting for Kafka consumer lag. Which thresholds make sense in production?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Warning when lag > N messages (where N corresponds to ~5-10 minutes of processing)",
+        "correct": true,
+        "explanation": "A relative threshold (in time units, not absolute numbers) is more reliable: at 100 msg/s throughput, lag 3000 = 30 sec — already a warning."
+      },
+      {
+        "text": "Warning when lag > 1 message at any time",
+        "correct": false,
+        "explanation": "Too low a threshold will cause a flood of false positive alerts on every small load spike."
+      },
+      {
+        "text": "Alert when there are no committed offset commits in the last N minutes (dead consumer)",
+        "correct": true,
+        "explanation": "Dead man's switch: if the consumer is alive but not advancing the offset, this is a sign of a hang. Important to monitor separately from lag magnitude."
+      },
+      {
+        "text": "Critical when lag is growing faster than a certain rate (derivative alert)",
+        "correct": true,
+        "explanation": "Alerting on the rate of lag growth allows detecting a problem before the absolute threshold is reached."
+      },
+      {
+        "text": "Critical when lag = 0 (consumer must always be at 0)",
+        "correct": false,
+        "explanation": "Lag = 0 constantly is unrealistic and unnecessary. Small lag is normal. Alert on growth, not on any non-zero lag."
+      }
+    ]
+  },
+  {
+    "question": "Grafana is used together with Prometheus. What is the role of each?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Prometheus — metric storage and queries (TSDB + PromQL), Grafana — dashboard visualization",
+        "correct": true,
+        "explanation": "Prometheus collects and stores metrics and provides the PromQL query language. Grafana builds dashboards by connecting to Prometheus as a data source."
+      },
+      {
+        "text": "Prometheus — visualization, Grafana — metric collection from services",
+        "correct": false,
+        "explanation": "The roles are reversed. Prometheus (pull-based scraping) collects metrics, Grafana visualizes via connected data sources."
+      },
+      {
+        "text": "Grafana stores metrics, Prometheus builds alerts",
+        "correct": false,
+        "explanation": "Grafana is not a TSDB by default. Alertmanager (part of the Prometheus ecosystem) handles alerts."
+      },
+      {
+        "text": "Both tools are interchangeable and do the same thing",
+        "correct": false,
+        "explanation": "They complement each other: Prometheus — TSDB and query language, Grafana — UI for visualization and alerting."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following scenarios demonstrates a problem that distributed tracing solves, but metrics and logs alone do not?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A request went through 5 services, total latency 3.8 seconds, but it is unclear which service caused the slowdown",
+        "correct": true,
+        "explanation": "Tracing gives a precise answer: the span with service B and durationMs 3600 is the culprit. Metrics show overall latency but not the per-service breakdown for a specific request."
+      },
+      {
+        "text": "The message broker is down and all producers are getting connection errors",
+        "correct": false,
+        "explanation": "This is detected via metrics (connection errors) and logs (connection refused). Tracing offers no advantage here."
+      },
+      {
+        "text": "Consumer lag exceeded 10,000 messages in three partitions",
+        "correct": false,
+        "explanation": "This is classically detected via consumer lag metrics. Tracing is not needed for this task."
+      },
+      {
+        "text": "A service is using 95% memory and will soon OOM",
+        "correct": false,
+        "explanation": "OOM is detected via memory usage metrics and alerting. Tracing is not related to this."
+      }
+    ]
+  },
+  {
+    "question": "In which of the following cases is a Consumer Lag FIRING alert normal and does not require immediate intervention?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A scheduled nightly batch job starts and processes accumulated messages — lag temporarily grows before dropping",
+        "correct": false,
+        "explanation": "In this case, lag drops, not grows. This is not a cause for a firing alert."
+      },
+      {
+        "text": "Deployment of a new consumer — a few seconds without an active consumer, lag grew slightly",
+        "correct": true,
+        "explanation": "Short-term lag during rolling deployment is expected. An alert with for: 5m avoids false positives in such situations."
+      },
+      {
+        "text": "The producer started sending 10x more messages and the consumer cannot keep up",
+        "correct": false,
+        "explanation": "Sustained lag growth due to consumer overload requires scaling or throttling the producer."
+      },
+      {
+        "text": "The consumer crashed and has not restarted for 20 minutes",
+        "correct": false,
+        "explanation": "20 minutes without a consumer is a real incident requiring immediate intervention."
+      }
+    ]
+  },
+  {
+    "question": "What is the Span Status 'slow' in the context of this exercise? Choose the correct description.",
+    "type": "single",
+    "options": [
+      {
+        "text": "An official OpenTelemetry status meaning SLO latency has been exceeded",
+        "correct": false,
+        "explanation": "OpenTelemetry defines three statuses: Unset, Ok, Error. 'slow' is non-standard, introduced for clarity in the learning example."
+      },
+      {
+        "text": "A custom status for the learning demo, meaning the operation completed successfully but took an anomalously long time",
+        "correct": true,
+        "explanation": "In OpenTelemetry, the official statuses are: Unset, Ok, Error. 'slow' is a custom status for visualization in the exercise: the operation did not fail but took an abnormally long time."
+      },
+      {
+        "text": "HTTP status 429 Too Many Requests, which caused throttling",
+        "correct": false,
+        "explanation": "429 is an HTTP code, not a span status. In OTel, it is displayed as the http.status_code attribute; the span status is typically Error."
+      },
+      {
+        "text": "A sign that the span is queued and waiting to execute",
+        "correct": false,
+        "explanation": "A span is created at the start of an operation and completed at its end. There is no 'waiting' status."
+      }
+    ]
+  },
+  {
+    "question": "Which tools are part of the OpenTelemetry (OTel) ecosystem? Select all that apply.",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "OTel Collector (agent/service for receiving, processing, and exporting telemetry)",
+        "correct": true,
+        "explanation": "OTel Collector accepts data in various formats (OTLP, Jaeger, Zipkin), applies processors, and sends to backends (Jaeger, Tempo, Datadog)."
+      },
+      {
+        "text": "Prometheus (time-series database for metrics)",
+        "correct": false,
+        "explanation": "Prometheus is an independent CNCF project. The OTel SDK can export metrics in Prometheus format, but Prometheus is not part of OTel."
+      },
+      {
+        "text": "Jaeger (UI for trace storage and visualization)",
+        "correct": false,
+        "explanation": "Jaeger is a separate open-source project for trace storage and visualization. OTel can export to Jaeger, but Jaeger is not part of OTel."
+      },
+      {
+        "text": "OTel SDK (instrumentation libraries for Java, Go, Python, and other languages)",
+        "correct": true,
+        "explanation": "OTel SDK is the foundation: auto-instrumentation and manual API for creating spans, metrics, and logs in application code."
+      },
+      {
+        "text": "OTLP (OpenTelemetry Protocol — a standard telemetry transport protocol)",
+        "correct": true,
+        "explanation": "OTLP is a vendor-neutral protocol for transmitting metrics, logs, and traces. Supported over gRPC and HTTP/JSON transports."
+      }
+    ]
+  },
+  {
+    "question": "A team is configuring alerting for Kafka in production. Consumer lag for a group suddenly grew to 50,000 messages. What should be done first?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Immediately add more consumer instances to increase parallelism",
+        "correct": false,
+        "explanation": "Without understanding the root cause, scaling may not help. If the problem is a slow DB, more consumers will only create more load on the DB."
+      },
+      {
+        "text": "Restart the broker, as lag should not grow to such values",
+        "correct": false,
+        "explanation": "Restarting the broker with high lag will worsen the situation: rebalancing will take time, during which lag will grow even more."
+      },
+      {
+        "text": "Check distributed traces — find the span with anomalous duration on the consumer side to determine where the bottleneck is",
+        "correct": true,
+        "explanation": "Traces will show exactly which operation in the consumer became slow: DB, external service, or processing logic. This will guide you in the right direction faster than metrics."
+      },
+      {
+        "text": "Delete the accumulated messages from the topic to reduce lag",
+        "correct": false,
+        "explanation": "Deleting messages means data loss. This is unacceptable without analyzing the root cause and business alignment."
+      }
+    ]
+  }
+]

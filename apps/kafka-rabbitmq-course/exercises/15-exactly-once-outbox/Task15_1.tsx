@@ -3,6 +3,7 @@ import { useLanguage } from 'src/hooks'
 
 // ============================================================
 // Задание 15.1: Проблема двойной записи (Dual Write Problem)
+// Assignment 15.1: Dual Write Problem
 // ============================================================
 //
 // Goal: implement a Dual Write Problem visualizer.
@@ -10,24 +11,21 @@ import { useLanguage } from 'src/hooks'
 // Enable "fail mode" to see what happens when the broker is unavailable
 // after a successful DB write — resulting in data inconsistency.
 
-// TODO: Define the WriteStep type.
-// Values: 'idle' | 'db-writing' | 'db-success' | 'broker-writing'
+// TODO: Define the WriteStep type. // Значения: 'idle' | 'db-writing' | 'db-success' | 'broker-writing'
 //         | 'broker-success' | 'broker-fail' | 'done-ok' | 'done-fail'
 // type WriteStep = ...
 
-// TODO: Define the LogEntry interface.
-// Fields: id: number, text: string, type: 'info' | 'success' | 'error' | 'warn'
+// TODO: Define the LogEntry interface. // Поля: id: number, text: string, type: 'info' | 'success' | 'error' | 'warn'
 // interface LogEntry { ... }
 
 export function Task15_1() {
   const { t } = useLanguage()
 
-  // TODO: Declare state:
-  // step: WriteStep — current animation step (initial: 'idle')
-  // logs: LogEntry[] — event log (initial: [])
-  // dbRecords: { id: string; status: string }[] — rows in PostgreSQL (initial: [])
-  // brokerMessages: string[] — messages in Kafka (initial: [])
-  // failMode: boolean — whether to simulate broker failure (initial: false)
+  // TODO: Declare state: // step: WriteStep — текущий шаг анимации (начально: 'idle')
+  // logs: LogEntry[] — журнал событий (начально: [])
+  // dbRecords: { id: string; status: string }[] — строки в PostgreSQL (начально: [])
+  // brokerMessages: string[] — сообщения в Kafka (начально: [])
+  // failMode: boolean — симулировать сбой брокера (начально: false)
   // logIdRef: React.MutableRefObject<number> via useRef(0)
   const [step, setStep] = useState<any>('idle')
   const [logs, setLogs] = useState<any[]>([])
@@ -36,12 +34,10 @@ export function Task15_1() {
   const [failMode, setFailMode] = useState(false)
   const logIdRef = useRef(0)
 
-  // TODO: Implement addLog(text, type):
-  // appends a new LogEntry to logs, auto-incrementing id via logIdRef
+  // TODO: Implement addLog(text, type): // добавляет LogEntry в logs, автоинкремент id через logIdRef
   // const addLog = (text: string, type: LogEntry['type'] = 'info') => { ... }
 
-  // TODO: Implement delay(ms):
-  // returns a Promise that resolves after ms milliseconds
+  // TODO: Implement delay(ms): // возвращает Promise, который разрешается через ms миллисекунд
   // const delay = (ms: number) => new Promise(res => setTimeout(res, ms))
 
   // TODO: Implement runScenario:
@@ -73,8 +69,7 @@ export function Task15_1() {
     // TODO: implement
   }
 
-  // TODO: Implement reset:
-  // setStep('idle'), setLogs([]), setDbRecords([]), setBrokerMessages([])
+  // TODO: Implement reset: // setStep('idle'), setLogs([]), setDbRecords([]), setBrokerMessages([])
   const reset = () => {
     // TODO: implement
   }
@@ -102,11 +97,13 @@ export function Task15_1() {
       </p>
 
       {/* TODO: Diagram block (background changes with step via stepColors[step]) */}
+      {/* Блок диаграммы (фон меняется с шагом через stepColors[step]) */}
       {/* Show Order Service box, two Write arrows: */}
       {/*   Write 1 → PostgreSQL (color changes by step) */}
       {/*   Write 2 → Kafka (color changes by step) */}
       {/* Checkmark ✓ or ✗ next to each node depending on step */}
       {/* At step 'done-fail': show a red inconsistency warning block */}
+      {/* На шаге 'done-fail': показать красное предупреждение о рассинхронизации */}
       <div style={{
         background: '#e2e8f0', // TODO: replace with stepColors[step]
         border: '1px solid #e2e8f0',
@@ -119,23 +116,33 @@ export function Task15_1() {
       </div>
 
       {/* TODO: Controls row */}
+      {/* Строка управления */}
       {/* Checkbox "Симулировать сбой брокера" bound to failMode */}
+      {/* Checkbox "Симулировать сбой брокера" привязан к failMode */}
       {/* Button "Создать заказ" — calls runScenario, disabled during execution */}
+      {/* Button "Создать заказ" — вызывает runScenario, отключён во время выполнения */}
       {/* Button "Сбросить" — calls reset */}
+      {/* Button "Сбросить" — вызывает reset */}
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '1rem' }}>
         {/* TODO: checkbox + buttons */}
       </div>
 
       {/* TODO: Two storage panels side by side */}
+      {/* Две панели хранилищ рядом */}
       {/* Left: PostgreSQL (orders) — blue theme, shows dbRecords or placeholder */}
+      {/* Лево: PostgreSQL (orders) — синяя тема, показывает dbRecords или заглушку */}
       {/* Right: Kafka (order-events) — purple theme, shows brokerMessages or placeholder */}
+      {/* Право: Kafka (order-events) — фиолетовая тема, показывает brokerMessages или заглушку */}
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
         {/* TODO: panels */}
       </div>
 
       {/* TODO: Event log — dark block, monospace */}
+      {/* Журнал событий — тёмный блок, моноширинный */}
       {/* Only render if logs.length > 0 */}
+      {/* Отображать только если logs.length > 0 */}
       {/* Each entry: color via logColors[entry.type], background via logBg[entry.type] */}
+      {/* Каждая запись: цвет через logColors[entry.type], фон через logBg[entry.type] */}
       {logs.length > 0 && (
         <div style={{
           background: '#1a202c',
@@ -151,6 +158,7 @@ export function Task15_1() {
       )}
 
       {/* TODO: Warning block when step === 'done-fail' */}
+      {/* Блок предупреждения при step === 'done-fail' */}
       {/* Content: "Проблема: без атомарности между DB и broker мы получаем data inconsistency.
           Email-сервис не отправит подтверждение, inventory не обновится.
           Решение — Transactional Outbox (задание 15.2)." */}

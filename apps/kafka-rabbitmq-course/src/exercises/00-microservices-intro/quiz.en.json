@@ -1,0 +1,662 @@
+[
+  {
+    "question": "Which statement best describes monolithic architecture?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Components are connected via a message queue",
+        "correct": false,
+        "explanation": "Message queue interaction is a characteristic of asynchronous microservices, not monoliths."
+      },
+      {
+        "text": "The application uses REST API for internal communication",
+        "correct": false,
+        "explanation": "Internal HTTP API communication is a sign of microservices. In a monolith, calls happen directly within the process."
+      },
+      {
+        "text": "Each module has its own database and deploys separately",
+        "correct": false,
+        "explanation": "This describes microservice architecture with the Database per Service pattern."
+      },
+      {
+        "text": "All application components are deployed and run as a single process",
+        "correct": true,
+        "explanation": "A monolith is an architecture where all application code is compiled and deployed as a single artifact. All modules run within one process."
+      }
+    ]
+  },
+  {
+    "question": "What is Conway's Law?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Microservice performance depends on the number of services in the system",
+        "correct": false,
+        "explanation": "Conway's Law is about organizational structure, not performance."
+      },
+      {
+        "text": "System complexity is always proportional to the number of developers",
+        "correct": false,
+        "explanation": "This is not Conway's Law. Such a relationship exists but is described by other principles (e.g., Brooks's Law)."
+      },
+      {
+        "text": "Each service should have one responsible owner",
+        "correct": false,
+        "explanation": "This is a good practice (you build it, you run it), but not the formulation of Conway's Law."
+      },
+      {
+        "text": "Communication structures of systems mirror the communication structures of the organizations that create them",
+        "correct": true,
+        "explanation": "Melvin Conway formulated: the architecture of a system inevitably mirrors the communication structure of the team. That's why microservices work well where there are independent teams."
+      }
+    ]
+  },
+  {
+    "question": "What is a Bounded Context in the context of Domain-Driven Design?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An explicit boundary within which a particular domain model applies and makes sense",
+        "correct": true,
+        "explanation": "Bounded Context is one of the key DDD patterns. It defines clear boundaries within which the domain model is consistent. One of the main guides when slicing microservices."
+      },
+      {
+        "text": "A limit on the number of requests to a service per unit of time",
+        "correct": false,
+        "explanation": "This is the definition of rate limiting, not Bounded Context."
+      },
+      {
+        "text": "A set of tests covering an isolated part of the system",
+        "correct": false,
+        "explanation": "Testing isolated parts refers to unit tests or integration tests, not Bounded Context."
+      },
+      {
+        "text": "A container with limited CPU and memory resources",
+        "correct": false,
+        "explanation": "Resource limits is a term from the container world (Docker/Kubernetes), not from DDD."
+      }
+    ]
+  },
+  {
+    "question": "The CAP theorem states that a distributed system cannot simultaneously guarantee all three properties. What are these properties?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Caching, Authentication, Performance",
+        "correct": false,
+        "explanation": "These concepts relate to system design but are not part of the CAP theorem."
+      },
+      {
+        "text": "Consistency, Auditability, Portability",
+        "correct": false,
+        "explanation": "Auditability and Portability are not part of the CAP theorem."
+      },
+      {
+        "text": "Consistency, Availability, Partition Tolerance",
+        "correct": true,
+        "explanation": "CAP = Consistency, Availability, Partition Tolerance. Brewer's theorem states: only two of the three can be guaranteed."
+      },
+      {
+        "text": "Concurrency, Atomicity, Persistence",
+        "correct": false,
+        "explanation": "These are ACID properties for transactional databases, not the CAP theorem."
+      }
+    ]
+  },
+  {
+    "question": "When is monolithic architecture preferable over microservices?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A special license is required",
+        "correct": false,
+        "explanation": "All listed technologies have open-source versions."
+      },
+      {
+        "text": "The application domain is not yet established and changes actively",
+        "correct": true,
+        "explanation": "Blurred domain boundaries are the main argument against microservices. Incorrect slicing costs more than a monolith."
+      },
+      {
+        "text": "There is no established CI/CD and monitoring infrastructure",
+        "correct": true,
+        "explanation": "Microservices require mature infrastructure: orchestration, observability, service discovery. Without it, their complexity is unmanageable."
+      },
+      {
+        "text": "Different parts of the system have drastically different loads",
+        "correct": false,
+        "explanation": "Different component loads are an argument for microservices, since you can scale only the needed parts."
+      },
+      {
+        "text": "The team consists of 3 developers building an MVP",
+        "correct": true,
+        "explanation": "For a small team, a monolith provides development speed without the overhead of managing multiple services."
+      }
+    ]
+  },
+  {
+    "question": "What does the 'Database per Service' pattern mean in microservice architecture?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Each request creates a temporary in-memory database",
+        "correct": false,
+        "explanation": "This approach is not related to the Database per Service pattern."
+      },
+      {
+        "text": "The database is replicated into every service to improve performance",
+        "correct": false,
+        "explanation": "Replicating the entire database to all services is not the same as each service having its own independent database."
+      },
+      {
+        "text": "One shared database instance is used by all services",
+        "correct": false,
+        "explanation": "This is the Shared Database anti-pattern. It creates tight coupling and makes independent deployment practically impossible."
+      },
+      {
+        "text": "Each microservice has its own data store, not directly accessible by other services",
+        "correct": true,
+        "explanation": "Database per Service ensures loose coupling: services cannot directly read each other's data, allowing independent schema and storage technology changes."
+      }
+    ]
+  },
+  {
+    "question": "What is 'blast radius' in the context of microservice architecture?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The size of a service's Docker image",
+        "correct": false,
+        "explanation": "Image size has nothing to do with blast radius."
+      },
+      {
+        "text": "The number of dependencies in package.json",
+        "correct": false,
+        "explanation": "Number of dependencies is a codebase metric, not blast radius."
+      },
+      {
+        "text": "The area of the system that will be affected by a single service failure",
+        "correct": true,
+        "explanation": "Blast radius is the impact zone during an incident. One of the goals of microservices is to reduce blast radius: the failure of one service should not bring down the entire system."
+      },
+      {
+        "text": "The maximum number of requests per second a service can handle",
+        "correct": false,
+        "explanation": "This describes throughput or capacity, not blast radius."
+      }
+    ]
+  },
+  {
+    "question": "What is a 'Shared Nothing' architecture?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A microservice without external dependencies",
+        "correct": false,
+        "explanation": "Complete absence of external dependencies is an unrealistic requirement. Shared Nothing is about infrastructure resource sharing, not dependencies."
+      },
+      {
+        "text": "A prohibition on code reuse between services",
+        "correct": false,
+        "explanation": "Shared Nothing refers to infrastructure resources (memory, disk, DB), not code reuse."
+      },
+      {
+        "text": "An architecture without caching",
+        "correct": false,
+        "explanation": "Shared Nothing does not forbid caching — each node simply manages its own cache independently."
+      },
+      {
+        "text": "An architecture where system nodes do not share memory, disk, or databases",
+        "correct": true,
+        "explanation": "Shared Nothing is a principle of complete isolation: each node is self-sufficient. This is the foundation of horizontal scaling and service independence."
+      }
+    ]
+  },
+  {
+    "question": "Which monolith problems typically become the main trigger for migrating to microservices?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Teams get in each other's way working on a shared codebase",
+        "correct": true,
+        "explanation": "Merge conflicts, difficulty of parallel work, and coordination overhead — serious monolith growth problems."
+      },
+      {
+        "text": "It's impossible to use version control systems",
+        "correct": false,
+        "explanation": "Git and other VCS work fine with monoliths. This is not an architecture problem."
+      },
+      {
+        "text": "This is only possible in cloud solutions",
+        "correct": false,
+        "explanation": "This works both in the cloud and on-premise."
+      },
+      {
+        "text": "Deploying one part requires deploying the entire application",
+        "correct": true,
+        "explanation": "Tight coupling in a monolith means any change requires a full deployment, slowing delivery and increasing risk."
+      },
+      {
+        "text": "It's hard to scale only the heavily loaded parts",
+        "correct": true,
+        "explanation": "In a monolith, the entire application scales, even if the load is concentrated in just one component."
+      }
+    ]
+  },
+  {
+    "question": "What is a 'Modular Monolith'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An application without external dependencies",
+        "correct": false,
+        "explanation": "Presence or absence of external dependencies does not define a modular monolith."
+      },
+      {
+        "text": "A monolith split into several folders in the file system",
+        "correct": false,
+        "explanation": "Physical separation into folders doesn't create real boundaries — modules can still access any code. Architectural isolation is needed."
+      },
+      {
+        "text": "A monolithic application with clear internal module boundaries but a single deployment",
+        "correct": true,
+        "explanation": "A modular monolith is a compromise: one deployable artifact, but modules are isolated by interfaces without direct access to each other's internals. A good step before migrating to microservices."
+      },
+      {
+        "text": "A microservice application bundled into a single Docker image",
+        "correct": false,
+        "explanation": "Bundling microservices into one image removes their main advantage — independent deployment. This is not a modular monolith."
+      }
+    ]
+  },
+  {
+    "question": "A team of 5 is building an e-commerce startup. The domain is not yet established, there's no DevOps engineer. Which architecture to choose?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Monolith or modular monolith — fast start, low overhead",
+        "correct": true,
+        "explanation": "Small team, unsettled domain, and no DevOps are classic signs that microservices will bring more pain than benefit. A monolith will allow faster progress."
+      },
+      {
+        "text": "Event-driven architecture with Kafka for all communications",
+        "correct": false,
+        "explanation": "Event-driven systems require mature infrastructure and experience with eventual consistency. Overkill for a startup."
+      },
+      {
+        "text": "Microservices — to build the right architecture from the start",
+        "correct": false,
+        "explanation": "The 'right' architecture depends on context. With an unsettled domain, microservices will lead to incorrect slicing that's expensive to redo."
+      },
+      {
+        "text": "Serverless — each function as a separate service",
+        "correct": false,
+        "explanation": "Serverless adds even more complexity: distributed transactions, cold starts, debugging. Suboptimal for a startup without DevOps."
+      }
+    ]
+  },
+  {
+    "question": "What is 'Service Granularity'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The number of lines of code in a service",
+        "correct": false,
+        "explanation": "LOC is a poor way to measure service boundaries. Granularity is determined by business capabilities and domains, not lines of code."
+      },
+      {
+        "text": "The frequency of requests to a service per second",
+        "correct": false,
+        "explanation": "This is RPS (requests per second) — a load metric, not granularity."
+      },
+      {
+        "text": "The size and scope of responsibility of an individual microservice",
+        "correct": true,
+        "explanation": "Granularity determines how 'coarse' or 'fine' services are. Too fine services (nanoservices) increase latency and complexity, too coarse — lose the benefits of microservices."
+      },
+      {
+        "text": "The accuracy of service performance measurement",
+        "correct": false,
+        "explanation": "Metric accuracy is about monitoring, not service granularity."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following statements about API Gateway are true?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "API Gateway eliminates all distributed system problems",
+        "correct": false,
+        "explanation": "API Gateway solves routing and cross-cutting concerns, but not data consistency, network failures, or distributed transactions."
+      },
+      {
+        "text": "API Gateway is a single entry point for clients into a microservice system",
+        "correct": true,
+        "explanation": "API Gateway aggregates external requests and routes them to the appropriate services, hiding the internal structure of the system."
+      },
+      {
+        "text": "API Gateway can become a single point of failure if fault tolerance is not ensured",
+        "correct": true,
+        "explanation": "This is a key risk: if the API Gateway goes down, all clients lose access to the system. It needs to be replicated and properly scaled."
+      },
+      {
+        "text": "API Gateway can perform authentication, rate limiting, and request transformation",
+        "correct": false,
+        "explanation": "Moving cross-cutting concerns (auth, logging, rate limiting) to the API Gateway avoids duplicating this logic in every service."
+      }
+    ]
+  },
+  {
+    "question": "What is the key difference between synchronous (REST/gRPC) and asynchronous (Message Queue) communication between services?",
+    "type": "single",
+    "options": [
+      {
+        "text": "REST can only be used between services of the same programming language",
+        "correct": false,
+        "explanation": "REST is an HTTP protocol that is language-agnostic. This is its main advantage for inter-service communication."
+      },
+      {
+        "text": "Asynchronous communication requires a direct connection between services",
+        "correct": false,
+        "explanation": "On the contrary: asynchronous communication via a message broker eliminates direct connections, providing temporal decoupling."
+      },
+      {
+        "text": "In synchronous communication, the sender waits for a response; in asynchronous — it sends a message and continues work",
+        "correct": true,
+        "explanation": "This is the fundamental difference. Asynchrony allows services to be temporarily unavailable without losing messages, but complicates error handling and tracing."
+      },
+      {
+        "text": "Synchronous communication is always faster than asynchronous",
+        "correct": false,
+        "explanation": "Asynchronous communication can be faster from the sender's latency perspective, since it doesn't wait for a response. But the overall processing delay may be higher."
+      }
+    ]
+  },
+  {
+    "question": "What is the 'Strangler Fig Pattern' when migrating from a monolith to microservices?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Removing deprecated APIs from the monolith without replacement",
+        "correct": false,
+        "explanation": "Strangler Fig is about replacing functionality, not removing it without replacement."
+      },
+      {
+        "text": "Gradual replacement of monolith parts with new services until the monolith withers away",
+        "correct": true,
+        "explanation": "The pattern is named after the strangler fig tree: new services grow around the monolith and intercept traffic. The monolith continues to operate until all functionality has been migrated."
+      },
+      {
+        "text": "Complete system shutdown and one-time rewrite of the entire system",
+        "correct": false,
+        "explanation": "This is a Big Bang rewrite — an extremely risky approach, the opposite of Strangler Fig. Most such projects fail."
+      },
+      {
+        "text": "Creating a proxy layer that caches requests to the monolith",
+        "correct": false,
+        "explanation": "A caching proxy is a different pattern. Strangler Fig targets gradual business logic replacement."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following characteristics apply to microservice architecture?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A single shared database for all services",
+        "correct": false,
+        "explanation": "Shared Database is an anti-pattern for microservices. It creates tight coupling and makes independent schema evolution impossible."
+      },
+      {
+        "text": "Increased operational complexity compared to a monolith",
+        "correct": false,
+        "explanation": "Service discovery, distributed tracing, eventual consistency, network failures — all are real complexities absent in monoliths."
+      },
+      {
+        "text": "Each service can use its own technology stack",
+        "correct": true,
+        "explanation": "Polyglot persistence and polyglot programming — services can be written in different languages and use different databases as needed."
+      },
+      {
+        "text": "Independent deployment of each service",
+        "correct": true,
+        "explanation": "Independent deployment is one of the key advantages of microservices. Teams can release changes without coordinating with other teams."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following is NOT an advantage of microservice architecture?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Independent scaling of components",
+        "correct": false,
+        "explanation": "This is a real advantage — you can scale only the loaded services without wasting resources on the rest."
+      },
+      {
+        "text": "Independent team release cycles",
+        "correct": false,
+        "explanation": "Independent releases are a key advantage, allowing teams to work autonomously without blocking."
+      },
+      {
+        "text": "Fault isolation",
+        "correct": false,
+        "explanation": "Fault isolation is a key advantage. The failure of one service doesn't bring down the entire system with proper circuit breaker implementation."
+      },
+      {
+        "text": "Simplicity of local development and debugging",
+        "correct": true,
+        "explanation": "This is actually a disadvantage: local development requires running many services. A monolith starts with one command and is easily debugged in one process."
+      }
+    ]
+  },
+  {
+    "question": "You are building an online store. The Payment service is down. With proper architecture, what should happen to the rest of the system?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Browsing and adding to cart continue working; checkout is temporarily unavailable",
+        "correct": true,
+        "explanation": "Graceful degradation: the system continues to operate in a limited mode. Functions depending on the failed service degrade, the rest continue working."
+      },
+      {
+        "text": "The system switches to a backup monolith",
+        "correct": false,
+        "explanation": "Having a backup monolith makes no sense in a microservice architecture. Fault tolerance is ensured at each service level individually."
+      },
+      {
+        "text": "The entire site becomes unavailable",
+        "correct": false,
+        "explanation": "If the entire site goes down with the payment service — it's a sign of missing fault isolation. The goal of microservices is to prevent such a scenario."
+      },
+      {
+        "text": "All services automatically restart",
+        "correct": false,
+        "explanation": "Restarting doesn't solve the problem: if a service is down due to an external dependency or overload, restarting the entire cluster will only make things worse."
+      }
+    ]
+  },
+  {
+    "question": "What is 'Eventual Consistency'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Data is always up-to-date and identical on all nodes at any given time",
+        "correct": false,
+        "explanation": "This is Strong Consistency. It is very difficult and expensive to ensure in distributed systems, especially during network partitions."
+      },
+      {
+        "text": "A consistency model where data will eventually become identical across all nodes but may temporarily diverge",
+        "correct": true,
+        "explanation": "Eventual Consistency is a compromise in distributed systems. Unlike Strong Consistency, different nodes may see different data at the same time but will eventually synchronize."
+      },
+      {
+        "text": "A guarantee that a transaction is either fully applied or rolled back",
+        "correct": false,
+        "explanation": "This is the Atomicity property from ACID, not Eventual Consistency."
+      },
+      {
+        "text": "Synchronous data replication between all nodes in the system",
+        "correct": false,
+        "explanation": "Synchronous replication ensures Strong Consistency but reduces performance and availability."
+      }
+    ]
+  },
+  {
+    "question": "Netflix has thousands of microservices. Which of the following tools are essential for such a system?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Service Discovery (e.g., Consul, Kubernetes DNS)",
+        "correct": true,
+        "explanation": "Dynamic environment: service IP addresses constantly change. Service Discovery allows services to find each other without hardcoded addresses."
+      },
+      {
+        "text": "Circuit Breaker (e.g., Hystrix, Resilience4j)",
+        "correct": true,
+        "explanation": "Circuit Breaker prevents cascade failures: if a service is unavailable, requests to it stop until recovery, instead of queuing up."
+      },
+      {
+        "text": "A single centralized logger with shared filesystem",
+        "correct": false,
+        "explanation": "Shared filesystem doesn't scale well. Distributed systems use centralized log collection via Kafka, ELK, or Loki, but not shared filesystem."
+      },
+      {
+        "text": "Distributed Tracing (e.g., Jaeger, Zipkin)",
+        "correct": true,
+        "explanation": "With thousands of services, understanding the request path without distributed tracing is impossible. Each request goes through dozens of services, and you need to see the full chain."
+      }
+    ]
+  },
+  {
+    "question": "What is 'Two-Phase Commit' (2PC) and why is it avoided in microservices?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A load balancing algorithm between two instances",
+        "correct": false,
+        "explanation": "Load balancing is not related to Two-Phase Commit."
+      },
+      {
+        "text": "A method of data replication between two databases",
+        "correct": false,
+        "explanation": "2PC is a transaction coordination protocol, not data replication."
+      },
+      {
+        "text": "A deployment pattern where the release happens in two stages",
+        "correct": false,
+        "explanation": "Two-stage deployment is blue-green deployment or canary release, not Two-Phase Commit."
+      },
+      {
+        "text": "A distributed transaction protocol that creates prolonged locks and reduces system availability",
+        "correct": true,
+        "explanation": "2PC requires all transaction participants to lock resources until confirmation from the coordinator. In a distributed system, this creates latency, deadlock risks, and reduces availability."
+      }
+    ]
+  },
+  {
+    "question": "The Saga pattern offers an alternative to 2PC for distributed transactions. How does it work?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Stores all data in one database to ensure ACID",
+        "correct": false,
+        "explanation": "This describes a shared database — the anti-pattern Saga is designed to avoid."
+      },
+      {
+        "text": "Breaks a long transaction into a sequence of local transactions with compensating actions on error",
+        "correct": true,
+        "explanation": "Saga doesn't use global locking. Each step is a local transaction. On error, compensating transactions execute (rollback through business logic), not a technical rollback."
+      },
+      {
+        "text": "Executes all operations in parallel and takes the first successful result",
+        "correct": false,
+        "explanation": "Parallel execution with the first result is the race pattern, not Saga."
+      },
+      {
+        "text": "Uses a coordinator to lock resources of all participants",
+        "correct": false,
+        "explanation": "This describes 2PC. Saga specifically avoids global locks."
+      }
+    ]
+  },
+  {
+    "question": "You've been tasked to 'decompose a monolith into microservices.' Which approach is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Split by database tables — each table = one service",
+        "correct": false,
+        "explanation": "Table-based splitting creates too fine, technically motivated services without considering business meaning. This leads to distributed joins and complex dependencies."
+      },
+      {
+        "text": "Identify Bounded Contexts through domain analysis, start with the least coupled parts",
+        "correct": true,
+        "explanation": "Domain-driven decomposition is the most reliable approach. Bounded Contexts give natural service boundaries. Starting with the least coupled parts reduces risk and allows building experience."
+      },
+      {
+        "text": "Rewrite everything from scratch while maintaining the monolith",
+        "correct": false,
+        "explanation": "This is the Big Bang rewrite — a risky approach. You need to keep two systems in sync for years. Most such projects fail."
+      },
+      {
+        "text": "Split by number of developers — each developer owns one service",
+        "correct": false,
+        "explanation": "People-oriented decomposition doesn't consider business domains and creates arbitrary boundaries. One person can own multiple services."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following is a typical mistake when migrating to microservices?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Using message queues for asynchronous events",
+        "correct": false,
+        "explanation": "This is correct practice for asynchronous interaction. Queues provide temporal decoupling and buffering during peak loads."
+      },
+      {
+        "text": "Services interact only through a public API",
+        "correct": false,
+        "explanation": "This is the right approach. Interaction through a public contract allows independent evolution of the internal implementation."
+      },
+      {
+        "text": "Synchronous calls in long chains (service A → B → C → D)",
+        "correct": true,
+        "explanation": "Long synchronous chains add up the latency of each call and multiply the probability of failure. If any service in the chain is unavailable — the entire request fails."
+      },
+      {
+        "text": "Creating services that directly read from other services' databases",
+        "correct": true,
+        "explanation": "This violates Database per Service and creates tight coupling. When one service changes its schema, all direct readers break."
+      }
+    ]
+  },
+  {
+    "question": "How does the 'one business capability = one service' rule help define microservice boundaries?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A business capability is determined by the number of users accessing the service",
+        "correct": false,
+        "explanation": "User count is a load metric for scaling, not a criterion for determining business capability."
+      },
+      {
+        "text": "A business capability is what the business does, not how. It's a natural, stable boundary for a service",
+        "correct": true,
+        "explanation": "Business capabilities change more slowly than implementation. 'Order management', 'payment processing' — stable concepts. Slicing by them gives long-term stable boundaries."
+      },
+      {
+        "text": "One business capability always corresponds to one database table",
+        "correct": false,
+        "explanation": "A business capability may span many tables. Table-based slicing is a technically motivated, not domain, approach."
+      },
+      {
+        "text": "This rule means each service should have exactly one REST endpoint",
+        "correct": false,
+        "explanation": "One endpoint per service is too fine granularity. An 'order management' service will have dozens of endpoints."
+      }
+    ]
+  }
+]

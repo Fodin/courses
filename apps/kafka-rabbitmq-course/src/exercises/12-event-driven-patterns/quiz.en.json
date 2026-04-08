@@ -1,0 +1,657 @@
+[
+  {
+    "question": "What is the source of truth in Event Sourcing?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Redis cache with the latest snapshot",
+        "correct": false,
+        "explanation": "Cache is a supporting tool for performance, not the source of truth."
+      },
+      {
+        "text": "Application configuration file",
+        "correct": false,
+        "explanation": "Configuration is not related to Event Sourcing."
+      },
+      {
+        "text": "Immutable sequence of events in an Event Store",
+        "correct": true,
+        "explanation": "The single source of truth is the event log. Current state is computed by replay."
+      },
+      {
+        "text": "Table with current object state in a relational database",
+        "correct": false,
+        "explanation": "In Event Sourcing, state is not stored directly — this contradicts the pattern."
+      }
+    ]
+  },
+  {
+    "question": "What happens during replay in Event Sourcing?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The current aggregate state is loaded from a backup",
+        "correct": false,
+        "explanation": "Backup is not an Event Sourcing mechanism."
+      },
+      {
+        "text": "Events are sequentially applied to the initial state to reconstruct the aggregate",
+        "correct": true,
+        "explanation": "Replay is applying a reducer function to each event in order: state = events.reduce(applyEvent, initialState)."
+      },
+      {
+        "text": "All subscribers receive event notifications again",
+        "correct": false,
+        "explanation": "This describes event re-delivery, not aggregate state replay."
+      },
+      {
+        "text": "All events are deleted and written again",
+        "correct": false,
+        "explanation": "Events are immutable and never deleted — this is a fundamental principle."
+      }
+    ]
+  },
+  {
+    "question": "Why are snapshots needed in Event Sourcing?",
+    "type": "single",
+    "options": [
+      {
+        "text": "To store events in compressed form",
+        "correct": false,
+        "explanation": "A snapshot stores aggregate state, not compressed events."
+      },
+      {
+        "text": "To store state instead of events",
+        "correct": false,
+        "explanation": "Snapshots complement events but do not replace them — the event log is preserved."
+      },
+      {
+        "text": "To speed up replay when an aggregate has a large number of events",
+        "correct": true,
+        "explanation": "A snapshot saves state at a certain version. Instead of replaying 10,000 events — load the snapshot and replay only events after it."
+      },
+      {
+        "text": "For database backup",
+        "correct": false,
+        "explanation": "Snapshots in Event Sourcing are a performance optimization, not a backup mechanism."
+      }
+    ]
+  },
+  {
+    "question": "What is event upcasting in Event Sourcing?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Moving events from one stream to another",
+        "correct": false,
+        "explanation": "Moving events is a different operation, unrelated to upcasting."
+      },
+      {
+        "text": "Generating new events based on existing ones",
+        "correct": false,
+        "explanation": "This describes event enrichment or event derivation, not upcasting."
+      },
+      {
+        "text": "Increasing event priority in a queue",
+        "correct": false,
+        "explanation": "Upcasting is not related to queue priorities."
+      },
+      {
+        "text": "Transforming events from old versions to a new version format at read time",
+        "correct": true,
+        "explanation": "Since events are immutable, when the schema changes, old events must be transformed on the fly. An upcaster receives a v1 event and returns a v2 with the new structure."
+      }
+    ]
+  },
+  {
+    "question": "What is the key difference between CQRS and regular CRUD?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CQRS requires asynchronous processing of all operations",
+        "correct": false,
+        "explanation": "Commands in CQRS can be processed synchronously or asynchronously."
+      },
+      {
+        "text": "CQRS uses only NoSQL databases",
+        "correct": false,
+        "explanation": "CQRS is not tied to a storage type — both relational and NoSQL databases can be used."
+      },
+      {
+        "text": "CQRS prohibits direct database access",
+        "correct": false,
+        "explanation": "CQRS does not prohibit direct DB access; it defines a separation of responsibilities."
+      },
+      {
+        "text": "Data modification commands and read queries use different models and potentially different storage",
+        "correct": true,
+        "explanation": "CQRS separates write side (commands → events → write store) and read side (projections → optimized read models). This allows each side to be scaled and optimized independently."
+      }
+    ]
+  },
+  {
+    "question": "What is a projection in the context of CQRS?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A SQL VIEW in a relational database",
+        "correct": false,
+        "explanation": "A SQL VIEW is a special case, but in CQRS a projection is a broader concept."
+      },
+      {
+        "text": "A snapshot of an aggregate's state at a specific point in time",
+        "correct": false,
+        "explanation": "A state snapshot is a snapshot, not a projection."
+      },
+      {
+        "text": "A command input validation function",
+        "correct": false,
+        "explanation": "Command validation occurs on the write side, not in projections."
+      },
+      {
+        "text": "A read model built by subscribing to events and updating a denormalized store",
+        "correct": true,
+        "explanation": "A projection is the process and result of transforming events into an optimized read model. Different projections from the same events can create different views for different use cases."
+      }
+    ]
+  },
+  {
+    "question": "Why is the read side in CQRS \"eventually consistent\"?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Because commands do not return a result",
+        "correct": false,
+        "explanation": "Commands may return a result — this is not related to eventual consistency on the read side."
+      },
+      {
+        "text": "Due to client-side caching",
+        "correct": false,
+        "explanation": "Client cache may amplify delay, but is not the cause of eventual consistency in CQRS."
+      },
+      {
+        "text": "Due to the use of NoSQL databases",
+        "correct": false,
+        "explanation": "Eventual consistency in CQRS does not depend on the read side storage type."
+      },
+      {
+        "text": "Because projections are updated asynchronously after the event is written, creating a temporary delay",
+        "correct": true,
+        "explanation": "After a command is accepted and the event is saved, projections update asynchronously. A client reading data immediately after a write may receive stale data — this is normal for CQRS."
+      }
+    ]
+  },
+  {
+    "question": "How does a domain event differ from an integration event?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Integration events have a more stable schema and versioning",
+        "correct": true,
+        "explanation": "Since integration events are contracts between systems, their versioning and backward compatibility are more important than for internal domain events."
+      },
+      {
+        "text": "A domain event describes something significant within a bounded context; an integration event is for communication between contexts",
+        "correct": true,
+        "explanation": "The key distinction: domain events are internal facts, integration events are contracts between systems with a more stable schema."
+      },
+      {
+        "text": "Domain events are always stored in an Event Store",
+        "correct": false,
+        "explanation": "Domain events can be used without Event Sourcing — for example, to publish changes to in-app subscribers."
+      },
+      {
+        "text": "Domain events are never published to a message broker",
+        "correct": false,
+        "explanation": "Domain events can be published to a broker via the outbox pattern so other bounded contexts can react."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between \"Event Notification\" and \"Event-Carried State Transfer\"?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Event Notification is intended only for internal use within a service",
+        "correct": false,
+        "explanation": "Event Notification can be used both within and between services."
+      },
+      {
+        "text": "Event Notification has no payload",
+        "correct": false,
+        "explanation": "Event Notification contains a minimal payload (an identifier), but not the full object state."
+      },
+      {
+        "text": "Event-Carried State Transfer always requires Event Sourcing",
+        "correct": false,
+        "explanation": "ECST is a standalone pattern that does not depend on Event Sourcing."
+      },
+      {
+        "text": "Event Notification contains only minimal data (the fact of change), the receiver fetches details itself; Event-Carried State Transfer includes all necessary data in the event",
+        "correct": true,
+        "explanation": "Event Notification: \"Order 123 changed\" — the receiver calls an API for details. ECST: \"Order 123 changed, here are all its fields\" — the receiver makes no additional requests."
+      }
+    ]
+  },
+  {
+    "question": "What advantages does choreography offer over orchestration?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "No single point of failure — no central coordinator",
+        "correct": true,
+        "explanation": "Without an orchestrator, the failure of one service does not paralyze the entire coordination system."
+      },
+      {
+        "text": "Easier to debug distributed transactions",
+        "correct": false,
+        "explanation": "On the contrary, choreography is harder to debug — the event flow is distributed across multiple services and not visible from a single point."
+      },
+      {
+        "text": "It depends exclusively on the programming language",
+        "correct": false,
+        "explanation": "This is an architectural decision, not dependent on the language."
+      },
+      {
+        "text": "High service autonomy — each makes decisions independently",
+        "correct": true,
+        "explanation": "In choreography, services listen to events and decide how to react on their own. There is no central component that needs to know about all participants."
+      },
+      {
+        "text": "Loose coupling — services do not know about each other, only about events",
+        "correct": true,
+        "explanation": "In ideal choreography, a service knows only about event types, not about specific source services. A new service can be added simply by subscribing it to the relevant events."
+      }
+    ]
+  },
+  {
+    "question": "What advantages does orchestration offer over choreography?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Scales better with a large number of participants",
+        "correct": false,
+        "explanation": "With many participants, the orchestrator becomes a bottleneck. Choreography scales better through decentralization."
+      },
+      {
+        "text": "Easier to implement compensating transactions (rollback)",
+        "correct": true,
+        "explanation": "The orchestrator sees the full saga progress and can sequentially invoke compensating actions on failure at any step."
+      },
+      {
+        "text": "Lower coupling between services",
+        "correct": false,
+        "explanation": "In orchestration, the orchestrator knows about all saga participants, creating tighter coupling than in choreography."
+      },
+      {
+        "text": "Transparent control flow — business process logic is concentrated in one place",
+        "correct": true,
+        "explanation": "The orchestrator contains the complete saga picture: which steps, in what order, what compensations on error. This simplifies understanding and debugging."
+      }
+    ]
+  },
+  {
+    "question": "What is Event Storming?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A pattern for handling event spikes (event storms) in Kafka",
+        "correct": false,
+        "explanation": "\"Event storm\" as a traffic spike is different. Brandolini's Event Storming is a DDD methodology."
+      },
+      {
+        "text": "A workshop for collaborative domain exploration by identifying domain events on sticky notes",
+        "correct": true,
+        "explanation": "Event Storming was created by Alberto Brandolini. Developers and business experts collaboratively write events on orange sticky notes, commands on blue, aggregates on yellow, to identify bounded context boundaries."
+      },
+      {
+        "text": "A tool for visualizing Apache Storm topology",
+        "correct": false,
+        "explanation": "Apache Storm is a stream processing system unrelated to Event Storming."
+      },
+      {
+        "text": "A load testing technique for messaging systems",
+        "correct": false,
+        "explanation": "Event Storming is not testing — it is a collaborative modeling technique."
+      }
+    ]
+  },
+  {
+    "question": "What color sticky note is used for domain events in classic Event Storming?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Red",
+        "correct": false,
+        "explanation": "A red sticky often marks a hotspot — a contentious or unclear point in the model."
+      },
+      {
+        "text": "Orange",
+        "correct": true,
+        "explanation": "Orange is the standard color for domain events in Event Storming. Events are named in past tense: OrderPlaced, PaymentProcessed."
+      },
+      {
+        "text": "Blue",
+        "correct": false,
+        "explanation": "Blue sticky notes are traditionally used for commands."
+      },
+      {
+        "text": "Yellow",
+        "correct": false,
+        "explanation": "Yellow is used for aggregates or actors/users."
+      }
+    ]
+  },
+  {
+    "question": "You have an aggregate with 50,000 events. Loading takes 8 seconds. What is the correct solution?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Store current state in a separate table instead of events",
+        "correct": false,
+        "explanation": "This abandons Event Sourcing, losing all history and replay capability."
+      },
+      {
+        "text": "Cache the aggregate in Redis indefinitely",
+        "correct": false,
+        "explanation": "An indefinite cache without invalidation will lead to stale data. This does not solve the loading problem."
+      },
+      {
+        "text": "Delete events older than 1 year",
+        "correct": false,
+        "explanation": "Deleting events violates immutability and removes the ability for full audit."
+      },
+      {
+        "text": "Create a snapshot every N events and load only events after it",
+        "correct": true,
+        "explanation": "Snapshot + partial replay is the standard solution. Instead of 50,000 events, load a snapshot at version 49,000 + the last 1,000 events."
+      }
+    ]
+  },
+  {
+    "question": "In CQRS, a command is...",
+    "type": "single",
+    "options": [
+      {
+        "text": "An HTTP request to a microservice",
+        "correct": false,
+        "explanation": "HTTP request is transport. A command is a business-logic-level concept."
+      },
+      {
+        "text": "An event that has already occurred in the system",
+        "correct": false,
+        "explanation": "An event records a fact, a command expresses an intent (a request). A command precedes an event."
+      },
+      {
+        "text": "A SQL SELECT query to retrieve data",
+        "correct": false,
+        "explanation": "SELECT is a query, not a command."
+      },
+      {
+        "text": "An intent to change system state that may be rejected",
+        "correct": true,
+        "explanation": "A command expresses intent: \"Create order\", \"Pay\". It may be rejected if business rules are violated. Unlike a query, a command does not return data (or returns only confirmation)."
+      }
+    ]
+  },
+  {
+    "question": "Why is Event Sourcing convenient for auditing?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Every state change is recorded as an immutable event with metadata — who, when, and what changed",
+        "correct": true,
+        "explanation": "An Event Store is the complete history of all changes. Unlike CRUD, where UPDATE overwrites data, Event Sourcing shows every intermediate state."
+      },
+      {
+        "text": "Events are compressed to save space",
+        "correct": false,
+        "explanation": "Compression is a technical storage detail unrelated to auditing."
+      },
+      {
+        "text": "All events are digitally signed",
+        "correct": false,
+        "explanation": "Digital signatures are an optional capability, not a required attribute of Event Sourcing."
+      },
+      {
+        "text": "State is stored simultaneously across multiple replicas",
+        "correct": false,
+        "explanation": "Replication ensures reliability but not auditing."
+      }
+    ]
+  },
+  {
+    "question": "What happens if you change the schema of an OrderPaid event and try to replay old events?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An upcaster is needed to transform old events to the new schema at read time",
+        "correct": true,
+        "explanation": "An upcaster is an adapter function called when reading outdated event versions. It transforms the old structure into the current one without modifying stored data."
+      },
+      {
+        "text": "Old events are automatically updated to the new schema",
+        "correct": false,
+        "explanation": "Events are immutable — they do not auto-update. This is a fundamental principle of Event Sourcing."
+      },
+      {
+        "text": "The system throws an exception and stops",
+        "correct": false,
+        "explanation": "A properly designed system with upcasters handles old events correctly."
+      },
+      {
+        "text": "Old events can be deleted since they are outdated",
+        "correct": false,
+        "explanation": "Deleting events destroys history and contradicts Event Sourcing principles."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following statements about Event Sourcing are true?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Allows reproducing the system state at any point in the past",
+        "correct": true,
+        "explanation": "Time travel debugging is one of the key capabilities. Events can be replayed to any version to examine the state at that moment."
+      },
+      {
+        "text": "Allows creating new projections from historical data after the fact",
+        "correct": true,
+        "explanation": "If you add a new read model, you can replay all historical events and build a new projection from scratch — without data loss."
+      },
+      {
+        "text": "Is perfectly suited for any type of data without exceptions",
+        "correct": false,
+        "explanation": "Event Sourcing is poorly suited for data with frequent small changes (e.g., metrics) or for simple CRUD systems without business logic."
+      },
+      {
+        "text": "Provides a natural audit log without additional effort",
+        "correct": true,
+        "explanation": "The Event Store is inherently a complete change history. Auditing is free — it is built into the architecture itself."
+      }
+    ]
+  },
+  {
+    "question": "In choreography, a failure occurred at the \"Warehouse deduction\" step after successful payment. How to implement compensation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A central coordinator calls the rollback API of each service",
+        "correct": false,
+        "explanation": "A central coordinator is orchestration, not choreography."
+      },
+      {
+        "text": "Compensation is impossible in choreography",
+        "correct": false,
+        "explanation": "Compensation is possible but requires careful design of event chains."
+      },
+      {
+        "text": "Inventory Service publishes a StockReservationFailed event, Payment Service subscribes and initiates a refund",
+        "correct": true,
+        "explanation": "In choreography, compensation is implemented via a reactive event chain: each service subscribes to failure events and publishes compensating actions. This works but can lead to complex dependencies."
+      },
+      {
+        "text": "Send a direct HTTP request to Payment Service to cancel the payment",
+        "correct": false,
+        "explanation": "Direct synchronous calls between services violate choreography decentralization."
+      }
+    ]
+  },
+  {
+    "question": "A materialized view in CQRS is...",
+    "type": "single",
+    "options": [
+      {
+        "text": "An aggregate snapshot in Event Sourcing",
+        "correct": false,
+        "explanation": "A snapshot is a replay optimization in Event Sourcing, while a materialized view is a read model in CQRS."
+      },
+      {
+        "text": "A pre-computed and saved data projection, updated when new events arrive",
+        "correct": true,
+        "explanation": "A materialized view stores the result of computations to avoid repeating them on each read. In CQRS, this is a read model updated by an event subscriber."
+      },
+      {
+        "text": "A temporary result of a SQL SELECT query in memory",
+        "correct": false,
+        "explanation": "This describes a regular result set, not a materialized view."
+      },
+      {
+        "text": "A copy of write store data for backup purposes",
+        "correct": false,
+        "explanation": "A backup is not a read model. A materialized view is optimized for a specific read scenario."
+      }
+    ]
+  },
+  {
+    "question": "Your team is implementing Event Sourcing for an internet banking system. Which aspects require special attention?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "GDPR / right to erasure when storing immutable events",
+        "correct": true,
+        "explanation": "If events contain personal data and a user requests deletion — this conflicts with immutability. Solutions: crypto-shredding, storing PII separately with a reference."
+      },
+      {
+        "text": "Optimization of JOIN queries between tables",
+        "correct": false,
+        "explanation": "Event Sourcing has no JOIN queries to the main store. Read models are denormalized."
+      },
+      {
+        "text": "Event schema versioning and upcasting strategy",
+        "correct": true,
+        "explanation": "A financial system stores events for years. Schemas will change — a clear upcasting strategy for backward compatibility is needed."
+      },
+      {
+        "text": "Snapshot strategy for aggregates with a long history of operations",
+        "correct": true,
+        "explanation": "An account may have thousands of transactions. Without snapshots, balance loading will be slow."
+      }
+    ]
+  },
+  {
+    "question": "Why is orchestration the preferred choice for a Saga with compensations?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Orchestration does not require confirmations from services",
+        "correct": false,
+        "explanation": "The orchestrator awaits responses from services — this is the basis of its operation."
+      },
+      {
+        "text": "Compensations are physically impossible in choreography",
+        "correct": false,
+        "explanation": "Compensations in choreography are achievable via failure events, just more complex."
+      },
+      {
+        "text": "The orchestrator has the full saga dependency graph and can sequentially cancel completed steps on failure",
+        "correct": true,
+        "explanation": "The orchestrator knows the status of each step. On failure at step N, it can invoke compensating actions for steps N-1, N-2... in the correct order. Choreography lacks this centralized control."
+      },
+      {
+        "text": "The orchestrator atomically rolls back all operations with a transaction",
+        "correct": false,
+        "explanation": "A Saga is not an atomic transaction. The orchestrator invokes compensating business operations sequentially."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following patterns are related to Event-Driven Architecture (EDA)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "CQRS",
+        "correct": true,
+        "explanation": "CQRS is often used together with Event Sourcing and is part of the EDA ecosystem."
+      },
+      {
+        "text": "Saga (Choreography / Orchestration)",
+        "correct": true,
+        "explanation": "Saga is a pattern for managing distributed transactions via events or an orchestrator, and is part of EDA."
+      },
+      {
+        "text": "Event Sourcing",
+        "correct": true,
+        "explanation": "Event Sourcing — storing state as a sequence of events — is a key EDA pattern."
+      },
+      {
+        "text": "Active Record",
+        "correct": false,
+        "explanation": "Active Record is an ORM pattern for database access, not related to EDA."
+      }
+    ]
+  },
+  {
+    "question": "What is \"idempotency\" of an event handler and why is it important?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A handler with no side effects",
+        "correct": false,
+        "explanation": "Event handlers typically do have side effects (DB updates). Idempotency means safe re-execution, not absence of effects."
+      },
+      {
+        "text": "A handler whose repeated processing with the same event does not change the final system state",
+        "correct": true,
+        "explanation": "In distributed systems, events may be delivered multiple times (at-least-once delivery). An idempotent handler safely accepts duplicates — usually by storing IDs of processed events."
+      },
+      {
+        "text": "A handler that processes only one event at a time",
+        "correct": false,
+        "explanation": "This describes sequential processing, not idempotency."
+      },
+      {
+        "text": "A handler that returns the same result regardless of event order",
+        "correct": false,
+        "explanation": "This describes commutativity, not idempotency."
+      }
+    ]
+  },
+  {
+    "question": "A team is choosing between choreography and orchestration for an order processing flow with 7 steps, including payment, stock reservation, and shipping. Which approach to choose and why?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Choreography — less code, the services will figure it out themselves",
+        "correct": false,
+        "explanation": "With 7 steps and compensations, choreography would create a spaghetti of events. \"They will figure it out\" is not an architectural argument."
+      },
+      {
+        "text": "Wrap each step in a synchronous HTTP call",
+        "correct": false,
+        "explanation": "A synchronous chain of 7 HTTP calls creates cascading failures and scales poorly."
+      },
+      {
+        "text": "Orchestration via Saga — the process requires managed compensations and progress visibility",
+        "correct": true,
+        "explanation": "7 steps with payment require clear rollback logic (if shipping is unavailable — refund). The orchestrator provides a single source of truth about saga status and simplifies failure diagnostics."
+      },
+      {
+        "text": "Use 2PC (two-phase commit) for atomicity",
+        "correct": false,
+        "explanation": "2PC does not work across independent microservices with different databases — it is an anti-pattern for distributed systems."
+      }
+    ]
+  }
+]

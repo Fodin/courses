@@ -1,0 +1,677 @@
+[
+  {
+    "question": "What is a Virtual Host (vhost) in RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A logical namespace that isolates exchanges, queues, and bindings",
+        "correct": true,
+        "explanation": "A vhost provides complete isolation: exchanges, queues, and bindings from different vhosts cannot see each other even within the same broker."
+      },
+      {
+        "text": "A separate broker server running in Docker",
+        "correct": false,
+        "explanation": "A vhost is logical isolation within a single broker, not a separate server."
+      },
+      {
+        "text": "A virtual machine on which RabbitMQ runs",
+        "correct": false,
+        "explanation": "A vhost is a concept within RabbitMQ, unrelated to infrastructure virtualization."
+      },
+      {
+        "text": "An exchange type that routes messages by destination host",
+        "correct": false,
+        "explanation": "A vhost is not an exchange type. Exchange types are: direct, fanout, topic, headers."
+      }
+    ]
+  },
+  {
+    "question": "What is the key difference between Connection and Channel in AMQP?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Connection is a physical TCP connection, Channel is a virtual connection within it",
+        "correct": true,
+        "explanation": "One Connection = one TCP socket. Within it, you can open multiple Channels for multiplexing operations without TCP overhead."
+      },
+      {
+        "text": "Connection is used for publish, Channel is used for consume",
+        "correct": false,
+        "explanation": "Both publish and consume are performed through Channels, not directly through Connection."
+      },
+      {
+        "text": "Connection and Channel are the same thing, just different terms",
+        "correct": false,
+        "explanation": "These are different concepts with different responsibilities."
+      },
+      {
+        "text": "Connection is logical, Channel is a physical TCP connection",
+        "correct": false,
+        "explanation": "It's the other way around: Connection is a physical TCP socket, Channel is a virtual logical connection within it."
+      }
+    ]
+  },
+  {
+    "question": "What happens when a Channel closes with an error?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The broker automatically creates a new Channel to replace the closed one",
+        "correct": false,
+        "explanation": "The broker does not create Channels on its own. The client must explicitly open a new Channel."
+      },
+      {
+        "text": "The Channel closes, the Connection remains open",
+        "correct": true,
+        "explanation": "Error isolation is one of the main advantages of Channels. When a Channel errors (e.g., publish to a non-existent exchange), the Connection stays alive."
+      },
+      {
+        "text": "All messages being processed through that Channel are automatically NACKed",
+        "correct": false,
+        "explanation": "When a Channel closes, unacknowledged messages are returned to the queue by the broker, but this is not called 'automatic NACK'."
+      },
+      {
+        "text": "The entire Connection and all other Channels are closed",
+        "correct": false,
+        "explanation": "A Channel error does not affect the Connection. This is the key advantage of multiplexing."
+      }
+    ]
+  },
+  {
+    "question": "What is a Binding in AMQP?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A queue parameter that limits the number of messages",
+        "correct": false,
+        "explanation": "Message count limits are set via x-max-length — a queue argument, not a Binding."
+      },
+      {
+        "text": "A consumer subscription to a queue",
+        "correct": false,
+        "explanation": "Consumer subscription is basic.consume. A Binding is a relationship between an exchange and a queue, not between a consumer and a queue."
+      },
+      {
+        "text": "A routing rule linking an Exchange to a Queue via a binding key",
+        "correct": true,
+        "explanation": "A Binding determines where an exchange should route a message. The exchange matches the message's routing key with the binding key to select target queues."
+      },
+      {
+        "text": "A physical TCP connection between producer and broker",
+        "correct": false,
+        "explanation": "A physical connection is the Connection. Binding is a logical routing concept."
+      }
+    ]
+  },
+  {
+    "question": "A fanout exchange receives a message with routing_key='orders.new'. How will it route it?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only to queues whose binding key matches 'orders.new'",
+        "correct": false,
+        "explanation": "Fanout completely ignores the routing key and binding key."
+      },
+      {
+        "text": "It will reject the message — fanout does not accept messages with routing keys",
+        "correct": false,
+        "explanation": "Fanout accepts any messages but ignores the routing key during routing."
+      },
+      {
+        "text": "It uses only the first part of the key ('orders') to find the queue",
+        "correct": false,
+        "explanation": "Partial routing key matching is the behavior of a topic exchange, not fanout."
+      },
+      {
+        "text": "It sends to all queues bound to the exchange, ignoring the routing key",
+        "correct": true,
+        "explanation": "Fanout is broadcast. It sends a copy of the message to all bound queues, paying no attention to the routing key."
+      }
+    ]
+  },
+  {
+    "question": "What does the `durable: true` parameter mean for a queue?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The queue cannot be deleted manually via the Management UI",
+        "correct": false,
+        "explanation": "Durable does not protect against manual deletion. It is a persistence parameter, not a deletion protection."
+      },
+      {
+        "text": "The queue automatically recovers when a consumer crashes",
+        "correct": false,
+        "explanation": "Durable is not related to consumer crash behavior. When a consumer crashes, unacknowledged messages are returned to the queue regardless of durability."
+      },
+      {
+        "text": "The queue survives a broker restart",
+        "correct": true,
+        "explanation": "Durable=true means queue metadata is persisted to disk. After a broker restart, the queue will be restored. However, to preserve messages, delivery-mode=2 (persistent) is also needed."
+      },
+      {
+        "text": "The queue stores messages in memory for fast access",
+        "correct": false,
+        "explanation": "In-memory storage does not guarantee survival of a restart. Durable means queue metadata is written to disk."
+      }
+    ]
+  },
+  {
+    "question": "A message is marked persistent (delivery-mode=2), but the queue was created with durable=false. What happens on broker restart?",
+    "type": "single",
+    "options": [
+      {
+        "text": "RabbitMQ automatically creates a durable copy of the queue for persistent messages",
+        "correct": false,
+        "explanation": "RabbitMQ does not automatically change the queue type. The responsibility for correct configuration lies with the developer."
+      },
+      {
+        "text": "The broker refuses to accept a persistent message into a non-durable queue",
+        "correct": false,
+        "explanation": "The broker accepts messages with any delivery-mode into any queue. A mismatch does not cause an error, but leads to data loss."
+      },
+      {
+        "text": "The message is lost along with the queue",
+        "correct": true,
+        "explanation": "A non-durable queue does not survive a broker restart. When it disappears, all messages in it are lost regardless of delivery-mode."
+      },
+      {
+        "text": "The message is preserved because it is persistent",
+        "correct": false,
+        "explanation": "Both conditions are required for persistence: a persistent message AND a durable queue. If the queue is non-durable, it disappears on restart along with the messages."
+      }
+    ]
+  },
+  {
+    "question": "What does `basic.ack` with `multiple=true` and `delivery-tag=10` mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only the message with delivery-tag=10 is acknowledged, the rest are ignored",
+        "correct": false,
+        "explanation": "That is the behavior of multiple=false (single ACK)."
+      },
+      {
+        "text": "10 copies of the same message are acknowledged",
+        "correct": false,
+        "explanation": "Delivery-tag is a unique sequential delivery number, not a copy counter."
+      },
+      {
+        "text": "The last 10 messages are acknowledged",
+        "correct": false,
+        "explanation": "multiple=true acknowledges all messages with delivery-tag from 1 to the specified value, not the last N messages."
+      },
+      {
+        "text": "All messages with delivery-tag from 1 to 10 inclusive are acknowledged",
+        "correct": true,
+        "explanation": "multiple=true means cumulative ACK: the broker considers all messages with delivery-tag <= the specified value as acknowledged. This is efficient for batch processing."
+      }
+    ]
+  },
+  {
+    "question": "What is prefetch count (basic.qos)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The maximum number of consumers for a single queue",
+        "correct": false,
+        "explanation": "Consumer count limiting is the `exclusive` queue parameter or `x-single-active-consumer`."
+      },
+      {
+        "text": "The maximum size of a single message in bytes",
+        "correct": false,
+        "explanation": "Message size limiting is the frame-max Connection parameter, not prefetch."
+      },
+      {
+        "text": "The number of messages the broker can send to a consumer without receiving an ACK",
+        "correct": true,
+        "explanation": "The prefetch limit prevents the broker from overwhelming the consumer. If a consumer has received N messages and not acknowledged any, the broker will not send N+1 until at least one ACK is received."
+      },
+      {
+        "text": "The number of messages a consumer receives in a single TCP transaction",
+        "correct": false,
+        "explanation": "Prefetch is not directly related to TCP transactions. It is a flow-control mechanism at the AMQP level."
+      }
+    ]
+  },
+  {
+    "question": "On which Channel are connection.start, connection.open, and other connection-level commands always sent?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Channel 0 — reserved for Connection-level operations",
+        "correct": true,
+        "explanation": "Channel 0 is the system channel. It is reserved by the protocol for connection management commands. User channels start at 1."
+      },
+      {
+        "text": "Any available channel — chosen automatically",
+        "correct": false,
+        "explanation": "Strictly channel 0. The AMQP specification requires connection.* commands to be sent only through channel 0."
+      },
+      {
+        "text": "Channel 1 — the first opened channel",
+        "correct": false,
+        "explanation": "Channel 1 is the first user channel, but connection commands are sent through a specially reserved channel."
+      },
+      {
+        "text": "Connection commands are sent outside channels — directly to the TCP stream",
+        "correct": false,
+        "explanation": "All AMQP commands are wrapped in frames with a channel-id. For connection commands, the channel-id is always 0."
+      }
+    ]
+  },
+  {
+    "question": "What parts make up an AMQP frame?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "payload-size (4 bytes)",
+        "correct": true,
+        "explanation": "Size of the payload in bytes. Allows reading exactly the right number of bytes without delimiters."
+      },
+      {
+        "text": "frame-type (1 byte)",
+        "correct": true,
+        "explanation": "Frame type: 1=method, 2=header, 3=body, 4=heartbeat. The first byte of every frame."
+      },
+      {
+        "text": "message-uuid (16 bytes)",
+        "correct": false,
+        "explanation": "Message UUID is an optional message-id field in the Header Frame, not a mandatory part of the frame header."
+      },
+      {
+        "text": "frame-end (1 byte, value 0xCE)",
+        "correct": true,
+        "explanation": "Protocol invariant: the last byte of every frame is always 0xCE. Used to detect protocol violations."
+      },
+      {
+        "text": "channel-id (2 bytes)",
+        "correct": true,
+        "explanation": "The identifier of the channel the frame belongs to. Allows multiplexing multiple channels within a single Connection."
+      }
+    ]
+  },
+  {
+    "question": "A producer publishes a message via AMQP. In what order are the frames sent?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Method → Header → Body (one or more)",
+        "correct": true,
+        "explanation": "Standard order: Method Frame (command and its arguments) → Header Frame (content properties: content-type, delivery-mode, priority) → one or more Body Frames (the actual message body)."
+      },
+      {
+        "text": "Header → Method → Body",
+        "correct": false,
+        "explanation": "The Method Frame always comes first — it contains the command (basic.publish) and its arguments."
+      },
+      {
+        "text": "Body → Header → Method",
+        "correct": false,
+        "explanation": "Incorrect order. The Method Frame with command parameters must come first."
+      },
+      {
+        "text": "Method → Body → Header",
+        "correct": false,
+        "explanation": "The Header Frame always follows immediately after the Method Frame, before the Body Frame."
+      }
+    ]
+  },
+  {
+    "question": "What happens to a message if NACK is sent with requeue=false and a dead-letter-exchange (DLX) is configured on the exchange?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The message is deleted without a trace",
+        "correct": false,
+        "explanation": "With a DLX configured, the message is not lost. That is exactly what a dead-letter-exchange is for."
+      },
+      {
+        "text": "The message is routed to the dead-letter-exchange, from where it goes to the DLQ",
+        "correct": true,
+        "explanation": "The DLX is a separate exchange for 'dead' messages. NACK+requeue=false (or expired TTL, or queue overflow) routes the message there, and it gets routed to a Dead Letter Queue for manual analysis."
+      },
+      {
+        "text": "The broker redelivers the message with redelivered=true flag",
+        "correct": false,
+        "explanation": "Redelivered=true is set with requeue=true. With requeue=false and a DLX, the message is not redelivered."
+      },
+      {
+        "text": "The message is returned to the front of the queue",
+        "correct": false,
+        "explanation": "Returning to the queue is requeue=true. With requeue=false and a DLX, the message goes to the dead letter queue."
+      }
+    ]
+  },
+  {
+    "question": "What is a delivery-tag in AMQP?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A UUID of the message, unique across the entire broker",
+        "correct": false,
+        "explanation": "Message UUID is the message-id field in the header. Delivery-tag is a sequential counter within a single channel."
+      },
+      {
+        "text": "A monotonically increasing delivery counter within a single Channel",
+        "correct": true,
+        "explanation": "The delivery-tag starts at 1 for each Channel and increments with each delivery. It is used in basic.ack/nack to identify a specific delivery."
+      },
+      {
+        "text": "The message priority in the queue (from 0 to 9)",
+        "correct": false,
+        "explanation": "Priority is set by the priority field in the Header Frame. Delivery-tag is an identifier for acknowledgment."
+      },
+      {
+        "text": "The message version, incremented with each redelivery",
+        "correct": false,
+        "explanation": "For redeliveries, the redelivered=true flag and the attempt field (in client libraries) are used. Delivery-tag is a unique delivery ID, not a version."
+      }
+    ]
+  },
+  {
+    "question": "Your consumer uses prefetch=1 and spends 5 seconds processing each message. The queue has 100 messages. What happens?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The consumer will receive one message at a time, process it (5 sec), acknowledge it, and only then receive the next one",
+        "correct": true,
+        "explanation": "Prefetch=1 means strictly sequential processing. This protects the consumer from overload but reduces throughput. To speed up, you need to either increase prefetch or run multiple consumers."
+      },
+      {
+        "text": "The broker will send 5 messages every 5 seconds",
+        "correct": false,
+        "explanation": "The broker does not know processing time. It only tracks the number of unacknowledged messages (prefetch count)."
+      },
+      {
+        "text": "RabbitMQ will disconnect the consumer for slow processing",
+        "correct": false,
+        "explanation": "RabbitMQ does not disconnect consumers for slow processing. A consumer can hold a message for as long as needed (unless a consumer timeout is configured in RabbitMQ 3.12+)."
+      },
+      {
+        "text": "The consumer receives all 100 messages at once and processes them in parallel",
+        "correct": false,
+        "explanation": "Prefetch=1 means the broker will not send the next message until it receives an ACK for the previous one."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following properties belong to the Header Frame (content properties) in AMQP?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "delivery-mode (1=transient, 2=persistent)",
+        "correct": true,
+        "explanation": "delivery-mode in the Header Frame specifies whether the message should be written to disk (2=persistent) or can be stored in memory only (1=transient)."
+      },
+      {
+        "text": "routing-key",
+        "correct": false,
+        "explanation": "The routing key is transmitted in the Method Frame (basic.publish), not in the Header Frame."
+      },
+      {
+        "text": "exchange",
+        "correct": false,
+        "explanation": "The exchange name is part of the Method Frame (basic.publish). The Header Frame contains only content properties."
+      },
+      {
+        "text": "content-type (e.g., 'application/json')",
+        "correct": true,
+        "explanation": "content-type is a standard field in the Header Frame, analogous to HTTP Content-Type. It helps the consumer understand the body format."
+      },
+      {
+        "text": "message-id",
+        "correct": true,
+        "explanation": "message-id is an optional unique message identifier in the Header Frame. Useful for idempotent processing."
+      },
+      {
+        "text": "priority (0-9)",
+        "correct": true,
+        "explanation": "Message priority — a Header Frame field. Used with priority queues (x-max-priority)."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between topic and direct exchange types?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Topic broadcasts messages to all queues, direct sends to only one",
+        "correct": false,
+        "explanation": "Broadcasting to all is fanout. Topic with a pattern can reach multiple queues, but through matching, not broadcast."
+      },
+      {
+        "text": "Direct works only within one vhost, topic works between vhosts",
+        "correct": false,
+        "explanation": "Both exchange types work only within their own vhost. Exchange type does not affect vhost isolation."
+      },
+      {
+        "text": "Topic is faster than direct because it uses a hash table for lookups",
+        "correct": false,
+        "explanation": "Performance is not the key distinction here. Direct also uses exact matching."
+      },
+      {
+        "text": "Direct matches routing key exactly, topic supports wildcard patterns (* and #)",
+        "correct": true,
+        "explanation": "Direct: routing key must exactly match the binding key. Topic: supports * (one word) and # (zero or more words separated by dots). For example, binding key 'orders.#' will catch 'orders.new', 'orders.paid.v2', etc."
+      }
+    ]
+  },
+  {
+    "question": "What happens to unacknowledged messages (unacked) if a consumer unexpectedly disconnects?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Messages remain in unacked state until the consumer reconnects",
+        "correct": false,
+        "explanation": "When the connection closes, the broker immediately releases all unacked messages and returns them to the queue."
+      },
+      {
+        "text": "Messages are sent to the dead-letter-exchange",
+        "correct": false,
+        "explanation": "DLX receives messages from NACK+requeue=false or expired TTL. A connection break returns messages to the main queue."
+      },
+      {
+        "text": "The broker returns them to the queue with the redelivered=true flag",
+        "correct": true,
+        "explanation": "When the TCP connection closes, the broker returns all unacked messages to the queue. The redelivered=true flag signals to the next consumer that this is a redelivery."
+      },
+      {
+        "text": "Messages are lost",
+        "correct": false,
+        "explanation": "One of AMQP's guarantees — unacknowledged messages are not lost when a consumer disconnects."
+      }
+    ]
+  },
+  {
+    "question": "What are Publisher Confirms in RabbitMQ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The producer confirming that it wants to send a message",
+        "correct": false,
+        "explanation": "The producer does not need to confirm anything to the broker before sending. Publisher Confirms are the broker's response."
+      },
+      {
+        "text": "A transactional write setting — similar to SQL transactions",
+        "correct": false,
+        "explanation": "AMQP supports transactions (tx.select/commit/rollback), but Publisher Confirms are a lighter-weight asynchronous acknowledgment mechanism."
+      },
+      {
+        "text": "A mechanism where the consumer confirms message receipt to the producer",
+        "correct": false,
+        "explanation": "Publisher Confirms are an interaction between the producer and the broker, not between the consumer and the producer."
+      },
+      {
+        "text": "A mechanism where the broker confirms to the producer that the message was saved to the queue",
+        "correct": true,
+        "explanation": "Without Publisher Confirms, the producer sends messages in 'fire-and-forget' mode. With Confirms, the broker sends basic.ack/nack to the producer after the message is written to disk (for persistent) or accepted into the queue."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following statements about the Default Exchange in RabbitMQ are correct?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The Default Exchange is automatically bound to every created queue with a binding key equal to the queue name",
+        "correct": true,
+        "explanation": "This is a key property of the Default Exchange. The binding is created automatically when a queue is created, so you can immediately send a message 'directly' to a queue by its name."
+      },
+      {
+        "text": "The Default Exchange has an empty name (\"\")",
+        "correct": true,
+        "explanation": "You can access the Default Exchange by passing an empty string as the exchange name in basic.publish."
+      },
+      {
+        "text": "The Default Exchange is a fanout type exchange",
+        "correct": false,
+        "explanation": "The Default Exchange is of type direct. It routes by exact match of the routing key with the queue name."
+      },
+      {
+        "text": "The Default Exchange cannot be deleted or reconfigured",
+        "correct": true,
+        "explanation": "The Default Exchange is a built-in system exchange. It cannot be deleted, modified, or manually bound to."
+      }
+    ]
+  },
+  {
+    "question": "Your service sends important orders to RabbitMQ. How do you guarantee the message won't be lost on broker restart?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Use Publisher Confirms",
+        "correct": true,
+        "explanation": "Publisher Confirms allow the producer to verify that the message was accepted and stored by the broker. Without this, the producer has no way of knowing if the message arrived."
+      },
+      {
+        "text": "Declare the exchange with durable=true",
+        "correct": true,
+        "explanation": "The exchange must also be durable, otherwise it will disappear on restart and bindings will be broken."
+      },
+      {
+        "text": "Declare the queue with durable=true",
+        "correct": true,
+        "explanation": "A durable queue is restored after a broker restart. Without it, the queue disappears along with the messages."
+      },
+      {
+        "text": "Send messages with delivery-mode=2 (persistent)",
+        "correct": true,
+        "explanation": "A persistent message is written to disk. Without this, even in a durable queue, messages exist only in memory and are lost on restart."
+      },
+      {
+        "text": "Set x-message-ttl on the queue",
+        "correct": false,
+        "explanation": "TTL limits message lifetime, which may cause deletion rather than preservation."
+      }
+    ]
+  },
+  {
+    "question": "What is x-dead-letter-exchange (DLX) and when do messages get routed there?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A message is routed to DLX if NACKed with requeue=false",
+        "correct": true,
+        "explanation": "NACK+requeue=false is one of three DLX triggers. The message is not returned to the queue and is redirected to the DLX."
+      },
+      {
+        "text": "A message is routed to DLX if the producer sent it with delivery-mode=1",
+        "correct": false,
+        "explanation": "Delivery-mode affects persistence, not DLX routing. Transient messages are not routed to the DLX for this reason."
+      },
+      {
+        "text": "DLX is an exchange to which the broker forwards 'dead' messages",
+        "correct": true,
+        "explanation": "The DLX is configured as a queue argument (x-dead-letter-exchange). The broker automatically publishes 'dead' messages to this exchange."
+      },
+      {
+        "text": "A message is routed to DLX if its TTL expired (x-message-ttl)",
+        "correct": true,
+        "explanation": "TTL expiration is the second DLX trigger. If a message 'expires', it is not deleted but redirected to the DLX."
+      },
+      {
+        "text": "A message is routed to DLX if the queue is full (x-max-length)",
+        "correct": true,
+        "explanation": "Queue overflow is the third DLX trigger. When a queue reaches x-max-length, new messages (or head messages, depending on overflow policy) are redirected to the DLX."
+      }
+    ]
+  },
+  {
+    "question": "You opened 100 Channels in one Connection. Which option correctly describes the situation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "100 TCP connections are created with the broker",
+        "correct": false,
+        "explanation": "Channels use multiplexing within a single TCP connection. 100 Channels = one TCP connection."
+      },
+      {
+        "text": "The broker will automatically limit to 10 Channels per Connection",
+        "correct": false,
+        "explanation": "RabbitMQ does not limit the number of Channels by default (technically limited by the channel-max parameter during negotiation, default 65535)."
+      },
+      {
+        "text": "All 100 Channels are multiplexed within a single TCP connection",
+        "correct": true,
+        "explanation": "That is the essence of Channels. One expensive TCP connection is shared across 100 lightweight virtual Channels. This avoids the overhead of handshakes and authorization for each operation."
+      },
+      {
+        "text": "After 65 Channels, performance drops sharply due to protocol limitations",
+        "correct": false,
+        "explanation": "Channel-max (65535) is the theoretical protocol limit. In practice, it is recommended not to abuse the number of Channels, but there is no hard threshold."
+      }
+    ]
+  },
+  {
+    "question": "What does the `redelivered=true` flag mean in a delivered message?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The consumer must immediately NACK it to avoid a loop",
+        "correct": false,
+        "explanation": "Redelivered=true is informational, not a command. The consumer should process the message idempotently or check whether it was already successfully processed."
+      },
+      {
+        "text": "The message was previously delivered to another consumer (or the same one) and was not ACKed",
+        "correct": true,
+        "explanation": "Redelivered=true means the broker has already sent this message before (but did not receive an ACK). This signals the consumer to check idempotency of processing — the message may have already been partially processed."
+      },
+      {
+        "text": "The message was duplicated by network equipment",
+        "correct": false,
+        "explanation": "Network duplicates are a separate issue. Redelivered=true is a flag at the AMQP level, intentionally set by the broker."
+      },
+      {
+        "text": "The message was published by the producer multiple times",
+        "correct": false,
+        "explanation": "Redelivered is not related to producer behavior. The flag is set by the broker on redelivery."
+      }
+    ]
+  },
+  {
+    "question": "Heartbeat in AMQP — what is it for?",
+    "type": "single",
+    "options": [
+      {
+        "text": "For regular synchronization of queue state between cluster nodes",
+        "correct": false,
+        "explanation": "Synchronization between cluster nodes is the broker's internal matter (Erlang distribution). Heartbeat is about client connections."
+      },
+      {
+        "text": "For detecting broken TCP connections and 'dead' clients",
+        "correct": true,
+        "explanation": "TCP does not always detect breaks immediately (especially with NAT). Heartbeat frames are periodically sent in both directions. If the broker does not receive a heartbeat from the client within 2x the heartbeat timeout, it closes the connection and frees resources."
+      },
+      {
+        "text": "For notifying the producer about the consumer's processing speed",
+        "correct": false,
+        "explanation": "Backpressure and flow control in AMQP are implemented through prefetch and channel.flow, not through heartbeat."
+      },
+      {
+        "text": "For time synchronization between the broker and the client",
+        "correct": false,
+        "explanation": "Time synchronization is the job of NTP, not AMQP heartbeat."
+      }
+    ]
+  }
+]

@@ -1,0 +1,615 @@
+[
+  {
+    "question": "How does a compensating transaction in Saga differ from a SQL ROLLBACK?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Compensation is a new business transaction that semantically cancels the effect of the previous one, but does not atomically return data to its original state",
+        "correct": true,
+        "explanation": "Compensation creates new records (e.g., refund), executes asynchronously, may be visible to other participants, and requires its own error handling."
+      },
+      {
+        "text": "Compensation always executes synchronously and is guaranteed to succeed",
+        "correct": false,
+        "explanation": "Compensation can fail just like any other transaction. That is why it must be idempotent and retry on errors."
+      },
+      {
+        "text": "Compensation only works within a single database",
+        "correct": false,
+        "explanation": "Compensation is designed specifically for distributed systems with multiple databases, where a regular ROLLBACK is impossible."
+      },
+      {
+        "text": "Compensation executes immediately and atomically, like ROLLBACK",
+        "correct": false,
+        "explanation": "No. ROLLBACK is atomic and instant within a single ACID transaction. Compensation is a new business operation that may take time and can itself fail."
+      }
+    ]
+  },
+  {
+    "question": "What is the main problem with two-phase commit (2PC) in microservices?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "All of the above options are incorrect",
+        "correct": false,
+        "explanation": "Some of the above options are indeed correct."
+      },
+      {
+        "text": "2PC is not supported in relational databases",
+        "correct": false,
+        "explanation": "Incorrect. Relational DBMS support 2PC (XA transactions). The problem is not support, but scalability and availability."
+      },
+      {
+        "text": "Coordinator is a single point of failure: its crash leaves participants in an indefinite state forever",
+        "correct": true,
+        "explanation": "If the coordinator crashes after the PREPARE phase but before sending COMMIT, participants will wait for a decision indefinitely, holding locks."
+      },
+      {
+        "text": "Poor scalability due to synchronous coordination between all participants",
+        "correct": true,
+        "explanation": "2PC requires a synchronous round-trip between the coordinator and each participant. With a large number of services or high throughput, this becomes a bottleneck."
+      },
+      {
+        "text": "Resource locking on all participants while waiting for the coordinator's decision",
+        "correct": true,
+        "explanation": "While participants wait for COMMIT or ROLLBACK from the coordinator, resources are locked. In a high-load system, this leads to performance degradation."
+      }
+    ]
+  },
+  {
+    "question": "What is a Pivot Transaction in the Saga pattern?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Point of no return: if the Pivot is executed successfully, rolling back the Saga is impossible or impractical",
+        "correct": true,
+        "explanation": "Classic example: shipping a physical product. After that, you cannot 'rollback' delivery — you can only create a separate Saga for the return."
+      },
+      {
+        "text": "A transaction that cannot be executed without prior preparation",
+        "correct": false,
+        "explanation": "This is not the definition of Pivot. The concept of 'preparation' relates to 2PC, not to Saga."
+      },
+      {
+        "text": "The most important transaction in a Saga, requiring maximum reliability",
+        "correct": false,
+        "explanation": "Pivot transactions are important not by significance, but by their role as a point of no return. This is an architectural, not a technical concept."
+      },
+      {
+        "text": "A transaction that is executed first in every Saga",
+        "correct": false,
+        "explanation": "Pivot is not necessarily the first transaction. Typically, it is a transaction in the middle or closer to the end of the flow, after which side effects become irreversible."
+      }
+    ]
+  },
+  {
+    "question": "What is the fundamental difference between Choreography Saga and Orchestration Saga?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Choreography uses synchronous calls, while Orchestration uses asynchronous",
+        "correct": false,
+        "explanation": "Both approaches can be synchronous or asynchronous. The key difference is the presence or absence of a central coordinator."
+      },
+      {
+        "text": "Choreography is more reliable than Orchestration because there is no single point of failure",
+        "correct": false,
+        "explanation": "Reliability depends not only on the architectural style. Orchestration can also be reliable with orchestrator replication. Each approach has its own trade-offs."
+      },
+      {
+        "text": "Orchestration can only be used with RabbitMQ, and Choreography only with Kafka",
+        "correct": false,
+        "explanation": "Both approaches work with any broker. RabbitMQ and Kafka are transport, not a defining factor of the pattern."
+      },
+      {
+        "text": "In Choreography, each service reacts to events independently without a central coordinator; in Orchestration, one orchestrator manages all steps",
+        "correct": true,
+        "explanation": "In Choreography, services communicate through events and do not know about each other. In Orchestration, the orchestrator knows all steps and sends commands to services directly."
+      }
+    ]
+  },
+  {
+    "question": "You have an e-commerce Saga: create order → charge money → ship physical product → send email. Which step is the Pivot?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Create order",
+        "correct": false,
+        "explanation": "This is a Compensatable transaction — the order can be cancelled (status CANCELLED). Before shipping, a full rollback is possible."
+      },
+      {
+        "text": "Charge money",
+        "correct": false,
+        "explanation": "This is also Compensatable — money can be returned via refund. Many payment systems support refunds."
+      },
+      {
+        "text": "Send email",
+        "correct": false,
+        "explanation": "Email is a Retriable transaction after the Pivot. It is guaranteed to execute (via retries) and does not require compensation — you cannot 'retrieve' an already read email."
+      },
+      {
+        "text": "Ship physical product",
+        "correct": true,
+        "explanation": "Once the courier has picked up the package, it cannot be 'rolled back'. This is a classic Pivot. Steps after it (email) are Retriable, without compensation."
+      }
+    ]
+  },
+  {
+    "question": "Why must compensating transactions in Saga be idempotent?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only for Choreography Saga — duplicates are impossible in Orchestration",
+        "correct": false,
+        "explanation": "Duplicates are possible in both cases. The orchestrator can also resend a command on response timeout or restart."
+      },
+      {
+        "text": "To speed up their execution",
+        "correct": false,
+        "explanation": "Idempotency does not directly affect speed. It is needed for correctness on retries."
+      },
+      {
+        "text": "Because the orchestrator always calls each compensation exactly two times for reliability",
+        "correct": false,
+        "explanation": "The orchestrator does not intentionally call compensation twice. Duplicates arise from message redelivery on network or service failures."
+      },
+      {
+        "text": "Because message brokers (Kafka, RabbitMQ) guarantee at-least-once delivery — a message may be delivered multiple times",
+        "correct": true,
+        "explanation": "At-least-once delivery means duplicates are possible. Without idempotency, a repeated compensation call would create a double refund, double cancellation, etc."
+      }
+    ]
+  },
+  {
+    "question": "Which order of compensating transactions is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Compensations execute in strictly reverse order: the last successful step is compensated first",
+        "correct": true,
+        "explanation": "Reverse order ensures correct dependency removal. If T3 depends on T2, which depends on T1, then compensation must be C3 → C2 → C1."
+      },
+      {
+        "text": "The order of compensations does not matter — they all execute in parallel",
+        "correct": false,
+        "explanation": "Parallel execution of compensations is dangerous due to dependencies between steps. For example, you cannot refund money before canceling a product reservation (business logic may depend on this)."
+      },
+      {
+        "text": "Compensations execute in the same order as the original transactions",
+        "correct": false,
+        "explanation": "Incorrect. If you compensate in forward order, you can break dependencies: for example, cancel an order before refunding money, which creates a contradiction."
+      },
+      {
+        "text": "Only the last executed step is compensated",
+        "correct": false,
+        "explanation": "No — all successfully executed steps up to the point of failure are compensated, not just the last one."
+      }
+    ]
+  },
+  {
+    "question": "What is a Semantic Lock in the context of Saga?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A mechanism that guarantees two Sagas will not execute simultaneously",
+        "correct": false,
+        "explanation": "Semantic Lock does not forbid parallel execution — it only signals the state of an object. How to react to this signal is a business logic decision."
+      },
+      {
+        "text": "Encryption of Saga data to protect against unauthorized access",
+        "correct": false,
+        "explanation": "Semantic Lock has nothing to do with security or encryption."
+      },
+      {
+        "text": "A state flag on an object (e.g., status 'PROCESSING') that signals to other Sagas that the object is being modified",
+        "correct": true,
+        "explanation": "Semantic Lock allows other Sagas to know about an ongoing operation and make a decision: wait, deny, or handle differently. This is soft coordination without hard locks."
+      },
+      {
+        "text": "A database row locking mechanism similar to SELECT FOR UPDATE",
+        "correct": false,
+        "explanation": "SELECT FOR UPDATE is a physical DB lock. Semantic Lock is a softer approach: just a state flag that other operations must check."
+      }
+    ]
+  },
+  {
+    "question": "What is the advantage of storing Saga state in a persistent database versus in memory?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Audit capability: you can reconstruct the history of all Sagas and their state transitions",
+        "correct": true,
+        "explanation": "A saga_instances table with state transition history is a ready-made audit log. You can analyze any incident: what happened, at what step, when."
+      },
+      {
+        "text": "Storing in a database speeds up execution of each Saga step",
+        "correct": false,
+        "explanation": "Writing to a database adds latency, it does not speed up. This is a trade-off: reliability in exchange for a slight slowdown."
+      },
+      {
+        "text": "This requires a special license",
+        "correct": false,
+        "explanation": "All listed technologies have open-source versions."
+      },
+      {
+        "text": "The orchestrator can resume active Sagas after a restart or crash",
+        "correct": true,
+        "explanation": "With state stored in a database, a service restart does not lead to loss of incomplete Sagas. The orchestrator can continue from where it left off."
+      },
+      {
+        "text": "You can scale the orchestrator horizontally — multiple instances will work with a single storage",
+        "correct": true,
+        "explanation": "Stateless orchestrators with a shared state database allow running multiple replicas for high availability and load balancing."
+      }
+    ]
+  },
+  {
+    "question": "You are implementing a Choreography Saga with Kafka. PaymentService receives an order.created event and must charge money. What happens if the message key is a random UUID instead of orderId?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Nothing bad — Kafka will still deliver the message to the right service",
+        "correct": false,
+        "explanation": "The message will arrive, but the ordering guarantee for a single order is lost. If order.created and order.cancelled for the same order end up in different partitions, they may be processed in the wrong order."
+      },
+      {
+        "text": "Kafka will not allow sending a message without a valid key",
+        "correct": false,
+        "explanation": "Kafka allows any keys and even null. There is no key validation on the broker side."
+      },
+      {
+        "text": "Events for the same order may end up in different partitions and be processed in the wrong order, breaking Saga logic",
+        "correct": true,
+        "explanation": "Kafka guarantees ordering only within a single partition. To ensure all events of one Saga are processed sequentially, you must use orderId as the key."
+      },
+      {
+        "text": "Performance will decrease, but correctness will not be affected",
+        "correct": false,
+        "explanation": "Performance will not be affected, but correctness will. Violating the order of Saga events can lead to an inconsistent state."
+      }
+    ]
+  },
+  {
+    "question": "Why do Retriable transactions (after Pivot) not require compensation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only because the developers forgot to write compensations for them",
+        "correct": false,
+        "explanation": "The absence of compensation is a deliberate architectural decision, not an oversight. Retriable transactions are intentionally designed without compensation."
+      },
+      {
+        "text": "Because they execute very quickly and do not have time to create side effects",
+        "correct": false,
+        "explanation": "Speed does not matter. Retriable transactions can be slow (e.g., sending email with retries), but still do not require compensation."
+      },
+      {
+        "text": "Retriable transactions never fail — they have 100% success",
+        "correct": false,
+        "explanation": "Retriable transactions can fail — that is precisely why they are retryable (with retries). The guarantee is that they will eventually succeed, not that they never fail."
+      },
+      {
+        "text": "Because they are guaranteed to execute through a retry mechanism, and canceling them is either impossible or makes no business sense",
+        "correct": true,
+        "explanation": "Retriable transactions run after the Pivot. If the Pivot has passed, rolling back the Saga is no longer appropriate. Retriable transactions (email, analytics, cache) either cannot be canceled or there is no point in canceling them."
+      }
+    ]
+  },
+  {
+    "question": "A team is designing a Saga for e-commerce. What is the maximum recommended complexity threshold after which you should consider splitting the Saga into several?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The number of steps does not matter — only business logic matters",
+        "correct": false,
+        "explanation": "The number of steps directly affects the complexity of implementation, testing, and debugging. A monolithic Saga of 20 steps would be extremely difficult to maintain."
+      },
+      {
+        "text": "More than 3-4 steps",
+        "correct": false,
+        "explanation": "4 steps is a perfectly normal Saga. A typical e-commerce order has 4-6 steps and is well managed as a single Saga."
+      },
+      {
+        "text": "More than 15-20 steps — there is no hard rule, but at this number complexity increases sharply",
+        "correct": true,
+        "explanation": "There is no universal number, but the general recommendation is — one business scenario, one Saga. With 15+ steps, problems arise with testing, debugging, and adding new steps."
+      },
+      {
+        "text": "More than 2-3 steps — each Saga should be minimal",
+        "correct": false,
+        "explanation": "This is too restrictive. 4-6 steps is a well-manageable Saga. Splitting into too small parts adds coordination complexity."
+      }
+    ]
+  },
+  {
+    "question": "Which patterns are used to implement idempotency of Saga steps?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Storing an idempotency key (orderId) with a unique constraint in the database",
+        "correct": true,
+        "explanation": "A UNIQUE constraint on orderId in the payments table means that a repeated insert will return a unique_violation, which can be caught and ignored."
+      },
+      {
+        "text": "Using a global lock (distributed lock) for the duration of execution",
+        "correct": false,
+        "explanation": "A distributed lock solves the race condition problem, but not idempotency. On repetition after releasing the lock, the operation will still execute twice."
+      },
+      {
+        "text": "Optimistic locking with a version field — on duplicate, the version will not match and UPDATE will return 0 rows",
+        "correct": true,
+        "explanation": "Optimistic locking allows detection of concurrent modification. On a repeated request, the version will already be updated, and the WHERE version = $old condition will not match."
+      },
+      {
+        "text": "Checking 'already done' before actual execution (check-then-act)",
+        "correct": true,
+        "explanation": "Before executing an operation, check whether it has already been executed for the given sagaId/orderId. This is a classic idempotency pattern."
+      }
+    ]
+  },
+  {
+    "question": "In an Orchestration Saga, the orchestrator sent a ProcessPayment command and did not receive a response within 30 seconds. What should the orchestrator do?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Log the error and complete the Saga without compensation",
+        "correct": false,
+        "explanation": "Completing without compensation will leave the system in an inconsistent state. Previous steps are committed, but the Saga is not complete."
+      },
+      {
+        "text": "Immediately start compensating all previous steps",
+        "correct": false,
+        "explanation": "Hasty compensation is dangerous. Perhaps PaymentService processed the command, but the response was lost in the network. Compensation will lead to a double refund."
+      },
+      {
+        "text": "Ignore the timeout and wait indefinitely",
+        "correct": false,
+        "explanation": "Indefinite waiting will block the Saga and consume resources. A strategy is needed: retry with backoff, and after N attempts — a decision on compensation."
+      },
+      {
+        "text": "Resend the ProcessPayment command (retry) with the same sagaId — PaymentService must be idempotent",
+        "correct": true,
+        "explanation": "The correct strategy: retry with the same idempotency key. If PaymentService has already processed — it will respond with the same result. If not — it will process now."
+      }
+    ]
+  },
+  {
+    "question": "Which broker is better suited for Choreography Saga and why?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kafka — because events are stored in a log, you can reproduce history and restore state, and partitioning by orderId guarantees ordering",
+        "correct": true,
+        "explanation": "Kafka is ideal for event-driven Choreography: events are immutable (append-only log), you can replay history, partitions guarantee ordering for a single orderId."
+      },
+      {
+        "text": "RabbitMQ — because it supports point-to-point routing via routing key",
+        "correct": false,
+        "explanation": "RabbitMQ is good for Orchestration (command/reply pattern), but Choreography is better suited for Kafka due to log-based storage and event replay."
+      },
+      {
+        "text": "NATS — because it has the lowest latency",
+        "correct": false,
+        "explanation": "NATS has low latency, but basic NATS does not persist messages. For Saga you need reliable delivery with persistence — NATS JetStream fits, but that is not basic NATS."
+      },
+      {
+        "text": "Any broker works equally — the choice does not affect implementation",
+        "correct": false,
+        "explanation": "The choice of broker affects architecture. Kafka with log retention and partitioning provides different guarantees than RabbitMQ with its queue-based model."
+      }
+    ]
+  },
+  {
+    "question": "What happens if a compensating transaction itself fails?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "All of the above options are incorrect",
+        "correct": false,
+        "explanation": "Some of the above options are indeed correct."
+      },
+      {
+        "text": "Failed compensations should be sent to a Dead Letter Queue for manual processing or retry",
+        "correct": true,
+        "explanation": "DLQ is standard practice for unrecoverable errors. The monitoring team receives an alert and can analyze the incident manually or trigger a retry."
+      },
+      {
+        "text": "The system will remain in an inconsistent state if the error is not handled",
+        "correct": true,
+        "explanation": "If compensation failed and was not retried, some steps will be rolled back while others will not. This violates eventual consistency."
+      },
+      {
+        "text": "You must retry the compensation with exponential backoff until success or exhaustion of attempts",
+        "correct": true,
+        "explanation": "Standard practice: retry with backoff. If after N attempts the compensation has not passed — manual intervention is required (dead letter queue, alert)."
+      },
+      {
+        "text": "The Saga will automatically return to its initial state without any action",
+        "correct": false,
+        "explanation": "There is no automatic restoration. Saga is not an ACID transaction. The developer is responsible for handling compensation errors."
+      }
+    ]
+  },
+  {
+    "question": "How does Temporal differ from a manual Saga implementation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Temporal does not support compensating transactions",
+        "correct": false,
+        "explanation": "Temporal excellently supports compensations — through the saga pattern with try/catch and an array of compensation functions. This is one of its key use cases."
+      },
+      {
+        "text": "In Temporal, a Saga is described as regular async/await code, and the framework itself guarantees reliability, state persistence, and retries",
+        "correct": true,
+        "explanation": "Temporal handles all the infrastructure: state persistence, retries, replay on restart. The developer writes business logic as regular code."
+      },
+      {
+        "text": "Temporal only works with specific message brokers",
+        "correct": false,
+        "explanation": "Temporal has its own transport layer and does not depend on Kafka or RabbitMQ."
+      },
+      {
+        "text": "Temporal uses only Choreography, manual implementation — only Orchestration",
+        "correct": false,
+        "explanation": "Temporal is a workflow engine that implements Orchestration. It does not restrict the choice of pattern, but is itself essentially an orchestrator."
+      }
+    ]
+  },
+  {
+    "question": "An architect is choosing between Choreography and Orchestration for a complex business process with 8 steps and several branches. What should they consider?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "With Orchestration, the orchestrator must be stateful with persistent state storage",
+        "correct": true,
+        "explanation": "The orchestrator must remember which step each Saga is on — this requires persistent storage. Without it, it will not survive a restart."
+      },
+      {
+        "text": "Orchestration with a single orchestrator will provide clear visibility of the entire flow and simplify adding new branches",
+        "correct": true,
+        "explanation": "With a complex flow, Orchestration wins: all business logic is in one place, easier to test and modify."
+      },
+      {
+        "text": "Choreography is always better for complex processes due to the absence of a single point of failure",
+        "correct": false,
+        "explanation": "No single point of failure is an advantage of Choreography, but it does not make it the best choice for complex flows. An orchestrator can also be made fault-tolerant."
+      },
+      {
+        "text": "With Choreography, branching logic will be spread across 8 services — it is difficult to understand the entire flow",
+        "correct": true,
+        "explanation": "With 8 steps and branches, Choreography turns into 'event spaghetti' — understanding the full flow without documentation or distributed tracing is extremely difficult."
+      }
+    ]
+  },
+  {
+    "question": "A developer added a new step in the middle of an existing Choreography Saga. What problem can it create?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The new service must know which event to subscribe to, and the previous service must start publishing a new event instead of the old one — this requires deployment coordination",
+        "correct": true,
+        "explanation": "Choreography creates implicit dependencies through event topics. Adding a step requires modifying the previous service and correctly deploying all changes without breaking running Sagas."
+      },
+      {
+        "text": "System performance will drop sharply due to the additional step",
+        "correct": false,
+        "explanation": "One additional step will not cause a sharp drop in performance. The problem is deployment coordination and handling in-flight Sagas."
+      },
+      {
+        "text": "Adding steps to a Choreography Saga is impossible after the first deployment",
+        "correct": false,
+        "explanation": "Adding is possible, but requires careful coordination — that is the problem, not a blocker."
+      },
+      {
+        "text": "The broker will automatically detect the new step and update routing",
+        "correct": false,
+        "explanation": "Brokers do not know about Saga business logic. No automatic adaptation occurs — the developer must manually update event subscriptions and publications."
+      }
+    ]
+  },
+  {
+    "question": "What does 'eventual consistency' mean in the context of Saga?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Eventual consistency is a Saga bug that needs to be fixed using 2PC",
+        "correct": false,
+        "explanation": "This is not a bug, but a conscious compromise. Eventual consistency is the price for high availability and scalability in distributed systems."
+      },
+      {
+        "text": "Saga guarantees consistency only in the absence of failures",
+        "correct": false,
+        "explanation": "Saga is specifically designed to ensure eventual consistency even during failures — that is exactly what the compensation mechanism exists for."
+      },
+      {
+        "text": "During Saga execution, different services see different system states, but after all steps or compensations complete, the system reaches a consistent state",
+        "correct": true,
+        "explanation": "This is the essence of BASE vs ACID. Intermediate states are acceptable. What matters is that the system will eventually be consistent — either after success or after full compensation."
+      },
+      {
+        "text": "Data in different services will never be the same",
+        "correct": false,
+        "explanation": "No. Eventual consistency means that data will be the same — but not immediately, and some time after all Saga steps complete."
+      }
+    ]
+  },
+  {
+    "question": "A developer is implementing OrderService in a Choreography Saga. It stores a list of 'active orders in the process of payment' in a HashMap in memory. What is wrong?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "HashMap does not scale — with multiple OrderService replicas, each instance will only see its own orders",
+        "correct": true,
+        "explanation": "With horizontal scaling, different instances will have different copies of the HashMap. The load balancer may route a response event to the wrong instance."
+      },
+      {
+        "text": "On OrderService restart, the list will be lost — active Sagas will 'hang' mid-execution without the ability to continue or compensate",
+        "correct": true,
+        "explanation": "In-memory state does not survive a restart. All Sagas that were 'in progress' will be lost, and their compensation will never execute."
+      },
+      {
+        "text": "HashMap consumes too much memory",
+        "correct": false,
+        "explanation": "Memory consumption is a secondary problem compared to reliability. HashMap is memory-efficient for a small number of active orders."
+      },
+      {
+        "text": "The correct solution is to store the state of incomplete Sagas in persistent storage (PostgreSQL, Redis with AOF)",
+        "correct": true,
+        "explanation": "Persistent storage survives restarts and is accessible to all replicas. This is a fundamental requirement for reliable Saga."
+      }
+    ]
+  },
+  {
+    "question": "In an Orchestration Saga using RabbitMQ, what is correlationId in response messages?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An identifier of the connection between producer and consumer",
+        "correct": false,
+        "explanation": "correlationId is a message header field, not related to the connection. One connection can handle thousands of Sagas with different correlationIds."
+      },
+      {
+        "text": "A unique message identifier in the queue, generated by RabbitMQ",
+        "correct": false,
+        "explanation": "RabbitMQ generates deliveryTag, not correlationId. correlationId is an application field set by the developer to match request-response."
+      },
+      {
+        "text": "A hash of the message content for integrity verification",
+        "correct": false,
+        "explanation": "Message integrity in RabbitMQ is ensured at the transport layer, not by correlationId. correlationId is a field for request-response correlation."
+      },
+      {
+        "text": "An identifier that the orchestrator sets when sending a command and expects in the response to match the response to a specific Saga instance",
+        "correct": true,
+        "explanation": "correlationId allows the orchestrator to understand which specific command it received a response to. It usually equals sagaId or the request messageId."
+      }
+    ]
+  },
+  {
+    "question": "Your Saga processes a financial transaction: create order → charge money → ship product. After shipping, you realize you need to add a 'update loyalty program' step after charging. How should you correctly classify this new step?",
+    "type": "single",
+    "options": [
+      {
+        "text": "It depends on the position in the flow: if before the Pivot (product shipping) — Compensatable with compensation; if after the Pivot — Retriable without compensation",
+        "correct": true,
+        "explanation": "Classification is determined relative to the Pivot. Before Pivot: compensation is needed (rollback points). After Pivot: Retriable — points have already been credited as a side effect of successful delivery."
+      },
+      {
+        "text": "Always Retriable — updating the loyalty program is non-critical",
+        "correct": false,
+        "explanation": "Non-criticality does not define the transaction type. If the step is before the Pivot — it must be Compensatable regardless of business importance."
+      },
+      {
+        "text": "Pivot — because awarding points is important for the business",
+        "correct": false,
+        "explanation": "Pivot is determined not by importance, but by irreversibility. Updating the loyalty program can usually be adjusted — it is not a Pivot."
+      },
+      {
+        "text": "Compensatable — you need to write a compensation 'rollback loyalty points'",
+        "correct": false,
+        "explanation": "If the step is added after 'ship product' (Pivot), then it is Retriable. If before the Pivot — then Compensatable with compensation 'rollback points'. You need to know the exact insertion point."
+      }
+    ]
+  }
+]

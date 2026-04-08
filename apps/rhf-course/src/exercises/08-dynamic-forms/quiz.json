@@ -100,5 +100,104 @@
         "explanation": "Несколько useForm усложняют объединение данных — лучше использовать один useForm"
       }
     ]
+  },
+  {
+    "question": "Как создать вложенный Field Array (массив внутри массива)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Использовать один useFieldArray с точечной нотацией (например, 'modules.0.lessons')",
+        "correct": true
+      },
+      {
+        "text": "Вложенные Field Array не поддерживаются в React Hook Form",
+        "correct": false,
+        "explanation": "Поддерживаются — нужно вызвать useFieldArray с именем вложенного массива"
+      },
+      {
+        "text": "Использовать useState для вложенного массива",
+        "correct": false,
+        "explanation": "useState не интегрирован с RHF — используйте вложенный useFieldArray"
+      },
+      {
+        "text": "Создать отдельную форму для вложенного массива",
+        "correct": false,
+        "explanation": "Отдельная форма усложнит сбор данных — вложенный useFieldArray работает в рамках одной формы"
+      }
+    ]
+  },
+  {
+    "question": "Какой параметр name нужно передать useFieldArray для вложенного массива уроков внутри модуля с индексом 2?",
+    "type": "single",
+    "options": [
+      {
+        "text": "modules.lessons",
+        "correct": false,
+        "explanation": "Нужно указать конкретный индекс модуля для привязки к правильному вложенному массиву"
+      },
+      {
+        "text": "modules[2].lessons",
+        "correct": false,
+        "explanation": "React Hook Form использует точечную нотацию, а не квадратные скобки"
+      },
+      {
+        "text": "modules.2.lessons",
+        "correct": true
+      },
+      {
+        "text": "lessons",
+        "correct": false,
+        "explanation": "Нужен полный путь от корня формы до вложенного массива"
+      }
+    ]
+  },
+  {
+    "question": "Какие методы useFieldArray позволяют менять порядок элементов?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "move — переместить элемент с одной позиции на другую",
+        "correct": true
+      },
+      {
+        "text": "swap — поменять местами два элемента",
+        "correct": true
+      },
+      {
+        "text": "sort — отсортировать элементы по полю",
+        "correct": false,
+        "explanation": "useFieldArray не имеет метода sort — используйте move или swap"
+      },
+      {
+        "text": "reorder — задать новый порядок",
+        "correct": false,
+        "explanation": "Метода reorder нет — для изменения порядка используйте move и swap"
+      }
+    ]
+  },
+  {
+    "question": "Как ограничить максимальное количество элементов в Field Array?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Передать параметр maxLength в useFieldArray",
+        "correct": false,
+        "explanation": "useFieldArray не принимает maxLength — ограничения задаются через валидацию схемы"
+      },
+      {
+        "text": "Использовать z.array().max() в схеме Zod и блокировать кнопку добавления в UI",
+        "correct": true
+      },
+      {
+        "text": "useFieldArray автоматически ограничивает до 10 элементов",
+        "correct": false,
+        "explanation": "Автоматического ограничения нет — нужно реализовать его самостоятельно"
+      },
+      {
+        "text": "Использовать useEffect для удаления лишних элементов",
+        "correct": false,
+        "explanation": "Лучше предотвращать добавление, чем удалять после — через проверку длины и блокировку кнопки"
+      }
+    ]
   }
 ]

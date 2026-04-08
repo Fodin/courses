@@ -100,5 +100,104 @@
         "explanation": "useFieldArray is designed for dynamic arrays, not multi-step forms"
       }
     ]
+  },
+  {
+    "question": "How do you create a nested Field Array (array inside an array)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use a single useFieldArray with dot notation (e.g., 'modules.0.lessons')",
+        "correct": true
+      },
+      {
+        "text": "Nested Field Arrays are not supported in React Hook Form",
+        "correct": false,
+        "explanation": "They are supported — call useFieldArray with the nested array name"
+      },
+      {
+        "text": "Use useState for the nested array",
+        "correct": false,
+        "explanation": "useState is not integrated with RHF — use a nested useFieldArray"
+      },
+      {
+        "text": "Create a separate form for the nested array",
+        "correct": false,
+        "explanation": "A separate form complicates data collection — nested useFieldArray works within one form"
+      }
+    ]
+  },
+  {
+    "question": "What name parameter should be passed to useFieldArray for a nested lessons array inside module at index 2?",
+    "type": "single",
+    "options": [
+      {
+        "text": "modules.lessons",
+        "correct": false,
+        "explanation": "You need to specify the exact module index to bind to the correct nested array"
+      },
+      {
+        "text": "modules[2].lessons",
+        "correct": false,
+        "explanation": "React Hook Form uses dot notation, not square brackets"
+      },
+      {
+        "text": "modules.2.lessons",
+        "correct": true
+      },
+      {
+        "text": "lessons",
+        "correct": false,
+        "explanation": "You need the full path from the form root to the nested array"
+      }
+    ]
+  },
+  {
+    "question": "Which useFieldArray methods allow reordering elements?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "move — move an element from one position to another",
+        "correct": true
+      },
+      {
+        "text": "swap — swap two elements",
+        "correct": true
+      },
+      {
+        "text": "sort — sort elements by a field",
+        "correct": false,
+        "explanation": "useFieldArray has no sort method — use move or swap instead"
+      },
+      {
+        "text": "reorder — set a new order",
+        "correct": false,
+        "explanation": "There is no reorder method — use move and swap to change order"
+      }
+    ]
+  },
+  {
+    "question": "How do you limit the maximum number of elements in a Field Array?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Pass a maxLength parameter to useFieldArray",
+        "correct": false,
+        "explanation": "useFieldArray does not accept maxLength — constraints are set via schema validation"
+      },
+      {
+        "text": "Use z.array().max() in the Zod schema and disable the add button in the UI",
+        "correct": true
+      },
+      {
+        "text": "useFieldArray automatically limits to 10 elements",
+        "correct": false,
+        "explanation": "There is no automatic limit — you need to implement it yourself"
+      },
+      {
+        "text": "Use useEffect to remove extra elements",
+        "correct": false,
+        "explanation": "It is better to prevent adding than to remove after — check the length and disable the button"
+      }
+    ]
   }
 ]

@@ -100,5 +100,55 @@
         "explanation": "Правильные ключи — value и message, а не regex и error"
       }
     ]
+  },
+  {
+    "question": "Какой режим валидации (mode) в useForm срабатывает при каждом изменении значения поля?",
+    "type": "single",
+    "options": [
+      {
+        "text": "onBlur",
+        "correct": false,
+        "explanation": "onBlur срабатывает при потере фокуса, а не при каждом изменении"
+      },
+      {
+        "text": "onChange",
+        "correct": true
+      },
+      {
+        "text": "onSubmit",
+        "correct": false,
+        "explanation": "onSubmit срабатывает только при отправке формы"
+      },
+      {
+        "text": "onTouched",
+        "correct": false,
+        "explanation": "onTouched срабатывает при первом blur, затем при каждом изменении — но не сразу при onChange"
+      }
+    ]
+  },
+  {
+    "question": "Чем режим onTouched отличается от onBlur?",
+    "type": "single",
+    "options": [
+      {
+        "text": "onTouched — первая валидация при blur, далее при каждом onChange",
+        "correct": true
+      },
+      {
+        "text": "onTouched валидирует только один раз",
+        "correct": false,
+        "explanation": "onTouched продолжает валидировать после первого blur — при каждом изменении"
+      },
+      {
+        "text": "Они идентичны",
+        "correct": false,
+        "explanation": "onBlur срабатывает только при blur, а onTouched после первого blur переключается на onChange"
+      },
+      {
+        "text": "onTouched работает только с Controller",
+        "correct": false,
+        "explanation": "Режим mode работает для всех полей, включая register и Controller"
+      }
+    ]
   }
 ]

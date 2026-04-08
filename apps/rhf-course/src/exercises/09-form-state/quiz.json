@@ -101,5 +101,101 @@
         "correct": true
       }
     ]
+  },
+  {
+    "question": "Что делает метод setValue?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Программно устанавливает значение поля формы",
+        "correct": true
+      },
+      {
+        "text": "Устанавливает значение по умолчанию для поля",
+        "correct": false,
+        "explanation": "Значения по умолчанию задаются через defaultValues в useForm, а setValue меняет текущее значение"
+      },
+      {
+        "text": "Сохраняет значение в localStorage",
+        "correct": false,
+        "explanation": "setValue работает только с состоянием формы, не с localStorage"
+      },
+      {
+        "text": "Устанавливает ошибку валидации для поля",
+        "correct": false,
+        "explanation": "Для установки ошибок используется setError, а не setValue"
+      }
+    ]
+  },
+  {
+    "question": "Какие опции можно передать в setValue третьим аргументом?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "shouldDirty — пометить поле как изменённое",
+        "correct": true
+      },
+      {
+        "text": "shouldValidate — запустить валидацию после установки значения",
+        "correct": true
+      },
+      {
+        "text": "shouldTouch — пометить поле как touched",
+        "correct": true
+      },
+      {
+        "text": "shouldSubmit — автоматически отправить форму",
+        "correct": false,
+        "explanation": "Опции shouldSubmit не существует — отправка формы выполняется через handleSubmit"
+      }
+    ]
+  },
+  {
+    "question": "Как отправить на сервер только изменённые поля формы?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Использовать formState.dirtyFields для фильтрации данных перед отправкой",
+        "correct": true
+      },
+      {
+        "text": "React Hook Form автоматически отправляет только dirty-поля",
+        "correct": false,
+        "explanation": "handleSubmit всегда возвращает все данные формы — фильтрация dirty-полей делается вручную"
+      },
+      {
+        "text": "Передать опцию dirtyOnly в handleSubmit",
+        "correct": false,
+        "explanation": "Такой опции нет — нужно самостоятельно фильтровать данные по dirtyFields"
+      },
+      {
+        "text": "Использовать отдельную форму для каждого поля",
+        "correct": false,
+        "explanation": "Это избыточно — dirtyFields уже отслеживает изменения в рамках одной формы"
+      }
+    ]
+  },
+  {
+    "question": "Когда полезно использовать trigger() для ручной валидации?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Для проверки конкретного поля по нажатию кнопки (например, 'Проверить email')",
+        "correct": true
+      },
+      {
+        "text": "Для валидации шага в многошаговой форме перед переходом",
+        "correct": true
+      },
+      {
+        "text": "trigger() — единственный способ запустить валидацию в RHF",
+        "correct": false,
+        "explanation": "Валидация также запускается автоматически при onChange/onBlur и при handleSubmit"
+      },
+      {
+        "text": "Для валидации зависимых полей при изменении связанного поля",
+        "correct": true
+      }
+    ]
   }
 ]

@@ -101,5 +101,154 @@
         "correct": true
       }
     ]
+  },
+  {
+    "question": "Почему useForm лучше размещать внутри модального компонента, а не снаружи?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Потому что useForm нельзя использовать в родительском компоненте",
+        "correct": false,
+        "explanation": "useForm можно использовать в любом компоненте — это обычный хук"
+      },
+      {
+        "text": "Состояние формы автоматически сбрасывается при размонтировании модала",
+        "correct": true
+      },
+      {
+        "text": "React Hook Form не поддерживает передачу control через props",
+        "correct": false,
+        "explanation": "control можно передавать через props или FormProvider"
+      },
+      {
+        "text": "Форма внутри модала работает быстрее",
+        "correct": false,
+        "explanation": "Производительность не зависит от расположения useForm"
+      }
+    ]
+  },
+  {
+    "question": "Как правильно сбросить форму при закрытии модального окна?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Вызвать reset() в обработчике закрытия модала",
+        "correct": true
+      },
+      {
+        "text": "Использовать window.location.reload()",
+        "correct": false,
+        "explanation": "Перезагрузка страницы — неприемлемый способ сброса формы"
+      },
+      {
+        "text": "Удалить форму из DOM через document.removeChild",
+        "correct": false,
+        "explanation": "Прямая манипуляция DOM не используется в React"
+      },
+      {
+        "text": "Сброс невозможен — нужно пересоздать компонент",
+        "correct": false,
+        "explanation": "reset() из useForm прекрасно справляется со сбросом формы"
+      }
+    ]
+  },
+  {
+    "question": "Какие способы позволяют отправить форму кнопкой, расположенной вне тега <form>?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Кнопка с атрибутом form=\"form-id\" и type=\"submit\"",
+        "correct": true
+      },
+      {
+        "text": "Вызов handleSubmit(onSubmit)() в onClick внешней кнопки",
+        "correct": true
+      },
+      {
+        "text": "Использование document.querySelector('form').submit()",
+        "correct": false,
+        "explanation": "Нативный submit() не вызывает валидацию React Hook Form"
+      },
+      {
+        "text": "Это невозможно — кнопка submit должна быть внутри формы",
+        "correct": false,
+        "explanation": "HTML-атрибут form= и программный вызов handleSubmit позволяют это сделать"
+      }
+    ]
+  },
+  {
+    "question": "Как сбросить форму React Hook Form из внешнего компонента?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Вызвать метод reset(), полученный из useForm, в обработчике внешней кнопки",
+        "correct": true
+      },
+      {
+        "text": "Через useRef на элемент <form> и вызов formRef.current.reset()",
+        "correct": false,
+        "explanation": "Нативный reset() не синхронизирует состояние React Hook Form"
+      },
+      {
+        "text": "Установить key на компоненте формы для принудительного пересоздания",
+        "correct": false,
+        "explanation": "Это работает, но является антипаттерном — лучше использовать reset()"
+      },
+      {
+        "text": "Через Redux dispatch",
+        "correct": false,
+        "explanation": "React Hook Form не зависит от Redux"
+      }
+    ]
+  },
+  {
+    "question": "Как зарегистрировать вложенное поле (например, city внутри объекта address) в React Hook Form?",
+    "type": "single",
+    "options": [
+      {
+        "text": "register('address.city') — через точечную нотацию",
+        "correct": true
+      },
+      {
+        "text": "register('address[city]') — через квадратные скобки",
+        "correct": false,
+        "explanation": "Квадратные скобки используются для массивов (address[0]), а не для объектов"
+      },
+      {
+        "text": "register({ address: { city: true } }) — через вложенный объект",
+        "correct": false,
+        "explanation": "register принимает строку (имя поля), а не объект"
+      },
+      {
+        "text": "Вложенные поля не поддерживаются — нужно использовать плоскую структуру",
+        "correct": false,
+        "explanation": "RHF поддерживает вложенные поля через точечную нотацию из коробки"
+      }
+    ]
+  },
+  {
+    "question": "Как лучше всего организовать подформу (часть формы в отдельном компоненте) в React Hook Form?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Обернуть родительскую форму в FormProvider, а в подкомпоненте использовать useFormContext",
+        "correct": true
+      },
+      {
+        "text": "Создать отдельный useForm в каждом подкомпоненте",
+        "correct": false,
+        "explanation": "Отдельный useForm создаст изолированную форму — данные не попадут в общий submit"
+      },
+      {
+        "text": "Передавать все поля через props вручную",
+        "correct": false,
+        "explanation": "Это работает, но FormProvider + useFormContext — более удобный и стандартный способ"
+      },
+      {
+        "text": "Использовать Redux для связи между компонентами формы",
+        "correct": false,
+        "explanation": "Redux не нужен — FormProvider использует React Context для этой задачи"
+      }
+    ]
   }
 ]

@@ -103,5 +103,105 @@
         "explanation": "RHF автоматически собирает отмеченные значения в массив"
       }
     ]
+  },
+  {
+    "question": "Как с помощью Controller реализовать маску ввода (например, для телефона)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Перехватить onChange в render-пропе и форматировать значение перед вызовом field.onChange",
+        "correct": true
+      },
+      {
+        "text": "Использовать проп mask на Controller",
+        "correct": false,
+        "explanation": "Controller не имеет встроенного пропа mask — форматирование реализуется через render"
+      },
+      {
+        "text": "Передать маску в register",
+        "correct": false,
+        "explanation": "register не поддерживает маски — для этого нужен Controller с кастомной логикой"
+      },
+      {
+        "text": "Использовать transform проп в useForm",
+        "correct": false,
+        "explanation": "useForm не имеет пропа transform — трансформации делаются в render Controller"
+      }
+    ]
+  },
+  {
+    "question": "Почему Controller подходит для компонентов вроде звёзд рейтинга или color picker?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Эти компоненты не являются стандартными input и не поддерживают ref — Controller управляет их значением через value/onChange",
+        "correct": true
+      },
+      {
+        "text": "Controller быстрее работает с кастомными компонентами",
+        "correct": false,
+        "explanation": "Дело не в производительности, а в том, что Controller предоставляет value/onChange для любого компонента"
+      },
+      {
+        "text": "register не работает с числовыми значениями",
+        "correct": false,
+        "explanation": "register поддерживает valueAsNumber — проблема не в типе значений, а в совместимости компонента"
+      },
+      {
+        "text": "Controller автоматически определяет тип компонента",
+        "correct": false,
+        "explanation": "Controller не определяет тип — вы сами решаете, как связать value и onChange с компонентом"
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если в render-функции Controller вызвать field.onChange с трансформированным значением?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React Hook Form сохранит трансформированное значение как значение поля",
+        "correct": true
+      },
+      {
+        "text": "RHF проигнорирует трансформацию и сохранит исходное значение",
+        "correct": false,
+        "explanation": "RHF сохраняет именно то значение, которое передано в field.onChange"
+      },
+      {
+        "text": "Будет ошибка типов",
+        "correct": false,
+        "explanation": "field.onChange принимает любое значение — типизация зависит от generic типа формы"
+      },
+      {
+        "text": "Значение сохранится, но валидация не сработает",
+        "correct": false,
+        "explanation": "Валидация работает с тем значением, которое сохранено в форме, включая трансформированное"
+      }
+    ]
+  },
+  {
+    "question": "Какой паттерн лучше использовать для форматирования currency-ввода (например, '1 234.56')?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Controller: хранить отформатированную строку, парсить при отправке",
+        "correct": true
+      },
+      {
+        "text": "register с valueAsNumber",
+        "correct": false,
+        "explanation": "valueAsNumber не справится с пробелами-разделителями — input потеряет форматирование"
+      },
+      {
+        "text": "CSS-свойство для форматирования",
+        "correct": false,
+        "explanation": "CSS не может форматировать значение input — это логика JavaScript"
+      },
+      {
+        "text": "Использовать type='number' с Intl.NumberFormat",
+        "correct": false,
+        "explanation": "type='number' не позволяет вводить пробелы и кастомное форматирование"
+      }
+    ]
   }
 ]

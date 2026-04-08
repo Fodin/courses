@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 
 // ============================================
@@ -349,6 +349,166 @@ export function Task2_4_Solution() {
 
         <button type="submit">Сменить пароль</button>
       </form>
+    </div>
+  )
+}
+
+// ============================================
+// Задание 2.5: Режимы валидации — Решение
+// ============================================
+
+type ValidationMode = 'onSubmit' | 'onBlur' | 'onChange' | 'onTouched' | 'all'
+
+interface ModeForm {
+  username: string
+  email: string
+}
+
+function ValidationModeForm({ mode }: { mode: ValidationMode }) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, touchedFields, isSubmitted },
+    reset,
+  } = useForm<ModeForm>({ mode })
+
+  const [submitted, setSubmitted] = useState(false)
+
+  const onSubmit = (data: ModeForm) => {
+    setSubmitted(true)
+    console.log(`[${mode}] Submitted:`, data)
+  }
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: '400px' }}>
+      <div className="form-group">
+        <label htmlFor={`username-${mode}`}>Username *</label>
+        <input
+          id={`username-${mode}`}
+          type="text"
+          {...register('username', {
+            required: 'Username обязателен',
+            minLength: { value: 3, message: 'Минимум 3 символа' },
+          })}
+          placeholder="Введите username"
+        />
+        {errors.username && <span className="error">{errors.username.message}</span>}
+      </div>
+
+      <div className="form-group">
+        <label htmlFor={`email-${mode}`}>Email *</label>
+        <input
+          id={`email-${mode}`}
+          type="text"
+          {...register('email', {
+            required: 'Email обязателен',
+            pattern: {
+              value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+              message: 'Неверный формат email',
+            },
+          })}
+          placeholder="Введите email"
+        />
+        {errors.email && <span className="error">{errors.email.message}</span>}
+      </div>
+
+      <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <button type="submit">Отправить</button>
+        <button
+          type="button"
+          onClick={() => {
+            reset()
+            setSubmitted(false)
+          }}
+        >
+          Сбросить
+        </button>
+      </div>
+
+      {submitted && (
+        <p style={{ color: '#22c55e', marginTop: '0.5rem' }}>Форма отправлена!</p>
+      )}
+    </form>
+  )
+}
+
+export function Task2_5_Solution() {
+  const [activeMode, setActiveMode] = useState<ValidationMode>('onSubmit')
+
+  const modes: { value: ValidationMode; label: string; description: string }[] = [
+    {
+      value: 'onSubmit',
+      label: 'onSubmit',
+      description: 'Валидация срабатывает только при отправке формы (по умолчанию)',
+    },
+    {
+      value: 'onBlur',
+      label: 'onBlur',
+      description: 'Валидация срабатывает при потере фокуса (blur), далее при каждом изменении',
+    },
+    {
+      value: 'onChange',
+      label: 'onChange',
+      description: 'Валидация срабатывает при каждом изменении значения поля',
+    },
+    {
+      value: 'onTouched',
+      label: 'onTouched',
+      description: 'Валидация при первом blur, затем при каждом изменении',
+    },
+    {
+      value: 'all',
+      label: 'all',
+      description: 'Валидация при blur И при onChange одновременно',
+    },
+  ]
+
+  return (
+    <div className="exercise-container">
+      <h2>✅ Задание 2.5: Режимы валидации</h2>
+
+      <div style={{ marginBottom: '1.5rem' }}>
+        <p style={{ marginBottom: '0.75rem' }}>Выберите режим валидации:</p>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+          {modes.map(m => (
+            <button
+              key={m.value}
+              type="button"
+              onClick={() => setActiveMode(m.value)}
+              style={{
+                padding: '0.5rem 1rem',
+                border: '2px solid',
+                borderColor: activeMode === m.value ? '#3b82f6' : '#6b7280',
+                borderRadius: '6px',
+                background: activeMode === m.value ? '#3b82f6' : 'transparent',
+                color: activeMode === m.value ? '#fff' : 'inherit',
+                cursor: 'pointer',
+                fontWeight: activeMode === m.value ? 600 : 400,
+              }}
+            >
+              {m.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div
+        style={{
+          padding: '1rem',
+          marginBottom: '1rem',
+          borderRadius: '6px',
+          background: '#f0f9ff',
+          border: '1px solid #bae6fd',
+          color: '#0c4a6e',
+        }}
+      >
+        <strong>Режим: {activeMode}</strong>
+        <p style={{ margin: '0.25rem 0 0' }}>
+          {modes.find(m => m.value === activeMode)?.description}
+        </p>
+      </div>
+
+      <ValidationModeForm key={activeMode} mode={activeMode} />
     </div>
   )
 }

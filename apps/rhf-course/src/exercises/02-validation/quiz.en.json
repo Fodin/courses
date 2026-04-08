@@ -100,5 +100,55 @@
         "explanation": "pattern does not accept an array — use an object with value and message"
       }
     ]
+  },
+  {
+    "question": "Which validation mode in useForm triggers on every value change?",
+    "type": "single",
+    "options": [
+      {
+        "text": "onBlur",
+        "correct": false,
+        "explanation": "onBlur triggers when the field loses focus, not on every change"
+      },
+      {
+        "text": "onChange",
+        "correct": true
+      },
+      {
+        "text": "onSubmit",
+        "correct": false,
+        "explanation": "onSubmit only triggers when the form is submitted"
+      },
+      {
+        "text": "onTouched",
+        "correct": false,
+        "explanation": "onTouched triggers on the first blur, then on every change — but not immediately on onChange"
+      }
+    ]
+  },
+  {
+    "question": "How does onTouched mode differ from onBlur?",
+    "type": "single",
+    "options": [
+      {
+        "text": "onTouched — first validation on blur, then on every onChange",
+        "correct": true
+      },
+      {
+        "text": "onTouched validates only once",
+        "correct": false,
+        "explanation": "onTouched continues to validate after the first blur — on every change"
+      },
+      {
+        "text": "They are identical",
+        "correct": false,
+        "explanation": "onBlur only triggers on blur, while onTouched switches to onChange after the first blur"
+      },
+      {
+        "text": "onTouched only works with Controller",
+        "correct": false,
+        "explanation": "The mode option works for all fields, including register and Controller"
+      }
+    ]
   }
 ]

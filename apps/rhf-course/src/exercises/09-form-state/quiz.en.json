@@ -96,5 +96,101 @@
         "correct": true
       }
     ]
+  },
+  {
+    "question": "What does the setValue method do?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Programmatically sets the value of a form field",
+        "correct": true
+      },
+      {
+        "text": "Sets the default value for a field",
+        "correct": false,
+        "explanation": "Default values are set via defaultValues in useForm, while setValue changes the current value"
+      },
+      {
+        "text": "Saves the value to localStorage",
+        "correct": false,
+        "explanation": "setValue only works with form state, not localStorage"
+      },
+      {
+        "text": "Sets a validation error for a field",
+        "correct": false,
+        "explanation": "Use setError for setting errors, not setValue"
+      }
+    ]
+  },
+  {
+    "question": "Which options can be passed to setValue as the third argument?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "shouldDirty — mark the field as dirty",
+        "correct": true
+      },
+      {
+        "text": "shouldValidate — trigger validation after setting the value",
+        "correct": true
+      },
+      {
+        "text": "shouldTouch — mark the field as touched",
+        "correct": true
+      },
+      {
+        "text": "shouldSubmit — automatically submit the form",
+        "correct": false,
+        "explanation": "There is no shouldSubmit option — form submission is done via handleSubmit"
+      }
+    ]
+  },
+  {
+    "question": "How do you send only changed fields to the server?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use formState.dirtyFields to filter data before submission",
+        "correct": true
+      },
+      {
+        "text": "React Hook Form automatically sends only dirty fields",
+        "correct": false,
+        "explanation": "handleSubmit always returns all form data — filtering by dirty fields is done manually"
+      },
+      {
+        "text": "Pass a dirtyOnly option to handleSubmit",
+        "correct": false,
+        "explanation": "No such option exists — you need to filter the data by dirtyFields yourself"
+      },
+      {
+        "text": "Use a separate form for each field",
+        "correct": false,
+        "explanation": "This is overkill — dirtyFields already tracks changes within a single form"
+      }
+    ]
+  },
+  {
+    "question": "When is it useful to use trigger() for manual validation?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "To validate a specific field on button click (e.g., 'Validate email')",
+        "correct": true
+      },
+      {
+        "text": "To validate a step in a multi-step form before proceeding",
+        "correct": true
+      },
+      {
+        "text": "trigger() is the only way to run validation in RHF",
+        "correct": false,
+        "explanation": "Validation also runs automatically on onChange/onBlur and during handleSubmit"
+      },
+      {
+        "text": "To validate dependent fields when a related field changes",
+        "correct": true
+      }
+    ]
   }
 ]

@@ -98,5 +98,105 @@
         "explanation": "RHF collects values into an array of strings, not an object"
       }
     ]
+  },
+  {
+    "question": "How do you implement input masking (e.g., for a phone number) using Controller?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Intercept onChange in the render prop and format the value before calling field.onChange",
+        "correct": true
+      },
+      {
+        "text": "Use the mask prop on Controller",
+        "correct": false,
+        "explanation": "Controller does not have a built-in mask prop — formatting is implemented via render"
+      },
+      {
+        "text": "Pass a mask to register",
+        "correct": false,
+        "explanation": "register does not support masks — use Controller with custom logic for that"
+      },
+      {
+        "text": "Use the transform prop in useForm",
+        "correct": false,
+        "explanation": "useForm does not have a transform prop — transformations are done in Controller's render"
+      }
+    ]
+  },
+  {
+    "question": "Why is Controller suitable for components like star ratings or color pickers?",
+    "type": "single",
+    "options": [
+      {
+        "text": "These components are not standard inputs and don't support ref — Controller manages their value via value/onChange",
+        "correct": true
+      },
+      {
+        "text": "Controller performs better with custom components",
+        "correct": false,
+        "explanation": "It's not about performance — Controller provides value/onChange for any component"
+      },
+      {
+        "text": "register doesn't work with numeric values",
+        "correct": false,
+        "explanation": "register supports valueAsNumber — the issue is component compatibility, not value types"
+      },
+      {
+        "text": "Controller automatically detects the component type",
+        "correct": false,
+        "explanation": "Controller doesn't detect the type — you decide how to bind value and onChange to the component"
+      }
+    ]
+  },
+  {
+    "question": "What happens when you call field.onChange with a transformed value in Controller's render function?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React Hook Form saves the transformed value as the field's value",
+        "correct": true
+      },
+      {
+        "text": "RHF ignores the transformation and saves the original value",
+        "correct": false,
+        "explanation": "RHF saves exactly the value passed to field.onChange"
+      },
+      {
+        "text": "There will be a type error",
+        "correct": false,
+        "explanation": "field.onChange accepts any value — typing depends on the form's generic type"
+      },
+      {
+        "text": "The value is saved but validation won't run",
+        "correct": false,
+        "explanation": "Validation runs against the value stored in the form, including transformed values"
+      }
+    ]
+  },
+  {
+    "question": "What is the best pattern for formatting a currency input (e.g., '1 234.56')?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Controller: store the formatted string, parse on submit",
+        "correct": true
+      },
+      {
+        "text": "register with valueAsNumber",
+        "correct": false,
+        "explanation": "valueAsNumber can't handle space separators — the input will lose its formatting"
+      },
+      {
+        "text": "A CSS property for formatting",
+        "correct": false,
+        "explanation": "CSS cannot format an input's value — this is JavaScript logic"
+      },
+      {
+        "text": "Use type='number' with Intl.NumberFormat",
+        "correct": false,
+        "explanation": "type='number' doesn't allow spaces and custom formatting"
+      }
+    ]
   }
 ]

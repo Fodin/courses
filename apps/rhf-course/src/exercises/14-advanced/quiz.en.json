@@ -97,5 +97,154 @@
         "explanation": "Redux Persist is a separate ecosystem; RHF does not require Redux"
       }
     ]
+  },
+  {
+    "question": "Why is it better to place useForm inside a modal component rather than outside?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Because useForm cannot be used in a parent component",
+        "correct": false,
+        "explanation": "useForm can be used in any component — it's a regular hook"
+      },
+      {
+        "text": "Form state is automatically reset when the modal unmounts",
+        "correct": true
+      },
+      {
+        "text": "React Hook Form does not support passing control via props",
+        "correct": false,
+        "explanation": "control can be passed via props or FormProvider"
+      },
+      {
+        "text": "Forms inside modals perform better",
+        "correct": false,
+        "explanation": "Performance does not depend on where useForm is placed"
+      }
+    ]
+  },
+  {
+    "question": "How do you properly reset a form when closing a modal?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Call reset() in the modal close handler",
+        "correct": true
+      },
+      {
+        "text": "Use window.location.reload()",
+        "correct": false,
+        "explanation": "Reloading the page is an unacceptable way to reset a form"
+      },
+      {
+        "text": "Remove the form from DOM via document.removeChild",
+        "correct": false,
+        "explanation": "Direct DOM manipulation is not used in React"
+      },
+      {
+        "text": "Reset is not possible — you need to recreate the component",
+        "correct": false,
+        "explanation": "reset() from useForm handles form reset perfectly"
+      }
+    ]
+  },
+  {
+    "question": "Which methods allow submitting a form from a button located outside the <form> tag?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A button with form=\"form-id\" attribute and type=\"submit\"",
+        "correct": true
+      },
+      {
+        "text": "Calling handleSubmit(onSubmit)() in an external button's onClick",
+        "correct": true
+      },
+      {
+        "text": "Using document.querySelector('form').submit()",
+        "correct": false,
+        "explanation": "Native submit() does not trigger React Hook Form validation"
+      },
+      {
+        "text": "This is impossible — the submit button must be inside the form",
+        "correct": false,
+        "explanation": "The HTML form= attribute and programmatic handleSubmit call both enable this"
+      }
+    ]
+  },
+  {
+    "question": "How do you reset a React Hook Form from an external component?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Call the reset() method from useForm in an external button's handler",
+        "correct": true
+      },
+      {
+        "text": "Via useRef on the <form> element and calling formRef.current.reset()",
+        "correct": false,
+        "explanation": "Native reset() does not synchronize React Hook Form state"
+      },
+      {
+        "text": "Set a key on the form component to force re-creation",
+        "correct": false,
+        "explanation": "This works but is an anti-pattern — better to use reset()"
+      },
+      {
+        "text": "Via Redux dispatch",
+        "correct": false,
+        "explanation": "React Hook Form does not depend on Redux"
+      }
+    ]
+  },
+  {
+    "question": "How do you register a nested field (e.g., city inside an address object) in React Hook Form?",
+    "type": "single",
+    "options": [
+      {
+        "text": "register('address.city') — using dot notation",
+        "correct": true
+      },
+      {
+        "text": "register('address[city]') — using square brackets",
+        "correct": false,
+        "explanation": "Square brackets are used for arrays (address[0]), not for objects"
+      },
+      {
+        "text": "register({ address: { city: true } }) — using a nested object",
+        "correct": false,
+        "explanation": "register accepts a string (field name), not an object"
+      },
+      {
+        "text": "Nested fields are not supported — you must use a flat structure",
+        "correct": false,
+        "explanation": "RHF supports nested fields via dot notation out of the box"
+      }
+    ]
+  },
+  {
+    "question": "What is the best way to organize a sub-form (part of a form in a separate component) in React Hook Form?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Wrap the parent form in FormProvider and use useFormContext in the sub-component",
+        "correct": true
+      },
+      {
+        "text": "Create a separate useForm in each sub-component",
+        "correct": false,
+        "explanation": "A separate useForm creates an isolated form — data won't be included in the parent's submit"
+      },
+      {
+        "text": "Pass all fields via props manually",
+        "correct": false,
+        "explanation": "This works but FormProvider + useFormContext is a more convenient and standard approach"
+      },
+      {
+        "text": "Use Redux to connect form components",
+        "correct": false,
+        "explanation": "Redux is not needed — FormProvider uses React Context for this purpose"
+      }
+    ]
   }
 ]

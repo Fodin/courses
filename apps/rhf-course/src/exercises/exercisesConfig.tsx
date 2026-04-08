@@ -46,6 +46,7 @@ export const exercises: LevelConfig[] = [
       task('2.2', <Level2.Task2_2_Solution />),
       task('2.3', <Level2.Task2_3_Solution />),
       task('2.4', <Level2.Task2_4_Solution />),
+      task('2.5', <Level2.Task2_5_Solution />),
     ],
   },
   {
@@ -87,6 +88,8 @@ export const exercises: LevelConfig[] = [
       task('6.1', <Level6.Task6_1_Solution />),
       task('6.2', <Level6.Task6_2_Solution />),
       task('6.3', <Level6.Task6_3_Solution />),
+      task('6.4', <Level6.Task6_4_Solution />),
+      task('6.5', <Level6.Task6_5_Solution />),
     ],
   },
   {
@@ -109,6 +112,8 @@ export const exercises: LevelConfig[] = [
       task('8.2', <Level8.Task8_2_Solution />),
       task('8.3', <Level8.Task8_3_Solution />),
       task('8.4', <Level8.Task8_4_Solution />),
+      task('8.5', <Level8.Task8_5_Solution />),
+      task('8.6', <Level8.Task8_6_Solution />),
     ],
   },
   {
@@ -119,6 +124,8 @@ export const exercises: LevelConfig[] = [
     tasks: [
       task('9.1', <Level9.Task9_1_Solution />),
       task('9.2', <Level9.Task9_2_Solution />),
+      task('9.3', <Level9.Task9_3_Solution />),
+      task('9.4', <Level9.Task9_4_Solution />),
     ],
   },
   {
@@ -174,6 +181,9 @@ export const exercises: LevelConfig[] = [
       task('14.4', <Level14.Task14_4_Solution />),
       task('14.5', <Level14.Task14_5_Solution />),
       task('14.6', <Level14.Task14_6_Solution />),
+      task('14.7', <Level14.Task14_7_Solution />),
+      task('14.8', <Level14.Task14_8_Solution />),
+      task('14.9', <Level14.Task14_9_Solution />),
     ],
   },
 ]

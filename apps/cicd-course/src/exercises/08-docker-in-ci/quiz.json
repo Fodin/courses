@@ -9,9 +9,9 @@
         "explanation": "Требование исходит не от GitLab, а от самого Docker. Runner-у нужно передать расширенные права ядра контейнеру."
       },
       {
-        "text": "Docker-демон внутри контейнера нуждается в доступе к ядру хоста для управления namespaces и cgroups",
-        "correct": true,
-        "explanation": "Именно так. Docker-демон управляет ядерными примитивами (namespaces, cgroups, overlay FS). Без privileged контейнер не имеет этих прав и демон не запустится."
+        "text": "Без privileged Docker не может читать Dockerfile из репозитория",
+        "correct": false,
+        "explanation": "Чтение файлов из репозитория не требует privileged. Это обычный файловый доступ."
       },
       {
         "text": "Privileged mode нужен только для push в Docker Registry",
@@ -19,9 +19,9 @@
         "explanation": "Push в Registry — обычная сетевая операция, не требует privileged. Права нужны для запуска Docker-демона."
       },
       {
-        "text": "Без privileged Docker не может читать Dockerfile из репозитория",
-        "correct": false,
-        "explanation": "Чтение файлов из репозитория не требует privileged. Это обычный файловый доступ."
+        "text": "Docker-демон внутри контейнера нуждается в доступе к ядру хоста для управления namespaces и cgroups",
+        "correct": true,
+        "explanation": "Именно так. Docker-демон управляет ядерными примитивами (namespaces, cgroups, overlay FS). Без privileged контейнер не имеет этих прав и демон не запустится."
       }
     ]
   },
@@ -30,9 +30,9 @@
     "type": "single",
     "options": [
       {
-        "text": "Kaniko собирает образы быстрее, потому что не нужно запускать демон",
+        "text": "Kaniko поддерживает более широкий набор инструкций Dockerfile",
         "correct": false,
-        "explanation": "Скорость не является главным преимуществом. При первом запуске Kaniko может быть даже медленнее. Главное — безопасность."
+        "explanation": "Kaniko поддерживает большинство инструкций Dockerfile, но это не его главное преимущество перед dind."
       },
       {
         "text": "Kaniko не требует privileged mode — сборка происходит в userspace без Docker-демона",
@@ -40,9 +40,9 @@
         "explanation": "Ключевое преимущество. Kaniko читает Dockerfile и строит слои в userspace, не требуя привилегированного доступа к ядру хоста. Это критично для безопасных production-сред."
       },
       {
-        "text": "Kaniko поддерживает более широкий набор инструкций Dockerfile",
+        "text": "Kaniko собирает образы быстрее, потому что не нужно запускать демон",
         "correct": false,
-        "explanation": "Kaniko поддерживает большинство инструкций Dockerfile, но это не его главное преимущество перед dind."
+        "explanation": "Скорость не является главным преимуществом. При первом запуске Kaniko может быть даже медленнее. Главное — безопасность."
       },
       {
         "text": "Kaniko не требует Docker Registry — образы хранятся локально на Runner",
@@ -61,11 +61,6 @@
         "explanation": "Kaniko поддерживает кэширование через флаги --cache и --cache-repo."
       },
       {
-        "text": "Кэш хранится локально на Runner в /var/lib/kaniko/cache",
-        "correct": false,
-        "explanation": "Kaniko не использует локальный кэш на диске Runner — это противоречит его архитектуре без демона."
-      },
-      {
         "text": "Kaniko хранит кэш слоёв в Docker Registry через флаги --cache=true и --cache-repo",
         "correct": true,
         "explanation": "Правильно. Kaniko пушит закэшированные слои в отдельный репозиторий Registry (например, registry.example.com/project/cache). При следующей сборке он скачивает их оттуда."
@@ -74,6 +69,11 @@
         "text": "Kaniko использует GitLab cache механизм через cache: paths в .gitlab-ci.yml",
         "correct": false,
         "explanation": "GitLab cache — это механизм для файлов на диске. Kaniko имеет собственный механизм кэширования через Registry."
+      },
+      {
+        "text": "Кэш хранится локально на Runner в /var/lib/kaniko/cache",
+        "correct": false,
+        "explanation": "Kaniko не использует локальный кэш на диске Runner — это противоречит его архитектуре без демона."
       }
     ]
   },
@@ -82,24 +82,24 @@
     "type": "multiple",
     "options": [
       {
-        "text": "Любое изменение кода инвалидирует кэш слоя npm ci, даже если зависимости не менялись",
-        "correct": true,
-        "explanation": "COPY . . копирует всё, включая исходники. Если изменился любой .ts файл — слой COPY меняется — следующий RUN npm ci пересобирается заново, хотя package.json не трогали."
-      },
-      {
-        "text": "FROM nginx:alpine не может использовать --from=builder",
-        "correct": false,
-        "explanation": "COPY --from=builder корректный синтаксис multi-stage build. Это нормальная практика."
-      },
-      {
         "text": "node_modules, .git и .env могут попасть в builder-образ и раздуть его",
         "correct": true,
         "explanation": "Без .dockerignore COPY . . копирует node_modules (сотни MB), .git историю, .env с секретами. Builder-образ становится гигантским, а секреты могут утечь."
       },
       {
+        "text": "Любое изменение кода инвалидирует кэш слоя npm ci, даже если зависимости не менялись",
+        "correct": true,
+        "explanation": "COPY . . копирует всё, включая исходники. Если изменился любой .ts файл — слой COPY меняется — следующий RUN npm ci пересобирается заново, хотя package.json не трогали."
+      },
+      {
         "text": "Multi-stage build не поддерживается при использовании dind",
         "correct": false,
         "explanation": "Multi-stage build — стандартная возможность Docker, работает со всеми методами сборки: dind, Kaniko, buildx."
+      },
+      {
+        "text": "FROM nginx:alpine не может использовать --from=builder",
+        "correct": false,
+        "explanation": "COPY --from=builder корректный синтаксис multi-stage build. Это нормальная практика."
       }
     ]
   },
@@ -108,24 +108,24 @@
     "type": "single",
     "options": [
       {
-        "text": "Docker не будет публиковать образ latest, а использует его только для кэша",
-        "correct": false,
-        "explanation": "Это только про кэш при сборке. Публикация управляется отдельно командой docker push."
-      },
-      {
         "text": "Docker скачает образ latest и использует его слои как кэш при сборке нового образа",
         "correct": true,
         "explanation": "Именно так. Docker сравнивает инструкции Dockerfile со слоями скачанного образа. Совпадающие слои не пересобираются — берутся из кэша. Это экономит 80%+ времени сборки."
       },
       {
-        "text": "Сборка завершится ошибкой, если образ latest не существует в Registry",
+        "text": "Docker не будет публиковать образ latest, а использует его только для кэша",
         "correct": false,
-        "explanation": "Нет. Если образ не найден (docker pull вернул ошибку), сборка продолжается без кэша. Именно для этого используют || true после docker pull."
+        "explanation": "Это только про кэш при сборке. Публикация управляется отдельно командой docker push."
       },
       {
         "text": "latest будет перезаписан новым образом в конце сборки",
         "correct": false,
         "explanation": "Это не связано с --cache-from. Перезапись latest происходит при docker push, а не при build."
+      },
+      {
+        "text": "Сборка завершится ошибкой, если образ latest не существует в Registry",
+        "correct": false,
+        "explanation": "Нет. Если образ не найден (docker pull вернул ошибку), сборка продолжается без кэша. Именно для этого используют || true после docker pull."
       }
     ]
   },
@@ -133,11 +133,6 @@
     "question": "Переменная DOCKER_TLS_CERTDIR установлена в пустую строку в dind-джобе. Какой риск это создаёт?",
     "type": "single",
     "options": [
-      {
-        "text": "Сборка будет медленнее — без TLS нет сжатия трафика",
-        "correct": false,
-        "explanation": "TLS не влияет на скорость сжатия. Риск в безопасности, а не производительности."
-      },
       {
         "text": "Docker не запустится без TLS-сертификатов",
         "correct": false,
@@ -147,6 +142,11 @@
         "text": "Любой процесс или сервис в сети контейнеров может подключиться к Docker-демону и управлять им без аутентификации",
         "correct": true,
         "explanation": "Без TLS Docker слушает на порту 2375 без шифрования и аутентификации. В среде с несколькими контейнерами это означает, что любой процесс может запускать контейнеры, читать файлы хоста и т.д."
+      },
+      {
+        "text": "Сборка будет медленнее — без TLS нет сжатия трафика",
+        "correct": false,
+        "explanation": "TLS не влияет на скорость сжатия. Риск в безопасности, а не производительности."
       },
       {
         "text": "Образы не будут сохраняться в Registry из-за отсутствия сертификатов",
@@ -160,16 +160,6 @@
     "type": "single",
     "options": [
       {
-        "text": "Передать CI_REGISTRY_USER и CI_REGISTRY_PASSWORD как переменные окружения — Kaniko подхватит их автоматически",
-        "correct": false,
-        "explanation": "Kaniko не читает эти переменные автоматически. Нужно явно создать config.json."
-      },
-      {
-        "text": "Создать /kaniko/.docker/config.json с base64-закодированными учётными данными Registry",
-        "correct": true,
-        "explanation": "Правильно. Kaniko использует стандартный Docker config.json для аутентификации. Его нужно создать вручную: printf '%s:%s' user password | base64 и записать в /kaniko/.docker/config.json."
-      },
-      {
         "text": "Добавить docker login в before_script перед запуском Kaniko",
         "correct": false,
         "explanation": "docker login не работает в Kaniko-контейнере — там нет Docker-клиента. Нужен /kaniko/.docker/config.json."
@@ -178,6 +168,16 @@
         "text": "Kaniko автоматически использует $CI_JOB_TOKEN для доступа к GitLab Registry",
         "correct": false,
         "explanation": "Kaniko не имеет встроенной интеграции с GitLab. Нужно явно предоставить учётные данные через config.json."
+      },
+      {
+        "text": "Создать /kaniko/.docker/config.json с base64-закодированными учётными данными Registry",
+        "correct": true,
+        "explanation": "Правильно. Kaniko использует стандартный Docker config.json для аутентификации. Его нужно создать вручную: printf '%s:%s' user password | base64 и записать в /kaniko/.docker/config.json."
+      },
+      {
+        "text": "Передать CI_REGISTRY_USER и CI_REGISTRY_PASSWORD как переменные окружения — Kaniko подхватит их автоматически",
+        "correct": false,
+        "explanation": "Kaniko не читает эти переменные автоматически. Нужно явно создать config.json."
       }
     ]
   },
@@ -186,24 +186,24 @@
     "type": "single",
     "options": [
       {
-        "text": "Тесты внутри docker run не могут передать артефакты в GitLab",
-        "correct": false,
-        "explanation": "Результаты можно получить — через volume mount или docker cp."
-      },
-      {
         "text": "Использовать docker run с монтированием директории хоста: -v $(pwd)/results:/app/results",
         "correct": true,
         "explanation": "Правильно. Монтируем директорию CI-джоба в контейнер. Тесты пишут результаты в /app/results, которые появляются в $(pwd)/results на джобе. Потом эта директория попадает в artifacts."
       },
       {
-        "text": "Использовать docker commit для сохранения изменений контейнера",
-        "correct": false,
-        "explanation": "docker commit создаёт новый образ из контейнера. Это не передаст файлы в GitLab artifacts."
-      },
-      {
         "text": "Указать артефакты прямо в docker run через --artifact флаг",
         "correct": false,
         "explanation": "Такого флага у docker run нет. Для передачи файлов используют volume mount или docker cp."
+      },
+      {
+        "text": "Тесты внутри docker run не могут передать артефакты в GitLab",
+        "correct": false,
+        "explanation": "Результаты можно получить — через volume mount или docker cp."
+      },
+      {
+        "text": "Использовать docker commit для сохранения изменений контейнера",
+        "correct": false,
+        "explanation": "docker commit создаёт новый образ из контейнера. Это не передаст файлы в GitLab artifacts."
       }
     ]
   },
@@ -212,24 +212,24 @@
     "type": "single",
     "options": [
       {
-        "text": "Нужно настроить dind как в GitLab — добавить privileged: true в workflow",
-        "correct": false,
-        "explanation": "В GitHub Actions Docker доступен на ubuntu-latest runner-е изначально. Отдельно настраивать dind или privileged mode не нужно."
-      },
-      {
-        "text": "GitHub Actions не поддерживает сборку Docker-образов",
-        "correct": false,
-        "explanation": "Поддерживает, причём очень хорошо. Есть официальные actions: docker/build-push-action, docker/setup-buildx-action."
-      },
-      {
         "text": "Docker уже установлен на ubuntu-latest runner, dind не нужен. Для оптимизации используют docker/setup-buildx-action",
         "correct": true,
         "explanation": "Именно так. GitHub-hosted runners (ubuntu-latest) уже имеют Docker. setup-buildx-action включает BuildKit с расширенными возможностями кэширования (type=gha cache)."
       },
       {
+        "text": "Нужно настроить dind как в GitLab — добавить privileged: true в workflow",
+        "correct": false,
+        "explanation": "В GitHub Actions Docker доступен на ubuntu-latest runner-е изначально. Отдельно настраивать dind или privileged mode не нужно."
+      },
+      {
         "text": "В GitHub Actions можно использовать только Kaniko, не Docker",
         "correct": false,
         "explanation": "Можно использовать и то, и другое. Docker предпочтительнее на GitHub Actions, потому что он уже доступен без настройки."
+      },
+      {
+        "text": "GitHub Actions не поддерживает сборку Docker-образов",
+        "correct": false,
+        "explanation": "Поддерживает, причём очень хорошо. Есть официальные actions: docker/build-push-action, docker/setup-buildx-action."
       }
     ]
   },
@@ -238,14 +238,14 @@
     "type": "single",
     "options": [
       {
-        "text": "Чтобы GitLab не считал pull ошибкой при медленном Registry",
-        "correct": false,
-        "explanation": "Медленный Registry вызовет timeout, а не ненулевой код возврата. || true нужен по другой причине."
-      },
-      {
         "text": "Чтобы пайплайн не падал при первой сборке, когда образа latest ещё нет в Registry",
         "correct": true,
         "explanation": "Правильно. docker pull завершается с кодом 1, если образ не найден. При первом запуске пайплайна образа latest нет — без || true весь джоб упадёт из-за этой единственной команды."
+      },
+      {
+        "text": "Чтобы GitLab не считал pull ошибкой при медленном Registry",
+        "correct": false,
+        "explanation": "Медленный Registry вызовет timeout, а не ненулевой код возврата. || true нужен по другой причине."
       },
       {
         "text": "Docker pull возвращает ошибку при плохом соединении, || true делает сборку устойчивой",
@@ -265,7 +265,7 @@
     "options": [
       {
         "text": "Переставить инструкции: сначала COPY package*.json ./, потом RUN npm ci, потом COPY . .",
-        "correct": true,
+        "correct": false,
         "explanation": "Ключевое исправление. npm ci запустится только при изменении package*.json. Изменение .ts файлов не затронет этот слой."
       },
       {
@@ -295,9 +295,9 @@
         "explanation": "redo не означает полную пересборку. Это режим вычисления diff между слоями."
       },
       {
-        "text": "Более быстрый алгоритм сравнения файловой системы: Kaniko выполняет команды и сравнивает только изменённые файлы, вместо полного обхода дерева",
-        "correct": true,
-        "explanation": "Правильно. Режим redo быстрее режима time (по умолчанию), потому что пересчитывает только файлы, изменённые командой RUN, а не всё дерево. Рекомендуется для большинства Dockerfile."
+        "text": "--snapshot-mode=redo нужен только при многостадийных сборках",
+        "correct": false,
+        "explanation": "redo полезен для любых Dockerfile. Особенно выигрывают образы со многими RUN командами."
       },
       {
         "text": "Kaniko сохраняет снапшоты файловой системы в /tmp для ускорения следующего запуска",
@@ -305,9 +305,9 @@
         "explanation": "Снапшоты Kaniko используются при текущей сборке для создания слоёв образа, но не сохраняются между запусками."
       },
       {
-        "text": "--snapshot-mode=redo нужен только при многостадийных сборках",
-        "correct": false,
-        "explanation": "redo полезен для любых Dockerfile. Особенно выигрывают образы со многими RUN командами."
+        "text": "Более быстрый алгоритм сравнения файловой системы: Kaniko выполняет команды и сравнивает только изменённые файлы, вместо полного обхода дерева",
+        "correct": true,
+        "explanation": "Правильно. Режим redo быстрее режима time (по умолчанию), потому что пересчитывает только файлы, изменённые командой RUN, а не всё дерево. Рекомендуется для большинства Dockerfile."
       }
     ]
   },
@@ -316,9 +316,9 @@
     "type": "multiple",
     "options": [
       {
-        "text": "Запушить образ в GitLab Registry в build-джобе, скачать его в test-джобе",
-        "correct": true,
-        "explanation": "Стандартный подход. Build пушит в Registry с тегом SHA, test делает docker pull с тем же тегом. Надёжно и масштабируется."
+        "text": "Использовать cache: paths: [/var/lib/docker] для кэширования слоёв между джобами",
+        "correct": false,
+        "explanation": "Кэшировать /var/lib/docker не рекомендуется — это внутренние данные Docker daemon, которые могут быть некорректны при восстановлении. Используй Registry."
       },
       {
         "text": "Использовать GitLab artifacts: сохранить docker save output, загрузить через docker load",
@@ -331,9 +331,9 @@
         "explanation": "Каждый dind service — изолированный контейнер с отдельным daemon. Слои образов не шарятся автоматически между джобами."
       },
       {
-        "text": "Использовать cache: paths: [/var/lib/docker] для кэширования слоёв между джобами",
-        "correct": false,
-        "explanation": "Кэшировать /var/lib/docker не рекомендуется — это внутренние данные Docker daemon, которые могут быть некорректны при восстановлении. Используй Registry."
+        "text": "Запушить образ в GitLab Registry в build-джобе, скачать его в test-джобе",
+        "correct": true,
+        "explanation": "Стандартный подход. Build пушит в Registry с тегом SHA, test делает docker pull с тем же тегом. Надёжно и масштабируется."
       }
     ]
   },
@@ -342,9 +342,9 @@
     "type": "single",
     "options": [
       {
-        "text": "При каждом успешном запуске пайплайна — latest всегда должен указывать на последний успешный build",
+        "text": "Только при создании git tag — latest должен соответствовать последнему релизу",
         "correct": false,
-        "explanation": "Если latest обновляется при каждом коммите (включая feature ветки), он теряет смысл — нельзя понять, что именно задеплоено в продакшен."
+        "explanation": "Это тоже разумный подход, но не единственный. Многие команды используют latest для main. Для тегов версий используют отдельные теги образов: v1.2.3."
       },
       {
         "text": "Только при пуше в main/master ветку — latest должен означать 'последняя стабильная версия'",
@@ -352,14 +352,14 @@
         "explanation": "Правильная конвенция. latest обновляется только для main, чтобы означать 'то, что сейчас в продакшене'. Feature-ветки используют свои теги (имя ветки или SHA)."
       },
       {
+        "text": "При каждом успешном запуске пайплайна — latest всегда должен указывать на последний успешный build",
+        "correct": false,
+        "explanation": "Если latest обновляется при каждом коммите (включая feature ветки), он теряет смысл — нельзя понять, что именно задеплоено в продакшен."
+      },
+      {
         "text": "Никогда — latest не рекомендуется в production-пайплайнах",
         "correct": false,
         "explanation": "latest удобен как человекочитаемый тег для main ветки. Проблема не в latest, а в его неправильном использовании (перезапись при каждом коммите любой ветки)."
-      },
-      {
-        "text": "Только при создании git tag — latest должен соответствовать последнему релизу",
-        "correct": false,
-        "explanation": "Это тоже разумный подход, но не единственный. Многие команды используют latest для main. Для тегов версий используют отдельные теги образов: v1.2.3."
       }
     ]
   },
@@ -368,9 +368,9 @@
     "type": "single",
     "options": [
       {
-        "text": "Нет разницы — Docker всегда строит все stages",
+        "text": "--target нужен только при использовании Kaniko — стандартный docker build игнорирует этот флаг",
         "correct": false,
-        "explanation": "С --target Docker останавливается на указанном stage и не выполняет последующие. Это ключевое отличие."
+        "explanation": "--target — стандартный флаг docker build, работающий со всеми инструментами: docker CLI, buildx, Kaniko, и другими."
       },
       {
         "text": "--target builder собирает только первый stage и останавливается, игнорируя production stage",
@@ -378,14 +378,14 @@
         "explanation": "Правильно. docker build --target builder остановится после stage с именем builder. Это полезно для запуска тестов в build-окружении без сборки полного production-образа."
       },
       {
+        "text": "Нет разницы — Docker всегда строит все stages",
+        "correct": false,
+        "explanation": "С --target Docker останавливается на указанном stage и не выполняет последующие. Это ключевое отличие."
+      },
+      {
         "text": "--target builder всегда быстрее, потому что собирает меньше слоёв",
         "correct": false,
         "explanation": "Это верно для данного примера, но не всегда. --target может указывать на поздний stage, который требует все предыдущие."
-      },
-      {
-        "text": "--target нужен только при использовании Kaniko — стандартный docker build игнорирует этот флаг",
-        "correct": false,
-        "explanation": "--target — стандартный флаг docker build, работающий со всеми инструментами: docker CLI, buildx, Kaniko, и другими."
       }
     ]
   }

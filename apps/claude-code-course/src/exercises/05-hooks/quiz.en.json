@@ -3,80 +3,208 @@
     "question": "What are Hooks in Claude Code?",
     "type": "single",
     "options": [
-      { "text": "Event handlers that intercept and modify Claude's actions before and after execution", "correct": true, "explanation": "Correct: Hooks work like middleware — they can block, modify, or react to tool usage." },
-      { "text": "CSS hooks for styling components", "correct": false, "explanation": "This refers to React CSS hooks, not Claude Code Hooks." },
-      { "text": "Git hooks for pre-commit checks", "correct": false, "explanation": "Git hooks run on git operations, not on Claude Code actions." },
-      { "text": "React hooks for state management", "correct": false, "explanation": "React hooks are for component state, not Claude Code." }
+      {
+        "text": "Git hooks for pre-commit checks",
+        "correct": false,
+        "explanation": "Git hooks run on git operations, not on Claude Code actions."
+      },
+      {
+        "text": "React hooks for state management",
+        "correct": false,
+        "explanation": "React hooks are for component state, not Claude Code."
+      },
+      {
+        "text": "CSS hooks for styling components",
+        "correct": false,
+        "explanation": "This refers to React CSS hooks, not Claude Code Hooks."
+      },
+      {
+        "text": "Event handlers that intercept and modify Claude's actions before and after execution",
+        "correct": true,
+        "explanation": "Correct: Hooks work like middleware — they can block, modify, or react to tool usage."
+      }
     ]
   },
   {
     "question": "What are the two types of Hooks?",
     "type": "single",
     "options": [
-      { "text": "BeforeExecute and AfterExecute", "correct": false, "explanation": "These names do not exist in Claude Code." },
-      { "text": "PreToolUse and PostToolUse", "correct": true, "explanation": "Correct: PreToolUse triggers before a tool is used, PostToolUse triggers after." },
-      { "text": "OnToolCall and OnToolResult", "correct": false, "explanation": "These names do not exist in Claude Code." },
-      { "text": "Intercept and Modify", "correct": false, "explanation": "These are descriptions of what hooks do, not their names." }
+      {
+        "text": "Intercept and Modify",
+        "correct": false,
+        "explanation": "These are descriptions of what hooks do, not their names."
+      },
+      {
+        "text": "OnToolCall and OnToolResult",
+        "correct": false,
+        "explanation": "These names do not exist in Claude Code."
+      },
+      {
+        "text": "PreToolUse and PostToolUse",
+        "correct": true,
+        "explanation": "Correct: PreToolUse triggers before a tool is used, PostToolUse triggers after."
+      },
+      {
+        "text": "BeforeExecute and AfterExecute",
+        "correct": false,
+        "explanation": "These names do not exist in Claude Code."
+      }
     ]
   },
   {
     "question": "Which hook can block a dangerous command?",
     "type": "single",
     "options": [
-      { "text": "PostToolUse", "correct": false, "explanation": "PostToolUse triggers after the tool has already executed — it is too late to block." },
-      { "text": "PreToolUse", "correct": true, "explanation": "Correct: PreToolUse triggers before the tool is used and can return decision: 'block'." },
-      { "text": "Both can block", "correct": false, "explanation": "Only PreToolUse can block actions." },
-      { "text": "Neither can block", "correct": false, "explanation": "PreToolUse can block actions by returning decision: 'block'." }
+      {
+        "text": "Neither can block",
+        "correct": false,
+        "explanation": "PreToolUse can block actions by returning decision: 'block'."
+      },
+      {
+        "text": "Both can block",
+        "correct": false,
+        "explanation": "Only PreToolUse can block actions."
+      },
+      {
+        "text": "PreToolUse",
+        "correct": true,
+        "explanation": "Correct: PreToolUse triggers before the tool is used and can return decision: 'block'."
+      },
+      {
+        "text": "PostToolUse",
+        "correct": false,
+        "explanation": "PostToolUse triggers after the tool has already executed — it is too late to block."
+      }
     ]
   },
   {
     "question": "How do you specify hooks when launching Claude Code?",
     "type": "single",
     "options": [
-      { "text": "claude --hooks claude-code-hooks.js", "correct": true, "explanation": "Correct: use the --hooks flag followed by the path to the hooks file." },
-      { "text": "claude --middleware hooks.js", "correct": false, "explanation": "There is no --middleware flag in Claude Code." },
-      { "text": "claude --plugins hooks", "correct": false, "explanation": "There is no --plugins flag for hooks." },
-      { "text": "Hooks are always loaded automatically", "correct": false, "explanation": "Hooks must be explicitly specified via --hooks or settings.json." }
+      {
+        "text": "claude --plugins hooks",
+        "correct": false,
+        "explanation": "There is no --plugins flag for hooks."
+      },
+      {
+        "text": "Hooks are always loaded automatically",
+        "correct": false,
+        "explanation": "Hooks must be explicitly specified via --hooks or settings.json."
+      },
+      {
+        "text": "claude --middleware hooks.js",
+        "correct": false,
+        "explanation": "There is no --middleware flag in Claude Code."
+      },
+      {
+        "text": "claude --hooks claude-code-hooks.js",
+        "correct": true,
+        "explanation": "Correct: use the --hooks flag followed by the path to the hooks file."
+      }
     ]
   },
   {
     "question": "What does PostToolUse have access to that PreToolUse does not?",
     "type": "single",
     "options": [
-      { "text": "The user's prompt", "correct": false, "explanation": "Neither hook has direct access to the user's prompt." },
-      { "text": "The tool execution result (exitCode, content)", "correct": true, "explanation": "Correct: PostToolUse receives the result object with exitCode and content." },
-      { "text": "The list of all available tools", "correct": false, "explanation": "Neither hook has access to the list of all tools." },
-      { "text": "The conversation history", "correct": false, "explanation": "Hooks work with a single tool action, not the full conversation." }
+      {
+        "text": "The tool execution result (exitCode, content)",
+        "correct": true,
+        "explanation": "Correct: PostToolUse receives the result object with exitCode and content."
+      },
+      {
+        "text": "The conversation history",
+        "correct": false,
+        "explanation": "Hooks work with a single tool action, not the full conversation."
+      },
+      {
+        "text": "The user's prompt",
+        "correct": false,
+        "explanation": "Neither hook has direct access to the user's prompt."
+      },
+      {
+        "text": "The list of all available tools",
+        "correct": false,
+        "explanation": "Neither hook has access to the list of all tools."
+      }
     ]
   },
   {
     "question": "Which hook is better for logging all Claude Code actions?",
     "type": "single",
     "options": [
-      { "text": "Only PreToolUse", "correct": false, "explanation": "PreToolUse can log, but will not capture the result." },
-      { "text": "Only PostToolUse", "correct": false, "explanation": "PostToolUse can log, but will not capture blocked actions." },
-      { "text": "Both — PreToolUse logs the action, PostToolUse logs the result", "correct": true, "explanation": "Correct: using both gives a complete picture of what happened." },
-      { "text": "Hooks cannot log", "correct": false, "explanation": "Hooks can write logs to files or external services." }
+      {
+        "text": "Only PostToolUse",
+        "correct": false,
+        "explanation": "PostToolUse can log, but will not capture blocked actions."
+      },
+      {
+        "text": "Hooks cannot log",
+        "correct": false,
+        "explanation": "Hooks can write logs to files or external services."
+      },
+      {
+        "text": "Only PreToolUse",
+        "correct": false,
+        "explanation": "PreToolUse can log, but will not capture the result."
+      },
+      {
+        "text": "Both — PreToolUse logs the action, PostToolUse logs the result",
+        "correct": true,
+        "explanation": "Correct: using both gives a complete picture of what happened."
+      }
     ]
   },
   {
     "question": "What return value blocks a tool in PreToolUse?",
     "type": "single",
     "options": [
-      { "text": "{ decision: 'deny' }", "correct": false, "explanation": "'deny' is not a valid value — use 'block'." },
-      { "text": "{ decision: 'block', errorMessage: 'reason' }", "correct": true, "explanation": "Correct: 'block' prevents the tool from executing, and errorMessage explains why." },
-      { "text": "{ blocked: true }", "correct": false, "explanation": "This is not the correct format for HookResult." },
-      { "text": "return false", "correct": false, "explanation": "Hooks must return a HookResult object, not a boolean." }
+      {
+        "text": "{ decision: 'deny' }",
+        "correct": false,
+        "explanation": "'deny' is not a valid value — use 'block'."
+      },
+      {
+        "text": "{ decision: 'block', errorMessage: 'reason' }",
+        "correct": true,
+        "explanation": "Correct: 'block' prevents the tool from executing, and errorMessage explains why."
+      },
+      {
+        "text": "{ blocked: true }",
+        "correct": false,
+        "explanation": "This is not the correct format for HookResult."
+      },
+      {
+        "text": "return false",
+        "correct": false,
+        "explanation": "Hooks must return a HookResult object, not a boolean."
+      }
     ]
   },
   {
     "question": "What is the priority order of CLAUDE.md levels?",
     "type": "single",
     "options": [
-      { "text": "Project > User > Subdirectory > Managed Policy", "correct": false, "explanation": "Managed Policy has the highest priority, not the lowest." },
-      { "text": "Managed Policy > User > Project > Subdirectory", "correct": true, "explanation": "Correct: Managed Policy cannot be overridden, then User, Project, and Subdirectory." },
-      { "text": "Subdirectory > Project > User > Managed Policy", "correct": false, "explanation": "This is the reverse of the actual priority order." },
-      { "text": "All levels have equal priority", "correct": false, "explanation": "Levels have different priorities — higher levels override lower ones." }
+      {
+        "text": "All levels have equal priority",
+        "correct": false,
+        "explanation": "Levels have different priorities — higher levels override lower ones."
+      },
+      {
+        "text": "Project > User > Subdirectory > Managed Policy",
+        "correct": false,
+        "explanation": "Managed Policy has the highest priority, not the lowest."
+      },
+      {
+        "text": "Subdirectory > Project > User > Managed Policy",
+        "correct": false,
+        "explanation": "This is the reverse of the actual priority order."
+      },
+      {
+        "text": "Managed Policy > User > Project > Subdirectory",
+        "correct": true,
+        "explanation": "Correct: Managed Policy cannot be overridden, then User, Project, and Subdirectory."
+      }
     ]
   }
 ]

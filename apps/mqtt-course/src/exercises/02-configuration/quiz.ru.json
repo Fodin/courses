@@ -4,9 +4,9 @@
     "type": "single",
     "options": [
       {
-        "text": "Применяется ко всем listener-ам как значение по умолчанию",
-        "correct": true,
-        "explanation": "В Mosquitto 2.x параметры безопасности до первого listener становятся глобальными умолчаниями для всех listener-ов. Каждый listener может переопределить это значение своим own allow_anonymous."
+        "text": "Вызывает ошибку конфигурации в Mosquitto 2.x",
+        "correct": false,
+        "explanation": "Ошибки нет — это корректный синтаксис. Глобальный allow_anonymous работает как умолчание для всех listener-ов."
       },
       {
         "text": "Применяется только к первому listener",
@@ -19,9 +19,9 @@
         "explanation": "Он не игнорируется — применяется как умолчание. Но лучшая практика — явно указывать allow_anonymous внутри каждого listener для читаемости и предсказуемости конфига."
       },
       {
-        "text": "Вызывает ошибку конфигурации в Mosquitto 2.x",
-        "correct": false,
-        "explanation": "Ошибки нет — это корректный синтаксис. Глобальный allow_anonymous работает как умолчание для всех listener-ов."
+        "text": "Применяется ко всем listener-ам как значение по умолчанию",
+        "correct": true,
+        "explanation": "В Mosquitto 2.x параметры безопасности до первого listener становятся глобальными умолчаниями для всех listener-ов. Каждый listener может переопределить это значение своим own allow_anonymous."
       }
     ]
   },
@@ -35,19 +35,24 @@
         "explanation": "В v1.x port и bind_address были глобальными. В v2.x они стали частью listener-синтаксиса: listener 1883 192.168.1.1 (порт и адрес в одной строке)."
       },
       {
-        "text": "allow_anonymous теперь false по умолчанию (был true)",
-        "correct": true,
-        "explanation": "Breaking change в v2.0: анонимный доступ запрещён по умолчанию. Конфиги v1.x, не имеющие явного allow_anonymous, перестают работать после обновления."
-      },
-      {
         "text": "Формат файла паролей изменился на JSON",
         "correct": false,
         "explanation": "Формат файла паролей остался прежним (username:hashed_password). Изменился алгоритм хеширования (PBKDF2-SHA512 вместо SHA1), но не формат файла."
       },
       {
+        "text": "Данный подход устарел и больше не используется",
+        "correct": false,
+        "explanation": "Этот подход активно применяется в современных системах."
+      },
+      {
         "text": "TLS-параметры (cafile, certfile, keyfile) теперь указываются внутри listener",
         "correct": true,
         "explanation": "В v1.x TLS-параметры могли быть глобальными. В v2.x они должны быть внутри конкретного listener — это логично, т.к. разные listener-ы могут иметь разные сертификаты."
+      },
+      {
+        "text": "allow_anonymous теперь false по умолчанию (был true)",
+        "correct": true,
+        "explanation": "Breaking change в v2.0: анонимный доступ запрещён по умолчанию. Конфиги v1.x, не имеющие явного allow_anonymous, перестают работать после обновления."
       }
     ]
   },
@@ -55,6 +60,16 @@
     "question": "Какой log_dest рекомендуется использовать на OpenWRT и почему?",
     "type": "single",
     "options": [
+      {
+        "text": "topic — публикация логов в $SYS/broker/log для мониторинга",
+        "correct": false,
+        "explanation": "Публикация логов в топик создаёт рекурсивную нагрузку: каждый лог-запрос генерирует MQTT-сообщение, что само генерирует лог. Для мониторинга используй $SYS-топики напрямую."
+      },
+      {
+        "text": "stdout — удобно видеть логи в реальном времени",
+        "correct": false,
+        "explanation": "stdout полезен при ручном запуске для отладки. В продакшне сервис запускается через init.d и stdout теряется. Для постоянной работы — syslog."
+      },
       {
         "text": "syslog — интегрируется с системным журналом, читается через logread",
         "correct": true,
@@ -64,16 +79,6 @@
         "text": "file /var/log/mosquitto.log — стандартный путь для логов в Linux",
         "correct": false,
         "explanation": "/var/log/ в OpenWRT хранится на flash. Постоянная запись логов изнашивает flash-память. Если нужен файловый лог — используй /tmp/mosquitto.log (tmpfs)."
-      },
-      {
-        "text": "stdout — удобно видеть логи в реальном времени",
-        "correct": false,
-        "explanation": "stdout полезен при ручном запуске для отладки. В продакшне сервис запускается через init.d и stdout теряется. Для постоянной работы — syslog."
-      },
-      {
-        "text": "topic — публикация логов в $SYS/broker/log для мониторинга",
-        "correct": false,
-        "explanation": "Публикация логов в топик создаёт рекурсивную нагрузку: каждый лог-запрос генерирует MQTT-сообщение, что само генерирует лог. Для мониторинга используй $SYS-топики напрямую."
       }
     ]
   },
@@ -82,9 +87,9 @@
     "type": "single",
     "options": [
       {
-        "text": "Нет — параметры allow_anonymous и password_file применяются только к первому listener",
-        "correct": true,
-        "explanation": "В Mosquitto 2.x параметры аутентификации относятся к listener-у, под которым указаны. Второй listener (9001) не имеет собственных настроек аутентификации — нужно явно добавить allow_anonymous и password_file под ним."
+        "text": "Да — allow_anonymous false действует глобально для всего процесса",
+        "correct": false,
+        "explanation": "В Mosquitto 2.x allow_anonymous — per-listener настройка. Для применения ко всем listener-ам нужно либо указать глобально ДО первого listener, либо повторить в каждом."
       },
       {
         "text": "Да — параметры аутентификации применяются ко всем listener-ам после них",
@@ -92,9 +97,9 @@
         "explanation": "Нет, параметры применяются только к listener-у, под которым они указаны. Каждый listener независим. Если нужна аутентификация на порту 9001 — добавь параметры явно."
       },
       {
-        "text": "Да — allow_anonymous false действует глобально для всего процесса",
-        "correct": false,
-        "explanation": "В Mosquitto 2.x allow_anonymous — per-listener настройка. Для применения ко всем listener-ам нужно либо указать глобально ДО первого listener, либо повторить в каждом."
+        "text": "Нет — параметры allow_anonymous и password_file применяются только к первому listener",
+        "correct": true,
+        "explanation": "В Mosquitto 2.x параметры аутентификации относятся к listener-у, под которым указаны. Второй listener (9001) не имеет собственных настроек аутентификации — нужно явно добавить allow_anonymous и password_file под ним."
       },
       {
         "text": "Конфиг некорректен — два listener не могут иметь разные настройки",
@@ -108,24 +113,24 @@
     "type": "multiple",
     "options": [
       {
-        "text": "Изменение порта listener (например, с 1883 на 1884)",
-        "correct": true,
-        "explanation": "Параметры listener — сетевые сокеты, уже открытые. SIGHUP не может закрыть старый порт и открыть новый без перезапуска. Для смены порта нужен /etc/init.d/mosquitto restart."
-      },
-      {
-        "text": "Добавление нового пользователя в password_file",
-        "correct": false,
-        "explanation": "password_file перечитывается при SIGHUP. Если добавить пользователя через mosquitto_passwd и сделать HUP — новый пользователь сможет подключиться без перезапуска."
-      },
-      {
         "text": "Изменение log_type с notice на debug",
         "correct": false,
         "explanation": "Параметры логирования (log_type, log_dest) применяются при SIGHUP без перезапуска. Это удобно для временного включения debug-логов на работающей системе."
       },
       {
+        "text": "Изменение порта listener (например, с 1883 на 1884)",
+        "correct": true,
+        "explanation": "Параметры listener — сетевые сокеты, уже открытые. SIGHUP не может закрыть старый порт и открыть новый без перезапуска. Для смены порта нужен /etc/init.d/mosquitto restart."
+      },
+      {
         "text": "Включение persistence (persistence false → true)",
         "correct": true,
         "explanation": "Параметры persistence требуют перезапуска — брокер не может 'на лету' открыть базу данных для уже запущенных соединений. Нужен /etc/init.d/mosquitto restart."
+      },
+      {
+        "text": "Добавление нового пользователя в password_file",
+        "correct": false,
+        "explanation": "password_file перечитывается при SIGHUP. Если добавить пользователя через mosquitto_passwd и сделать HUP — новый пользователь сможет подключиться без перезапуска."
       }
     ]
   },

@@ -4,9 +4,9 @@
     "type": "single",
     "options": [
       {
-        "text": "2 bytes",
-        "correct": true,
-        "explanation": "The MQTT fixed header takes only 2 bytes: packet type + flags (1 byte) and remaining length (1+ bytes). This is one of MQTT's main advantages over HTTP."
+        "text": "1 byte",
+        "correct": false,
+        "explanation": "1 byte is not enough: you need at least 1 byte for packet type+flags and 1 byte for the remaining length. Total: 2 bytes."
       },
       {
         "text": "64 bytes",
@@ -14,14 +14,14 @@
         "explanation": "64 bytes is too much for MQTT. The minimum fixed header is only 2 bytes, making the protocol ideal for IoT with limited bandwidth."
       },
       {
+        "text": "2 bytes",
+        "correct": true,
+        "explanation": "The MQTT fixed header takes only 2 bytes: packet type + flags (1 byte) and remaining length (1+ bytes). This is one of MQTT's main advantages over HTTP."
+      },
+      {
         "text": "200 bytes",
         "correct": false,
         "explanation": "200+ bytes is a typical HTTP header size, not MQTT. This is the overhead that MQTT saves IoT devices from."
-      },
-      {
-        "text": "1 byte",
-        "correct": false,
-        "explanation": "1 byte is not enough: you need at least 1 byte for packet type+flags and 1 byte for the remaining length. Total: 2 bytes."
       }
     ]
   },
@@ -29,6 +29,16 @@
     "question": "What does an MQTT broker do when it receives a message with retain=true?",
     "type": "single",
     "options": [
+      {
+        "text": "Increases the message QoS to 2 for reliable storage",
+        "correct": false,
+        "explanation": "Retain and QoS are independent mechanisms. QoS defines delivery guarantees, retain defines preservation of the last value. A retained message can have any QoS."
+      },
+      {
+        "text": "Forwards the message to all currently connected clients",
+        "correct": false,
+        "explanation": "Any MQTT message does this (not just retained). The special thing about retained is that it's also sent to future subscribers who aren't even online yet."
+      },
       {
         "text": "Stores the last message and immediately sends it to new subscribers",
         "correct": true,
@@ -38,16 +48,6 @@
         "text": "Stores the history of all messages in the topic",
         "correct": false,
         "explanation": "No, the broker stores only ONE last retained message. For message history you need an external database (e.g., InfluxDB) or MQTT 5.0 with session expiry."
-      },
-      {
-        "text": "Forwards the message to all currently connected clients",
-        "correct": false,
-        "explanation": "Any MQTT message does this (not just retained). The special thing about retained is that it's also sent to future subscribers who aren't even online yet."
-      },
-      {
-        "text": "Increases the message QoS to 2 for reliable storage",
-        "correct": false,
-        "explanation": "Retain and QoS are independent mechanisms. QoS defines delivery guarantees, retain defines preservation of the last value. A retained message can have any QoS."
       }
     ]
   },
@@ -61,14 +61,14 @@
         "explanation": "The + symbol replaces exactly one level in the topic hierarchy. For example, home/+/temperature matches home/bedroom/temperature but not home/floor1/bedroom/temperature."
       },
       {
-        "text": "# (hash) — any number of levels",
-        "correct": true,
-        "explanation": "The # symbol matches any number of levels from that position. home/# matches home/, home/a, home/a/b/c/d. Must be at the end of the pattern."
-      },
-      {
         "text": "* (asterisk) — like in glob patterns",
         "correct": false,
         "explanation": "MQTT has no * symbol. This is a common mistake — confusion with glob patterns (shell, file systems). MQTT only uses + and #."
+      },
+      {
+        "text": "# (hash) — any number of levels",
+        "correct": true,
+        "explanation": "The # symbol matches any number of levels from that position. home/# matches home/, home/a, home/a/b/c/d. Must be at the end of the pattern."
       },
       {
         "text": "? (question mark) — one character",
@@ -82,11 +82,6 @@
     "type": "multiple",
     "options": [
       {
-        "text": "Properties — metadata for every packet (Content-Type, User-Property, Correlation-Data)",
-        "correct": true,
-        "explanation": "Properties are a key innovation of MQTT 5.0. They allow transmitting metadata: content type, correlation data for request/response, user properties, and much more."
-      },
-      {
         "text": "Reason codes — detailed response codes instead of binary success/fail",
         "correct": true,
         "explanation": "In MQTT 3.1.1, CONNACK could only return a few codes. In v5, every response packet contains a numeric reason code — making it easy to diagnose rejection reasons (Not Authorized, Session Taken Over, etc.)."
@@ -95,6 +90,11 @@
         "text": "Increased maximum message size to 1 GB",
         "correct": false,
         "explanation": "Message size hasn't changed fundamentally. In both versions, the maximum is determined by the four-byte length field (~256 MB). MQTT is not designed for transferring large files."
+      },
+      {
+        "text": "Properties — metadata for every packet (Content-Type, User-Property, Correlation-Data)",
+        "correct": true,
+        "explanation": "Properties are a key innovation of MQTT 5.0. They allow transmitting metadata: content type, correlation data for request/response, user properties, and much more."
       },
       {
         "text": "Shared Subscriptions — load balancing between subscribers in the same group",
@@ -108,14 +108,14 @@
     "type": "single",
     "options": [
       {
-        "text": "QoS 0 — At most once",
-        "correct": true,
-        "explanation": "QoS 0 is ideal for frequent telemetry where loss of individual packets is not critical. Minimal overhead, no ACK exchanges. The dashboard will update in 5 seconds anyway."
-      },
-      {
         "text": "QoS 1 — At least once",
         "correct": false,
         "explanation": "QoS 1 creates additional traffic (PUBACK) and possible message duplication. For a dashboard updating every 5 seconds, this is overkill — losing a couple of packets would go unnoticed."
+      },
+      {
+        "text": "QoS 0 — At most once",
+        "correct": true,
+        "explanation": "QoS 0 is ideal for frequent telemetry where loss of individual packets is not critical. Minimal overhead, no ACK exchanges. The dashboard will update in 5 seconds anyway."
       },
       {
         "text": "QoS 2 — Exactly once",
@@ -139,11 +139,6 @@
         "explanation": "+ replaces exactly one level: 'bedroom'. Three levels: home / bedroom / temperature — the pattern matches."
       },
       {
-        "text": "home/floor1/bedroom/temperature",
-        "correct": false,
-        "explanation": "Here there are 4 levels: home / floor1 / bedroom / temperature. The + symbol replaces only ONE level, not multiple. For two levels you'd need home/+/+/temperature."
-      },
-      {
         "text": "home/kitchen/temperature",
         "correct": true,
         "explanation": "+ matches any single level, including 'kitchen'. The pattern will correctly match this topic."
@@ -152,6 +147,11 @@
         "text": "office/room1/temperature",
         "correct": false,
         "explanation": "The first level 'office' doesn't match 'home' in the pattern. Wildcards only work at their own level — 'home' is a literal value."
+      },
+      {
+        "text": "home/floor1/bedroom/temperature",
+        "correct": false,
+        "explanation": "Here there are 4 levels: home / floor1 / bedroom / temperature. The + symbol replaces only ONE level, not multiple. For two levels you'd need home/+/+/temperature."
       }
     ]
   },
@@ -159,11 +159,6 @@
     "question": "What is Last Will and Testament (LWT) in MQTT?",
     "type": "single",
     "options": [
-      {
-        "text": "A message that the broker publishes if a client disconnects unexpectedly without DISCONNECT",
-        "correct": true,
-        "explanation": "LWT is a mechanism for detecting abnormal disconnections. The client registers a 'will' when connecting. If the connection drops (keepalive timeout, network failure) without a proper DISCONNECT, the broker publishes the LWT message."
-      },
       {
         "text": "A mechanism to limit the lifetime of retained messages",
         "correct": false,
@@ -173,6 +168,11 @@
         "text": "A list of topics the client can publish to before disconnecting",
         "correct": false,
         "explanation": "No such mechanism exists in MQTT. LWT is a specific pre-defined message that the broker publishes on behalf of the client when the connection is abruptly lost."
+      },
+      {
+        "text": "A message that the broker publishes if a client disconnects unexpectedly without DISCONNECT",
+        "correct": true,
+        "explanation": "LWT is a mechanism for detecting abnormal disconnections. The client registers a 'will' when connecting. If the connection drops (keepalive timeout, network failure) without a proper DISCONNECT, the broker publishes the LWT message."
       },
       {
         "text": "A command for the broker to delete all retained messages of the client",
@@ -186,24 +186,24 @@
     "type": "multiple",
     "options": [
       {
-        "text": "Persistent TCP connection eliminates repeated handshake overhead",
-        "correct": true,
-        "explanation": "TCP handshake (SYN-SYN/ACK-ACK) for each HTTP request requires time and radio module energy. A single persistent MQTT connection is much cheaper for frequent data transmission."
-      },
-      {
-        "text": "MQTT packet size is significantly smaller (2 bytes vs 200+ bytes of headers)",
-        "correct": true,
-        "explanation": "Smaller packet = less transmission time = lower radio module consumption. On a battery-powered device, this directly affects battery life."
-      },
-      {
         "text": "MQTT uses UDP instead of TCP, which is faster",
         "correct": false,
         "explanation": "MQTT runs over TCP (or TLS). UDP is not used. MQTT's advantage is not in the transport layer but in the small protocol overhead and persistent connection."
       },
       {
+        "text": "Persistent TCP connection eliminates repeated handshake overhead",
+        "correct": true,
+        "explanation": "TCP handshake (SYN-SYN/ACK-ACK) for each HTTP request requires time and radio module energy. A single persistent MQTT connection is much cheaper for frequent data transmission."
+      },
+      {
         "text": "The broker can push commands to the device at any time (push)",
         "correct": true,
         "explanation": "With HTTP, the device must constantly poll the server ('Are there any commands for me?'). MQTT allows the server to send a command to the device instantly through the existing connection."
+      },
+      {
+        "text": "MQTT packet size is significantly smaller (2 bytes vs 200+ bytes of headers)",
+        "correct": true,
+        "explanation": "Smaller packet = less transmission time = lower radio module consumption. On a battery-powered device, this directly affects battery life."
       }
     ]
   }

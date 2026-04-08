@@ -3,141 +3,369 @@
     "question": "What is the main advantage of .claude/rules/ over CLAUDE.md?",
     "type": "single",
     "options": [
-      { "text": "Rules support Markdown, while CLAUDE.md does not", "correct": false, "explanation": "Both formats use Markdown. The difference is not in format, but in the loading mechanism" },
-      { "text": "Rules with path-specific frontmatter load only when working with matching files, saving context", "correct": true, "explanation": "Correct! Lazy loading is the key advantage. TypeScript rules don't consume context when the agent works with CSS or Dockerfiles" },
-      { "text": "Rules have higher priority", "correct": false, "explanation": "Priority is not an advantage of rules. All instructions are merged and applied together" },
-      { "text": "Rules support more lines of text", "correct": false, "explanation": "There are no file size limits for either CLAUDE.md or rules. The difference is in modularity and lazy loading" }
+      {
+        "text": "Rules have higher priority",
+        "correct": false,
+        "explanation": "Priority is not an advantage of rules. All instructions are merged and applied together"
+      },
+      {
+        "text": "Rules support Markdown, while CLAUDE.md does not",
+        "correct": false,
+        "explanation": "Both formats use Markdown. The difference is not in format, but in the loading mechanism"
+      },
+      {
+        "text": "Rules support more lines of text",
+        "correct": false,
+        "explanation": "There are no file size limits for either CLAUDE.md or rules. The difference is in modularity and lazy loading"
+      },
+      {
+        "text": "Rules with path-specific frontmatter load only when working with matching files, saving context",
+        "correct": true,
+        "explanation": "Correct! Lazy loading is the key advantage. TypeScript rules don't consume context when the agent works with CSS or Dockerfiles"
+      }
     ]
   },
   {
     "question": "What does this frontmatter in a rule file mean?\n\n---\npaths:\n  - \"src/**/*.{ts,tsx}\"\n---",
     "type": "single",
     "options": [
-      { "text": "The rule prohibits editing these files", "correct": false, "explanation": "paths defines when the rule loads into context, not file access restrictions" },
-      { "text": "The rule loads only when working with .ts and .tsx files in the src/ directory", "correct": true, "explanation": "Correct! The glob pattern src/**/*.{ts,tsx} matches TypeScript files in src/ and all subdirectories. The rule loads only when working with these files" },
-      { "text": "The rule applies to all project files", "correct": false, "explanation": "The pattern is specific: only .ts and .tsx files in src/. For all files, the pattern would be **/*" },
-      { "text": "The rule creates new files at the specified path", "correct": false, "explanation": "paths is a loading filter, not a file creation instruction" }
+      {
+        "text": "The rule applies to all project files",
+        "correct": false,
+        "explanation": "The pattern is specific: only .ts and .tsx files in src/. For all files, the pattern would be **/*"
+      },
+      {
+        "text": "The rule prohibits editing these files",
+        "correct": false,
+        "explanation": "paths defines when the rule loads into context, not file access restrictions"
+      },
+      {
+        "text": "The rule loads only when working with .ts and .tsx files in the src/ directory",
+        "correct": true,
+        "explanation": "Correct! The glob pattern src/**/*.{ts,tsx} matches TypeScript files in src/ and all subdirectories. The rule loads only when working with these files"
+      },
+      {
+        "text": "The rule creates new files at the specified path",
+        "correct": false,
+        "explanation": "paths is a loading filter, not a file creation instruction"
+      }
     ]
   },
   {
     "question": "What is the recommended context window distribution?",
     "type": "single",
     "options": [
-      { "text": "50% instructions, 25% history, 25% working space", "correct": false, "explanation": "50% for instructions is too much. The agent won't have enough space to read files and perform tasks" },
-      { "text": "25% instructions, 25% history, 50% working space", "correct": true, "explanation": "Correct! Half the context should be free for working space -- reading files, command results, diff contents" },
-      { "text": "33% for each category equally", "correct": false, "explanation": "Working space needs more room than instructions or history, because project files are usually the most voluminous" },
-      { "text": "Distribution doesn't matter, context is unlimited", "correct": false, "explanation": "The context window is always limited. Proper distribution is key to efficient agent work" }
+      {
+        "text": "50% instructions, 25% history, 25% working space",
+        "correct": false,
+        "explanation": "50% for instructions is too much. The agent won't have enough space to read files and perform tasks"
+      },
+      {
+        "text": "25% instructions, 25% history, 50% working space",
+        "correct": true,
+        "explanation": "Correct! Half the context should be free for working space -- reading files, command results, diff contents"
+      },
+      {
+        "text": "33% for each category equally",
+        "correct": false,
+        "explanation": "Working space needs more room than instructions or history, because project files are usually the most voluminous"
+      },
+      {
+        "text": "Distribution doesn't matter, context is unlimited",
+        "correct": false,
+        "explanation": "The context window is always limited. Proper distribution is key to efficient agent work"
+      }
     ]
   },
   {
     "question": "What happens if a file in .claude/rules/ has no frontmatter with paths?",
     "type": "single",
     "options": [
-      { "text": "The file will be ignored", "correct": false, "explanation": "On the contrary -- a file without frontmatter loads always, not ignored" },
-      { "text": "The file will load on every launch, as if it were part of CLAUDE.md", "correct": true, "explanation": "Correct! Without frontmatter, the rule is considered always-on and loads in every session. This works for global rules (security), but loses the lazy loading advantage" },
-      { "text": "Claude Code will throw an error", "correct": false, "explanation": "Frontmatter is optional. Without it, the file just loads always" },
-      { "text": "The file loads only on explicit user request", "correct": false, "explanation": "Files in rules/ load automatically. Without frontmatter -- always, with frontmatter -- on paths match" }
+      {
+        "text": "The file loads only on explicit user request",
+        "correct": false,
+        "explanation": "Files in rules/ load automatically. Without frontmatter -- always, with frontmatter -- on paths match"
+      },
+      {
+        "text": "The file will load on every launch, as if it were part of CLAUDE.md",
+        "correct": true,
+        "explanation": "Correct! Without frontmatter, the rule is considered always-on and loads in every session. This works for global rules (security), but loses the lazy loading advantage"
+      },
+      {
+        "text": "Claude Code will throw an error",
+        "correct": false,
+        "explanation": "Frontmatter is optional. Without it, the file just loads always"
+      },
+      {
+        "text": "The file will be ignored",
+        "correct": false,
+        "explanation": "On the contrary -- a file without frontmatter loads always, not ignored"
+      }
     ]
   },
   {
     "question": "When should you use /compact?",
     "type": "multiple",
     "options": [
-      { "text": "Context is 50-70% full", "correct": true, "explanation": "Good time for /compact -- not critical yet, but time to free up space" },
-      { "text": "Long conversation with many steps", "correct": true, "explanation": "Long history takes a significant portion of context. /compact summarizes it, preserving key decisions" },
-      { "text": "Preventively at the start of every session", "correct": false, "explanation": "At session start the context is clean -- /compact has nothing to compress" },
-      { "text": "Before a large task requiring many files", "correct": true, "explanation": "If reading many files is ahead, it's worth freeing context from unnecessary history" }
+      {
+        "text": "Context is 50-70% full",
+        "correct": true,
+        "explanation": "Good time for /compact -- not critical yet, but time to free up space"
+      },
+      {
+        "text": "Before a large task requiring many files",
+        "correct": true,
+        "explanation": "If reading many files is ahead, it's worth freeing context from unnecessary history"
+      },
+      {
+        "text": "Preventively at the start of every session",
+        "correct": false,
+        "explanation": "At session start the context is clean -- /compact has nothing to compress"
+      },
+      {
+        "text": "Long conversation with many steps",
+        "correct": false,
+        "explanation": "Long history takes a significant portion of context. /compact summarizes it, preserving key decisions"
+      }
     ]
   },
   {
     "question": "How does /compact differ from /clear?",
     "type": "single",
     "options": [
-      { "text": "/compact deletes project files, /clear does not", "correct": false, "explanation": "Neither /compact nor /clear touch project files. Both commands work only with session context" },
-      { "text": "/compact compresses history, preserving key points; /clear completely resets the session", "correct": true, "explanation": "Correct! /compact is 'smart compression': summarizes the conversation but remembers key decisions. /clear is a full reset, as if you just launched Claude Code" },
-      { "text": "They do the same thing", "correct": false, "explanation": "/compact preserves context in compressed form, /clear removes it entirely. This is a significant difference" },
-      { "text": "/compact works faster, /clear is slower", "correct": false, "explanation": "Speed is not the key difference. The difference is whether conversation context is preserved" }
+      {
+        "text": "/compact works faster, /clear is slower",
+        "correct": false,
+        "explanation": "Speed is not the key difference. The difference is whether conversation context is preserved"
+      },
+      {
+        "text": "/compact deletes project files, /clear does not",
+        "correct": false,
+        "explanation": "Neither /compact nor /clear touch project files. Both commands work only with session context"
+      },
+      {
+        "text": "They do the same thing",
+        "correct": false,
+        "explanation": "/compact preserves context in compressed form, /clear removes it entirely. This is a significant difference"
+      },
+      {
+        "text": "/compact compresses history, preserving key points; /clear completely resets the session",
+        "correct": true,
+        "explanation": "Correct! /compact is 'smart compression': summarizes the conversation but remembers key decisions. /clear is a full reset, as if you just launched Claude Code"
+      }
     ]
   },
   {
     "question": "What are sub-agents in the context of context window management?",
     "type": "single",
     "options": [
-      { "text": "Other developers on the team", "correct": false, "explanation": "Sub-agents are not people, but separate Claude Code processes with their own context" },
-      { "text": "Separate agent sessions with their own context for isolated sub-tasks", "correct": true, "explanation": "Correct! A sub-agent performs a task in its own context and returns only the result, not loading the main context with intermediate step details" },
-      { "text": "Plugins for Claude Code", "correct": false, "explanation": "Plugins are a separate extension mechanism. Sub-agents are a way to decompose tasks for context saving" },
-      { "text": "Copies of CLAUDE.md for different directories", "correct": false, "explanation": "Subdirectory CLAUDE.md is a separate concept. Sub-agents are parallel agent sessions" }
+      {
+        "text": "Copies of CLAUDE.md for different directories",
+        "correct": false,
+        "explanation": "Subdirectory CLAUDE.md is a separate concept. Sub-agents are parallel agent sessions"
+      },
+      {
+        "text": "Plugins for Claude Code",
+        "correct": false,
+        "explanation": "Plugins are a separate extension mechanism. Sub-agents are a way to decompose tasks for context saving"
+      },
+      {
+        "text": "Other developers on the team",
+        "correct": false,
+        "explanation": "Sub-agents are not people, but separate Claude Code processes with their own context"
+      },
+      {
+        "text": "Separate agent sessions with their own context for isolated sub-tasks",
+        "correct": true,
+        "explanation": "Correct! A sub-agent performs a task in its own context and returns only the result, not loading the main context with intermediate step details"
+      }
     ]
   },
   {
     "question": "Which glob pattern is suitable for rules that should apply ONLY to React components?",
     "type": "single",
     "options": [
-      { "text": "**/*", "correct": false, "explanation": "This pattern matches any file -- too broad. The rule will load always" },
-      { "text": "src/components/**/*.tsx", "correct": true, "explanation": "Correct! This pattern precisely targets .tsx files in the components directory. You can add src/pages/**/*.tsx for pages" },
-      { "text": "**/*.ts", "correct": false, "explanation": "This pattern matches all TypeScript files, not just React components. It would include utilities, API routes, configs" },
-      { "text": "*.tsx", "correct": false, "explanation": "Without ** this pattern matches only .tsx files in the project root, not in subdirectories" }
+      {
+        "text": "src/components/**/*.tsx",
+        "correct": true,
+        "explanation": "Correct! This pattern precisely targets .tsx files in the components directory. You can add src/pages/**/*.tsx for pages"
+      },
+      {
+        "text": "**/*.ts",
+        "correct": false,
+        "explanation": "This pattern matches all TypeScript files, not just React components. It would include utilities, API routes, configs"
+      },
+      {
+        "text": "*.tsx",
+        "correct": false,
+        "explanation": "Without ** this pattern matches only .tsx files in the project root, not in subdirectories"
+      },
+      {
+        "text": "**/*",
+        "correct": false,
+        "explanation": "This pattern matches any file -- too broad. The rule will load always"
+      }
     ]
   },
   {
     "question": "You have a monorepo with a React frontend and Express backend. What is the optimal rule organization strategy?",
     "type": "single",
     "options": [
-      { "text": "Everything in CLAUDE.md -- React rules, Express rules, tests", "correct": false, "explanation": "When working on frontend, backend rules waste context, and vice versa" },
-      { "text": "General in CLAUDE.md, React rules and Express rules -- in separate rules/ files with paths", "correct": true, "explanation": "Correct! CLAUDE.md for build commands and general architecture. rules/react.md with paths for packages/web/**, rules/api.md with paths for packages/api/**. Each rule set loads only when working with its part of the project" },
-      { "text": "Separate CLAUDE.md in each package directory", "correct": false, "explanation": "Subdirectory CLAUDE.md is also an option, but rules/ with paths give more flexible control and better organization" },
-      { "text": "Don't use any instructions, the agent will figure it out", "correct": false, "explanation": "Without instructions, the agent will guess project conventions, waste context on exploration, and make inconsistent decisions" }
+      {
+        "text": "Everything in CLAUDE.md -- React rules, Express rules, tests",
+        "correct": false,
+        "explanation": "When working on frontend, backend rules waste context, and vice versa"
+      },
+      {
+        "text": "General in CLAUDE.md, React rules and Express rules -- in separate rules/ files with paths",
+        "correct": true,
+        "explanation": "Correct! CLAUDE.md for build commands and general architecture. rules/react.md with paths for packages/web/**, rules/api.md with paths for packages/api/**. Each rule set loads only when working with its part of the project"
+      },
+      {
+        "text": "Separate CLAUDE.md in each package directory",
+        "correct": false,
+        "explanation": "Subdirectory CLAUDE.md is also an option, but rules/ with paths give more flexible control and better organization"
+      },
+      {
+        "text": "Don't use any instructions, the agent will figure it out",
+        "correct": false,
+        "explanation": "Without instructions, the agent will guess project conventions, waste context on exploration, and make inconsistent decisions"
+      }
     ]
   },
   {
     "question": "Which of these rules should be made always-on (without paths)?",
     "type": "multiple",
     "options": [
-      { "text": "Never hardcode API keys", "correct": true, "explanation": "Security rules are needed when working with any file -- they should be always-on" },
-      { "text": "All secrets through environment variables", "correct": true, "explanation": "This is a universal security rule, relevant for any file" },
-      { "text": "React components must be functional", "correct": false, "explanation": "This rule is relevant only when working with React components (.tsx), better with paths" },
-      { "text": "SQL queries through ORM, not raw SQL", "correct": false, "explanation": "This rule is relevant only when working with database files, better tied to paths" }
+      {
+        "text": "React components must be functional",
+        "correct": false,
+        "explanation": "This rule is relevant only when working with React components (.tsx), better with paths"
+      },
+      {
+        "text": "SQL queries through ORM, not raw SQL",
+        "correct": false,
+        "explanation": "This rule is relevant only when working with database files, better tied to paths"
+      },
+      {
+        "text": "All secrets through environment variables",
+        "correct": true,
+        "explanation": "This is a universal security rule, relevant for any file"
+      },
+      {
+        "text": "Never hardcode API keys",
+        "correct": true,
+        "explanation": "Security rules are needed when working with any file -- they should be always-on"
+      }
     ]
   },
   {
     "question": "Context is 85% full, you need to start a new unrelated task. What's the best action?",
     "type": "single",
     "options": [
-      { "text": "Keep working, context will free up automatically", "correct": false, "explanation": "Context does not free up automatically. At 85% full, agent quality is already degrading" },
-      { "text": "Use /compact to compress history", "correct": false, "explanation": "/compact would help, but at 85% and switching to an unrelated task, a full reset is better. /compact would keep the old task's context, which is useless for the new task" },
-      { "text": "Use /clear for a full session reset", "correct": true, "explanation": "Correct! When switching to an unrelated task, /clear is the best choice. You'll start with clean context, CLAUDE.md and rules/ will reload automatically" },
-      { "text": "Delete some rules from rules/", "correct": false, "explanation": "Deleting rules is a destructive action that affects all future sessions. To free context, use /clear" }
+      {
+        "text": "Keep working, context will free up automatically",
+        "correct": false,
+        "explanation": "Context does not free up automatically. At 85% full, agent quality is already degrading"
+      },
+      {
+        "text": "Delete some rules from rules/",
+        "correct": false,
+        "explanation": "Deleting rules is a destructive action that affects all future sessions. To free context, use /clear"
+      },
+      {
+        "text": "Use /compact to compress history",
+        "correct": false,
+        "explanation": "/compact would help, but at 85% and switching to an unrelated task, a full reset is better. /compact would keep the old task's context, which is useless for the new task"
+      },
+      {
+        "text": "Use /clear for a full session reset",
+        "correct": true,
+        "explanation": "Correct! When switching to an unrelated task, /clear is the best choice. You'll start with clean context, CLAUDE.md and rules/ will reload automatically"
+      }
     ]
   },
   {
     "question": "Why is it bad to have dozens of small files in rules/ (one rule in each)?",
     "type": "single",
     "options": [
-      { "text": "Claude Code doesn't support more than 10 files in rules/", "correct": false, "explanation": "There's no technical limit on file count. The problem is organization and overhead" },
-      { "text": "Each file has overhead (frontmatter, headings), many small files create unnecessary load", "correct": true, "explanation": "Correct! Frontmatter + heading in each file -- these are tokens. 20 files with one rule each will spend more context than 3-4 thematic files with the same rules" },
-      { "text": "Small files load slower", "correct": false, "explanation": "Loading speed is not the problem. The problem is context window consumption on overhead" },
-      { "text": "Git can't handle many files", "correct": false, "explanation": "Git handles any number of files fine. The problem is not git, but context usage efficiency" }
+      {
+        "text": "Each file has overhead (frontmatter, headings), many small files create unnecessary load",
+        "correct": true,
+        "explanation": "Correct! Frontmatter + heading in each file -- these are tokens. 20 files with one rule each will spend more context than 3-4 thematic files with the same rules"
+      },
+      {
+        "text": "Small files load slower",
+        "correct": false,
+        "explanation": "Loading speed is not the problem. The problem is context window consumption on overhead"
+      },
+      {
+        "text": "Git can't handle many files",
+        "correct": false,
+        "explanation": "Git handles any number of files fine. The problem is not git, but context usage efficiency"
+      },
+      {
+        "text": "Claude Code doesn't support more than 10 files in rules/",
+        "correct": false,
+        "explanation": "There's no technical limit on file count. The problem is organization and overhead"
+      }
     ]
   },
   {
     "question": "What is the claudeMdExcludes setting for?",
     "type": "single",
     "options": [
-      { "text": "For excluding certain CLAUDE.md and rules from loading by glob patterns", "correct": true, "explanation": "Correct! claudeMdExcludes lets you specify which CLAUDE.md or rules should not be loaded. Useful in monorepos where another team's CLAUDE.md is not needed" },
-      { "text": "For deleting CLAUDE.md files from the project", "correct": false, "explanation": "claudeMdExcludes does not delete files, it excludes them from loading into context" },
-      { "text": "For hiding CLAUDE.md from git", "correct": false, "explanation": ".gitignore is used to hide from git. claudeMdExcludes is a Claude Code setting" },
-      { "text": "For restricting access of other users", "correct": false, "explanation": "claudeMdExcludes is not related to access rights. It's an instruction loading filter" }
+      {
+        "text": "For hiding CLAUDE.md from git",
+        "correct": false,
+        "explanation": ".gitignore is used to hide from git. claudeMdExcludes is a Claude Code setting"
+      },
+      {
+        "text": "For excluding certain CLAUDE.md and rules from loading by glob patterns",
+        "correct": true,
+        "explanation": "Correct! claudeMdExcludes lets you specify which CLAUDE.md or rules should not be loaded. Useful in monorepos where another team's CLAUDE.md is not needed"
+      },
+      {
+        "text": "For deleting CLAUDE.md files from the project",
+        "correct": false,
+        "explanation": "claudeMdExcludes does not delete files, it excludes them from loading into context"
+      },
+      {
+        "text": "For restricting access of other users",
+        "correct": false,
+        "explanation": "claudeMdExcludes is not related to access rights. It's an instruction loading filter"
+      }
     ]
   },
   {
     "question": "You noticed instructions take ~40% of the context window. What to do?",
     "type": "multiple",
     "options": [
-      { "text": "Add paths to rules/ files that don't have frontmatter", "correct": true, "explanation": "Files without paths load always. Adding paths makes them lazy-loaded and frees context" },
-      { "text": "Remove duplication between CLAUDE.md and rules/", "correct": true, "explanation": "If a rule is described in both places -- it loads twice. Remove duplication" },
-      { "text": "Shorten formulations, remove extra examples", "correct": true, "explanation": "More concise formulations = fewer tokens. No need to describe each rule with three examples" },
-      { "text": "Delete CLAUDE.md entirely", "correct": false, "explanation": "Deleting CLAUDE.md deprives the agent of critically important instructions: build commands, architecture, constraints. You need to optimize, not delete" },
-      { "text": "Use claudeMdExcludes for unneeded rules", "correct": true, "explanation": "If some rules or CLAUDE.md from other parts of the monorepo are not needed -- exclude them" }
+      {
+        "text": "Delete CLAUDE.md entirely",
+        "correct": false,
+        "explanation": "Deleting CLAUDE.md deprives the agent of critically important instructions: build commands, architecture, constraints. You need to optimize, not delete"
+      },
+      {
+        "text": "Use claudeMdExcludes for unneeded rules",
+        "correct": true,
+        "explanation": "If some rules or CLAUDE.md from other parts of the monorepo are not needed -- exclude them"
+      },
+      {
+        "text": "Shorten formulations, remove extra examples",
+        "correct": true,
+        "explanation": "More concise formulations = fewer tokens. No need to describe each rule with three examples"
+      },
+      {
+        "text": "Remove duplication between CLAUDE.md and rules/",
+        "correct": true,
+        "explanation": "If a rule is described in both places -- it loads twice. Remove duplication"
+      },
+      {
+        "text": "Add paths to rules/ files that don't have frontmatter",
+        "correct": true,
+        "explanation": "Files without paths load always. Adding paths makes them lazy-loaded and frees context"
+      }
     ]
   }
 ]

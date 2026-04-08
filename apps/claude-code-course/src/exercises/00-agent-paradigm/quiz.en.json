@@ -3,122 +3,322 @@
     "question": "What is the key difference between agent-based development and using autocomplete (GitHub Copilot)?",
     "type": "single",
     "options": [
-      { "text": "The agent writes code faster", "correct": false, "explanation": "Speed is not the main difference. Autocomplete also works fast, but at the level of individual lines" },
-      { "text": "The agent autonomously performs tasks: reads files, writes code, runs commands", "correct": true, "explanation": "Correct! Autocomplete suggests the next line, while the agent independently decides which files to read, what to change, and which commands to run" },
-      { "text": "The agent uses a more powerful model", "correct": false, "explanation": "Model power is not the defining factor. The key difference is in the interaction model: the agent works autonomously" },
-      { "text": "The agent replaces the IDE", "correct": false, "explanation": "Claude Code doesn't replace the IDE, it complements it. Many use it alongside VS Code or JetBrains" }
+      {
+        "text": "The agent writes code faster",
+        "correct": false,
+        "explanation": "Speed is not the main difference. Autocomplete also works fast, but at the level of individual lines"
+      },
+      {
+        "text": "The agent uses a more powerful model",
+        "correct": false,
+        "explanation": "Model power is not the defining factor. The key difference is in the interaction model: the agent works autonomously"
+      },
+      {
+        "text": "The agent replaces the IDE",
+        "correct": false,
+        "explanation": "Claude Code doesn't replace the IDE, it complements it. Many use it alongside VS Code or JetBrains"
+      },
+      {
+        "text": "The agent autonomously performs tasks: reads files, writes code, runs commands",
+        "correct": true,
+        "explanation": "Correct! Autocomplete suggests the next line, while the agent independently decides which files to read, what to change, and which commands to run"
+      }
     ]
   },
   {
     "question": "What role does a human play in agent-based development?",
     "type": "single",
     "options": [
-      { "text": "Writes code, the agent checks it", "correct": false, "explanation": "This describes a code review tool, not agent-based development. In the agent model, the agent writes the code" },
-      { "text": "Formulates tasks, makes decisions, and conducts reviews", "correct": true, "explanation": "Correct! The human shifts from 'code writer' to 'architect and reviewer'" },
-      { "text": "Only starts and stops the agent", "correct": false, "explanation": "The human role is much broader: task formulation, architectural decisions, result review, direction correction" },
-      { "text": "Trains the model on their code", "correct": false, "explanation": "Agent-based development doesn't involve model fine-tuning. You manage the agent through instructions and context" }
+      {
+        "text": "Formulates tasks, makes decisions, and conducts reviews",
+        "correct": true,
+        "explanation": "Correct! The human shifts from 'code writer' to 'architect and reviewer'"
+      },
+      {
+        "text": "Writes code, the agent checks it",
+        "correct": false,
+        "explanation": "This describes a code review tool, not agent-based development. In the agent model, the agent writes the code"
+      },
+      {
+        "text": "Trains the model on their code",
+        "correct": false,
+        "explanation": "Agent-based development doesn't involve model fine-tuning. You manage the agent through instructions and context"
+      },
+      {
+        "text": "Only starts and stops the agent",
+        "correct": false,
+        "explanation": "The human role is much broader: task formulation, architectural decisions, result review, direction correction"
+      }
     ]
   },
   {
     "question": "What is a context window in the context of agent-based development?",
     "type": "single",
     "options": [
-      { "text": "The terminal window where Claude Code runs", "correct": false, "explanation": "The context window is not a GUI element, but the amount of information the model can process at once" },
-      { "text": "The amount of information the agent can 'keep in mind' simultaneously", "correct": true, "explanation": "Correct! The context window includes your instructions, project files, conversation history, and command results. When it fills up, the agent's performance degrades" },
-      { "text": "The number of files the agent can open simultaneously", "correct": false, "explanation": "The limitation is not on the number of files, but on the total amount of information. One large file may take more context than ten small ones" },
-      { "text": "The session time with the agent", "correct": false, "explanation": "The context window is measured in tokens (units of text), not time" }
+      {
+        "text": "The number of files the agent can open simultaneously",
+        "correct": false,
+        "explanation": "The limitation is not on the number of files, but on the total amount of information. One large file may take more context than ten small ones"
+      },
+      {
+        "text": "The session time with the agent",
+        "correct": false,
+        "explanation": "The context window is measured in tokens (units of text), not time"
+      },
+      {
+        "text": "The amount of information the agent can 'keep in mind' simultaneously",
+        "correct": true,
+        "explanation": "Correct! The context window includes your instructions, project files, conversation history, and command results. When it fills up, the agent's performance degrades"
+      },
+      {
+        "text": "The terminal window where Claude Code runs",
+        "correct": false,
+        "explanation": "The context window is not a GUI element, but the amount of information the model can process at once"
+      }
     ]
   },
   {
     "question": "What actions can Claude Code perform autonomously?",
     "type": "multiple",
     "options": [
-      { "text": "Read and edit project files", "correct": true, "explanation": "Claude Code can find and modify any files in the project" },
-      { "text": "Run commands in the terminal (tests, build)", "correct": true, "explanation": "Claude Code can run npm test, npm run build, and any other bash commands" },
-      { "text": "Deploy an application to production without confirmation", "correct": false, "explanation": "Claude Code works in a sandboxed environment with restrictions. Dangerous operations require user confirmation" },
-      { "text": "Work with git (commits, branches, PR)", "correct": true, "explanation": "Git operations are one of the key capabilities of Claude Code" },
-      { "text": "Install dependencies via npm/pip", "correct": true, "explanation": "Claude Code can run package installation commands" }
+      {
+        "text": "Deploy an application to production without confirmation",
+        "correct": false,
+        "explanation": "Claude Code works in a sandboxed environment with restrictions. Dangerous operations require user confirmation"
+      },
+      {
+        "text": "Run commands in the terminal (tests, build)",
+        "correct": true,
+        "explanation": "Claude Code can run npm test, npm run build, and any other bash commands"
+      },
+      {
+        "text": "Read and edit project files",
+        "correct": true,
+        "explanation": "Claude Code can find and modify any files in the project"
+      },
+      {
+        "text": "Work with git (commits, branches, PR)",
+        "correct": true,
+        "explanation": "Git operations are one of the key capabilities of Claude Code"
+      },
+      {
+        "text": "Install dependencies via npm/pip",
+        "correct": true,
+        "explanation": "Claude Code can run package installation commands"
+      }
     ]
   },
   {
     "question": "Why is it bad to give the agent a task like 'Rewrite the entire project in TypeScript, add tests, and set up CI'?",
     "type": "single",
     "options": [
-      { "text": "Claude Code doesn't know how to work with TypeScript", "correct": false, "explanation": "Claude Code works great with TypeScript. The problem is not the technology, but the scope of the task" },
-      { "text": "Such a task will exhaust the context window too quickly, the agent will lose focus", "correct": true, "explanation": "Correct! A giant task fills the context window, the agent starts forgetting initial instructions and making mistakes. Plus rolling back changes becomes very difficult" },
-      { "text": "The agent can only work with one file at a time", "correct": false, "explanation": "Claude Code can work with multiple files. The problem is the scope of the task, not the file count limitation" },
-      { "text": "It will take too much time", "correct": false, "explanation": "Time is not the main problem. Even if the agent worked instantly, context loss and review complexity make giant tasks inefficient" }
+      {
+        "text": "The agent can only work with one file at a time",
+        "correct": false,
+        "explanation": "Claude Code can work with multiple files. The problem is the scope of the task, not the file count limitation"
+      },
+      {
+        "text": "Such a task will exhaust the context window too quickly, the agent will lose focus",
+        "correct": true,
+        "explanation": "Correct! A giant task fills the context window, the agent starts forgetting initial instructions and making mistakes. Plus rolling back changes becomes very difficult"
+      },
+      {
+        "text": "It will take too much time",
+        "correct": false,
+        "explanation": "Time is not the main problem. Even if the agent worked instantly, context loss and review complexity make giant tasks inefficient"
+      },
+      {
+        "text": "Claude Code doesn't know how to work with TypeScript",
+        "correct": false,
+        "explanation": "Claude Code works great with TypeScript. The problem is not the technology, but the scope of the task"
+      }
     ]
   },
   {
     "question": "What is the correct way to give a task to an agent?",
     "type": "single",
     "options": [
-      { "text": "Describe each step in maximum detail: 'Open file X, go to line Y, replace Z'", "correct": false, "explanation": "That's micromanaging the agent. Describe the goal, not step-by-step actions -- the agent will find the optimal path itself" },
-      { "text": "Short and vague: 'Make it better'", "correct": false, "explanation": "'Better' is subjective. The agent doesn't know your priorities: performance? readability? type safety?" },
-      { "text": "Describe a specific goal and expected result: 'Split function X into three: A, B, C'", "correct": true, "explanation": "Correct! Specific goal + expected result = precise answer. The agent will figure out how to implement it" },
-      { "text": "Copy the spec from Jira as is", "correct": false, "explanation": "Jira specs often contain a lot of context the agent doesn't need (discussion history, screenshots, metadata). Better to extract the essence of the task" }
+      {
+        "text": "Short and vague: 'Make it better'",
+        "correct": false,
+        "explanation": "'Better' is subjective. The agent doesn't know your priorities: performance? readability? type safety?"
+      },
+      {
+        "text": "Describe each step in maximum detail: 'Open file X, go to line Y, replace Z'",
+        "correct": false,
+        "explanation": "That's micromanaging the agent. Describe the goal, not step-by-step actions -- the agent will find the optimal path itself"
+      },
+      {
+        "text": "Copy the spec from Jira as is",
+        "correct": false,
+        "explanation": "Jira specs often contain a lot of context the agent doesn't need (discussion history, screenshots, metadata). Better to extract the essence of the task"
+      },
+      {
+        "text": "Describe a specific goal and expected result: 'Split function X into three: A, B, C'",
+        "correct": true,
+        "explanation": "Correct! Specific goal + expected result = precise answer. The agent will figure out how to implement it"
+      }
     ]
   },
   {
     "question": "For which tasks is agent-based development most suitable?",
     "type": "multiple",
     "options": [
-      { "text": "Routine operations: CRUD, forms, writing tests", "correct": true, "explanation": "Routine tasks are ideal for an agent: they are well formalizable and the agent handles them faster than a human" },
-      { "text": "Refactoring and project-wide renaming", "correct": true, "explanation": "The agent can update dozens of files in one pass, without missing a single reference" },
-      { "text": "Low-level algorithm optimization", "correct": false, "explanation": "Algorithm optimization requires deep expertise, profiling, and understanding of specific constraints -- a human is needed here" },
-      { "text": "Exploring an unfamiliar codebase", "correct": true, "explanation": "The agent can quickly explore the project: find entry points, trace dependencies, explain the architecture" },
-      { "text": "Rapid prototyping", "correct": true, "explanation": "Project skeleton and MVP generation is one of the most productive tasks for an agent" }
+      {
+        "text": "Refactoring and project-wide renaming",
+        "correct": true,
+        "explanation": "The agent can update dozens of files in one pass, without missing a single reference"
+      },
+      {
+        "text": "Exploring an unfamiliar codebase",
+        "correct": true,
+        "explanation": "The agent can quickly explore the project: find entry points, trace dependencies, explain the architecture"
+      },
+      {
+        "text": "Routine operations: CRUD, forms, writing tests",
+        "correct": true,
+        "explanation": "Routine tasks are ideal for an agent: they are well formalizable and the agent handles them faster than a human"
+      },
+      {
+        "text": "Rapid prototyping",
+        "correct": true,
+        "explanation": "Project skeleton and MVP generation is one of the most productive tasks for an agent"
+      },
+      {
+        "text": "Low-level algorithm optimization",
+        "correct": false,
+        "explanation": "Algorithm optimization requires deep expertise, profiling, and understanding of specific constraints -- a human is needed here"
+      }
     ]
   },
   {
     "question": "What does the /compact command do in Claude Code?",
     "type": "single",
     "options": [
-      { "text": "Minifies the project code", "correct": false, "explanation": "/compact doesn't touch project files. It works with the conversation history within the session" },
-      { "text": "Compresses conversation history, freeing up the context window", "correct": true, "explanation": "Correct! /compact summarizes the conversation history, preserving key points but freeing up tokens for further work" },
-      { "text": "Archives the current session to disk", "correct": false, "explanation": "/compact doesn't save the session to disk, but compresses context in the model's working memory" },
-      { "text": "Removes unused files from the project", "correct": false, "explanation": "/compact doesn't modify project files, only manages the context window" }
+      {
+        "text": "Minifies the project code",
+        "correct": false,
+        "explanation": "/compact doesn't touch project files. It works with the conversation history within the session"
+      },
+      {
+        "text": "Archives the current session to disk",
+        "correct": false,
+        "explanation": "/compact doesn't save the session to disk, but compresses context in the model's working memory"
+      },
+      {
+        "text": "Removes unused files from the project",
+        "correct": false,
+        "explanation": "/compact doesn't modify project files, only manages the context window"
+      },
+      {
+        "text": "Compresses conversation history, freeing up the context window",
+        "correct": true,
+        "explanation": "Correct! /compact summarizes the conversation history, preserving key points but freeing up tokens for further work"
+      }
     ]
   },
   {
     "question": "How does Claude Code fundamentally differ from Cursor?",
     "type": "single",
     "options": [
-      { "text": "Claude Code uses a more powerful model", "correct": false, "explanation": "Both tools can use powerful models. The difference is not in the model, but in the usage approach" },
-      { "text": "Claude Code works in the terminal, is not tied to a specific IDE, and can run any commands", "correct": true, "explanation": "Correct! Claude Code is a terminal-based tool that works in any environment and can run arbitrary bash commands, git operations, and CI/CD integrations" },
-      { "text": "Claude Code is free, and Cursor is paid", "correct": false, "explanation": "Both tools have paid tiers. The difference is not in price, but in the usage model" },
-      { "text": "Claude Code cannot edit files", "correct": false, "explanation": "Claude Code perfectly reads and edits files -- it's one of its key capabilities" }
+      {
+        "text": "Claude Code cannot edit files",
+        "correct": false,
+        "explanation": "Claude Code perfectly reads and edits files -- it's one of its key capabilities"
+      },
+      {
+        "text": "Claude Code works in the terminal, is not tied to a specific IDE, and can run any commands",
+        "correct": true,
+        "explanation": "Correct! Claude Code is a terminal-based tool that works in any environment and can run arbitrary bash commands, git operations, and CI/CD integrations"
+      },
+      {
+        "text": "Claude Code is free, and Cursor is paid",
+        "correct": false,
+        "explanation": "Both tools have paid tiers. The difference is not in price, but in the usage model"
+      },
+      {
+        "text": "Claude Code uses a more powerful model",
+        "correct": false,
+        "explanation": "Both tools can use powerful models. The difference is not in the model, but in the usage approach"
+      }
     ]
   },
   {
     "question": "You gave the agent a task, it completed it and showed the diff. Tests pass. What to do next?",
     "type": "single",
     "options": [
-      { "text": "Commit immediately -- tests are green", "correct": false, "explanation": "Green tests don't guarantee correctness. The agent might have missed edge cases, security issues, or business logic" },
-      { "text": "Review the diff, check edge cases, ask the agent to explain its decision if necessary", "correct": true, "explanation": "Correct! Review is a mandatory step. Check logic, edge cases, security. Ask the agent to explain non-obvious decisions" },
-      { "text": "Run tests again just in case", "correct": false, "explanation": "Running tests again won't provide new information. Code review is what's needed" },
-      { "text": "Delete changes and do it manually", "correct": false, "explanation": "This contradicts the meaning of agent-based development. If the result is good -- use it. If there are issues -- ask the agent to fix them" }
+      {
+        "text": "Delete changes and do it manually",
+        "correct": false,
+        "explanation": "This contradicts the meaning of agent-based development. If the result is good -- use it. If there are issues -- ask the agent to fix them"
+      },
+      {
+        "text": "Commit immediately -- tests are green",
+        "correct": false,
+        "explanation": "Green tests don't guarantee correctness. The agent might have missed edge cases, security issues, or business logic"
+      },
+      {
+        "text": "Review the diff, check edge cases, ask the agent to explain its decision if necessary",
+        "correct": true,
+        "explanation": "Correct! Review is a mandatory step. Check logic, edge cases, security. Ask the agent to explain non-obvious decisions"
+      },
+      {
+        "text": "Run tests again just in case",
+        "correct": false,
+        "explanation": "Running tests again won't provide new information. Code review is what's needed"
+      }
     ]
   },
   {
     "question": "How is the context window distributed when working with Claude Code?",
     "type": "single",
     "options": [
-      { "text": "100% is allocated to project files", "correct": false, "explanation": "Context is shared between system instructions, conversation history, and workspace" },
-      { "text": "~25% instructions, ~25% conversation history, ~50% workspace", "correct": true, "explanation": "Correct! About a quarter goes to CLAUDE.md and rules, a quarter to conversation history, and half -- to files, command results, and current work" },
-      { "text": "50% code, 50% conversation", "correct": false, "explanation": "Instructions (CLAUDE.md, rules) take up a significant portion of context and are not accounted for in this option" },
-      { "text": "The context window is unlimited, no need to think about it", "correct": false, "explanation": "The context window is always limited -- this is the key idea of the entire course. Context management is the skill that distinguishes a productive user from an unproductive one" }
+      {
+        "text": "The context window is unlimited, no need to think about it",
+        "correct": false,
+        "explanation": "The context window is always limited -- this is the key idea of the entire course. Context management is the skill that distinguishes a productive user from an unproductive one"
+      },
+      {
+        "text": "50% code, 50% conversation",
+        "correct": false,
+        "explanation": "Instructions (CLAUDE.md, rules) take up a significant portion of context and are not accounted for in this option"
+      },
+      {
+        "text": "~25% instructions, ~25% conversation history, ~50% workspace",
+        "correct": true,
+        "explanation": "Correct! About a quarter goes to CLAUDE.md and rules, a quarter to conversation history, and half -- to files, command results, and current work"
+      },
+      {
+        "text": "100% is allocated to project files",
+        "correct": false,
+        "explanation": "Context is shared between system instructions, conversation history, and workspace"
+      }
     ]
   },
   {
     "question": "Which task formulation format for the agent would be most effective?",
     "type": "single",
     "options": [
-      { "text": "There's a bug in email validation -- it allows addresses with two dots in the domain. Fix it.", "correct": true, "explanation": "Correct! A specific problem is described and expected behavior. The agent will find the right file and function itself" },
-      { "text": "Open src/utils/validate.ts, line 42, replace the regex with /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/", "correct": false, "explanation": "This is micromanagement -- you're doing the agent's job for it. Plus you might be wrong about the regex, and the agent can't correct you because you gave a precise instruction" },
-      { "text": "Check the validation", "correct": false, "explanation": "Too vague. Which validation? What exactly to check? The agent will guess" },
-      { "text": "I need to fix a bug", "correct": false, "explanation": "Without context the agent doesn't know which bug and where. Specifics are needed" }
+      {
+        "text": "There's a bug in email validation -- it allows addresses with two dots in the domain. Fix it.",
+        "correct": true,
+        "explanation": "Correct! A specific problem is described and expected behavior. The agent will find the right file and function itself"
+      },
+      {
+        "text": "I need to fix a bug",
+        "correct": false,
+        "explanation": "Without context the agent doesn't know which bug and where. Specifics are needed"
+      },
+      {
+        "text": "Check the validation",
+        "correct": false,
+        "explanation": "Too vague. Which validation? What exactly to check? The agent will guess"
+      },
+      {
+        "text": "Open src/utils/validate.ts, line 42, replace the regex with /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/",
+        "correct": false,
+        "explanation": "This is micromanagement -- you're doing the agent's job for it. Plus you might be wrong about the regex, and the agent can't correct you because you gave a precise instruction"
+      }
     ]
   }
 ]

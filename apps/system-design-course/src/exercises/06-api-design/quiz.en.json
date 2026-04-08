@@ -3,50 +3,135 @@
     "question": "Your public API serves a mobile app and a web client. Mobile needs 3 fields from User, while web — a full profile with orders and statistics. Which API style best solves this problem?",
     "type": "single",
     "options": [
-      { "text": "REST with different endpoints for mobile and web clients", "correct": false, "explanation": "Creating separate REST endpoints for each client leads to code duplication and API bloat. This is essentially a manual implementation of what GraphQL does out of the box" },
-      { "text": "GraphQL — client requests exactly the fields it needs", "correct": true, "explanation": "GraphQL solves the overfetching problem (mobile gets only 3 fields) and underfetching (web gets everything in one request). Each client forms its own query, and the schema is shared" },
-      { "text": "gRPC — binary protocol is the fastest", "correct": false, "explanation": "gRPC is not natively supported by browsers (requires a gRPC-Web proxy). It's ideal for inter-service communication, but for a public API with mobile/web clients — not the best choice" },
-      { "text": "REST with query parameter ?fields=name,email", "correct": false, "explanation": "Sparse fieldsets (fields filtering) is a partial solution, but it doesn't cover nested resources (posts with comments). GraphQL does this natively with schema-based typing" }
+      {
+        "text": "REST with query parameter ?fields=name,email",
+        "correct": false,
+        "explanation": "Sparse fieldsets (fields filtering) is a partial solution, but it doesn't cover nested resources (posts with comments). GraphQL does this natively with schema-based typing"
+      },
+      {
+        "text": "gRPC — binary protocol is the fastest",
+        "correct": false,
+        "explanation": "gRPC is not natively supported by browsers (requires a gRPC-Web proxy). It's ideal for inter-service communication, but for a public API with mobile/web clients — not the best choice"
+      },
+      {
+        "text": "REST with different endpoints for mobile and web clients",
+        "correct": false,
+        "explanation": "Creating separate REST endpoints for each client leads to code duplication and API bloat. This is essentially a manual implementation of what GraphQL does out of the box"
+      },
+      {
+        "text": "GraphQL — client requests exactly the fields it needs",
+        "correct": true,
+        "explanation": "GraphQL solves the overfetching problem (mobile gets only 3 fields) and underfetching (web gets everything in one request). Each client forms its own query, and the schema is shared"
+      }
     ]
   },
   {
     "question": "Why is cursor-based pagination better than offset-based for a news feed?",
     "type": "multiple",
     "options": [
-      { "text": "No duplicates or skips when new entries are added between page requests", "correct": true, "explanation": "Cursor is tied to a specific element (WHERE id < cursor). New entries at the top don't shift the position. With offset, a new post shifts all offsets — a user may see the same post twice" },
-      { "text": "O(1) performance instead of O(offset) — equally fast on any page", "correct": true, "explanation": "SQL OFFSET 100000 scans and skips 100000 rows. Cursor (WHERE id < 12345 LIMIT 20) uses an index — always fast, even on page 5000" },
-      { "text": "Can jump to an arbitrary page (e.g., directly to page 50)", "correct": false, "explanation": "Actually — this is a drawback of cursor pagination. Cursor only allows next/prev, without arbitrary jumps. Offset works well for admin panels with page numbers" },
-      { "text": "Cursor can be used as a stable bookmark to save the user's position", "correct": true, "explanation": "A cursor is a unique pointer to a position in the list. You can save the cursor and return to the same spot. Offset breaks if the data has changed" }
+      {
+        "text": "This requires a special license",
+        "correct": false,
+        "explanation": "The listed technologies have open-source versions."
+      },
+      {
+        "text": "Can jump to an arbitrary page (e.g., directly to page 50)",
+        "correct": false,
+        "explanation": "Actually — this is a drawback of cursor pagination. Cursor only allows next/prev, without arbitrary jumps. Offset works well for admin panels with page numbers"
+      },
+      {
+        "text": "No duplicates or skips when new entries are added between page requests",
+        "correct": true,
+        "explanation": "Cursor is tied to a specific element (WHERE id < cursor). New entries at the top don't shift the position. With offset, a new post shifts all offsets — a user may see the same post twice"
+      },
+      {
+        "text": "O(1) performance instead of O(offset) — equally fast on any page",
+        "correct": true,
+        "explanation": "SQL OFFSET 100000 scans and skips 100000 rows. Cursor (WHERE id < 12345 LIMIT 20) uses an index — always fast, even on page 5000"
+      },
+      {
+        "text": "Cursor can be used as a stable bookmark to save the user's position",
+        "correct": true,
+        "explanation": "A cursor is a unique pointer to a position in the list. You can save the cursor and return to the same spot. Offset breaks if the data has changed"
+      }
     ]
   },
   {
     "question": "Which rate limiting algorithm is best for an API that requires: even request flow with controlled bursts?",
     "type": "single",
     "options": [
-      { "text": "Fixed Window — simple and predictable", "correct": false, "explanation": "Fixed Window has a serious problem at window boundaries: a client can send 2x the limit in a short window (100 requests at the end of window 1 + 100 at the start of window 2). This is exactly an uncontrolled burst" },
-      { "text": "Token Bucket — controlled burst via the burst parameter, even rate via the rate parameter", "correct": true, "explanation": "Token Bucket is a perfect fit: rate sets the steady replenishment speed, burst sets the maximum spike. O(1) memory. This is the most popular algorithm (used in nginx, AWS API Gateway, Stripe)" },
-      { "text": "Sliding Window Log — the most accurate", "correct": false, "explanation": "Sliding Window Log is accurate, but requires O(N) memory (stores the timestamp of every request). It doesn't have a separate burst parameter — it only controls the total number of requests in the window. For steady flow with bursts, Token Bucket is simpler and more effective" },
-      { "text": "Leaky Bucket — guarantees an even flow", "correct": false, "explanation": "Leaky Bucket provides an absolutely even flow without bursts (fixed drain rate). This is good for some cases, but the question requires controlled bursts — and Leaky Bucket eliminates them entirely" }
+      {
+        "text": "Sliding Window Log — the most accurate",
+        "correct": false,
+        "explanation": "Sliding Window Log is accurate, but requires O(N) memory (stores the timestamp of every request). It doesn't have a separate burst parameter — it only controls the total number of requests in the window. For steady flow with bursts, Token Bucket is simpler and more effective"
+      },
+      {
+        "text": "Leaky Bucket — guarantees an even flow",
+        "correct": false,
+        "explanation": "Leaky Bucket provides an absolutely even flow without bursts (fixed drain rate). This is good for some cases, but the question requires controlled bursts — and Leaky Bucket eliminates them entirely"
+      },
+      {
+        "text": "Token Bucket — controlled burst via the burst parameter, even rate via the rate parameter",
+        "correct": true,
+        "explanation": "Token Bucket is a perfect fit: rate sets the steady replenishment speed, burst sets the maximum spike. O(1) memory. This is the most popular algorithm (used in nginx, AWS API Gateway, Stripe)"
+      },
+      {
+        "text": "Fixed Window — simple and predictable",
+        "correct": false,
+        "explanation": "Fixed Window has a serious problem at window boundaries: a client can send 2x the limit in a short window (100 requests at the end of window 1 + 100 at the start of window 2). This is exactly an uncontrolled burst"
+      }
     ]
   },
   {
     "question": "You're building a payment API. The client sends POST /payments, gets a timeout, and retries. How to prevent double charging?",
     "type": "single",
     "options": [
-      { "text": "Make POST /payments idempotent via Idempotency-Key in the header", "correct": true, "explanation": "The client generates a unique Idempotency-Key (UUID) and sends it with every request. On the first request, the server executes the operation and saves the result. On retry with the same key — it returns the saved result without re-executing. This is the standard (Stripe, PayPal)" },
-      { "text": "Use PUT instead of POST — PUT is idempotent by specification", "correct": false, "explanation": "PUT is idempotent, but it replaces the entire resource. Creating a payment is a POST (creating a new resource). Semantically, PUT doesn't fit. Moreover, PUT idempotency is not guaranteed automatically — it must be implemented" },
-      { "text": "Check on the client side whether the payment went through before retrying", "correct": false, "explanation": "The client received a timeout — it doesn't know if the payment went through. GET /payments?orderId=X may return an empty result even if the payment is in progress. Race condition. Idempotency key solves the problem on the server" },
-      { "text": "Use a unique orderId and check for duplicates in the database", "correct": false, "explanation": "Checking orderId in the database is a partial solution. But what if the first request is still in-flight and the retry has already arrived? You need a locking mechanism (mutex/lock) on the idempotency key, not just a database check. The full Idempotency-Key pattern accounts for this" }
+      {
+        "text": "Use a unique orderId and check for duplicates in the database",
+        "correct": false,
+        "explanation": "Checking orderId in the database is a partial solution. But what if the first request is still in-flight and the retry has already arrived? You need a locking mechanism (mutex/lock) on the idempotency key, not just a database check. The full Idempotency-Key pattern accounts for this"
+      },
+      {
+        "text": "Check on the client side whether the payment went through before retrying",
+        "correct": false,
+        "explanation": "The client received a timeout — it doesn't know if the payment went through. GET /payments?orderId=X may return an empty result even if the payment is in progress. Race condition. Idempotency key solves the problem on the server"
+      },
+      {
+        "text": "Use PUT instead of POST — PUT is idempotent by specification",
+        "correct": false,
+        "explanation": "PUT is idempotent, but it replaces the entire resource. Creating a payment is a POST (creating a new resource). Semantically, PUT doesn't fit. Moreover, PUT idempotency is not guaranteed automatically — it must be implemented"
+      },
+      {
+        "text": "Make POST /payments idempotent via Idempotency-Key in the header",
+        "correct": true,
+        "explanation": "The client generates a unique Idempotency-Key (UUID) and sends it with every request. On the first request, the server executes the operation and saves the result. On retry with the same key — it returns the saved result without re-executing. This is the standard (Stripe, PayPal)"
+      }
     ]
   },
   {
     "question": "Which statements about API versioning strategies are correct?",
     "type": "multiple",
     "options": [
-      { "text": "URL path versioning (/v1/users) — the most obvious and popular approach", "correct": true, "explanation": "URL versioning is used by most public APIs (Stripe /v1, Twitter /2, GitHub /v3). Obvious for developers, easy to route at the API Gateway level, convenient for browser testing" },
-      { "text": "Header versioning (Accept: application/vnd.api.v2+json) keeps URLs clean", "correct": true, "explanation": "Header versioning doesn't pollute URLs and follows the HTTP content negotiation principle. Drawback: harder to test (can't just open the URL in a browser), requires a specific client" },
-      { "text": "Better not to version at all — make only backward-compatible changes", "correct": false, "explanation": "This is the ideal, but in practice it's impossible to avoid breaking changes indefinitely. Sometimes you need to rename fields, change formats, or remove deprecated features. Without versioning, you limit API evolution" },
-      { "text": "When releasing a new version, the old one can be turned off immediately", "correct": false, "explanation": "No! Clients depend on the old version. Best practice: Deprecation notice 6–12 months in advance, Sunset and Deprecation headers, monitoring traffic to the old version, supporting at least 2 versions simultaneously" }
+      {
+        "text": "Header versioning (Accept: application/vnd.api.v2+json) keeps URLs clean",
+        "correct": true,
+        "explanation": "Header versioning doesn't pollute URLs and follows the HTTP content negotiation principle. Drawback: harder to test (can't just open the URL in a browser), requires a specific client"
+      },
+      {
+        "text": "When releasing a new version, the old one can be turned off immediately",
+        "correct": false,
+        "explanation": "No! Clients depend on the old version. Best practice: Deprecation notice 6–12 months in advance, Sunset and Deprecation headers, monitoring traffic to the old version, supporting at least 2 versions simultaneously"
+      },
+      {
+        "text": "URL path versioning (/v1/users) — the most obvious and popular approach",
+        "correct": true,
+        "explanation": "URL versioning is used by most public APIs (Stripe /v1, Twitter /2, GitHub /v3). Obvious for developers, easy to route at the API Gateway level, convenient for browser testing"
+      },
+      {
+        "text": "Better not to version at all — make only backward-compatible changes",
+        "correct": false,
+        "explanation": "This is the ideal, but in practice it's impossible to avoid breaking changes indefinitely. Sometimes you need to rename fields, change formats, or remove deprecated features. Without versioning, you limit API evolution"
+      }
     ]
   }
 ]

@@ -4,9 +4,9 @@
     "type": "single",
     "options": [
       {
-        "text": "opkg update",
-        "correct": true,
-        "explanation": "opkg update downloads the current package list from repositories. Without it, opkg doesn't know about available packages — especially after a reboot, since the cache is stored in tmpfs."
+        "text": "opkg refresh",
+        "correct": false,
+        "explanation": "This command doesn't exist in opkg. The correct command is opkg update. Don't confuse with apt-get update/apt-get upgrade."
       },
       {
         "text": "apt-get update",
@@ -14,9 +14,9 @@
         "explanation": "apt-get is the Debian/Ubuntu package manager. OpenWRT uses opkg. The apt-get command is not available in OpenWRT."
       },
       {
-        "text": "opkg refresh",
-        "correct": false,
-        "explanation": "This command doesn't exist in opkg. The correct command is opkg update. Don't confuse with apt-get update/apt-get upgrade."
+        "text": "opkg update",
+        "correct": true,
+        "explanation": "opkg update downloads the current package list from repositories. Without it, opkg doesn't know about available packages — especially after a reboot, since the cache is stored in tmpfs."
       },
       {
         "text": "opkg sync",
@@ -30,6 +30,11 @@
     "type": "single",
     "options": [
       {
+        "text": "mosquitto-nossl cannot be used with passwords",
+        "correct": false,
+        "explanation": "Password authentication (password_file) works in both variants. nossl means only the absence of transport-level TLS encryption, not authentication."
+      },
+      {
         "text": "mosquitto-nossl doesn't support TLS/SSL encryption, takes less space",
         "correct": true,
         "explanation": "The -nossl version is compiled without TLS support, reducing the size from ~300 KB to ~100 KB. Suitable for isolated LAN networks where encryption is not required."
@@ -38,11 +43,6 @@
         "text": "mosquitto-nossl is an old MQTT protocol version, only 3.1",
         "correct": false,
         "explanation": "The -nossl suffix means no TLS, not a protocol version. Both packages support MQTT 3.1.1 and MQTT 5.0 (in Mosquitto 2.x)."
-      },
-      {
-        "text": "mosquitto-nossl cannot be used with passwords",
-        "correct": false,
-        "explanation": "Password authentication (password_file) works in both variants. nossl means only the absence of transport-level TLS encryption, not authentication."
       },
       {
         "text": "mosquitto-nossl supports only 10 clients simultaneously",
@@ -56,24 +56,24 @@
     "type": "multiple",
     "options": [
       {
-        "text": "/usr/bin/mosquitto_pub",
-        "correct": true,
-        "explanation": "mosquitto_pub — a utility for publishing MQTT messages from the command line. Part of the mosquitto-client-nossl package."
-      },
-      {
-        "text": "/usr/bin/mosquitto_sub",
-        "correct": true,
-        "explanation": "mosquitto_sub — a utility for subscribing to MQTT topics and receiving messages in the terminal. Part of the mosquitto-client-nossl package."
-      },
-      {
         "text": "/usr/sbin/mosquitto",
         "correct": false,
         "explanation": "The broker executable is part of the mosquitto-nossl (or mosquitto) package, not the client package. The client package contains only client utilities."
       },
       {
+        "text": "/usr/bin/mosquitto_pub",
+        "correct": true,
+        "explanation": "mosquitto_pub — a utility for publishing MQTT messages from the command line. Part of the mosquitto-client-nossl package."
+      },
+      {
         "text": "/etc/mosquitto/mosquitto.conf",
         "correct": false,
         "explanation": "The configuration file is installed with the broker package (mosquitto-nossl), not with client utilities."
+      },
+      {
+        "text": "/usr/bin/mosquitto_sub",
+        "correct": true,
+        "explanation": "mosquitto_sub — a utility for subscribing to MQTT topics and receiving messages in the terminal. Part of the mosquitto-client-nossl package."
       }
     ]
   },
@@ -81,6 +81,11 @@
     "question": "What does /etc/init.d/mosquitto enable do?",
     "type": "single",
     "options": [
+      {
+        "text": "Installs Mosquitto as a systemd service",
+        "correct": false,
+        "explanation": "OpenWRT uses init.d (sysvinit), not systemd. The enable command works with symlinks in /etc/rc.d/, not with systemctl enable."
+      },
       {
         "text": "Creates a symlink in /etc/rc.d/ for autostart on boot, but doesn't start the service",
         "correct": true,
@@ -90,11 +95,6 @@
         "text": "Starts Mosquitto immediately and enables autostart in one command",
         "correct": false,
         "explanation": "enable only configures autostart via symlink. Immediate start is done by the start command. These are separate operations requiring two commands."
-      },
-      {
-        "text": "Installs Mosquitto as a systemd service",
-        "correct": false,
-        "explanation": "OpenWRT uses init.d (sysvinit), not systemd. The enable command works with symlinks in /etc/rc.d/, not with systemctl enable."
       },
       {
         "text": "Opens MQTT port 1883 in the OpenWRT firewall",
@@ -107,6 +107,11 @@
     "question": "Where is it recommended to place persistence files on an OpenWRT router and why?",
     "type": "single",
     "options": [
+      {
+        "text": "Persistence is not needed on OpenWRT — retained messages are stored in broker memory",
+        "correct": false,
+        "explanation": "Retained messages are stored in memory only while the broker is running. Without persistence, they are lost on restart. If this is acceptable, persistence can be disabled, but it should be a conscious choice."
+      },
       {
         "text": "In /tmp (tmpfs) — data in RAM, doesn't wear out flash, but lost on reboot",
         "correct": true,
@@ -121,11 +126,6 @@
         "text": "In /etc/mosquitto — next to configuration for convenience",
         "correct": false,
         "explanation": "/etc/ in OpenWRT is also stored on flash overlay. Placing the database next to configs is inconvenient and unsafe for flash memory."
-      },
-      {
-        "text": "Persistence is not needed on OpenWRT — retained messages are stored in broker memory",
-        "correct": false,
-        "explanation": "Retained messages are stored in memory only while the broker is running. Without persistence, they are lost on restart. If this is acceptable, persistence can be disabled, but it should be a conscious choice."
       }
     ]
   },
@@ -139,9 +139,9 @@
         "explanation": "netstat shows all listening ports with PIDs. A line with 0.0.0.0:1883 and LISTEN confirms the broker is accepting connections."
       },
       {
-        "text": "ps | grep mosquitto — ensure the process is running",
-        "correct": true,
-        "explanation": "The ps command shows the list of processes. A line with /usr/sbin/mosquitto means the broker is running. Together with netstat, this gives a complete picture."
+        "text": "mosquitto_pub and mosquitto_sub — full pub/sub cycle test",
+        "correct": false,
+        "explanation": "Real test: run mosquitto_sub in the background, then mosquitto_pub. If the subscriber receives the message, the broker is working correctly end-to-end."
       },
       {
         "text": "ping 127.0.0.1:1883 — check port availability",
@@ -149,9 +149,9 @@
         "explanation": "ping works with ICMP and doesn't support ports. To check a TCP port, use netcat: nc -zv 127.0.0.1 1883 or mosquitto_pub with the -d flag."
       },
       {
-        "text": "mosquitto_pub and mosquitto_sub — full pub/sub cycle test",
+        "text": "ps | grep mosquitto — ensure the process is running",
         "correct": true,
-        "explanation": "Real test: run mosquitto_sub in the background, then mosquitto_pub. If the subscriber receives the message, the broker is working correctly end-to-end."
+        "explanation": "The ps command shows the list of processes. A line with /usr/sbin/mosquitto means the broker is running. Together with netstat, this gives a complete picture."
       }
     ]
   }

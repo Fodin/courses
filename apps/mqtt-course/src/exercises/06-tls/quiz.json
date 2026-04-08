@@ -3,40 +3,109 @@
     "question": "On which port does MQTT over TLS operate by standard?",
     "type": "single",
     "options": [
-      { "text": "1883", "correct": false, "explanation": "1883 — standard port for unencrypted MQTT" },
-      { "text": "8883", "correct": true, "explanation": "8883 — standard port for MQTT over TLS (just like HTTPS uses 443 instead of 80)" },
-      { "text": "443", "correct": false, "explanation": "443 — standard HTTPS port, not MQTT. MQTT over WebSocket+TLS often uses 443, but standard MQTT+TLS port is 8883" },
-      { "text": "9001", "correct": false, "explanation": "9001 is often used for MQTT over WebSocket (without TLS), but not for standard MQTT+TLS" }
+      {
+        "text": "8883",
+        "correct": true,
+        "explanation": "8883 — standard port for MQTT over TLS (just like HTTPS uses 443 instead of 80)"
+      },
+      {
+        "text": "9001",
+        "correct": false,
+        "explanation": "9001 is often used for MQTT over WebSocket (without TLS), but not for standard MQTT+TLS"
+      },
+      {
+        "text": "443",
+        "correct": false,
+        "explanation": "443 — standard HTTPS port, not MQTT. MQTT over WebSocket+TLS often uses 443, but standard MQTT+TLS port is 8883"
+      },
+      {
+        "text": "1883",
+        "correct": false,
+        "explanation": "1883 — standard port for unencrypted MQTT"
+      }
     ]
   },
   {
     "question": "Which three files are mandatory for TLS configuration in Mosquitto?",
     "type": "multiple",
     "options": [
-      { "text": "cafile — Certificate Authority certificate", "correct": true, "explanation": "cafile is needed by Mosquitto to verify client certificates in mTLS, and by clients to verify the server" },
-      { "text": "certfile — server certificate", "correct": true, "explanation": "certfile — the server's public certificate, sent to clients during TLS handshake" },
-      { "text": "keyfile — server private key", "correct": true, "explanation": "keyfile — the secret key with which the server proves ownership of the certificate. Never sent to clients" },
-      { "text": "dhparam — Diffie-Hellman parameters", "correct": false, "explanation": "dhparam is used in some configurations for PFS, but is not mandatory for basic TLS setup in Mosquitto 2.x" }
+      {
+        "text": "certfile — server certificate",
+        "correct": true,
+        "explanation": "certfile — the server's public certificate, sent to clients during TLS handshake"
+      },
+      {
+        "text": "cafile — Certificate Authority certificate",
+        "correct": true,
+        "explanation": "cafile is needed by Mosquitto to verify client certificates in mTLS, and by clients to verify the server"
+      },
+      {
+        "text": "dhparam — Diffie-Hellman parameters",
+        "correct": false,
+        "explanation": "dhparam is used in some configurations for PFS, but is not mandatory for basic TLS setup in Mosquitto 2.x"
+      },
+      {
+        "text": "Данный подход устарел и больше не используется",
+        "correct": false,
+        "explanation": "Этот подход активно применяется в современных системах."
+      },
+      {
+        "text": "keyfile — server private key",
+        "correct": true,
+        "explanation": "keyfile — the secret key with which the server proves ownership of the certificate. Never sent to clients"
+      }
     ]
   },
   {
     "question": "What happens when use_identity_as_username is true in Mosquitto?",
     "type": "single",
     "options": [
-      { "text": "Username is taken from the CN field of the client certificate", "correct": true, "explanation": "When use_identity_as_username is true, Mosquitto extracts the CN (Common Name) from the client certificate and uses it as the username for ACL checks. No password is required." },
-      { "text": "Username is taken from the O (Organization) field of the certificate", "correct": false, "explanation": "It uses the CN (Common Name) field, not O (Organization)." },
-      { "text": "Username = certificate fingerprint (hash)", "correct": false, "explanation": "Fingerprint is the hash of the certificate; it's not used as the username. The name is taken from CN." },
-      { "text": "The client sends the username in the CONNECT packet itself, the certificate is ignored", "correct": false, "explanation": "On the contrary: with use_identity_as_username true, the certificate determines the username, not the username field in the CONNECT packet." }
+      {
+        "text": "The client sends the username in the CONNECT packet itself, the certificate is ignored",
+        "correct": false,
+        "explanation": "On the contrary: with use_identity_as_username true, the certificate determines the username, not the username field in the CONNECT packet."
+      },
+      {
+        "text": "Username is taken from the CN field of the client certificate",
+        "correct": true,
+        "explanation": "When use_identity_as_username is true, Mosquitto extracts the CN (Common Name) from the client certificate and uses it as the username for ACL checks. No password is required."
+      },
+      {
+        "text": "Username is taken from the O (Organization) field of the certificate",
+        "correct": false,
+        "explanation": "It uses the CN (Common Name) field, not O (Organization)."
+      },
+      {
+        "text": "Username = certificate fingerprint (hash)",
+        "correct": false,
+        "explanation": "Fingerprint is the hash of the certificate; it's not used as the username. The name is taken from CN."
+      }
     ]
   },
   {
     "question": "A developer gets a 'hostname mismatch' error when connecting to the broker. What is most likely wrong?",
     "type": "single",
     "options": [
-      { "text": "The CN in the server certificate doesn't match the hostname the client is connecting to", "correct": true, "explanation": "This is a classic error: the certificate was issued for 'mqtt.home', but the client connects to '192.168.1.1'. The TLS client checks CN-to-address correspondence." },
-      { "text": "Wrong connection port", "correct": false, "explanation": "Port doesn't affect hostname verification. The hostname mismatch error occurs specifically due to CN-address mismatch." },
-      { "text": "Certificate has expired", "correct": false, "explanation": "An expired certificate gives a 'certificate has expired' error, not 'hostname mismatch'." },
-      { "text": "Wrong private key", "correct": false, "explanation": "A wrong key gives an error during handshake ('key does not match certificate'), not 'hostname mismatch'." }
+      {
+        "text": "The CN in the server certificate doesn't match the hostname the client is connecting to",
+        "correct": true,
+        "explanation": "This is a classic error: the certificate was issued for 'mqtt.home', but the client connects to '192.168.1.1'. The TLS client checks CN-to-address correspondence."
+      },
+      {
+        "text": "Certificate has expired",
+        "correct": false,
+        "explanation": "An expired certificate gives a 'certificate has expired' error, not 'hostname mismatch'."
+      },
+      {
+        "text": "Wrong private key",
+        "correct": false,
+        "explanation": "A wrong key gives an error during handshake ('key does not match certificate'), not 'hostname mismatch'."
+      },
+      {
+        "text": "Wrong connection port",
+        "correct": false,
+        "explanation": "Port doesn't affect hostname verification. The hostname mismatch error occurs specifically due to CN-address mismatch."
+      }
     ]
   }
 ]

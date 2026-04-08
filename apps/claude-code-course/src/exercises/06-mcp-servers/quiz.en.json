@@ -3,100 +3,265 @@
     "question": "What is MCP (Model Context Protocol)?",
     "type": "single",
     "options": [
-      { "text": "An open standard for connecting AI applications to external data sources and tools", "correct": true, "explanation": "Correct: MCP is a universal protocol that allows any model to work with any data source." },
-      { "text": "A new programming language for AI models", "correct": false, "explanation": "MCP is a protocol, not a programming language." },
-      { "text": "A database for storing AI model weights", "correct": false, "explanation": "MCP is not a database — it is a communication protocol." },
-      { "text": "A testing framework for AI applications", "correct": false, "explanation": "MCP is not a testing framework." }
+      {
+        "text": "A new programming language for AI models",
+        "correct": false,
+        "explanation": "MCP is a protocol, not a programming language."
+      },
+      {
+        "text": "An open standard for connecting AI applications to external data sources and tools",
+        "correct": true,
+        "explanation": "Correct: MCP is a universal protocol that allows any model to work with any data source."
+      },
+      {
+        "text": "A testing framework for AI applications",
+        "correct": false,
+        "explanation": "MCP is not a testing framework."
+      },
+      {
+        "text": "A database for storing AI model weights",
+        "correct": false,
+        "explanation": "MCP is not a database — it is a communication protocol."
+      }
     ]
   },
   {
     "question": "What are the three MCP primitives?",
     "type": "single",
     "options": [
-      { "text": "Input, Output, Transform", "correct": false, "explanation": "These are generic data processing terms, not MCP primitives." },
-      { "text": "Tools, Resources, Prompts", "correct": true, "explanation": "Correct: Tools are actions, Resources are data, Prompts are templates." },
-      { "text": "Request, Response, Error", "correct": false, "explanation": "These are HTTP concepts, not MCP primitives." },
-      { "text": "Client, Server, Transport", "correct": false, "explanation": "These are architecture components, not MCP primitives." }
+      {
+        "text": "Tools, Resources, Prompts",
+        "correct": true,
+        "explanation": "Correct: Tools are actions, Resources are data, Prompts are templates."
+      },
+      {
+        "text": "Request, Response, Error",
+        "correct": false,
+        "explanation": "These are HTTP concepts, not MCP primitives."
+      },
+      {
+        "text": "Client, Server, Transport",
+        "correct": false,
+        "explanation": "These are architecture components, not MCP primitives."
+      },
+      {
+        "text": "Input, Output, Transform",
+        "correct": false,
+        "explanation": "These are generic data processing terms, not MCP primitives."
+      }
     ]
   },
   {
     "question": "What is the difference between Stdio and HTTP transport?",
     "type": "multiple",
     "options": [
-      { "text": "Stdio works only locally, HTTP supports remote access", "correct": true, "explanation": "Correct: Stdio is for local connections, HTTP enables remote servers." },
-      { "text": "Stdio is one-to-one, HTTP supports multiple clients", "correct": true, "explanation": "Correct: Stdio is a single connection, HTTP can handle many simultaneous sessions." },
-      { "text": "Stdio is faster than HTTP", "correct": false, "explanation": "Speed is not the primary difference — the difference is in connectivity model." },
-      { "text": "HTTP requires a server and port, Stdio does not", "correct": true, "explanation": "Correct: Stdio uses standard input/output, HTTP needs a server with a port." }
+      {
+        "text": "Stdio is faster than HTTP",
+        "correct": false,
+        "explanation": "Speed is not the primary difference — the difference is in connectivity model."
+      },
+      {
+        "text": "Stdio is one-to-one, HTTP supports multiple clients",
+        "correct": true,
+        "explanation": "Correct: Stdio is a single connection, HTTP can handle many simultaneous sessions."
+      },
+      {
+        "text": "HTTP requires a server and port, Stdio does not",
+        "correct": true,
+        "explanation": "Correct: Stdio uses standard input/output, HTTP needs a server with a port."
+      },
+      {
+        "text": "Stdio works only locally, HTTP supports remote access",
+        "correct": true,
+        "explanation": "Correct: Stdio is for local connections, HTTP enables remote servers."
+      },
+      {
+        "text": "This is only possible in cloud solutions",
+        "correct": false,
+        "explanation": "This works both in cloud and on-premise environments."
+      }
     ]
   },
   {
     "question": "How do you configure MCP servers in Claude Code?",
     "type": "single",
     "options": [
-      { "text": "In .mcp.json file", "correct": true, "explanation": "Correct: .mcp.json contains the MCP server configuration for Claude Code." },
-      { "text": "In package.json scripts", "correct": false, "explanation": "package.json is for npm scripts, not MCP configuration." },
-      { "text": "In .env file", "correct": false, "explanation": ".env is for environment variables, not MCP server configuration." },
-      { "text": "In CLAUDE.md file", "correct": false, "explanation": "CLAUDE.md is for instructions, not MCP configuration." }
+      {
+        "text": "In .mcp.json file",
+        "correct": true,
+        "explanation": "Correct: .mcp.json contains the MCP server configuration for Claude Code."
+      },
+      {
+        "text": "In CLAUDE.md file",
+        "correct": false,
+        "explanation": "CLAUDE.md is for instructions, not MCP configuration."
+      },
+      {
+        "text": "In package.json scripts",
+        "correct": false,
+        "explanation": "package.json is for npm scripts, not MCP configuration."
+      },
+      {
+        "text": "In .env file",
+        "correct": false,
+        "explanation": ".env is for environment variables, not MCP server configuration."
+      }
     ]
   },
   {
     "question": "What should a tool return in case of an error?",
     "type": "single",
     "options": [
-      { "text": "Throw an exception", "correct": false, "explanation": "Throwing exceptions crashes the server. Return an error result instead." },
-      { "text": "Return { content: [...], isError: true }", "correct": true, "explanation": "Correct: This tells the model that the tool failed and provides error details." },
-      { "text": "Return an empty response", "correct": false, "explanation": "Empty response gives no feedback to the model about what went wrong." },
-      { "text": "Return null", "correct": false, "explanation": "Null is not a valid tool response format." }
+      {
+        "text": "Return null",
+        "correct": false,
+        "explanation": "Null is not a valid tool response format."
+      },
+      {
+        "text": "Throw an exception",
+        "correct": false,
+        "explanation": "Throwing exceptions crashes the server. Return an error result instead."
+      },
+      {
+        "text": "Return { content: [...], isError: true }",
+        "correct": true,
+        "explanation": "Correct: This tells the model that the tool failed and provides error details."
+      },
+      {
+        "text": "Return an empty response",
+        "correct": false,
+        "explanation": "Empty response gives no feedback to the model about what went wrong."
+      }
     ]
   },
   {
     "question": "Why are clear tool descriptions important?",
     "type": "single",
     "options": [
-      { "text": "For the model to understand when to use the tool", "correct": true, "explanation": "Correct: the model reads tool descriptions to decide which tool to call." },
-      { "text": "For the code to compile", "correct": false, "explanation": "Descriptions do not affect compilation." },
-      { "text": "For the server to start", "correct": false, "explanation": "The server starts regardless of description quality." },
-      { "text": "For security purposes", "correct": false, "explanation": "Security is handled by validation, not descriptions." }
+      {
+        "text": "For the model to understand when to use the tool",
+        "correct": true,
+        "explanation": "Correct: the model reads tool descriptions to decide which tool to call."
+      },
+      {
+        "text": "For the server to start",
+        "correct": false,
+        "explanation": "The server starts regardless of description quality."
+      },
+      {
+        "text": "For the code to compile",
+        "correct": false,
+        "explanation": "Descriptions do not affect compilation."
+      },
+      {
+        "text": "For security purposes",
+        "correct": false,
+        "explanation": "Security is handled by validation, not descriptions."
+      }
     ]
   },
   {
     "question": "Which MCP primitive is best for providing API documentation to the model?",
     "type": "single",
     "options": [
-      { "text": "Tool", "correct": false, "explanation": "Tools are for actions. Documentation is passive data." },
-      { "text": "Resource", "correct": true, "explanation": "Correct: Resources are designed for providing data that the model can read." },
-      { "text": "Prompt", "correct": false, "explanation": "Prompts are for interaction templates, not static data." },
-      { "text": "None of the above", "correct": false, "explanation": "Resource is the correct choice for documentation." }
+      {
+        "text": "Resource",
+        "correct": true,
+        "explanation": "Correct: Resources are designed for providing data that the model can read."
+      },
+      {
+        "text": "None of the above",
+        "correct": false,
+        "explanation": "Resource is the correct choice for documentation."
+      },
+      {
+        "text": "Prompt",
+        "correct": false,
+        "explanation": "Prompts are for interaction templates, not static data."
+      },
+      {
+        "text": "Tool",
+        "correct": false,
+        "explanation": "Tools are for actions. Documentation is passive data."
+      }
     ]
   },
   {
     "question": "What is the MCP Inspector?",
     "type": "single",
     "options": [
-      { "text": "A tool for debugging MCP servers", "correct": true, "explanation": "Correct: MCP Inspector provides a UI for testing and debugging MCP servers." },
-      { "text": "A linter for MCP code", "correct": false, "explanation": "MCP Inspector is not a linter." },
-      { "text": "A production MCP server", "correct": false, "explanation": "MCP Inspector is a development tool, not for production." },
-      { "text": "An MCP client for Claude Code", "correct": false, "explanation": "MCP Inspector is a standalone debugging tool, not a Claude Code client." }
+      {
+        "text": "A production MCP server",
+        "correct": false,
+        "explanation": "MCP Inspector is a development tool, not for production."
+      },
+      {
+        "text": "An MCP client for Claude Code",
+        "correct": false,
+        "explanation": "MCP Inspector is a standalone debugging tool, not a Claude Code client."
+      },
+      {
+        "text": "A linter for MCP code",
+        "correct": false,
+        "explanation": "MCP Inspector is not a linter."
+      },
+      {
+        "text": "A tool for debugging MCP servers",
+        "correct": true,
+        "explanation": "Correct: MCP Inspector provides a UI for testing and debugging MCP servers."
+      }
     ]
   },
   {
     "question": "Which of these are MCP security best practices?",
     "type": "multiple",
     "options": [
-      { "text": "Validate all input with Zod schemas", "correct": true, "explanation": "Correct: input validation prevents injection and type errors." },
-      { "text": "Store secrets in environment variables", "correct": true, "explanation": "Correct: secrets should not be hardcoded in the server code." },
-      { "text": "Log all actions for audit", "correct": true, "explanation": "Correct: logging helps detect and investigate security incidents." },
-      { "text": "Give the server maximum permissions for flexibility", "correct": false, "explanation": "This violates the principle of least privilege — give only necessary access." }
+      {
+        "text": "Give the server maximum permissions for flexibility",
+        "correct": false,
+        "explanation": "This violates the principle of least privilege — give only necessary access."
+      },
+      {
+        "text": "Log all actions for audit",
+        "correct": true,
+        "explanation": "Correct: logging helps detect and investigate security incidents."
+      },
+      {
+        "text": "Store secrets in environment variables",
+        "correct": true,
+        "explanation": "Correct: secrets should not be hardcoded in the server code."
+      },
+      {
+        "text": "Validate all input with Zod schemas",
+        "correct": true,
+        "explanation": "Correct: input validation prevents injection and type errors."
+      }
     ]
   },
   {
     "question": "What is a common mistake when creating MCP servers?",
     "type": "multiple",
     "options": [
-      { "text": "Unclear tool descriptions", "correct": true, "explanation": "Correct: the model needs clear descriptions to use tools correctly." },
-      { "text": "No error handling", "correct": true, "explanation": "Correct: without error handling the model cannot recover from failures." },
-      { "text": "Too many tools", "correct": true, "explanation": "Correct: each tool adds context overhead — use only what is needed." },
-      { "text": "Large responses without pagination", "correct": true, "explanation": "Correct: large responses consume context and should be paginated." }
+      {
+        "text": "No error handling",
+        "correct": true,
+        "explanation": "Correct: without error handling the model cannot recover from failures."
+      },
+      {
+        "text": "Too many tools",
+        "correct": true,
+        "explanation": "Correct: each tool adds context overhead — use only what is needed."
+      },
+      {
+        "text": "Unclear tool descriptions",
+        "correct": true,
+        "explanation": "Correct: the model needs clear descriptions to use tools correctly."
+      },
+      {
+        "text": "Large responses without pagination",
+        "correct": true,
+        "explanation": "Correct: large responses consume context and should be paginated."
+      }
     ]
   }
 ]

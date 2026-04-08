@@ -14,6 +14,11 @@
         "explanation": "Without authentication, anyone can publish to any topic, allowing spoofing of sensor data or sending commands."
       },
       {
+        "text": "This depends solely on the programming language",
+        "correct": false,
+        "explanation": "This is an architectural decision independent of the language."
+      },
+      {
         "text": "The MQTT protocol automatically encrypts data",
         "correct": false,
         "explanation": "MQTT does not encrypt data on its own. TLS over MQTT (port 8883) is required for encryption."
@@ -30,24 +35,24 @@
     "type": "single",
     "options": [
       {
-        "text": "Restricts who can connect — only clients with address 192.168.1.1",
-        "correct": false,
-        "explanation": "bind_address determines which LOCAL interface Mosquitto listens on. This is not a client filter."
-      },
-      {
         "text": "Mosquitto listens only on the network interface with IP 192.168.1.1 (LAN)",
         "correct": true,
         "explanation": "bind_address sets the local address the socket binds to. If this is a LAN IP, Mosquitto physically cannot accept connections from the WAN interface."
       },
       {
-        "text": "Mosquitto will connect to another broker at address 192.168.1.1",
+        "text": "Restricts who can connect — only clients with address 192.168.1.1",
         "correct": false,
-        "explanation": "Bridge configuration is used to connect to another broker. bind_address is the local address."
+        "explanation": "bind_address determines which LOCAL interface Mosquitto listens on. This is not a client filter."
       },
       {
         "text": "Enables NAT for MQTT traffic",
         "correct": false,
         "explanation": "NAT is configured at the iptables/firewall level, not in mosquitto.conf."
+      },
+      {
+        "text": "Mosquitto will connect to another broker at address 192.168.1.1",
+        "correct": false,
+        "explanation": "Bridge configuration is used to connect to another broker. bind_address is the local address."
       }
     ]
   },
@@ -61,11 +66,6 @@
         "explanation": "The wildcard in ACL is denoted by #. %u is a substitution variable."
       },
       {
-        "text": "The current authenticated user's name",
-        "correct": true,
-        "explanation": "%u is replaced with the username during ACL checking. For example, topic readwrite devices/%u/# for user sensor1 means devices/sensor1/#."
-      },
-      {
         "text": "An unknown user (anonymous)",
         "correct": false,
         "explanation": "%u is not anonymous. Anonymous users are denoted by a separate block in the ACL."
@@ -74,6 +74,11 @@
         "text": "The client UUID (clientId)",
         "correct": false,
         "explanation": "%u is the username. For clientId, %c is used."
+      },
+      {
+        "text": "The current authenticated user's name",
+        "correct": true,
+        "explanation": "%u is replaced with the username during ACL checking. For example, topic readwrite devices/%u/# for user sensor1 means devices/sensor1/#."
       }
     ]
   },
@@ -82,14 +87,9 @@
     "type": "single",
     "options": [
       {
-        "text": "Blocks all connections from every IP for 60 seconds",
+        "text": "Blocks the first 5 packets and allows the rest",
         "correct": false,
-        "explanation": "The rule does not block all connections. It counts packets over a period."
-      },
-      {
-        "text": "Blocks an IP if it sent 5 or more packets in the last 60 seconds",
-        "correct": true,
-        "explanation": "--recent tracks packets by IP. --update updates the counter and checks the condition. --seconds 60 --hitcount 5: if >= 5 packets in 60 seconds — the condition is met, packet is DROP."
+        "explanation": "The logic is reversed: it allows up to 5 packets and blocks starting from the 6th (when paired with a -j ACCEPT rule)."
       },
       {
         "text": "Limits the rate to 5 packets per second per IP",
@@ -97,9 +97,14 @@
         "explanation": "The parameter --hitcount 5 with --seconds 60 means 5 packets per 60 seconds, not 5 per second."
       },
       {
-        "text": "Blocks the first 5 packets and allows the rest",
+        "text": "Blocks an IP if it sent 5 or more packets in the last 60 seconds",
+        "correct": true,
+        "explanation": "--recent tracks packets by IP. --update updates the counter and checks the condition. --seconds 60 --hitcount 5: if >= 5 packets in 60 seconds — the condition is met, packet is DROP."
+      },
+      {
+        "text": "Blocks all connections from every IP for 60 seconds",
         "correct": false,
-        "explanation": "The logic is reversed: it allows up to 5 packets and blocks starting from the 6th (when paired with a -j ACCEPT rule)."
+        "explanation": "The rule does not block all connections. It counts packets over a period."
       }
     ]
   }

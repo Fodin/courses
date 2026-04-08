@@ -4,14 +4,9 @@
     "type": "single",
     "options": [
       {
-        "text": "MQTT does not support browsers",
+        "text": "Port 1883 is blocked in all browsers",
         "correct": false,
-        "explanation": "MQTT supports any client, but browsers are limited in their network capabilities."
-      },
-      {
-        "text": "Browsers run in a sandbox and do not have access to raw TCP sockets",
-        "correct": true,
-        "explanation": "Browsers can only open HTTP/HTTPS and WebSocket connections. WebSocket transport is required for TCP access."
+        "explanation": "Browsers do not block specific ports for WebSocket. The issue is the connection type (TCP vs WebSocket)."
       },
       {
         "text": "TCP and MQTT use different packet formats",
@@ -19,9 +14,14 @@
         "explanation": "MQTT runs over TCP. The issue is not the format but that browsers cannot open raw TCP connections."
       },
       {
-        "text": "Port 1883 is blocked in all browsers",
+        "text": "Browsers run in a sandbox and do not have access to raw TCP sockets",
+        "correct": true,
+        "explanation": "Browsers can only open HTTP/HTTPS and WebSocket connections. WebSocket transport is required for TCP access."
+      },
+      {
+        "text": "MQTT does not support browsers",
         "correct": false,
-        "explanation": "Browsers do not block specific ports for WebSocket. The issue is the connection type (TCP vs WebSocket)."
+        "explanation": "MQTT supports any client, but browsers are limited in their network capabilities."
       }
     ]
   },
@@ -30,14 +30,9 @@
     "type": "single",
     "options": [
       {
-        "text": "protocol websocket",
+        "text": "enable_websockets true",
         "correct": false,
-        "explanation": "The correct name is `websockets` (plural)."
-      },
-      {
-        "text": "protocol websockets",
-        "correct": true,
-        "explanation": "Exactly `protocol websockets` enables WebSocket transport for a given listener in Mosquitto 2.x."
+        "explanation": "Such a directive does not exist. WebSocket is configured via `protocol websockets` within a listener block."
       },
       {
         "text": "transport websockets",
@@ -45,9 +40,14 @@
         "explanation": "Such a directive does not exist. Use `protocol websockets`."
       },
       {
-        "text": "enable_websockets true",
+        "text": "protocol websockets",
+        "correct": true,
+        "explanation": "Exactly `protocol websockets` enables WebSocket transport for a given listener in Mosquitto 2.x."
+      },
+      {
+        "text": "protocol websocket",
         "correct": false,
-        "explanation": "Such a directive does not exist. WebSocket is configured via `protocol websockets` within a listener block."
+        "explanation": "The correct name is `websockets` (plural)."
       }
     ]
   },
@@ -55,16 +55,6 @@
     "question": "Which headers are REQUIRED in nginx for WebSocket proxying?",
     "type": "multiple",
     "options": [
-      {
-        "text": "proxy_set_header Upgrade $http_upgrade",
-        "correct": true,
-        "explanation": "The Upgrade header tells the server about the protocol switch. Without it, the WebSocket handshake will not occur."
-      },
-      {
-        "text": "proxy_set_header Connection \"upgrade\"",
-        "correct": true,
-        "explanation": "The Connection: upgrade header is needed to indicate a persistent connection with protocol switching."
-      },
       {
         "text": "proxy_http_version 1.1",
         "correct": true,
@@ -74,6 +64,16 @@
         "text": "proxy_set_header X-WebSocket-Protocol mqtt",
         "correct": false,
         "explanation": "This header is not required. Mosquitto negotiates the mqtt sub-protocol itself during WebSocket handshake."
+      },
+      {
+        "text": "proxy_set_header Connection \"upgrade\"",
+        "correct": true,
+        "explanation": "The Connection: upgrade header is needed to indicate a persistent connection with protocol switching."
+      },
+      {
+        "text": "proxy_set_header Upgrade $http_upgrade",
+        "correct": true,
+        "explanation": "The Upgrade header tells the server about the protocol switch. Without it, the WebSocket handshake will not occur."
       }
     ]
   },
@@ -87,14 +87,14 @@
         "explanation": "With an incorrect URL, the client would not connect at all (connect would not happen)."
       },
       {
-        "text": "Multiple browser tabs are using the same clientId",
-        "correct": true,
-        "explanation": "When a client with an existing clientId connects, the broker disconnects the previous connection. The second tab kicks out the first, which tries to reconnect — and so on in a loop."
-      },
-      {
         "text": "Keepalive value is too large",
         "correct": false,
         "explanation": "A large keepalive does not cause immediate disconnection. It is the heartbeat packet interval."
+      },
+      {
+        "text": "Multiple browser tabs are using the same clientId",
+        "correct": true,
+        "explanation": "When a client with an existing clientId connects, the broker disconnects the previous connection. The second tab kicks out the first, which tries to reconnect — and so on in a loop."
       },
       {
         "text": "The MQTT.js library is incompatible with Mosquitto",

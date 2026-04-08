@@ -4,6 +4,11 @@
     "type": "single",
     "options": [
       {
+        "text": "1000000 (1 MB)",
+        "correct": false,
+        "explanation": "1 MB слишком мало — Mosquitto не сможет обслуживать даже 10 клиентов."
+      },
+      {
         "text": "0 (без лимита)",
         "correct": false,
         "explanation": "0 означает отсутствие лимита — Mosquitto может использовать всю память роутера, что приведёт к OOM и зависанию."
@@ -17,11 +22,6 @@
         "text": "20000000-25000000 (20-25 MB)",
         "correct": true,
         "explanation": "Рекомендуется выделять 30-40% от свободной RAM. Для 64 MB: 64 × 0.35 ≈ 22 MB. Это защитит от OOM, оставив место для ОС."
-      },
-      {
-        "text": "1000000 (1 MB)",
-        "correct": false,
-        "explanation": "1 MB слишком мало — Mosquitto не сможет обслуживать даже 10 клиентов."
       }
     ]
   },
@@ -30,14 +30,9 @@
     "type": "multiple",
     "options": [
       {
-        "text": "/etc/ — это flash-память, которая изнашивается от частых записей",
-        "correct": true,
-        "explanation": "Flash NAND имеет ограниченный ресурс (10-100k циклов записи). Mosquitto periodically записывает persistence.db, что ускоряет износ."
-      },
-      {
-        "text": "/tmp/ — это tmpfs (RAM), записи быстрее и не изнашивают flash",
-        "correct": true,
-        "explanation": "tmpfs хранит данные в RAM — нет износа flash, записи быстрее. Минус: данные теряются при перезагрузке."
+        "text": "Mosquitto не имеет прав записи в /etc/",
+        "correct": false,
+        "explanation": "Mosquitto обычно запускается от root или имеет нужные права. Это не причина."
       },
       {
         "text": "/etc/ защищён от записи в OpenWRT",
@@ -45,9 +40,14 @@
         "explanation": "/etc/ доступен для записи в OpenWRT (overlayfs). Проблема не в правах доступа."
       },
       {
-        "text": "Mosquitto не имеет прав записи в /etc/",
-        "correct": false,
-        "explanation": "Mosquitto обычно запускается от root или имеет нужные права. Это не причина."
+        "text": "/tmp/ — это tmpfs (RAM), записи быстрее и не изнашивают flash",
+        "correct": true,
+        "explanation": "tmpfs хранит данные в RAM — нет износа flash, записи быстрее. Минус: данные теряются при перезагрузке."
+      },
+      {
+        "text": "/etc/ — это flash-память, которая изнашивается от частых записей",
+        "correct": true,
+        "explanation": "Flash NAND имеет ограниченный ресурс (10-100k циклов записи). Mosquitto periodically записывает persistence.db, что ускоряет износ."
       }
     ]
   },
@@ -56,24 +56,24 @@
     "type": "single",
     "options": [
       {
-        "text": "Клиент будет отключён с ошибкой",
-        "correct": false,
-        "explanation": "В Mosquitto 2.x клиент не отключается — брокер принимает подключение, но устанавливает keepalive = min(client, max_keepalive)."
-      },
-      {
         "text": "Брокер будет использовать keepalive = min(600, 300) = 300",
         "correct": true,
         "explanation": "Mosquitto 2.x автоматически снижает keepalive клиента до max_keepalive. Клиент подключится, но должен отправлять PINGREQ каждые 300 секунд."
       },
       {
-        "text": "Брокер проигнорирует max_keepalive и использует 600",
-        "correct": false,
-        "explanation": "max_keepalive именно для этого и существует — ограничить максимальный keepalive клиента."
-      },
-      {
         "text": "Поведение неопределено",
         "correct": false,
         "explanation": "Поведение чётко определено в Mosquitto 2.x: применяется min(client_keepalive, max_keepalive)."
+      },
+      {
+        "text": "Клиент будет отключён с ошибкой",
+        "correct": false,
+        "explanation": "В Mosquitto 2.x клиент не отключается — брокер принимает подключение, но устанавливает keepalive = min(client, max_keepalive)."
+      },
+      {
+        "text": "Брокер проигнорирует max_keepalive и использует 600",
+        "correct": false,
+        "explanation": "max_keepalive именно для этого и существует — ограничить максимальный keepalive клиента."
       }
     ]
   },
@@ -81,6 +81,11 @@
     "question": "Когда следует использовать Persistent Session (clean=false) вместо Clean Session?",
     "type": "multiple",
     "options": [
+      {
+        "text": "Устройство, которое периодически теряет сеть (GSM-модем в подвале)",
+        "correct": true,
+        "explanation": "При нестабильном соединении persistent session гарантирует, что команды, отправленные во время обрыва, будут доставлены при восстановлении."
+      },
       {
         "text": "IoT-датчик на батарейке, который подключается раз в час",
         "correct": true,
@@ -90,11 +95,6 @@
         "text": "Веб-дашборд в браузере",
         "correct": false,
         "explanation": "Дашборд постоянно онлайн и не пропускает сообщения. Persistent session только расходует память брокера без пользы."
-      },
-      {
-        "text": "Устройство, которое периодически теряет сеть (GSM-модем в подвале)",
-        "correct": true,
-        "explanation": "При нестабильном соединении persistent session гарантирует, что команды, отправленные во время обрыва, будут доставлены при восстановлении."
       },
       {
         "text": "Клиент с dynamically генерируемым clientId",

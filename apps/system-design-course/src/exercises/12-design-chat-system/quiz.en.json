@@ -3,50 +3,130 @@
     "question": "Why is WebSocket preferable to HTTP Long Polling for a messenger?",
     "type": "single",
     "options": [
-      { "text": "WebSocket supports a persistent bidirectional connection: both client and server can send data at any time without HTTP header overhead. Long Polling creates a new HTTP connection after each response, adding latency and load", "correct": true, "explanation": "WebSocket is a persistent full-duplex connection. After handshake, data is transferred with minimal overhead (2-10 bytes header vs hundreds of bytes for HTTP). Long Polling works, but each request-response cycle adds 100-500 ms latency and connection re-establishment load" },
-      { "text": "Long Polling is not supported by modern browsers, so it cannot be used", "correct": false, "explanation": "Long Polling is standard HTTP and works everywhere. Many systems use it as a fallback when WebSocket is unavailable (corporate proxies, old firewalls). The issue is not browser support, but performance and latency" },
-      { "text": "WebSocket encrypts data, while Long Polling transmits it in plain text", "correct": false, "explanation": "Both protocols support encryption: WSS (WebSocket Secure) and HTTPS. Security is not a differentiator — both work over TLS" },
-      { "text": "Long Polling cannot be scaled horizontally", "correct": false, "explanation": "Long Polling scales, just less efficiently. Each poll is a new HTTP request that may hit a different server. This creates more load, but is not a fundamental scaling limitation" }
+      {
+        "text": "Long Polling is not supported by modern browsers, so it cannot be used",
+        "correct": false,
+        "explanation": "Long Polling is standard HTTP and works everywhere. Many systems use it as a fallback when WebSocket is unavailable (corporate proxies, old firewalls). The issue is not browser support, but performance and latency"
+      },
+      {
+        "text": "WebSocket encrypts data, while Long Polling transmits it in plain text",
+        "correct": false,
+        "explanation": "Both protocols support encryption: WSS (WebSocket Secure) and HTTPS. Security is not a differentiator — both work over TLS"
+      },
+      {
+        "text": "WebSocket supports a persistent bidirectional connection: both client and server can send data at any time without HTTP header overhead. Long Polling creates a new HTTP connection after each response, adding latency and load",
+        "correct": true,
+        "explanation": "WebSocket is a persistent full-duplex connection. After handshake, data is transferred with minimal overhead (2-10 bytes header vs hundreds of bytes for HTTP). Long Polling works, but each request-response cycle adds 100-500 ms latency and connection re-establishment load"
+      },
+      {
+        "text": "Long Polling cannot be scaled horizontally",
+        "correct": false,
+        "explanation": "Long Polling scales, just less efficiently. Each poll is a new HTTP request that may hit a different server. This creates more load, but is not a fundamental scaling limitation"
+      }
     ]
   },
   {
     "question": "In a messenger with millions of users, how do you determine which WebSocket Gateway server a specific user is connected to?",
     "type": "single",
     "options": [
-      { "text": "Store the userId → gatewayId mapping in Redis. On connect — write it, on disconnect — delete it. Chat Service checks Redis to route messages", "correct": true, "explanation": "Redis is ideal for session mapping: O(1) read/write, TTL for automatic cleanup on failures, clustering for scale. The userId → gatewayId mapping allows Chat Service to route messages to the correct Gateway without broadcast" },
-      { "text": "Send the message to ALL Gateway servers, and each checks if it has a connection with that user", "correct": false, "explanation": "Broadcast to all Gateways is O(N) by server count per message. With 100 Gateways and millions of messages per second, this creates huge internal traffic. Redis lookup is O(1)" },
-      { "text": "Use consistent hashing by userId to bind the user to a specific Gateway", "correct": false, "explanation": "Consistent hashing doesn't account for users reconnecting to a different Gateway (after failure, network change). WebSocket connections are sticky to a specific server, but the server is determined at connection time, not by hashing" },
-      { "text": "Store connection information in PostgreSQL indexed by userId", "correct": false, "explanation": "PostgreSQL is too slow for this task. The mapping updates on every connect/disconnect/heartbeat — thousands of operations per second. Redis handles it in microseconds, PostgreSQL in milliseconds with locks" }
+      {
+        "text": "Store the userId → gatewayId mapping in Redis. On connect — write it, on disconnect — delete it. Chat Service checks Redis to route messages",
+        "correct": true,
+        "explanation": "Redis is ideal for session mapping: O(1) read/write, TTL for automatic cleanup on failures, clustering for scale. The userId → gatewayId mapping allows Chat Service to route messages to the correct Gateway without broadcast"
+      },
+      {
+        "text": "Use consistent hashing by userId to bind the user to a specific Gateway",
+        "correct": false,
+        "explanation": "Consistent hashing doesn't account for users reconnecting to a different Gateway (after failure, network change). WebSocket connections are sticky to a specific server, but the server is determined at connection time, not by hashing"
+      },
+      {
+        "text": "Send the message to ALL Gateway servers, and each checks if it has a connection with that user",
+        "correct": false,
+        "explanation": "Broadcast to all Gateways is O(N) by server count per message. With 100 Gateways and millions of messages per second, this creates huge internal traffic. Redis lookup is O(1)"
+      },
+      {
+        "text": "Store connection information in PostgreSQL indexed by userId",
+        "correct": false,
+        "explanation": "PostgreSQL is too slow for this task. The mapping updates on every connect/disconnect/heartbeat — thousands of operations per second. Redis handles it in microseconds, PostgreSQL in milliseconds with locks"
+      }
     ]
   },
   {
     "question": "What delivery statuses does a message go through in a messenger, and what events trigger transitions?",
     "type": "single",
     "options": [
-      { "text": "SENT (server saved and confirmed) → DELIVERED (recipient's device received and sent ack) → READ (recipient opened the chat)", "correct": true, "explanation": "Three statuses — three different acks: 1) server confirms storage (SENT ✓), 2) recipient's client confirms delivery (DELIVERED ✓✓), 3) recipient's client reports chat opened (READ ✓✓ blue). Each transition is a separate event in the protocol" },
-      { "text": "QUEUED (in server queue) → SENT (sent to recipient) → READ (recipient opened)", "correct": false, "explanation": "This model skips the DELIVERED status. In a messenger it's important to distinguish: message arrived at the device (DELIVERED ✓✓) and user read it (READ). Without DELIVERED, the sender doesn't know if the message reached the device" },
-      { "text": "PENDING → SENT → DELIVERED → READ → EXPIRED — statuses change by timer", "correct": false, "explanation": "Statuses change by events (acks from server and recipient client), not by timer. EXPIRED is not typical for messengers — messages don't expire (except for disappearing messages, which is a separate feature)" },
-      { "text": "There is only one status: DELIVERED or NOT_DELIVERED. Checkmarks are UI-only, the server doesn't track intermediate states", "correct": false, "explanation": "The server must track all states. SENT is needed for sender ack ('server received'). DELIVERED is needed for offline delivery ('deliver on reconnect'). READ is needed for read receipts ('blue checkmarks'). Without server-side tracking, neither offline sync nor delivery receipts are possible" }
+      {
+        "text": "There is only one status: DELIVERED or NOT_DELIVERED. Checkmarks are UI-only, the server doesn't track intermediate states",
+        "correct": false,
+        "explanation": "The server must track all states. SENT is needed for sender ack ('server received'). DELIVERED is needed for offline delivery ('deliver on reconnect'). READ is needed for read receipts ('blue checkmarks'). Without server-side tracking, neither offline sync nor delivery receipts are possible"
+      },
+      {
+        "text": "SENT (server saved and confirmed) → DELIVERED (recipient's device received and sent ack) → READ (recipient opened the chat)",
+        "correct": true,
+        "explanation": "Three statuses — three different acks: 1) server confirms storage (SENT ✓), 2) recipient's client confirms delivery (DELIVERED ✓✓), 3) recipient's client reports chat opened (READ ✓✓ blue). Each transition is a separate event in the protocol"
+      },
+      {
+        "text": "QUEUED (in server queue) → SENT (sent to recipient) → READ (recipient opened)",
+        "correct": false,
+        "explanation": "This model skips the DELIVERED status. In a messenger it's important to distinguish: message arrived at the device (DELIVERED ✓✓) and user read it (READ). Without DELIVERED, the sender doesn't know if the message reached the device"
+      },
+      {
+        "text": "PENDING → SENT → DELIVERED → READ → EXPIRED — statuses change by timer",
+        "correct": false,
+        "explanation": "Statuses change by events (acks from server and recipient client), not by timer. EXPIRED is not typical for messengers — messages don't expire (except for disappearing messages, which is a separate feature)"
+      }
     ]
   },
   {
     "question": "For a group chat with 200 participants, fan-out on write is chosen. What problems does this create, and when should you switch to fan-out on read?",
     "type": "multiple",
     "options": [
-      { "text": "Each message creates 200 records in storage — significant storage waste and write amplification", "correct": true, "explanation": "Fan-out on write multiplies storage volume by participant count. 1 message × 200 participants = 200 records. For an active group with thousands of messages per day, this quickly becomes a problem. For channels with 10K+ subscribers — unacceptable" },
-      { "text": "For public channels with 10,000+ subscribers, fan-out on write creates unacceptable write latency and fan-out on read should be used", "correct": true, "explanation": "Writing 10,000 copies of one message takes significant time and resources. For large channels (Telegram channels, Discord servers), fan-out on read is used: one copy of the message, readers fetch on open. Hybrid approach: write for small groups, read for large" },
-      { "text": "Fan-out on write is technically impossible because databases don't support batch insert of 200 records", "correct": false, "explanation": "Batch insert of 200 records is a trivial operation for any DB. Cassandra, for example, processes thousands of writes per second. The problem is not technical impossibility, but scale: 200 records per message × millions of messages = billions of records" },
-      { "text": "Fan-out on write breaks message ordering in groups", "correct": false, "explanation": "Ordering is determined by message timestamp/ID, not by fan-out method. With fan-out on write, each copy retains the original messageId and timestamp, so order is correctly restored on read" }
+      {
+        "text": "For public channels with 10,000+ subscribers, fan-out on write creates unacceptable write latency and fan-out on read should be used",
+        "correct": true,
+        "explanation": "Writing 10,000 copies of one message takes significant time and resources. For large channels (Telegram channels, Discord servers), fan-out on read is used: one copy of the message, readers fetch on open. Hybrid approach: write for small groups, read for large"
+      },
+      {
+        "text": "Fan-out on write breaks message ordering in groups",
+        "correct": false,
+        "explanation": "Ordering is determined by message timestamp/ID, not by fan-out method. With fan-out on write, each copy retains the original messageId and timestamp, so order is correctly restored on read"
+      },
+      {
+        "text": "Each message creates 200 records in storage — significant storage waste and write amplification",
+        "correct": true,
+        "explanation": "Fan-out on write multiplies storage volume by participant count. 1 message × 200 participants = 200 records. For an active group with thousands of messages per day, this quickly becomes a problem. For channels with 10K+ subscribers — unacceptable"
+      },
+      {
+        "text": "Fan-out on write is technically impossible because databases don't support batch insert of 200 records",
+        "correct": false,
+        "explanation": "Batch insert of 200 records is a trivial operation for any DB. Cassandra, for example, processes thousands of writes per second. The problem is not technical impossibility, but scale: 200 records per message × millions of messages = billions of records"
+      }
     ]
   },
   {
     "question": "The presence service uses heartbeats every 30 seconds with a 60-second TTL in Redis. A user with 500 contacts comes online. How to efficiently notify their contacts?",
     "type": "single",
     "options": [
-      { "text": "Subscription model: notify only contacts who subscribed to this user's presence (usually 5-15 people who have the chat or contacts list open)", "correct": true, "explanation": "The client subscribes to presence only of users visible on screen. Opened chat with Alice — subscribed to Alice's presence. Closed — unsubscribed. Instead of 500 notifications — 5-15. Redis PubSub with per-user channels is ideal for this pattern" },
-      { "text": "Send push notifications to all 500 contacts so they update the status", "correct": false, "explanation": "Push notifications are an expensive channel, meant for important events (new messages), not presence updates. 500 pushes per connect/disconnect = spam. Plus presence updates every 30 sec — that would be 500 × 2880 = 1.44M pushes per day per user" },
-      { "text": "Write status to DB and let clients poll every 10 seconds", "correct": false, "explanation": "Polling for presence returns to the HTTP polling problem. 10M users × 500 contacts × 6 requests/min = 30B requests/min to the DB. Redis PubSub with subscriptions solves this without polling" },
-      { "text": "Broadcast presence change to all WebSocket Gateway servers", "correct": false, "explanation": "Broadcast to all Gateways is O(servers) per heartbeat per user. With 10M users and heartbeats every 30 sec — that's 333K broadcasts/sec × number of servers. Subscription model limits fan-out to actual subscribers" }
+      {
+        "text": "Send push notifications to all 500 contacts so they update the status",
+        "correct": false,
+        "explanation": "Push notifications are an expensive channel, meant for important events (new messages), not presence updates. 500 pushes per connect/disconnect = spam. Plus presence updates every 30 sec — that would be 500 × 2880 = 1.44M pushes per day per user"
+      },
+      {
+        "text": "Subscription model: notify only contacts who subscribed to this user's presence (usually 5-15 people who have the chat or contacts list open)",
+        "correct": true,
+        "explanation": "The client subscribes to presence only of users visible on screen. Opened chat with Alice — subscribed to Alice's presence. Closed — unsubscribed. Instead of 500 notifications — 5-15. Redis PubSub with per-user channels is ideal for this pattern"
+      },
+      {
+        "text": "Broadcast presence change to all WebSocket Gateway servers",
+        "correct": false,
+        "explanation": "Broadcast to all Gateways is O(servers) per heartbeat per user. With 10M users and heartbeats every 30 sec — that's 333K broadcasts/sec × number of servers. Subscription model limits fan-out to actual subscribers"
+      },
+      {
+        "text": "Write status to DB and let clients poll every 10 seconds",
+        "correct": false,
+        "explanation": "Polling for presence returns to the HTTP polling problem. 10M users × 500 contacts × 6 requests/min = 30B requests/min to the DB. Redis PubSub with subscriptions solves this without polling"
+      }
     ]
   }
 ]

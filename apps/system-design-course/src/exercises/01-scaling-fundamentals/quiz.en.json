@@ -3,50 +3,130 @@
     "question": "What is the main drawback of vertical scaling (Scale Up)?",
     "type": "single",
     "options": [
-      { "text": "Complex setup — requires changing the application architecture", "correct": false, "explanation": "The opposite: Scale Up doesn't require code or architecture changes. You simply increase server resources" },
-      { "text": "Hardware power limits and exponential cost growth", "correct": true, "explanation": "The maximum server has a physical ceiling (e.g., 448 vCPU on AWS). And each doubling of power costs disproportionately more — the cost curve is superlinear" },
-      { "text": "Requires a load balancer", "correct": false, "explanation": "A load balancer is needed for horizontal scaling (Scale Out) with multiple servers. With Scale Up, there's only one server" },
-      { "text": "Databases cannot be scaled vertically", "correct": false, "explanation": "Databases are often scaled vertically — adding RAM for cache, fast SSDs for I/O. This is a common practice, especially at early stages" }
+      {
+        "text": "Hardware power limits and exponential cost growth",
+        "correct": true,
+        "explanation": "The maximum server has a physical ceiling (e.g., 448 vCPU on AWS). And each doubling of power costs disproportionately more — the cost curve is superlinear"
+      },
+      {
+        "text": "Databases cannot be scaled vertically",
+        "correct": false,
+        "explanation": "Databases are often scaled vertically — adding RAM for cache, fast SSDs for I/O. This is a common practice, especially at early stages"
+      },
+      {
+        "text": "Requires a load balancer",
+        "correct": false,
+        "explanation": "A load balancer is needed for horizontal scaling (Scale Out) with multiple servers. With Scale Up, there's only one server"
+      },
+      {
+        "text": "Complex setup — requires changing the application architecture",
+        "correct": false,
+        "explanation": "The opposite: Scale Up doesn't require code or architecture changes. You simply increase server resources"
+      }
     ]
   },
   {
     "question": "What makes a service stateless and why is this important for horizontal scaling?",
     "type": "single",
     "options": [
-      { "text": "A stateless service doesn't use a database", "correct": false, "explanation": "Stateless means the server doesn't store client state in its own memory. It can still access an external DB — that's actually recommended for storing state" },
-      { "text": "A stateless service doesn't store client state in server memory — any instance can handle any request", "correct": true, "explanation": "When a server doesn't store sessions/state in its memory, a request can be routed to any of N servers. This makes horizontal scaling simple — just add servers behind a load balancer" },
-      { "text": "A stateless service doesn't handle POST requests, only GET", "correct": false, "explanation": "Stateless is unrelated to HTTP methods. A service can handle any requests, the key is not storing client state in process memory between requests" },
-      { "text": "A stateless service restarts after every request", "correct": false, "explanation": "A stateless service runs continuously, like any other. It just doesn't save client data in RAM between requests" }
+      {
+        "text": "A stateless service doesn't store client state in server memory — any instance can handle any request",
+        "correct": true,
+        "explanation": "When a server doesn't store sessions/state in its memory, a request can be routed to any of N servers. This makes horizontal scaling simple — just add servers behind a load balancer"
+      },
+      {
+        "text": "A stateless service doesn't handle POST requests, only GET",
+        "correct": false,
+        "explanation": "Stateless is unrelated to HTTP methods. A service can handle any requests, the key is not storing client state in process memory between requests"
+      },
+      {
+        "text": "A stateless service restarts after every request",
+        "correct": false,
+        "explanation": "A stateless service runs continuously, like any other. It just doesn't save client data in RAM between requests"
+      },
+      {
+        "text": "A stateless service doesn't use a database",
+        "correct": false,
+        "explanation": "Stateless means the server doesn't store client state in its own memory. It can still access an external DB — that's actually recommended for storing state"
+      }
     ]
   },
   {
     "question": "What axes are included in the Scaling Cube (AKF Scale Cube)?",
     "type": "multiple",
     "options": [
-      { "text": "X-axis — cloning: running identical copies of the service behind a load balancer", "correct": true, "explanation": "X-axis (Horizontal Duplication) — the simplest scaling method: N identical application instances handle requests in parallel" },
-      { "text": "Y-axis — functional decomposition: splitting into microservices by business function", "correct": true, "explanation": "Y-axis (Functional Decomposition) — a monolith is split into separate services (Auth, Catalog, Orders), each scaling independently" },
-      { "text": "Z-axis — data partitioning: splitting data across servers by key (sharding)", "correct": true, "explanation": "Z-axis (Data Partitioning) — data is split by key (e.g., User ID) across multiple servers/DBs, each handling its own range" },
-      { "text": "W-axis — geographic distribution: placing servers in different regions", "correct": false, "explanation": "The AKF Scale Cube model has only three axes: X, Y, and Z. Geographic distribution is a separate concept (multi-region deployment), not part of the Scaling Cube" }
+      {
+        "text": "Z-axis — data partitioning: splitting data across servers by key (sharding)",
+        "correct": false,
+        "explanation": "Z-axis (Data Partitioning) — data is split by key (e.g., User ID) across multiple servers/DBs, each handling its own range"
+      },
+      {
+        "text": "Y-axis — functional decomposition: splitting into microservices by business function",
+        "correct": true,
+        "explanation": "Y-axis (Functional Decomposition) — a monolith is split into separate services (Auth, Catalog, Orders), each scaling independently"
+      },
+      {
+        "text": "X-axis — cloning: running identical copies of the service behind a load balancer",
+        "correct": true,
+        "explanation": "X-axis (Horizontal Duplication) — the simplest scaling method: N identical application instances handle requests in parallel"
+      },
+      {
+        "text": "W-axis — geographic distribution: placing servers in different regions",
+        "correct": false,
+        "explanation": "The AKF Scale Cube model has only three axes: X, Y, and Z. Geographic distribution is a separate concept (multi-region deployment), not part of the Scaling Cube"
+      }
     ]
   },
   {
     "question": "You have an e-commerce application with 5% sequential code (writes to leader DB). By Amdahl's Law, what is the maximum speedup you can achieve with an infinite number of servers?",
     "type": "single",
     "options": [
-      { "text": "100x", "correct": false, "explanation": "Maximum speedup = 1/S, where S is the sequential fraction. 1/0.05 = 20x. Even infinite servers cannot exceed this limit" },
-      { "text": "20x", "correct": true, "explanation": "By Amdahl's Law: Speedup(max) = 1/S = 1/0.05 = 20x. This is the theoretical ceiling: 5% of code runs sequentially and cannot be parallelized, limiting overall speedup" },
-      { "text": "Infinite — just keep adding servers", "correct": false, "explanation": "Amdahl's Law shows that a sequential code section (even 5%) creates a hard ceiling. Speedup(max) = 1/0.05 = 20x, no more" },
-      { "text": "50x", "correct": false, "explanation": "Speedup(max) = 1/S = 1/0.05 = 20x, not 50x. Even 2% sequential code would limit speedup to 1/0.02 = 50x" }
+      {
+        "text": "20x",
+        "correct": true,
+        "explanation": "By Amdahl's Law: Speedup(max) = 1/S = 1/0.05 = 20x. This is the theoretical ceiling: 5% of code runs sequentially and cannot be parallelized, limiting overall speedup"
+      },
+      {
+        "text": "Infinite — just keep adding servers",
+        "correct": false,
+        "explanation": "Amdahl's Law shows that a sequential code section (even 5%) creates a hard ceiling. Speedup(max) = 1/0.05 = 20x, no more"
+      },
+      {
+        "text": "100x",
+        "correct": false,
+        "explanation": "Maximum speedup = 1/S, where S is the sequential fraction. 1/0.05 = 20x. Even infinite servers cannot exceed this limit"
+      },
+      {
+        "text": "50x",
+        "correct": false,
+        "explanation": "Speedup(max) = 1/S = 1/0.05 = 20x, not 50x. Even 2% sequential code would limit speedup to 1/0.02 = 50x"
+      }
     ]
   },
   {
     "question": "You use sticky sessions (session affinity) to scale a stateful service. In which scenario does this create a problem?",
     "type": "single",
     "options": [
-      { "text": "All users send the same number of requests", "correct": false, "explanation": "With uniform load, sticky sessions work acceptably. Problems begin with uneven distribution or failures" },
-      { "text": "One server goes down — all users bound to it lose their sessions", "correct": true, "explanation": "Sticky sessions bind a client to a specific server. If that server fails, all its users lose state. Also, 'hot' clients overload one server while others idle" },
-      { "text": "All servers have the same configuration", "correct": false, "explanation": "Identical configuration is normal and even desirable. Sticky session problems lie elsewhere: server failure = session loss, uneven load" },
-      { "text": "Servers are located in the same data center", "correct": false, "explanation": "Location in the same data center doesn't affect sticky session problems. The issue is binding users to a specific server and the consequences of its failure" }
+      {
+        "text": "One server goes down — all users bound to it lose their sessions",
+        "correct": true,
+        "explanation": "Sticky sessions bind a client to a specific server. If that server fails, all its users lose state. Also, 'hot' clients overload one server while others idle"
+      },
+      {
+        "text": "All users send the same number of requests",
+        "correct": false,
+        "explanation": "With uniform load, sticky sessions work acceptably. Problems begin with uneven distribution or failures"
+      },
+      {
+        "text": "Servers are located in the same data center",
+        "correct": false,
+        "explanation": "Location in the same data center doesn't affect sticky session problems. The issue is binding users to a specific server and the consequences of its failure"
+      },
+      {
+        "text": "All servers have the same configuration",
+        "correct": false,
+        "explanation": "Identical configuration is normal and even desirable. Sticky session problems lie elsewhere: server failure = session loss, uneven load"
+      }
     ]
   }
 ]

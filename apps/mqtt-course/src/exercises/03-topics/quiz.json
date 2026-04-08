@@ -3,81 +3,213 @@
     "question": "Which character is used in MQTT as the topic hierarchy level separator?",
     "type": "single",
     "options": [
-      { "text": "/", "correct": true, "explanation": "Correct. The / character separates levels, e.g., home/room/temperature." },
-      { "text": ".", "correct": false, "explanation": "Dot is used in other protocols (AMQP). In MQTT, it's the forward slash /." },
-      { "text": ":", "correct": false, "explanation": "Colon is not a separator in MQTT. Use /." },
-      { "text": ">", "correct": false, "explanation": "The > character is used in RabbitMQ. In MQTT, the separator is /." }
+      {
+        "text": ">",
+        "correct": false,
+        "explanation": "The > character is used in RabbitMQ. In MQTT, the separator is /."
+      },
+      {
+        "text": ":",
+        "correct": false,
+        "explanation": "Colon is not a separator in MQTT. Use /."
+      },
+      {
+        "text": ".",
+        "correct": false,
+        "explanation": "Dot is used in other protocols (AMQP). In MQTT, it's the forward slash /."
+      },
+      {
+        "text": "/",
+        "correct": true,
+        "explanation": "Correct. The / character separates levels, e.g., home/room/temperature."
+      }
     ]
   },
   {
     "question": "Which statements about the + wildcard are true?",
     "type": "multiple",
     "options": [
-      { "text": "Replaces exactly one topic level", "correct": true, "explanation": "Yes. + = one level. home/+/temp matches home/room/temp but not home/floor/room/temp." },
-      { "text": "Can be used when publishing", "correct": false, "explanation": "No. Wildcards (+ and #) are only used when subscribing. Publishing always goes to a specific topic." },
-      { "text": "Can be in the middle of a pattern: home/+/light/+", "correct": true, "explanation": "Correct. + can appear multiple times in different positions: home/+/light/+" },
-      { "text": "Matches an empty level: home//temp", "correct": false, "explanation": "No. + replaces exactly one non-empty segment. An empty level // is a separate case." }
+      {
+        "text": "Replaces exactly one topic level",
+        "correct": true,
+        "explanation": "Yes. + = one level. home/+/temp matches home/room/temp but not home/floor/room/temp."
+      },
+      {
+        "text": "Can be used when publishing",
+        "correct": false,
+        "explanation": "No. Wildcards (+ and #) are only used when subscribing. Publishing always goes to a specific topic."
+      },
+      {
+        "text": "Matches an empty level: home//temp",
+        "correct": false,
+        "explanation": "No. + replaces exactly one non-empty segment. An empty level // is a separate case."
+      },
+      {
+        "text": "Can be in the middle of a pattern: home/+/light/+",
+        "correct": true,
+        "explanation": "Correct. + can appear multiple times in different positions: home/+/light/+"
+      }
     ]
   },
   {
     "question": "The topic $SYS/broker/clients/connected is published by the broker every N seconds. How to disable this publication in mosquitto.conf?",
     "type": "single",
     "options": [
-      { "text": "sys_interval 0", "correct": true, "explanation": "Correct. sys_interval 0 disables publishing of all $SYS topics." },
-      { "text": "disable_sys_topics true", "correct": false, "explanation": "This parameter doesn't exist in Mosquitto. Use sys_interval 0." },
-      { "text": "sys_publish false", "correct": false, "explanation": "This parameter doesn't exist. Correct: sys_interval 0." },
-      { "text": "allow_sys_topics false", "correct": false, "explanation": "This parameter doesn't exist in mosquitto.conf. Disable via sys_interval 0." }
+      {
+        "text": "sys_interval 0",
+        "correct": true,
+        "explanation": "Correct. sys_interval 0 disables publishing of all $SYS topics."
+      },
+      {
+        "text": "sys_publish false",
+        "correct": false,
+        "explanation": "This parameter doesn't exist. Correct: sys_interval 0."
+      },
+      {
+        "text": "allow_sys_topics false",
+        "correct": false,
+        "explanation": "This parameter doesn't exist in mosquitto.conf. Disable via sys_interval 0."
+      },
+      {
+        "text": "disable_sys_topics true",
+        "correct": false,
+        "explanation": "This parameter doesn't exist in Mosquitto. Use sys_interval 0."
+      }
     ]
   },
   {
     "question": "A subscription to # (single hash) receives all broker messages. Which of the following will it NOT receive?",
     "type": "single",
     "options": [
-      { "text": "$SYS/broker/uptime", "correct": true, "explanation": "Correct. Topics starting with $ (including $SYS) do NOT match the # wildcard. For $SYS, you need an explicit '$SYS/#' subscription." },
-      { "text": "home/temperature", "correct": false, "explanation": "No, # will receive home/temperature — this is a regular topic without $." },
-      { "text": "sensor/esp32/data", "correct": false, "explanation": "No, # will also receive this topic. Only $ topics are excluded from #." },
-      { "text": "a/b/c/d/e/f/g", "correct": false, "explanation": "No, # will receive a topic of any depth. The exception is only for the $ prefix." }
+      {
+        "text": "$SYS/broker/uptime",
+        "correct": true,
+        "explanation": "Correct. Topics starting with $ (including $SYS) do NOT match the # wildcard. For $SYS, you need an explicit '$SYS/#' subscription."
+      },
+      {
+        "text": "home/temperature",
+        "correct": false,
+        "explanation": "No, # will receive home/temperature — this is a regular topic without $."
+      },
+      {
+        "text": "sensor/esp32/data",
+        "correct": false,
+        "explanation": "No, # will also receive this topic. Only $ topics are excluded from #."
+      },
+      {
+        "text": "a/b/c/d/e/f/g",
+        "correct": false,
+        "explanation": "No, # will receive a topic of any depth. The exception is only for the $ prefix."
+      }
     ]
   },
   {
     "question": "A developer publishes a message with the command: mosquitto_pub -t 'factory/+/temperature' -m '25'. What will happen?",
     "type": "single",
     "options": [
-      { "text": "Error — wildcards cannot be used when publishing", "correct": true, "explanation": "Correct. Wildcards + and # are forbidden in the topic when publishing. You need a specific topic: factory/line1/temperature." },
-      { "text": "The message will be delivered to all subscribers with a matching pattern", "correct": false, "explanation": "No. Publishing with wildcards is not possible. The broker will reject such a message." },
-      { "text": "The message will be sent as-is, to a topic with the + character", "correct": false, "explanation": "No. + is a special character and is forbidden in publish topics." },
-      { "text": "Mosquitto will ignore + and send to factory//temperature", "correct": false, "explanation": "No. Mosquitto will return an error. A wildcard is not a replacement for an empty string." }
+      {
+        "text": "The message will be delivered to all subscribers with a matching pattern",
+        "correct": false,
+        "explanation": "No. Publishing with wildcards is not possible. The broker will reject such a message."
+      },
+      {
+        "text": "The message will be sent as-is, to a topic with the + character",
+        "correct": false,
+        "explanation": "No. + is a special character and is forbidden in publish topics."
+      },
+      {
+        "text": "Error — wildcards cannot be used when publishing",
+        "correct": true,
+        "explanation": "Correct. Wildcards + and # are forbidden in the topic when publishing. You need a specific topic: factory/line1/temperature."
+      },
+      {
+        "text": "Mosquitto will ignore + and send to factory//temperature",
+        "correct": false,
+        "explanation": "No. Mosquitto will return an error. A wildcard is not a replacement for an empty string."
+      }
     ]
   },
   {
     "question": "How many hierarchy levels are in the topic: building/floor3/room12/sensor/temperature?",
     "type": "single",
     "options": [
-      { "text": "5", "correct": true, "explanation": "Correct: building / floor3 / room12 / sensor / temperature — five levels, separated by four / characters." },
-      { "text": "4", "correct": false, "explanation": "No, four / separators mean five levels, not four." },
-      { "text": "6", "correct": false, "explanation": "No. The number of levels = number of segments = number of / characters plus one." },
-      { "text": "3", "correct": false, "explanation": "No. Count the segments: building, floor3, room12, sensor, temperature — five." }
+      {
+        "text": "5",
+        "correct": true,
+        "explanation": "Correct: building / floor3 / room12 / sensor / temperature — five levels, separated by four / characters."
+      },
+      {
+        "text": "6",
+        "correct": false,
+        "explanation": "No. The number of levels = number of segments = number of / characters plus one."
+      },
+      {
+        "text": "3",
+        "correct": false,
+        "explanation": "No. Count the segments: building, floor3, room12, sensor, temperature — five."
+      },
+      {
+        "text": "4",
+        "correct": false,
+        "explanation": "No, four / separators mean five levels, not four."
+      }
     ]
   },
   {
     "question": "Which subscription patterns will receive a message from the topic home/living_room/light/state?",
     "type": "multiple",
     "options": [
-      { "text": "home/#", "correct": true, "explanation": "Yes. # after home/ matches any continuation, including living_room/light/state." },
-      { "text": "home/+/light/state", "correct": true, "explanation": "Yes. + matches living_room (one level), the rest matches exactly." },
-      { "text": "home/+/+/state", "correct": true, "explanation": "Yes. First + = living_room, second + = light, state matches exactly." },
-      { "text": "home/+/state", "correct": false, "explanation": "No. home/+/state expects three levels: home/{something}/state. But the topic has four levels." },
-      { "text": "#", "correct": true, "explanation": "Yes. # (single hash) matches all topics except $. home/living_room/light/state doesn't start with $." }
+      {
+        "text": "#",
+        "correct": true,
+        "explanation": "Yes. # (single hash) matches all topics except $. home/living_room/light/state doesn't start with $."
+      },
+      {
+        "text": "home/+/state",
+        "correct": false,
+        "explanation": "No. home/+/state expects three levels: home/{something}/state. But the topic has four levels."
+      },
+      {
+        "text": "home/+/+/state",
+        "correct": true,
+        "explanation": "Yes. First + = living_room, second + = light, state matches exactly."
+      },
+      {
+        "text": "home/#",
+        "correct": true,
+        "explanation": "Yes. # after home/ matches any continuation, including living_room/light/state."
+      },
+      {
+        "text": "home/+/light/state",
+        "correct": true,
+        "explanation": "Yes. + matches living_room (one level), the rest matches exactly."
+      }
     ]
   },
   {
     "question": "Why in bash do you write mosquitto_sub -t '$SYS/broker/uptime' in single quotes, not double quotes?",
     "type": "single",
     "options": [
-      { "text": "Double quotes would cause bash to expand $SYS as an environment variable (empty string)", "correct": true, "explanation": "Correct. In bash, \"$SYS\" becomes an empty string, and the topic becomes '/broker/uptime'. Single quotes disable $ interpretation." },
-      { "text": "Single quotes are processed faster by the CPU", "correct": false, "explanation": "No. The difference is in semantics: single quotes disable variable substitution." },
-      { "text": "MQTT protocol requires single quotes", "correct": false, "explanation": "No, this is a bash requirement, not an MQTT protocol requirement." },
-      { "text": "mosquitto_sub doesn't understand double quotes", "correct": false, "explanation": "No. The problem is in the shell, not mosquitto_sub. The program receives an already-expanded string." }
+      {
+        "text": "Single quotes are processed faster by the CPU",
+        "correct": false,
+        "explanation": "No. The difference is in semantics: single quotes disable variable substitution."
+      },
+      {
+        "text": "mosquitto_sub doesn't understand double quotes",
+        "correct": false,
+        "explanation": "No. The problem is in the shell, not mosquitto_sub. The program receives an already-expanded string."
+      },
+      {
+        "text": "MQTT protocol requires single quotes",
+        "correct": false,
+        "explanation": "No, this is a bash requirement, not an MQTT protocol requirement."
+      },
+      {
+        "text": "Double quotes would cause bash to expand $SYS as an environment variable (empty string)",
+        "correct": true,
+        "explanation": "Correct. In bash, \"$SYS\" becomes an empty string, and the topic becomes '/broker/uptime'. Single quotes disable $ interpretation."
+      }
     ]
   }
 ]

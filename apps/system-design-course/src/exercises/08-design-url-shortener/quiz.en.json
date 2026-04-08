@@ -3,40 +3,104 @@
     "question": "Why is Base62 preferred over MD5 for generating URL Shortener short codes?",
     "type": "single",
     "options": [
-      { "text": "MD5 generates a 128-bit hash that must be truncated to 7 characters, increasing collision probability. Base62 from a counter gives a guaranteed unique code without collisions", "correct": true, "explanation": "MD5 produces a 32-character hex hash. Truncating it to 7 characters loses uniqueness: by the Birthday Paradox, with 1.8 billion URLs, collisions are inevitable. Counter-based Base62 gives a mathematically unique code" },
-      { "text": "MD5 is an order of magnitude slower than Base62", "correct": false, "explanation": "MD5 runs in microseconds — the speed difference is not the main issue. The core problem is collisions when truncating the hash, not performance" },
-      { "text": "Base62 uses more characters than MD5", "correct": false, "explanation": "MD5 outputs hex (16 characters: 0-9, a-f), but that's not why Base62 is preferred. The main reason is that Base62 from an atomic counter gives guaranteed unique codes without collision checking" },
-      { "text": "MD5 cannot be used in URLs because it contains special characters", "correct": false, "explanation": "MD5 outputs a hex string (0-9, a-f) — which is perfectly URL-safe. The problem is not the characters but collisions when truncating a 128-bit hash to 7 characters" }
+      {
+        "text": "Base62 uses more characters than MD5",
+        "correct": false,
+        "explanation": "MD5 outputs hex (16 characters: 0-9, a-f), but that's not why Base62 is preferred. The main reason is that Base62 from an atomic counter gives guaranteed unique codes without collision checking"
+      },
+      {
+        "text": "MD5 cannot be used in URLs because it contains special characters",
+        "correct": false,
+        "explanation": "MD5 outputs a hex string (0-9, a-f) — which is perfectly URL-safe. The problem is not the characters but collisions when truncating a 128-bit hash to 7 characters"
+      },
+      {
+        "text": "MD5 generates a 128-bit hash that must be truncated to 7 characters, increasing collision probability. Base62 from a counter gives a guaranteed unique code without collisions",
+        "correct": true,
+        "explanation": "MD5 produces a 32-character hex hash. Truncating it to 7 characters loses uniqueness: by the Birthday Paradox, with 1.8 billion URLs, collisions are inevitable. Counter-based Base62 gives a mathematically unique code"
+      },
+      {
+        "text": "MD5 is an order of magnitude slower than Base62",
+        "correct": false,
+        "explanation": "MD5 runs in microseconds — the speed difference is not the main issue. The core problem is collisions when truncating the hash, not performance"
+      }
     ]
   },
   {
     "question": "What is the difference between 301 and 302 redirect in the context of a URL Shortener?",
     "type": "single",
     "options": [
-      { "text": "301 — permanent, browser caches and no longer contacts the server; 302 — temporary, browser asks the server every time", "correct": true, "explanation": "301 Permanent Redirect — the browser remembers the mapping and on the next click goes directly to the original URL, bypassing the server. 302 Temporary Redirect — the browser asks the server every time. For analytics you need 302, for speed — 301" },
-      { "text": "301 is faster than 302 because it uses fewer bytes in the HTTP response", "correct": false, "explanation": "The response size is practically the same — a one-digit difference in the code. The difference is in browser behavior: 301 is cached, 302 is not. That's why 301 is 'faster' on repeat clicks — the browser doesn't make a request" },
-      { "text": "302 supports HTTPS, while 301 does not", "correct": false, "explanation": "Both codes work with any protocol (HTTP and HTTPS). The difference is purely in semantics: permanent vs temporary redirect and, consequently, browser caching" },
-      { "text": "301 and 302 behave identically, the difference is only in the response code", "correct": false, "explanation": "Critical difference: 301 is cached by the browser (subsequent clicks don't reach the server — analytics are lost), 302 is not cached (every click goes through the server — accurate analytics)" }
+      {
+        "text": "302 supports HTTPS, while 301 does not",
+        "correct": false,
+        "explanation": "Both codes work with any protocol (HTTP and HTTPS). The difference is purely in semantics: permanent vs temporary redirect and, consequently, browser caching"
+      },
+      {
+        "text": "301 — permanent, browser caches and no longer contacts the server; 302 — temporary, browser asks the server every time",
+        "correct": true,
+        "explanation": "301 Permanent Redirect — the browser remembers the mapping and on the next click goes directly to the original URL, bypassing the server. 302 Temporary Redirect — the browser asks the server every time. For analytics you need 302, for speed — 301"
+      },
+      {
+        "text": "301 is faster than 302 because it uses fewer bytes in the HTTP response",
+        "correct": false,
+        "explanation": "The response size is practically the same — a one-digit difference in the code. The difference is in browser behavior: 301 is cached, 302 is not. That's why 301 is 'faster' on repeat clicks — the browser doesn't make a request"
+      },
+      {
+        "text": "301 and 302 behave identically, the difference is only in the response code",
+        "correct": false,
+        "explanation": "Critical difference: 301 is cached by the browser (subsequent clicks don't reach the server — analytics are lost), 302 is not cached (every click goes through the server — accurate analytics)"
+      }
     ]
   },
   {
     "question": "A user creates a custom alias 'sale2024', but it's already taken. What is the most correct collision handling strategy?",
     "type": "single",
     "options": [
-      { "text": "Return a 409 Conflict error with a message that the alias is taken and suggest alternatives", "correct": true, "explanation": "Custom alias is a conscious user choice. Silently changing it or adding suffixes breaks expectations. 409 Conflict is the correct HTTP code, and suggesting alternatives (sale2024-v2, sale24) is good UX" },
-      { "text": "Silently add a random suffix: sale2024-x7k", "correct": false, "explanation": "If the user wanted a memorable alias 'sale2024', getting 'sale2024-x7k' is an unpleasant surprise. A custom alias should be exactly what the user asked for, or not created at all" },
-      { "text": "Overwrite the existing mapping, since the new user also has the right to this alias", "correct": false, "explanation": "Overwriting someone else's alias is a serious violation: all existing links that someone has already distributed will break. It's like taking a phone number from one person and giving it to another" },
-      { "text": "Use a hash of alias + timestamp as the new code", "correct": false, "explanation": "This turns a custom alias into a random code — the user asked for 'sale2024' but gets 'k9m2xv'. The whole point of a custom alias is to be human-readable and memorable" }
+      {
+        "text": "Return a 409 Conflict error with a message that the alias is taken and suggest alternatives",
+        "correct": true,
+        "explanation": "Custom alias is a conscious user choice. Silently changing it or adding suffixes breaks expectations. 409 Conflict is the correct HTTP code, and suggesting alternatives (sale2024-v2, sale24) is good UX"
+      },
+      {
+        "text": "Overwrite the existing mapping, since the new user also has the right to this alias",
+        "correct": false,
+        "explanation": "Overwriting someone else's alias is a serious violation: all existing links that someone has already distributed will break. It's like taking a phone number from one person and giving it to another"
+      },
+      {
+        "text": "Silently add a random suffix: sale2024-x7k",
+        "correct": false,
+        "explanation": "If the user wanted a memorable alias 'sale2024', getting 'sale2024-x7k' is an unpleasant surprise. A custom alias should be exactly what the user asked for, or not created at all"
+      },
+      {
+        "text": "Use a hash of alias + timestamp as the new code",
+        "correct": false,
+        "explanation": "This turns a custom alias into a random code — the user asked for 'sale2024' but gets 'k9m2xv'. The whole point of a custom alias is to be human-readable and memorable"
+      }
     ]
   },
   {
     "question": "With 1M new URLs per day and a read:write ratio of 100:1, what is the approximate peak read QPS?",
     "type": "single",
     "options": [
-      { "text": "~3600 QPS (1200 average × 3 for peak)", "correct": true, "explanation": "1M / 86400 sec ≈ 12 write QPS. Read = 12 × 100 = 1200 QPS on average. Peak load is typically 2–3x higher than average → ~3600 QPS. This determines cache and server requirements" },
-      { "text": "~100 QPS", "correct": false, "explanation": "100 QPS is only 8.6M requests/day. With 100M redirects/day, average QPS = 1200, and peak ≈ 3600. Underestimating the load will lead to insufficient resources" },
-      { "text": "~100000 QPS", "correct": false, "explanation": "100K QPS is 8.6 billion requests/day, which is 86x our 100M redirects/day. This scale is characteristic of Google Search, not a typical URL Shortener" },
-      { "text": "~12 QPS", "correct": false, "explanation": "12 QPS is only the write (new link creation) QPS. Read QPS = 12 × 100 = 1200 on average. Forgetting to account for the read/write ratio is exactly why we calculate it in capacity estimation" }
+      {
+        "text": "~12 QPS",
+        "correct": false,
+        "explanation": "12 QPS is only the write (new link creation) QPS. Read QPS = 12 × 100 = 1200 on average. Forgetting to account for the read/write ratio is exactly why we calculate it in capacity estimation"
+      },
+      {
+        "text": "~100000 QPS",
+        "correct": false,
+        "explanation": "100K QPS is 8.6 billion requests/day, which is 86x our 100M redirects/day. This scale is characteristic of Google Search, not a typical URL Shortener"
+      },
+      {
+        "text": "~3600 QPS (1200 average × 3 for peak)",
+        "correct": true,
+        "explanation": "1M / 86400 sec ≈ 12 write QPS. Read = 12 × 100 = 1200 QPS on average. Peak load is typically 2–3x higher than average → ~3600 QPS. This determines cache and server requirements"
+      },
+      {
+        "text": "~100 QPS",
+        "correct": false,
+        "explanation": "100 QPS is only 8.6M requests/day. With 100M redirects/day, average QPS = 1200, and peak ≈ 3600. Underestimating the load will lead to insufficient resources"
+      }
     ]
   }
 ]

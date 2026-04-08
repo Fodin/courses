@@ -3,40 +3,109 @@
     "question": "Why is it better to store paste content in Object Storage (S3) rather than in a SQL database?",
     "type": "multiple",
     "options": [
-      { "text": "S3 is cheaper for storing large volumes of data (~$0.023/GB/month vs PostgreSQL SSD drives)", "correct": true, "explanation": "S3 is optimized for large-scale storage: ~$0.023/GB/month vs ~$0.10+/GB for EBS SSD. With 91 TB over 5 years, the cost difference is tens of thousands of dollars" },
-      { "text": "S3 provides ACID transactions, which PostgreSQL lacks", "correct": false, "explanation": "The opposite is true: PostgreSQL provides ACID transactions, while S3 does not. S3 offers strong read-after-write consistency for individual objects, but not cross-object transactions" },
-      { "text": "A SQL database with tens of TB of content slows down backup, replication, and vacuum, while S3 scales transparently", "correct": true, "explanation": "PostgreSQL with 91 TB of data is a DBA nightmare: hours-long backups, replication with huge lag, VACUUM blocks tables. S3 scales automatically without degradation" },
-      { "text": "S3 easily integrates with CDN for fast content delivery worldwide", "correct": true, "explanation": "CloudFront / Cloudflare can serve S3 objects directly through edge servers. With a SQL database, you would need to set up a separate proxy layer" }
+      {
+        "text": "S3 easily integrates with CDN for fast content delivery worldwide",
+        "correct": true,
+        "explanation": "CloudFront / Cloudflare can serve S3 objects directly through edge servers. With a SQL database, you would need to set up a separate proxy layer"
+      },
+      {
+        "text": "S3 provides ACID transactions, which PostgreSQL lacks",
+        "correct": false,
+        "explanation": "The opposite is true: PostgreSQL provides ACID transactions, while S3 does not. S3 offers strong read-after-write consistency for individual objects, but not cross-object transactions"
+      },
+      {
+        "text": "S3 is cheaper for storing large volumes of data (~$0.023/GB/month vs PostgreSQL SSD drives)",
+        "correct": true,
+        "explanation": "S3 is optimized for large-scale storage: ~$0.023/GB/month vs ~$0.10+/GB for EBS SSD. With 91 TB over 5 years, the cost difference is tens of thousands of dollars"
+      },
+      {
+        "text": "A SQL database with tens of TB of content slows down backup, replication, and vacuum, while S3 scales transparently",
+        "correct": true,
+        "explanation": "PostgreSQL with 91 TB of data is a DBA nightmare: hours-long backups, replication with huge lag, VACUUM blocks tables. S3 scales automatically without degradation"
+      },
+      {
+        "text": "This approach is outdated and no longer used",
+        "correct": false,
+        "explanation": "This approach is actively used in modern systems."
+      }
     ]
   },
   {
     "question": "What is Content-Addressable Storage and why is it needed in a Paste Service?",
     "type": "single",
     "options": [
-      { "text": "Storage where the object key = hash of its content (SHA-256). It allows deduplicating identical pastes — one text stored as a single copy", "correct": true, "explanation": "If 1000 users paste the same stack trace, the SHA-256 will be identical → S3 stores one object. Saves storage + speeds up writes (skip upload if the object already exists)" },
-      { "text": "Storage with automatic content encryption at the client's address", "correct": false, "explanation": "Content-Addressable means 'addressed by content', not by client address. The object key = hash of its content, which enables deduplication" },
-      { "text": "A content delivery system through geographically distributed servers (CDN)", "correct": false, "explanation": "You described a CDN (Content Delivery Network). Content-Addressable Storage is a way of naming objects by content hash, unrelated to geographic delivery" },
-      { "text": "A database where each record has a unique auto-increment address", "correct": false, "explanation": "Auto-increment is counter-based addressing, not content-based. In CAS, the key is determined by content: hash(content) = key. Identical content → identical key → deduplication" }
+      {
+        "text": "Storage with automatic content encryption at the client's address",
+        "correct": false,
+        "explanation": "Content-Addressable means 'addressed by content', not by client address. The object key = hash of its content, which enables deduplication"
+      },
+      {
+        "text": "A content delivery system through geographically distributed servers (CDN)",
+        "correct": false,
+        "explanation": "You described a CDN (Content Delivery Network). Content-Addressable Storage is a way of naming objects by content hash, unrelated to geographic delivery"
+      },
+      {
+        "text": "A database where each record has a unique auto-increment address",
+        "correct": false,
+        "explanation": "Auto-increment is counter-based addressing, not content-based. In CAS, the key is determined by content: hash(content) = key. Identical content → identical key → deduplication"
+      },
+      {
+        "text": "Storage where the object key = hash of its content (SHA-256). It allows deduplicating identical pastes — one text stored as a single copy",
+        "correct": true,
+        "explanation": "If 1000 users paste the same stack trace, the SHA-256 will be identical → S3 stores one object. Saves storage + speeds up writes (skip upload if the object already exists)"
+      }
     ]
   },
   {
     "question": "A paste with a 10-minute TTL was cached on CDN with max-age=3600 (1 hour). What will happen and how to prevent it?",
     "type": "single",
     "options": [
-      { "text": "CDN will serve the expired paste for another 50 minutes after TTL expiry. Solution: Cache-Control max-age should not exceed the paste's TTL", "correct": true, "explanation": "CDN doesn't know about business logic TTL. If we said 'cache for an hour' — CDN caches for an hour. Set max-age = min(defaultMaxAge, pasteExpiresIn) and use CDN invalidation on deletion" },
-      { "text": "CDN automatically checks paste TTL on every request and won't serve expired content", "correct": false, "explanation": "CDN doesn't know about application business logic. It follows HTTP Cache-Control headers. If max-age=3600, CDN will serve the cache for an hour, even if the paste is deleted" },
-      { "text": "Nothing bad will happen — S3 will automatically notify CDN when the paste TTL expires", "correct": false, "explanation": "S3 doesn't notify CDN about object deletion. CDN caches based on HTTP headers. Without explicit invalidation, expired content remains in the CDN cache until max-age expires" },
-      { "text": "The user's browser will detect the TTL mismatch and request a fresh version", "correct": false, "explanation": "The browser also obeys Cache-Control headers. If CDN returned max-age=3600, the browser won't revalidate earlier. The problem must be solved server-side" }
+      {
+        "text": "CDN will serve the expired paste for another 50 minutes after TTL expiry. Solution: Cache-Control max-age should not exceed the paste's TTL",
+        "correct": true,
+        "explanation": "CDN doesn't know about business logic TTL. If we said 'cache for an hour' — CDN caches for an hour. Set max-age = min(defaultMaxAge, pasteExpiresIn) and use CDN invalidation on deletion"
+      },
+      {
+        "text": "CDN automatically checks paste TTL on every request and won't serve expired content",
+        "correct": false,
+        "explanation": "CDN doesn't know about application business logic. It follows HTTP Cache-Control headers. If max-age=3600, CDN will serve the cache for an hour, even if the paste is deleted"
+      },
+      {
+        "text": "The user's browser will detect the TTL mismatch and request a fresh version",
+        "correct": false,
+        "explanation": "The browser also obeys Cache-Control headers. If CDN returned max-age=3600, the browser won't revalidate earlier. The problem must be solved server-side"
+      },
+      {
+        "text": "Nothing bad will happen — S3 will automatically notify CDN when the paste TTL expires",
+        "correct": false,
+        "explanation": "S3 doesn't notify CDN about object deletion. CDN caches based on HTTP headers. Without explicit invalidation, expired content remains in the CDN cache until max-age expires"
+      }
     ]
   },
   {
     "question": "Using content-addressable storage (deduplication), 100 pastes reference the same S3 object. One paste is deleted. Can the S3 object be deleted?",
     "type": "single",
     "options": [
-      { "text": "No — you must check the reference count: how many live pastes still reference this content_key. Delete the object only when count = 0", "correct": true, "explanation": "If you delete the S3 object when ref count > 0, the other 99 pastes will break (returning 404 when trying to load content). You need either reference counting or periodic garbage collection" },
-      { "text": "Yes — S3 automatically maintains reference counting", "correct": false, "explanation": "S3 has no built-in reference counting. For S3, an object is just a blob with a key. Reference counting is the application's responsibility (stored in the metadata DB)" },
-      { "text": "Yes — each paste has its own copy of content in S3", "correct": false, "explanation": "That's exactly the point of content-addressable storage: identical content is stored in ONE copy. Key = hash(content), so all pastes with the same text point to the same S3 object" },
-      { "text": "No — you cannot delete objects from S3 at all; rely on S3 Lifecycle Rules instead", "correct": false, "explanation": "S3 Lifecycle Rules work on object prefixes and age, not application business logic. They don't know about reference counts. Objects can and should be deleted, but only after verifying no live paste references them" }
+      {
+        "text": "No — you must check the reference count: how many live pastes still reference this content_key. Delete the object only when count = 0",
+        "correct": true,
+        "explanation": "If you delete the S3 object when ref count > 0, the other 99 pastes will break (returning 404 when trying to load content). You need either reference counting or periodic garbage collection"
+      },
+      {
+        "text": "No — you cannot delete objects from S3 at all; rely on S3 Lifecycle Rules instead",
+        "correct": false,
+        "explanation": "S3 Lifecycle Rules work on object prefixes and age, not application business logic. They don't know about reference counts. Objects can and should be deleted, but only after verifying no live paste references them"
+      },
+      {
+        "text": "Yes — each paste has its own copy of content in S3",
+        "correct": false,
+        "explanation": "That's exactly the point of content-addressable storage: identical content is stored in ONE copy. Key = hash(content), so all pastes with the same text point to the same S3 object"
+      },
+      {
+        "text": "Yes — S3 automatically maintains reference counting",
+        "correct": false,
+        "explanation": "S3 has no built-in reference counting. For S3, an object is just a blob with a key. Reference counting is the application's responsibility (stored in the metadata DB)"
+      }
     ]
   }
 ]

@@ -3,40 +3,104 @@
     "question": "Why do critical notifications (OTP, security alerts) need a separate queue rather than a shared one with priority?",
     "type": "single",
     "options": [
-      { "text": "In a shared queue, millions of promotional emails can block OTP processing. Separate queues provide physical isolation: critical workers don't compete with low-priority for resources", "correct": true, "explanation": "Physical isolation (separate queue + dedicated workers) guarantees that 10 million promotional messages won't delay an SMS authorization code. This is called priority inversion prevention — critical messages are processed independently of background task volume" },
-      { "text": "Separate queues are faster because Redis works more efficiently with short lists", "correct": false, "explanation": "Redis performance doesn't significantly depend on list length for LPUSH/LPOP operations. The reason is resource isolation: critical queues have dedicated workers that don't compete with mass mailings for CPU and network" },
-      { "text": "Kafka doesn't support priorities within a single topic", "correct": false, "explanation": "While Kafka indeed has no built-in priorities, this is merely a technical implementation detail. The main reason is architectural: physical isolation guarantees that mass mailings won't affect the delivery time of critical messages" },
-      { "text": "This is only needed for compliance — regulators require channel separation", "correct": false, "explanation": "Compliance may require logging and auditing, but queue separation is an architectural decision to ensure SLA on critical notification delivery time, not a regulatory requirement" }
+      {
+        "text": "In a shared queue, millions of promotional emails can block OTP processing. Separate queues provide physical isolation: critical workers don't compete with low-priority for resources",
+        "correct": true,
+        "explanation": "Physical isolation (separate queue + dedicated workers) guarantees that 10 million promotional messages won't delay an SMS authorization code. This is called priority inversion prevention — critical messages are processed independently of background task volume"
+      },
+      {
+        "text": "Kafka doesn't support priorities within a single topic",
+        "correct": false,
+        "explanation": "While Kafka indeed has no built-in priorities, this is merely a technical implementation detail. The main reason is architectural: physical isolation guarantees that mass mailings won't affect the delivery time of critical messages"
+      },
+      {
+        "text": "Separate queues are faster because Redis works more efficiently with short lists",
+        "correct": false,
+        "explanation": "Redis performance doesn't significantly depend on list length for LPUSH/LPOP operations. The reason is resource isolation: critical queues have dedicated workers that don't compete with mass mailings for CPU and network"
+      },
+      {
+        "text": "This is only needed for compliance — regulators require channel separation",
+        "correct": false,
+        "explanation": "Compliance may require logging and auditing, but queue separation is an architectural decision to ensure SLA on critical notification delivery time, not a regulatory requirement"
+      }
     ]
   },
   {
     "question": "Apple Push Notification Service (APNs) returns a Feedback Service with a list of invalid device tokens. What happens if you ignore this feedback?",
     "type": "single",
     "options": [
-      { "text": "Apple will start throttling (rate limiting) your push notifications, and may eventually block your certificate", "correct": true, "explanation": "APNs tracks how many messages you send to invalid tokens. A high percentage of invalid sends → Apple reduces your delivery speed (throttling). With systematic ignoring — certificate blocking. Similar to email: high bounce rate → landing in spam" },
-      { "text": "Nothing — APNs silently drops messages to invalid tokens without consequences", "correct": false, "explanation": "APNs doesn't stay silent — it tracks invalid sends. Continuing to send to invalid tokens wastes resources and risks throttling from Apple. The Feedback Service exists specifically so you can clean up invalid tokens" },
-      { "text": "Push notifications will pile up in the APNs queue and will be delivered when the user turns on their device", "correct": false, "explanation": "An invalid token means the app was deleted or reinstalled — the device is no longer bound to that token. APNs doesn't accumulate messages for invalid tokens; it drops them immediately" },
-      { "text": "APNs automatically removes invalid tokens from your database", "correct": false, "explanation": "APNs has no access to your database. It only provides a Feedback Service — an API from which you can retrieve the list of invalid tokens. Removing them from your DB is your responsibility" }
+      {
+        "text": "Nothing — APNs silently drops messages to invalid tokens without consequences",
+        "correct": false,
+        "explanation": "APNs doesn't stay silent — it tracks invalid sends. Continuing to send to invalid tokens wastes resources and risks throttling from Apple. The Feedback Service exists specifically so you can clean up invalid tokens"
+      },
+      {
+        "text": "Apple will start throttling (rate limiting) your push notifications, and may eventually block your certificate",
+        "correct": true,
+        "explanation": "APNs tracks how many messages you send to invalid tokens. A high percentage of invalid sends → Apple reduces your delivery speed (throttling). With systematic ignoring — certificate blocking. Similar to email: high bounce rate → landing in spam"
+      },
+      {
+        "text": "Push notifications will pile up in the APNs queue and will be delivered when the user turns on their device",
+        "correct": false,
+        "explanation": "An invalid token means the app was deleted or reinstalled — the device is no longer bound to that token. APNs doesn't accumulate messages for invalid tokens; it drops them immediately"
+      },
+      {
+        "text": "APNs automatically removes invalid tokens from your database",
+        "correct": false,
+        "explanation": "APNs has no access to your database. It only provides a Feedback Service — an API from which you can retrieve the list of invalid tokens. Removing them from your DB is your responsibility"
+      }
     ]
   },
   {
     "question": "A service sends a notification but gets a timeout from the push provider. On retry — the user receives 2 identical pushes. How to prevent this?",
     "type": "single",
     "options": [
-      { "text": "Use an idempotency key: before sending, record the key in Redis; on retry, check — if the key exists, don't resend", "correct": true, "explanation": "An idempotency key (e.g., eventId + userId + channel) guarantees exactly-once semantics at the sending level. Even if the first request actually reached the provider (timeout doesn't mean failure), the retry will be blocked. Redis SET with TTL = 24h is sufficient for deduplication" },
-      { "text": "Set a longer timeout (30 seconds) to never get a timeout", "correct": false, "explanation": "Increasing the timeout doesn't solve the problem — timeouts will still occur during network failures. Moreover, a 30-second timeout for critical OTP notifications is unacceptable. The correct approach is idempotency, not avoiding errors" },
-      { "text": "Don't retry on timeout — if there's no response, it means it was delivered", "correct": false, "explanation": "A timeout can mean either successful delivery (response was lost) or complete failure (provider server is down). Refusing to retry for critical notifications (OTP code) is unacceptable — the user won't receive the authorization code. Retry with deduplication is needed" },
-      { "text": "Ask the push provider whether the message was delivered, and only then decide on retry", "correct": false, "explanation": "APNs and FCM don't provide a synchronous API to 'check if a specific message was delivered'. Delivery receipts come asynchronously via webhook and may not arrive at all. The only reliable approach is an idempotency key on the sender's side" }
+      {
+        "text": "Ask the push provider whether the message was delivered, and only then decide on retry",
+        "correct": false,
+        "explanation": "APNs and FCM don't provide a synchronous API to 'check if a specific message was delivered'. Delivery receipts come asynchronously via webhook and may not arrive at all. The only reliable approach is an idempotency key on the sender's side"
+      },
+      {
+        "text": "Don't retry on timeout — if there's no response, it means it was delivered",
+        "correct": false,
+        "explanation": "A timeout can mean either successful delivery (response was lost) or complete failure (provider server is down). Refusing to retry for critical notifications (OTP code) is unacceptable — the user won't receive the authorization code. Retry with deduplication is needed"
+      },
+      {
+        "text": "Set a longer timeout (30 seconds) to never get a timeout",
+        "correct": false,
+        "explanation": "Increasing the timeout doesn't solve the problem — timeouts will still occur during network failures. Moreover, a 30-second timeout for critical OTP notifications is unacceptable. The correct approach is idempotency, not avoiding errors"
+      },
+      {
+        "text": "Use an idempotency key: before sending, record the key in Redis; on retry, check — if the key exists, don't resend",
+        "correct": true,
+        "explanation": "An idempotency key (e.g., eventId + userId + channel) guarantees exactly-once semantics at the sending level. Even if the first request actually reached the provider (timeout doesn't mean failure), the retry will be blocked. Redis SET with TTL = 24h is sufficient for deduplication"
+      }
     ]
   },
   {
     "question": "When designing a Notification System, which pipeline stages must be completed BEFORE enqueuing for delivery?",
     "type": "multiple",
     "options": [
-      { "text": "Deduplication (idempotency key check)", "correct": true, "explanation": "Deduplication before the queue prevents duplicates from entering. If you deduplicate after the queue, producer retries will put duplicates into the queue, and each will be processed by a separate worker" },
-      { "text": "User preference check (channels, quiet hours, unsubscribes)", "correct": true, "explanation": "Filtering by preferences before the queue saves resources: why enqueue a push if the user disabled push notifications? This removes up to 30–50% of unnecessary messages from the queue" },
-      { "text": "Template rendering (variable substitution in text)", "correct": true, "explanation": "Templates are rendered before the queue so that the queue contains a finished message. Otherwise, workers would need to access the DB for templates and data — additional network calls in the delivery hot path" },
-      { "text": "Delivery confirmation from provider (delivered/failed)", "correct": false, "explanation": "Delivery status comes AFTER sending, not before enqueuing. This is an asynchronous process: webhooks from SendGrid/Twilio/APNs update the status after the worker has sent the message" }
+      {
+        "text": "Template rendering (variable substitution in text)",
+        "correct": false,
+        "explanation": "Templates are rendered before the queue so that the queue contains a finished message. Otherwise, workers would need to access the DB for templates and data — additional network calls in the delivery hot path"
+      },
+      {
+        "text": "Deduplication (idempotency key check)",
+        "correct": true,
+        "explanation": "Deduplication before the queue prevents duplicates from entering. If you deduplicate after the queue, producer retries will put duplicates into the queue, and each will be processed by a separate worker"
+      },
+      {
+        "text": "User preference check (channels, quiet hours, unsubscribes)",
+        "correct": true,
+        "explanation": "Filtering by preferences before the queue saves resources: why enqueue a push if the user disabled push notifications? This removes up to 30–50% of unnecessary messages from the queue"
+      },
+      {
+        "text": "Delivery confirmation from provider (delivered/failed)",
+        "correct": false,
+        "explanation": "Delivery status comes AFTER sending, not before enqueuing. This is an asynchronous process: webhooks from SendGrid/Twilio/APNs update the status after the worker has sent the message"
+      }
     ]
   }
 ]

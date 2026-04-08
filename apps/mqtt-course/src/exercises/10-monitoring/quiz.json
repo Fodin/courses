@@ -14,14 +14,14 @@
         "explanation": "-C (count) tells mosquitto_sub to exit after receiving the specified number of messages. -C 1 means exit after the first one."
       },
       {
-        "text": "--once",
-        "correct": false,
-        "explanation": "This flag does not exist in mosquitto_sub. The correct flag is -C 1."
-      },
-      {
         "text": "-q 1",
         "correct": false,
         "explanation": "-q sets the QoS level, not the number of messages."
+      },
+      {
+        "text": "--once",
+        "correct": false,
+        "explanation": "This flag does not exist in mosquitto_sub. The correct flag is -C 1."
       }
     ]
   },
@@ -30,9 +30,9 @@
     "type": "single",
     "options": [
       {
-        "text": "/etc/ is write-protected",
+        "text": "There is no space for files in /etc/",
         "correct": false,
-        "explanation": "/etc/ is writable on OpenWRT. The issue is something else."
+        "explanation": "There is space in /etc/, but the issue is flash wear, not size."
       },
       {
         "text": "Flash memory wears out from frequent writes, and /etc/ resides on flash (overlay)",
@@ -40,14 +40,14 @@
         "explanation": "OpenWRT uses overlayfs over flash. Frequent writes to /etc/ accelerate flash chip wear, which has a limited number of write cycles. Use /tmp/ (RAM) for a metrics log."
       },
       {
-        "text": "There is no space for files in /etc/",
-        "correct": false,
-        "explanation": "There is space in /etc/, but the issue is flash wear, not size."
-      },
-      {
         "text": "mosquitto_pub cannot write to /etc/",
         "correct": false,
         "explanation": "mosquitto_pub publishes to MQTT topics, not to files. Writing CSV is a shell script task."
+      },
+      {
+        "text": "/etc/ is write-protected",
+        "correct": false,
+        "explanation": "/etc/ is writable on OpenWRT. The issue is something else."
       }
     ]
   },
@@ -56,9 +56,9 @@
     "type": "single",
     "options": [
       {
-        "text": "$SYS/broker/messages/received",
-        "correct": false,
-        "explanation": "This is a counter of received messages — it does not indicate message loss."
+        "text": "$SYS/broker/messages/publish/dropped",
+        "correct": true,
+        "explanation": "This topic shows the number of dropped PUBLISH packets. If the value is > 0 — the broker is overloaded and losing messages due to max_queued_messages being exceeded."
       },
       {
         "text": "$SYS/broker/clients/disconnected",
@@ -66,9 +66,9 @@
         "explanation": "This shows the number of clients with persistent sessions that are currently offline — not related to message loss."
       },
       {
-        "text": "$SYS/broker/messages/publish/dropped",
-        "correct": true,
-        "explanation": "This topic shows the number of dropped PUBLISH packets. If the value is > 0 — the broker is overloaded and losing messages due to max_queued_messages being exceeded."
+        "text": "$SYS/broker/messages/received",
+        "correct": false,
+        "explanation": "This is a counter of received messages — it does not indicate message loss."
       },
       {
         "text": "$SYS/broker/heap/maximum",

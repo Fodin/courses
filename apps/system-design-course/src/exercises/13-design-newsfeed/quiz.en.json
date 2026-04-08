@@ -3,50 +3,130 @@
     "question": "A user with 50 million followers publishes a post. When using fan-out on write, approximately how long will it take to write the postId to each follower's feed (at Redis speed of ~100K ops/sec)?",
     "type": "single",
     "options": [
-      { "text": "~500 seconds (8+ minutes) — unacceptable for a real-time feed, which is why fan-out on read is used for celebrities", "correct": true, "explanation": "50M writes / 100K ops/sec = 500 seconds. Followers will see the post with 8+ minutes delay. This is why systems like Twitter use a hybrid approach: push for regular users (< 10K followers), pull for celebrities" },
-      { "text": "~5 seconds — Redis is fast enough to handle 50M writes instantly", "correct": false, "explanation": "Even at 100K ops/sec, 50M writes take 500 seconds. Redis is fast for individual operations, but 50M sequential writes is a huge volume. Pipelining and batches help, but not by orders of magnitude" },
-      { "text": "~50 seconds — acceptable if using Kafka for buffering", "correct": false, "explanation": "Kafka helps with buffering and fault tolerance, but doesn't speed up the 50M writes to Redis. The final delay of posts appearing in feeds remains unacceptable" },
-      { "text": "Fan-out on write is not used in practice at all due to such problems", "correct": false, "explanation": "Fan-out on write is actively used for regular users (< 10K followers). For them, the write is cheap (500 writes in 5 ms), and reads are instant. The problem only arises with celebrities, for which a hybrid approach is used" }
+      {
+        "text": "Fan-out on write is not used in practice at all due to such problems",
+        "correct": false,
+        "explanation": "Fan-out on write is actively used for regular users (< 10K followers). For them, the write is cheap (500 writes in 5 ms), and reads are instant. The problem only arises with celebrities, for which a hybrid approach is used"
+      },
+      {
+        "text": "~50 seconds — acceptable if using Kafka for buffering",
+        "correct": false,
+        "explanation": "Kafka helps with buffering and fault tolerance, but doesn't speed up the 50M writes to Redis. The final delay of posts appearing in feeds remains unacceptable"
+      },
+      {
+        "text": "~500 seconds (8+ minutes) — unacceptable for a real-time feed, which is why fan-out on read is used for celebrities",
+        "correct": true,
+        "explanation": "50M writes / 100K ops/sec = 500 seconds. Followers will see the post with 8+ minutes delay. This is why systems like Twitter use a hybrid approach: push for regular users (< 10K followers), pull for celebrities"
+      },
+      {
+        "text": "~5 seconds — Redis is fast enough to handle 50M writes instantly",
+        "correct": false,
+        "explanation": "Even at 100K ops/sec, 50M writes take 500 seconds. Redis is fast for individual operations, but 50M sequential writes is a huge volume. Pipelining and batches help, but not by orders of magnitude"
+      }
     ]
   },
   {
     "question": "In the hybrid approach, when reading a user's feed, where do posts come from?",
     "type": "multiple",
     "options": [
-      { "text": "From the Redis feed cache (postIds, pre-written by fan-out on write from regular follows)", "correct": true, "explanation": "For regular follows (< 10K followers), postIds already sit in the user's Redis feed, written at publish time. This is the main part of the feed — fast O(1) access" },
-      { "text": "From Posts DB directly for fresh posts from celebrities (fan-out on read)", "correct": true, "explanation": "Celebrity posts are not duplicated into followers' feeds. On read, the Feed Service fetches the latest posts from each celebrity from Posts DB and merges with the cached part" },
-      { "text": "From CDN, where ready-made HTML feed pages are stored", "correct": false, "explanation": "CDN stores static content (images, video), not personalized feeds. The feed is unique per user and generated dynamically" },
-      { "text": "From Kafka, where post messages are stored as an event log", "correct": false, "explanation": "Kafka is used for asynchronous fan-out task distribution, not as a feed read store. Kafka consumers write results to the Redis cache, and the feed is read from there" }
+      {
+        "text": "From Posts DB directly for fresh posts from celebrities (fan-out on read)",
+        "correct": true,
+        "explanation": "Celebrity posts are not duplicated into followers' feeds. On read, the Feed Service fetches the latest posts from each celebrity from Posts DB and merges with the cached part"
+      },
+      {
+        "text": "From Kafka, where post messages are stored as an event log",
+        "correct": false,
+        "explanation": "Kafka is used for asynchronous fan-out task distribution, not as a feed read store. Kafka consumers write results to the Redis cache, and the feed is read from there"
+      },
+      {
+        "text": "From CDN, where ready-made HTML feed pages are stored",
+        "correct": false,
+        "explanation": "CDN stores static content (images, video), not personalized feeds. The feed is unique per user and generated dynamically"
+      },
+      {
+        "text": "From the Redis feed cache (postIds, pre-written by fan-out on write from regular follows)",
+        "correct": true,
+        "explanation": "For regular follows (< 10K followers), postIds already sit in the user's Redis feed, written at publish time. This is the main part of the feed — fast O(1) access"
+      }
     ]
   },
   {
     "question": "Why does the feed in Redis store only a list of postIds, not full post objects?",
     "type": "single",
     "options": [
-      { "text": "Memory savings (postId = 8 bytes vs Post = 1KB+) and atomic post update in one place, not in millions of feeds", "correct": true, "explanation": "500M users × 1000 postIds × 8 bytes = 4 TB vs 500M × 1000 × 1KB = 500 TB. When updating a post (edit, delete, likes), it's enough to update one key post:{id}, not search for that post across millions of feeds" },
-      { "text": "Redis doesn't support storing complex objects, only strings and numbers", "correct": false, "explanation": "Redis supports hashes, JSON (via RedisJSON), object lists. Technically, full posts can be stored. The decision to store only IDs is architectural, not technical" },
-      { "text": "Full posts are stored in CDN, and Redis is only needed for display ordering", "correct": false, "explanation": "CDN stores media content (images, video), not post metadata. Full posts are cached separately in Redis (post:{id}) or stored in the main DB" },
-      { "text": "To support pagination, which only works with IDs", "correct": false, "explanation": "Pagination works with full objects too (LRANGE). The main reason is memory savings and update consistency. Separating 'what to show' (ID list) from 'what the post looks like' (post data) is data normalization in the cache" }
+      {
+        "text": "Full posts are stored in CDN, and Redis is only needed for display ordering",
+        "correct": false,
+        "explanation": "CDN stores media content (images, video), not post metadata. Full posts are cached separately in Redis (post:{id}) or stored in the main DB"
+      },
+      {
+        "text": "To support pagination, which only works with IDs",
+        "correct": false,
+        "explanation": "Pagination works with full objects too (LRANGE). The main reason is memory savings and update consistency. Separating 'what to show' (ID list) from 'what the post looks like' (post data) is data normalization in the cache"
+      },
+      {
+        "text": "Memory savings (postId = 8 bytes vs Post = 1KB+) and atomic post update in one place, not in millions of feeds",
+        "correct": true,
+        "explanation": "500M users × 1000 postIds × 8 bytes = 4 TB vs 500M × 1000 × 1KB = 500 TB. When updating a post (edit, delete, likes), it's enough to update one key post:{id}, not search for that post across millions of feeds"
+      },
+      {
+        "text": "Redis doesn't support storing complex objects, only strings and numbers",
+        "correct": false,
+        "explanation": "Redis supports hashes, JSON (via RedisJSON), object lists. Technically, full posts can be stored. The decision to store only IDs is architectural, not technical"
+      }
     ]
   },
   {
     "question": "You're designing a social graph for a system with 500M users. Which DB to choose for storing follow relationships and why?",
     "type": "single",
     "options": [
-      { "text": "Graph DB (Neo4j/TAO) for graph queries + Redis cache for hot data (followers count, is_following)", "correct": true, "explanation": "Graph DB is optimized for traversal: 'friends of friends', 'follow recommendations', 'mutual followers'. Redis caches frequent checks (is_following, followers count). This combination gives both graph query speed and low latency for simple lookups" },
-      { "text": "Only Redis — store followers:{userId} and following:{userId} sets", "correct": false, "explanation": "Redis sets are great for caching, but not for persistent storage of 500M users × average 300 follows = 150B records. This requires tens of TB of RAM. Redis is a hot data cache, not the primary graph store" },
-      { "text": "Only PostgreSQL with a follows table (follower_id, followee_id) and B-tree indexes", "correct": false, "explanation": "PostgreSQL can handle storage, but graph queries ('friends of friends', 'recommendations') require multi-level JOINs, which become very slow at 100M+ records. For simple follow/unfollow PostgreSQL works, for recommendations — no" },
-      { "text": "MongoDB — one document per user with a followers array", "correct": false, "explanation": "A user with 50M followers = a document of 50M × 8 bytes = 400 MB. MongoDB has a 16 MB document limit. Even without the limit, updating a 50M-element array on every follow/unfollow is extremely inefficient" }
+      {
+        "text": "Only Redis — store followers:{userId} and following:{userId} sets",
+        "correct": false,
+        "explanation": "Redis sets are great for caching, but not for persistent storage of 500M users × average 300 follows = 150B records. This requires tens of TB of RAM. Redis is a hot data cache, not the primary graph store"
+      },
+      {
+        "text": "MongoDB — one document per user with a followers array",
+        "correct": false,
+        "explanation": "A user with 50M followers = a document of 50M × 8 bytes = 400 MB. MongoDB has a 16 MB document limit. Even without the limit, updating a 50M-element array on every follow/unfollow is extremely inefficient"
+      },
+      {
+        "text": "Graph DB (Neo4j/TAO) for graph queries + Redis cache for hot data (followers count, is_following)",
+        "correct": true,
+        "explanation": "Graph DB is optimized for traversal: 'friends of friends', 'follow recommendations', 'mutual followers'. Redis caches frequent checks (is_following, followers count). This combination gives both graph query speed and low latency for simple lookups"
+      },
+      {
+        "text": "Only PostgreSQL with a follows table (follower_id, followee_id) and B-tree indexes",
+        "correct": false,
+        "explanation": "PostgreSQL can handle storage, but graph queries ('friends of friends', 'recommendations') require multi-level JOINs, which become very slow at 100M+ records. For simple follow/unfollow PostgreSQL works, for recommendations — no"
+      }
     ]
   },
   {
     "question": "The feed ranking pipeline consists of several stages. What is the correct order and why does diversification come after scoring?",
     "type": "single",
     "options": [
-      { "text": "Retrieval → Scoring → Filtering → Diversification → Final Feed. Diversification after scoring to avoid showing 10 posts in a row from one author, even if all are highly scored", "correct": true, "explanation": "First select candidates (1000+), then ML model scores each, then filter spam/blocked/viewed, and finally diversification mixes things up so the feed is diverse. Without diversification, the feed can degenerate into 'only show posts from one popular friend'" },
-      { "text": "Scoring → Retrieval → Diversification → Filtering. First score, then select the best", "correct": false, "explanation": "You can't score posts that haven't been selected yet. Retrieval (selecting candidates from follows) always comes first. Scoring applies to already collected candidates" },
-      { "text": "Filtering → Scoring → Retrieval → Diversification. Filtering before scoring saves resources", "correct": false, "explanation": "Filtering depends on context (e.g., 'already viewed'), but Retrieval still comes first — you need to collect posts first. Some filtering can happen before scoring (spam), but the main structure is: retrieve → score → filter → diversify" },
-      { "text": "Order doesn't matter — all stages can run in parallel", "correct": false, "explanation": "Stages depend on each other: scoring needs candidates from retrieval, filtering needs scores from scoring, diversification works on the filtered list. This is a pipeline, not parallel operations" }
+      {
+        "text": "Order doesn't matter — all stages can run in parallel",
+        "correct": false,
+        "explanation": "Stages depend on each other: scoring needs candidates from retrieval, filtering needs scores from scoring, diversification works on the filtered list. This is a pipeline, not parallel operations"
+      },
+      {
+        "text": "Scoring → Retrieval → Diversification → Filtering. First score, then select the best",
+        "correct": false,
+        "explanation": "You can't score posts that haven't been selected yet. Retrieval (selecting candidates from follows) always comes first. Scoring applies to already collected candidates"
+      },
+      {
+        "text": "Filtering → Scoring → Retrieval → Diversification. Filtering before scoring saves resources",
+        "correct": false,
+        "explanation": "Filtering depends on context (e.g., 'already viewed'), but Retrieval still comes first — you need to collect posts first. Some filtering can happen before scoring (spam), but the main structure is: retrieve → score → filter → diversify"
+      },
+      {
+        "text": "Retrieval → Scoring → Filtering → Diversification → Final Feed. Diversification after scoring to avoid showing 10 posts in a row from one author, even if all are highly scored",
+        "correct": true,
+        "explanation": "First select candidates (1000+), then ML model scores each, then filter spam/blocked/viewed, and finally diversification mixes things up so the feed is diverse. Without diversification, the feed can degenerate into 'only show posts from one popular friend'"
+      }
     ]
   }
 ]

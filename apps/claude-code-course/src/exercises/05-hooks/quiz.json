@@ -3,130 +3,338 @@
     "question": "В чём принципиальная разница между инструкцией в CLAUDE.md и хуком?",
     "type": "single",
     "options": [
-      { "text": "CLAUDE.md — рекомендация, которую агент может забыть; хук — код, который выполняется автоматически", "correct": true, "explanation": "Именно так: CLAUDE.md — это совет для агента, а хук — детерминированная автоматика, которая срабатывает всегда при указанном событии" },
-      { "text": "Разницы нет — это два способа записи одного и того же", "correct": false, "explanation": "Разница принципиальная: CLAUDE.md интерпретируется LLM (может забыть), а хук выполняется системой (гарантированно)" },
-      { "text": "Хуки быстрее, а CLAUDE.md медленнее", "correct": false, "explanation": "Скорость тут не при чём. Ключевое отличие — в детерминированности: хук гарантирует выполнение, CLAUDE.md — нет" },
-      { "text": "CLAUDE.md работает только локально, а хуки — только на сервере", "correct": false, "explanation": "Оба механизма работают локально. Разница в том, что хук — это код, а CLAUDE.md — текстовая инструкция для агента" }
+      {
+        "text": "Хуки быстрее, а CLAUDE.md медленнее",
+        "correct": false,
+        "explanation": "Скорость тут не при чём. Ключевое отличие — в детерминированности: хук гарантирует выполнение, CLAUDE.md — нет"
+      },
+      {
+        "text": "CLAUDE.md — рекомендация, которую агент может забыть; хук — код, который выполняется автоматически",
+        "correct": true,
+        "explanation": "Именно так: CLAUDE.md — это совет для агента, а хук — детерминированная автоматика, которая срабатывает всегда при указанном событии"
+      },
+      {
+        "text": "CLAUDE.md работает только локально, а хуки — только на сервере",
+        "correct": false,
+        "explanation": "Оба механизма работают локально. Разница в том, что хук — это код, а CLAUDE.md — текстовая инструкция для агента"
+      },
+      {
+        "text": "Разницы нет — это два способа записи одного и того же",
+        "correct": false,
+        "explanation": "Разница принципиальная: CLAUDE.md интерпретируется LLM (может забыть), а хук выполняется системой (гарантированно)"
+      }
     ]
   },
   {
     "question": "Какое событие нужно использовать, чтобы заблокировать опасную команду ДО её выполнения?",
     "type": "single",
     "options": [
-      { "text": "PreToolUse", "correct": true, "explanation": "PreToolUse срабатывает перед вызовом инструмента — здесь можно проверить и заблокировать опасные действия" },
-      { "text": "PostToolUse", "correct": false, "explanation": "PostToolUse срабатывает после выполнения инструмента — уже поздно блокировать" },
-      { "text": "Stop", "correct": false, "explanation": "Stop срабатывает когда Claude закончил ответ — все инструменты уже выполнены" },
-      { "text": "SessionStart", "correct": false, "explanation": "SessionStart срабатывает при начале сессии, а не при вызове конкретного инструмента" }
+      {
+        "text": "Stop",
+        "correct": false,
+        "explanation": "Stop срабатывает когда Claude закончил ответ — все инструменты уже выполнены"
+      },
+      {
+        "text": "PreToolUse",
+        "correct": true,
+        "explanation": "PreToolUse срабатывает перед вызовом инструмента — здесь можно проверить и заблокировать опасные действия"
+      },
+      {
+        "text": "PostToolUse",
+        "correct": false,
+        "explanation": "PostToolUse срабатывает после выполнения инструмента — уже поздно блокировать"
+      },
+      {
+        "text": "SessionStart",
+        "correct": false,
+        "explanation": "SessionStart срабатывает при начале сессии, а не при вызове конкретного инструмента"
+      }
     ]
   },
   {
     "question": "Что означает exit code 2 в скрипте хука?",
     "type": "single",
     "options": [
-      { "text": "Заблокировать — инструмент НЕ будет выполнен", "correct": true, "explanation": "Exit code 2 означает deny — инструмент блокируется хуком и не выполняется" },
-      { "text": "Разрешить — инструмент выполняется нормально", "correct": false, "explanation": "Для разрешения используется exit code 0, а не 2" },
-      { "text": "Ошибка хука — повторить попытку", "correct": false, "explanation": "Exit code 2 — это не ошибка, а сознательная блокировка. Ошибки хука обычно имеют другие ненулевые коды" },
-      { "text": "Спросить подтверждение у пользователя", "correct": false, "explanation": "Для запроса подтверждения нужно вернуть JSON с permissionDecision: 'ask', а не exit code 2" }
+      {
+        "text": "Разрешить — инструмент выполняется нормально",
+        "correct": false,
+        "explanation": "Для разрешения используется exit code 0, а не 2"
+      },
+      {
+        "text": "Спросить подтверждение у пользователя",
+        "correct": false,
+        "explanation": "Для запроса подтверждения нужно вернуть JSON с permissionDecision: 'ask', а не exit code 2"
+      },
+      {
+        "text": "Заблокировать — инструмент НЕ будет выполнен",
+        "correct": true,
+        "explanation": "Exit code 2 означает deny — инструмент блокируется хуком и не выполняется"
+      },
+      {
+        "text": "Ошибка хука — повторить попытку",
+        "correct": false,
+        "explanation": "Exit code 2 — это не ошибка, а сознательная блокировка. Ошибки хука обычно имеют другие ненулевые коды"
+      }
     ]
   },
   {
     "question": "У вас есть хук, который запускает prettier после каждого редактирования. Какое событие и matcher правильные?",
     "type": "single",
     "options": [
-      { "text": "PostToolUse с matcher \"Edit|Write\"", "correct": true, "explanation": "PostToolUse срабатывает после инструмента, а matcher Edit|Write ловит оба типа редактирования файлов" },
-      { "text": "PreToolUse с matcher \"Edit|Write\"", "correct": false, "explanation": "PreToolUse — до выполнения. Форматировать файл до того, как он изменён, бессмысленно" },
-      { "text": "PostToolUse с matcher \".*\"", "correct": false, "explanation": "Matcher .* сработает на ЛЮБОЙ инструмент (Read, Grep, Bash...), а prettier нужен только после редактирования файлов" },
-      { "text": "Stop с matcher \"Edit\"", "correct": false, "explanation": "Stop срабатывает когда Claude закончил весь ответ, а не после каждого вызова инструмента. Если было 5 Edit, prettier запустится один раз в конце, а не после каждого" }
+      {
+        "text": "Stop с matcher \"Edit\"",
+        "correct": false,
+        "explanation": "Stop срабатывает когда Claude закончил весь ответ, а не после каждого вызова инструмента. Если было 5 Edit, prettier запустится один раз в конце, а не после каждого"
+      },
+      {
+        "text": "PostToolUse с matcher \"Edit|Write\"",
+        "correct": true,
+        "explanation": "PostToolUse срабатывает после инструмента, а matcher Edit|Write ловит оба типа редактирования файлов"
+      },
+      {
+        "text": "PreToolUse с matcher \"Edit|Write\"",
+        "correct": false,
+        "explanation": "PreToolUse — до выполнения. Форматировать файл до того, как он изменён, бессмысленно"
+      },
+      {
+        "text": "PostToolUse с matcher \".*\"",
+        "correct": false,
+        "explanation": "Matcher .* сработает на ЛЮБОЙ инструмент (Read, Grep, Bash...), а prettier нужен только после редактирования файлов"
+      }
     ]
   },
   {
     "question": "Как хук может добавить контекстную информацию в Claude (например, предупреждение о файле)?",
     "type": "single",
     "options": [
-      { "text": "Вернуть JSON с полем additionalContext на stdout", "correct": true, "explanation": "additionalContext — специальное поле, которое инжектирует текст прямо в контекст Claude" },
-      { "text": "Записать в CLAUDE.md", "correct": false, "explanation": "Хук не должен модифицировать CLAUDE.md — это статический файл конфигурации, а не канал для динамических сообщений" },
-      { "text": "Использовать exit code 3", "correct": false, "explanation": "Определены только exit code 0 (allow) и 2 (deny). Для передачи контекста используется JSON на stdout" },
-      { "text": "Через переменную окружения CLAUDE_CONTEXT", "correct": false, "explanation": "Такой переменной не существует. Контекст передаётся через JSON на stdout с полем additionalContext" }
+      {
+        "text": "Вернуть JSON с полем additionalContext на stdout",
+        "correct": true,
+        "explanation": "additionalContext — специальное поле, которое инжектирует текст прямо в контекст Claude"
+      },
+      {
+        "text": "Использовать exit code 3",
+        "correct": false,
+        "explanation": "Определены только exit code 0 (allow) и 2 (deny). Для передачи контекста используется JSON на stdout"
+      },
+      {
+        "text": "Записать в CLAUDE.md",
+        "correct": false,
+        "explanation": "Хук не должен модифицировать CLAUDE.md — это статический файл конфигурации, а не канал для динамических сообщений"
+      },
+      {
+        "text": "Через переменную окружения CLAUDE_CONTEXT",
+        "correct": false,
+        "explanation": "Такой переменной не существует. Контекст передаётся через JSON на stdout с полем additionalContext"
+      }
     ]
   },
   {
     "question": "Какие четыре типа хуков поддерживает Claude Code?",
     "type": "single",
     "options": [
-      { "text": "command, prompt, http, agent", "correct": true, "explanation": "command запускает shell-команду, prompt отправляет промпт LLM, http отправляет HTTP-запрос, agent запускает субагента" },
-      { "text": "bash, python, node, http", "correct": false, "explanation": "Типы хуков не привязаны к языкам программирования. Это command (любая shell-команда), prompt, http и agent" },
-      { "text": "pre, post, start, stop", "correct": false, "explanation": "Это названия событий (PreToolUse, PostToolUse...), а не типов хуков. Типы: command, prompt, http, agent" },
-      { "text": "validate, transform, block, notify", "correct": false, "explanation": "Это описания действий, которые хуки могут выполнять, но не их типы. Типы: command, prompt, http, agent" }
+      {
+        "text": "validate, transform, block, notify",
+        "correct": false,
+        "explanation": "Это описания действий, которые хуки могут выполнять, но не их типы. Типы: command, prompt, http, agent"
+      },
+      {
+        "text": "pre, post, start, stop",
+        "correct": false,
+        "explanation": "Это названия событий (PreToolUse, PostToolUse...), а не типов хуков. Типы: command, prompt, http, agent"
+      },
+      {
+        "text": "command, prompt, http, agent",
+        "correct": true,
+        "explanation": "command запускает shell-команду, prompt отправляет промпт LLM, http отправляет HTTP-запрос, agent запускает субагента"
+      },
+      {
+        "text": "bash, python, node, http",
+        "correct": false,
+        "explanation": "Типы хуков не привязаны к языкам программирования. Это command (любая shell-команда), prompt, http и agent"
+      }
     ]
   },
   {
     "question": "Что произойдёт, если хук не имеет timeout и зависнет?",
     "type": "single",
     "options": [
-      { "text": "Claude Code не сможет продолжить работу, пока процесс не будет принудительно завершён", "correct": true, "explanation": "Без timeout зависший процесс блокирует весь workflow. Всегда указывайте timeout для хуков" },
-      { "text": "Хук автоматически завершится через 30 секунд (дефолтный timeout)", "correct": false, "explanation": "Дефолтный timeout зависит от реализации, но полагаться на него опасно. Всегда указывайте timeout явно" },
-      { "text": "Claude Code пропустит хук и продолжит работу", "correct": false, "explanation": "Claude Code ждёт завершения хука. Без timeout ожидание может быть неопределённо долгим" },
-      { "text": "Ничего страшного — хук работает в отдельном потоке", "correct": false, "explanation": "Хук может блокировать выполнение инструмента. Зависший хук — это заблокированный агент" }
+      {
+        "text": "Claude Code пропустит хук и продолжит работу",
+        "correct": false,
+        "explanation": "Claude Code ждёт завершения хука. Без timeout ожидание может быть неопределённо долгим"
+      },
+      {
+        "text": "Ничего страшного — хук работает в отдельном потоке",
+        "correct": false,
+        "explanation": "Хук может блокировать выполнение инструмента. Зависший хук — это заблокированный агент"
+      },
+      {
+        "text": "Claude Code не сможет продолжить работу, пока процесс не будет принудительно завершён",
+        "correct": true,
+        "explanation": "Без timeout зависший процесс блокирует весь workflow. Всегда указывайте timeout для хуков"
+      },
+      {
+        "text": "Хук автоматически завершится через 30 секунд (дефолтный timeout)",
+        "correct": false,
+        "explanation": "Дефолтный timeout зависит от реализации, но полагаться на него опасно. Всегда указывайте timeout явно"
+      }
     ]
   },
   {
     "question": "Вы хотите, чтобы при запуске сессии Claude Code автоматически загружал контекст проекта. Какое событие использовать?",
     "type": "single",
     "options": [
-      { "text": "SessionStart", "correct": true, "explanation": "SessionStart срабатывает при начале сессии — идеальный момент для загрузки контекста, проверки окружения, инициализации" },
-      { "text": "UserPromptSubmit", "correct": false, "explanation": "UserPromptSubmit срабатывает при каждом сообщении пользователя. Для разовой инициализации используйте SessionStart" },
-      { "text": "PreToolUse", "correct": false, "explanation": "PreToolUse срабатывает перед каждым инструментом — это слишком часто для начальной загрузки" },
-      { "text": "CwdChanged", "correct": false, "explanation": "CwdChanged срабатывает при смене директории, а не при начале сессии. Для начальной загрузки — SessionStart" }
+      {
+        "text": "CwdChanged",
+        "correct": false,
+        "explanation": "CwdChanged срабатывает при смене директории, а не при начале сессии. Для начальной загрузки — SessionStart"
+      },
+      {
+        "text": "UserPromptSubmit",
+        "correct": false,
+        "explanation": "UserPromptSubmit срабатывает при каждом сообщении пользователя. Для разовой инициализации используйте SessionStart"
+      },
+      {
+        "text": "PreToolUse",
+        "correct": false,
+        "explanation": "PreToolUse срабатывает перед каждым инструментом — это слишком часто для начальной загрузки"
+      },
+      {
+        "text": "SessionStart",
+        "correct": true,
+        "explanation": "SessionStart срабатывает при начале сессии — идеальный момент для загрузки контекста, проверки окружения, инициализации"
+      }
     ]
   },
   {
     "question": "Скрипт хука заканчивается так:\n\ngrep 'TODO' file.txt\nexit 0\n\nНо grep не находит совпадений. Какой будет exit code?",
     "type": "single",
     "options": [
-      { "text": "0 — потому что exit 0 на последней строке перезаписывает код grep", "correct": true, "explanation": "Явный exit 0 в конце скрипта гарантирует нулевой код возврата, независимо от результата grep" },
-      { "text": "1 — потому что grep не нашёл совпадений", "correct": false, "explanation": "Grep вернул бы 1, но после него идёт явный exit 0, который и определяет финальный код" },
-      { "text": "2 — хук считает это блокировкой", "correct": false, "explanation": "Exit code определяется последней командой с exit, а не промежуточными. exit 0 гарантирует разрешение" },
-      { "text": "Зависит от конфигурации shell", "correct": false, "explanation": "Явный exit 0 работает одинаково во всех shell — он перезаписывает код возврата последней команды" }
+      {
+        "text": "Зависит от конфигурации shell",
+        "correct": false,
+        "explanation": "Явный exit 0 работает одинаково во всех shell — он перезаписывает код возврата последней команды"
+      },
+      {
+        "text": "0 — потому что exit 0 на последней строке перезаписывает код grep",
+        "correct": true,
+        "explanation": "Явный exit 0 в конце скрипта гарантирует нулевой код возврата, независимо от результата grep"
+      },
+      {
+        "text": "2 — хук считает это блокировкой",
+        "correct": false,
+        "explanation": "Exit code определяется последней командой с exit, а не промежуточными. exit 0 гарантирует разрешение"
+      },
+      {
+        "text": "1 — потому что grep не нашёл совпадений",
+        "correct": false,
+        "explanation": "Grep вернул бы 1, но после него идёт явный exit 0, который и определяет финальный код"
+      }
     ]
   },
   {
     "question": "Вам нужно защитить файл .env от редактирования агентом. Какой подход правильный?",
     "type": "single",
     "options": [
-      { "text": "PreToolUse хук на Edit|Write, который проверяет путь файла и возвращает exit 2 для .env", "correct": true, "explanation": "PreToolUse перехватывает попытку редактирования до выполнения. Проверка пути файла в скрипте + exit 2 для блокировки — надёжная защита" },
-      { "text": "Написать в CLAUDE.md: 'Не редактируй .env файлы'", "correct": false, "explanation": "CLAUDE.md — рекомендация, агент может её проигнорировать. Хук — гарантия блокировки" },
-      { "text": "PostToolUse хук, который откатывает изменения .env", "correct": false, "explanation": "PostToolUse сработает после редактирования — файл уже будет изменён. Лучше заблокировать до (PreToolUse)" },
-      { "text": "Убрать права на запись у файла .env", "correct": false, "explanation": "Claude Code запускает команды от текущего пользователя, который обычно имеет права на свои файлы. К тому же, это не решение в рамках Claude Code — это обходной путь" }
+      {
+        "text": "PostToolUse хук, который откатывает изменения .env",
+        "correct": false,
+        "explanation": "PostToolUse сработает после редактирования — файл уже будет изменён. Лучше заблокировать до (PreToolUse)"
+      },
+      {
+        "text": "PreToolUse хук на Edit|Write, который проверяет путь файла и возвращает exit 2 для .env",
+        "correct": true,
+        "explanation": "PreToolUse перехватывает попытку редактирования до выполнения. Проверка пути файла в скрипте + exit 2 для блокировки — надёжная защита"
+      },
+      {
+        "text": "Убрать права на запись у файла .env",
+        "correct": false,
+        "explanation": "Claude Code запускает команды от текущего пользователя, который обычно имеет права на свои файлы. К тому же, это не решение в рамках Claude Code — это обходной путь"
+      },
+      {
+        "text": "Написать в CLAUDE.md: 'Не редактируй .env файлы'",
+        "correct": false,
+        "explanation": "CLAUDE.md — рекомендация, агент может её проигнорировать. Хук — гарантия блокировки"
+      }
     ]
   },
   {
     "question": "Как правильно комбинировать быструю и глубокую проверку в одном matcher?",
     "type": "single",
     "options": [
-      { "text": "Указать два хука в массиве: сначала command для быстрой проверки, потом prompt для глубокого анализа", "correct": true, "explanation": "Массив хуков выполняется последовательно: быстрый command отсеивает очевидные случаи, а prompt делает глубокий анализ для остальных" },
-      { "text": "Создать два отдельных matcher с разными хуками", "correct": false, "explanation": "Можно, но менее удобно. Один matcher с двумя хуками — более чистая архитектура для многоуровневой валидации" },
-      { "text": "Использовать один prompt хук с инструкцией 'сначала проверь быстро, потом глубоко'", "correct": false, "explanation": "Prompt хук дорогой. Быстрая проверка через command отсеивает 90% случаев без LLM, экономя время и стоимость" },
-      { "text": "Это невозможно — один matcher поддерживает только один хук", "correct": false, "explanation": "Hooks — это массив, можно указать несколько хуков для одного matcher" }
+      {
+        "text": "Использовать один prompt хук с инструкцией 'сначала проверь быстро, потом глубоко'",
+        "correct": false,
+        "explanation": "Prompt хук дорогой. Быстрая проверка через command отсеивает 90% случаев без LLM, экономя время и стоимость"
+      },
+      {
+        "text": "Указать два хука в массиве: сначала command для быстрой проверки, потом prompt для глубокого анализа",
+        "correct": true,
+        "explanation": "Массив хуков выполняется последовательно: быстрый command отсеивает очевидные случаи, а prompt делает глубокий анализ для остальных"
+      },
+      {
+        "text": "Это невозможно — один matcher поддерживает только один хук",
+        "correct": false,
+        "explanation": "Hooks — это массив, можно указать несколько хуков для одного matcher"
+      },
+      {
+        "text": "Создать два отдельных matcher с разными хуками",
+        "correct": false,
+        "explanation": "Можно, но менее удобно. Один matcher с двумя хуками — более чистая архитектура для многоуровневой валидации"
+      }
     ]
   },
   {
     "question": "Хук возвращает JSON: {\"hookSpecificOutput\":{\"permissionDecision\":\"ask\"}}. Что произойдёт?",
     "type": "single",
     "options": [
-      { "text": "Claude Code спросит пользователя, разрешить ли выполнение инструмента", "correct": true, "explanation": "permissionDecision: 'ask' переводит решение пользователю — появится запрос подтверждения" },
-      { "text": "Инструмент будет заблокирован", "correct": false, "explanation": "Для блокировки нужно permissionDecision: 'deny'. 'ask' запрашивает решение у пользователя" },
-      { "text": "Инструмент будет разрешён", "correct": false, "explanation": "Для разрешения нужно permissionDecision: 'allow'. 'ask' запрашивает подтверждение у пользователя" },
-      { "text": "Произойдёт ошибка — 'ask' не является допустимым значением", "correct": false, "explanation": "'ask' — допустимое значение наряду с 'allow' и 'deny'. Оно запрашивает решение у пользователя" }
+      {
+        "text": "Инструмент будет заблокирован",
+        "correct": false,
+        "explanation": "Для блокировки нужно permissionDecision: 'deny'. 'ask' запрашивает решение у пользователя"
+      },
+      {
+        "text": "Claude Code спросит пользователя, разрешить ли выполнение инструмента",
+        "correct": true,
+        "explanation": "permissionDecision: 'ask' переводит решение пользователю — появится запрос подтверждения"
+      },
+      {
+        "text": "Инструмент будет разрешён",
+        "correct": false,
+        "explanation": "Для разрешения нужно permissionDecision: 'allow'. 'ask' запрашивает подтверждение у пользователя"
+      },
+      {
+        "text": "Произойдёт ошибка — 'ask' не является допустимым значением",
+        "correct": false,
+        "explanation": "'ask' — допустимое значение наряду с 'allow' и 'deny'. Оно запрашивает решение у пользователя"
+      }
     ]
   },
   {
     "question": "Где должны быть сконфигурированы хуки, специфичные для проекта?",
     "type": "single",
     "options": [
-      { "text": "В .claude/settings.json проекта", "correct": true, "explanation": "Проектные хуки настраиваются в .claude/settings.json внутри репозитория и дополняют глобальные хуки" },
-      { "text": "Только в ~/.claude/settings.json", "correct": false, "explanation": "~/.claude/settings.json — глобальная конфигурация для всех проектов. Проектные хуки должны быть в .claude/settings.json проекта" },
-      { "text": "В CLAUDE.md", "correct": false, "explanation": "CLAUDE.md содержит инструкции для агента, а не конфигурацию хуков. Хуки настраиваются в settings.json" },
-      { "text": "В package.json в секции 'claude'", "correct": false, "explanation": "Claude Code не использует package.json для конфигурации. Хуки настраиваются в .claude/settings.json" }
+      {
+        "text": "В .claude/settings.json проекта",
+        "correct": true,
+        "explanation": "Проектные хуки настраиваются в .claude/settings.json внутри репозитория и дополняют глобальные хуки"
+      },
+      {
+        "text": "В package.json в секции 'claude'",
+        "correct": false,
+        "explanation": "Claude Code не использует package.json для конфигурации. Хуки настраиваются в .claude/settings.json"
+      },
+      {
+        "text": "Только в ~/.claude/settings.json",
+        "correct": false,
+        "explanation": "~/.claude/settings.json — глобальная конфигурация для всех проектов. Проектные хуки должны быть в .claude/settings.json проекта"
+      },
+      {
+        "text": "В CLAUDE.md",
+        "correct": false,
+        "explanation": "CLAUDE.md содержит инструкции для агента, а не конфигурацию хуков. Хуки настраиваются в settings.json"
+      }
     ]
   }
 ]

@@ -4,11 +4,6 @@
     "type": "single",
     "options": [
       {
-        "text": "`.github/ci.yml` — единственный файл конфигурации",
-        "correct": false,
-        "explanation": "В GitHub Actions файлы лежат в директории `.github/workflows/` и их может быть несколько, каждый — отдельный workflow."
-      },
-      {
         "text": "`.github/workflows/*.yml` — один или несколько файлов в директории workflows",
         "correct": true,
         "explanation": "Правильно. В отличие от GitLab (один `.gitlab-ci.yml`), GitHub Actions поддерживает несколько workflow-файлов. Каждый — независимый пайплайн со своими триггерами."
@@ -17,6 +12,11 @@
         "text": "`.github/actions.yml` — стандартное имя файла",
         "correct": false,
         "explanation": "Такого стандарта нет. Файлы должны лежать именно в `.github/workflows/` — директория обязательна."
+      },
+      {
+        "text": "`.github/ci.yml` — единственный файл конфигурации",
+        "correct": false,
+        "explanation": "В GitHub Actions файлы лежат в директории `.github/workflows/` и их может быть несколько, каждый — отдельный workflow."
       },
       {
         "text": "`Makefile` — GitHub Actions использует Make для описания CI",
@@ -35,9 +35,9 @@
         "explanation": "Клонировать через git clone не нужно — для этого есть специальный action. Прямое использование git clone обойдёт встроенную аутентификацию."
       },
       {
-        "text": "Пропущен шаг `uses: actions/checkout@v4` — в GitHub Actions код не клонируется автоматически",
-        "correct": true,
-        "explanation": "Именно так. В отличие от GitLab CI, где репозиторий клонируется автоматически, в GitHub Actions нужно явно добавлять `actions/checkout` в каждый джоб, которому нужен код."
+        "text": "Нужно добавить `env: GITHUB_WORKSPACE` — переменная автоматически клонирует код",
+        "correct": false,
+        "explanation": "`GITHUB_WORKSPACE` — это просто путь к директории. Она не вызывает клонирование. Нужен явный `uses: actions/checkout@v4`."
       },
       {
         "text": "Нужно добавить `working-directory: ${{ github.workspace }}`",
@@ -45,9 +45,9 @@
         "explanation": "working-directory переключает рабочую директорию, но не загружает код. Без `actions/checkout` репозитория просто нет на диске."
       },
       {
-        "text": "Нужно добавить `env: GITHUB_WORKSPACE` — переменная автоматически клонирует код",
-        "correct": false,
-        "explanation": "`GITHUB_WORKSPACE` — это просто путь к директории. Она не вызывает клонирование. Нужен явный `uses: actions/checkout@v4`."
+        "text": "Пропущен шаг `uses: actions/checkout@v4` — в GitHub Actions код не клонируется автоматически",
+        "correct": true,
+        "explanation": "Именно так. В отличие от GitLab CI, где репозиторий клонируется автоматически, в GitHub Actions нужно явно добавлять `actions/checkout` в каждый джоб, которому нужен код."
       }
     ]
   },
@@ -55,6 +55,16 @@
     "question": "В GitLab CI используешь `only: [main]` для деплоя. Как сделать то же самое в GitHub Actions?",
     "type": "single",
     "options": [
+      {
+        "text": "Настроить `branches: [main]` в секции `on:push:` — тогда весь workflow запустится только для main",
+        "correct": false,
+        "explanation": "Это ограничит триггер всего workflow, но все джобы всё равно выполнятся. Нужен `if:` именно на джобе deploy, чтобы остальные джобы выполнялись для всех веток."
+      },
+      {
+        "text": "`when: manual` — это стандартный способ ограничить деплой",
+        "correct": false,
+        "explanation": "`when: manual` — это GitLab CI. В GitHub Actions нет прямого аналога; для ручного запуска используется `workflow_dispatch`."
+      },
       {
         "text": "`only: refs: [main]` — синтаксис GitLab работает и в GitHub",
         "correct": false,
@@ -64,16 +74,6 @@
         "text": "`if: github.ref == 'refs/heads/main'` в секции джоба или шага",
         "correct": true,
         "explanation": "Правильно. В GitHub Actions условия задаются через `if:` с выражением. `github.ref` содержит полное имя ветки в формате `refs/heads/main`."
-      },
-      {
-        "text": "`when: manual` — это стандартный способ ограничить деплой",
-        "correct": false,
-        "explanation": "`when: manual` — это GitLab CI. В GitHub Actions нет прямого аналога; для ручного запуска используется `workflow_dispatch`."
-      },
-      {
-        "text": "Настроить `branches: [main]` в секции `on:push:` — тогда весь workflow запустится только для main",
-        "correct": false,
-        "explanation": "Это ограничит триггер всего workflow, но все джобы всё равно выполнятся. Нужен `if:` именно на джобе deploy, чтобы остальные джобы выполнялись для всех веток."
       }
     ]
   },
@@ -82,14 +82,9 @@
     "type": "single",
     "options": [
       {
-        "text": "Нет отличий — это разные названия одного механизма",
+        "text": "`stages:` даёт больше контроля, потому что позволяет группировать джобы",
         "correct": false,
-        "explanation": "Есть принципиальное отличие. `stages` — это неявная группировка, все джобы одной stage выполняются параллельно. `needs` — явные зависимости DAG, более гибко."
-      },
-      {
-        "text": "`needs:` задаёт явные зависимости между конкретными джобами, без `needs:` джобы запускаются параллельно",
-        "correct": true,
-        "explanation": "Именно так. В GitHub Actions нет понятия stage. Порядок определяется только через `needs:`. Без него все джобы стартуют одновременно — это ключевое отличие."
+        "explanation": "`needs:` даёт больше гибкости — можно строить произвольные DAG-зависимости, а не только линейные цепочки через stages."
       },
       {
         "text": "`needs:` работает только для деплой-джобов, для тестов и сборки нужно что-то другое",
@@ -97,9 +92,14 @@
         "explanation": "`needs:` работает для любых джобов без ограничений по типу."
       },
       {
-        "text": "`stages:` даёт больше контроля, потому что позволяет группировать джобы",
+        "text": "`needs:` задаёт явные зависимости между конкретными джобами, без `needs:` джобы запускаются параллельно",
+        "correct": true,
+        "explanation": "Именно так. В GitHub Actions нет понятия stage. Порядок определяется только через `needs:`. Без него все джобы стартуют одновременно — это ключевое отличие."
+      },
+      {
+        "text": "Нет отличий — это разные названия одного механизма",
         "correct": false,
-        "explanation": "`needs:` даёт больше гибкости — можно строить произвольные DAG-зависимости, а не только линейные цепочки через stages."
+        "explanation": "Есть принципиальное отличие. `stages` — это неявная группировка, все джобы одной stage выполняются параллельно. `needs` — явные зависимости DAG, более гибко."
       }
     ]
   },
@@ -107,16 +107,6 @@
     "question": "Тебе нужно протестировать Node.js приложение на версиях 18, 20 и 22. Как правильно это сделать в GitHub Actions?",
     "type": "single",
     "options": [
-      {
-        "text": "Создать три отдельных workflow-файла: `test-node18.yml`, `test-node20.yml`, `test-node22.yml`",
-        "correct": false,
-        "explanation": "Это антипаттерн — дублирование кода. При изменении шагов тестирования придётся обновлять три файла."
-      },
-      {
-        "text": "Использовать `strategy.matrix` с `node-version: [18, 20, 22]`",
-        "correct": true,
-        "explanation": "Правильно. Matrix strategy автоматически создаёт джобы для каждой версии. При изменении шагов достаточно обновить один блок кода."
-      },
       {
         "text": "Добавить три шага `setup-node` с разными версиями в один джоб",
         "correct": false,
@@ -126,6 +116,16 @@
         "text": "GitHub Actions автоматически тестирует на всех LTS-версиях Node — ничего настраивать не нужно",
         "correct": false,
         "explanation": "GitHub Actions ничего не знает о том, что твой проект использует Node.js. Всё нужно настраивать явно."
+      },
+      {
+        "text": "Создать три отдельных workflow-файла: `test-node18.yml`, `test-node20.yml`, `test-node22.yml`",
+        "correct": false,
+        "explanation": "Это антипаттерн — дублирование кода. При изменении шагов тестирования придётся обновлять три файла."
+      },
+      {
+        "text": "Использовать `strategy.matrix` с `node-version: [18, 20, 22]`",
+        "correct": true,
+        "explanation": "Правильно. Matrix strategy автоматически создаёт джобы для каждой версии. При изменении шагов достаточно обновить один блок кода."
       }
     ]
   },
@@ -133,11 +133,6 @@
     "question": "В GitLab CI есть `include:` для переиспользования конфигурации. Что является его аналогом в GitHub Actions для переиспользования **целого пайплайна** (несколько джобов)?",
     "type": "single",
     "options": [
-      {
-        "text": "Composite Action с `uses:` — для переиспользования больших блоков",
-        "correct": false,
-        "explanation": "Composite Action переиспользует шаги (steps) внутри одного джоба, а не целые пайплайны с несколькими джобами."
-      },
       {
         "text": "Reusable Workflow с триггером `workflow_call`",
         "correct": true,
@@ -147,6 +142,11 @@
         "text": "`include:` — тот же синтаксис работает в GitHub Actions",
         "correct": false,
         "explanation": "`include:` — синтаксис GitLab CI. В GitHub Actions используется `uses:` для вызова reusable workflow."
+      },
+      {
+        "text": "Composite Action с `uses:` — для переиспользования больших блоков",
+        "correct": false,
+        "explanation": "Composite Action переиспользует шаги (steps) внутри одного джоба, а не целые пайплайны с несколькими джобами."
       },
       {
         "text": "Template Repository — создать отдельный репозиторий с шаблонами",
@@ -170,14 +170,14 @@
         "explanation": "Правильно. Composite Action — это набор шагов, который можно вызвать через `uses:` внутри любого джоба. Идеально для переиспользования setup-логики."
       },
       {
-        "text": "YAML anchors (`&anchor` / `*anchor`) — стандартный YAML-механизм переиспользования",
-        "correct": false,
-        "explanation": "YAML anchors не поддерживаются в GitHub Actions — это ограничение платформы. Используй Composite Actions."
-      },
-      {
         "text": "Скопировать шаги в каждый джоб — это надёжнее, чем абстракции",
         "correct": false,
         "explanation": "Дублирование кода — антипаттерн. При изменении версии Node.js придётся обновлять каждый джоб. Composite Action решает это элегантно."
+      },
+      {
+        "text": "YAML anchors (`&anchor` / `*anchor`) — стандартный YAML-механизм переиспользования",
+        "correct": false,
+        "explanation": "YAML anchors не поддерживаются в GitHub Actions — это ограничение платформы. Используй Composite Actions."
       }
     ]
   },
@@ -186,9 +186,9 @@
     "type": "single",
     "options": [
       {
-        "text": "Все 11 оставшихся джобов продолжат выполнение",
+        "text": "GitHub Actions спросит пользователя, продолжать ли остальные джобы",
         "correct": false,
-        "explanation": "Это поведение `fail-fast: false`. По умолчанию `fail-fast: true` — первый провал отменяет оставшиеся."
+        "explanation": "GitHub Actions не делает интерактивных запросов в процессе выполнения. Поведение определяется `fail-fast` в конфиге."
       },
       {
         "text": "Оставшиеся джобы будут отменены (cancelled)",
@@ -201,9 +201,9 @@
         "explanation": "`fail-fast` не умеет частично отменять матрицу по одному параметру. При провале отменяется вся незавершённая матрица."
       },
       {
-        "text": "GitHub Actions спросит пользователя, продолжать ли остальные джобы",
+        "text": "Все 11 оставшихся джобов продолжат выполнение",
         "correct": false,
-        "explanation": "GitHub Actions не делает интерактивных запросов в процессе выполнения. Поведение определяется `fail-fast` в конфиге."
+        "explanation": "Это поведение `fail-fast: false`. По умолчанию `fail-fast: true` — первый провал отменяет оставшиеся."
       }
     ]
   },
@@ -238,9 +238,9 @@
     "type": "single",
     "options": [
       {
-        "text": "`on: nightly: true` — специальный триггер для ночных сборок",
+        "text": "`on: timer: interval: 24h` — интервальный таймер",
         "correct": false,
-        "explanation": "Такого триггера не существует. GitHub Actions использует стандартный cron-синтаксис."
+        "explanation": "Такого синтаксиса нет. GitHub Actions поддерживает только cron-выражения для запланированных запусков."
       },
       {
         "text": "`on: schedule: - cron: '0 3 * * *'`",
@@ -248,14 +248,14 @@
         "explanation": "Правильно. `schedule` с cron-выражением — стандартный способ запланированных запусков. `0 3 * * *` означает: минута 0, час 3, любой день месяца, любой месяц, любой день недели."
       },
       {
-        "text": "`on: timer: interval: 24h` — интервальный таймер",
-        "correct": false,
-        "explanation": "Такого синтаксиса нет. GitHub Actions поддерживает только cron-выражения для запланированных запусков."
-      },
-      {
         "text": "Создать GitHub App с webhook и настроить внешний планировщик",
         "correct": false,
         "explanation": "Это излишне сложно. `on: schedule` с cron решает задачу встроенными средствами GitHub Actions."
+      },
+      {
+        "text": "`on: nightly: true` — специальный триггер для ночных сборок",
+        "correct": false,
+        "explanation": "Такого триггера не существует. GitHub Actions использует стандартный cron-синтаксис."
       }
     ]
   },
@@ -263,16 +263,6 @@
     "question": "В workflow нужно передать файл `dist/` из джоба `build` в джоб `deploy`. Как это сделать?",
     "type": "single",
     "options": [
-      {
-        "text": "Использовать `artifacts:` — синтаксис GitLab работает в GitHub Actions",
-        "correct": false,
-        "explanation": "В GitHub Actions нет ключа `artifacts:`. Здесь используются специальные actions: `actions/upload-artifact` для сохранения и `actions/download-artifact` для загрузки."
-      },
-      {
-        "text": "`actions/upload-artifact` в джобе build, `actions/download-artifact` в джобе deploy",
-        "correct": true,
-        "explanation": "Правильно. GitHub Actions использует отдельные actions для работы с артефактами. Это более явный подход по сравнению с GitLab, где артефакты — встроенная функция."
-      },
       {
         "text": "Файлы автоматически шарятся между джобами через `$GITHUB_WORKSPACE`",
         "correct": false,
@@ -282,6 +272,16 @@
         "text": "Использовать `cache:` с ключом на основе `github.sha` — тогда сборка закэшируется для deploy",
         "correct": false,
         "explanation": "Cache предназначен для ускорения повторных запусков, а не для передачи данных между джобами. Для передачи данных внутри одного workflow — upload/download-artifact."
+      },
+      {
+        "text": "Использовать `artifacts:` — синтаксис GitLab работает в GitHub Actions",
+        "correct": false,
+        "explanation": "В GitHub Actions нет ключа `artifacts:`. Здесь используются специальные actions: `actions/upload-artifact` для сохранения и `actions/download-artifact` для загрузки."
+      },
+      {
+        "text": "`actions/upload-artifact` в джобе build, `actions/download-artifact` в джобе deploy",
+        "correct": true,
+        "explanation": "Правильно. GitHub Actions использует отдельные actions для работы с артефактами. Это более явный подход по сравнению с GitLab, где артефакты — встроенная функция."
       }
     ]
   },
@@ -289,11 +289,6 @@
     "question": "Что из перечисленного является аналогом GitLab CI `extends:` в GitHub Actions?",
     "type": "single",
     "options": [
-      {
-        "text": "Reusable Workflow — вызывается через `uses:` на уровне джоба",
-        "correct": false,
-        "explanation": "Reusable Workflow — аналог `include:` для целых пайплайнов. `extends:` в GitLab использовался для наследования конфигурации джоба, что ближе к Composite Action."
-      },
       {
         "text": "Composite Action — переиспользует набор шагов, аналогично тому, как `extends:` переиспользует конфигурацию джоба",
         "correct": true,
@@ -303,6 +298,11 @@
         "text": "YAML anchors — встроенный YAML механизм работает в обеих системах",
         "correct": false,
         "explanation": "GitHub Actions не поддерживает YAML anchors. GitLab CI тоже не поддерживал их нативно — `extends:` был именно заменой anchors."
+      },
+      {
+        "text": "Reusable Workflow — вызывается через `uses:` на уровне джоба",
+        "correct": false,
+        "explanation": "Reusable Workflow — аналог `include:` для целых пайплайнов. `extends:` в GitLab использовался для наследования конфигурации джоба, что ближе к Composite Action."
       },
       {
         "text": "Matrix strategy — позволяет расширять джоб несколькими конфигурациями",
@@ -316,14 +316,9 @@
     "type": "single",
     "options": [
       {
-        "text": "Создать отдельный workflow для каждой совместимой комбинации",
+        "text": "GitHub Actions автоматически определяет несовместимые комбинации на основе документации пакетов",
         "correct": false,
-        "explanation": "Это катастрофическое дублирование кода. При 20 совместимых комбинациях потребуется 20 файлов."
-      },
-      {
-        "text": "Использовать `matrix.exclude:` с перечислением несовместимых комбинаций",
-        "correct": true,
-        "explanation": "Правильно. `exclude:` позволяет точечно исключить конкретные комбинации из матрицы. Поддерживает частичное совпадение — не обязательно указывать все параметры."
+        "explanation": "GitHub Actions ничего не знает о совместимости пакетов. Логику исключений нужно задавать явно."
       },
       {
         "text": "Добавить `if: matrix.python != '3.8' || matrix.deps != 'v2.0'` в каждый шаг",
@@ -331,9 +326,14 @@
         "explanation": "Технически сработает, но джоб всё равно создастся и запустится — просто все шаги пропустятся. Это тратит ресурсы и засоряет UI."
       },
       {
-        "text": "GitHub Actions автоматически определяет несовместимые комбинации на основе документации пакетов",
+        "text": "Использовать `matrix.exclude:` с перечислением несовместимых комбинаций",
+        "correct": true,
+        "explanation": "Правильно. `exclude:` позволяет точечно исключить конкретные комбинации из матрицы. Поддерживает частичное совпадение — не обязательно указывать все параметры."
+      },
+      {
+        "text": "Создать отдельный workflow для каждой совместимой комбинации",
         "correct": false,
-        "explanation": "GitHub Actions ничего не знает о совместимости пакетов. Логику исключений нужно задавать явно."
+        "explanation": "Это катастрофическое дублирование кода. При 20 совместимых комбинациях потребуется 20 файлов."
       }
     ]
   },
@@ -342,9 +342,9 @@
     "type": "multiple",
     "options": [
       {
-        "text": "Пропустить джоб на основе ветки: `if: github.ref == 'refs/heads/main'`",
-        "correct": true,
-        "explanation": "Правильно. `if:` на уровне джоба полностью пропускает его, если условие ложно. Аналог `rules: - if: $CI_COMMIT_BRANCH == 'main'` в GitLab."
+        "text": "Все перечисленные варианты неверны",
+        "correct": false,
+        "explanation": "Некоторые из перечисленных вариантов действительно верны."
       },
       {
         "text": "Пропустить шаг на основе результата предыдущего: `if: steps.tests.outcome == 'failure'`",
@@ -360,6 +360,11 @@
         "text": "Запустить джоб только при ручном тригере: `if: github.event_name == 'workflow_dispatch'`",
         "correct": true,
         "explanation": "Правильно. `github.event_name` содержит тип события, вызвавшего workflow. `workflow_dispatch` означает ручной запуск через UI или API."
+      },
+      {
+        "text": "Пропустить джоб на основе ветки: `if: github.ref == 'refs/heads/main'`",
+        "correct": true,
+        "explanation": "Правильно. `if:` на уровне джоба полностью пропускает его, если условие ложно. Аналог `rules: - if: $CI_COMMIT_BRANCH == 'main'` в GitLab."
       }
     ]
   },
@@ -367,6 +372,11 @@
     "question": "Команда хочет переиспользовать deploy-логику (3 джоба, 15 шагов) в 5 разных продуктовых workflow. Какое решение лучше и почему?",
     "type": "single",
     "options": [
+      {
+        "text": "GitHub Packages — разместить логику деплоя как npm-пакет",
+        "correct": false,
+        "explanation": "GitHub Packages — для публикации артефактов (npm, Docker, etc), а не для переиспользования CI/CD логики."
+      },
       {
         "text": "Скопировать yaml-блоки в каждый из 5 workflow — это надёжно и прозрачно",
         "correct": false,
@@ -381,11 +391,6 @@
         "text": "Reusable Workflow в `.github/workflows/deploy-shared.yml` с триггером `workflow_call`",
         "correct": true,
         "explanation": "Правильно. Reusable Workflow может содержать несколько джобов и вызываться из других workflow через `uses:`. Изменение логики деплоя — обновление одного файла."
-      },
-      {
-        "text": "GitHub Packages — разместить логику деплоя как npm-пакет",
-        "correct": false,
-        "explanation": "GitHub Packages — для публикации артефактов (npm, Docker, etc), а не для переиспользования CI/CD логики."
       }
     ]
   }

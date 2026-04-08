@@ -3,50 +3,130 @@
     "question": "Чем HLS отличается от DASH, и почему многие платформы поддерживают оба протокола?",
     "type": "multiple",
     "options": [
-      { "text": "HLS разработан Apple и обязателен для iOS; DASH — открытый стандарт MPEG, нативно поддерживается Android и веб-браузерами", "correct": true, "explanation": "HLS — проприетарный стандарт Apple, iOS-устройства его требуют. DASH — открытый стандарт, поддерживается через Media Source Extensions в браузерах и нативно на Android. Чтобы охватить все устройства, платформы поддерживают оба" },
-      { "text": "HLS использует .m3u8 манифест и .ts сегменты, DASH использует .mpd манифест (XML) и .m4s сегменты (fragmented MP4)", "correct": true, "explanation": "Это ключевое техническое отличие: HLS исторически использует MPEG-TS контейнер (.ts), хотя новые версии поддерживают fMP4. DASH изначально работает с fragmented MP4 (.m4s). Манифесты тоже разные: простой текстовый .m3u8 vs XML-based .mpd" },
-      { "text": "DASH всегда имеет меньшую задержку, чем HLS, поэтому используется для live streaming", "correct": false, "explanation": "Это не всегда так. Стандартный DASH (3-10 сек latency) и стандартный HLS (20-30 сек) действительно отличаются. Но Low-Latency HLS (LL-HLS) достигает 2-5 сек, сравнимых с LL-DASH. Twitch, например, использует LL-HLS для стримов. Выбор зависит от реализации, а не только от протокола" },
-      { "text": "HLS и DASH используют один и тот же формат сегментов, отличается только манифест", "correct": false, "explanation": "Исторически HLS использует .ts (MPEG-TS), а DASH — .m4s (fragmented MP4). Хотя современный HLS (CMAF) поддерживает fMP4, и можно использовать общие сегменты, это не 'один и тот же формат' — требуется специальная настройка (CMAF)" }
+      {
+        "text": "HLS разработан Apple и обязателен для iOS; DASH — открытый стандарт MPEG, нативно поддерживается Android и веб-браузерами",
+        "correct": true,
+        "explanation": "HLS — проприетарный стандарт Apple, iOS-устройства его требуют. DASH — открытый стандарт, поддерживается через Media Source Extensions в браузерах и нативно на Android. Чтобы охватить все устройства, платформы поддерживают оба"
+      },
+      {
+        "text": "HLS и DASH используют один и тот же формат сегментов, отличается только манифест",
+        "correct": false,
+        "explanation": "Исторически HLS использует .ts (MPEG-TS), а DASH — .m4s (fragmented MP4). Хотя современный HLS (CMAF) поддерживает fMP4, и можно использовать общие сегменты, это не 'один и тот же формат' — требуется специальная настройка (CMAF)"
+      },
+      {
+        "text": "DASH всегда имеет меньшую задержку, чем HLS, поэтому используется для live streaming",
+        "correct": false,
+        "explanation": "Это не всегда так. Стандартный DASH (3-10 сек latency) и стандартный HLS (20-30 сек) действительно отличаются. Но Low-Latency HLS (LL-HLS) достигает 2-5 сек, сравнимых с LL-DASH. Twitch, например, использует LL-HLS для стримов. Выбор зависит от реализации, а не только от протокола"
+      },
+      {
+        "text": "HLS использует .m3u8 манифест и .ts сегменты, DASH использует .mpd манифест (XML) и .m4s сегменты (fragmented MP4)",
+        "correct": true,
+        "explanation": "Это ключевое техническое отличие: HLS исторически использует MPEG-TS контейнер (.ts), хотя новые версии поддерживают fMP4. DASH изначально работает с fragmented MP4 (.m4s). Манифесты тоже разные: простой текстовый .m3u8 vs XML-based .mpd"
+      }
     ]
   },
   {
     "question": "Почему adaptive bitrate streaming разбивает видео на сегменты по 2-6 секунд, а не передаёт поток непрерывно?",
     "type": "single",
     "options": [
-      { "text": "Сегментация позволяет плееру переключать качество на границе каждого сегмента без артефактов, кэшировать сегменты на CDN независимо и использовать стандартный HTTP вместо специальных протоколов", "correct": true, "explanation": "Каждый сегмент — самостоятельный файл с HTTP URL. Плеер измеряет bandwidth за время загрузки сегмента и выбирает качество для следующего. CDN кэширует каждый сегмент независимо (горячий сегмент_0 вирусного видео = 1 запрос к origin, миллионы из кэша). HTTP — стандартный протокол, работает через любые прокси и файрволы" },
-      { "text": "Непрерывный поток невозможен по протоколу HTTP — HTTP всегда требует запрос-ответ для каждого фрагмента данных", "correct": false, "explanation": "HTTP поддерживает streaming (chunked transfer encoding, HTTP/2 server push). Непрерывный поток возможен (RTMP его использует). Сегментация выбрана не из-за ограничений HTTP, а ради преимуществ: adaptive quality, CDN caching, seek support, fault tolerance" },
-      { "text": "Сегменты нужны исключительно для seek — чтобы пользователь мог перемотать к нужному моменту", "correct": false, "explanation": "Seek — одно из преимуществ, но не единственное и не главное. Главные причины: adaptive bitrate (переключение качества), CDN caching (каждый сегмент кэшируется отдельно), fault tolerance (потеря одного сегмента не ломает всё видео). Byte range requests тоже позволяют seek без сегментации" },
-      { "text": "Сегментация уменьшает общий размер видеофайла за счёт более эффективного сжатия каждого фрагмента отдельно", "correct": false, "explanation": "На самом деле наоборот: сегментация немного увеличивает размер из-за overhead на IDR-frames (ключевые кадры) в начале каждого сегмента и дублирования headers. Сжатие эффективнее на длинных непрерывных потоках. Сегментация выбрана ради adaptive streaming и CDN, не ради компрессии" }
+      {
+        "text": "Сегменты нужны исключительно для seek — чтобы пользователь мог перемотать к нужному моменту",
+        "correct": false,
+        "explanation": "Seek — одно из преимуществ, но не единственное и не главное. Главные причины: adaptive bitrate (переключение качества), CDN caching (каждый сегмент кэшируется отдельно), fault tolerance (потеря одного сегмента не ломает всё видео). Byte range requests тоже позволяют seek без сегментации"
+      },
+      {
+        "text": "Сегментация уменьшает общий размер видеофайла за счёт более эффективного сжатия каждого фрагмента отдельно",
+        "correct": false,
+        "explanation": "На самом деле наоборот: сегментация немного увеличивает размер из-за overhead на IDR-frames (ключевые кадры) в начале каждого сегмента и дублирования headers. Сжатие эффективнее на длинных непрерывных потоках. Сегментация выбрана ради adaptive streaming и CDN, не ради компрессии"
+      },
+      {
+        "text": "Сегментация позволяет плееру переключать качество на границе каждого сегмента без артефактов, кэшировать сегменты на CDN независимо и использовать стандартный HTTP вместо специальных протоколов",
+        "correct": true,
+        "explanation": "Каждый сегмент — самостоятельный файл с HTTP URL. Плеер измеряет bandwidth за время загрузки сегмента и выбирает качество для следующего. CDN кэширует каждый сегмент независимо (горячий сегмент_0 вирусного видео = 1 запрос к origin, миллионы из кэша). HTTP — стандартный протокол, работает через любые прокси и файрволы"
+      },
+      {
+        "text": "Непрерывный поток невозможен по протоколу HTTP — HTTP всегда требует запрос-ответ для каждого фрагмента данных",
+        "correct": false,
+        "explanation": "HTTP поддерживает streaming (chunked transfer encoding, HTTP/2 server push). Непрерывный поток возможен (RTMP его использует). Сегментация выбрана не из-за ограничений HTTP, а ради преимуществ: adaptive quality, CDN caching, seek support, fault tolerance"
+      }
     ]
   },
   {
     "question": "Вы проектируете transcoding pipeline для видеоплатформы. Upload — 500 видео/мин, среднее видео — 10 мин. Какая архитектура оптимальна?",
     "type": "single",
     "options": [
-      { "text": "Upload Service получает файл → синхронно вызывает Transcoder → ждёт результата → отвечает клиенту '200 OK, video ready'", "correct": false, "explanation": "Transcoding 10 мин видео занимает 5-30 минут. Синхронный вызов = HTTP timeout (30-60 сек), заблокированный thread на upload service, невозможность закрыть браузер. При 500 видео/мин потребуется тысячи одновременных HTTP-соединений в ожидании" },
-      { "text": "Upload Service сохраняет raw video в Object Store → отправляет job в Message Queue → Transcoder cluster асинхронно обрабатывает → Webhook/notification при готовности", "correct": true, "explanation": "Async pipeline: upload отвечает мгновенно (202 Accepted), transcoding работает независимо. Message Queue (Kafka/SQS) обеспечивает: decoupling, retry при ошибках, backpressure при перегрузке, приоритизацию (premium users first). Transcoder cluster масштабируется горизонтально (GPU instances). Каждое видео можно разбить на сегменты и транскодировать параллельно (DAG pipeline)" },
-      { "text": "Upload Service сохраняет raw video → Cron job каждые 5 минут проверяет новые файлы → запускает transcoding для найденных", "correct": false, "explanation": "Cron polling — ненадёжный и медленный подход. Задержка до 5 минут перед началом обработки. Нет retry логики, нет приоритизации, нет backpressure. При пике загрузок (вирусный тренд) cron job может собрать тысячи файлов и перегрузить transcoder. Message Queue решает все эти проблемы" },
-      { "text": "Upload Service транскодирует видео прямо в браузере пользователя (client-side transcoding) и загружает готовые файлы", "correct": false, "explanation": "Client-side transcoding: медленный CPU (нет GPU), разряжает батарею, огромный upload (нужно загрузить все разрешения вместо одного файла). Мобильный телефон не может транскодировать 4K видео в 6 разрешений. Transcoding — серверная задача с GPU-ускорением" }
+      {
+        "text": "Upload Service транскодирует видео прямо в браузере пользователя (client-side transcoding) и загружает готовые файлы",
+        "correct": false,
+        "explanation": "Client-side transcoding: медленный CPU (нет GPU), разряжает батарею, огромный upload (нужно загрузить все разрешения вместо одного файла). Мобильный телефон не может транскодировать 4K видео в 6 разрешений. Transcoding — серверная задача с GPU-ускорением"
+      },
+      {
+        "text": "Upload Service получает файл → синхронно вызывает Transcoder → ждёт результата → отвечает клиенту '200 OK, video ready'",
+        "correct": false,
+        "explanation": "Transcoding 10 мин видео занимает 5-30 минут. Синхронный вызов = HTTP timeout (30-60 сек), заблокированный thread на upload service, невозможность закрыть браузер. При 500 видео/мин потребуется тысячи одновременных HTTP-соединений в ожидании"
+      },
+      {
+        "text": "Upload Service сохраняет raw video → Cron job каждые 5 минут проверяет новые файлы → запускает transcoding для найденных",
+        "correct": false,
+        "explanation": "Cron polling — ненадёжный и медленный подход. Задержка до 5 минут перед началом обработки. Нет retry логики, нет приоритизации, нет backpressure. При пике загрузок (вирусный тренд) cron job может собрать тысячи файлов и перегрузить transcoder. Message Queue решает все эти проблемы"
+      },
+      {
+        "text": "Upload Service сохраняет raw video в Object Store → отправляет job в Message Queue → Transcoder cluster асинхронно обрабатывает → Webhook/notification при готовности",
+        "correct": true,
+        "explanation": "Async pipeline: upload отвечает мгновенно (202 Accepted), transcoding работает независимо. Message Queue (Kafka/SQS) обеспечивает: decoupling, retry при ошибках, backpressure при перегрузке, приоритизацию (premium users first). Transcoder cluster масштабируется горизонтально (GPU instances). Каждое видео можно разбить на сегменты и транскодировать параллельно (DAG pipeline)"
+      }
     ]
   },
   {
     "question": "Как CDN обеспечивает доставку видео миллионам пользователей с минимальной задержкой?",
     "type": "single",
     "options": [
-      { "text": "CDN хранит полные копии ВСЕХ видео на каждом edge сервере по всему миру — это eliminates latency к origin полностью", "correct": false, "explanation": "Хранить все видео (петабайты) на каждом из 200+ edge серверов физически невозможно и экономически абсурдно. CDN кэширует только hot content на edge. Long tail (99% видео) — pull-based: cache miss → fetch from mid-tier/origin. Hit rate 85-95% на edge означает, что 5-15% запросов всё же идут к origin/mid-tier" },
-      { "text": "Многоуровневая архитектура: Edge POP (200+, рядом с пользователем, кэш горячего) → Mid-tier (20 регионов, более полный кэш) → Origin (хранит всё). Популярный контент pre-push на edge, остальное — pull-on-demand", "correct": true, "explanation": "3-tier CDN: edge обслуживает 85-95% запросов (< 5 ms), mid-tier ловит ещё 5-10% (< 50 ms), origin — менее 1% (может быть 200+ ms). Hot content (trending, новинки) push на edge proactively. Long tail — pull и кэш с LRU eviction. Google GGC идёт ещё дальше: серверы у ISP, трафик не покидает сеть провайдера" },
-      { "text": "CDN просто перенаправляет DNS-запросы на ближайший сервер — видео всегда отдаётся напрямую из origin, но по оптимальному маршруту", "correct": false, "explanation": "DNS-based routing — это часть CDN (Anycast/GeoDNS), но CDN именно кэширует контент, а не просто маршрутизирует. Без кэширования origin не выдержит нагрузку: 200 Tbps peak bandwidth невозможно обслужить из одного дата-центра. Кэширование сегментов на edge — ключевая функция CDN" },
-      { "text": "CDN использует P2P (peer-to-peer): каждый зритель раздаёт видео другим зрителям, как в BitTorrent, что снимает нагрузку с серверов", "correct": false, "explanation": "P2P delivery существует (WebRTC-based, используется некоторыми платформами для снижения costs), но это не основной механизм CDN. Проблемы P2P: ненадёжность (peers уходят), latency, NAT traversal, невозможность гарантировать quality. Основные видеоплатформы (YouTube, Netflix) используют server-based CDN, не P2P" }
+      {
+        "text": "CDN хранит полные копии ВСЕХ видео на каждом edge сервере по всему миру — это eliminates latency к origin полностью",
+        "correct": false,
+        "explanation": "Хранить все видео (петабайты) на каждом из 200+ edge серверов физически невозможно и экономически абсурдно. CDN кэширует только hot content на edge. Long tail (99% видео) — pull-based: cache miss → fetch from mid-tier/origin. Hit rate 85-95% на edge означает, что 5-15% запросов всё же идут к origin/mid-tier"
+      },
+      {
+        "text": "CDN просто перенаправляет DNS-запросы на ближайший сервер — видео всегда отдаётся напрямую из origin, но по оптимальному маршруту",
+        "correct": false,
+        "explanation": "DNS-based routing — это часть CDN (Anycast/GeoDNS), но CDN именно кэширует контент, а не просто маршрутизирует. Без кэширования origin не выдержит нагрузку: 200 Tbps peak bandwidth невозможно обслужить из одного дата-центра. Кэширование сегментов на edge — ключевая функция CDN"
+      },
+      {
+        "text": "Многоуровневая архитектура: Edge POP (200+, рядом с пользователем, кэш горячего) → Mid-tier (20 регионов, более полный кэш) → Origin (хранит всё). Популярный контент pre-push на edge, остальное — pull-on-demand",
+        "correct": true,
+        "explanation": "3-tier CDN: edge обслуживает 85-95% запросов (< 5 ms), mid-tier ловит ещё 5-10% (< 50 ms), origin — менее 1% (может быть 200+ ms). Hot content (trending, новинки) push на edge proactively. Long tail — pull и кэш с LRU eviction. Google GGC идёт ещё дальше: серверы у ISP, трафик не покидает сеть провайдера"
+      },
+      {
+        "text": "CDN использует P2P (peer-to-peer): каждый зритель раздаёт видео другим зрителям, как в BitTorrent, что снимает нагрузку с серверов",
+        "correct": false,
+        "explanation": "P2P delivery существует (WebRTC-based, используется некоторыми платформами для снижения costs), но это не основной механизм CDN. Проблемы P2P: ненадёжность (peers уходят), latency, NAT traversal, невозможность гарантировать quality. Основные видеоплатформы (YouTube, Netflix) используют server-based CDN, не P2P"
+      }
     ]
   },
   {
     "question": "У вас 280K view events/sec. Как организовать подсчёт просмотров без перегрузки базы данных?",
     "type": "single",
     "options": [
-      { "text": "Каждый view event → UPDATE в PostgreSQL (view_count = view_count + 1). PostgreSQL с правильными индексами выдержит 280K writes/sec", "correct": false, "explanation": "280K updates/sec на одну строку (популярное видео) — это lock contention. Даже если распределить по разным видео, нагрузка огромная. PostgreSQL с одним мастером выдаёт ~50K simple writes/sec. Для одной строки (hot row) — ещё меньше из-за row-level locking. Нужна агрегация" },
-      { "text": "View events → Kafka → Stream processor (Flink) агрегирует за окно 1-5 мин → batch UPDATE в Cassandra. De-duplication через HyperLogLog / Bloom filter", "correct": true, "explanation": "Kafka буферизирует поток (280K/sec), Flink агрегирует: за 1 мин для video:abc = 15,000 views → один batch UPDATE вместо 15,000. Cassandra выдерживает высокий write throughput. HyperLogLog (12 KB на видео) даёт approximate unique count с точностью 0.81%. Итого: 280K events/sec → ~5K batch writes/sec (50x reduction)" },
-      { "text": "Хранить счётчик в Redis (INCR), а фоновый worker раз в час сбрасывает в SQL. Redis выдержит 280K INCR/sec", "correct": false, "explanation": "Redis выдержит ~100K ops/sec на ноду, но для одного hot key (вирусное видео) это всё равно single-threaded bottleneck. Нет de-duplication (F5 = +100 views). При крахе Redis до flush — потеря до 1 часа данных. Kafka + Flink надёжнее: Kafka durable, Flink checkpoints, Cassandra replicated. Redis подходит как дополнительный слой для real-time approximate count, но не как primary pipeline" },
-      { "text": "Подсчитывать views на стороне клиента (JavaScript) и отправлять batch каждые 10 минут", "correct": false, "explanation": "Client-side batching: ненадёжно (пользователь закрывает вкладку — batch потерян), легко подделать (bot views), нет de-duplication между устройствами. View event нужно отправлять сразу (fire-and-forget) на серверную сторону, а агрегация и de-dup происходят на сервере через stream processing" }
+      {
+        "text": "Подсчитывать views на стороне клиента (JavaScript) и отправлять batch каждые 10 минут",
+        "correct": false,
+        "explanation": "Client-side batching: ненадёжно (пользователь закрывает вкладку — batch потерян), легко подделать (bot views), нет de-duplication между устройствами. View event нужно отправлять сразу (fire-and-forget) на серверную сторону, а агрегация и de-dup происходят на сервере через stream processing"
+      },
+      {
+        "text": "View events → Kafka → Stream processor (Flink) агрегирует за окно 1-5 мин → batch UPDATE в Cassandra. De-duplication через HyperLogLog / Bloom filter",
+        "correct": true,
+        "explanation": "Kafka буферизирует поток (280K/sec), Flink агрегирует: за 1 мин для video:abc = 15,000 views → один batch UPDATE вместо 15,000. Cassandra выдерживает высокий write throughput. HyperLogLog (12 KB на видео) даёт approximate unique count с точностью 0.81%. Итого: 280K events/sec → ~5K batch writes/sec (50x reduction)"
+      },
+      {
+        "text": "Хранить счётчик в Redis (INCR), а фоновый worker раз в час сбрасывает в SQL. Redis выдержит 280K INCR/sec",
+        "correct": false,
+        "explanation": "Redis выдержит ~100K ops/sec на ноду, но для одного hot key (вирусное видео) это всё равно single-threaded bottleneck. Нет de-duplication (F5 = +100 views). При крахе Redis до flush — потеря до 1 часа данных. Kafka + Flink надёжнее: Kafka durable, Flink checkpoints, Cassandra replicated. Redis подходит как дополнительный слой для real-time approximate count, но не как primary pipeline"
+      },
+      {
+        "text": "Каждый view event → UPDATE в PostgreSQL (view_count = view_count + 1). PostgreSQL с правильными индексами выдержит 280K writes/sec",
+        "correct": false,
+        "explanation": "280K updates/sec на одну строку (популярное видео) — это lock contention. Даже если распределить по разным видео, нагрузка огромная. PostgreSQL с одним мастером выдаёт ~50K simple writes/sec. Для одной строки (hot row) — ещё меньше из-за row-level locking. Нужна агрегация"
+      }
     ]
   }
 ]

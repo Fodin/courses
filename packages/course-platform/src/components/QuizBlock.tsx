@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 
 import { useExercisePaths } from '../hooks/useExercisePaths'
 import { useLanguage } from '../hooks/useLanguage'
@@ -21,8 +21,10 @@ export function QuizBlock({ level }: QuizBlockProps) {
   const quizDone = isQuizComplete(level)
   const { isOpen, toggle } = useCollapsible({ initialState: false })
   const [correctAnswers, setCorrectAnswers] = useState<Set<number>>(new Set())
+  const skipNextCheck = useRef(false)
 
   useEffect(() => {
+    skipNextCheck.current = true
     setCorrectAnswers(new Set())
   }, [level])
 
@@ -41,6 +43,10 @@ export function QuizBlock({ level }: QuizBlockProps) {
   }, [])
 
   useEffect(() => {
+    if (skipNextCheck.current) {
+      skipNextCheck.current = false
+      return
+    }
     if (totalQuestions > 0 && correctAnswers.size === totalQuestions) {
       if (!quizDone) {
         setQuizComplete(level, true)
@@ -69,7 +75,7 @@ export function QuizBlock({ level }: QuizBlockProps) {
         <div className={styles.content}>
           {questions.map((q, i) => (
             <QuizQuestion
-              key={i}
+              key={`${level}-${i}`}
               question={q}
               index={i}
               onResult={handleQuestionResult}

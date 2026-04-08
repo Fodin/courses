@@ -4,24 +4,24 @@
     "type": "single",
     "options": [
       {
-        "text": "-N 1",
-        "correct": false,
-        "explanation": "Такого флага не существует. Используйте -C (count)."
-      },
-      {
-        "text": "-C 1",
-        "correct": true,
-        "explanation": "-C (count) говорит mosquitto_sub выйти после получения указанного числа сообщений. -C 1 — выйти после первого."
-      },
-      {
         "text": "--once",
         "correct": false,
         "explanation": "Такого флага нет в mosquitto_sub. Правильный флаг — -C 1."
       },
       {
+        "text": "-N 1",
+        "correct": false,
+        "explanation": "Такого флага не существует. Используйте -C (count)."
+      },
+      {
         "text": "-q 1",
         "correct": false,
         "explanation": "-q задаёт QoS, не количество сообщений."
+      },
+      {
+        "text": "-C 1",
+        "correct": true,
+        "explanation": "-C (count) говорит mosquitto_sub выйти после получения указанного числа сообщений. -C 1 — выйти после первого."
       }
     ]
   },
@@ -35,14 +35,14 @@
         "explanation": "/etc/ доступен для записи на OpenWRT. Проблема в другом."
       },
       {
-        "text": "Flash-память изнашивается от частых записей, а /etc/ находится во flash (overlay)",
-        "correct": true,
-        "explanation": "OpenWRT использует overlayfs поверх flash. Частая запись в /etc/ ускоряет износ flash-чипа, у которого ограниченное число циклов записи. Для лога метрик используйте /tmp/ (RAM)."
-      },
-      {
         "text": "В /etc/ нет места для файлов",
         "correct": false,
         "explanation": "Место в /etc/ есть, но проблема в износе flash, а не в размере."
+      },
+      {
+        "text": "Flash-память изнашивается от частых записей, а /etc/ находится во flash (overlay)",
+        "correct": true,
+        "explanation": "OpenWRT использует overlayfs поверх flash. Частая запись в /etc/ ускоряет износ flash-чипа, у которого ограниченное число циклов записи. Для лога метрик используйте /tmp/ (RAM)."
       },
       {
         "text": "mosquitto_pub не может писать в /etc/",
@@ -56,14 +56,14 @@
     "type": "single",
     "options": [
       {
-        "text": "$SYS/broker/messages/received",
-        "correct": false,
-        "explanation": "Это счётчик полученных сообщений — не говорит о потерях."
-      },
-      {
         "text": "$SYS/broker/clients/disconnected",
         "correct": false,
         "explanation": "Это количество клиентов с persistent session, которые сейчас offline — не связано с потерей сообщений."
+      },
+      {
+        "text": "$SYS/broker/messages/received",
+        "correct": false,
+        "explanation": "Это счётчик полученных сообщений — не говорит о потерях."
       },
       {
         "text": "$SYS/broker/messages/publish/dropped",
@@ -82,24 +82,24 @@
     "type": "single",
     "options": [
       {
-        "text": "User nobody в секции <Plugin exec>",
-        "correct": false,
-        "explanation": "Такого параметра в exec-плагине нет. Пользователь указывается первым аргументом директивы Exec."
-      },
-      {
-        "text": "Exec \"nobody\" \"/path/to/script.sh\"",
-        "correct": true,
-        "explanation": "Первый аргумент директивы Exec — пользователь, от имени которого запускается скрипт. collectd не позволяет запускать exec-скрипты от root из соображений безопасности."
-      },
-      {
         "text": "RunAs nobody в глобальной секции",
         "correct": false,
         "explanation": "RunAs — не стандартная директива collectd. Пользователь указывается непосредственно в Exec."
       },
       {
+        "text": "User nobody в секции <Plugin exec>",
+        "correct": false,
+        "explanation": "Такого параметра в exec-плагине нет. Пользователь указывается первым аргументом директивы Exec."
+      },
+      {
         "text": "chmod 4755 на скрипт",
         "correct": false,
         "explanation": "setuid бит на скрипте — плохая практика безопасности и не влияет на то, от кого его запускает collectd."
+      },
+      {
+        "text": "Exec \"nobody\" \"/path/to/script.sh\"",
+        "correct": true,
+        "explanation": "Первый аргумент директивы Exec — пользователь, от имени которого запускается скрипт. collectd не позволяет запускать exec-скрипты от root из соображений безопасности."
       }
     ]
   }

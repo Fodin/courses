@@ -3,50 +3,130 @@
     "question": "How does HLS differ from DASH, and why do many platforms support both protocols?",
     "type": "multiple",
     "options": [
-      { "text": "HLS was developed by Apple and is required for iOS; DASH is an open MPEG standard, natively supported by Android and web browsers", "correct": true, "explanation": "HLS is Apple's proprietary standard, required by iOS devices. DASH is an open standard, supported via Media Source Extensions in browsers and natively on Android. To cover all devices, platforms support both" },
-      { "text": "HLS uses .m3u8 manifest and .ts segments, DASH uses .mpd manifest (XML) and .m4s segments (fragmented MP4)", "correct": true, "explanation": "This is the key technical difference: HLS historically uses MPEG-TS container (.ts), although newer versions support fMP4. DASH works with fragmented MP4 (.m4s) from the start. Manifests also differ: simple text .m3u8 vs XML-based .mpd" },
-      { "text": "DASH always has lower latency than HLS, which is why it's used for live streaming", "correct": false, "explanation": "This is not always true. Standard DASH (3-10 sec latency) and standard HLS (20-30 sec) do differ. But Low-Latency HLS (LL-HLS) achieves 2-5 sec, comparable to LL-DASH. Twitch, for example, uses LL-HLS for streams. The choice depends on implementation, not just the protocol" },
-      { "text": "HLS and DASH use the same segment format, only the manifest differs", "correct": false, "explanation": "Historically HLS uses .ts (MPEG-TS), and DASH uses .m4s (fragmented MP4). Although modern HLS (CMAF) supports fMP4 and shared segments are possible, this is not 'the same format' — it requires special configuration (CMAF)" }
+      {
+        "text": "HLS was developed by Apple and is required for iOS; DASH is an open MPEG standard, natively supported by Android and web browsers",
+        "correct": true,
+        "explanation": "HLS is Apple's proprietary standard, required by iOS devices. DASH is an open standard, supported via Media Source Extensions in browsers and natively on Android. To cover all devices, platforms support both"
+      },
+      {
+        "text": "HLS uses .m3u8 manifest and .ts segments, DASH uses .mpd manifest (XML) and .m4s segments (fragmented MP4)",
+        "correct": true,
+        "explanation": "This is the key technical difference: HLS historically uses MPEG-TS container (.ts), although newer versions support fMP4. DASH works with fragmented MP4 (.m4s) from the start. Manifests also differ: simple text .m3u8 vs XML-based .mpd"
+      },
+      {
+        "text": "HLS and DASH use the same segment format, only the manifest differs",
+        "correct": false,
+        "explanation": "Historically HLS uses .ts (MPEG-TS), and DASH uses .m4s (fragmented MP4). Although modern HLS (CMAF) supports fMP4 and shared segments are possible, this is not 'the same format' — it requires special configuration (CMAF)"
+      },
+      {
+        "text": "DASH always has lower latency than HLS, which is why it's used for live streaming",
+        "correct": false,
+        "explanation": "This is not always true. Standard DASH (3-10 sec latency) and standard HLS (20-30 sec) do differ. But Low-Latency HLS (LL-HLS) achieves 2-5 sec, comparable to LL-DASH. Twitch, for example, uses LL-HLS for streams. The choice depends on implementation, not just the protocol"
+      }
     ]
   },
   {
     "question": "Why does adaptive bitrate streaming split video into 2-6 second segments instead of streaming continuously?",
     "type": "single",
     "options": [
-      { "text": "Segmentation allows the player to switch quality at each segment boundary without artifacts, cache segments on CDN independently, and use standard HTTP instead of specialized protocols", "correct": true, "explanation": "Each segment is a standalone file with an HTTP URL. The player measures bandwidth during segment download and chooses quality for the next one. CDN caches each segment independently (hot segment_0 of a viral video = 1 request to origin, millions from cache). HTTP — a standard protocol that works through any proxy or firewall" },
-      { "text": "Continuous streaming is impossible over HTTP — HTTP always requires request-response for each data fragment", "correct": false, "explanation": "HTTP supports streaming (chunked transfer encoding, HTTP/2 server push). Continuous streaming is possible (RTMP uses it). Segmentation was chosen not because of HTTP limitations, but for the benefits: adaptive quality, CDN caching, seek support, fault tolerance" },
-      { "text": "Segments are needed exclusively for seek — so the user can jump to a specific moment", "correct": false, "explanation": "Seek is one advantage, but not the only or primary one. The main reasons are: adaptive bitrate (quality switching), CDN caching (each segment cached separately), fault tolerance (loss of one segment doesn't break the whole video). Byte range requests also allow seek without segmentation" },
-      { "text": "Segmentation reduces the total video file size through more efficient compression of each fragment separately", "correct": false, "explanation": "Actually the opposite: segmentation slightly increases size due to IDR-frame overhead (key frames) at the start of each segment and duplicated headers. Compression is more efficient on long continuous streams. Segmentation is chosen for adaptive streaming and CDN, not for compression" }
+      {
+        "text": "Segments are needed exclusively for seek — so the user can jump to a specific moment",
+        "correct": false,
+        "explanation": "Seek is one advantage, but not the only or primary one. The main reasons are: adaptive bitrate (quality switching), CDN caching (each segment cached separately), fault tolerance (loss of one segment doesn't break the whole video). Byte range requests also allow seek without segmentation"
+      },
+      {
+        "text": "Continuous streaming is impossible over HTTP — HTTP always requires request-response for each data fragment",
+        "correct": false,
+        "explanation": "HTTP supports streaming (chunked transfer encoding, HTTP/2 server push). Continuous streaming is possible (RTMP uses it). Segmentation was chosen not because of HTTP limitations, but for the benefits: adaptive quality, CDN caching, seek support, fault tolerance"
+      },
+      {
+        "text": "Segmentation allows the player to switch quality at each segment boundary without artifacts, cache segments on CDN independently, and use standard HTTP instead of specialized protocols",
+        "correct": true,
+        "explanation": "Each segment is a standalone file with an HTTP URL. The player measures bandwidth during segment download and chooses quality for the next one. CDN caches each segment independently (hot segment_0 of a viral video = 1 request to origin, millions from cache). HTTP — a standard protocol that works through any proxy or firewall"
+      },
+      {
+        "text": "Segmentation reduces the total video file size through more efficient compression of each fragment separately",
+        "correct": false,
+        "explanation": "Actually the opposite: segmentation slightly increases size due to IDR-frame overhead (key frames) at the start of each segment and duplicated headers. Compression is more efficient on long continuous streams. Segmentation is chosen for adaptive streaming and CDN, not for compression"
+      }
     ]
   },
   {
     "question": "You're designing a transcoding pipeline for a video platform. Upload — 500 videos/min, average video — 10 min. Which architecture is optimal?",
     "type": "single",
     "options": [
-      { "text": "Upload Service receives the file → synchronously calls Transcoder → waits for result → responds to client '200 OK, video ready'", "correct": false, "explanation": "Transcoding a 10 min video takes 5-30 minutes. Synchronous call = HTTP timeout (30-60 sec), blocked thread on upload service, unable to close the browser. At 500 videos/min, thousands of simultaneous HTTP connections would be needed in waiting" },
-      { "text": "Upload Service saves raw video to Object Store → sends job to Message Queue → Transcoder cluster processes asynchronously → Webhook/notification on ready", "correct": true, "explanation": "Async pipeline: upload responds instantly (202 Accepted), transcoding runs independently. Message Queue (Kafka/SQS) provides: decoupling, retry on errors, backpressure on overload, prioritization (premium users first). Transcoder cluster scales horizontally (GPU instances). Each video can be split into segments and transcoded in parallel (DAG pipeline)" },
-      { "text": "Upload Service saves raw video → Cron job every 5 minutes checks for new files → starts transcoding for found files", "correct": false, "explanation": "Cron polling is unreliable and slow. Up to 5 minutes delay before processing starts. No retry logic, no prioritization, no backpressure. During upload spikes (viral trend), the cron job may collect thousands of files and overload the transcoder. Message Queue solves all these problems" },
-      { "text": "Upload Service transcodes video directly in the user's browser (client-side transcoding) and uploads ready-made files", "correct": false, "explanation": "Client-side transcoding: slow CPU (no GPU), drains battery, huge upload (need to upload all resolutions instead of one file). A mobile phone cannot transcode 4K video into 6 resolutions. Transcoding is a server-side task with GPU acceleration" }
+      {
+        "text": "Upload Service saves raw video → Cron job every 5 minutes checks for new files → starts transcoding for found files",
+        "correct": false,
+        "explanation": "Cron polling is unreliable and slow. Up to 5 minutes delay before processing starts. No retry logic, no prioritization, no backpressure. During upload spikes (viral trend), the cron job may collect thousands of files and overload the transcoder. Message Queue solves all these problems"
+      },
+      {
+        "text": "Upload Service transcodes video directly in the user's browser (client-side transcoding) and uploads ready-made files",
+        "correct": false,
+        "explanation": "Client-side transcoding: slow CPU (no GPU), drains battery, huge upload (need to upload all resolutions instead of one file). A mobile phone cannot transcode 4K video into 6 resolutions. Transcoding is a server-side task with GPU acceleration"
+      },
+      {
+        "text": "Upload Service saves raw video to Object Store → sends job to Message Queue → Transcoder cluster processes asynchronously → Webhook/notification on ready",
+        "correct": true,
+        "explanation": "Async pipeline: upload responds instantly (202 Accepted), transcoding runs independently. Message Queue (Kafka/SQS) provides: decoupling, retry on errors, backpressure on overload, prioritization (premium users first). Transcoder cluster scales horizontally (GPU instances). Each video can be split into segments and transcoded in parallel (DAG pipeline)"
+      },
+      {
+        "text": "Upload Service receives the file → synchronously calls Transcoder → waits for result → responds to client '200 OK, video ready'",
+        "correct": false,
+        "explanation": "Transcoding a 10 min video takes 5-30 minutes. Synchronous call = HTTP timeout (30-60 sec), blocked thread on upload service, unable to close the browser. At 500 videos/min, thousands of simultaneous HTTP connections would be needed in waiting"
+      }
     ]
   },
   {
     "question": "How does CDN deliver video to millions of users with minimal latency?",
     "type": "single",
     "options": [
-      { "text": "CDN stores full copies of ALL videos on every edge server worldwide — this eliminates latency to origin entirely", "correct": false, "explanation": "Storing all videos (petabytes) on each of 200+ edge servers is physically impossible and economically absurd. CDN caches only hot content on edge. Long tail (99% of videos) — pull-based: cache miss → fetch from mid-tier/origin. Hit rate of 85-95% on edge means 5-15% of requests still go to origin/mid-tier" },
-      { "text": "Multi-tier architecture: Edge POP (200+, near the user, hot cache) → Mid-tier (20 regions, fuller cache) → Origin (stores everything). Popular content pre-pushed to edge, the rest — pull-on-demand", "correct": true, "explanation": "3-tier CDN: edge handles 85-95% of requests (< 5 ms), mid-tier catches another 5-10% (< 50 ms), origin — less than 1% (can be 200+ ms). Hot content (trending, new releases) is pushed to edge proactively. Long tail — pull and cache with LRU eviction. Google GGC goes further: servers at ISPs, traffic doesn't leave the provider network" },
-      { "text": "CDN simply redirects DNS queries to the nearest server — video is always served directly from origin, but via the optimal route", "correct": false, "explanation": "DNS-based routing is part of CDN (Anycast/GeoDNS), but CDN actually caches content, not just routes. Without caching, origin couldn't handle the load: 200 Tbps peak bandwidth cannot be served from a single data center. Caching segments on edge is the key CDN function" },
-      { "text": "CDN uses P2P (peer-to-peer): each viewer distributes video to other viewers, like BitTorrent, which relieves server load", "correct": false, "explanation": "P2P delivery exists (WebRTC-based, used by some platforms to reduce costs), but it's not the primary CDN mechanism. P2P problems: unreliability (peers leave), latency, NAT traversal, inability to guarantee quality. Major video platforms (YouTube, Netflix) use server-based CDN, not P2P" }
+      {
+        "text": "Multi-tier architecture: Edge POP (200+, near the user, hot cache) → Mid-tier (20 regions, fuller cache) → Origin (stores everything). Popular content pre-pushed to edge, the rest — pull-on-demand",
+        "correct": true,
+        "explanation": "3-tier CDN: edge handles 85-95% of requests (< 5 ms), mid-tier catches another 5-10% (< 50 ms), origin — less than 1% (can be 200+ ms). Hot content (trending, new releases) is pushed to edge proactively. Long tail — pull and cache with LRU eviction. Google GGC goes further: servers at ISPs, traffic doesn't leave the provider network"
+      },
+      {
+        "text": "CDN uses P2P (peer-to-peer): each viewer distributes video to other viewers, like BitTorrent, which relieves server load",
+        "correct": false,
+        "explanation": "P2P delivery exists (WebRTC-based, used by some platforms to reduce costs), but it's not the primary CDN mechanism. P2P problems: unreliability (peers leave), latency, NAT traversal, inability to guarantee quality. Major video platforms (YouTube, Netflix) use server-based CDN, not P2P"
+      },
+      {
+        "text": "CDN simply redirects DNS queries to the nearest server — video is always served directly from origin, but via the optimal route",
+        "correct": false,
+        "explanation": "DNS-based routing is part of CDN (Anycast/GeoDNS), but CDN actually caches content, not just routes. Without caching, origin couldn't handle the load: 200 Tbps peak bandwidth cannot be served from a single data center. Caching segments on edge is the key CDN function"
+      },
+      {
+        "text": "CDN stores full copies of ALL videos on every edge server worldwide — this eliminates latency to origin entirely",
+        "correct": false,
+        "explanation": "Storing all videos (petabytes) on each of 200+ edge servers is physically impossible and economically absurd. CDN caches only hot content on edge. Long tail (99% of videos) — pull-based: cache miss → fetch from mid-tier/origin. Hit rate of 85-95% on edge means 5-15% of requests still go to origin/mid-tier"
+      }
     ]
   },
   {
     "question": "You have 280K view events/sec. How to count views without overloading the database?",
     "type": "single",
     "options": [
-      { "text": "Each view event → UPDATE in PostgreSQL (view_count = view_count + 1). PostgreSQL with proper indexes can handle 280K writes/sec", "correct": false, "explanation": "280K updates/sec on one row (popular video) — this is lock contention. Even distributed across different videos, the load is enormous. PostgreSQL with a single master handles ~50K simple writes/sec. For a single row (hot row) — even less due to row-level locking. Aggregation is needed" },
-      { "text": "View events → Kafka → Stream processor (Flink) aggregates over 1-5 min window → batch UPDATE to Cassandra. De-duplication via HyperLogLog / Bloom filter", "correct": true, "explanation": "Kafka buffers the stream (280K/sec), Flink aggregates: 1 min for video:abc = 15,000 views → one batch UPDATE instead of 15,000. Cassandra handles high write throughput. HyperLogLog (12 KB per video) gives approximate unique count with 0.81% accuracy. Total: 280K events/sec → ~5K batch writes/sec (50x reduction)" },
-      { "text": "Store counter in Redis (INCR), and a background worker flushes to SQL every hour. Redis can handle 280K INCR/sec", "correct": false, "explanation": "Redis handles ~100K ops/sec per node, but for one hot key (viral video) it's still a single-threaded bottleneck. No de-duplication (F5 = +100 views). On Redis crash before flush — up to 1 hour of data lost. Kafka + Flink is more reliable: Kafka is durable, Flink has checkpoints, Cassandra is replicated. Redis works as an additional layer for real-time approximate count, but not as the primary pipeline" },
-      { "text": "Count views on the client side (JavaScript) and send a batch every 10 minutes", "correct": false, "explanation": "Client-side batching: unreliable (user closes tab — batch lost), easy to spoof (bot views), no de-duplication across devices. View events should be sent immediately (fire-and-forget) to the server side, while aggregation and de-dup happen server-side via stream processing" }
+      {
+        "text": "Count views on the client side (JavaScript) and send a batch every 10 minutes",
+        "correct": false,
+        "explanation": "Client-side batching: unreliable (user closes tab — batch lost), easy to spoof (bot views), no de-duplication across devices. View events should be sent immediately (fire-and-forget) to the server side, while aggregation and de-dup happen server-side via stream processing"
+      },
+      {
+        "text": "Store counter in Redis (INCR), and a background worker flushes to SQL every hour. Redis can handle 280K INCR/sec",
+        "correct": false,
+        "explanation": "Redis handles ~100K ops/sec per node, but for one hot key (viral video) it's still a single-threaded bottleneck. No de-duplication (F5 = +100 views). On Redis crash before flush — up to 1 hour of data lost. Kafka + Flink is more reliable: Kafka is durable, Flink has checkpoints, Cassandra is replicated. Redis works as an additional layer for real-time approximate count, but not as the primary pipeline"
+      },
+      {
+        "text": "Each view event → UPDATE in PostgreSQL (view_count = view_count + 1). PostgreSQL with proper indexes can handle 280K writes/sec",
+        "correct": false,
+        "explanation": "280K updates/sec on one row (popular video) — this is lock contention. Even distributed across different videos, the load is enormous. PostgreSQL with a single master handles ~50K simple writes/sec. For a single row (hot row) — even less due to row-level locking. Aggregation is needed"
+      },
+      {
+        "text": "View events → Kafka → Stream processor (Flink) aggregates over 1-5 min window → batch UPDATE to Cassandra. De-duplication via HyperLogLog / Bloom filter",
+        "correct": true,
+        "explanation": "Kafka buffers the stream (280K/sec), Flink aggregates: 1 min for video:abc = 15,000 views → one batch UPDATE instead of 15,000. Cassandra handles high write throughput. HyperLogLog (12 KB per video) gives approximate unique count with 0.81% accuracy. Total: 280K events/sec → ~5K batch writes/sec (50x reduction)"
+      }
     ]
   }
 ]

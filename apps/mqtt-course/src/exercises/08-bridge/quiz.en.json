@@ -3,40 +3,104 @@
     "question": "How does Mosquitto implement Bridge at the MQTT protocol level?",
     "type": "single",
     "options": [
-      { "text": "The local broker acts as an MQTT client to the remote broker", "correct": true, "explanation": "Bridge is a built-in MQTT client in Mosquitto. The local broker connects to the remote broker as a regular client with a client_id like 'mosquitto.bridge.<name>.<host>'." },
-      { "text": "Two brokers establish a special inter-broker TCP connection", "correct": false, "explanation": "There is no special protocol. Standard MQTT protocol is used: one broker acts as a client of the other." },
-      { "text": "Brokers exchange data through a shared database", "correct": false, "explanation": "Brokers do not share storage. Communication happens through regular MQTT PUBLISH/SUBSCRIBE messages." },
-      { "text": "Bridge uses a special port 8444 for inter-broker communication", "correct": false, "explanation": "There is no special port. Bridge uses standard MQTT ports (1883, 8883) depending on configuration." }
+      {
+        "text": "The local broker acts as an MQTT client to the remote broker",
+        "correct": true,
+        "explanation": "Bridge is a built-in MQTT client in Mosquitto. The local broker connects to the remote broker as a regular client with a client_id like 'mosquitto.bridge.<name>.<host>'."
+      },
+      {
+        "text": "Brokers exchange data through a shared database",
+        "correct": false,
+        "explanation": "Brokers do not share storage. Communication happens through regular MQTT PUBLISH/SUBSCRIBE messages."
+      },
+      {
+        "text": "Bridge uses a special port 8444 for inter-broker communication",
+        "correct": false,
+        "explanation": "There is no special port. Bridge uses standard MQTT ports (1883, 8883) depending on configuration."
+      },
+      {
+        "text": "Two brokers establish a special inter-broker TCP connection",
+        "correct": false,
+        "explanation": "There is no special protocol. Standard MQTT protocol is used: one broker acts as a client of the other."
+      }
     ]
   },
   {
     "question": "What does the 'out' direction in a Bridge topic configuration line mean?",
     "type": "single",
     "options": [
-      { "text": "Messages published on the local broker are forwarded to the remote broker", "correct": true, "explanation": "'out' is the outgoing direction: local publications are sent to the remote broker. Clients connected to the remote broker can receive them." },
-      { "text": "Messages from the remote broker are received locally", "correct": false, "explanation": "That is the 'in' direction: incoming messages from the remote broker appear locally. 'out' is the opposite." },
-      { "text": "Messages are deleted after forwarding (one-way delete)", "correct": false, "explanation": "Bridge directions (in/out/both) refer to data flow, not message operations. The forwarded message remains on the source." },
-      { "text": "Messages are encrypted before sending", "correct": false, "explanation": "Encryption is configured via bridge_cafile/bridge_certfile/bridge_keyfile, not through topic direction." }
+      {
+        "text": "Messages are deleted after forwarding (one-way delete)",
+        "correct": false,
+        "explanation": "Bridge directions (in/out/both) refer to data flow, not message operations. The forwarded message remains on the source."
+      },
+      {
+        "text": "Messages published on the local broker are forwarded to the remote broker",
+        "correct": true,
+        "explanation": "'out' is the outgoing direction: local publications are sent to the remote broker. Clients connected to the remote broker can receive them."
+      },
+      {
+        "text": "Messages from the remote broker are received locally",
+        "correct": false,
+        "explanation": "That is the 'in' direction: incoming messages from the remote broker appear locally. 'out' is the opposite."
+      },
+      {
+        "text": "Messages are encrypted before sending",
+        "correct": false,
+        "explanation": "Encryption is configured via bridge_cafile/bridge_certfile/bridge_keyfile, not through topic direction."
+      }
     ]
   },
   {
     "question": "A developer configured a Bridge: 'topic sensors/# out 0 \"\" home/'. What happens to a message published to sensors/temp?",
     "type": "single",
     "options": [
-      { "text": "A message appears on the remote broker in topic home/sensors/temp", "correct": true, "explanation": "Mapping format: 'topic <pattern> <direction> <QoS> [local_prefix] [remote_prefix]'. Empty local prefix ('') + remote prefix 'home/' = sensors/temp → home/sensors/temp." },
-      { "text": "A message appears on the remote broker in topic sensors/temp", "correct": false, "explanation": "That would be the case without mapping. But since the remote prefix 'home/' is specified, the topic transforms to home/sensors/temp." },
-      { "text": "A message appears on the remote broker in topic home/temp (sensors/ is removed)", "correct": false, "explanation": "The prefix is added, not replacing part of the topic. sensors/temp with prefix home/ gives home/sensors/temp." },
-      { "text": "The message will not be forwarded — pattern sensors/# does not match sensors/temp", "correct": false, "explanation": "The pattern sensors/# does match sensors/temp — the # wildcard matches any topic level, including temp." }
+      {
+        "text": "A message appears on the remote broker in topic home/sensors/temp",
+        "correct": true,
+        "explanation": "Mapping format: 'topic <pattern> <direction> <QoS> [local_prefix] [remote_prefix]'. Empty local prefix ('') + remote prefix 'home/' = sensors/temp → home/sensors/temp."
+      },
+      {
+        "text": "A message appears on the remote broker in topic sensors/temp",
+        "correct": false,
+        "explanation": "That would be the case without mapping. But since the remote prefix 'home/' is specified, the topic transforms to home/sensors/temp."
+      },
+      {
+        "text": "A message appears on the remote broker in topic home/temp (sensors/ is removed)",
+        "correct": false,
+        "explanation": "The prefix is added, not replacing part of the topic. sensors/temp with prefix home/ gives home/sensors/temp."
+      },
+      {
+        "text": "The message will not be forwarded — pattern sensors/# does not match sensors/temp",
+        "correct": false,
+        "explanation": "The pattern sensors/# does match sensors/temp — the # wildcard matches any topic level, including temp."
+      }
     ]
   },
   {
     "question": "Which measures help prevent message loops when using direction 'both'?",
     "type": "multiple",
     "options": [
-      { "text": "Use cleansession true for the bridge connection", "correct": true, "explanation": "cleansession true prevents accumulation of stale subscriptions, reducing the risk of loops." },
-      { "text": "Use directional rules (out/in) instead of both when possible", "correct": true, "explanation": "If data flows strictly in one direction (e.g., sensors → cloud), use 'out'. This completely eliminates loops in that direction." },
-      { "text": "Set autosave_interval 0 for persistence", "correct": false, "explanation": "Persistence settings do not affect message loops in Bridge. These are different Mosquitto functions." },
-      { "text": "Configure separate topics for sending and receiving instead of a single both rule", "correct": true, "explanation": "Instead of 'topic status both 1', you can use 'topic local/status out 1' + 'topic remote/status in 1' with different prefixes, eliminating loops." }
+      {
+        "text": "Use cleansession true for the bridge connection",
+        "correct": true,
+        "explanation": "cleansession true prevents accumulation of stale subscriptions, reducing the risk of loops."
+      },
+      {
+        "text": "Use directional rules (out/in) instead of both when possible",
+        "correct": true,
+        "explanation": "If data flows strictly in one direction (e.g., sensors → cloud), use 'out'. This completely eliminates loops in that direction."
+      },
+      {
+        "text": "Set autosave_interval 0 for persistence",
+        "correct": false,
+        "explanation": "Persistence settings do not affect message loops in Bridge. These are different Mosquitto functions."
+      },
+      {
+        "text": "Configure separate topics for sending and receiving instead of a single both rule",
+        "correct": false,
+        "explanation": "Instead of 'topic status both 1', you can use 'topic local/status out 1' + 'topic remote/status in 1' with different prefixes, eliminating loops."
+      }
     ]
   }
 ]

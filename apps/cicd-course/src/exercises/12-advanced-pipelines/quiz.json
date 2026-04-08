@@ -9,9 +9,9 @@
         "explanation": "Передача переменных осуществляется через ключ variables: внутри trigger-джоба, а не через strategy."
       },
       {
-        "text": "Заставляет parent pipeline ждать завершения дочернего пайплайна перед продолжением",
-        "correct": true,
-        "explanation": "Именно так: без strategy: depend parent считает trigger-джоб выполненным сразу после запуска child, не дожидаясь его результата. С depend — ждёт."
+        "text": "Ограничивает количество параллельно запущенных child pipelines",
+        "correct": false,
+        "explanation": "Параллельность child pipelines не контролируется параметром strategy. Он управляет только поведением ожидания."
       },
       {
         "text": "Разрешает child pipeline использовать переменные из parent",
@@ -19,9 +19,9 @@
         "explanation": "Child pipeline получает переменные автоматически через variables:, независимо от strategy."
       },
       {
-        "text": "Ограничивает количество параллельно запущенных child pipelines",
-        "correct": false,
-        "explanation": "Параллельность child pipelines не контролируется параметром strategy. Он управляет только поведением ожидания."
+        "text": "Заставляет parent pipeline ждать завершения дочернего пайплайна перед продолжением",
+        "correct": true,
+        "explanation": "Именно так: без strategy: depend parent считает trigger-джоб выполненным сразу после запуска child, не дожидаясь его результата. С depend — ждёт."
       }
     ]
   },
@@ -29,16 +29,6 @@
     "question": "Чем отличается parent-child pipeline от multi-project pipeline?",
     "type": "single",
     "options": [
-      {
-        "text": "Parent-child работает только с monorepo, multi-project — только с одним файлом",
-        "correct": false,
-        "explanation": "Parent-child как раз разбивает один конфиг на несколько файлов в одном репо. Multi-project — совсем другой механизм."
-      },
-      {
-        "text": "Parent-child запускает пайплайны из файлов того же репозитория, multi-project — из других репозиториев GitLab",
-        "correct": true,
-        "explanation": "Ключевое отличие: parent-child использует trigger: include: с путём к файлу в том же репо. Multi-project использует trigger: project: с namespace другого проекта."
-      },
       {
         "text": "Multi-project быстрее, потому что не ждёт parent",
         "correct": false,
@@ -48,6 +38,16 @@
         "text": "Parent-child не поддерживает передачу переменных, multi-project — поддерживает",
         "correct": false,
         "explanation": "Оба типа поддерживают передачу переменных через variables: в trigger-джобе."
+      },
+      {
+        "text": "Parent-child работает только с monorepo, multi-project — только с одним файлом",
+        "correct": false,
+        "explanation": "Parent-child как раз разбивает один конфиг на несколько файлов в одном репо. Multi-project — совсем другой механизм."
+      },
+      {
+        "text": "Parent-child запускает пайплайны из файлов того же репозитория, multi-project — из других репозиториев GitLab",
+        "correct": true,
+        "explanation": "Ключевое отличие: parent-child использует trigger: include: с путём к файлу в том же репо. Multi-project использует trigger: project: с namespace другого проекта."
       }
     ]
   },
@@ -55,16 +55,6 @@
     "question": "У тебя монорепо с директориями frontend/, backend/, mobile/. Нужно запускать CI только для изменённых компонентов. Какая комбинация правильная?",
     "type": "single",
     "options": [
-      {
-        "text": "trigger: include + rules: changes",
-        "correct": true,
-        "explanation": "Связка trigger:include (для запуска child pipeline) и rules:changes (для условного запуска при изменениях в директории) — стандартный паттерн для умного CI в монорепо."
-      },
-      {
-        "text": "needs + artifacts",
-        "correct": false,
-        "explanation": "needs управляет порядком выполнения джобов (DAG), но не условным запуском на основе изменённых файлов."
-      },
       {
         "text": "include: artifact + generate",
         "correct": false,
@@ -74,6 +64,16 @@
         "text": "trigger: project + only: changes",
         "correct": false,
         "explanation": "trigger:project используется для кросс-репо trigger. only: — устаревший синтаксис, замените на rules:. Но главное: для монорепо нужен trigger:include, не trigger:project."
+      },
+      {
+        "text": "trigger: include + rules: changes",
+        "correct": true,
+        "explanation": "Связка trigger:include (для запуска child pipeline) и rules:changes (для условного запуска при изменениях в директории) — стандартный паттерн для умного CI в монорепо."
+      },
+      {
+        "text": "needs + artifacts",
+        "correct": false,
+        "explanation": "needs управляет порядком выполнения джобов (DAG), но не условным запуском на основе изменённых файлов."
       }
     ]
   },
@@ -87,14 +87,14 @@
         "explanation": "GitLab CI не поддерживает передачу YAML-конфига через переменные. Используется механизм artifacts."
       },
       {
-        "text": "Через artifacts:paths в generate-джобе и include:artifact в trigger-джобе",
-        "correct": true,
-        "explanation": "Именно так: generate-джоб сохраняет YAML как артефакт, trigger-джоб ссылается на него через include: - artifact: generated.yml, job: generate-pipeline."
-      },
-      {
         "text": "Через cache с фиксированным ключом",
         "correct": false,
         "explanation": "Cache не гарантирует наличие файла и не является правильным механизмом для передачи сгенерированного конфига. Artifacts — правильный выбор."
+      },
+      {
+        "text": "Через artifacts:paths в generate-джобе и include:artifact в trigger-джобе",
+        "correct": true,
+        "explanation": "Именно так: generate-джоб сохраняет YAML как артефакт, trigger-джоб ссылается на него через include: - artifact: generated.yml, job: generate-pipeline."
       },
       {
         "text": "Через GitLab API — сохранить в registry и прочитать в следующем джобе",
@@ -134,11 +134,6 @@
     "type": "single",
     "options": [
       {
-        "text": "GitLab запрещает extends в child pipelines из соображений безопасности",
-        "correct": false,
-        "explanation": "Дело не в безопасности, а в архитектуре. Child pipeline — отдельная сущность."
-      },
-      {
         "text": "Child pipeline — отдельный изолированный пайплайн, он не имеет доступа к конфигу parent и его шаблонам",
         "correct": true,
         "explanation": "Dynamic child pipeline создаётся из сгенерированного YAML и является полностью независимым. Шаблоны parent (.base-job и т.д.) для него недоступны — он их просто не видит."
@@ -147,6 +142,11 @@
         "text": "extends работает только с include:, но не с artifact:",
         "correct": false,
         "explanation": "Ограничение не в типе include, а в изоляции child pipeline от parent. Шаблоны parent недоступны в любом child pipeline."
+      },
+      {
+        "text": "GitLab запрещает extends в child pipelines из соображений безопасности",
+        "correct": false,
+        "explanation": "Дело не в безопасности, а в архитектуре. Child pipeline — отдельная сущность."
       },
       {
         "text": "Dynamic child может использовать extends, но только через include: remote:",
@@ -160,14 +160,14 @@
     "type": "single",
     "options": [
       {
-        "text": "dependencies контролирует загрузку артефактов от джобов предыдущих stages; needs устанавливает зависимость выполнения и может загружать артефакты от любых джобов",
-        "correct": true,
-        "explanation": "dependencies — только контроль загрузки артефактов, джоб должен быть в предыдущей stage. needs — устанавливает зависимость и может ссылаться на джобы из любой stage, а artifacts:true в needs заменяет dependencies."
-      },
-      {
         "text": "dependencies быстрее, потому что не блокирует выполнение",
         "correct": false,
         "explanation": "dependencies не управляет порядком запуска, только загрузкой артефактов. needs управляет обоими аспектами."
+      },
+      {
+        "text": "dependencies контролирует загрузку артефактов от джобов предыдущих stages; needs устанавливает зависимость выполнения и может загружать артефакты от любых джобов",
+        "correct": true,
+        "explanation": "dependencies — только контроль загрузки артефактов, джоб должен быть в предыдущей stage. needs — устанавливает зависимость и может ссылаться на джобы из любой stage, а artifacts:true в needs заменяет dependencies."
       },
       {
         "text": "needs работает только внутри одной stage, dependencies — между stages",
@@ -186,6 +186,16 @@
     "type": "single",
     "options": [
       {
+        "text": "trigger: project: $CI_PROJECT_NAMESPACE/myproject",
+        "correct": false,
+        "explanation": "Технически переменные поддерживаются, но $CI_PROJECT_NAMESPACE содержит только текущую группу, что может не совпадать с нужным проектом. Рекомендуется явно указывать полный путь."
+      },
+      {
+        "text": "trigger: project: git@gitlab.com:mygroup/myproject.git",
+        "correct": false,
+        "explanation": "SSH-ссылки не поддерживаются в trigger:project. Только namespace-путь."
+      },
+      {
         "text": "trigger: project: https://gitlab.com/mygroup/myproject",
         "correct": false,
         "explanation": "project: принимает путь (namespace), а не URL. URL вызовет ошибку."
@@ -194,16 +204,6 @@
         "text": "trigger: project: mygroup/myproject",
         "correct": true,
         "explanation": "Правильный формат — полный namespace: group/project или group/subgroup/project. Без схемы, без домена."
-      },
-      {
-        "text": "trigger: project: git@gitlab.com:mygroup/myproject.git",
-        "correct": false,
-        "explanation": "SSH-ссылки не поддерживаются в trigger:project. Только namespace-путь."
-      },
-      {
-        "text": "trigger: project: $CI_PROJECT_NAMESPACE/myproject",
-        "correct": false,
-        "explanation": "Технически переменные поддерживаются, но $CI_PROJECT_NAMESPACE содержит только текущую группу, что может не совпадать с нужным проектом. Рекомендуется явно указывать полный путь."
       }
     ]
   },
@@ -212,14 +212,14 @@
     "type": "single",
     "options": [
       {
-        "text": "Все test-джобы начнутся одновременно с build-джобами",
-        "correct": false,
-        "explanation": "Без needs stage-барьер обязателен: stage test не начнётся, пока не завершатся все джобы stage build."
-      },
-      {
         "text": "Все 5 test-джобов будут ждать завершения всех 5 build-джобов, даже если их конкретный build уже готов",
         "correct": true,
         "explanation": "Stage — барьер синхронизации. Самый медленный build-джоб блокирует все test-джобы. С needs каждый test-джоб стартует сразу после своего build-джоба."
+      },
+      {
+        "text": "Все test-джобы начнутся одновременно с build-джобами",
+        "correct": false,
+        "explanation": "Без needs stage-барьер обязателен: stage test не начнётся, пока не завершатся все джобы stage build."
       },
       {
         "text": "GitLab автоматически определит зависимости по именам джобов",
@@ -248,14 +248,14 @@
         "explanation": "Типичная причина: скрипт отрабатывает успешно, но генерирует некорректный YAML. GitLab валидирует конфиг при запуске trigger-джоба и падает при ошибке парсинга."
       },
       {
-        "text": "Артефакт с YAML не был сохранён из-за неправильного expire_in",
-        "correct": false,
-        "explanation": "expire_in контролирует срок хранения, а не создание артефакта. Если скрипт отработал и artifacts:paths указан верно, файл будет сохранён."
-      },
-      {
         "text": "trigger-джоб должен быть в той же stage, что и generate-джоб",
         "correct": false,
         "explanation": "trigger-джоб должен быть в stage ПОСЛЕ generate-джоба, чтобы артефакт был уже создан. Одна stage не подойдёт."
+      },
+      {
+        "text": "Артефакт с YAML не был сохранён из-за неправильного expire_in",
+        "correct": false,
+        "explanation": "expire_in контролирует срок хранения, а не создание артефакта. Если скрипт отработал и artifacts:paths указан верно, файл будет сохранён."
       }
     ]
   },
@@ -264,9 +264,9 @@
     "type": "single",
     "options": [
       {
-        "text": "Parent pipeline немедленно тоже упадёт",
+        "text": "Child pipeline автоматически перезапустится",
         "correct": false,
-        "explanation": "Без strategy:depend parent не отслеживает статус child. Он не узнает о падении."
+        "explanation": "Автоматический retry child pipeline при падении не является поведением по умолчанию. Нужно явно настраивать retry: в джобах."
       },
       {
         "text": "Parent pipeline продолжит выполнение и завершится успешно, даже если child упал",
@@ -274,9 +274,9 @@
         "explanation": "Без strategy:depend trigger-джоб считается выполненным сразу после запуска child. Статус child не влияет на parent — это ловушка при деплое."
       },
       {
-        "text": "Child pipeline автоматически перезапустится",
+        "text": "Parent pipeline немедленно тоже упадёт",
         "correct": false,
-        "explanation": "Автоматический retry child pipeline при падении не является поведением по умолчанию. Нужно явно настраивать retry: в джобах."
+        "explanation": "Без strategy:depend parent не отслеживает статус child. Он не узнает о падении."
       },
       {
         "text": "Parent pipeline встанет на паузу и будет ждать ручного вмешательства",
@@ -290,9 +290,9 @@
     "type": "single",
     "options": [
       {
-        "text": "Когда нужно запустить пайплайн в другом репозитории",
+        "text": "Когда нужно ускорить пайплайн убрав барьеры между stages",
         "correct": false,
-        "explanation": "Для другого репозитория используется multi-project pipeline (trigger:project:). Dynamic child — для динамически генерируемого конфига в том же репо."
+        "explanation": "Для ускорения за счёт устранения stage-барьеров используется DAG (needs). Dynamic child — это про динамическую генерацию конфига."
       },
       {
         "text": "Когда количество или состав компонентов/джобов неизвестно заранее и определяется в процессе выполнения",
@@ -300,9 +300,9 @@
         "explanation": "Именно: если нужно протестировать N сервисов, где N неизвестно статически (зависит от файловой структуры, конфига, API), dynamic child pipeline генерирует нужный YAML на лету."
       },
       {
-        "text": "Когда нужно ускорить пайплайн убрав барьеры между stages",
+        "text": "Когда нужно запустить пайплайн в другом репозитории",
         "correct": false,
-        "explanation": "Для ускорения за счёт устранения stage-барьеров используется DAG (needs). Dynamic child — это про динамическую генерацию конфига."
+        "explanation": "Для другого репозитория используется multi-project pipeline (trigger:project:). Dynamic child — для динамически генерируемого конфига в том же репо."
       },
       {
         "text": "Когда child pipeline должен иметь доступ к переменным parent",
@@ -347,11 +347,6 @@
         "explanation": "include:local ссылается на файл в том же репозитории. Для кросс-репо интеграции нужен multi-project pipeline."
       },
       {
-        "text": "Multi-project pipeline: trigger:project: e2e-tests/repo с rules:if '$CI_COMMIT_TAG'",
-        "correct": true,
-        "explanation": "Точно: trigger:project указывает целевой репозиторий, rules:if '$CI_COMMIT_TAG' ограничивает запуск только при тегах. Можно передать тег через variables: для использования в e2e-tests."
-      },
-      {
         "text": "Dynamic child pipeline с генерацией YAML на основе git-тегов",
         "correct": false,
         "explanation": "Dynamic child pipeline не может запустить пайплайн в другом репозитории. Для кросс-репо нужен trigger:project."
@@ -360,6 +355,11 @@
         "text": "needs: с ссылкой на проект e2e-tests",
         "correct": false,
         "explanation": "needs:project позволяет загрузить артефакты из другого репо, но не запускает там пайплайн. Для запуска нужен trigger:project."
+      },
+      {
+        "text": "Multi-project pipeline: trigger:project: e2e-tests/repo с rules:if '$CI_COMMIT_TAG'",
+        "correct": true,
+        "explanation": "Точно: trigger:project указывает целевой репозиторий, rules:if '$CI_COMMIT_TAG' ограничивает запуск только при тегах. Можно передать тег через variables: для использования в e2e-tests."
       }
     ]
   },
@@ -368,14 +368,14 @@
     "type": "single",
     "options": [
       {
+        "text": "Добавить needs только в deploy, остальные оставить как есть",
+        "correct": false,
+        "explanation": "Это частичная оптимизация: deploy стартует быстрее, но unit-tests и integration-tests всё равно будут ждать завершения всего stage build перед стартом."
+      },
+      {
         "text": "Поставить все джобы в одну stage и добавить needs между ними",
         "correct": false,
         "explanation": "Технически это работает, но нарушает логическую организацию пайплайна. Правильнее оставить stages для семантики, а needs добавить для устранения излишних барьеров."
-      },
-      {
-        "text": "Добавить needs в unit-tests и integration-tests на build, и в deploy — на оба теста. Тогда unit-tests и integration-tests стартуют сразу после build параллельно",
-        "correct": true,
-        "explanation": "Это оптимальный подход: unit-tests и integration-tests нужен только build (не друг друга), значит они пойдут параллельно. deploy нужны оба теста. Общее время: 15 + max(5,10) + 2 = 27 мин вместо 32."
       },
       {
         "text": "Убрать stages совсем и использовать только needs",
@@ -383,9 +383,9 @@
         "explanation": "Убирать stages необязательно. stages дают семантику и отображение в GitLab UI. needs дополняет stages, а не заменяет."
       },
       {
-        "text": "Добавить needs только в deploy, остальные оставить как есть",
-        "correct": false,
-        "explanation": "Это частичная оптимизация: deploy стартует быстрее, но unit-tests и integration-tests всё равно будут ждать завершения всего stage build перед стартом."
+        "text": "Добавить needs в unit-tests и integration-tests на build, и в deploy — на оба теста. Тогда unit-tests и integration-tests стартуют сразу после build параллельно",
+        "correct": true,
+        "explanation": "Это оптимальный подход: unit-tests и integration-tests нужен только build (не друг друга), значит они пойдут параллельно. deploy нужны оба теста. Общее время: 15 + max(5,10) + 2 = 27 мин вместо 32."
       }
     ]
   }

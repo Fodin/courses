@@ -3,40 +3,104 @@
     "question": "With a limit of 100 req/min using the Fixed Window algorithm — what is the maximum actual load a client can generate in 2 seconds at the boundary of two windows?",
     "type": "single",
     "options": [
-      { "text": "100 requests — the limit works correctly", "correct": false, "explanation": "Fixed Window counts requests within each window separately. At the boundary of two windows (last second + first second), the client can use the limit of both windows" },
-      { "text": "200 requests — 100 at the end of the old window + 100 at the start of the new", "correct": true, "explanation": "This is boundary burst — the main drawback of Fixed Window. A client sends 100 requests at 00:59 (still within window 1) and 100 requests at 01:00 (already a new window 2). Total: 200 requests in ~2 seconds with a 100/min limit. Sliding Window Counter solves this with weighted counting" },
-      { "text": "150 requests — average between two windows", "correct": false, "explanation": "Fixed Window doesn't average. Each window has its own independent counter. The client gets the full limit in each window, so 2x is possible at the boundary" },
-      { "text": "50 requests — the limit is split between windows", "correct": false, "explanation": "Windows don't share the limit. Each window is an independent counter with the full limit. That's why a burst of up to 200 requests is possible at the boundary" }
+      {
+        "text": "100 requests — the limit works correctly",
+        "correct": false,
+        "explanation": "Fixed Window counts requests within each window separately. At the boundary of two windows (last second + first second), the client can use the limit of both windows"
+      },
+      {
+        "text": "200 requests — 100 at the end of the old window + 100 at the start of the new",
+        "correct": true,
+        "explanation": "This is boundary burst — the main drawback of Fixed Window. A client sends 100 requests at 00:59 (still within window 1) and 100 requests at 01:00 (already a new window 2). Total: 200 requests in ~2 seconds with a 100/min limit. Sliding Window Counter solves this with weighted counting"
+      },
+      {
+        "text": "150 requests — average between two windows",
+        "correct": false,
+        "explanation": "Fixed Window doesn't average. Each window has its own independent counter. The client gets the full limit in each window, so 2x is possible at the boundary"
+      },
+      {
+        "text": "50 requests — the limit is split between windows",
+        "correct": false,
+        "explanation": "Windows don't share the limit. Each window is an independent counter with the full limit. That's why a burst of up to 200 requests is possible at the boundary"
+      }
     ]
   },
   {
     "question": "Two API servers simultaneously execute GET counter → 99 (< 100) → INCR counter. What will happen and how to fix it?",
     "type": "single",
     "options": [
-      { "text": "Both requests will pass, counter becomes 101 — limit violated. Fix: use a Redis Lua script for atomic check-and-increment", "correct": true, "explanation": "This is a classic race condition in distributed systems. GET + check + INCR are three separate operations. Between GET and INCR, another server can execute its own GET and also see 99. A Lua script in Redis executes atomically — no other command can execute between the script's lines" },
-      { "text": "Redis automatically blocks the second request through optimistic locking", "correct": false, "explanation": "Redis doesn't apply automatic locking on GET + INCR. WATCH/MULTI/EXEC provides optimistic locking, but a Lua script is simpler and more reliable: it executes atomically without the need for retries" },
-      { "text": "Both requests will get 429 — Redis detects the conflict", "correct": false, "explanation": "Redis doesn't track conflicts on separate GET and INCR commands. Each command executes independently. Both GETs return 99, both INCRs execute successfully, counter becomes 101" },
-      { "text": "No problem — Redis is single-threaded and processes commands sequentially", "correct": false, "explanation": "Redis is indeed single-threaded, but GET and INCR are separate commands. Between the GET from server A and its INCR, Redis can process the GET from server B. Atomicity is needed at the level of the entire operation (check + increment), not individual commands" }
+      {
+        "text": "Both requests will get 429 — Redis detects the conflict",
+        "correct": false,
+        "explanation": "Redis doesn't track conflicts on separate GET and INCR commands. Each command executes independently. Both GETs return 99, both INCRs execute successfully, counter becomes 101"
+      },
+      {
+        "text": "No problem — Redis is single-threaded and processes commands sequentially",
+        "correct": false,
+        "explanation": "Redis is indeed single-threaded, but GET and INCR are separate commands. Between the GET from server A and its INCR, Redis can process the GET from server B. Atomicity is needed at the level of the entire operation (check + increment), not individual commands"
+      },
+      {
+        "text": "Both requests will pass, counter becomes 101 — limit violated. Fix: use a Redis Lua script for atomic check-and-increment",
+        "correct": true,
+        "explanation": "This is a classic race condition in distributed systems. GET + check + INCR are three separate operations. Between GET and INCR, another server can execute its own GET and also see 99. A Lua script in Redis executes atomically — no other command can execute between the script's lines"
+      },
+      {
+        "text": "Redis automatically blocks the second request through optimistic locking",
+        "correct": false,
+        "explanation": "Redis doesn't apply automatic locking on GET + INCR. WATCH/MULTI/EXEC provides optimistic locking, but a Lua script is simpler and more reliable: it executes atomically without the need for retries"
+      }
     ]
   },
   {
     "question": "Why is the Redis rate limiter implemented via a Lua script rather than a MULTI/EXEC transaction?",
     "type": "single",
     "options": [
-      { "text": "MULTI/EXEC doesn't allow using the result of one command to make a decision in another — it's not a true transaction with conditional logic", "correct": true, "explanation": "MULTI/EXEC in Redis is a batch, not a transaction in the classical sense. All commands inside MULTI are queued and executed at once, but you cannot read the result of a GET and use it in an IF within the transaction. A Lua script allows: read value → compare with limit → decide whether to INCR or not — all atomically" },
-      { "text": "Lua scripts are 10x faster than MULTI/EXEC", "correct": false, "explanation": "The speed difference is minimal — both mechanisms execute within a single Redis event loop. The key difference is that Lua scripts support conditional logic (if/then), while MULTI/EXEC does not" },
-      { "text": "MULTI/EXEC doesn't support EXPIRE", "correct": false, "explanation": "MULTI/EXEC supports EXPIRE. The problem is different: within MULTI, you cannot read the current counter value and make a decision based on it. All commands are queued blindly" },
-      { "text": "Lua scripts are automatically replicated, while MULTI/EXEC is not", "correct": false, "explanation": "Both mechanisms are replicated in Redis. The advantage of Lua is conditional logic: you can read a value and based on it decide whether to increment or not" }
+      {
+        "text": "Lua scripts are 10x faster than MULTI/EXEC",
+        "correct": false,
+        "explanation": "The speed difference is minimal — both mechanisms execute within a single Redis event loop. The key difference is that Lua scripts support conditional logic (if/then), while MULTI/EXEC does not"
+      },
+      {
+        "text": "MULTI/EXEC doesn't allow using the result of one command to make a decision in another — it's not a true transaction with conditional logic",
+        "correct": true,
+        "explanation": "MULTI/EXEC in Redis is a batch, not a transaction in the classical sense. All commands inside MULTI are queued and executed at once, but you cannot read the result of a GET and use it in an IF within the transaction. A Lua script allows: read value → compare with limit → decide whether to INCR or not — all atomically"
+      },
+      {
+        "text": "Lua scripts are automatically replicated, while MULTI/EXEC is not",
+        "correct": false,
+        "explanation": "Both mechanisms are replicated in Redis. The advantage of Lua is conditional logic: you can read a value and based on it decide whether to increment or not"
+      },
+      {
+        "text": "MULTI/EXEC doesn't support EXPIRE",
+        "correct": false,
+        "explanation": "MULTI/EXEC supports EXPIRE. The problem is different: within MULTI, you cannot read the current counter value and make a decision based on it. All commands are queued blindly"
+      }
     ]
   },
   {
     "question": "In a production API with IP-based, user-based, and endpoint-based rate limits — in what order should they be checked and why?",
     "type": "single",
     "options": [
-      { "text": "From broadest to narrowest: global → IP → user → endpoint. Broader limits are cheaper to check and block coarse attacks before expensive checks", "correct": true, "explanation": "The 'funnel' principle: the global limit (one key in Redis) is the cheapest — it blocks DDoS before checking individual users. IP limit (no authorization needed) is cheaper than user limit (needs auth). Endpoint limit — the most detailed and expensive. If the global limit is already exhausted, there's no point checking the rest" },
-      { "text": "From narrowest to broadest: endpoint → user → IP → global. Narrower limits are more accurate", "correct": false, "explanation": "This is inefficient: endpoint limit requires path parsing and authorization. If the system is under DDoS (global limit), checking the endpoint for every request is a waste of resources. Broader limits are cheaper and block coarse attacks earlier" },
-      { "text": "Order doesn't matter — all checks are executed in parallel", "correct": false, "explanation": "Parallel checking creates unnecessary load on Redis: 4 calls instead of 1 (if the first limit is already exhausted). Additionally, you must wait for all responses before deciding. Sequential checking 'from cheap to expensive' is more optimal" },
-      { "text": "User-based first — it's the most important limit for business", "correct": false, "explanation": "User-based is important, but checking requires authorization (extracting userId from a token). If a DDoS comes from thousands of IPs without a valid token, user-based limits won't help. Global and IP limits block such attacks more cheaply and earlier" }
+      {
+        "text": "User-based first — it's the most important limit for business",
+        "correct": false,
+        "explanation": "User-based is important, but checking requires authorization (extracting userId from a token). If a DDoS comes from thousands of IPs without a valid token, user-based limits won't help. Global and IP limits block such attacks more cheaply and earlier"
+      },
+      {
+        "text": "From narrowest to broadest: endpoint → user → IP → global. Narrower limits are more accurate",
+        "correct": false,
+        "explanation": "This is inefficient: endpoint limit requires path parsing and authorization. If the system is under DDoS (global limit), checking the endpoint for every request is a waste of resources. Broader limits are cheaper and block coarse attacks earlier"
+      },
+      {
+        "text": "Order doesn't matter — all checks are executed in parallel",
+        "correct": false,
+        "explanation": "Parallel checking creates unnecessary load on Redis: 4 calls instead of 1 (if the first limit is already exhausted). Additionally, you must wait for all responses before deciding. Sequential checking 'from cheap to expensive' is more optimal"
+      },
+      {
+        "text": "From broadest to narrowest: global → IP → user → endpoint. Broader limits are cheaper to check and block coarse attacks before expensive checks",
+        "correct": true,
+        "explanation": "The 'funnel' principle: the global limit (one key in Redis) is the cheapest — it blocks DDoS before checking individual users. IP limit (no authorization needed) is cheaper than user limit (needs auth). Endpoint limit — the most detailed and expensive. If the global limit is already exhausted, there's no point checking the rest"
+      }
     ]
   }
 ]

@@ -3,131 +3,343 @@
     "question": "What is CLAUDE.md?",
     "type": "single",
     "options": [
-      { "text": "A project documentation file for developers", "correct": false, "explanation": "CLAUDE.md is intended for an AI agent, not for developers. Although people can also read it, its main purpose is instructions for Claude Code" },
-      { "text": "A Markdown file with instructions for an AI agent, loaded automatically when Claude Code starts", "correct": true, "explanation": "Correct! CLAUDE.md is an 'onboarding document' for the agent that determines how the agent will work with your project" },
-      { "text": "A configuration file in JSON format", "correct": false, "explanation": "CLAUDE.md is a Markdown file, not JSON. It's written in regular Markdown with headings and lists" },
-      { "text": "A log file where Claude Code records its actions", "correct": false, "explanation": "CLAUDE.md is an instruction file that you write yourself. The agent reads it, not writes to it" }
+      {
+        "text": "A Markdown file with instructions for an AI agent, loaded automatically when Claude Code starts",
+        "correct": true,
+        "explanation": "Correct! CLAUDE.md is an 'onboarding document' for the agent that determines how the agent will work with your project"
+      },
+      {
+        "text": "A project documentation file for developers",
+        "correct": false,
+        "explanation": "CLAUDE.md is intended for an AI agent, not for developers. Although people can also read it, its main purpose is instructions for Claude Code"
+      },
+      {
+        "text": "A log file where Claude Code records its actions",
+        "correct": false,
+        "explanation": "CLAUDE.md is an instruction file that you write yourself. The agent reads it, not writes to it"
+      },
+      {
+        "text": "A configuration file in JSON format",
+        "correct": false,
+        "explanation": "CLAUDE.md is a Markdown file, not JSON. It's written in regular Markdown with headings and lists"
+      }
     ]
   },
   {
     "question": "Where should a project-level CLAUDE.md be located?",
     "type": "multiple",
     "options": [
-      { "text": "In the project root: ./CLAUDE.md", "correct": true, "explanation": "One of two standard locations for project-level CLAUDE.md" },
-      { "text": "In the .claude directory: ./.claude/CLAUDE.md", "correct": true, "explanation": "The second standard option -- convenient to keep the project root clean" },
-      { "text": "In the home directory: ~/.claude/CLAUDE.md", "correct": false, "explanation": "This is user-level CLAUDE.md, which applies to all projects, not a specific one" },
-      { "text": "In the node_modules directory", "correct": false, "explanation": "node_modules is the dependencies directory, CLAUDE.md should not be placed there" }
+      {
+        "text": "In the project root: ./CLAUDE.md",
+        "correct": true,
+        "explanation": "One of two standard locations for project-level CLAUDE.md"
+      },
+      {
+        "text": "In the node_modules directory",
+        "correct": false,
+        "explanation": "node_modules is the dependencies directory, CLAUDE.md should not be placed there"
+      },
+      {
+        "text": "In the .claude directory: ./.claude/CLAUDE.md",
+        "correct": true,
+        "explanation": "The second standard option -- convenient to keep the project root clean"
+      },
+      {
+        "text": "In the home directory: ~/.claude/CLAUDE.md",
+        "correct": false,
+        "explanation": "This is user-level CLAUDE.md, which applies to all projects, not a specific one"
+      }
     ]
   },
   {
     "question": "What information should NOT be in CLAUDE.md?",
     "type": "single",
     "options": [
-      { "text": "Commands for running tests", "correct": false, "explanation": "Build and test commands are one of the most important parts of CLAUDE.md. Without them, the agent will guess" },
-      { "text": "Information the agent can infer from project configuration (tsconfig.json, package.json)", "correct": true, "explanation": "Correct! Writing 'the project is in TypeScript' when tsconfig.json exists wastes tokens. Describe only what cannot be inferred from files" },
-      { "text": "Architectural decisions and constraints", "correct": false, "explanation": "Architectural decisions (why Zustand, not Redux) are valuable information that the agent cannot learn from code" },
-      { "text": "Gotchas and pitfalls", "correct": false, "explanation": "Gotchas are the most valuable part of CLAUDE.md. These are things that cannot be learned from code" }
+      {
+        "text": "Commands for running tests",
+        "correct": false,
+        "explanation": "Build and test commands are one of the most important parts of CLAUDE.md. Without them, the agent will guess"
+      },
+      {
+        "text": "Gotchas and pitfalls",
+        "correct": false,
+        "explanation": "Gotchas are the most valuable part of CLAUDE.md. These are things that cannot be learned from code"
+      },
+      {
+        "text": "Architectural decisions and constraints",
+        "correct": false,
+        "explanation": "Architectural decisions (why Zustand, not Redux) are valuable information that the agent cannot learn from code"
+      },
+      {
+        "text": "Information the agent can infer from project configuration (tsconfig.json, package.json)",
+        "correct": true,
+        "explanation": "Correct! Writing 'the project is in TypeScript' when tsconfig.json exists wastes tokens. Describe only what cannot be inferred from files"
+      }
     ]
   },
   {
     "question": "Why should CLAUDE.md not be longer than 200 lines?",
     "type": "single",
     "options": [
-      { "text": "Claude Code cannot read long files", "correct": false, "explanation": "Claude Code can read files of any length. The limitation is not technical" },
-      { "text": "It loads entirely into the context window, taking space away from code and conversation", "correct": true, "explanation": "Correct! Every line of CLAUDE.md is tokens from the context window. The longer the file, the less room for your code, command results, and conversation" },
-      { "text": "Markdown does not support files longer than 200 lines", "correct": false, "explanation": "Markdown has no file length restrictions. This is a recommendation for efficient context usage" },
-      { "text": "A long file slows down Claude Code startup", "correct": false, "explanation": "CLAUDE.md length does not affect startup speed. The problem is context window consumption" }
+      {
+        "text": "It loads entirely into the context window, taking space away from code and conversation",
+        "correct": true,
+        "explanation": "Correct! Every line of CLAUDE.md is tokens from the context window. The longer the file, the less room for your code, command results, and conversation"
+      },
+      {
+        "text": "Markdown does not support files longer than 200 lines",
+        "correct": false,
+        "explanation": "Markdown has no file length restrictions. This is a recommendation for efficient context usage"
+      },
+      {
+        "text": "Claude Code cannot read long files",
+        "correct": false,
+        "explanation": "Claude Code can read files of any length. The limitation is not technical"
+      },
+      {
+        "text": "A long file slows down Claude Code startup",
+        "correct": false,
+        "explanation": "CLAUDE.md length does not affect startup speed. The problem is context window consumption"
+      }
     ]
   },
   {
     "question": "What does the @path construct do in CLAUDE.md?",
     "type": "single",
     "options": [
-      { "text": "Creates a symbolic link to a file", "correct": false, "explanation": "@path does not create filesystem links. It is a content import directive" },
-      { "text": "Imports the contents of the specified file into the agent's context", "correct": true, "explanation": "Correct! @path allows you to decompose instructions: the root CLAUDE.md stays concise, while details are loaded from separate files" },
-      { "text": "Prohibits agent access to the specified file", "correct": false, "explanation": "@path imports a file, it does not prohibit access to it. Other mechanisms are used for constraints" },
-      { "text": "Adds the file to .gitignore", "correct": false, "explanation": "@path is a Claude Code directive, it does not affect git" }
+      {
+        "text": "Adds the file to .gitignore",
+        "correct": false,
+        "explanation": "@path is a Claude Code directive, it does not affect git"
+      },
+      {
+        "text": "Prohibits agent access to the specified file",
+        "correct": false,
+        "explanation": "@path imports a file, it does not prohibit access to it. Other mechanisms are used for constraints"
+      },
+      {
+        "text": "Imports the contents of the specified file into the agent's context",
+        "correct": true,
+        "explanation": "Correct! @path allows you to decompose instructions: the root CLAUDE.md stays concise, while details are loaded from separate files"
+      },
+      {
+        "text": "Creates a symbolic link to a file",
+        "correct": false,
+        "explanation": "@path does not create filesystem links. It is a content import directive"
+      }
     ]
   },
   {
     "question": "What is the maximum @path import depth?",
     "type": "single",
     "options": [
-      { "text": "No limit", "correct": false, "explanation": "There is a limit to prevent cyclic imports and excessive context consumption" },
-      { "text": "3 levels", "correct": false, "explanation": "The limit is higher -- up to 5 levels of nesting are allowed" },
-      { "text": "5 levels", "correct": true, "explanation": "Correct! File A can import B, B can import C, and so on up to 5 levels deep" },
-      { "text": "10 levels", "correct": false, "explanation": "The maximum depth is 5 levels, which is sufficient for any reasonable structure" }
+      {
+        "text": "5 levels",
+        "correct": true,
+        "explanation": "Correct! File A can import B, B can import C, and so on up to 5 levels deep"
+      },
+      {
+        "text": "3 levels",
+        "correct": false,
+        "explanation": "The limit is higher -- up to 5 levels of nesting are allowed"
+      },
+      {
+        "text": "10 levels",
+        "correct": false,
+        "explanation": "The maximum depth is 5 levels, which is sufficient for any reasonable structure"
+      },
+      {
+        "text": "No limit",
+        "correct": false,
+        "explanation": "There is a limit to prevent cyclic imports and excessive context consumption"
+      }
     ]
   },
   {
     "question": "What does the /init command do?",
     "type": "single",
     "options": [
-      { "text": "Initializes a new project from scratch", "correct": false, "explanation": "/init does not create a project -- it analyzes an existing project and creates CLAUDE.md" },
-      { "text": "Analyzes the project (package.json, tsconfig, structure) and generates an initial CLAUDE.md", "correct": true, "explanation": "Correct! /init examines the project configuration and creates a basic CLAUDE.md that you then extend" },
-      { "text": "Resets CLAUDE.md to default values", "correct": false, "explanation": "/init creates a new CLAUDE.md based on project analysis, not a reset to some 'default values'" },
-      { "text": "Installs Claude Code into the project", "correct": false, "explanation": "Claude Code is installed globally via npm, and /init is a command within an already-running Claude Code session" }
+      {
+        "text": "Analyzes the project (package.json, tsconfig, structure) and generates an initial CLAUDE.md",
+        "correct": true,
+        "explanation": "Correct! /init examines the project configuration and creates a basic CLAUDE.md that you then extend"
+      },
+      {
+        "text": "Installs Claude Code into the project",
+        "correct": false,
+        "explanation": "Claude Code is installed globally via npm, and /init is a command within an already-running Claude Code session"
+      },
+      {
+        "text": "Initializes a new project from scratch",
+        "correct": false,
+        "explanation": "/init does not create a project -- it analyzes an existing project and creates CLAUDE.md"
+      },
+      {
+        "text": "Resets CLAUDE.md to default values",
+        "correct": false,
+        "explanation": "/init creates a new CLAUDE.md based on project analysis, not a reset to some 'default values'"
+      }
     ]
   },
   {
     "question": "What is user-level CLAUDE.md (~/.claude/CLAUDE.md) used for?",
     "type": "single",
     "options": [
-      { "text": "For specific project settings", "correct": false, "explanation": "Specific project settings go in project-level CLAUDE.md (./CLAUDE.md). User-level is for personal preferences" },
-      { "text": "For personal preferences that apply to all projects", "correct": true, "explanation": "Correct! Things like 'respond in English', 'use Conventional Commits' -- settings not tied to a specific project go here" },
-      { "text": "For storing API keys", "correct": false, "explanation": "Never store secrets in CLAUDE.md! Use environment variables for keys" },
-      { "text": "For instructions that cannot be overridden", "correct": false, "explanation": "Non-overrideable instructions are managed policy (corporate level), not user-level" }
+      {
+        "text": "For storing API keys",
+        "correct": false,
+        "explanation": "Never store secrets in CLAUDE.md! Use environment variables for keys"
+      },
+      {
+        "text": "For instructions that cannot be overridden",
+        "correct": false,
+        "explanation": "Non-overrideable instructions are managed policy (corporate level), not user-level"
+      },
+      {
+        "text": "For specific project settings",
+        "correct": false,
+        "explanation": "Specific project settings go in project-level CLAUDE.md (./CLAUDE.md). User-level is for personal preferences"
+      },
+      {
+        "text": "For personal preferences that apply to all projects",
+        "correct": true,
+        "explanation": "Correct! Things like 'respond in English', 'use Conventional Commits' -- settings not tied to a specific project go here"
+      }
     ]
   },
   {
     "question": "You see this line in CLAUDE.md: 'The project uses TypeScript'. There is a tsconfig.json in the project root. What's wrong?",
     "type": "single",
     "options": [
-      { "text": "Nothing, this is useful information", "correct": false, "explanation": "The agent will discover tsconfig.json and understand the project is in TypeScript. This line duplicates the obvious" },
-      { "text": "This is duplication -- the agent will detect TypeScript from tsconfig.json, the line wastes tokens", "correct": true, "explanation": "Correct! The agent analyzes configuration files. Describe only what cannot be inferred: non-obvious conventions, constraints, gotchas" },
-      { "text": "Should be replaced with 'The project uses TypeScript strict mode'", "correct": false, "explanation": "Strict mode is also visible from tsconfig.json. Better to describe non-obvious TypeScript conventions, e.g.: 'use as const instead of enum'" },
-      { "text": "Should add a link to tsconfig.json", "correct": false, "explanation": "The agent will find tsconfig.json itself. A link to it is another line wasting context" }
+      {
+        "text": "This is duplication -- the agent will detect TypeScript from tsconfig.json, the line wastes tokens",
+        "correct": true,
+        "explanation": "Correct! The agent analyzes configuration files. Describe only what cannot be inferred: non-obvious conventions, constraints, gotchas"
+      },
+      {
+        "text": "Should add a link to tsconfig.json",
+        "correct": false,
+        "explanation": "The agent will find tsconfig.json itself. A link to it is another line wasting context"
+      },
+      {
+        "text": "Should be replaced with 'The project uses TypeScript strict mode'",
+        "correct": false,
+        "explanation": "Strict mode is also visible from tsconfig.json. Better to describe non-obvious TypeScript conventions, e.g.: 'use as const instead of enum'"
+      },
+      {
+        "text": "Nothing, this is useful information",
+        "correct": false,
+        "explanation": "The agent will discover tsconfig.json and understand the project is in TypeScript. This line duplicates the obvious"
+      }
     ]
   },
   {
     "question": "How should you properly structure instructions for a large project with many conventions?",
     "type": "single",
     "options": [
-      { "text": "Everything in one CLAUDE.md, so it's all in one place", "correct": false, "explanation": "This results in a file of hundreds of lines that eats up a significant portion of the context window" },
-      { "text": "Compact root CLAUDE.md (50-100 lines) + decomposition via @path", "correct": true, "explanation": "Correct! The root file contains the most important info, while details are in separate files via @path. This saves context while preserving instruction completeness" },
-      { "text": "Multiple CLAUDE.md files in the root with different names", "correct": false, "explanation": "Claude Code looks only for a file named CLAUDE.md. Files with other names will not be automatically loaded" },
-      { "text": "Don't use CLAUDE.md, describe everything in conversation", "correct": false, "explanation": "Without CLAUDE.md, you'll have to repeat instructions every session, wasting context and time" }
+      {
+        "text": "Everything in one CLAUDE.md, so it's all in one place",
+        "correct": false,
+        "explanation": "This results in a file of hundreds of lines that eats up a significant portion of the context window"
+      },
+      {
+        "text": "Don't use CLAUDE.md, describe everything in conversation",
+        "correct": false,
+        "explanation": "Without CLAUDE.md, you'll have to repeat instructions every session, wasting context and time"
+      },
+      {
+        "text": "Multiple CLAUDE.md files in the root with different names",
+        "correct": false,
+        "explanation": "Claude Code looks only for a file named CLAUDE.md. Files with other names will not be automatically loaded"
+      },
+      {
+        "text": "Compact root CLAUDE.md (50-100 lines) + decomposition via @path",
+        "correct": true,
+        "explanation": "Correct! The root file contains the most important info, while details are in separate files via @path. This saves context while preserving instruction completeness"
+      }
     ]
   },
   {
     "question": "In what order do CLAUDE.md scopes apply?",
     "type": "single",
     "options": [
-      { "text": "Only one scope is active -- the one closest to the file", "correct": false, "explanation": "All scopes merge, they do not replace each other. Instructions from all levels are active simultaneously" },
-      { "text": "Managed Policy -> User -> Project -> Subdirectory (all merge together)", "correct": true, "explanation": "Correct! All scopes merge. Managed Policy has the highest priority and cannot be overridden. Other levels complement each other" },
-      { "text": "Subdirectory overrides Project, Project overrides User", "correct": false, "explanation": "Scopes do not override, they complement each other. Instructions from all levels are active simultaneously" },
-      { "text": "Order is random, depends on the session", "correct": false, "explanation": "The order is fixed and predictable: Managed Policy -> User -> Project -> Subdirectory" }
+      {
+        "text": "Only one scope is active -- the one closest to the file",
+        "correct": false,
+        "explanation": "All scopes merge, they do not replace each other. Instructions from all levels are active simultaneously"
+      },
+      {
+        "text": "Order is random, depends on the session",
+        "correct": false,
+        "explanation": "The order is fixed and predictable: Managed Policy -> User -> Project -> Subdirectory"
+      },
+      {
+        "text": "Managed Policy -> User -> Project -> Subdirectory (all merge together)",
+        "correct": true,
+        "explanation": "Correct! All scopes merge. Managed Policy has the highest priority and cannot be overridden. Other levels complement each other"
+      },
+      {
+        "text": "Subdirectory overrides Project, Project overrides User",
+        "correct": false,
+        "explanation": "Scopes do not override, they complement each other. Instructions from all levels are active simultaneously"
+      }
     ]
   },
   {
     "question": "Your CLAUDE.md contains the line: 'Use React Router v5'. But the project has already migrated to v7. What will this lead to?",
     "type": "single",
     "options": [
-      { "text": "The agent will ignore the outdated instruction", "correct": false, "explanation": "The agent trusts CLAUDE.md and will follow the instruction. It may use deprecated v5 APIs instead of the new v7 APIs" },
-      { "text": "The agent will generate code with deprecated v5 APIs, which may lead to errors", "correct": true, "explanation": "Correct! The agent doesn't know the instruction is outdated. It will write code with Switch, Route from v5 instead of new v7 constructs. Update CLAUDE.md regularly!" },
-      { "text": "Claude Code will warn about a mismatch", "correct": false, "explanation": "Claude Code does not automatically check CLAUDE.md instruction relevance. This is your responsibility" },
-      { "text": "Nothing bad, the agent will determine the version itself", "correct": false, "explanation": "The agent may determine the version from package.json, but an explicit instruction in CLAUDE.md takes priority, and the agent will follow it" }
+      {
+        "text": "The agent will ignore the outdated instruction",
+        "correct": false,
+        "explanation": "The agent trusts CLAUDE.md and will follow the instruction. It may use deprecated v5 APIs instead of the new v7 APIs"
+      },
+      {
+        "text": "Claude Code will warn about a mismatch",
+        "correct": false,
+        "explanation": "Claude Code does not automatically check CLAUDE.md instruction relevance. This is your responsibility"
+      },
+      {
+        "text": "Nothing bad, the agent will determine the version itself",
+        "correct": false,
+        "explanation": "The agent may determine the version from package.json, but an explicit instruction in CLAUDE.md takes priority, and the agent will follow it"
+      },
+      {
+        "text": "The agent will generate code with deprecated v5 APIs, which may lead to errors",
+        "correct": true,
+        "explanation": "Correct! The agent doesn't know the instruction is outdated. It will write code with Switch, Route from v5 instead of new v7 constructs. Update CLAUDE.md regularly!"
+      }
     ]
   },
   {
     "question": "Which of the following gotchas should be described in CLAUDE.md?",
     "type": "multiple",
     "options": [
-      { "text": "CI fails if you forget pnpm run generate after changing the GraphQL schema", "correct": true, "explanation": "This cannot be learned from code. The agent may change the schema and not run codegen -- a perfect candidate for CLAUDE.md" },
-      { "text": "TypeScript requires typing", "correct": false, "explanation": "This is basic knowledge about TypeScript, not project-specific" },
-      { "text": "auth module tests must be run sequentially (--runInBand)", "correct": true, "explanation": "A non-obvious feature of a specific module. Without this information, the agent will run tests in parallel and they will fail" },
-      { "text": "npm install installs dependencies", "correct": false, "explanation": "This is common knowledge, not related to project specifics" },
-      { "text": "Environment variables go in .env.local, not .env", "correct": true, "explanation": "A project-specific convention. By default, the agent may create .env, which will not work" }
+      {
+        "text": "CI fails if you forget pnpm run generate after changing the GraphQL schema",
+        "correct": true,
+        "explanation": "This cannot be learned from code. The agent may change the schema and not run codegen -- a perfect candidate for CLAUDE.md"
+      },
+      {
+        "text": "TypeScript requires typing",
+        "correct": false,
+        "explanation": "This is basic knowledge about TypeScript, not project-specific"
+      },
+      {
+        "text": "Environment variables go in .env.local, not .env",
+        "correct": true,
+        "explanation": "A project-specific convention. By default, the agent may create .env, which will not work"
+      },
+      {
+        "text": "auth module tests must be run sequentially (--runInBand)",
+        "correct": true,
+        "explanation": "A non-obvious feature of a specific module. Without this information, the agent will run tests in parallel and they will fail"
+      },
+      {
+        "text": "npm install installs dependencies",
+        "correct": false,
+        "explanation": "This is common knowledge, not related to project specifics"
+      }
     ]
   }
 ]

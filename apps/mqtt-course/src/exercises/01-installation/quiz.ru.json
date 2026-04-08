@@ -40,14 +40,14 @@
         "explanation": "Суффикс -nossl означает отсутствие TLS, а не версию протокола. Оба пакета поддерживают MQTT 3.1.1 и MQTT 5.0 (в Mosquitto 2.x)."
       },
       {
-        "text": "mosquitto-nossl нельзя использовать с паролями",
-        "correct": false,
-        "explanation": "Аутентификация по паролю (password_file) работает в обоих вариантах. nossl означает только отсутствие TLS-шифрования транспортного уровня, но не аутентификации."
-      },
-      {
         "text": "mosquitto-nossl поддерживает только 10 клиентов одновременно",
         "correct": false,
         "explanation": "Ограничений на количество клиентов по типу SSL нет. Ограничение max_connections настраивается в конфиге и не зависит от наличия SSL-поддержки."
+      },
+      {
+        "text": "mosquitto-nossl нельзя использовать с паролями",
+        "correct": false,
+        "explanation": "Аутентификация по паролю (password_file) работает в обоих вариантах. nossl означает только отсутствие TLS-шифрования транспортного уровня, но не аутентификации."
       }
     ]
   },
@@ -56,9 +56,9 @@
     "type": "multiple",
     "options": [
       {
-        "text": "/usr/bin/mosquitto_pub",
-        "correct": true,
-        "explanation": "mosquitto_pub — утилита для публикации MQTT-сообщений из командной строки. Входит в пакет mosquitto-client-nossl."
+        "text": "/etc/mosquitto/mosquitto.conf",
+        "correct": false,
+        "explanation": "Файл конфигурации устанавливается вместе с пакетом брокера (mosquitto-nossl), а не с клиентскими утилитами."
       },
       {
         "text": "/usr/bin/mosquitto_sub",
@@ -66,14 +66,14 @@
         "explanation": "mosquitto_sub — утилита для подписки на MQTT-топики и получения сообщений в терминале. Входит в пакет mosquitto-client-nossl."
       },
       {
+        "text": "/usr/bin/mosquitto_pub",
+        "correct": true,
+        "explanation": "mosquitto_pub — утилита для публикации MQTT-сообщений из командной строки. Входит в пакет mosquitto-client-nossl."
+      },
+      {
         "text": "/usr/sbin/mosquitto",
         "correct": false,
         "explanation": "Исполняемый файл брокера входит в пакет mosquitto-nossl (или mosquitto), а не в client-пакет. Client-пакет содержит только клиентские утилиты."
-      },
-      {
-        "text": "/etc/mosquitto/mosquitto.conf",
-        "correct": false,
-        "explanation": "Файл конфигурации устанавливается вместе с пакетом брокера (mosquitto-nossl), а не с клиентскими утилитами."
       }
     ]
   },
@@ -82,9 +82,9 @@
     "type": "single",
     "options": [
       {
-        "text": "Добавляет симлинк в /etc/rc.d/ для автозапуска при загрузке, но не запускает сервис",
-        "correct": true,
-        "explanation": "enable создаёт символическую ссылку S50mosquitto в /etc/rc.d/, что обеспечивает автозапуск. Для немедленного запуска нужно дополнительно выполнить start."
+        "text": "Устанавливает Mosquitto как системный сервис через systemd",
+        "correct": false,
+        "explanation": "OpenWRT использует init.d (sysvinit), а не systemd. Команда enable работает с симлинками в /etc/rc.d/, а не с systemctl enable."
       },
       {
         "text": "Запускает Mosquitto немедленно и включает автозапуск одной командой",
@@ -92,9 +92,9 @@
         "explanation": "enable только настраивает автозапуск через симлинк. Немедленный запуск делает команда start. Это разные операции, требующие двух отдельных команд."
       },
       {
-        "text": "Устанавливает Mosquitto как системный сервис через systemd",
-        "correct": false,
-        "explanation": "OpenWRT использует init.d (sysvinit), а не systemd. Команда enable работает с симлинками в /etc/rc.d/, а не с systemctl enable."
+        "text": "Добавляет симлинк в /etc/rc.d/ для автозапуска при загрузке, но не запускает сервис",
+        "correct": true,
+        "explanation": "enable создаёт символическую ссылку S50mosquitto в /etc/rc.d/, что обеспечивает автозапуск. Для немедленного запуска нужно дополнительно выполнить start."
       },
       {
         "text": "Активирует MQTT-порт 1883 в файерволе OpenWRT",
@@ -108,9 +108,9 @@
     "type": "single",
     "options": [
       {
-        "text": "В /tmp (tmpfs) — данные в RAM, не изнашивает flash, но теряются при перезагрузке",
-        "correct": true,
-        "explanation": "Flash-память имеет ограниченный ресурс перезаписи (10 000–100 000 циклов). Частая запись retention-данных изнашивает её. tmpfs в /tmp хранит данные в RAM — быстро, безопасно для flash, но энергозависимо."
+        "text": "Persistence не нужен на OpenWRT — retained messages хранятся в памяти брокера",
+        "correct": false,
+        "explanation": "В памяти retained messages хранятся только пока брокер работает. При перезапуске без persistence они теряются. Если это допустимо — persistence можно отключить, но это осознанный выбор."
       },
       {
         "text": "В /var/lib/mosquitto — это стандартный путь и самый надёжный",
@@ -118,14 +118,14 @@
         "explanation": "В OpenWRT /var/lib/ лежит на overlay FS, которая хранится на flash. Частая запись на flash изнашивает её. Это безопасно только при редкой записи."
       },
       {
+        "text": "В /tmp (tmpfs) — данные в RAM, не изнашивает flash, но теряются при перезагрузке",
+        "correct": true,
+        "explanation": "Flash-память имеет ограниченный ресурс перезаписи (10 000–100 000 циклов). Частая запись retention-данных изнашивает её. tmpfs в /tmp хранит данные в RAM — быстро, безопасно для flash, но энергозависимо."
+      },
+      {
         "text": "В /etc/mosquitto — рядом с конфигурацией для удобства",
         "correct": false,
         "explanation": "/etc/ в OpenWRT тоже хранится на flash overlay. Размещение базы данных рядом с конфигами — неудобно и небезопасно для flash-памяти."
-      },
-      {
-        "text": "Persistence не нужен на OpenWRT — retained messages хранятся в памяти брокера",
-        "correct": false,
-        "explanation": "В памяти retained messages хранятся только пока брокер работает. При перезапуске без persistence они теряются. Если это допустимо — persistence можно отключить, но это осознанный выбор."
       }
     ]
   },
@@ -139,14 +139,14 @@
         "explanation": "netstat показывает все listening-порты с PID процессов. Строка с 0.0.0.0:1883 и LISTEN подтверждает, что брокер принимает соединения."
       },
       {
-        "text": "ps | grep mosquitto — убедиться что процесс запущен",
-        "correct": true,
-        "explanation": "Команда ps показывает список процессов. Строка с /usr/sbin/mosquitto означает, что брокер работает. Вместе с netstat это даёт полную картину."
-      },
-      {
         "text": "ping 127.0.0.1:1883 — проверить доступность порта",
         "correct": false,
         "explanation": "Команда ping работает с ICMP и не поддерживает порты. Для проверки TCP-порта используется netcat: nc -zv 127.0.0.1 1883 или mosquitto_pub с флагом -d."
+      },
+      {
+        "text": "ps | grep mosquitto — убедиться что процесс запущен",
+        "correct": true,
+        "explanation": "Команда ps показывает список процессов. Строка с /usr/sbin/mosquitto означает, что брокер работает. Вместе с netstat это даёт полную картину."
       },
       {
         "text": "mosquitto_pub и mosquitto_sub — тест полного цикла pub/sub",

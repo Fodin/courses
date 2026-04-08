@@ -3,140 +3,364 @@
     "question": "How does a skill fundamentally differ from CLAUDE.md?",
     "type": "single",
     "options": [
-      { "text": "A skill loads into context only on request, while CLAUDE.md is always loaded", "correct": true, "explanation": "CLAUDE.md is an always-on instruction that Claude reads on every launch. A skill is an on-demand instruction, loaded only when needed. This saves context" },
-      { "text": "A skill is written in JavaScript, while CLAUDE.md is in Markdown", "correct": false, "explanation": "Both files use Markdown. A skill (SKILL.md) additionally has YAML frontmatter for metadata" },
-      { "text": "A skill runs faster than CLAUDE.md", "correct": false, "explanation": "Speed does not depend on the instruction format. The difference is when the instruction loads into context" },
-      { "text": "A skill can use only one tool", "correct": false, "explanation": "A skill can use any number of tools specified in allowed-tools" }
+      {
+        "text": "A skill can use only one tool",
+        "correct": false,
+        "explanation": "A skill can use any number of tools specified in allowed-tools"
+      },
+      {
+        "text": "A skill is written in JavaScript, while CLAUDE.md is in Markdown",
+        "correct": false,
+        "explanation": "Both files use Markdown. A skill (SKILL.md) additionally has YAML frontmatter for metadata"
+      },
+      {
+        "text": "A skill runs faster than CLAUDE.md",
+        "correct": false,
+        "explanation": "Speed does not depend on the instruction format. The difference is when the instruction loads into context"
+      },
+      {
+        "text": "A skill loads into context only on request, while CLAUDE.md is always loaded",
+        "correct": true,
+        "explanation": "CLAUDE.md is an always-on instruction that Claude reads on every launch. A skill is an on-demand instruction, loaded only when needed. This saves context"
+      }
     ]
   },
   {
     "question": "Which frontmatter field is critical for automatic skill selection?",
     "type": "single",
     "options": [
-      { "text": "name", "correct": false, "explanation": "name defines the slash command name, but Claude uses description to match the skill to the user's task" },
-      { "text": "description", "correct": true, "explanation": "Claude matches the user's request against skill descriptions. Without this field, the skill is available only via direct /skill-name invocation" },
-      { "text": "allowed-tools", "correct": false, "explanation": "allowed-tools restricts the tool set, but does not affect automatic skill selection" },
-      { "text": "model", "correct": false, "explanation": "model overrides the model used, but does not participate in skill selection" }
+      {
+        "text": "allowed-tools",
+        "correct": false,
+        "explanation": "allowed-tools restricts the tool set, but does not affect automatic skill selection"
+      },
+      {
+        "text": "name",
+        "correct": false,
+        "explanation": "name defines the slash command name, but Claude uses description to match the skill to the user's task"
+      },
+      {
+        "text": "description",
+        "correct": true,
+        "explanation": "Claude matches the user's request against skill descriptions. Without this field, the skill is available only via direct /skill-name invocation"
+      },
+      {
+        "text": "model",
+        "correct": false,
+        "explanation": "model overrides the model used, but does not participate in skill selection"
+      }
     ]
   },
   {
     "question": "What does the context: fork field in skill frontmatter do?",
     "type": "single",
     "options": [
-      { "text": "Creates a git branch for the skill's work", "correct": false, "explanation": "fork in the context of skills is not related to git. This is dialog context isolation, not code branching" },
-      { "text": "Runs the skill in an isolated context, separate from the main dialog", "correct": true, "explanation": "context: fork means the skill doesn't see the dialog history and doesn't clutter it with its output -- like opening a task in a separate tab" },
-      { "text": "Copies the skill to another directory before running", "correct": false, "explanation": "fork relates to the conversation (dialog) context, not the filesystem" },
-      { "text": "Runs the skill in parallel with the main process", "correct": false, "explanation": "fork is not about parallel execution, but about context isolation -- the skill works from a clean slate" }
+      {
+        "text": "Runs the skill in an isolated context, separate from the main dialog",
+        "correct": true,
+        "explanation": "context: fork means the skill doesn't see the dialog history and doesn't clutter it with its output -- like opening a task in a separate tab"
+      },
+      {
+        "text": "Runs the skill in parallel with the main process",
+        "correct": false,
+        "explanation": "fork is not about parallel execution, but about context isolation -- the skill works from a clean slate"
+      },
+      {
+        "text": "Copies the skill to another directory before running",
+        "correct": false,
+        "explanation": "fork relates to the conversation (dialog) context, not the filesystem"
+      },
+      {
+        "text": "Creates a git branch for the skill's work",
+        "correct": false,
+        "explanation": "fork in the context of skills is not related to git. This is dialog context isolation, not code branching"
+      }
     ]
   },
   {
     "question": "The user invoked /deploy staging v2.1.0. What value will the $ARGUMENTS variable have?",
     "type": "single",
     "options": [
-      { "text": "deploy staging v2.1.0", "correct": false, "explanation": "$ARGUMENTS contains only the arguments, without the command name. The command name is available via $0" },
-      { "text": "staging v2.1.0", "correct": true, "explanation": "$ARGUMENTS contains all arguments as-is, without the command name: staging v2.1.0" },
-      { "text": "staging", "correct": false, "explanation": "This is the value of $1 (first argument). $ARGUMENTS contains all arguments: staging v2.1.0" },
-      { "text": "/deploy staging v2.1.0", "correct": false, "explanation": "$ARGUMENTS does not include the slash and command name -- only the arguments after the name" }
+      {
+        "text": "staging v2.1.0",
+        "correct": true,
+        "explanation": "$ARGUMENTS contains all arguments as-is, without the command name: staging v2.1.0"
+      },
+      {
+        "text": "/deploy staging v2.1.0",
+        "correct": false,
+        "explanation": "$ARGUMENTS does not include the slash and command name -- only the arguments after the name"
+      },
+      {
+        "text": "staging",
+        "correct": false,
+        "explanation": "This is the value of $1 (first argument). $ARGUMENTS contains all arguments: staging v2.1.0"
+      },
+      {
+        "text": "deploy staging v2.1.0",
+        "correct": false,
+        "explanation": "$ARGUMENTS contains only the arguments, without the command name. The command name is available via $0"
+      }
     ]
   },
   {
     "question": "Where should skills that need to be available to the whole project team be placed?",
     "type": "single",
     "options": [
-      { "text": "~/.claude/skills/", "correct": false, "explanation": "This is the personal skills directory in the user's home folder -- it is not committed to git and not visible to the team" },
-      { "text": ".claude/skills/", "correct": true, "explanation": "Team skills are placed in .claude/skills/ inside the repository -- they are committed to git and available to all project participants" },
-      { "text": "plugins/skills/", "correct": false, "explanation": "This directory is for skills from connected plugins, not for project team skills" },
-      { "text": "In the repository root next to package.json", "correct": false, "explanation": "Claude Code looks for skills in specific directories (.claude/skills/, ~/.claude/skills/), not arbitrary locations" }
+      {
+        "text": "~/.claude/skills/",
+        "correct": false,
+        "explanation": "This is the personal skills directory in the user's home folder -- it is not committed to git and not visible to the team"
+      },
+      {
+        "text": ".claude/skills/",
+        "correct": true,
+        "explanation": "Team skills are placed in .claude/skills/ inside the repository -- they are committed to git and available to all project participants"
+      },
+      {
+        "text": "In the repository root next to package.json",
+        "correct": false,
+        "explanation": "Claude Code looks for skills in specific directories (.claude/skills/, ~/.claude/skills/), not arbitrary locations"
+      },
+      {
+        "text": "plugins/skills/",
+        "correct": false,
+        "explanation": "This directory is for skills from connected plugins, not for project team skills"
+      }
     ]
   },
   {
     "question": "What are supporting files in the context of skills?",
     "type": "single",
     "options": [
-      { "text": "Dependency files that the skill installs via npm", "correct": false, "explanation": "Supporting files are not npm dependencies, but auxiliary files (templates, examples, references) next to SKILL.md" },
-      { "text": "Additional files next to SKILL.md: templates, examples, references", "correct": true, "explanation": "Next to SKILL.md you can place any supporting files -- Claude gets access to them via ${CLAUDE_SKILL_DIR}" },
-      { "text": "Backup copies of SKILL.md in case of corruption", "correct": false, "explanation": "Supporting files are working files, not backups" },
-      { "text": "Skill execution logs", "correct": false, "explanation": "Supporting files are created by the developer in advance, not generated during skill execution" }
+      {
+        "text": "Additional files next to SKILL.md: templates, examples, references",
+        "correct": true,
+        "explanation": "Next to SKILL.md you can place any supporting files -- Claude gets access to them via ${CLAUDE_SKILL_DIR}"
+      },
+      {
+        "text": "Backup copies of SKILL.md in case of corruption",
+        "correct": false,
+        "explanation": "Supporting files are working files, not backups"
+      },
+      {
+        "text": "Dependency files that the skill installs via npm",
+        "correct": false,
+        "explanation": "Supporting files are not npm dependencies, but auxiliary files (templates, examples, references) next to SKILL.md"
+      },
+      {
+        "text": "Skill execution logs",
+        "correct": false,
+        "explanation": "Supporting files are created by the developer in advance, not generated during skill execution"
+      }
     ]
   },
   {
     "question": "Which built-in skill runs a prompt on multiple files?",
     "type": "single",
     "options": [
-      { "text": "/loop", "correct": false, "explanation": "/loop runs a command repeating over time (every N minutes), not across a file list" },
-      { "text": "/batch", "correct": true, "explanation": "/batch takes a prompt and a file pattern, then applies the prompt to each found file" },
-      { "text": "/simplify", "correct": false, "explanation": "/simplify analyzes code for quality and reusability, but doesn't do batch file processing" },
-      { "text": "/glob", "correct": false, "explanation": "glob is a file search tool, not a built-in skill for batch processing" }
+      {
+        "text": "/loop",
+        "correct": false,
+        "explanation": "/loop runs a command repeating over time (every N minutes), not across a file list"
+      },
+      {
+        "text": "/glob",
+        "correct": false,
+        "explanation": "glob is a file search tool, not a built-in skill for batch processing"
+      },
+      {
+        "text": "/batch",
+        "correct": true,
+        "explanation": "/batch takes a prompt and a file pattern, then applies the prompt to each found file"
+      },
+      {
+        "text": "/simplify",
+        "correct": false,
+        "explanation": "/simplify analyzes code for quality and reusability, but doesn't do batch file processing"
+      }
     ]
   },
   {
     "question": "Why is it bad to create one 500-line skill that does everything: deployment, migrations, tests, and monitoring?",
     "type": "multiple",
     "options": [
-      { "text": "Claude spends more tokens parsing the huge instruction", "correct": true, "explanation": "The entire SKILL.md text loads into context -- 500 lines on every invocation, even if only the deployment part is needed" },
-      { "text": "Impossible to set different allowed-tools for different operations", "correct": true, "explanation": "allowed-tools is set at the skill level. One skill = one permission set. Deployment needs kubectl, tests need npm test" },
-      { "text": "Vague description degrades automatic selection", "correct": true, "explanation": "A description like 'All DevOps operations' is too general -- Claude won't be able to accurately determine when to suggest the skill" },
-      { "text": "Claude Code forbids SKILL.md longer than 100 lines", "correct": false, "explanation": "There's no technical limit on SKILL.md size -- the problem is efficiency and maintainability" }
+      {
+        "text": "Claude Code forbids SKILL.md longer than 100 lines",
+        "correct": false,
+        "explanation": "There's no technical limit on SKILL.md size -- the problem is efficiency and maintainability"
+      },
+      {
+        "text": "Vague description degrades automatic selection",
+        "correct": true,
+        "explanation": "A description like 'All DevOps operations' is too general -- Claude won't be able to accurately determine when to suggest the skill"
+      },
+      {
+        "text": "Claude spends more tokens parsing the huge instruction",
+        "correct": true,
+        "explanation": "The entire SKILL.md text loads into context -- 500 lines on every invocation, even if only the deployment part is needed"
+      },
+      {
+        "text": "Impossible to set different allowed-tools for different operations",
+        "correct": false,
+        "explanation": "allowed-tools is set at the skill level. One skill = one permission set. Deployment needs kubectl, tests need npm test"
+      }
     ]
   },
   {
     "question": "What does disable-model-invocation: true do?",
     "type": "single",
     "options": [
-      { "text": "Forbids the skill from using the AI model", "correct": false, "explanation": "A skill is an instruction for an AI model, without which it makes no sense. The field forbids automatic invocation, not model usage" },
-      { "text": "The skill can only be invoked via slash command, Claude won't suggest it automatically", "correct": true, "explanation": "For dangerous skills (deployment, migrations) this is important: they should not run accidentally via auto-selection" },
-      { "text": "The skill works without sending data to the Anthropic API", "correct": false, "explanation": "A skill is an instruction for Claude, which is always processed via the API. The field controls invocation method, not data routing" },
-      { "text": "Switches the skill to use a local model", "correct": false, "explanation": "Claude Code does not support switching to local models via skill frontmatter" }
+      {
+        "text": "The skill works without sending data to the Anthropic API",
+        "correct": false,
+        "explanation": "A skill is an instruction for Claude, which is always processed via the API. The field controls invocation method, not data routing"
+      },
+      {
+        "text": "Switches the skill to use a local model",
+        "correct": false,
+        "explanation": "Claude Code does not support switching to local models via skill frontmatter"
+      },
+      {
+        "text": "Forbids the skill from using the AI model",
+        "correct": false,
+        "explanation": "A skill is an instruction for an AI model, without which it makes no sense. The field forbids automatic invocation, not model usage"
+      },
+      {
+        "text": "The skill can only be invoked via slash command, Claude won't suggest it automatically",
+        "correct": true,
+        "explanation": "For dangerous skills (deployment, migrations) this is important: they should not run accidentally via auto-selection"
+      }
     ]
   },
   {
     "question": "What is the ${CLAUDE_SKILL_DIR} variable used for inside SKILL.md?",
     "type": "single",
     "options": [
-      { "text": "Path to the user's home directory", "correct": false, "explanation": "Home directory is ~/ or $HOME. ${CLAUDE_SKILL_DIR} points to the specific skill's directory" },
-      { "text": "Path to the project root", "correct": false, "explanation": "Project root is accessible other ways. ${CLAUDE_SKILL_DIR} is the path to the directory containing SKILL.md" },
-      { "text": "Path to the skill's directory -- for accessing supporting files", "correct": true, "explanation": "${CLAUDE_SKILL_DIR} points to the directory containing SKILL.md. Use it to refer to templates, examples, and references next to the skill" },
-      { "text": "Path to the global directory of all skills", "correct": false, "explanation": "The variable points to a specific skill, not the directory of all skills" }
+      {
+        "text": "Path to the project root",
+        "correct": false,
+        "explanation": "Project root is accessible other ways. ${CLAUDE_SKILL_DIR} is the path to the directory containing SKILL.md"
+      },
+      {
+        "text": "Path to the skill's directory -- for accessing supporting files",
+        "correct": true,
+        "explanation": "${CLAUDE_SKILL_DIR} points to the directory containing SKILL.md. Use it to refer to templates, examples, and references next to the skill"
+      },
+      {
+        "text": "Path to the global directory of all skills",
+        "correct": false,
+        "explanation": "The variable points to a specific skill, not the directory of all skills"
+      },
+      {
+        "text": "Path to the user's home directory",
+        "correct": false,
+        "explanation": "Home directory is ~/ or $HOME. ${CLAUDE_SKILL_DIR} points to the specific skill's directory"
+      }
     ]
   },
   {
     "question": "A skill is defined with paths: [\"src/**/*.test.ts\"]. When does it activate?",
     "type": "single",
     "options": [
-      { "text": "Always, if the project has test files", "correct": false, "explanation": "paths activates the skill when working with specific files in the current session, not simply by their presence in the project" },
-      { "text": "When Claude works with files matching the *.test.ts pattern", "correct": true, "explanation": "paths is conditional activation: the skill connects automatically when Claude reads or edits files matching the specified glob pattern" },
-      { "text": "Only on direct slash-command invocation", "correct": false, "explanation": "paths provides automatic activation without the need for manual invocation" },
-      { "text": "On every Claude Code launch in the src/ directory", "correct": false, "explanation": "Activation is tied to working with specific files matching the pattern, not the current working directory" }
+      {
+        "text": "When Claude works with files matching the *.test.ts pattern",
+        "correct": true,
+        "explanation": "paths is conditional activation: the skill connects automatically when Claude reads or edits files matching the specified glob pattern"
+      },
+      {
+        "text": "Always, if the project has test files",
+        "correct": false,
+        "explanation": "paths activates the skill when working with specific files in the current session, not simply by their presence in the project"
+      },
+      {
+        "text": "On every Claude Code launch in the src/ directory",
+        "correct": false,
+        "explanation": "Activation is tied to working with specific files matching the pattern, not the current working directory"
+      },
+      {
+        "text": "Only on direct slash-command invocation",
+        "correct": false,
+        "explanation": "paths provides automatic activation without the need for manual invocation"
+      }
     ]
   },
   {
     "question": "You're creating a code review skill. Which allowed-tools set is correct?",
     "type": "single",
     "options": [
-      { "text": "allowed-tools: \"*\"", "correct": false, "explanation": "Code review doesn't need Write, Bash(rm*) or WebFetch access -- why give excessive permissions?" },
-      { "text": "allowed-tools: Read, Glob, Grep, Bash(git diff:*), Bash(git log:*)", "correct": true, "explanation": "Code review requires reading files and git history. No Write, Edit, or arbitrary Bash commands needed -- principle of least privilege" },
-      { "text": "allowed-tools: Bash(*)", "correct": false, "explanation": "Review doesn't need arbitrary Bash commands -- git diff and git log are sufficient for change analysis" },
-      { "text": "Don't specify allowed-tools at all", "correct": false, "explanation": "Without an explicit limit, the skill inherits all session permissions -- better to explicitly specify the minimum needed" }
+      {
+        "text": "Don't specify allowed-tools at all",
+        "correct": false,
+        "explanation": "Without an explicit limit, the skill inherits all session permissions -- better to explicitly specify the minimum needed"
+      },
+      {
+        "text": "allowed-tools: Read, Glob, Grep, Bash(git diff:*), Bash(git log:*)",
+        "correct": true,
+        "explanation": "Code review requires reading files and git history. No Write, Edit, or arbitrary Bash commands needed -- principle of least privilege"
+      },
+      {
+        "text": "allowed-tools: \"*\"",
+        "correct": false,
+        "explanation": "Code review doesn't need Write, Bash(rm*) or WebFetch access -- why give excessive permissions?"
+      },
+      {
+        "text": "allowed-tools: Bash(*)",
+        "correct": false,
+        "explanation": "Review doesn't need arbitrary Bash commands -- git diff and git log are sufficient for change analysis"
+      }
     ]
   },
   {
     "question": "What does user-invocable: false do?",
     "type": "single",
     "options": [
-      { "text": "Hides the skill from the slash command list -- it's available only to Claude", "correct": true, "explanation": "A skill with user-invocable: false is not displayed to the user. It's intended for internal use -- for example, as an auxiliary skill invoked from another skill" },
-      { "text": "Forbids the user from seeing the skill's results", "correct": false, "explanation": "Skill results are visible to the user. The field controls manual invocation ability, not result visibility" },
-      { "text": "The skill works only in CI/CD, not in interactive mode", "correct": false, "explanation": "user-invocable is not related to CI/CD. This is a restriction on manual invocation via slash command" },
-      { "text": "The skill is available only to administrators", "correct": false, "explanation": "Claude Code has no role/admin system. user-invocable determines whether a human can invoke the skill via /" }
+      {
+        "text": "The skill is available only to administrators",
+        "correct": false,
+        "explanation": "Claude Code has no role/admin system. user-invocable determines whether a human can invoke the skill via /"
+      },
+      {
+        "text": "The skill works only in CI/CD, not in interactive mode",
+        "correct": false,
+        "explanation": "user-invocable is not related to CI/CD. This is a restriction on manual invocation via slash command"
+      },
+      {
+        "text": "Hides the skill from the slash command list -- it's available only to Claude",
+        "correct": true,
+        "explanation": "A skill with user-invocable: false is not displayed to the user. It's intended for internal use -- for example, as an auxiliary skill invoked from another skill"
+      },
+      {
+        "text": "Forbids the user from seeing the skill's results",
+        "correct": false,
+        "explanation": "Skill results are visible to the user. The field controls manual invocation ability, not result visibility"
+      }
     ]
   },
   {
     "question": "How should you correctly refer to supporting files inside SKILL.md?",
     "type": "single",
     "options": [
-      { "text": "Via absolute path: /home/user/.claude/skills/deploy/templates/config.yaml", "correct": false, "explanation": "Absolute paths are tied to a specific machine -- colleagues will have a different path. Use ${CLAUDE_SKILL_DIR}" },
-      { "text": "Via relative path: ./templates/config.yaml", "correct": false, "explanation": "Relative path depends on the current working directory, which can be anything. ${CLAUDE_SKILL_DIR} always points to the skill directory" },
-      { "text": "Via variable: ${CLAUDE_SKILL_DIR}/templates/config.yaml", "correct": true, "explanation": "${CLAUDE_SKILL_DIR} reliably points to the skill directory regardless of working directory or machine" },
-      { "text": "Via import: import config from 'templates/config.yaml'", "correct": false, "explanation": "SKILL.md is Markdown with instructions for Claude, not a JavaScript module. Imports don't work here" }
+      {
+        "text": "Via import: import config from 'templates/config.yaml'",
+        "correct": false,
+        "explanation": "SKILL.md is Markdown with instructions for Claude, not a JavaScript module. Imports don't work here"
+      },
+      {
+        "text": "Via relative path: ./templates/config.yaml",
+        "correct": false,
+        "explanation": "Relative path depends on the current working directory, which can be anything. ${CLAUDE_SKILL_DIR} always points to the skill directory"
+      },
+      {
+        "text": "Via absolute path: /home/user/.claude/skills/deploy/templates/config.yaml",
+        "correct": false,
+        "explanation": "Absolute paths are tied to a specific machine -- colleagues will have a different path. Use ${CLAUDE_SKILL_DIR}"
+      },
+      {
+        "text": "Via variable: ${CLAUDE_SKILL_DIR}/templates/config.yaml",
+        "correct": true,
+        "explanation": "${CLAUDE_SKILL_DIR} reliably points to the skill directory regardless of working directory or machine"
+      }
     ]
   }
 ]

@@ -3,81 +3,213 @@
     "question": "A client publishes temperature data every 3 seconds. Losing one value is not critical. Which QoS is optimal?",
     "type": "single",
     "options": [
-      { "text": "QoS 0", "correct": true, "explanation": "Correct. High-frequency telemetry is a classic QoS 0 case. Losing one value is not critical, and it minimizes the load on the broker and client." },
-      { "text": "QoS 1", "correct": false, "explanation": "QoS 1 creates overhead (PUBACK) and possible duplicates. For frequent telemetry without critical requirements, it's excessive." },
-      { "text": "QoS 2", "correct": false, "explanation": "QoS 2 — 4 packets per message, 4x slower. Completely excessive for telemetry and can overload an OpenWRT router." },
-      { "text": "Depends on the client", "correct": false, "explanation": "No. QoS selection is determined by delivery reliability requirements, not the client type." }
+      {
+        "text": "QoS 0",
+        "correct": true,
+        "explanation": "Correct. High-frequency telemetry is a classic QoS 0 case. Losing one value is not critical, and it minimizes the load on the broker and client."
+      },
+      {
+        "text": "QoS 2",
+        "correct": false,
+        "explanation": "QoS 2 — 4 packets per message, 4x slower. Completely excessive for telemetry and can overload an OpenWRT router."
+      },
+      {
+        "text": "QoS 1",
+        "correct": false,
+        "explanation": "QoS 1 creates overhead (PUBACK) and possible duplicates. For frequent telemetry without critical requirements, it's excessive."
+      },
+      {
+        "text": "Depends on the client",
+        "correct": false,
+        "explanation": "No. QoS selection is determined by delivery reliability requirements, not the client type."
+      }
     ]
   },
   {
     "question": "What happens if a QoS 1 client doesn't receive a PUBACK from the broker?",
     "type": "single",
     "options": [
-      { "text": "The client will resend the message with DUP=1 flag", "correct": true, "explanation": "Correct. On PUBACK timeout, the client repeats PUBLISH with DUP=1, indicating a possible duplicate. This is exactly why QoS 1 = 'at least once'." },
-      { "text": "The message will be lost", "correct": false, "explanation": "No. With QoS 1, the client stores the message until confirmation is received and repeats if necessary." },
-      { "text": "The connection will be terminated", "correct": false, "explanation": "No. Missing PUBACK causes message resend, not connection termination." },
-      { "text": "The broker will delete the message", "correct": false, "explanation": "No. The broker has already received and stored the message. The problem is that the client doesn't know about it — hence the repeat." }
+      {
+        "text": "The broker will delete the message",
+        "correct": false,
+        "explanation": "No. The broker has already received and stored the message. The problem is that the client doesn't know about it — hence the repeat."
+      },
+      {
+        "text": "The client will resend the message with DUP=1 flag",
+        "correct": true,
+        "explanation": "Correct. On PUBACK timeout, the client repeats PUBLISH with DUP=1, indicating a possible duplicate. This is exactly why QoS 1 = 'at least once'."
+      },
+      {
+        "text": "The message will be lost",
+        "correct": false,
+        "explanation": "No. With QoS 1, the client stores the message until confirmation is received and repeats if necessary."
+      },
+      {
+        "text": "The connection will be terminated",
+        "correct": false,
+        "explanation": "No. Missing PUBACK causes message resend, not connection termination."
+      }
     ]
   },
   {
     "question": "Which packets participate in QoS 2 exchange between publisher and broker?",
     "type": "multiple",
     "options": [
-      { "text": "PUBLISH", "correct": true, "explanation": "Yes. First step — PUBLISH from publisher to broker." },
-      { "text": "PUBREC", "correct": true, "explanation": "Yes. Second step — PUBREC (Publish Received) from broker: 'received, wait for release'." },
-      { "text": "PUBREL", "correct": true, "explanation": "Yes. Third step — PUBREL (Publish Release) from publisher: 'allowing delivery to subscriber'." },
-      { "text": "PUBCOMP", "correct": true, "explanation": "Yes. Fourth step — PUBCOMP (Publish Complete) from broker: 'complete, remove from your queue'." },
-      { "text": "PUBACK", "correct": false, "explanation": "No. PUBACK is only used in QoS 1. In QoS 2, PUBREC is used instead." }
+      {
+        "text": "PUBACK",
+        "correct": false,
+        "explanation": "No. PUBACK is only used in QoS 1. In QoS 2, PUBREC is used instead."
+      },
+      {
+        "text": "PUBLISH",
+        "correct": true,
+        "explanation": "Yes. First step — PUBLISH from publisher to broker."
+      },
+      {
+        "text": "PUBREL",
+        "correct": true,
+        "explanation": "Yes. Third step — PUBREL (Publish Release) from publisher: 'allowing delivery to subscriber'."
+      },
+      {
+        "text": "PUBCOMP",
+        "correct": true,
+        "explanation": "Yes. Fourth step — PUBCOMP (Publish Complete) from broker: 'complete, remove from your queue'."
+      },
+      {
+        "text": "PUBREC",
+        "correct": true,
+        "explanation": "Yes. Second step — PUBREC (Publish Received) from broker: 'received, wait for release'."
+      }
     ]
   },
   {
     "question": "A developer wants new subscribers to immediately receive the current device state upon subscription. What should be done?",
     "type": "single",
     "options": [
-      { "text": "Publish with retain=true flag", "correct": true, "explanation": "Correct. A retained message is stored by the broker and immediately delivered to new subscribers when they subscribe to the corresponding topic." },
-      { "text": "Use QoS 2 when publishing", "correct": false, "explanation": "No. QoS 2 guarantees exactly-once delivery but doesn't help new subscribers get the current value." },
-      { "text": "Configure persistent session", "correct": false, "explanation": "No. Persistent session preserves the queue for a SPECIFIC offline client. Retained is for ANY new subscriber." },
-      { "text": "Use sys_interval", "correct": false, "explanation": "No. sys_interval controls $SYS topics, not retained messages." }
+      {
+        "text": "Configure persistent session",
+        "correct": false,
+        "explanation": "No. Persistent session preserves the queue for a SPECIFIC offline client. Retained is for ANY new subscriber."
+      },
+      {
+        "text": "Use QoS 2 when publishing",
+        "correct": false,
+        "explanation": "No. QoS 2 guarantees exactly-once delivery but doesn't help new subscribers get the current value."
+      },
+      {
+        "text": "Use sys_interval",
+        "correct": false,
+        "explanation": "No. sys_interval controls $SYS topics, not retained messages."
+      },
+      {
+        "text": "Publish with retain=true flag",
+        "correct": true,
+        "explanation": "Correct. A retained message is stored by the broker and immediately delivered to new subscribers when they subscribe to the corresponding topic."
+      }
     ]
   },
   {
     "question": "A client connected with LWT, then correctly called disconnect(). What happens to the LWT?",
     "type": "single",
     "options": [
-      { "text": "LWT will not be sent — the broker cancels it on normal DISCONNECT", "correct": true, "explanation": "Correct. LWT is only sent on abnormal connection termination (keepalive timeout, network failure). A normal DISCONNECT cancels the LWT." },
-      { "text": "LWT will be sent with a 60-second delay", "correct": false, "explanation": "No. LWT Delay Interval is an MQTT v5 option, but even there, LWT is not sent on normal DISCONNECT." },
-      { "text": "LWT will be sent immediately", "correct": false, "explanation": "No. Immediate LWT sending only happens on abnormal disconnection. Normal DISCONNECT = client is alive, LWT is not needed." },
-      { "text": "LWT will become a retained message", "correct": false, "explanation": "No. LWT becomes retained only if will_retain=true was set during LWT configuration. But even then, it's only sent on abnormal disconnection, not on normal DISCONNECT." }
+      {
+        "text": "LWT will not be sent — the broker cancels it on normal DISCONNECT",
+        "correct": true,
+        "explanation": "Correct. LWT is only sent on abnormal connection termination (keepalive timeout, network failure). A normal DISCONNECT cancels the LWT."
+      },
+      {
+        "text": "LWT will become a retained message",
+        "correct": false,
+        "explanation": "No. LWT becomes retained only if will_retain=true was set during LWT configuration. But even then, it's only sent on abnormal disconnection, not on normal DISCONNECT."
+      },
+      {
+        "text": "LWT will be sent with a 60-second delay",
+        "correct": false,
+        "explanation": "No. LWT Delay Interval is an MQTT v5 option, but even there, LWT is not sent on normal DISCONNECT."
+      },
+      {
+        "text": "LWT will be sent immediately",
+        "correct": false,
+        "explanation": "No. Immediate LWT sending only happens on abnormal disconnection. Normal DISCONNECT = client is alive, LWT is not needed."
+      }
     ]
   },
   {
     "question": "On OpenWRT (64 MB RAM), a broker with 50 clients accumulates QoS 1 message queues for offline clients. Which mosquitto.conf parameter helps control memory consumption?",
     "type": "single",
     "options": [
-      { "text": "max_queued_messages", "correct": true, "explanation": "Correct. max_queued_messages limits the number of messages in the queue for each offline client with persistent session. On OpenWRT, 10-50 is recommended." },
-      { "text": "max_connections", "correct": false, "explanation": "max_connections limits the number of simultaneous connections, not message queue sizes." },
-      { "text": "max_packet_size", "correct": false, "explanation": "max_packet_size limits the size of a single packet, not the number of messages in a queue." },
-      { "text": "message_size_limit", "correct": false, "explanation": "message_size_limit limits the payload size of a message, not the size of the accumulated queue." }
+      {
+        "text": "message_size_limit",
+        "correct": false,
+        "explanation": "message_size_limit limits the payload size of a message, not the size of the accumulated queue."
+      },
+      {
+        "text": "max_queued_messages",
+        "correct": true,
+        "explanation": "Correct. max_queued_messages limits the number of messages in the queue for each offline client with persistent session. On OpenWRT, 10-50 is recommended."
+      },
+      {
+        "text": "max_connections",
+        "correct": false,
+        "explanation": "max_connections limits the number of simultaneous connections, not message queue sizes."
+      },
+      {
+        "text": "max_packet_size",
+        "correct": false,
+        "explanation": "max_packet_size limits the size of a single packet, not the number of messages in a queue."
+      }
     ]
   },
   {
     "question": "How to delete a retained message from the broker?",
     "type": "single",
     "options": [
-      { "text": "Publish with retain=true and empty payload to the same topic", "correct": true, "explanation": "Correct. Publishing retained with an empty payload (length 0) removes the stored retained message for that topic." },
-      { "text": "Publish with retain=false and payload 'delete'", "correct": false, "explanation": "No. The word 'delete' is just a string. Deletion is via retain=true + empty payload." },
-      { "text": "Restart the Mosquitto broker", "correct": false, "explanation": "No. If persistence is enabled, retained messages survive a restart. You need to explicitly delete via empty payload." },
-      { "text": "Use a special mosquitto_clear command", "correct": false, "explanation": "No such command exists. Retained message deletion is via publishing an empty payload with retain=true." }
+      {
+        "text": "Publish with retain=true and empty payload to the same topic",
+        "correct": true,
+        "explanation": "Correct. Publishing retained with an empty payload (length 0) removes the stored retained message for that topic."
+      },
+      {
+        "text": "Publish with retain=false and payload 'delete'",
+        "correct": false,
+        "explanation": "No. The word 'delete' is just a string. Deletion is via retain=true + empty payload."
+      },
+      {
+        "text": "Restart the Mosquitto broker",
+        "correct": false,
+        "explanation": "No. If persistence is enabled, retained messages survive a restart. You need to explicitly delete via empty payload."
+      },
+      {
+        "text": "Use a special mosquitto_clear command",
+        "correct": false,
+        "explanation": "No such command exists. Retained message deletion is via publishing an empty payload with retain=true."
+      }
     ]
   },
   {
     "question": "For LWT (Last Will and Testament), a developer wants maximum delivery reliability for the 'offline' message. Which QoS to use for will_qos?",
     "type": "single",
     "options": [
-      { "text": "QoS 1", "correct": true, "explanation": "Correct. QoS 1 guarantees delivery (at least once) and is much lighter than QoS 2. For an 'offline' LWT — ideal choice: reliable without excessive 4-step handshake." },
-      { "text": "QoS 0", "correct": false, "explanation": "QoS 0 doesn't guarantee delivery. LWT is a critical message about device unavailability. Losing it would break monitoring." },
-      { "text": "QoS 2", "correct": false, "explanation": "QoS 2 is excessive for LWT. A 4-step handshake during abnormal disconnection creates extra load. QoS 1 is sufficient." },
-      { "text": "QoS doesn't matter for LWT", "correct": false, "explanation": "No, QoS for LWT is important — it determines the delivery guarantee of the will message to subscribers." }
+      {
+        "text": "QoS 0",
+        "correct": false,
+        "explanation": "QoS 0 doesn't guarantee delivery. LWT is a critical message about device unavailability. Losing it would break monitoring."
+      },
+      {
+        "text": "QoS 1",
+        "correct": true,
+        "explanation": "Correct. QoS 1 guarantees delivery (at least once) and is much lighter than QoS 2. For an 'offline' LWT — ideal choice: reliable without excessive 4-step handshake."
+      },
+      {
+        "text": "QoS 2",
+        "correct": false,
+        "explanation": "QoS 2 is excessive for LWT. A 4-step handshake during abnormal disconnection creates extra load. QoS 1 is sufficient."
+      },
+      {
+        "text": "QoS doesn't matter for LWT",
+        "correct": false,
+        "explanation": "No, QoS for LWT is important — it determines the delivery guarantee of the will message to subscribers."
+      }
     ]
   }
 ]

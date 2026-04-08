@@ -3,140 +3,369 @@
     "question": "What is the first step when migrating a legacy codebase with an agent?",
     "type": "single",
     "options": [
-      { "text": "Start the migration immediately — the agent will figure it out", "correct": false, "explanation": "Without reconnaissance, the agent doesn't understand the scope, dependencies, and problem areas. The result will be chaotic" },
-      { "text": "Reconnaissance in plan mode: analyze structure, dependencies, and problem areas", "correct": true, "explanation": "Plan mode lets you understand the current state without making changes. This is the foundation for a migration strategy" },
-      { "text": "Write 50 skills for all possible transformations", "correct": false, "explanation": "Skills should be created after reconnaissance, when you know which transformations are common. Otherwise most skills will be useless" },
-      { "text": "Delete the old code and write from scratch", "correct": false, "explanation": "Rewriting from scratch is one of the riskiest approaches in development. Step-by-step migration is safer and more predictable" }
+      {
+        "text": "Reconnaissance in plan mode: analyze structure, dependencies, and problem areas",
+        "correct": true,
+        "explanation": "Plan mode lets you understand the current state without making changes. This is the foundation for a migration strategy"
+      },
+      {
+        "text": "Write 50 skills for all possible transformations",
+        "correct": false,
+        "explanation": "Skills should be created after reconnaissance, when you know which transformations are common. Otherwise most skills will be useless"
+      },
+      {
+        "text": "Start the migration immediately — the agent will figure it out",
+        "correct": false,
+        "explanation": "Without reconnaissance, the agent doesn't understand the scope, dependencies, and problem areas. The result will be chaotic"
+      },
+      {
+        "text": "Delete the old code and write from scratch",
+        "correct": false,
+        "explanation": "Rewriting from scratch is one of the riskiest approaches in development. Step-by-step migration is safer and more predictable"
+      }
     ]
   },
   {
     "question": "Why describe both current (legacy) and target architecture in CLAUDE.md during migration?",
     "type": "single",
     "options": [
-      { "text": "For documentation — so the team knows the project history", "correct": false, "explanation": "Documentation is a side effect. The main reason — the agent needs to understand where (legacy) and where to (target) to migrate" },
-      { "text": "The agent needs to know what patterns to transform from (current) and to (target)", "correct": true, "explanation": "Without legacy description the agent won't understand the current code. Without target description — it won't know what the result should look like" },
-      { "text": "Claude Code requires both descriptions to work", "correct": false, "explanation": "There's no technical requirement. But without both architectures, the agent can't perform a meaningful migration" },
-      { "text": "It's only needed for reporting to management", "correct": false, "explanation": "CLAUDE.md is a tool for the agent, not for management. Describing both architectures is critically important context" }
+      {
+        "text": "It's only needed for reporting to management",
+        "correct": false,
+        "explanation": "CLAUDE.md is a tool for the agent, not for management. Describing both architectures is critically important context"
+      },
+      {
+        "text": "For documentation — so the team knows the project history",
+        "correct": false,
+        "explanation": "Documentation is a side effect. The main reason — the agent needs to understand where (legacy) and where to (target) to migrate"
+      },
+      {
+        "text": "Claude Code requires both descriptions to work",
+        "correct": false,
+        "explanation": "There's no technical requirement. But without both architectures, the agent can't perform a meaningful migration"
+      },
+      {
+        "text": "The agent needs to know what patterns to transform from (current) and to (target)",
+        "correct": true,
+        "explanation": "Without legacy description the agent won't understand the current code. Without target description — it won't know what the result should look like"
+      }
     ]
   },
   {
     "question": "What does agent-friendly architecture mean in a greenfield project?",
     "type": "multiple",
     "options": [
-      { "text": "One module — one directory with predictable structure", "correct": true, "explanation": "The agent finds files by convention (users/users.controller.ts) rather than searching the entire project" },
-      { "text": "Short files (up to 200 lines) that fit in context", "correct": true, "explanation": "A 2000-line file doesn't fit in context as a whole. The agent is forced to read in fragments and loses the big picture" },
-      { "text": "All files in one directory for simplicity", "correct": false, "explanation": "A flat structure of 200 files is a nightmare for an agent. Module structure with predictable paths is much more efficient" },
-      { "text": "Tests next to code — the agent sees code and tests simultaneously", "correct": true, "explanation": "When tests are in __tests__/ next to the module, the agent loads both code and tests and can keep them consistent" }
+      {
+        "text": "All files in one directory for simplicity",
+        "correct": false,
+        "explanation": "A flat structure of 200 files is a nightmare for an agent. Module structure with predictable paths is much more efficient"
+      },
+      {
+        "text": "One module — one directory with predictable structure",
+        "correct": true,
+        "explanation": "The agent finds files by convention (users/users.controller.ts) rather than searching the entire project"
+      },
+      {
+        "text": "This depends solely on the programming language",
+        "correct": false,
+        "explanation": "This is an architectural decision independent of the language."
+      },
+      {
+        "text": "Short files (up to 200 lines) that fit in context",
+        "correct": true,
+        "explanation": "A 2000-line file doesn't fit in context as a whole. The agent is forced to read in fragments and loses the big picture"
+      },
+      {
+        "text": "Tests next to code — the agent sees code and tests simultaneously",
+        "correct": true,
+        "explanation": "When tests are in __tests__/ next to the module, the agent loads both code and tests and can keep them consistent"
+      }
     ]
   },
   {
     "question": "The agent works in user-service, but the task requires changes in order-service (different repository). What's the most effective solution?",
     "type": "single",
     "options": [
-      { "text": "Open a second terminal with Claude Code in order-service", "correct": false, "explanation": "Two independent agents don't coordinate with each other. Changes in user-service might be incompatible with order-service" },
-      { "text": "CLAUDE.md with descriptions of all services + MCP server for cross-repo search", "correct": true, "explanation": "CLAUDE.md provides context about the entire system, MCP server allows searching code in other repos. The agent sees the full picture" },
-      { "text": "Copy order-service code into user-service", "correct": false, "explanation": "This violates the repository separation principle and creates a synchronization problem" },
-      { "text": "Abandon the microservice architecture", "correct": false, "explanation": "Architecture shouldn't be dictated by tool limitations. There are ways to work with multi-repo setups" }
+      {
+        "text": "CLAUDE.md with descriptions of all services + MCP server for cross-repo search",
+        "correct": true,
+        "explanation": "CLAUDE.md provides context about the entire system, MCP server allows searching code in other repos. The agent sees the full picture"
+      },
+      {
+        "text": "Open a second terminal with Claude Code in order-service",
+        "correct": false,
+        "explanation": "Two independent agents don't coordinate with each other. Changes in user-service might be incompatible with order-service"
+      },
+      {
+        "text": "Copy order-service code into user-service",
+        "correct": false,
+        "explanation": "This violates the repository separation principle and creates a synchronization problem"
+      },
+      {
+        "text": "Abandon the microservice architecture",
+        "correct": false,
+        "explanation": "Architecture shouldn't be dictated by tool limitations. There are ways to work with multi-repo setups"
+      }
     ]
   },
   {
     "question": "How to run Claude Code in a CI/CD pipeline?",
     "type": "single",
     "options": [
-      { "text": "claude --mode auto — the agent will figure it out", "correct": false, "explanation": "auto mode in CI/CD is dangerous without strict limits. The -p flag (pipe mode) is specifically designed for non-interactive environments" },
-      { "text": "claude -p 'task' — non-interactive mode via pipe", "correct": true, "explanation": "The -p flag runs the agent in non-interactive mode: it executes the task and exits. Ideal for CI/CD" },
-      { "text": "claude --ci — special CI mode", "correct": false, "explanation": "No such flag exists. For CI/CD, the -p flag (pipe mode) is used" },
-      { "text": "Claude Code can't be used in CI/CD", "correct": false, "explanation": "Claude Code works great in CI/CD via Agent SDK and the -p flag. This is one of the key use cases" }
+      {
+        "text": "Claude Code can't be used in CI/CD",
+        "correct": false,
+        "explanation": "Claude Code works great in CI/CD via Agent SDK and the -p flag. This is one of the key use cases"
+      },
+      {
+        "text": "claude --ci — special CI mode",
+        "correct": false,
+        "explanation": "No such flag exists. For CI/CD, the -p flag (pipe mode) is used"
+      },
+      {
+        "text": "claude --mode auto — the agent will figure it out",
+        "correct": false,
+        "explanation": "auto mode in CI/CD is dangerous without strict limits. The -p flag (pipe mode) is specifically designed for non-interactive environments"
+      },
+      {
+        "text": "claude -p 'task' — non-interactive mode via pipe",
+        "correct": true,
+        "explanation": "The -p flag runs the agent in non-interactive mode: it executes the task and exits. Ideal for CI/CD"
+      }
     ]
   },
   {
     "question": "Why is the anti-pattern 'the agent will handle everything' dangerous?",
     "type": "multiple",
     "options": [
-      { "text": "Without oversight, errors accumulate and make rollback harder", "correct": true, "explanation": "Each agent error affects subsequent steps. After 50 changes, finding and fixing a problem is like finding a needle in a haystack" },
-      { "text": "The agent doesn't plan many steps ahead", "correct": true, "explanation": "The agent solves the current task. It doesn't see that the current solution will create problems 10 steps later" },
-      { "text": "Context window is finite — the agent 'forgets' the start of a long session", "correct": true, "explanation": "During a long session, compaction occurs. The agent may lose important details and start contradicting earlier decisions" },
-      { "text": "Claude Code disconnects after 100 operations", "correct": false, "explanation": "No such limit exists. The problem is the quality of the result, not a technical limit" }
+      {
+        "text": "The agent doesn't plan many steps ahead",
+        "correct": false,
+        "explanation": "The agent solves the current task. It doesn't see that the current solution will create problems 10 steps later"
+      },
+      {
+        "text": "Without oversight, errors accumulate and make rollback harder",
+        "correct": true,
+        "explanation": "Each agent error affects subsequent steps. After 50 changes, finding and fixing a problem is like finding a needle in a haystack"
+      },
+      {
+        "text": "Claude Code disconnects after 100 operations",
+        "correct": false,
+        "explanation": "No such limit exists. The problem is the quality of the result, not a technical limit"
+      },
+      {
+        "text": "Context window is finite — the agent 'forgets' the start of a long session",
+        "correct": true,
+        "explanation": "During a long session, compaction occurs. The agent may lose important details and start contradicting earlier decisions"
+      }
     ]
   },
   {
     "question": "You're starting a legacy migration. CLAUDE.md is ready, skills are created. What's next?",
     "type": "single",
     "options": [
-      { "text": "Run migration of all modules in parallel via sub-agents", "correct": false, "explanation": "Parallel migration creates conflicts: modules depend on each other, and parallel changes may be incompatible" },
-      { "text": "Write tests for current behavior, then migrate one module at a time with test verification", "correct": true, "explanation": "Tests are a safety net. Without them you won't know if the agent broke anything. Step-by-step migration isolates problems" },
-      { "text": "Migrate the most complex module first — if it works, the rest will be easier", "correct": false, "explanation": "Start with simple modules — refine the process. Migrate complex modules once you have experience and confidence in the skills" },
-      { "text": "Ask the agent to rewrite everything from scratch on the target architecture", "correct": false, "explanation": "Rewriting from scratch is an anti-pattern. Step-by-step migration with tests is much safer" }
+      {
+        "text": "Migrate the most complex module first — if it works, the rest will be easier",
+        "correct": false,
+        "explanation": "Start with simple modules — refine the process. Migrate complex modules once you have experience and confidence in the skills"
+      },
+      {
+        "text": "Write tests for current behavior, then migrate one module at a time with test verification",
+        "correct": true,
+        "explanation": "Tests are a safety net. Without them you won't know if the agent broke anything. Step-by-step migration isolates problems"
+      },
+      {
+        "text": "Ask the agent to rewrite everything from scratch on the target architecture",
+        "correct": false,
+        "explanation": "Rewriting from scratch is an anti-pattern. Step-by-step migration with tests is much safer"
+      },
+      {
+        "text": "Run migration of all modules in parallel via sub-agents",
+        "correct": false,
+        "explanation": "Parallel migration creates conflicts: modules depend on each other, and parallel changes may be incompatible"
+      }
     ]
   },
   {
     "question": "Which permission settings are critical for an agent in CI/CD?",
     "type": "multiple",
     "options": [
-      { "text": "deny: Write, Edit — the agent shouldn't modify files during code review", "correct": true, "explanation": "For code review and analysis tasks, the agent should only read. Write prohibition prevents accidental changes" },
-      { "text": "deny: Bash(git push*) — the agent shouldn't push code", "correct": true, "explanation": "Pushing in CI/CD should be a controlled process. The agent shouldn't independently send changes" },
-      { "text": "allow: Bash(*) — there's no user for confirmations in CI/CD", "correct": false, "explanation": "Bash(*) in CI/CD is maximally dangerous. The agent gets unlimited permissions without human oversight" },
-      { "text": "disableBypassPermissionsMode: disable", "correct": true, "explanation": "In CI/CD nobody should be able to disable all security checks" }
+      {
+        "text": "deny: Bash(git push*) — the agent shouldn't push code",
+        "correct": false,
+        "explanation": "Pushing in CI/CD should be a controlled process. The agent shouldn't independently send changes"
+      },
+      {
+        "text": "deny: Write, Edit — the agent shouldn't modify files during code review",
+        "correct": true,
+        "explanation": "For code review and analysis tasks, the agent should only read. Write prohibition prevents accidental changes"
+      },
+      {
+        "text": "allow: Bash(*) — there's no user for confirmations in CI/CD",
+        "correct": false,
+        "explanation": "Bash(*) in CI/CD is maximally dangerous. The agent gets unlimited permissions without human oversight"
+      },
+      {
+        "text": "disableBypassPermissionsMode: disable",
+        "correct": true,
+        "explanation": "In CI/CD nobody should be able to disable all security checks"
+      }
     ]
   },
   {
     "question": "A project has used Claude Code for 6 months. CLAUDE.md hasn't been updated. The architecture changed (switched from REST to GraphQL). What will happen?",
     "type": "single",
     "options": [
-      { "text": "The agent will automatically adapt to the new architecture", "correct": false, "explanation": "The agent follows instructions from CLAUDE.md. If REST is described there, it will generate REST endpoints in a GraphQL project" },
-      { "text": "The agent will generate code using outdated patterns from CLAUDE.md", "correct": true, "explanation": "CLAUDE.md is the main source of rules. Outdated rules lead to generating code incompatible with the current architecture" },
-      { "text": "Claude Code will issue a mismatch warning", "correct": false, "explanation": "Claude Code doesn't automatically compare CLAUDE.md with actual code. If CLAUDE.md says REST — the agent will do REST" },
-      { "text": "Nothing changes — the agent ignores CLAUDE.md", "correct": false, "explanation": "CLAUDE.md is a key source of context. The agent actively uses it for decision-making" }
+      {
+        "text": "The agent will automatically adapt to the new architecture",
+        "correct": false,
+        "explanation": "The agent follows instructions from CLAUDE.md. If REST is described there, it will generate REST endpoints in a GraphQL project"
+      },
+      {
+        "text": "Nothing changes — the agent ignores CLAUDE.md",
+        "correct": false,
+        "explanation": "CLAUDE.md is a key source of context. The agent actively uses it for decision-making"
+      },
+      {
+        "text": "The agent will generate code using outdated patterns from CLAUDE.md",
+        "correct": true,
+        "explanation": "CLAUDE.md is the main source of rules. Outdated rules lead to generating code incompatible with the current architecture"
+      },
+      {
+        "text": "Claude Code will issue a mismatch warning",
+        "correct": false,
+        "explanation": "Claude Code doesn't automatically compare CLAUDE.md with actual code. If CLAUDE.md says REST — the agent will do REST"
+      }
     ]
   },
   {
     "question": "What minimum checklist must be completed before starting agent-based development?",
     "type": "multiple",
     "options": [
-      { "text": "CLAUDE.md describing stack, architecture, and conventions", "correct": true, "explanation": "Without CLAUDE.md the agent doesn't know project standards and will generate code at its discretion" },
-      { "text": ".claude/settings.json with allow/deny", "correct": true, "explanation": "Without configured permissions the agent either asks for confirmation on every action or has too much freedom" },
-      { "text": "At least smoke tests", "correct": true, "explanation": "Without tests it's impossible to verify whether the agent broke existing functionality" },
-      { "text": "50+ skills for all project tasks", "correct": false, "explanation": "50 skills is excessive for a start. Begin with CLAUDE.md and basic settings, add skills as recurring tasks are identified" }
+      {
+        "text": "At least smoke tests",
+        "correct": true,
+        "explanation": "Without tests it's impossible to verify whether the agent broke existing functionality"
+      },
+      {
+        "text": ".claude/settings.json with allow/deny",
+        "correct": true,
+        "explanation": "Without configured permissions the agent either asks for confirmation on every action or has too much freedom"
+      },
+      {
+        "text": "CLAUDE.md describing stack, architecture, and conventions",
+        "correct": true,
+        "explanation": "Without CLAUDE.md the agent doesn't know project standards and will generate code at its discretion"
+      },
+      {
+        "text": "50+ skills for all project tasks",
+        "correct": false,
+        "explanation": "50 skills is excessive for a start. Begin with CLAUDE.md and basic settings, add skills as recurring tasks are identified"
+      }
     ]
   },
   {
     "question": "Cost of automated code review per PR via Claude Code: small PR ~$0.10, large PR ~$3.00. You have 50 PRs per day. What should you configure?",
     "type": "single",
     "options": [
-      { "text": "Nothing — $5-150/day is normal cost", "correct": false, "explanation": "Without monitoring, costs can grow unnoticed. Monitoring and limits are mandatory practice for CI/CD with agents" },
-      { "text": "Cost monitoring and limits via --max-cost", "correct": true, "explanation": "Cost limit per run prevents unexpected expenses. Monitoring allows optimization — e.g., running full review only for large PRs" },
-      { "text": "Disable code review — too expensive", "correct": false, "explanation": "Automated review pays off by catching bugs before merge. You should optimize, not disable" },
-      { "text": "Run review only on Mondays", "correct": false, "explanation": "Bugs in PRs merged without review Tuesday-Friday will cost more than the daily automated review" }
+      {
+        "text": "Nothing — $5-150/day is normal cost",
+        "correct": false,
+        "explanation": "Without monitoring, costs can grow unnoticed. Monitoring and limits are mandatory practice for CI/CD with agents"
+      },
+      {
+        "text": "Run review only on Mondays",
+        "correct": false,
+        "explanation": "Bugs in PRs merged without review Tuesday-Friday will cost more than the daily automated review"
+      },
+      {
+        "text": "Cost monitoring and limits via --max-cost",
+        "correct": true,
+        "explanation": "Cost limit per run prevents unexpected expenses. Monitoring allows optimization — e.g., running full review only for large PRs"
+      },
+      {
+        "text": "Disable code review — too expensive",
+        "correct": false,
+        "explanation": "Automated review pays off by catching bugs before merge. You should optimize, not disable"
+      }
     ]
   },
   {
     "question": "Why is the context window a limiting factor for large tasks?",
     "type": "single",
     "options": [
-      { "text": "Claude Code limits sessions by time", "correct": false, "explanation": "The limitation isn't time-based but context volume. A long session with many messages fills the context window" },
-      { "text": "When context fills, compaction occurs — the agent loses details from early steps and may contradict itself", "correct": true, "explanation": "Compaction compresses history to free space. The agent may lose important decisions from the start of the session" },
-      { "text": "Context is infinite, the problem is model speed", "correct": false, "explanation": "The context window is finite. When it fills, compaction occurs — this is the main limitation for long tasks" },
-      { "text": "The problem is only the cost of long sessions", "correct": false, "explanation": "Cost is a factor, but the main problem is context loss and quality degradation during compaction" }
+      {
+        "text": "When context fills, compaction occurs — the agent loses details from early steps and may contradict itself",
+        "correct": true,
+        "explanation": "Compaction compresses history to free space. The agent may lose important decisions from the start of the session"
+      },
+      {
+        "text": "The problem is only the cost of long sessions",
+        "correct": false,
+        "explanation": "Cost is a factor, but the main problem is context loss and quality degradation during compaction"
+      },
+      {
+        "text": "Claude Code limits sessions by time",
+        "correct": false,
+        "explanation": "The limitation isn't time-based but context volume. A long session with many messages fills the context window"
+      },
+      {
+        "text": "Context is infinite, the problem is model speed",
+        "correct": false,
+        "explanation": "The context window is finite. When it fills, compaction occurs — this is the main limitation for long tasks"
+      }
     ]
   },
   {
     "question": "You have a multi-repo of 12 microservices. How to ensure unified code standards across all repos?",
     "type": "multiple",
     "options": [
-      { "text": "Shared standards repository, copied to each repo via CI", "correct": true, "explanation": "A centralized source of rules (.claude/rules/, CLAUDE.md) syncs automatically — all repos get the same standards" },
-      { "text": "CLAUDE.md with descriptions of all services and their interactions in each repo", "correct": true, "explanation": "The agent in each repo sees the full system picture: which services exist, how they interact, what API contracts there are" },
-      { "text": "One CLAUDE.md for the entire organization in Confluence", "correct": false, "explanation": "Claude Code reads CLAUDE.md from the project filesystem, not from Confluence. Standards must be in the repository" },
-      { "text": "Shared .claude/rules/ identical across all repos", "correct": true, "explanation": "Path-specific rules (backend, frontend, testing) can be shared across all repos — unified coding standards" }
+      {
+        "text": "CLAUDE.md with descriptions of all services and their interactions in each repo",
+        "correct": true,
+        "explanation": "The agent in each repo sees the full system picture: which services exist, how they interact, what API contracts there are"
+      },
+      {
+        "text": "One CLAUDE.md for the entire organization in Confluence",
+        "correct": false,
+        "explanation": "Claude Code reads CLAUDE.md from the project filesystem, not from Confluence. Standards must be in the repository"
+      },
+      {
+        "text": "Shared .claude/rules/ identical across all repos",
+        "correct": true,
+        "explanation": "Path-specific rules (backend, frontend, testing) can be shared across all repos — unified coding standards"
+      },
+      {
+        "text": "Shared standards repository, copied to each repo via CI",
+        "correct": true,
+        "explanation": "A centralized source of rules (.claude/rules/, CLAUDE.md) syncs automatically — all repos get the same standards"
+      }
     ]
   },
   {
     "question": "You're launching a greenfield project. In what order should you configure Claude Code tools?",
     "type": "single",
     "options": [
-      { "text": "Skills → Hooks → CLAUDE.md → Settings", "correct": false, "explanation": "Skills and hooks are advanced tools. Start with the foundation: CLAUDE.md and settings" },
-      { "text": "CLAUDE.md → Settings → Rules → Skills (as needed)", "correct": true, "explanation": "CLAUDE.md — foundation (stack, conventions). Settings — security. Rules — details for different project parts. Skills — as recurring tasks are identified" },
-      { "text": "Settings → Managed policy → Plugins → CLAUDE.md", "correct": false, "explanation": "Managed policy and plugins are enterprise-level. For a new project, start with CLAUDE.md and basic settings" },
-      { "text": "Order doesn't matter — configure in any order", "correct": false, "explanation": "Order matters: without CLAUDE.md the agent doesn't know standards, without settings — too much or too little freedom. Foundation first" }
+      {
+        "text": "CLAUDE.md → Settings → Rules → Skills (as needed)",
+        "correct": true,
+        "explanation": "CLAUDE.md — foundation (stack, conventions). Settings — security. Rules — details for different project parts. Skills — as recurring tasks are identified"
+      },
+      {
+        "text": "Settings → Managed policy → Plugins → CLAUDE.md",
+        "correct": false,
+        "explanation": "Managed policy and plugins are enterprise-level. For a new project, start with CLAUDE.md and basic settings"
+      },
+      {
+        "text": "Skills → Hooks → CLAUDE.md → Settings",
+        "correct": false,
+        "explanation": "Skills and hooks are advanced tools. Start with the foundation: CLAUDE.md and settings"
+      },
+      {
+        "text": "Order doesn't matter — configure in any order",
+        "correct": false,
+        "explanation": "Order matters: without CLAUDE.md the agent doesn't know standards, without settings — too much or too little freedom. Foundation first"
+      }
     ]
   }
 ]

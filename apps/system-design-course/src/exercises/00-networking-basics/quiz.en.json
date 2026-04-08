@@ -3,50 +3,130 @@
     "question": "What is the fundamental difference between TCP and UDP?",
     "type": "single",
     "options": [
-      { "text": "TCP guarantees delivery and packet order, UDP does not", "correct": true, "explanation": "TCP uses acknowledgment (ACK), retransmission, and packet numbering mechanisms to guarantee reliable delivery" },
-      { "text": "TCP is faster than UDP", "correct": false, "explanation": "The opposite is true: UDP is faster because it doesn't spend time on handshake, acknowledgments, and order control" },
-      { "text": "UDP cannot transmit data over a network", "correct": false, "explanation": "UDP fully transmits data, just without delivery guarantees. It is widely used for video calls, gaming, and DNS queries" },
-      { "text": "TCP and UDP operate at different layers of the TCP/IP model", "correct": false, "explanation": "Both protocols operate at the transport layer of the TCP/IP model" }
+      {
+        "text": "TCP and UDP operate at different layers of the TCP/IP model",
+        "correct": false,
+        "explanation": "Both protocols operate at the transport layer of the TCP/IP model"
+      },
+      {
+        "text": "TCP guarantees delivery and packet order, UDP does not",
+        "correct": true,
+        "explanation": "TCP uses acknowledgment (ACK), retransmission, and packet numbering mechanisms to guarantee reliable delivery"
+      },
+      {
+        "text": "UDP cannot transmit data over a network",
+        "correct": false,
+        "explanation": "UDP fully transmits data, just without delivery guarantees. It is widely used for video calls, gaming, and DNS queries"
+      },
+      {
+        "text": "TCP is faster than UDP",
+        "correct": false,
+        "explanation": "The opposite is true: UDP is faster because it doesn't spend time on handshake, acknowledgments, and order control"
+      }
     ]
   },
   {
     "question": "What problem does HTTP/2 multiplexing solve compared to HTTP/1.1?",
     "type": "single",
     "options": [
-      { "text": "HTTP-level Head-of-Line blocking — requests no longer wait in queue", "correct": true, "explanation": "HTTP/2 allows sending many requests in parallel within a single TCP connection via streams, eliminating the queue at the HTTP level" },
-      { "text": "Completely eliminates all types of HOL blocking", "correct": false, "explanation": "HTTP/2 eliminates HTTP-level HOL blocking, but TCP-level HOL blocking remains: a lost TCP packet blocks all streams. This is only solved in HTTP/3 (QUIC)" },
-      { "text": "Enables encryption (TLS)", "correct": false, "explanation": "TLS is available in HTTP/1.1 too (HTTPS). Multiplexing is unrelated to encryption" },
-      { "text": "Reduces transmitted data size through binary request body format", "correct": false, "explanation": "HTTP/2 uses binary framing for headers (HPACK), but the request body is sent as-is. Multiplexing is about parallel streams, not compression" }
+      {
+        "text": "Completely eliminates all types of HOL blocking",
+        "correct": false,
+        "explanation": "HTTP/2 eliminates HTTP-level HOL blocking, but TCP-level HOL blocking remains: a lost TCP packet blocks all streams. This is only solved in HTTP/3 (QUIC)"
+      },
+      {
+        "text": "Reduces transmitted data size through binary request body format",
+        "correct": false,
+        "explanation": "HTTP/2 uses binary framing for headers (HPACK), but the request body is sent as-is. Multiplexing is about parallel streams, not compression"
+      },
+      {
+        "text": "Enables encryption (TLS)",
+        "correct": false,
+        "explanation": "TLS is available in HTTP/1.1 too (HTTPS). Multiplexing is unrelated to encryption"
+      },
+      {
+        "text": "HTTP-level Head-of-Line blocking — requests no longer wait in queue",
+        "correct": true,
+        "explanation": "HTTP/2 allows sending many requests in parallel within a single TCP connection via streams, eliminating the queue at the HTTP level"
+      }
     ]
   },
   {
     "question": "How is a WebSocket connection established?",
     "type": "single",
     "options": [
-      { "text": "Via HTTP Upgrade handshake: client sends an HTTP request with Upgrade: websocket header", "correct": true, "explanation": "WebSocket starts as a regular HTTP request. The server responds with 101 Switching Protocols, and the connection switches to full-duplex mode" },
-      { "text": "Client opens a separate TCP connection on a special WebSocket port", "correct": false, "explanation": "WebSocket uses the same ports as HTTP (80/443). The connection is established via HTTP Upgrade, not a separate port" },
-      { "text": "Client sends a UDP packet to initialize WebSocket", "correct": false, "explanation": "WebSocket runs over TCP, not UDP. It starts with an HTTP request and then switches protocol" },
-      { "text": "Server initiates the connection to the client", "correct": false, "explanation": "The client always initiates. The server cannot open a WebSocket connection to a client — it only accepts and confirms the upgrade request" }
+      {
+        "text": "Client sends a UDP packet to initialize WebSocket",
+        "correct": false,
+        "explanation": "WebSocket runs over TCP, not UDP. It starts with an HTTP request and then switches protocol"
+      },
+      {
+        "text": "Client opens a separate TCP connection on a special WebSocket port",
+        "correct": false,
+        "explanation": "WebSocket uses the same ports as HTTP (80/443). The connection is established via HTTP Upgrade, not a separate port"
+      },
+      {
+        "text": "Server initiates the connection to the client",
+        "correct": false,
+        "explanation": "The client always initiates. The server cannot open a WebSocket connection to a client — it only accepts and confirms the upgrade request"
+      },
+      {
+        "text": "Via HTTP Upgrade handshake: client sends an HTTP request with Upgrade: websocket header",
+        "correct": true,
+        "explanation": "WebSocket starts as a regular HTTP request. The server responds with 101 Switching Protocols, and the connection switches to full-duplex mode"
+      }
     ]
   },
   {
     "question": "What advantages does gRPC gain from using HTTP/2 and Protocol Buffers?",
     "type": "multiple",
     "options": [
-      { "text": "Multiplexing — many RPC calls through a single TCP connection", "correct": true, "explanation": "HTTP/2 allows gRPC to send many RPC calls in parallel via streams within a single connection" },
-      { "text": "Binary serialization — payload 3-10x smaller than JSON", "correct": true, "explanation": "Protocol Buffers encode data into a compact binary format, significantly saving bandwidth compared to text-based JSON" },
-      { "text": "Bidirectional streaming — client and server can simultaneously send data streams", "correct": true, "explanation": "HTTP/2 streams allow gRPC to implement four communication modes, including bidirectional streaming" },
-      { "text": "Native browser support without additional proxies", "correct": false, "explanation": "Browsers don't support gRPC directly due to browser HTTP/2 API limitations. A grpc-web proxy (e.g., Envoy) is needed" }
+      {
+        "text": "Native browser support without additional proxies",
+        "correct": false,
+        "explanation": "Browsers don't support gRPC directly due to browser HTTP/2 API limitations. A grpc-web proxy (e.g., Envoy) is needed"
+      },
+      {
+        "text": "Multiplexing — many RPC calls through a single TCP connection",
+        "correct": true,
+        "explanation": "HTTP/2 allows gRPC to send many RPC calls in parallel via streams within a single connection"
+      },
+      {
+        "text": "Bidirectional streaming — client and server can simultaneously send data streams",
+        "correct": true,
+        "explanation": "HTTP/2 streams allow gRPC to implement four communication modes, including bidirectional streaming"
+      },
+      {
+        "text": "Binary serialization — payload 3-10x smaller than JSON",
+        "correct": true,
+        "explanation": "Protocol Buffers encode data into a compact binary format, significantly saving bandwidth compared to text-based JSON"
+      }
     ]
   },
   {
     "question": "You typed https://shop.example.com in your browser. In what order do network operations occur?",
     "type": "single",
     "options": [
-      { "text": "DNS lookup → TCP handshake → TLS handshake → HTTP request", "correct": true, "explanation": "First you need the IP address (DNS), then establish a TCP connection (SYN/SYN-ACK/ACK), then set up an encrypted channel (TLS), and only then send the HTTP request" },
-      { "text": "TCP handshake → DNS lookup → HTTP request → TLS handshake", "correct": false, "explanation": "You can't establish a TCP connection without knowing the server's IP address. DNS lookup is always the first step" },
-      { "text": "HTTP request → DNS lookup → TLS handshake → TCP handshake", "correct": false, "explanation": "The HTTP request is sent last, after you already have the IP (DNS), TCP connection, and encrypted channel (TLS)" },
-      { "text": "TLS handshake → TCP handshake → DNS lookup → HTTP request", "correct": false, "explanation": "TLS runs over TCP, so TCP is needed first. And TCP is impossible without an IP, which DNS provides" }
+      {
+        "text": "HTTP request → DNS lookup → TLS handshake → TCP handshake",
+        "correct": false,
+        "explanation": "The HTTP request is sent last, after you already have the IP (DNS), TCP connection, and encrypted channel (TLS)"
+      },
+      {
+        "text": "DNS lookup → TCP handshake → TLS handshake → HTTP request",
+        "correct": true,
+        "explanation": "First you need the IP address (DNS), then establish a TCP connection (SYN/SYN-ACK/ACK), then set up an encrypted channel (TLS), and only then send the HTTP request"
+      },
+      {
+        "text": "TLS handshake → TCP handshake → DNS lookup → HTTP request",
+        "correct": false,
+        "explanation": "TLS runs over TCP, so TCP is needed first. And TCP is impossible without an IP, which DNS provides"
+      },
+      {
+        "text": "TCP handshake → DNS lookup → HTTP request → TLS handshake",
+        "correct": false,
+        "explanation": "You can't establish a TCP connection without knowing the server's IP address. DNS lookup is always the first step"
+      }
     ]
   }
 ]

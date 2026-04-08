@@ -4,14 +4,14 @@
     "type": "single",
     "options": [
       {
-        "text": "0 (no limit)",
-        "correct": false,
-        "explanation": "0 means no limit — Mosquitto can use all the router's RAM, leading to OOM and system freeze."
-      },
-      {
         "text": "64000000 (64 MB — all RAM)",
         "correct": false,
         "explanation": "You cannot allocate all RAM — the OS, network stack, and other processes also need memory."
+      },
+      {
+        "text": "1000000 (1 MB)",
+        "correct": false,
+        "explanation": "1 MB is too little — Mosquitto will not be able to serve even 10 clients."
       },
       {
         "text": "20000000-25000000 (20-25 MB)",
@@ -19,9 +19,9 @@
         "explanation": "It is recommended to allocate 30-40% of available RAM. For 64 MB: 64 × 0.35 ≈ 22 MB. This protects against OOM while leaving room for the OS."
       },
       {
-        "text": "1000000 (1 MB)",
+        "text": "0 (no limit)",
         "correct": false,
-        "explanation": "1 MB is too little — Mosquitto will not be able to serve even 10 clients."
+        "explanation": "0 means no limit — Mosquitto can use all the router's RAM, leading to OOM and system freeze."
       }
     ]
   },
@@ -29,16 +29,6 @@
     "question": "Why is persistence_location recommended to be in /tmp/ rather than /etc/?",
     "type": "multiple",
     "options": [
-      {
-        "text": "/etc/ is flash memory, which wears out from frequent writes",
-        "correct": true,
-        "explanation": "Flash NAND has a limited lifespan (10-100k write cycles). Mosquitto periodically writes persistence.db, accelerating wear."
-      },
-      {
-        "text": "/tmp/ is tmpfs (RAM), writes are faster and do not wear flash",
-        "correct": true,
-        "explanation": "tmpfs stores data in RAM — no flash wear, faster writes. Downside: data is lost on reboot."
-      },
       {
         "text": "/etc/ is write-protected in OpenWRT",
         "correct": false,
@@ -48,6 +38,16 @@
         "text": "Mosquitto does not have write permissions to /etc/",
         "correct": false,
         "explanation": "Mosquitto usually runs as root or has the necessary permissions. This is not the reason."
+      },
+      {
+        "text": "/tmp/ is tmpfs (RAM), writes are faster and do not wear flash",
+        "correct": true,
+        "explanation": "tmpfs stores data in RAM — no flash wear, faster writes. Downside: data is lost on reboot."
+      },
+      {
+        "text": "/etc/ is flash memory, which wears out from frequent writes",
+        "correct": true,
+        "explanation": "Flash NAND has a limited lifespan (10-100k write cycles). Mosquitto periodically writes persistence.db, accelerating wear."
       }
     ]
   },
@@ -56,9 +56,9 @@
     "type": "single",
     "options": [
       {
-        "text": "The client will be disconnected with an error",
+        "text": "Behavior is undefined",
         "correct": false,
-        "explanation": "In Mosquitto 2.x, the client is not disconnected — the broker accepts the connection but sets keepalive = min(client, max_keepalive)."
+        "explanation": "The behavior is clearly defined in Mosquitto 2.x: min(client_keepalive, max_keepalive) is applied."
       },
       {
         "text": "The broker will use keepalive = min(600, 300) = 300",
@@ -71,9 +71,9 @@
         "explanation": "max_keepalive exists precisely to limit the client's maximum keepalive."
       },
       {
-        "text": "Behavior is undefined",
+        "text": "The client will be disconnected with an error",
         "correct": false,
-        "explanation": "The behavior is clearly defined in Mosquitto 2.x: min(client_keepalive, max_keepalive) is applied."
+        "explanation": "In Mosquitto 2.x, the client is not disconnected — the broker accepts the connection but sets keepalive = min(client, max_keepalive)."
       }
     ]
   },
@@ -82,14 +82,14 @@
     "type": "multiple",
     "options": [
       {
-        "text": "A battery-powered IoT sensor that connects once per hour",
-        "correct": true,
-        "explanation": "A persistent session allows the broker to accumulate commands while the sensor is sleeping. After waking up, the sensor receives everything accumulated."
-      },
-      {
         "text": "A web dashboard in the browser",
         "correct": false,
         "explanation": "The dashboard is constantly online and does not miss messages. A persistent session only wastes broker memory without benefit."
+      },
+      {
+        "text": "A client with a dynamically generated clientId",
+        "correct": false,
+        "explanation": "A persistent session requires a fixed clientId. A new clientId each time = a new session without history."
       },
       {
         "text": "A device that periodically loses connectivity (GSM modem in a basement)",
@@ -97,9 +97,9 @@
         "explanation": "With an unstable connection, a persistent session ensures that commands sent during a drop will be delivered when connectivity is restored."
       },
       {
-        "text": "A client with a dynamically generated clientId",
-        "correct": false,
-        "explanation": "A persistent session requires a fixed clientId. A new clientId each time = a new session without history."
+        "text": "A battery-powered IoT sensor that connects once per hour",
+        "correct": true,
+        "explanation": "A persistent session allows the broker to accumulate commands while the sensor is sleeping. After waking up, the sensor receives everything accumulated."
       }
     ]
   }

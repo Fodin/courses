@@ -3,40 +3,104 @@
     "question": "Why is an inverted index used for full-text search instead of a B-tree index (like in PostgreSQL)?",
     "type": "single",
     "options": [
-      { "text": "B-tree indexes values as a whole (exact match, range), while an inverted index breaks text into terms and stores a document list for each — enabling search by individual words within text via O(1) lookup", "correct": true, "explanation": "B-tree works great for exact key lookups or range queries (WHERE price > 100), but can't search for a word inside a string. LIKE '%word%' requires a full scan. An inverted index is a 'reverse lookup': for each word, a list of documents containing it is already prepared" },
-      { "text": "B-tree is slower than inverted index in all aspects", "correct": false, "explanation": "B-tree is faster for exact match and range queries (O(log N)). Each data structure is optimized for its tasks. B-tree — for structured data, inverted index — for full-text search" },
-      { "text": "Inverted index takes less memory than B-tree", "correct": false, "explanation": "Inverted index can consume significant space (posting lists for each term). Size depends on the collection. The advantage is not in size, but in efficiently searching for individual words within text" },
-      { "text": "B-tree cannot be used in distributed systems", "correct": false, "explanation": "B-tree works fine in distributed databases (CockroachDB, TiDB, Spanner). The issue is not distribution, but query type: B-tree for structured queries, inverted index for text search" }
+      {
+        "text": "B-tree indexes values as a whole (exact match, range), while an inverted index breaks text into terms and stores a document list for each — enabling search by individual words within text via O(1) lookup",
+        "correct": true,
+        "explanation": "B-tree works great for exact key lookups or range queries (WHERE price > 100), but can't search for a word inside a string. LIKE '%word%' requires a full scan. An inverted index is a 'reverse lookup': for each word, a list of documents containing it is already prepared"
+      },
+      {
+        "text": "B-tree cannot be used in distributed systems",
+        "correct": false,
+        "explanation": "B-tree works fine in distributed databases (CockroachDB, TiDB, Spanner). The issue is not distribution, but query type: B-tree for structured queries, inverted index for text search"
+      },
+      {
+        "text": "Inverted index takes less memory than B-tree",
+        "correct": false,
+        "explanation": "Inverted index can consume significant space (posting lists for each term). Size depends on the collection. The advantage is not in size, but in efficiently searching for individual words within text"
+      },
+      {
+        "text": "B-tree is slower than inverted index in all aspects",
+        "correct": false,
+        "explanation": "B-tree is faster for exact match and range queries (O(log N)). Each data structure is optimized for its tasks. B-tree — for structured data, inverted index — for full-text search"
+      }
     ]
   },
   {
     "question": "In the TF-IDF formula, what does a high IDF (Inverse Document Frequency) for a term mean?",
     "type": "single",
     "options": [
-      { "text": "The term is rare — appears in few documents, so it's a more valuable relevance signal", "correct": true, "explanation": "IDF = log(N / df), where df is the number of documents containing the term. If 'monad' appears in 10 out of 1M documents — IDF is high, a strong signal. If 'data' appears in 800K out of 1M — IDF is low, the word is too generic" },
-      { "text": "The term appears frequently in a specific document", "correct": false, "explanation": "This describes TF (Term Frequency), not IDF. TF measures term frequency within one document. IDF measures term rarity across the entire collection" },
-      { "text": "The term appears in the document header, not the body", "correct": false, "explanation": "IDF doesn't depend on term position in the document. Position may affect field boosting (header is worth more than body), but that's a separate mechanism, not IDF" },
-      { "text": "The term is a noun, not a preposition or conjunction", "correct": false, "explanation": "IDF doesn't analyze parts of speech. Stop words (prepositions, conjunctions) are typically removed during tokenization before TF-IDF calculation. But IDF itself does give lower weight to frequent words — that's its essence" }
+      {
+        "text": "The term is rare — appears in few documents, so it's a more valuable relevance signal",
+        "correct": true,
+        "explanation": "IDF = log(N / df), where df is the number of documents containing the term. If 'monad' appears in 10 out of 1M documents — IDF is high, a strong signal. If 'data' appears in 800K out of 1M — IDF is low, the word is too generic"
+      },
+      {
+        "text": "The term is a noun, not a preposition or conjunction",
+        "correct": false,
+        "explanation": "IDF doesn't analyze parts of speech. Stop words (prepositions, conjunctions) are typically removed during tokenization before TF-IDF calculation. But IDF itself does give lower weight to frequent words — that's its essence"
+      },
+      {
+        "text": "The term appears frequently in a specific document",
+        "correct": false,
+        "explanation": "This describes TF (Term Frequency), not IDF. TF measures term frequency within one document. IDF measures term rarity across the entire collection"
+      },
+      {
+        "text": "The term appears in the document header, not the body",
+        "correct": false,
+        "explanation": "IDF doesn't depend on term position in the document. Position may affect field boosting (header is worth more than body), but that's a separate mechanism, not IDF"
+      }
     ]
   },
   {
     "question": "In an Elasticsearch cluster with 300 shards, how is a search query executed?",
     "type": "single",
     "options": [
-      { "text": "Scatter-Gather: coordinator sends the query to all 300 shards in parallel, each returns its top-K, coordinator merges results and selects the global top-K", "correct": true, "explanation": "This is a two-phase process: Query phase (scatter) — each shard searches locally and returns top-K (docId + score). Fetch phase (gather) — coordinator merges 300 × K candidates, selects the best K, and fetches full documents only for those. This minimizes network traffic" },
-      { "text": "The query goes to one shard selected by query hash, since the document is on a specific shard", "correct": false, "explanation": "This is true for GET by ID (document routing), but not for search. In search, we don't know which shards hold relevant documents — all shards must be queried. Full-text search is always scatter-gather" },
-      { "text": "Shards form a pipeline: the query passes through them sequentially, each adding its results", "correct": false, "explanation": "A sequential pipeline would be 300x slower than parallel. The whole point of sharding is parallelism: all 300 shards search simultaneously, latency = max(shard_latency), not sum" },
-      { "text": "Coordinator picks 10 random shards to search and extrapolates results to all 300", "correct": false, "explanation": "A sampling approach would yield inaccurate results — the most relevant documents could be missed. Search must query all shards for result completeness. Optimization is in limiting top-K per shard, not in skipping shards" }
+      {
+        "text": "Scatter-Gather: coordinator sends the query to all 300 shards in parallel, each returns its top-K, coordinator merges results and selects the global top-K",
+        "correct": true,
+        "explanation": "This is a two-phase process: Query phase (scatter) — each shard searches locally and returns top-K (docId + score). Fetch phase (gather) — coordinator merges 300 × K candidates, selects the best K, and fetches full documents only for those. This minimizes network traffic"
+      },
+      {
+        "text": "Coordinator picks 10 random shards to search and extrapolates results to all 300",
+        "correct": false,
+        "explanation": "A sampling approach would yield inaccurate results — the most relevant documents could be missed. Search must query all shards for result completeness. Optimization is in limiting top-K per shard, not in skipping shards"
+      },
+      {
+        "text": "The query goes to one shard selected by query hash, since the document is on a specific shard",
+        "correct": false,
+        "explanation": "This is true for GET by ID (document routing), but not for search. In search, we don't know which shards hold relevant documents — all shards must be queried. Full-text search is always scatter-gather"
+      },
+      {
+        "text": "Shards form a pipeline: the query passes through them sequentially, each adding its results",
+        "correct": false,
+        "explanation": "A sequential pipeline would be 300x slower than parallel. The whole point of sharding is parallelism: all 300 shards search simultaneously, latency = max(shard_latency), not sum"
+      }
     ]
   },
   {
     "question": "For typeahead (autocomplete), is it better to use a separate Trie service or send prefix queries to the main Elasticsearch?",
     "type": "single",
     "options": [
-      { "text": "A separate Trie/Redis service with pre-computed suggestions — it provides < 10 ms latency and doesn't overload the search cluster with 60K+ RPS typeahead queries", "correct": true, "explanation": "Typeahead generates a query per character (5-10 queries per word). At 12K search RPS, this means 60K+ typeahead RPS. An in-memory Trie gives O(L) lookup (L — prefix length) with pre-computed top-K suggestions. ES prefix query also works, but is significantly heavier and loads the main cluster" },
-      { "text": "Prefix queries in ES, because Trie doesn't scale to millions of unique queries", "correct": false, "explanation": "Trie scales fine. A million unique queries of average length 20 characters — that's ~100 MB of memory (with optimization). Sharded Trie or Redis sorted sets handle billions of entries" },
-      { "text": "No separate service needed — just cache ES prefix query results in CDN", "correct": false, "explanation": "CDN caching helps for popular prefixes, but doesn't solve the ES load problem on cache miss. The long tail of unique prefixes generates a constant stream of queries to ES. A dedicated service is architecturally cleaner" },
-      { "text": "Both approaches are equally effective, the choice depends on team preferences", "correct": false, "explanation": "The difference is substantial: in-memory Trie — < 10 ms, ES prefix query — 50-200 ms. At 60K+ RPS typeahead, the ES cluster will be overloaded. A separate lightweight service is not a preference matter, but an architectural necessity under high load" }
+      {
+        "text": "A separate Trie/Redis service with pre-computed suggestions — it provides < 10 ms latency and doesn't overload the search cluster with 60K+ RPS typeahead queries",
+        "correct": true,
+        "explanation": "Typeahead generates a query per character (5-10 queries per word). At 12K search RPS, this means 60K+ typeahead RPS. An in-memory Trie gives O(L) lookup (L — prefix length) with pre-computed top-K suggestions. ES prefix query also works, but is significantly heavier and loads the main cluster"
+      },
+      {
+        "text": "Prefix queries in ES, because Trie doesn't scale to millions of unique queries",
+        "correct": false,
+        "explanation": "Trie scales fine. A million unique queries of average length 20 characters — that's ~100 MB of memory (with optimization). Sharded Trie or Redis sorted sets handle billions of entries"
+      },
+      {
+        "text": "No separate service needed — just cache ES prefix query results in CDN",
+        "correct": false,
+        "explanation": "CDN caching helps for popular prefixes, but doesn't solve the ES load problem on cache miss. The long tail of unique prefixes generates a constant stream of queries to ES. A dedicated service is architecturally cleaner"
+      },
+      {
+        "text": "Both approaches are equally effective, the choice depends on team preferences",
+        "correct": false,
+        "explanation": "The difference is substantial: in-memory Trie — < 10 ms, ES prefix query — 50-200 ms. At 60K+ RPS typeahead, the ES cluster will be overloaded. A separate lightweight service is not a preference matter, but an architectural necessity under high load"
+      }
     ]
   }
 ]

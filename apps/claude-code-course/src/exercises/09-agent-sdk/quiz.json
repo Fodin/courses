@@ -3,120 +3,322 @@
     "question": "Чем Agent SDK отличается от Client SDK (Anthropic SDK)?",
     "type": "single",
     "options": [
-      { "text": "Agent SDK запускает автономного агента со встроенными инструментами и agent loop", "correct": true, "explanation": "Верно: Agent SDK предоставляет полноценного агента, который сам читает файлы, редактирует код, запускает команды. Client SDK — это API для обмена сообщениями" },
-      { "text": "Agent SDK — это новая версия Client SDK", "correct": false, "explanation": "Это разные продукты для разных задач. Client SDK — для чатботов и генерации текста, Agent SDK — для автоматизации разработки" },
-      { "text": "Agent SDK работает только в браузере, Client SDK — на сервере", "correct": false, "explanation": "Agent SDK работает на сервере (Node.js, Python), так как ему нужен доступ к файловой системе и терминалу" },
-      { "text": "Agent SDK дешевле Client SDK", "correct": false, "explanation": "Agent SDK обычно дороже, потому что агент выполняет множество итераций и вызовов инструментов" }
+      {
+        "text": "Agent SDK работает только в браузере, Client SDK — на сервере",
+        "correct": false,
+        "explanation": "Agent SDK работает на сервере (Node.js, Python), так как ему нужен доступ к файловой системе и терминалу"
+      },
+      {
+        "text": "Agent SDK дешевле Client SDK",
+        "correct": false,
+        "explanation": "Agent SDK обычно дороже, потому что агент выполняет множество итераций и вызовов инструментов"
+      },
+      {
+        "text": "Agent SDK — это новая версия Client SDK",
+        "correct": false,
+        "explanation": "Это разные продукты для разных задач. Client SDK — для чатботов и генерации текста, Agent SDK — для автоматизации разработки"
+      },
+      {
+        "text": "Agent SDK запускает автономного агента со встроенными инструментами и agent loop",
+        "correct": true,
+        "explanation": "Верно: Agent SDK предоставляет полноценного агента, который сам читает файлы, редактирует код, запускает команды. Client SDK — это API для обмена сообщениями"
+      }
     ]
   },
   {
     "question": "Какой импорт используется для Agent SDK в TypeScript?",
     "type": "single",
     "options": [
-      { "text": "import Anthropic from '@anthropic-ai/sdk'", "correct": false, "explanation": "Это импорт Client SDK, а не Agent SDK" },
-      { "text": "import { query } from '@anthropic-ai/claude-agent-sdk'", "correct": true, "explanation": "Верно: Agent SDK экспортирует функцию query из пакета @anthropic-ai/claude-agent-sdk" },
-      { "text": "import ClaudeCode from 'claude-code'", "correct": false, "explanation": "Это не существующий пакет Agent SDK" },
-      { "text": "import { Agent } from '@anthropic-ai/agent'", "correct": false, "explanation": "Неверное имя пакета. Agent SDK — это @anthropic-ai/claude-agent-sdk" }
+      {
+        "text": "import Anthropic from '@anthropic-ai/sdk'",
+        "correct": false,
+        "explanation": "Это импорт Client SDK, а не Agent SDK"
+      },
+      {
+        "text": "import { Agent } from '@anthropic-ai/agent'",
+        "correct": false,
+        "explanation": "Неверное имя пакета. Agent SDK — это @anthropic-ai/claude-agent-sdk"
+      },
+      {
+        "text": "import { query } from '@anthropic-ai/claude-agent-sdk'",
+        "correct": true,
+        "explanation": "Верно: Agent SDK экспортирует функцию query из пакета @anthropic-ai/claude-agent-sdk"
+      },
+      {
+        "text": "import ClaudeCode from 'claude-code'",
+        "correct": false,
+        "explanation": "Это не существующий пакет Agent SDK"
+      }
     ]
   },
   {
     "question": "Для чего нужен параметр maxTurns?",
     "type": "single",
     "options": [
-      { "text": "Ограничивает количество символов в ответе", "correct": false, "explanation": "maxTurns ограничивает количество итераций agent loop, а не длину ответа" },
-      { "text": "Задаёт максимальное число итераций agent loop", "correct": true, "explanation": "Верно: maxTurns предотвращает бесконечную работу агента. Каждый turn — это одна итерация цикла «подумать → использовать инструмент → оценить результат»" },
-      { "text": "Определяет число параллельных агентов", "correct": false, "explanation": "Для параллельных агентов используются Agent Teams, а не maxTurns" },
-      { "text": "Ограничивает количество файлов, которые агент может прочитать", "correct": false, "explanation": "maxTurns не связан с количеством файлов — это ограничение на итерации работы агента" }
+      {
+        "text": "Задаёт максимальное число итераций agent loop",
+        "correct": true,
+        "explanation": "Верно: maxTurns предотвращает бесконечную работу агента. Каждый turn — это одна итерация цикла «подумать → использовать инструмент → оценить результат»"
+      },
+      {
+        "text": "Определяет число параллельных агентов",
+        "correct": false,
+        "explanation": "Для параллельных агентов используются Agent Teams, а не maxTurns"
+      },
+      {
+        "text": "Ограничивает количество символов в ответе",
+        "correct": false,
+        "explanation": "maxTurns ограничивает количество итераций agent loop, а не длину ответа"
+      },
+      {
+        "text": "Ограничивает количество файлов, которые агент может прочитать",
+        "correct": false,
+        "explanation": "maxTurns не связан с количеством файлов — это ограничение на итерации работы агента"
+      }
     ]
   },
   {
     "question": "Почему опасно давать агенту в CI/CD только инструмент Bash без ограничений?",
     "type": "multiple",
     "options": [
-      { "text": "Агент может выполнить деструктивные команды (rm -rf, drop database)", "correct": true, "explanation": "Верно: без ограничений агент может случайно или по ошибке выполнить опасную команду" },
-      { "text": "Агент может скачать и выполнить вредоносный код (curl | sh)", "correct": true, "explanation": "Верно: неограниченный Bash позволяет загружать и запускать произвольный код" },
-      { "text": "Bash-команды расходуют больше токенов, чем другие инструменты", "correct": false, "explanation": "Расход токенов не зависит от типа инструмента — зависит от объёма ввода/вывода" },
-      { "text": "Это нарушает принцип минимальных привилегий", "correct": true, "explanation": "Верно: агенту нужно давать только те инструменты, которые необходимы для конкретной задачи" }
+      {
+        "text": "Bash-команды расходуют больше токенов, чем другие инструменты",
+        "correct": false,
+        "explanation": "Расход токенов не зависит от типа инструмента — зависит от объёма ввода/вывода"
+      },
+      {
+        "text": "Агент может выполнить деструктивные команды (rm -rf, drop database)",
+        "correct": true,
+        "explanation": "Верно: без ограничений агент может случайно или по ошибке выполнить опасную команду"
+      },
+      {
+        "text": "Данный подход устарел и больше не используется",
+        "correct": false,
+        "explanation": "Этот подход активно применяется в современных системах."
+      },
+      {
+        "text": "Агент может скачать и выполнить вредоносный код (curl | sh)",
+        "correct": true,
+        "explanation": "Верно: неограниченный Bash позволяет загружать и запускать произвольный код"
+      },
+      {
+        "text": "Это нарушает принцип минимальных привилегий",
+        "correct": true,
+        "explanation": "Верно: агенту нужно давать только те инструменты, которые необходимы для конкретной задачи"
+      }
     ]
   },
   {
     "question": "Как продолжить работу агента в контексте предыдущей сессии?",
     "type": "single",
     "options": [
-      { "text": "Передать весь предыдущий диалог как часть промпта", "correct": false, "explanation": "Это подход Client SDK. В Agent SDK есть встроенный механизм сессий" },
-      { "text": "Сохранить session_id и передать его в следующем вызове query()", "correct": true, "explanation": "Верно: Agent SDK поддерживает resume — передайте session_id для продолжения работы в том же контексте" },
-      { "text": "Создать новый Agent SDK инстанс с флагом --continue", "correct": false, "explanation": "--continue — это флаг CLI-режима. В программном API используется session_id" },
-      { "text": "Сессии невозможно продолжить — каждый вызов query() начинает с нуля", "correct": false, "explanation": "Agent SDK поддерживает сессии: сохраните session_id и передайте его при следующем вызове" }
+      {
+        "text": "Передать весь предыдущий диалог как часть промпта",
+        "correct": false,
+        "explanation": "Это подход Client SDK. В Agent SDK есть встроенный механизм сессий"
+      },
+      {
+        "text": "Сохранить session_id и передать его в следующем вызове query()",
+        "correct": true,
+        "explanation": "Верно: Agent SDK поддерживает resume — передайте session_id для продолжения работы в том же контексте"
+      },
+      {
+        "text": "Сессии невозможно продолжить — каждый вызов query() начинает с нуля",
+        "correct": false,
+        "explanation": "Agent SDK поддерживает сессии: сохраните session_id и передайте его при следующем вызове"
+      },
+      {
+        "text": "Создать новый Agent SDK инстанс с флагом --continue",
+        "correct": false,
+        "explanation": "--continue — это флаг CLI-режима. В программном API используется session_id"
+      }
     ]
   },
   {
     "question": "Какой хук перехватывает действие агента ДО его выполнения?",
     "type": "single",
     "options": [
-      { "text": "PostToolUse", "correct": false, "explanation": "PostToolUse срабатывает после выполнения инструмента, когда результат уже получен" },
-      { "text": "PreToolUse", "correct": true, "explanation": "Верно: PreToolUse вызывается перед использованием инструмента. Можно заблокировать действие, вернув { decision: 'block' }" },
-      { "text": "BeforeExecute", "correct": false, "explanation": "Такого хука нет в Agent SDK. Используется PreToolUse" },
-      { "text": "OnToolCall", "correct": false, "explanation": "Такого хука нет в Agent SDK. Используются PreToolUse и PostToolUse" }
+      {
+        "text": "BeforeExecute",
+        "correct": false,
+        "explanation": "Такого хука нет в Agent SDK. Используется PreToolUse"
+      },
+      {
+        "text": "OnToolCall",
+        "correct": false,
+        "explanation": "Такого хука нет в Agent SDK. Используются PreToolUse и PostToolUse"
+      },
+      {
+        "text": "PreToolUse",
+        "correct": true,
+        "explanation": "Верно: PreToolUse вызывается перед использованием инструмента. Можно заблокировать действие, вернув { decision: 'block' }"
+      },
+      {
+        "text": "PostToolUse",
+        "correct": false,
+        "explanation": "PostToolUse срабатывает после выполнения инструмента, когда результат уже получен"
+      }
     ]
   },
   {
     "question": "Что из перечисленного НЕ является встроенным инструментом Agent SDK?",
     "type": "single",
     "options": [
-      { "text": "Read — чтение файлов", "correct": false, "explanation": "Read — встроенный инструмент для чтения файлов" },
-      { "text": "Grep — поиск по содержимому файлов", "correct": false, "explanation": "Grep — встроенный инструмент для поиска" },
-      { "text": "Deploy — деплой на сервер", "correct": true, "explanation": "Верно: Deploy не является встроенным инструментом. Для деплоя нужно создать custom tool или использовать Bash" },
-      { "text": "WebSearch — поиск в интернете", "correct": false, "explanation": "WebSearch — встроенный инструмент для поиска информации в интернете" }
+      {
+        "text": "Grep — поиск по содержимому файлов",
+        "correct": false,
+        "explanation": "Grep — встроенный инструмент для поиска"
+      },
+      {
+        "text": "Deploy — деплой на сервер",
+        "correct": true,
+        "explanation": "Верно: Deploy не является встроенным инструментом. Для деплоя нужно создать custom tool или использовать Bash"
+      },
+      {
+        "text": "WebSearch — поиск в интернете",
+        "correct": false,
+        "explanation": "WebSearch — встроенный инструмент для поиска информации в интернете"
+      },
+      {
+        "text": "Read — чтение файлов",
+        "correct": false,
+        "explanation": "Read — встроенный инструмент для чтения файлов"
+      }
     ]
   },
   {
     "question": "Вы пишете CI-скрипт для автоматического code review. Какой набор инструментов выбрать?",
     "type": "single",
     "options": [
-      { "text": "Read, Edit, Bash — чтобы агент мог и исправить найденное", "correct": false, "explanation": "В code review агент должен только анализировать, не изменять код. Исправления — отдельная задача" },
-      { "text": "Read, Grep, Glob — только чтение и поиск", "correct": true, "explanation": "Верно: для code review достаточно инструментов чтения. Принцип минимальных привилегий — не давайте агенту лишних возможностей" },
-      { "text": "Bash — универсальный инструмент, покроет всё", "correct": false, "explanation": "Bash в CI без ограничений опасен. Для review достаточно Read, Grep, Glob — безопаснее и контролируемее" },
-      { "text": "Все доступные инструменты — пусть агент сам решает", "correct": false, "explanation": "Нарушение принципа минимальных привилегий. В CI агент должен иметь минимум необходимых прав" }
+      {
+        "text": "Read, Grep, Glob — только чтение и поиск",
+        "correct": true,
+        "explanation": "Верно: для code review достаточно инструментов чтения. Принцип минимальных привилегий — не давайте агенту лишних возможностей"
+      },
+      {
+        "text": "Bash — универсальный инструмент, покроет всё",
+        "correct": false,
+        "explanation": "Bash в CI без ограничений опасен. Для review достаточно Read, Grep, Glob — безопаснее и контролируемее"
+      },
+      {
+        "text": "Read, Edit, Bash — чтобы агент мог и исправить найденное",
+        "correct": false,
+        "explanation": "В code review агент должен только анализировать, не изменять код. Исправления — отдельная задача"
+      },
+      {
+        "text": "Все доступные инструменты — пусть агент сам решает",
+        "correct": false,
+        "explanation": "Нарушение принципа минимальных привилегий. В CI агент должен иметь минимум необходимых прав"
+      }
     ]
   },
   {
     "question": "Для чего используется structured output (JSON-формат) в Agent SDK?",
     "type": "single",
     "options": [
-      { "text": "Для красивого отображения результатов в терминале", "correct": false, "explanation": "JSON-формат предназначен для программной обработки, а не для отображения" },
-      { "text": "Для программного парсинга результатов — например, создания тикетов из найденных проблем", "correct": true, "explanation": "Верно: structured output позволяет парсить результаты агента и интегрировать их в ваши процессы — создание тикетов, уведомления, отчёты" },
-      { "text": "Для ускорения работы агента", "correct": false, "explanation": "Формат вывода не влияет на скорость работы агента" },
-      { "text": "JSON-формат обязателен для Agent SDK", "correct": false, "explanation": "Structured output — опциональная настройка. По умолчанию агент возвращает текст" }
+      {
+        "text": "Для программного парсинга результатов — например, создания тикетов из найденных проблем",
+        "correct": true,
+        "explanation": "Верно: structured output позволяет парсить результаты агента и интегрировать их в ваши процессы — создание тикетов, уведомления, отчёты"
+      },
+      {
+        "text": "JSON-формат обязателен для Agent SDK",
+        "correct": false,
+        "explanation": "Structured output — опциональная настройка. По умолчанию агент возвращает текст"
+      },
+      {
+        "text": "Для красивого отображения результатов в терминале",
+        "correct": false,
+        "explanation": "JSON-формат предназначен для программной обработки, а не для отображения"
+      },
+      {
+        "text": "Для ускорения работы агента",
+        "correct": false,
+        "explanation": "Формат вывода не влияет на скорость работы агента"
+      }
     ]
   },
   {
     "question": "На какой платформе можно развернуть приложение с Agent SDK?",
     "type": "multiple",
     "options": [
-      { "text": "Self-hosted сервер", "correct": true, "explanation": "Верно: полный контроль над инфраструктурой и данными" },
-      { "text": "Amazon Bedrock", "correct": true, "explanation": "Верно: интеграция с AWS экосистемой, биллинг через AWS" },
-      { "text": "Google Vertex AI", "correct": true, "explanation": "Верно: интеграция с GCP экосистемой" },
-      { "text": "Только в терминале на локальной машине", "correct": false, "explanation": "Agent SDK предназначен для программного использования и может работать на серверах, в облаке и в CI/CD" }
+      {
+        "text": "Amazon Bedrock",
+        "correct": true,
+        "explanation": "Верно: интеграция с AWS экосистемой, биллинг через AWS"
+      },
+      {
+        "text": "Только в терминале на локальной машине",
+        "correct": false,
+        "explanation": "Agent SDK предназначен для программного использования и может работать на серверах, в облаке и в CI/CD"
+      },
+      {
+        "text": "Self-hosted сервер",
+        "correct": true,
+        "explanation": "Верно: полный контроль над инфраструктурой и данными"
+      },
+      {
+        "text": "Google Vertex AI",
+        "correct": true,
+        "explanation": "Верно: интеграция с GCP экосистемой"
+      },
+      {
+        "text": "Все перечисленные варианты неверны",
+        "correct": false,
+        "explanation": "Некоторые из перечисленных вариантов действительно верны."
+      }
     ]
   },
   {
     "question": "Какая аналогия лучше всего описывает разницу между Client SDK и Agent SDK?",
     "type": "single",
     "options": [
-      { "text": "Client SDK — это калькулятор, Agent SDK — компьютер", "correct": false, "explanation": "Калькулятор слишком упрощает возможности Client SDK. Правильная аналогия отражает разницу в автономности" },
-      { "text": "Client SDK — позвонить консультанту, Agent SDK — нанять специалиста", "correct": true, "explanation": "Верно: консультант (Client SDK) отвечает на вопросы, а специалист (Agent SDK) сам изучает проект, пишет код и проверяет результат" },
-      { "text": "Client SDK — Python, Agent SDK — TypeScript", "correct": false, "explanation": "Оба SDK доступны на Python и TypeScript. Разница в модели взаимодействия, а не в языке" },
-      { "text": "Client SDK — для frontend, Agent SDK — для backend", "correct": false, "explanation": "Оба SDK работают на backend. Client SDK используется для чатботов и генерации, Agent SDK — для автоматизации разработки" }
+      {
+        "text": "Client SDK — позвонить консультанту, Agent SDK — нанять специалиста",
+        "correct": true,
+        "explanation": "Верно: консультант (Client SDK) отвечает на вопросы, а специалист (Agent SDK) сам изучает проект, пишет код и проверяет результат"
+      },
+      {
+        "text": "Client SDK — для frontend, Agent SDK — для backend",
+        "correct": false,
+        "explanation": "Оба SDK работают на backend. Client SDK используется для чатботов и генерации, Agent SDK — для автоматизации разработки"
+      },
+      {
+        "text": "Client SDK — это калькулятор, Agent SDK — компьютер",
+        "correct": false,
+        "explanation": "Калькулятор слишком упрощает возможности Client SDK. Правильная аналогия отражает разницу в автономности"
+      },
+      {
+        "text": "Client SDK — Python, Agent SDK — TypeScript",
+        "correct": false,
+        "explanation": "Оба SDK доступны на Python и TypeScript. Разница в модели взаимодействия, а не в языке"
+      }
     ]
   },
   {
     "question": "Зачем нужен cost tracking при использовании Agent SDK в production?",
     "type": "multiple",
     "options": [
-      { "text": "Предотвратить неконтролируемый расход при зацикливании агента", "correct": true, "explanation": "Верно: без мониторинга агент может зациклиться на неразрешимой задаче и потратить сотни долларов" },
-      { "text": "Оптимизировать промпты для снижения стоимости", "correct": true, "explanation": "Верно: зная стоимость каждого запуска, можно оптимизировать промпты и набор инструментов" },
-      { "text": "Планировать бюджет на AI-автоматизацию", "correct": true, "explanation": "Верно: cost tracking даёт данные для прогнозирования расходов на масштабирование" },
-      { "text": "Ускорить работу агента", "correct": false, "explanation": "Cost tracking — это мониторинг, он не влияет на скорость работы агента" }
+      {
+        "text": "Ускорить работу агента",
+        "correct": false,
+        "explanation": "Cost tracking — это мониторинг, он не влияет на скорость работы агента"
+      },
+      {
+        "text": "Планировать бюджет на AI-автоматизацию",
+        "correct": true,
+        "explanation": "Верно: cost tracking даёт данные для прогнозирования расходов на масштабирование"
+      },
+      {
+        "text": "Оптимизировать промпты для снижения стоимости",
+        "correct": true,
+        "explanation": "Верно: зная стоимость каждого запуска, можно оптимизировать промпты и набор инструментов"
+      },
+      {
+        "text": "Предотвратить неконтролируемый расход при зацикливании агента",
+        "correct": true,
+        "explanation": "Верно: без мониторинга агент может зациклиться на неразрешимой задаче и потратить сотни долларов"
+      }
     ]
   }
 ]

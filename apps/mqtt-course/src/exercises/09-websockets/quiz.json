@@ -9,11 +9,6 @@
         "explanation": "MQTT supports any client, but browsers are limited in their network capabilities."
       },
       {
-        "text": "Browsers run in a sandbox and do not have access to raw TCP sockets",
-        "correct": true,
-        "explanation": "Browsers can only open HTTP/HTTPS and WebSocket connections. WebSocket transport is required for TCP access."
-      },
-      {
         "text": "TCP and MQTT use different packet formats",
         "correct": false,
         "explanation": "MQTT runs over TCP. The issue is not the format but that browsers cannot open raw TCP connections."
@@ -22,6 +17,11 @@
         "text": "Port 1883 is blocked in all browsers",
         "correct": false,
         "explanation": "Browsers do not block specific ports for WebSocket. The issue is the connection type (TCP vs WebSocket)."
+      },
+      {
+        "text": "Browsers run in a sandbox and do not have access to raw TCP sockets",
+        "correct": true,
+        "explanation": "Browsers can only open HTTP/HTTPS and WebSocket connections. WebSocket transport is required for TCP access."
       }
     ]
   },
@@ -35,14 +35,14 @@
         "explanation": "The correct name is `websockets` (plural)."
       },
       {
-        "text": "protocol websockets",
-        "correct": true,
-        "explanation": "Exactly `protocol websockets` enables WebSocket transport for a given listener in Mosquitto 2.x."
-      },
-      {
         "text": "transport websockets",
         "correct": false,
         "explanation": "Such a directive does not exist. Use `protocol websockets`."
+      },
+      {
+        "text": "protocol websockets",
+        "correct": true,
+        "explanation": "Exactly `protocol websockets` enables WebSocket transport for a given listener in Mosquitto 2.x."
       },
       {
         "text": "enable_websockets true",
@@ -56,14 +56,14 @@
     "type": "multiple",
     "options": [
       {
+        "text": "proxy_set_header X-WebSocket-Protocol mqtt",
+        "correct": false,
+        "explanation": "This header is not required. Mosquitto negotiates the mqtt sub-protocol itself during WebSocket handshake."
+      },
+      {
         "text": "proxy_set_header Upgrade $http_upgrade",
         "correct": true,
         "explanation": "The Upgrade header tells the server about the protocol switch. Without it, the WebSocket handshake will not occur."
-      },
-      {
-        "text": "proxy_set_header Connection \"upgrade\"",
-        "correct": true,
-        "explanation": "The Connection: upgrade header is needed to indicate a persistent connection with protocol switching."
       },
       {
         "text": "proxy_http_version 1.1",
@@ -71,9 +71,9 @@
         "explanation": "WebSocket requires HTTP/1.1. By default nginx uses HTTP/1.0 for proxy_pass, which does not support keep-alive."
       },
       {
-        "text": "proxy_set_header X-WebSocket-Protocol mqtt",
-        "correct": false,
-        "explanation": "This header is not required. Mosquitto negotiates the mqtt sub-protocol itself during WebSocket handshake."
+        "text": "proxy_set_header Connection \"upgrade\"",
+        "correct": true,
+        "explanation": "The Connection: upgrade header is needed to indicate a persistent connection with protocol switching."
       }
     ]
   },
@@ -82,24 +82,24 @@
     "type": "single",
     "options": [
       {
-        "text": "Incorrect broker URL",
-        "correct": false,
-        "explanation": "With an incorrect URL, the client would not connect at all (connect would not happen)."
-      },
-      {
-        "text": "Multiple browser tabs are using the same clientId",
-        "correct": true,
-        "explanation": "When a client with an existing clientId connects, the broker disconnects the previous connection. The second tab kicks out the first, which tries to reconnect — and so on in a loop."
-      },
-      {
         "text": "Keepalive value is too large",
         "correct": false,
         "explanation": "A large keepalive does not cause immediate disconnection. It is the heartbeat packet interval."
       },
       {
+        "text": "Incorrect broker URL",
+        "correct": false,
+        "explanation": "With an incorrect URL, the client would not connect at all (connect would not happen)."
+      },
+      {
         "text": "The MQTT.js library is incompatible with Mosquitto",
         "correct": false,
         "explanation": "MQTT.js is fully compatible with Mosquitto 2.x, including MQTT v3.1.1 and v5."
+      },
+      {
+        "text": "Multiple browser tabs are using the same clientId",
+        "correct": true,
+        "explanation": "When a client with an existing clientId connects, the broker disconnects the previous connection. The second tab kicks out the first, which tries to reconnect — and so on in a loop."
       }
     ]
   }

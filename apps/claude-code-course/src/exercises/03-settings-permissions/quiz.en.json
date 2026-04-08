@@ -3,140 +3,364 @@
     "question": "Which settings file has the highest priority in the Claude Code hierarchy?",
     "type": "single",
     "options": [
-      { "text": ".claude/settings.local.json", "correct": false, "explanation": "Local settings have the lowest priority -- they can add rules, but not override higher levels" },
-      { "text": "~/.claude/settings.json", "correct": false, "explanation": "User settings yield to managed policy -- the organization can forbid what you allowed" },
-      { "text": "Managed policy (organization)", "correct": true, "explanation": "Managed policy is set by the organization and has absolute priority -- no lower level can override it" },
-      { "text": ".claude/settings.json", "correct": false, "explanation": "Project settings are the third-priority level, yielding to both managed policy and user settings" }
+      {
+        "text": ".claude/settings.json",
+        "correct": false,
+        "explanation": "Project settings are the third-priority level, yielding to both managed policy and user settings"
+      },
+      {
+        "text": "Managed policy (organization)",
+        "correct": true,
+        "explanation": "Managed policy is set by the organization and has absolute priority -- no lower level can override it"
+      },
+      {
+        "text": "~/.claude/settings.json",
+        "correct": false,
+        "explanation": "User settings yield to managed policy -- the organization can forbid what you allowed"
+      },
+      {
+        "text": ".claude/settings.local.json",
+        "correct": false,
+        "explanation": "Local settings have the lowest priority -- they can add rules, but not override higher levels"
+      }
     ]
   },
   {
     "question": "Which settings file should be committed to git for team collaboration?",
     "type": "single",
     "options": [
-      { "text": "~/.claude/settings.json", "correct": false, "explanation": "This file is in the user's home directory, outside the repository -- it won't enter git" },
-      { "text": ".claude/settings.json", "correct": true, "explanation": "Project settings are in the repository and intended for team rules -- all project participants get the same settings" },
-      { "text": ".claude/settings.local.json", "correct": false, "explanation": "This file should be in .gitignore -- it's meant for personal settings of a specific developer" },
-      { "text": "All settings files should be in git", "correct": false, "explanation": "Only .claude/settings.json is committed. Others contain personal or organizational settings" }
+      {
+        "text": "~/.claude/settings.json",
+        "correct": false,
+        "explanation": "This file is in the user's home directory, outside the repository -- it won't enter git"
+      },
+      {
+        "text": ".claude/settings.json",
+        "correct": true,
+        "explanation": "Project settings are in the repository and intended for team rules -- all project participants get the same settings"
+      },
+      {
+        "text": ".claude/settings.local.json",
+        "correct": false,
+        "explanation": "This file should be in .gitignore -- it's meant for personal settings of a specific developer"
+      },
+      {
+        "text": "All settings files should be in git",
+        "correct": false,
+        "explanation": "Only .claude/settings.json is committed. Others contain personal or organizational settings"
+      }
     ]
   },
   {
     "question": "What does the pattern Bash(git *) in the allow list mean?",
     "type": "single",
     "options": [
-      { "text": "Allows only the git command without arguments", "correct": false, "explanation": "The asterisk (*) is a wildcard, replacing any arguments after git" },
-      { "text": "Allows any Bash command containing the word git", "correct": false, "explanation": "The pattern matches commands starting with git, not any command with git anywhere" },
-      { "text": "Allows any git command without confirmation", "correct": true, "explanation": "Bash(git *) is a wildcard pattern allowing git log, git diff, git commit, and any other git command" },
-      { "text": "Allows running files with the .git extension", "correct": false, "explanation": "The pattern refers to Bash commands starting with git, not file extensions" }
+      {
+        "text": "Allows any Bash command containing the word git",
+        "correct": false,
+        "explanation": "The pattern matches commands starting with git, not any command with git anywhere"
+      },
+      {
+        "text": "Allows running files with the .git extension",
+        "correct": false,
+        "explanation": "The pattern refers to Bash commands starting with git, not file extensions"
+      },
+      {
+        "text": "Allows only the git command without arguments",
+        "correct": false,
+        "explanation": "The asterisk (*) is a wildcard, replacing any arguments after git"
+      },
+      {
+        "text": "Allows any git command without confirmation",
+        "correct": true,
+        "explanation": "Bash(git *) is a wildcard pattern allowing git log, git diff, git commit, and any other git command"
+      }
     ]
   },
   {
     "question": "What happens if a tool appears in both allow and deny at the same settings level?",
     "type": "single",
     "options": [
-      { "text": "allow takes priority -- the tool will be available", "correct": false, "explanation": "For security reasons, deny always takes priority over allow -- a prohibition outweighs a permission" },
-      { "text": "deny takes priority -- the tool will be blocked", "correct": true, "explanation": "deny always beats allow. This is a security principle: an explicit prohibition cannot be bypassed by a permission" },
-      { "text": "Claude will ask for confirmation before use", "correct": false, "explanation": "On deny/allow conflict, the tool is fully blocked, not translated to ask mode" },
-      { "text": "A configuration error will occur", "correct": false, "explanation": "The conflict is resolved automatically in favor of deny -- no error occurs" }
+      {
+        "text": "allow takes priority -- the tool will be available",
+        "correct": false,
+        "explanation": "For security reasons, deny always takes priority over allow -- a prohibition outweighs a permission"
+      },
+      {
+        "text": "A configuration error will occur",
+        "correct": false,
+        "explanation": "The conflict is resolved automatically in favor of deny -- no error occurs"
+      },
+      {
+        "text": "Claude will ask for confirmation before use",
+        "correct": false,
+        "explanation": "On deny/allow conflict, the tool is fully blocked, not translated to ask mode"
+      },
+      {
+        "text": "deny takes priority -- the tool will be blocked",
+        "correct": true,
+        "explanation": "deny always beats allow. This is a security principle: an explicit prohibition cannot be bypassed by a permission"
+      }
     ]
   },
   {
     "question": "In which mode does Claude Code only analyze code without making any changes?",
     "type": "single",
     "options": [
-      { "text": "default", "correct": false, "explanation": "In default mode, Claude can make changes -- it just asks confirmation before dangerous actions" },
-      { "text": "plan", "correct": true, "explanation": "In plan mode, Claude only reads and analyzes code, suggesting an action plan. No file will be modified" },
-      { "text": "auto", "correct": false, "explanation": "auto is the opposite -- a maximum autonomy mode where Claude performs actions without confirmation" },
-      { "text": "acceptEdits", "correct": false, "explanation": "acceptEdits automatically applies file edits -- this is the opposite of analysis without changes" }
+      {
+        "text": "default",
+        "correct": false,
+        "explanation": "In default mode, Claude can make changes -- it just asks confirmation before dangerous actions"
+      },
+      {
+        "text": "plan",
+        "correct": true,
+        "explanation": "In plan mode, Claude only reads and analyzes code, suggesting an action plan. No file will be modified"
+      },
+      {
+        "text": "acceptEdits",
+        "correct": false,
+        "explanation": "acceptEdits automatically applies file edits -- this is the opposite of analysis without changes"
+      },
+      {
+        "text": "auto",
+        "correct": false,
+        "explanation": "auto is the opposite -- a maximum autonomy mode where Claude performs actions without confirmation"
+      }
     ]
   },
   {
     "question": "How does the security classifier work in auto mode?",
     "type": "single",
     "options": [
-      { "text": "Executes all actions without exceptions", "correct": false, "explanation": "Even in auto mode, Claude doesn't blindly execute everything -- dangerous actions are still blocked or require confirmation" },
-      { "text": "Blocks all actions and asks for confirmation", "correct": false, "explanation": "This describes default mode rather. In auto mode, safe actions run without confirmation" },
-      { "text": "Evaluates each action: executes safe ones, asks about risky ones, blocks forbidden ones", "correct": true, "explanation": "The classifier categorizes actions by risk: deny list is blocked, allow list is executed, the rest is evaluated by operation type and context" },
-      { "text": "Only checks Bash commands, passes other tools through", "correct": false, "explanation": "The classifier evaluates all tool types, not just Bash -- including Write, Edit, and others" }
+      {
+        "text": "Executes all actions without exceptions",
+        "correct": false,
+        "explanation": "Even in auto mode, Claude doesn't blindly execute everything -- dangerous actions are still blocked or require confirmation"
+      },
+      {
+        "text": "Evaluates each action: executes safe ones, asks about risky ones, blocks forbidden ones",
+        "correct": true,
+        "explanation": "The classifier categorizes actions by risk: deny list is blocked, allow list is executed, the rest is evaluated by operation type and context"
+      },
+      {
+        "text": "Only checks Bash commands, passes other tools through",
+        "correct": false,
+        "explanation": "The classifier evaluates all tool types, not just Bash -- including Write, Edit, and others"
+      },
+      {
+        "text": "Blocks all actions and asks for confirmation",
+        "correct": false,
+        "explanation": "This describes default mode rather. In auto mode, safe actions run without confirmation"
+      }
     ]
   },
   {
     "question": "You're working on a team project with a database. Which permission set is most secure for .claude/settings.json?",
     "type": "single",
     "options": [
-      { "text": "allow: [\"Bash(*)\"]", "correct": false, "explanation": "Bash(*) allows absolutely any command -- including rm -rf, curl, and other destructive or unsafe operations" },
-      { "text": "allow: [\"Bash(npm *)\"], deny: [\"Bash(npm publish*)\"]", "correct": false, "explanation": "Better than Bash(*), but npm * is still too broad -- includes npm adduser, npm config set, and other potentially dangerous commands" },
-      { "text": "allow: [\"Bash(npm test*)\", \"Bash(npm run *)\", \"Bash(npx prisma*)\"], deny: [\"Bash(rm -rf*)\"]", "correct": true, "explanation": "Only specific safe operations are allowed: tests, scripts from package.json, Prisma CLI. Destructive commands are explicitly denied" },
-      { "text": "deny: [\"Bash(rm -rf*)\"] without allow", "correct": false, "explanation": "Forbidding rm -rf is good, but without allow, Claude will ask confirmation for every command -- slowing down work" }
+      {
+        "text": "deny: [\"Bash(rm -rf*)\"] without allow",
+        "correct": false,
+        "explanation": "Forbidding rm -rf is good, but without allow, Claude will ask confirmation for every command -- slowing down work"
+      },
+      {
+        "text": "allow: [\"Bash(npm *)\"], deny: [\"Bash(npm publish*)\"]",
+        "correct": false,
+        "explanation": "Better than Bash(*), but npm * is still too broad -- includes npm adduser, npm config set, and other potentially dangerous commands"
+      },
+      {
+        "text": "allow: [\"Bash(npm test*)\", \"Bash(npm run *)\", \"Bash(npx prisma*)\"], deny: [\"Bash(rm -rf*)\"]",
+        "correct": true,
+        "explanation": "Only specific safe operations are allowed: tests, scripts from package.json, Prisma CLI. Destructive commands are explicitly denied"
+      },
+      {
+        "text": "allow: [\"Bash(*)\"]",
+        "correct": false,
+        "explanation": "Bash(*) allows absolutely any command -- including rm -rf, curl, and other destructive or unsafe operations"
+      }
     ]
   },
   {
     "question": "Why is it dangerous to store personal settings in .claude/settings.json?",
     "type": "multiple",
     "options": [
-      { "text": "The file is committed to git -- personal data will enter the repository", "correct": true, "explanation": ".claude/settings.json is intended for team settings and is committed to git -- any personal data becomes visible to the whole team" },
-      { "text": "Paths like /Users/vasya/... expose the username", "correct": true, "explanation": "Absolute paths in settings contain username and filesystem structure -- this is an information leak" },
-      { "text": "Other developers won't be able to use your local paths", "correct": true, "explanation": "Paths specific to your machine won't work for colleagues -- this will break their settings" },
-      { "text": "Claude Code doesn't allow using this file", "correct": false, "explanation": "Claude Code works fine with .claude/settings.json -- this is a standard file for team settings, just not for personal data" }
+      {
+        "text": "Paths like /Users/vasya/... expose the username",
+        "correct": true,
+        "explanation": "Absolute paths in settings contain username and filesystem structure -- this is an information leak"
+      },
+      {
+        "text": "The file is committed to git -- personal data will enter the repository",
+        "correct": true,
+        "explanation": ".claude/settings.json is intended for team settings and is committed to git -- any personal data becomes visible to the whole team"
+      },
+      {
+        "text": "Other developers won't be able to use your local paths",
+        "correct": true,
+        "explanation": "Paths specific to your machine won't work for colleagues -- this will break their settings"
+      },
+      {
+        "text": "Claude Code doesn't allow using this file",
+        "correct": false,
+        "explanation": "Claude Code works fine with .claude/settings.json -- this is a standard file for team settings, just not for personal data"
+      }
     ]
   },
   {
     "question": "Which mode is best suited for a CI/CD pipeline?",
     "type": "single",
     "options": [
-      { "text": "default -- will ask for confirmation", "correct": false, "explanation": "In CI/CD there's no person to confirm actions -- the pipeline will hang waiting" },
-      { "text": "plan -- only analyzes, doesn't change", "correct": false, "explanation": "Plan mode makes no changes -- useless for CI/CD where tests and builds need to run" },
-      { "text": "auto with strict allow/deny rules", "correct": true, "explanation": "auto allows working without confirmation, while strict allow/deny limit the available actions -- a balance of autonomy and security" },
-      { "text": "bypassPermissions -- maximum speed", "correct": false, "explanation": "bypassPermissions disables all security checks -- in CI/CD this is a recipe for disaster" }
+      {
+        "text": "auto with strict allow/deny rules",
+        "correct": true,
+        "explanation": "auto allows working without confirmation, while strict allow/deny limit the available actions -- a balance of autonomy and security"
+      },
+      {
+        "text": "plan -- only analyzes, doesn't change",
+        "correct": false,
+        "explanation": "Plan mode makes no changes -- useless for CI/CD where tests and builds need to run"
+      },
+      {
+        "text": "bypassPermissions -- maximum speed",
+        "correct": false,
+        "explanation": "bypassPermissions disables all security checks -- in CI/CD this is a recipe for disaster"
+      },
+      {
+        "text": "default -- will ask for confirmation",
+        "correct": false,
+        "explanation": "In CI/CD there's no person to confirm actions -- the pipeline will hang waiting"
+      }
     ]
   },
   {
     "question": "The organization set a managed policy with deny: [\"WebFetch\"]. A developer added allow: [\"WebFetch\"] to their ~/.claude/settings.json. What will happen?",
     "type": "single",
     "options": [
-      { "text": "WebFetch will be available -- user settings override managed", "correct": false, "explanation": "Managed policy has the highest priority -- no lower level can override it" },
-      { "text": "WebFetch will remain blocked -- managed policy has priority", "correct": true, "explanation": "Managed policy is absolute authority. Even if all lower levels allow WebFetch, the organization's prohibition cannot be bypassed" },
-      { "text": "A settings conflict error will occur", "correct": false, "explanation": "The conflict is resolved automatically by priority hierarchy -- managed wins, no error" },
-      { "text": "Claude will ask for confirmation before each use", "correct": false, "explanation": "deny in managed policy means full blocking, not translation to ask mode" }
+      {
+        "text": "Claude will ask for confirmation before each use",
+        "correct": false,
+        "explanation": "deny in managed policy means full blocking, not translation to ask mode"
+      },
+      {
+        "text": "WebFetch will remain blocked -- managed policy has priority",
+        "correct": true,
+        "explanation": "Managed policy is absolute authority. Even if all lower levels allow WebFetch, the organization's prohibition cannot be bypassed"
+      },
+      {
+        "text": "WebFetch will be available -- user settings override managed",
+        "correct": false,
+        "explanation": "Managed policy has the highest priority -- no lower level can override it"
+      },
+      {
+        "text": "A settings conflict error will occur",
+        "correct": false,
+        "explanation": "The conflict is resolved automatically by priority hierarchy -- managed wins, no error"
+      }
     ]
   },
   {
     "question": "You're opening an unfamiliar open-source repository for the first time and want to understand the architecture. Which mode to choose?",
     "type": "single",
     "options": [
-      { "text": "auto -- so Claude can quickly analyze everything", "correct": false, "explanation": "auto gives Claude the right to make changes -- in an unfamiliar repository this is risky, you might accidentally break something" },
-      { "text": "plan -- safe analysis without changes", "correct": true, "explanation": "plan is ideal for exploration: Claude will analyze code, explain architecture, and suggest a plan -- with no risk of breaking anything" },
-      { "text": "default -- standard mode for all occasions", "correct": false, "explanation": "default works for work, but for pure analysis plan is safer -- Claude definitely won't make any changes" },
-      { "text": "bypassPermissions -- for full read access", "correct": false, "explanation": "bypassPermissions removes all restrictions -- this is excessive and dangerous for simple code analysis" }
+      {
+        "text": "bypassPermissions -- for full read access",
+        "correct": false,
+        "explanation": "bypassPermissions removes all restrictions -- this is excessive and dangerous for simple code analysis"
+      },
+      {
+        "text": "default -- standard mode for all occasions",
+        "correct": false,
+        "explanation": "default works for work, but for pure analysis plan is safer -- Claude definitely won't make any changes"
+      },
+      {
+        "text": "plan -- safe analysis without changes",
+        "correct": true,
+        "explanation": "plan is ideal for exploration: Claude will analyze code, explain architecture, and suggest a plan -- with no risk of breaking anything"
+      },
+      {
+        "text": "auto -- so Claude can quickly analyze everything",
+        "correct": false,
+        "explanation": "auto gives Claude the right to make changes -- in an unfamiliar repository this is risky, you might accidentally break something"
+      }
     ]
   },
   {
     "question": "Which tools are generally safe to add to allow for any project?",
     "type": "multiple",
     "options": [
-      { "text": "Read, Glob, Grep", "correct": true, "explanation": "Reading tools are safe -- they don't modify files or execute commands" },
-      { "text": "Bash(git log*), Bash(git diff*), Bash(git status*)", "correct": true, "explanation": "Git read commands are safe -- they only display information without modifying the repository" },
-      { "text": "Bash(git push*), Bash(git reset*)", "correct": false, "explanation": "git push sends changes to a remote repository, git reset can destroy commits -- these are dangerous operations" },
-      { "text": "Bash(rm*), Bash(curl*)", "correct": false, "explanation": "rm deletes files, curl sends network requests -- both commands are potentially destructive and should not be in allow" }
+      {
+        "text": "Bash(rm*), Bash(curl*)",
+        "correct": false,
+        "explanation": "rm deletes files, curl sends network requests -- both commands are potentially destructive and should not be in allow"
+      },
+      {
+        "text": "Bash(git push*), Bash(git reset*)",
+        "correct": false,
+        "explanation": "git push sends changes to a remote repository, git reset can destroy commits -- these are dangerous operations"
+      },
+      {
+        "text": "Read, Glob, Grep",
+        "correct": true,
+        "explanation": "Reading tools are safe -- they don't modify files or execute commands"
+      },
+      {
+        "text": "Bash(git log*), Bash(git diff*), Bash(git status*)",
+        "correct": true,
+        "explanation": "Git read commands are safe -- they only display information without modifying the repository"
+      }
     ]
   },
   {
     "question": "How does acceptEdits mode differ from auto?",
     "type": "single",
     "options": [
-      { "text": "acceptEdits automatically applies file edits, but asks before Bash commands", "correct": true, "explanation": "acceptEdits is a compromise: file operations (Edit, Write) run without confirmation, but Bash commands still require approval" },
-      { "text": "acceptEdits and auto are the same thing", "correct": false, "explanation": "auto performs all allowed actions without confirmation, including Bash. acceptEdits automates only file edits" },
-      { "text": "acceptEdits is faster than auto", "correct": false, "explanation": "Speed depends on the task, not the mode. The difference is which actions require confirmation" },
-      { "text": "acceptEdits only works with TypeScript files", "correct": false, "explanation": "acceptEdits is not limited to file types -- it automatically accepts edits to any files" }
+      {
+        "text": "acceptEdits automatically applies file edits, but asks before Bash commands",
+        "correct": true,
+        "explanation": "acceptEdits is a compromise: file operations (Edit, Write) run without confirmation, but Bash commands still require approval"
+      },
+      {
+        "text": "acceptEdits and auto are the same thing",
+        "correct": false,
+        "explanation": "auto performs all allowed actions without confirmation, including Bash. acceptEdits automates only file edits"
+      },
+      {
+        "text": "acceptEdits only works with TypeScript files",
+        "correct": false,
+        "explanation": "acceptEdits is not limited to file types -- it automatically accepts edits to any files"
+      },
+      {
+        "text": "acceptEdits is faster than auto",
+        "correct": false,
+        "explanation": "Speed depends on the task, not the mode. The difference is which actions require confirmation"
+      }
     ]
   },
   {
     "question": "How does disableBypassPermissionsMode in managed policy protect an organization?",
     "type": "single",
     "options": [
-      { "text": "Prevents developers from using bypassPermissions mode", "correct": true, "explanation": "This setting blocks the most dangerous mode at the organizational level -- no developer can disable security checks" },
-      { "text": "Automatically enables bypassPermissions for everyone", "correct": false, "explanation": "On the contrary -- disable prohibits, not enables. The organization wants to protect against uncontrolled execution" },
-      { "text": "Translates all tools to ask mode", "correct": false, "explanation": "disableBypassPermissionsMode only blocks the bypass mode -- other modes (auto, default, etc.) remain available" },
-      { "text": "Encrypts all security settings", "correct": false, "explanation": "This setting is not related to encryption -- it controls the availability of bypassPermissions mode" }
+      {
+        "text": "Translates all tools to ask mode",
+        "correct": false,
+        "explanation": "disableBypassPermissionsMode only blocks the bypass mode -- other modes (auto, default, etc.) remain available"
+      },
+      {
+        "text": "Automatically enables bypassPermissions for everyone",
+        "correct": false,
+        "explanation": "On the contrary -- disable prohibits, not enables. The organization wants to protect against uncontrolled execution"
+      },
+      {
+        "text": "Encrypts all security settings",
+        "correct": false,
+        "explanation": "This setting is not related to encryption -- it controls the availability of bypassPermissions mode"
+      },
+      {
+        "text": "Prevents developers from using bypassPermissions mode",
+        "correct": true,
+        "explanation": "This setting blocks the most dangerous mode at the organizational level -- no developer can disable security checks"
+      }
     ]
   }
 ]

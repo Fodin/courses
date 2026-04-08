@@ -1,65 +1,65 @@
-# Level 7: Persistence — Detailed Theory
+# Уровень 7: Persistence — подробная теория
 
-## Introduction: The "Amnesia Broker" Problem
+## Введение: проблема "amnesia-брокера"
 
-Imagine a smart home with a dozen sensors: temperature, humidity, motion, lock states.
-All devices publish state via MQTT. You reboot the router running Mosquitto — and the
-control panel shows empty values. Sensors only update when they send new data.
-For a temperature sensor that publishes once a minute, that's 60 seconds of uncertainty.
+Представьте умный дом с десятком датчиков: температура, влажность, движение, состояние замков.
+Все устройства публикуют состояние через MQTT. Вы перезагружаете роутер с Mosquitto — и панель
+управления показывает пустые значения. Датчики обновляются только когда отправят новые данные.
+Для датчика температуры, который публикует данные раз в минуту, это 60 секунд неопределённости.
 
-This is the "amnesia broker" — a broker without persistence. It remembers nothing.
+Это и есть "amnesia-брокер" — брокер без persistence. Он не помнит ничего.
 
-Persistence solves this by storing broker state in a file on disk. After restart, the broker
-loads the saved state and continues as if nothing happened.
+Persistence решает это хранением состояния брокера в файле на диске. После перезапуска брокер
+загружает сохранённое состояние и продолжает работу, как будто ничего не произошло.
 
 ---
 
-## 1. What is persistence and what gets saved
+## 1. Что такое persistence и что сохраняется
 
-### The mosquitto.db file
+### Файл mosquitto.db
 
-Mosquitto uses its own binary format for storing the database. The `mosquitto.db` file
-contains several types of data:
+Mosquitto использует собственный бинарный формат для хранения базы данных. Файл `mosquitto.db`
+содержит несколько типов данных:
 
-**Retained messages** — the main reason to use persistence. When a retained message is published,
-Mosquitto saves it and sends it to every new subscriber. Without persistence, retained messages
-disappear when the broker restarts.
+**Retained-сообщения** — главная причина использовать persistence. Когда публикуется retained-сообщение,
+Mosquitto сохраняет его и отправляет каждому новому подписчику. Без persistence при перезапуске
+брокера retained-сообщения исчезают.
 
 ```bash
-# Publish a retained message
+# Публикуем retained-сообщение
 mosquitto_pub -t "home/temp" -m "22.5" -r
 
-# Without persistence: after broker restart, the subscriber receives nothing
-# With persistence: the subscriber immediately receives "22.5"
+# Без persistence: после перезапуска брокера подписчик не получит ничего
+# С persistence: подписчик сразу получит "22.5"
 ```
 
-**Persistent client sessions** — a client connecting with `clean_session=false` creates
-a "persistent session". The broker remembers its subscriptions and accumulates QoS 1/2 messages while
-the client is offline. Upon reconnect, the client receives all accumulated messages.
+**Persistent-сессии клиентов** — клиент, подключившийся с `clean_session=false`, создаёт
+"persistent session". Broker запоминает его подписки и накапливает сообщения QoS 1/2, пока
+клиент офлайн. При reconnect клиент получает накопленные сообщения.
 
-**QoS 1/2 queues** — messages awaiting delivery confirmation. If a client disconnects
-before receiving a QoS 1 message, the broker holds it in the queue. Without persistence, the queue disappears
-on restart.
+**Очереди QoS 1/2** — сообщения, ожидающие подтверждения доставки. Если клиент отключился,
+не получив сообщение QoS 1, broker держит его в очереди. Без persistence очередь исчезнет
+при перезапуске.
 
-**Incomplete QoS 2 transactions** — QoS 2 uses a four-step handshake (PUBLISH →
-PUBREC → PUBREL → PUBCOMP). Incomplete transactions are saved to guarantee exactly-once
-delivery.
+**Незавершённые транзакции QoS 2** — QoS 2 использует четырёхэтапный handshake (PUBLISH →
+PUBREC → PUBREL → PUBCOMP). Незавершённые транзакции сохраняются для гарантии ровно-однократной
+доставки.
 
-| Data Type | Persisted? | Reason |
+| Тип данных | Сохраняется? | Причина |
 |------------|:---:|---------|
-| Retained messages | ✅ | Key function of persistence |
-| QoS 1/2 subscriptions | ✅ | Part of persistent session |
-| QoS 1/2 queues | ✅ | Guaranteed delivery |
-| QoS 2 transactions | ✅ | Exactly-once guarantee |
-| QoS 0 messages | ❌ | Fire-and-forget by definition |
-| Active connections | ❌ | Re-established on reconnect |
-| Statistics ($SYS) | ❌ | Recalculated after start |
+| Retained-сообщения | ✅ | Ключевая функция persistence |
+| Подписки QoS 1/2 | ✅ | Часть persistent-сессии |
+| Очереди QoS 1/2 | ✅ | Гарантированная доставка |
+| QoS 2 транзакции | ✅ | exactly-once гарантия |
+| QoS 0 сообщения | ❌ | fire-and-forget по определению |
+| Активные соединения | ❌ | Восстанавливаются при реконнекте |
+| Статистика ($SYS) | ❌ | Пересчитывается после старта |
 
 ---
 
-## 2. Persistence configuration
+## 2. Конфигурация persistence
 
-### Minimal setup
+### Минимальная настройка
 
 ```conf
 # /etc/mosquitto/mosquitto.conf
@@ -68,60 +68,60 @@ persistence true
 persistence_location /var/lib/mosquitto/
 ```
 
-These two lines are enough for basic operation. Mosquitto will create the file
-`/var/lib/mosquitto/mosquitto.db` and save it every 1800 seconds (30 minutes by default).
+Этих двух строк достаточно для базовой работы. Mosquitto создаст файл
+`/var/lib/mosquitto/mosquitto.db` и будет сохранять его каждые 1800 секунд (30 минут по умолчанию).
 
-### Full configuration
+### Полная настройка
 
 ```conf
 persistence true
 persistence_location /var/lib/mosquitto/
 
-# Autosave interval in seconds
-# 0 = save only on clean shutdown (mosquitto stop)
-# 300 = every 5 minutes (recommended compromise)
+# Интервал автосохранения в секундах
+# 0 = сохранять только при корректном завершении (mosquitto stop)
+# 300 = каждые 5 минут (рекомендуемый компромисс)
 autosave_interval 300
 
-# Save on every retained/subscription change
-# true = lots of disk writes (dangerous for flash!)
-# false = conserve flash resources
+# Сохранять при каждом изменении retained/подписок
+# true = много записей на диск (опасно для flash!)
+# false = экономим flash-ресурс
 autosave_on_changes false
 ```
 
-### Directory initialization
+### Инициализация директории
 
 ```bash
-# Create directory and set permissions
+# Создать директорию и назначить права
 mkdir -p /var/lib/mosquitto
 chown mosquitto:mosquitto /var/lib/mosquitto
 chmod 750 /var/lib/mosquitto
 
-# Verify
+# Проверить
 ls -la /var/lib/mosquitto/
 ```
 
 ---
 
-## 3. Storage specifics on OpenWRT
+## 3. Специфика хранилищ на OpenWRT
 
-### OpenWRT memory architecture
+### Архитектура памяти OpenWRT
 
 ```mermaid
 flowchart LR
-    NOR["NOR/NAND Flash\n(built-in)"] -->|"mounted as"| RO["/ (read-only)\nSquashFS"]
-    NOR -->|"overlay part"| OVL["/overlay\nJFFS2/UBIFS"]
-    RAM["DRAM\n(RAM)"] -->|"tmpfs"| TMP["/tmp\n/run"]
-    USB["USB/SD\n(external)"] -->|"ext4/fat32"| MNT["/mnt/usb\n/mnt/sd"]
-    RO & OVL -->|"union mount"| ROOT["/ (final FS)\noverlay"]
+    NOR["NOR/NAND Flash\n(встроенная)"] -->|"монтируется как"| RO["/ (read-only)\nSquashFS"]
+    NOR -->|"overlay-часть"| OVL["/overlay\nJFFS2/UBIFS"]
+    RAM["DRAM\n(оперативная)"] -->|"tmpfs"| TMP["/tmp\n/run"]
+    USB["USB/SD\n(внешняя)"] -->|"ext4/fat32"| MNT["/mnt/usb\n/mnt/sd"]
+    RO & OVL -->|"union mount"| ROOT["/ (итоговая ФС)\noverlay"]
 ```
 
-OpenWRT uses a union mount: a writable overlay (JFFS2 or UBIFS) sits on top of a read-only squashfs.
-All filesystem changes (package installs, configs) are written to the overlay.
+OpenWRT использует union mount: поверх read-only squashfs лежит writable overlay (JFFS2 или UBIFS).
+Все изменения файловой системы (установка пакетов, конфиги) записываются в overlay.
 
 ### /tmp — tmpfs
 
-tmpfs stores data exclusively in RAM. After a reboot or power loss — data
-disappears. Size is limited by the router's available memory.
+tmpfs хранит данные исключительно в RAM. После перезагрузки или отключения питания — данные
+исчезают. Размер ограничен оперативной памятью роутера.
 
 ```bash
 df -h /tmp
@@ -129,58 +129,58 @@ df -h /tmp
 # tmpfs            62M  1.1M   61M   2% /tmp
 ```
 
-> ❌ Using `/tmp` as `persistence_location` is pointless. After reboot,
-> `mosquitto.db` will disappear, and persistence won't fulfill its purpose.
+> ❌ Использовать `/tmp` как `persistence_location` — бессмысленно. После перезагрузки
+> `mosquitto.db` исчезнет, и persistence не выполнит свою функцию.
 
 ### /overlay — JFFS2/UBIFS
 
-JFFS2 (or UBIFS on NAND flash) is a journaling file system with wear-leveling. Data
-survives reboots. However, flash memory has limited endurance.
+JFFS2 (или UBIFS на NAND-флеш) — журналируемая файловая система с wear-leveling. Данные
+переживают перезагрузку. Однако flash-память имеет ограниченный ресурс.
 
-**Wear-leveling** — an algorithm that distributes write operations evenly across all chip blocks.
-Without it, some blocks would wear out faster than others. With wear-leveling, all blocks wear
-approximately equally, maximizing chip lifespan.
+**Wear-leveling** — алгоритм равномерного распределения операций записи по всем блокам чипа.
+Без него одни блоки изнашивались бы быстрее других. С wear-leveling все блоки изнашиваются
+примерно одинаково, что максимизирует срок жизни чипа.
 
-**Typical router flash characteristics:**
-- Capacity: 4-16 MB
-- NAND endurance: ~100,000 write cycles per block
-- NOR endurance: ~10,000 cycles (worse!)
+**Типичные характеристики flash-памяти роутера:**
+- Объём: 4-16 МБ
+- Ресурс NAND: ~100 000 циклов записи на блок
+- Ресурс NOR: ~10 000 циклов (хуже!)
 
-**Wear calculation:**
+**Расчёт износа:**
 
-Assume: `autosave_interval 300`, `mosquitto.db` size ~10 KB.
-- Writes per day: 86400 / 300 = 288
-- Data per day: 288 × 10 KB = 2880 KB ≈ 2.8 MB
-- With 4 MB flash and wear-leveling: 100,000 × 4 MB / (2.8 MB × 365) ≈ **391 years**
+Предположим: `autosave_interval 300`, размер `mosquitto.db` ~10 КБ.
+- Записей в сутки: 86400 / 300 = 288
+- Данных в сутки: 288 × 10 КБ = 2880 КБ ≈ 2.8 МБ
+- С 4 МБ flash и wear-leveling: 100 000 × 4 МБ / (2.8 МБ × 365) ≈ **391 год**
 
-With `autosave_on_changes true` under active use (1000 retained updates/day × 10 KB):
-- 1000 × 10 KB = 10 MB/day
-- 100,000 × 4 MB / (10 MB × 365) ≈ **110 years**
+С `autosave_on_changes true` при активном использовании (1000 retained-updates/день × 10 КБ):
+- 1000 × 10 КБ = 10 МБ/день
+- 100 000 × 4 МБ / (10 МБ × 365) ≈ **110 лет**
 
-In both cases the endurance is sufficient, but to minimize risk it's still recommended to use
-`autosave_on_changes false` and an interval of at least 300 seconds.
+В обоих случаях ресурс достаточен, но для минимизации риска всё равно рекомендуется
+`autosave_on_changes false` и интервал не менее 300 секунд.
 
-### /mnt/usb or /mnt/sd — external media
+### /mnt/usb или /mnt/sd — внешний носитель
 
-The best option for production: a USB flash drive or SD card with ext4 filesystem.
+Лучший вариант для production: USB-флешка или SD-карта с файловой системой ext4.
 
 ```bash
-# Install USB storage support
+# Установить поддержку USB-накопителей
 opkg update
 opkg install kmod-usb-storage kmod-usb2 block-mount kmod-fs-ext4 e2fsprogs
 
-# Format USB as ext4 (do this once)
+# Форматировать USB в ext4 (делать один раз)
 mkfs.ext4 /dev/sda1
 
-# Configure automount
+# Настроить автомонтирование
 block detect > /etc/config/fstab
-# Edit /etc/config/fstab — add option enabled '1'
-# and option target '/mnt/usb' for the relevant device
+# Отредактировать /etc/config/fstab — добавить option enabled '1'
+# и option target '/mnt/usb' для нужного устройства
 
 uci commit fstab
 /etc/init.d/fstab restart
 
-# Create directory for Mosquitto
+# Создать директорию для Mosquitto
 mkdir -p /mnt/usb/mosquitto
 chown mosquitto:mosquitto /mnt/usb/mosquitto
 ```
@@ -194,70 +194,70 @@ autosave_interval 300
 
 ---
 
-## 4. Forced save: SIGUSR1
+## 4. Принудительное сохранение: SIGUSR1
 
-Mosquitto supports UNIX signals for management without restart:
+Mosquitto поддерживает UNIX-сигналы для управления без перезапуска:
 
-| Signal | Action |
+| Сигнал | Действие |
 |--------|---------|
-| `SIGUSR1` | Immediately save database to disk |
-| `SIGUSR2` | Print statistics to log (if log_type all) |
-| `SIGHUP` | Reload configuration (in Mosquitto 1.x) |
-| `SIGTERM` | Clean shutdown with DB save |
+| `SIGUSR1` | Немедленно сохранить базу данных на диск |
+| `SIGUSR2` | Напечатать статистику в лог (если log_type all) |
+| `SIGHUP` | Перечитать конфигурацию (в Mosquitto 1.x) |
+| `SIGTERM` | Корректное завершение с сохранением БД |
 
 ```bash
-# Method 1: via PID file
+# Метод 1: через PID-файл
 kill -USR1 $(cat /var/run/mosquitto.pid)
 
-# Method 2: via pgrep
+# Метод 2: через pgrep
 kill -USR1 $(pgrep -x mosquitto)
 
-# Method 3: via mosquitto_ctrl (Mosquitto 2.x)
-# mosquitto_ctrl does not support SIGUSR1 directly, use kill
+# Метод 3: через mosquitto_ctrl (Mosquitto 2.x)
+# mosquitto_ctrl не поддерживает SIGUSR1 напрямую, используйте kill
 ```
 
-> 💡 Always send SIGUSR1 before creating a backup! Mosquitto keeps some data in
-> memory buffers and doesn't immediately write it to disk. SIGUSR1 guarantees a full flush.
+> 💡 Всегда отправляйте SIGUSR1 перед созданием бэкапа! Mosquitto держит часть данных в
+> буферах памяти и не сразу записывает их на диск. SIGUSR1 гарантирует полный flush.
 
 ---
 
-## 5. Backup strategy
+## 5. Стратегия бэкапа
 
-### What to include in backup
+### Что включать в бэкап
 
 ```
-/var/lib/mosquitto/mosquitto.db   # Database
-/etc/mosquitto/mosquitto.conf      # Main config
-/etc/mosquitto/certs/              # TLS certificates
-/etc/mosquitto/passwd              # Password file
-/etc/mosquitto/acl                 # ACL rules
+/var/lib/mosquitto/mosquitto.db   # База данных
+/etc/mosquitto/mosquitto.conf      # Основной конфиг
+/etc/mosquitto/certs/              # TLS-сертификаты
+/etc/mosquitto/passwd              # Файл паролей
+/etc/mosquitto/acl                 # ACL-правила
 ```
 
-### Rotation strategy
+### Стратегия ротации
 
-Backups accumulate. For OpenWRT with limited space, it's reasonable to keep:
-- 7 daily backups
-- 4 weekly backups
-- 3 monthly backups
+Бэкапы накапливаются. Для OpenWRT с ограниченным местом разумно хранить:
+- 7 ежедневных бэкапов
+- 4 еженедельных
+- 3 ежемесячных
 
 ```sh
-# Keep only the last 7 backups
+# Оставить только последние 7 бэкапов
 ls -t /mnt/usb/backups/mqtt_*.tar.gz | tail -n +8 | xargs rm -f
 ```
 
-### Full backup script
+### Полный скрипт бэкапа
 
 ```sh
 #!/bin/sh
 # /usr/bin/mqtt-backup.sh
-# Usage: run manually or via cron
+# Использование: запустить вручную или через cron
 
 BACKUP_DIR="/mnt/usb/backups/mosquitto"
 RETAIN_COUNT=7
 DATE=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="$BACKUP_DIR/mosquitto_$DATE.tar.gz"
 
-# Check mount point
+# Проверить точку монтирования
 if ! mountpoint -q /mnt/usb; then
   logger -t mqtt-backup "ERROR: /mnt/usb not mounted"
   exit 1
@@ -265,14 +265,14 @@ fi
 
 mkdir -p "$BACKUP_DIR"
 
-# Flush buffers to disk
+# Сбросить буферы на диск
 MQTT_PID=$(cat /var/run/mosquitto.pid 2>/dev/null)
 if [ -n "$MQTT_PID" ]; then
   kill -USR1 "$MQTT_PID"
   sleep 2
 fi
 
-# Create archive
+# Создать архив
 tar czf "$BACKUP_FILE" \
   /var/lib/mosquitto/mosquitto.db \
   /etc/mosquitto/ 2>/dev/null
@@ -280,13 +280,13 @@ tar czf "$BACKUP_FILE" \
 SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
 logger -t mqtt-backup "Created $BACKUP_FILE ($SIZE)"
 
-# Rotation
+# Ротация
 ls -t "$BACKUP_DIR"/mosquitto_*.tar.gz | \
   tail -n +"$((RETAIN_COUNT + 1))" | \
   xargs -r rm -f
 ```
 
-### Restore
+### Восстановление
 
 ```sh
 #!/bin/sh
@@ -294,116 +294,116 @@ ls -t "$BACKUP_DIR"/mosquitto_*.tar.gz | \
 BACKUP_FILE="$1"
 
 if [ ! -f "$BACKUP_FILE" ]; then
-  echo "File not found: $BACKUP_FILE"
+  echo "Файл не найден: $BACKUP_FILE"
   exit 1
 fi
 
-# Stop broker
+# Остановить брокер
 service mosquitto stop
 
-# Save current state (just in case)
+# Сохранить текущее состояние (на всякий случай)
 SAFE_BACKUP="/tmp/mosquitto_pre_restore_$(date +%H%M%S).tar.gz"
 tar czf "$SAFE_BACKUP" /var/lib/mosquitto/ /etc/mosquitto/ 2>/dev/null
-echo "Previous state saved to $SAFE_BACKUP"
+echo "Предыдущее состояние сохранено в $SAFE_BACKUP"
 
-# Restore
+# Восстановить
 tar xzf "$BACKUP_FILE" -C /
 chown -R mosquitto:mosquitto /var/lib/mosquitto/
 chown -R mosquitto:mosquitto /etc/mosquitto/
 
-# Start
+# Запустить
 service mosquitto start
-echo "Done. Check: logread | grep mosquitto"
+echo "Готово. Проверьте: logread | grep mosquitto"
 ```
 
 ---
 
-## ⚠️ Common beginner mistakes
+## ⚠️ Частые ошибки новичков
 
-### 🐛 1. persistence_location points to /tmp
+### 🐛 1. persistence_location указывает на /tmp
 
 ```conf
-# ❌ Completely pointless!
+# ❌ Абсолютно бессмысленно!
 persistence true
 persistence_location /tmp/mosquitto/
 ```
 
-> **Why this is a mistake:** /tmp is tmpfs (RAM). After reboot, the file disappears. Persistence
-> loses all meaning — it's the same as not enabling it at all.
+> **Почему это ошибка:** /tmp — это tmpfs (RAM). После перезагрузки файл исчезнет. Persistence
+> теряет весь смысл — это то же самое, что не включать её вообще.
 
 ```conf
-# ✅ Use persistent storage
+# ✅ Используйте постоянное хранилище
 persistence true
 persistence_location /var/lib/mosquitto/
 ```
 
-### 🐛 2. Directory not created beforehand
+### 🐛 2. Директория не создана заранее
 
 ```
 [1657891234] Error: Unable to open database file.
 ```
 
-> **Why this is a mistake:** Mosquitto doesn't create the directory automatically. If it doesn't exist —
-> it won't start with persistence enabled.
+> **Почему это ошибка:** Mosquitto не создаёт директорию автоматически. Если её нет —
+> он не стартует с включённой persistence.
 
 ```bash
-# ✅ Create before launch
+# ✅ Создать до запуска
 mkdir -p /var/lib/mosquitto
 chown mosquitto:mosquitto /var/lib/mosquitto
 ```
 
-### 🐛 3. DB backup without SIGUSR1
+### 🐛 3. Бэкап БД без SIGUSR1
 
 ```bash
-# ❌ Copying DB "on the fly" without signal
+# ❌ Копировать БД "на лету" без сигнала
 cp /var/lib/mosquitto/mosquitto.db /tmp/backup.db
 ```
 
-> **Why this is a mistake:** Mosquitto doesn't immediately write all changes to disk. The file on disk
-> may contain stale data. SIGUSR1 forces the broker to flush buffers.
+> **Почему это ошибка:** Mosquitto не сразу записывает все изменения на диск. Файл на диске
+> может содержать устаревшие данные. SIGUSR1 заставляет broker сбросить буферы.
 
 ```bash
-# ✅ Signal first, then backup
+# ✅ Сначала сигнал, потом бэкап
 kill -USR1 $(cat /var/run/mosquitto.pid) && sleep 2
 cp /var/lib/mosquitto/mosquitto.db /tmp/backup.db
 ```
 
-### 🐛 4. autosave_on_changes true on flash without assessing load
+### 🐛 4. autosave_on_changes true на flash без оценки нагрузки
 
 ```conf
-# ❌ Can lead to tens of thousands of writes per day
+# ❌ Может привести к десяткам тысяч записей в сутки
 persistence true
 persistence_location /overlay/mosquitto/
 autosave_on_changes true
 ```
 
-> **Why this is a mistake:** with intensive use of retained topics (e.g., 100+
-> devices publishing retained every minute) this means thousands of writes per day. Flash endurance
-> is finite, though wear-leveling handles typical loads well.
+> **Почему это ошибка:** при интенсивном использовании retained-топиков (например, 100+
+> устройств публикуют retained каждую минуту) это тысячи записей в сутки. Flash ресурс
+> конечен, хотя при типичной нагрузке wear-leveling справляется.
 
 ```conf
-# ✅ Controlled interval-based saving
+# ✅ Контролируемое сохранение по интервалу
 autosave_interval 600
 autosave_on_changes false
 ```
 
 ---
 
-## 📌 Summary
+## 📌 Итоги
 
-| Parameter | Value | Purpose |
+| Параметр | Значение | Назначение |
 |----------|---------|-----------|
-| `persistence true` | — | Enable disk persistence |
-| `persistence_location` | `/var/lib/mosquitto/` | Directory for mosquitto.db |
-| `autosave_interval` | `300` | Save every 5 minutes |
-| `autosave_on_changes` | `false` | Conserve flash resources |
+| `persistence true` | — | Включить сохранение на диск |
+| `persistence_location` | `/var/lib/mosquitto/` | Директория для mosquitto.db |
+| `autosave_interval` | `300` | Сохранять каждые 5 минут |
+| `autosave_on_changes` | `false` | Экономить ресурс flash |
 
-**Storage priority for OpenWRT:**
-1. `/mnt/usb/mosquitto/` — USB/SD with ext4 (best option)
-2. `/overlay/upper/mosquitto/` — built-in flash (acceptable)
-3. `/tmp/` — never!
+**Приоритет хранилищ для OpenWRT:**
+1. `/mnt/usb/mosquitto/` — USB/SD с ext4 (лучший вариант)
+2. `/overlay/upper/mosquitto/` — встроенная flash (допустимо)
+3. `/tmp/` — никогда!
 
-- ✅ Always use SIGUSR1 before backup
-- ✅ Set up cron for daily automated backups
-- ✅ Store backups on external media, not on the router
-- ❌ Don't use persistence_location on tmpfs (/tmp)
+- ✅ Всегда используйте SIGUSR1 перед бэкапом
+- ✅ Настройте cron для ежедневного автобэкапа
+- ✅ Храните бэкапы на внешнем носителе, не на роутере
+- ❌ Не используйте persistence_location на tmpfs (/tmp)

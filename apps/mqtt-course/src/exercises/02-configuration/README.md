@@ -1,87 +1,87 @@
-# Level 2: Basic Mosquitto Configuration
+# Уровень 2: Базовая конфигурация Mosquitto
 
-## Anatomy of mosquitto.conf
+## Анатомия mosquitto.conf
 
-The Mosquitto config is a text file with `key value` syntax. No `=`, no quotes (unless the value contains spaces). Comments start with `#`.
+Конфиг Mosquitto — текстовый файл с синтаксисом `ключ значение`. Никаких `=`, никаких кавычек (если значение без пробелов). Комментарии начинаются с `#`.
 
 ```ini
-# Global parameters
+# Глобальные параметры
 pid_file /var/run/mosquitto.pid
 persistence false
 
-# Listener block — everything applies only to this listener
+# Listener-блок — всё относится только к этому listener
 listener 1883 0.0.0.0
 protocol mqtt
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 
-# Second listener — WebSockets
+# Второй listener — WebSockets
 listener 9001
 protocol websockets
 allow_anonymous false
 ```
 
-📌 **Important in Mosquitto 2.x:** authentication parameters (`allow_anonymous`, `password_file`, `acl_file`) work **in the context of a specific listener**, not globally. If they appear before the first `listener` — they apply to all listeners.
+📌 **Важно в Mosquitto 2.x:** параметры аутентификации (`allow_anonymous`, `password_file`, `acl_file`) работают **в контексте конкретного listener**, а не глобально. Если они указаны до первого `listener` — применяются ко всем listener-ам.
 
 ---
 
-## Key Parameters
+## Ключевые параметры
 
-### Network
+### Сетевые
 
 ```ini
-listener 1883           # MQTT port
-listener 1883 127.0.0.1 # MQTT localhost only
-listener 8883           # MQTT+TLS port (IANA standard)
+listener 1883           # MQTT порт
+listener 1883 127.0.0.1 # MQTT только localhost
+listener 8883           # MQTT+TLS порт (стандарт IANA)
 listener 9001           # WebSockets
-bind_address 192.168.1.1 # only within listener context
-max_connections 100     # limit connections
-keepalive_interval 60   # keepalive seconds
-message_size_limit 65536 # max payload size (bytes)
+bind_address 192.168.1.1 # только в контексте listener
+max_connections 100     # ограничить подключения
+keepalive_interval 60   # секунды keepalive
+message_size_limit 65536 # макс. размер payload (байт)
 ```
 
 ### Persistence
 
 ```ini
-persistence false               # disabled (recommended on OpenWRT)
-persistence true                # enabled
-persistence_location /tmp/mosquitto/  # tmpfs is safe for flash
-persistence_file mosquitto.db   # file name
+persistence false               # выключить (рекомендуется на OpenWRT)
+persistence true                # включить
+persistence_location /tmp/mosquitto/  # tmpfs безопасна для flash
+persistence_file mosquitto.db   # имя файла
 ```
 
-### Security
+### Безопасность
 
 ```ini
-allow_anonymous false           # disallow without password (v2.0 default)
-allow_anonymous true            # development / LAN only
+allow_anonymous false           # запретить без пароля (v2.0 default)
+allow_anonymous true            # только для разработки / LAN
 password_file /etc/mosquitto/passwd
 acl_file /etc/mosquitto/acl
 ```
 
 ---
 
-## Listeners and Ports
+## Listeners и порты
 
-Mosquitto can listen on multiple ports simultaneously — with different security settings:
+Mosquitto может слушать несколько портов одновременно — с разными настройками безопасности:
 
 ```mermaid
 graph LR
-    A[LAN devices\n192.168.1.x] -->|:1883 MQTT| B[Mosquitto\nBroker]
-    C[Web browser] -->|:9001 WebSocket| B
-    D[External client] -->|:8883 TLS| B
-    B --> E[Clients\nreceive messages]
+    A[LAN-устройства\n192.168.1.x] -->|:1883 MQTT| B[Mosquitto\nBroker]
+    C[Веб-браузер] -->|:9001 WebSocket| B
+    D[Внешний клиент] -->|:8883 TLS| B
+    B --> E[Клиенты\nполучают сообщения]
 ```
 
-This allows, for example, permitting anonymous access for internal devices while requiring TLS for external connections.
+Это позволяет, например, разрешить анонимный доступ для внутренних устройств, но требовать TLS для внешних подключений.
 
 ---
 
-## Logging Configuration
+## Настройка логирования
 
-Logs are the first diagnostic tool. The right balance of levels matters on a router.
+Логи — первый инструмент диагностики. Правильный баланс уровней важен на роутере.
 
 ```ini
-# Recommended configuration for OpenWRT
+# Рекомендуемая конфигурация для OpenWRT
 log_dest syslog
 log_type error
 log_type warning
@@ -90,32 +90,32 @@ log_timestamp true
 log_timestamp_format %Y-%m-%dT%H:%M:%S
 ```
 
-Logging levels (from quiet to verbose):
+Уровни логирования (от тихого к шумному):
 
-| Level | When to use |
+| Уровень | Когда использовать |
 |---------|-------------------|
-| `error` | Always (critical errors) |
-| `warning` | Always (warnings) |
-| `notice` | Production (start, connections) |
-| `information` | Extended monitoring |
-| `subscribe` | Subscription debugging |
-| `debug` | Debugging only (very verbose) |
+| `error` | Всегда (критические ошибки) |
+| `warning` | Всегда (предупреждения) |
+| `notice` | Продакшн (старт, подключения) |
+| `information` | Расширенный мониторинг |
+| `subscribe` | Отладка подписок |
+| `debug` | Только при отладке (очень много вывода) |
 
 ```bash
-# Read logs on OpenWRT
+# Читать логи на OpenWRT
 logread | grep mosquitto
 
-# Follow logs in real time
+# Следить за логами в реальном времени
 logread -f | grep mosquitto
 ```
 
 ---
 
-## Minimal Working Config
+## Минимальный рабочий конфиг
 
 ```ini
 # /etc/mosquitto/mosquitto.conf
-# Recommended for OpenWRT home automation
+# Рекомендуется для OpenWRT home automation
 
 pid_file /var/run/mosquitto.pid
 persistence false
@@ -132,43 +132,43 @@ allow_anonymous false
 password_file /etc/mosquitto/passwd
 ```
 
-After changing the config:
+После изменения конфига:
 ```bash
-# Reload config without dropping connections (SIGHUP)
+# Перезагрузить конфиг без разрыва соединений (SIGHUP)
 kill -HUP $(cat /var/run/mosquitto.pid)
 
-# Or full restart
+# Или полный перезапуск
 /etc/init.d/mosquitto restart
 ```
 
 ---
 
-## ⚠️ Common Mistakes
+## ⚠️ Частые ошибки
 
-**❌ Using global `port` instead of `listener`**
+**❌ Использовать глобальный `port` вместо `listener`**
 ```ini
-# Bad (Mosquitto v1.x syntax):
+# Плохо (Mosquitto v1.x синтаксис):
 port 1883
 bind_address 192.168.1.1
 
-# Correct (v2.x):
+# Правильно (v2.x):
 listener 1883 192.168.1.1
 ```
 
-**❌ `allow_anonymous true` in production**
+**❌ `allow_anonymous true` в продакшне**
 ```ini
-# Dangerous — anyone on the network can read and write any topic!
+# Опасно — любой в сети может читать и писать любые топики!
 allow_anonymous true
 ```
-✅ Even on a home network, set up passwords — protection against accidental device conflicts.
+✅ Даже в домашней сети настрой пароли — защита от случайных конфликтов устройств.
 
-**❌ Enabling persistence without specifying tmpfs**
+**❌ Включать persistence без указания tmpfs**
 ```ini
-# Dangerous for router flash memory:
+# Опасно для flash-памяти роутера:
 persistence true
-persistence_location /var/lib/mosquitto/  # writes to flash!
+persistence_location /var/lib/mosquitto/  # пишет на flash!
 
-# Safe:
+# Безопасно:
 persistence true
 persistence_location /tmp/mosquitto/      # tmpfs (RAM)
 ```

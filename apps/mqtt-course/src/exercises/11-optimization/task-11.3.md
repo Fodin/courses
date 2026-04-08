@@ -1,59 +1,59 @@
-# Task 11.3: Connection Management
+# Задание 11.3: Управление соединениями
 
-## Goal
+## Цель
 
-Configure session and keepalive parameters for optimal operation of IoT devices that periodically enter sleep mode.
+Настроить параметры сессий и keepalive для оптимальной работы IoT-устройств, которые периодически уходят в спящий режим.
 
-## Requirements
+## Требования
 
-1. Create two users: `dashboard` (clean session) and `sensor1` (persistent session)
-2. Configure different ACL permissions for each user
-3. Enable persistence (`persistence true`) with storage in `/tmp/mosquitto/`
-4. Configure `persistent_client_expiration 1d`
-5. Configure `max_keepalive 300`
-6. Verify: after `sensor1` disconnects, the broker should retain subscriptions
-7. After `sensor1` reconnects — it should receive accumulated messages
+1. Создать двух пользователей: `dashboard` (clean session) и `sensor1` (persistent session)
+2. В ACL настроить разные права доступа для каждого
+3. Включить persistence (`persistence true`) с хранением в `/tmp/mosquitto/`
+4. Настроить `persistent_client_expiration 1d`
+5. Настроить `max_keepalive 300`
+6. Проверить: после отключения `sensor1` брокер должен сохранить подписки
+7. После переподключения `sensor1` — получить накопленные сообщения
 
-## Checklist
+## Чеклист
 
-- [ ] `persistence true` with `persistence_location /tmp/mosquitto/`
+- [ ] `persistence true` с `persistence_location /tmp/mosquitto/`
 - [ ] `persistent_client_expiration 1d`
 - [ ] `max_keepalive 300`
-- [ ] Directory `/tmp/mosquitto/` created and writable
-- [ ] User sensor1 connects with `clean=false` (persistent)
-- [ ] After sensor1 disconnects, persistence.db exists in `/tmp/mosquitto/`
-- [ ] After sensor1 reconnects, it receives accumulated messages
+- [ ] Каталог `/tmp/mosquitto/` создан и доступен для записи
+- [ ] Пользователь sensor1 подключается с `clean=false` (persistent)
+- [ ] После отключения sensor1 в `/tmp/mosquitto/` есть файл persistence.db
+- [ ] После переподключения sensor1 получает накопленные сообщения
 
-## How to verify
+## Как проверить себя
 
 ```bash
-# Step 1: Connect sensor1 as persistent (in one terminal):
+# Шаг 1: Подключить sensor1 как persistent (в одном терминале):
 mosquitto_sub -h localhost -u sensor1 -P pass \
   -i sensor1-device \
   -t "commands/#" \
   --clean-session 0  # false = persistent session
 
-# Step 2: Disconnect sensor1 (Ctrl+C)
+# Шаг 2: Отключить sensor1 (Ctrl+C)
 
-# Step 3: While sensor1 is offline — publish a command (in another terminal):
+# Шаг 3: Пока sensor1 offline — опубликовать команду (в другом терминале):
 mosquitto_pub -h localhost -u admin -P pass \
   -t "commands/sensor1/config" \
   -m '{"interval":30}' -q 1
 
-# Step 4: Reconnect sensor1:
+# Шаг 4: Переподключить sensor1:
 mosquitto_sub -h localhost -u sensor1 -P pass \
   -i sensor1-device \
   -t "commands/#" \
   --clean-session 0
-# Expect: immediately receive the message {"interval":30}
+# Ожидаем: немедленно получить сообщение {"interval":30}
 
-# Step 5: Check persistence file:
+# Шаг 5: Проверить файл persistence:
 ls -la /tmp/mosquitto/
-# Should have mosquitto.db file
+# Должен быть файл mosquitto.db
 
-# Step 6: Verify keepalive limit:
-# A client with keepalive=600 should be rejected (exceeds max_keepalive=300)
+# Шаг 6: Проверить keepalive ограничение:
+# Клиент с keepalive=600 должен быть отклонён (превышает max_keepalive=300)
 mosquitto_sub -h localhost -u sensor1 -P pass \
   -t "test" --keepalive 600
-# Mosquitto 2.x will set keepalive = min(client_keepalive, max_keepalive) = 300
+# Mosquitto 2.x установит keepalive = min(client_keepalive, max_keepalive) = 300
 ```

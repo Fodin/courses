@@ -1,30 +1,30 @@
-# Task 3.1: Topic Hierarchy
+# Задание 3.1: Иерархия топиков
 
-## Goal
+## Цель
 
-Visualize and study the MQTT topic tree structure using a smart home IoT example. Understand topic hierarchy design principles.
+Визуализировать и изучить структуру дерева топиков MQTT на примере IoT-системы умного дома. Понять принципы проектирования иерархии топиков.
 
-## Requirements
+## Требования
 
-1. Study the ready-made smart home topic tree in the component
-2. Click on each tree node and view the full topic path
-3. Pay attention to the number of hierarchy levels
-4. Try entering your own topic in the input field and analyze it
-5. Study the wildcard subscription examples in the right column
+1. Изучите готовое дерево топиков умного дома в компоненте
+2. Нажмите на каждый узел дерева и посмотрите полный путь топика
+3. Обратите внимание на количество уровней иерархии
+4. Попробуйте ввести свой топик в поле ввода и проанализируйте его
+5. Изучите примеры подписок с wildcards в правой колонке
 
-## Checklist
+## Чеклист
 
-- [ ] Viewed the full topic path for `home/living_room/light/state` (4 levels)
-- [ ] Understood the difference between a leaf node (with value) and an intermediate node (with children)
-- [ ] Clicked wildcard patterns in examples and understood their role
-- [ ] Entered your own topic in the validation field
-- [ ] Understood why topics should not start with `/`
+- [ ] Посмотрел полный путь топика `home/living_room/light/state` (4 уровня)
+- [ ] Понял разницу между конечным узлом (со значением) и промежуточным (с дочерними)
+- [ ] Нажал на wildcard-паттерны в примерах и понял их роль
+- [ ] Ввёл свой топик в поле проверки
+- [ ] Понял, почему не стоит начинать топик с `/`
 
-## How to Check Yourself
+## Как проверить себя
 
-Answer the questions:
-- How many levels are in the topic `home/living_room/light/brightness`?
-- What's the difference between `home/temperature` and `home/living_room/temperature`?
-- Why don't identical names (`temperature`) in different branches conflict?
+Ответьте на вопросы:
+- Сколько уровней в топике `home/living_room/light/brightness`?
+- Чем отличается `home/temperature` от `home/living_room/temperature`?
+- Почему одинаковые имена (`temperature`) в разных ветках не конфликтуют?
 
-Correct answers: 4 levels; different hierarchy levels; because the full path (topic) is unique.
+Правильные ответы: 4 уровня; разные уровни иерархии; потому что полный путь (топик) уникален.

@@ -1,51 +1,51 @@
-# Task 0.1: MQTT Protocol and Pub/Sub Model
+# Задание 0.1: Протокол MQTT и модель pub/sub
 
-## Goal
+## Цель
 
-Visualize the pub/sub architecture and understand the roles of participants in an MQTT system. Implement an interactive diagram where you can observe the path of a message from publisher to subscriber through the broker.
-
----
-
-## Requirements
-
-1. Define the `PubSubNode` interface with fields: `id`, `type` (`'publisher' | 'broker' | 'subscriber'`), `label`, `description`, `color`, `bgColor`
-
-2. Create a `nodes` array with at least 6 nodes:
-   - 2 publishers (e.g., temperature sensor and door sensor)
-   - 1 broker
-   - 3 subscribers (e.g., dashboard, automation system, logger)
-
-3. Implement the `Message` interface with fields: `id`, `topic`, `payload`, `qos` (`0 | 1 | 2`), `from`, `to` (array of recipient names)
-
-4. Display a three-column layout: Publishers → Broker → Subscribers. Each node is a clickable card.
-
-5. Add a "Publish Simulation" section with one button per publisher. On click:
-   - Show details of the published message (topic, payload, QoS, recipients)
-   - Append rows to the event log (PUBLISH, BROKER receives, DELIVER → subscribers)
-
-6. Event log: last N lines in terminal style (dark background, green text). Add a "Clear" button.
+Визуализировать архитектуру pub/sub и понять роли участников MQTT-системы. Реализовать интерактивную схему, где можно наблюдать путь сообщения от publisher к subscriber через брокер.
 
 ---
 
-## Checklist
+## Требования
 
-- [ ] Defined `PubSubNode` and `Message` interfaces
-- [ ] Created a `nodes` array with nodes of all three types
-- [ ] Layout displays three columns: Publishers, Broker, Subscribers
-- [ ] Arrows or dividers between columns (PUBLISH → / → DELIVER)
-- [ ] Clicking a node highlights it
-- [ ] Publish simulation buttons work
-- [ ] Publishing shows a message details card
-- [ ] Event log displays the sequence of events
-- [ ] "Clear" button clears the log
-- [ ] Component is fully typed (no `any`)
+1. Определи интерфейс `PubSubNode` с полями: `id`, `type` (`'publisher' | 'broker' | 'subscriber'`), `label`, `description`, `color`, `bgColor`
+
+2. Создай массив `nodes` с минимум 6 узлами:
+   - 2 publisher-а (например, датчик температуры и датчик двери)
+   - 1 брокер
+   - 3 subscriber-а (например, дашборд, система автоматизации, логгер)
+
+3. Реализуй интерфейс `Message` с полями: `id`, `topic`, `payload`, `qos` (`0 | 1 | 2`), `from`, `to` (массив имён получателей)
+
+4. Отобрази трёхколонную схему: Publishers → Broker → Subscribers. Каждый узел — кликабельная карточка.
+
+5. Добавь секцию "Симуляция публикации" с кнопками по одной на каждый publisher. При клике:
+   - Показать детали опубликованного сообщения (topic, payload, QoS, получатели)
+   - Добавить строки в лог событий (PUBLISH, BROKER receives, DELIVER → subscribers)
+
+6. Лог событий: последние N строк в стиле терминала (тёмный фон, зелёный текст). Добавь кнопку "Очистить".
 
 ---
 
-## How to Check Yourself
+## Чеклист
 
-1. Open the component — do you see three columns with nodes?
-2. Click any publisher — did the simulation button appear?
-3. Click "Simulate Publish" — did message details and log lines appear?
-4. Log lines should show: PUBLISH → BROKER → DELIVER (for each subscribed subscriber)
-5. Click "Clear" — did the log clear?
+- [ ] Определены интерфейсы `PubSubNode` и `Message`
+- [ ] Создан массив `nodes` с узлами всех трёх типов
+- [ ] Схема отображает три колонки: Publishers, Broker, Subscribers
+- [ ] Стрелки или разделители между колонками (PUBLISH → / → DELIVER)
+- [ ] Клик по узлу подсвечивает его
+- [ ] Кнопки симуляции публикации работают
+- [ ] При публикации появляется карточка с деталями сообщения
+- [ ] Лог событий отображает последовательность событий
+- [ ] Кнопка "Очистить" очищает лог
+- [ ] Компонент полностью типизирован (без `any`)
+
+---
+
+## Как проверить себя
+
+1. Открой компонент — видишь три колонки с узлами?
+2. Нажми на любой publisher — кнопка симуляции появилась?
+3. Нажми "Симулировать публикацию" — появились детали сообщения и строки в логе?
+4. Строки лога должны показывать: PUBLISH → BROKER → DELIVER (для каждого подписанного subscriber)
+5. Нажми "Очистить" — лог очистился?

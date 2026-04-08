@@ -1,57 +1,57 @@
-# Level 5: Authentication
+# Уровень 5: Аутентификация
 
-## Why Authentication is Needed
+## Зачем нужна аутентификация?
 
-By default, Mosquitto accepts connections from **any** client without verification. On an internal network this is somewhat acceptable, but even there:
+По умолчанию Mosquitto принимает подключения от **любого** клиента без проверки. На внутренней сети это ещё терпимо, но даже там:
 
-- A neighbor on the network can subscribe to `#` and read all your data
-- Anyone can publish to `device/relay/cmd` = `ON` and turn anything on
+- Сосед по сети может подписаться на `#` и читать все ваши данные
+- Любой может опубликовать в `device/relay/cmd` = `ON` и включить что угодно
 
-Authentication in Mosquitto is three-tiered: password file → ACL → plugins.
+Аутентификация в Mosquitto — трёхуровневая: password file → ACL → плагины.
 
 ## Password File
 
-The simplest method — a password file. Passwords are stored in hashed form.
+Самый простой способ — файл паролей. Пароли хранятся в хешированном виде.
 
 ```bash
-# Create a user (will prompt for password)
+# Создать пользователя (запросит пароль)
 mosquitto_passwd -c /etc/mosquitto/passwd admin
 mosquitto_passwd /etc/mosquitto/passwd sensor1
 
-# Add with explicit password (-b = batch mode)
+# Добавить с явным паролем (-b = batch mode)
 mosquitto_passwd -b /etc/mosquitto/passwd sensor2 s3cr3t
 
-# Delete a user
+# Удалить пользователя
 mosquitto_passwd -D /etc/mosquitto/passwd sensor1
 ```
 
-File contents (passwords are hashed with SHA512+salt):
+Содержимое файла (пароли хешируются SHA512+соль):
 ```
-admin:$7$101$...hash...
-sensor1:$7$101$...hash...
+admin:$7$101$...хеш...
+sensor1:$7$101$...хеш...
 ```
 
-Connect in `mosquitto.conf`:
+Подключить в `mosquitto.conf`:
 ```
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 ```
 
-📌 After changing the file, the broker needs to reload config or restart:
+📌 После изменения файла брокер нужно перечитать конфиг или перезапустить:
 ```bash
-kill -HUP $(pidof mosquitto)   # or
+kill -HUP $(pidof mosquitto)   # или
 mosquitto reload                # Mosquitto 2.x
 ```
 
 ## ACL — Access Control Lists
 
-ACL controls **what** users can do after authorization. File format:
+ACL контролирует **что** могут делать пользователи после авторизации. Формат файла:
 
 ```
-# Global rules (for all authenticated users)
+# Глобальные правила (для всех аутентифицированных)
 topic read $SYS/#
 
-# Rules for a specific user
+# Правила для конкретного пользователя
 user admin
 topic readwrite #
 
@@ -64,24 +64,24 @@ topic read home/#
 topic read $SYS/#
 ```
 
-Keywords:
-- `read` — read only (subscribe)
-- `write` — write only (publish)
-- `readwrite` — read and write
-- `deny` — explicit denial
+Ключевые слова:
+- `read` — только чтение (subscribe)
+- `write` — только запись (publish)
+- `readwrite` — чтение и запись
+- `deny` — явный запрет
 
-Connect in `mosquitto.conf`:
+Подключить в `mosquitto.conf`:
 ```
 acl_file /etc/mosquitto/acl
 ```
 
-⚠️ By default, if an ACL file is specified — access to a topic without explicit permission is **denied**.
+⚠️ По умолчанию если ACL файл задан — доступ к топику без явного разрешения **запрещён**.
 
-## Authentication Plugins
+## Плагины аутентификации
 
-For dynamic authentication (users in a database, Redis, JWT), plugins are used.
+Для динамической авторизации (пользователи в базе данных, Redis, JWT) используются плагины.
 
-Mosquitto 2.x has the built-in `auth_plugin` mechanism:
+В Mosquitto 2.x встроен механизм `auth_plugin`:
 
 ```
 # mosquitto.conf (Mosquitto 2.x)
@@ -89,20 +89,20 @@ plugin /usr/lib/mosquitto_dynamic_security.so
 plugin_opt_config_file /etc/mosquitto/dynamic-security.json
 ```
 
-Popular plugins:
-- **mosquitto-go-auth** — supports PostgreSQL, MySQL, Redis, JWT, HTTP
-- **Dynamic Security Plugin** — built into Mosquitto 2.x, managed via MQTT
+Популярные плагины:
+- **mosquitto-go-auth** — поддержка PostgreSQL, MySQL, Redis, JWT, HTTP
+- **Dynamic Security Plugin** — встроен в Mosquitto 2.x, управление через MQTT
 
-On OpenWRT, due to RAM and flash limitations, preferred options are:
-1. Password file + ACL (minimal resources)
-2. Dynamic Security Plugin (built-in, no external dependencies)
+На OpenWRT из-за ограничений RAM и flash предпочтительны:
+1. Файл паролей + ACL (минимальные ресурсы)
+2. Dynamic Security Plugin (встроен, не требует внешних зависимостей)
 
-## ⚠️ Common Mistakes
+## ⚠️ Частые ошибки
 
-❌ **allow_anonymous true with password_file** — if `allow_anonymous false` is not specified, anonymous clients will still connect.
+❌ **allow_anonymous true с password_file** — если не указать `allow_anonymous false`, анонимные клиенты всё равно подключатся.
 
-❌ **ACL without user applies to everyone** — the line `topic read $SYS/#` without a preceding `user` is a global rule.
+❌ **ACL без пользователя применяется ко всем** — строка `topic read $SYS/#` без предшествующего `user` — глобальное правило.
 
-❌ **Excessive ACL permissions** — `user sensor1` + `topic readwrite #` gives this sensor access to the entire broker.
+❌ **Права в ACL — избыточные** — `user sensor1` + `topic readwrite #` даёт этому сенсору доступ ко всему брокеру.
 
-❌ **Passwords in plain text in config** — never specify a password in `mosquitto.conf`. Only use `mosquitto_passwd`.
+❌ **Пароли в открытом виде в конфиге** — никогда не указывайте пароль в `mosquitto.conf`. Только через `mosquitto_passwd`.

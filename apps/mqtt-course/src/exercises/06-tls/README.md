@@ -1,48 +1,49 @@
-# Level 6: TLS/SSL MQTT Encryption
+# Уровень 6: TLS/SSL шифрование MQTT
 
-## Why Encrypt MQTT?
+## Зачем шифровать MQTT?
 
-By default, MQTT transmits data in plain text. Anyone on the same network can intercept logins, passwords, and messages — just run `tcpdump` or Wireshark.
-TLS (Transport Layer Security) solves this by creating an encrypted tunnel.
-
-```mermaid
-flowchart LR
-    Client["Device\n(IoT)"] -->|"❌ plain text\nport 1883"| Plain["MQTT without TLS"]
-    Client2["Device\n(IoT)"] -->|"✅ encrypted\nport 8883"| TLS["MQTT + TLS"]
-```
-
-## PKI: Public Key Infrastructure
-
-TLS is built on **PKI** (Public Key Infrastructure) — a system of certificates and certificate authorities.
-
-Key components:
-- **CA (Certificate Authority)** — a certificate authority trusted by all parties
-- **Server certificate** — signed by CA, proves the broker's identity
-- **Client certificate** — for mTLS, proves the client's identity
+По умолчанию MQTT передаёт данные открытым текстом. Любой, кто находится в одной сети, может
+перехватить логины, пароли и сообщения — достаточно запустить `tcpdump` или Wireshark.
+TLS (Transport Layer Security) решает эту проблему, создавая зашифрованный туннель.
 
 ```mermaid
 flowchart LR
-    CA["CA\n(ca.key + ca.crt)"] -->|signs| Server["Server Certificate\n(server.crt)"]
-    CA -->|signs| Client["Client Certificate\n(client.crt)"]
-    Server -->|installed on| Broker["Mosquitto\nBroker"]
-    Client -->|installed on| Device["IoT Device"]
+    Client["Устройство\n(IoT)"] -->|"❌ открытый текст\nпорт 1883"| Plain["MQTT без TLS"]
+    Client2["Устройство\n(IoT)"] -->|"✅ зашифровано\nпорт 8883"| TLS["MQTT + TLS"]
 ```
 
-## Generating Certificates
+## PKI: инфраструктура открытых ключей
 
-### 1. Creating a CA
+TLS строится на **PKI** (Public Key Infrastructure) — системе сертификатов и удостоверяющих центров.
+
+Основные компоненты:
+- **CA (Certificate Authority)** — удостоверяющий центр, которому доверяют все стороны
+- **Сертификат сервера** — подписан CA, доказывает подлинность брокера
+- **Клиентский сертификат** — для mTLS, доказывает подлинность клиента
+
+```mermaid
+flowchart LR
+    CA["CA\n(ca.key + ca.crt)"] -->|подписывает| Server["Сертификат сервера\n(server.crt)"]
+    CA -->|подписывает| Client["Сертификат клиента\n(client.crt)"]
+    Server -->|установлен на| Broker["Mosquitto\nброкер"]
+    Client -->|установлен на| Device["IoT-устройство"]
+```
+
+## Генерация сертификатов
+
+### 1. Создание CA
 
 ```bash
-# CA private key
+# Приватный ключ CA
 openssl genrsa -out ca.key 2048
 
-# Self-signed CA certificate (10 years)
+# Самоподписанный сертификат CA (10 лет)
 openssl req -new -x509 -days 3650 \
   -key ca.key -out ca.crt \
   -subj "/CN=MQTT CA/O=HomeNetwork/C=RU"
 ```
 
-### 2. Server Certificate
+### 2. Сертификат сервера
 
 ```bash
 openssl genrsa -out server.key 2048
@@ -53,9 +54,9 @@ openssl x509 -req -days 3650 \
   -out server.crt
 ```
 
-> ⚠️ CN (Common Name) must match the broker's hostname!
+> ⚠️ CN (Common Name) должен совпадать с hostname брокера!
 
-### 3. Client Certificate (for mTLS)
+### 3. Клиентский сертификат (для mTLS)
 
 ```bash
 openssl genrsa -out client.key 2048
@@ -66,12 +67,12 @@ openssl x509 -req -days 3650 \
   -out client.crt
 ```
 
-## Configuring Mosquitto
+## Настройка Mosquitto
 
 ```conf
 # /etc/mosquitto/mosquitto.conf
 
-# Unencrypted listener for localhost only
+# Незашифрованный listener только для localhost
 listener 1883 localhost
 
 # TLS listener
@@ -82,7 +83,7 @@ keyfile /etc/mosquitto/certs/server.key
 tls_version tlsv1.2
 ```
 
-## mTLS: Mutual Authentication
+## mTLS: взаимная аутентификация
 
 ```conf
 listener 8883
@@ -93,42 +94,42 @@ require_certificate true
 use_identity_as_username true
 ```
 
-- `require_certificate true` — client must present a certificate
-- `use_identity_as_username true` — CN from the certificate becomes the username
+- `require_certificate true` — клиент обязан предъявить сертификат
+- `use_identity_as_username true` — CN из сертификата становится username
 
-## File Permissions
+## Права на файлы
 
 ```bash
 mkdir -p /etc/mosquitto/certs
 cp ca.crt server.crt server.key /etc/mosquitto/certs/
-chmod 600 /etc/mosquitto/certs/server.key   # Owner-only read on key
+chmod 600 /etc/mosquitto/certs/server.key   # Только владелец читает ключ
 chown mosquitto: /etc/mosquitto/certs/server.key
 ```
 
-## Testing
+## Тестирование
 
 ```bash
-# Test with CA (TLS)
+# Тест с CA (TLS)
 mosquitto_pub --cafile ca.crt -h mqtt.home -p 8883 -t test -m "hello"
 
-# Test with client certificate (mTLS)
+# Тест с клиентским сертификатом (mTLS)
 mosquitto_sub --cafile ca.crt --cert client.crt --key client.key \
   -h mqtt.home -p 8883 -t "#"
 ```
 
-## ⚠️ Common Mistakes
+## ⚠️ Частые ошибки
 
-| Error | Cause | Fix |
+| Ошибка | Причина | Решение |
 |--------|---------|---------|
-| `hostname mismatch` | CN doesn't match hostname | Re-issue certificate with correct CN |
-| `certificate verify failed` | Client doesn't know the CA | Pass `--cafile ca.crt` |
-| `no shared cipher` | Incompatible ciphers | Remove `ciphers` restriction |
-| `Permission denied` | Mosquitto can't read the key | `chmod 600 server.key; chown mosquitto:` |
+| `hostname mismatch` | CN не совпадает с hostname | Перевыпустить сертификат с правильным CN |
+| `certificate verify failed` | Клиент не знает CA | Передать `--cafile ca.crt` |
+| `no shared cipher` | Несовместимые шифры | Убрать ограничение `ciphers` |
+| `Permission denied` | Mosquitto не читает ключ | `chmod 600 server.key; chown mosquitto:` |
 
-## 📌 Summary
+## 📌 Итоги
 
-- ✅ Standard MQTT+TLS port — **8883**
-- ✅ Three files needed: `ca.crt`, `server.crt`, `server.key`
-- ✅ mTLS requires `require_certificate true` + client certificate
-- ✅ `use_identity_as_username true` — CN becomes the username
-- ❌ Never share `server.key` with clients!
+- ✅ Стандартный порт MQTT+TLS — **8883**
+- ✅ Нужны три файла: `ca.crt`, `server.crt`, `server.key`
+- ✅ mTLS требует `require_certificate true` + клиентский сертификат
+- ✅ `use_identity_as_username true` — CN становится именем пользователя
+- ❌ Никогда не передавайте `server.key` клиентам!

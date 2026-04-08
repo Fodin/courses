@@ -1,63 +1,63 @@
-# Level 3: Topics and Messages — Extended Theory
+# Уровень 3: Топики и сообщения — Развёрнутая теория
 
-## Topic as a Postal Address
+## Топик как почтовый адрес
 
-Imagine you want to receive newspapers. You subscribe to the address "1 News Street" — and every day newspapers are delivered there. MQTT works the same way:
+Представьте, что вы хотите получать газеты. Вы подписываетесь на адрес «ул. Новости, д. 1» — и каждый день туда доставляют газеты. MQTT работает так же:
 
-- **Publisher** — the one who puts the letter in the mailbox
-- **Subscriber** — the one who picks up letters from the right address
-- **Topic** — the address
-- **Broker** — the postman who delivers everything
+- **Издатель (publisher)** — тот, кто кладёт письмо в ящик
+- **Подписчик (subscriber)** — тот, кто забирает письма с нужного адреса
+- **Топик** — это адрес
+- **Брокер** — почтальон, который всё доставляет
 
-Key difference from HTTP: the publisher **doesn't know** about the subscribers. It just publishes. The broker decides who gets the message.
+Ключевое отличие от HTTP: издатель **не знает** о подписчиках. Он просто публикует. Брокер сам решает, кому доставить.
 
-## Topic Syntax
+## Синтаксис топиков
 
-### MQTT Specification Rules (v3.1.1 and v5)
+### Правила MQTT спецификации (v3.1.1 и v5)
 
-A topic is a UTF-8 string. Technical limits:
-
-```
-Minimum length: 1 character
-Maximum length: 65535 bytes (not characters — bytes!)
-Level separator: /
-Single-level wildcard: +
-Multi-level wildcard: #
-System prefix: $ (reserved)
-```
-
-📌 Forbidden symbols:
-- `+` and `#` in names when publishing
-- NULL character (U+0000)
-
-📌 Allowed but not recommended:
-- Spaces (technically valid, cause confusion)
-- Special symbols `!@:;,`
-- Unicode characters (work but complicate debugging)
-
-### Empty First Level
-
-The topic `/home/temp` starts with an empty level:
+Топик — это UTF-8 строка. Технические ограничения:
 
 ```
-/home/temp  =  ["", "home", "temp"]  — three levels
-home/temp   =  ["home", "temp"]       — two levels
+Минимальная длина: 1 символ
+Максимальная длина: 65535 байт (не символов — байт!)
+Разделитель уровней: /
+Wildcard одного уровня: +
+Wildcard многих уровней: #
+Системный префикс: $ (зарезервирован)
 ```
 
-This works, but creates an empty "root" and confuses wildcards. Avoid leading `/`.
+📌 Запрещённые символы:
+- `+` и `#` в именах при публикации
+- Символ NULL (U+0000)
 
-## Designing Topic Hierarchy
+📌 Разрешены, но не рекомендованы:
+- Пробелы (технически допустимы, создают путаницу)
+- Специальные символы `!@:;,`
+- Unicode символы (работают, но усложняют отладку)
 
-### "General to Specific" Approach
+### Пустой первый уровень
 
-The golden rule: move from **broad** context to **specific** parameter.
+Топик `/home/temp` начинается с пустого уровня:
 
 ```
-{area}/{object}/{parameter}
-{place}/{type}/{device}/{metric}
+/home/temp  =  ["", "home", "temp"]  — три уровня
+home/temp   =  ["home", "temp"]       — два уровня
 ```
 
-Example for a smart home:
+Это работает, но создаёт пустой "корень" и запутывает wildcards. Избегайте начального `/`.
+
+## Проектирование иерархии топиков
+
+### Подход "от общего к частному"
+
+Золотое правило: двигайтесь от **широкого** контекста к **конкретному** параметру.
+
+```
+{область}/{объект}/{параметр}
+{место}/{тип}/{устройство}/{метрика}
+```
+
+Пример для умного дома:
 ```
 home/
 ├── living_room/
@@ -76,33 +76,33 @@ home/
     └── humidity
 ```
 
-This enables wildcards:
+Это позволяет использовать wildcards:
 ```
-home/+/temperature      # temperature in all rooms
-home/living_room/#      # EVERYTHING from the living room
-home/+/light/state      # light state everywhere
-```
-
-### "Commands and Status" Approach
-
-For device management, separate command and response topics:
-
-```
-device/{id}/cmd/set_state      # command → to device
-device/{id}/state              # status ← from device
-device/{id}/error              # errors ← from device
-device/{id}/heartbeat          # ping ← from device
+home/+/temperature      # температура во всех комнатах
+home/living_room/#      # ВСЁ из гостиной
+home/+/light/state      # состояние света везде
 ```
 
+### Подход "команды и статус"
+
+Для управления устройствами разделяют топики команд и ответов:
+
 ```
-# Send a command
+device/{id}/cmd/set_state      # команда → устройству
+device/{id}/state              # статус ← от устройства
+device/{id}/error              # ошибки ← от устройства
+device/{id}/heartbeat          # пинг ← от устройства
+```
+
+```
+# Отправить команду
 mosquitto_pub -t 'device/esp32-01/cmd/set_state' -m 'ON'
 
-# Listen for response
+# Слушать ответ
 mosquitto_sub -t 'device/esp32-01/state'
 ```
 
-### Industrial IoT (IIoT)
+### Промышленный IoT (IIoT)
 
 ```
 plant/
@@ -119,111 +119,111 @@ plant/
     └── water_pressure_bar  # "3.1"
 ```
 
-## Wildcards in Detail
+## Wildcards в деталях
 
-### `+` Wildcard (plus)
+### Wildcard `+` (plus)
 
-`+` replaces **exactly one level**. Like the `?` mask in file systems.
+`+` заменяет **ровно один уровень**. Это как маска `?` в файловых системах.
 
 ```
-Subscription: home/+/temperature
+Подписка: home/+/temperature
 
-Matches:
-  home/living_room/temperature   ✅  (one level instead of +)
+Совпадения:
+  home/living_room/temperature   ✅  (один уровень вместо +)
   home/kitchen/temperature       ✅
   home/bedroom/temperature       ✅
 
-Does NOT match:
-  home/temperature               ❌  (no level instead of +)
-  home/floor1/room1/temperature  ❌  (two levels instead of one)
-  home/living_room/humidity      ❌  (different last segment)
+НЕ совпадения:
+  home/temperature               ❌  (нет уровня вместо +)
+  home/floor1/room1/temperature  ❌  (два уровня вместо одного)
+  home/living_room/humidity      ❌  (другой последний сегмент)
 ```
 
-Multiple `+` in one topic:
+Несколько `+` в одном топике:
 
 ```
-+/+/temperature    # any room in any house
-home/+/light/+    # light properties in any room
++/+/temperature    # любая комната в любом доме
+home/+/light/+    # свойства света в любой комнате
 ```
 
-### `#` Wildcard (hash)
+### Wildcard `#` (hash)
 
-`#` replaces **the rest of the path** including the current level.
+`#` заменяет **весь остаток пути** включая текущий уровень.
 
 ```
-Subscription: home/#
+Подписка: home/#
 
-Matches:
+Совпадения:
   home/temp                        ✅
   home/living_room/temp            ✅
   home/a/b/c/d/e/f                 ✅
-  home/                            ✅  (empty level after /)
+  home/                            ✅  (пустой уровень после /)
 
-Does NOT match:
-  home                             ❌  (no / after home)
-  office/temp                      ❌  (different root)
+НЕ совпадения:
+  home                             ❌  (нет / после home)
+  office/temp                      ❌  (другой корень)
 ```
 
-> 📌 `#` must be the last character and come after `/` or be the only character.
-> `home#` — invalid subscription topic.
+> 📌 `#` должен быть последним символом и стоять после `/` или быть единственным символом.
+> `home#` — невалидный топик подписки.
 
-A `#` subscription (hash only) means ALL topics, except `$`:
+Подписка `#` (только решётка) означает ВСЕ топики, кроме `$`:
 ```
-mosquitto_sub -t '#'   # all topics (except $SYS)
-```
-
-### Combining
-
-```
-home/+/light/#        # everything about light in any room
-+/+/cmd/#             # any commands in any hierarchy
-sensor/+/data/#       # all data from any sensor
+mosquitto_sub -t '#'   # все топики (кроме $SYS)
 ```
 
-## System Topics $SYS
+### Комбинирование
 
-Mosquitto provides built-in monitoring via `$SYS` topics. The broker publishes them automatically every N seconds (default — 10).
+```
+home/+/light/#        # всё о свете в любой комнате
++/+/cmd/#             # любые команды в любой иерархии
+sensor/+/data/#       # все данные любого сенсора
+```
 
-### Broker
+## Системные топики $SYS
+
+Mosquitto предоставляет встроенный мониторинг через топики `$SYS`. Брокер публикует их автоматически каждые N секунд (по умолчанию — 10).
+
+### Брокер
 
 ```
 $SYS/broker/version              # "mosquitto version 2.0.18"
 $SYS/broker/uptime               # "3600 seconds"
-$SYS/broker/timestamp            # build timestamp
-$SYS/broker/changeset            # git revision
+$SYS/broker/timestamp            # время сборки
+$SYS/broker/changeset            # revision из git
 ```
 
-### Clients
+### Клиенты
 
 ```
-$SYS/broker/clients/connected    # currently connected
-$SYS/broker/clients/disconnected # disconnected with persistent sessions
-$SYS/broker/clients/maximum      # maximum ever
-$SYS/broker/clients/total        # total ever connected
+$SYS/broker/clients/connected    # текущее кол-во подключённых
+$SYS/broker/clients/disconnected # отключённых с персистентными сессиями
+$SYS/broker/clients/maximum      # максимум за время работы
+$SYS/broker/clients/total        # всего когда-либо подключалось
 ```
 
-### Messages
+### Сообщения
 
 ```
-$SYS/broker/messages/sent        # total sent
-$SYS/broker/messages/received    # total received
-$SYS/broker/messages/dropped     # dropped (queues full)
-$SYS/broker/messages/stored      # in retained + QoS 1/2 queues
+$SYS/broker/messages/sent        # отправлено всего
+$SYS/broker/messages/received    # получено всего
+$SYS/broker/messages/dropped     # отброшено (очереди переполнены)
+$SYS/broker/messages/stored      # в retained + очередях QoS1/2
 $SYS/broker/publish/messages/sent
 $SYS/broker/publish/messages/received
 ```
 
-### Traffic in Bytes
+### Трафик в байтах
 
 ```
-$SYS/broker/bytes/sent           # bytes sent
-$SYS/broker/bytes/received       # bytes received
+$SYS/broker/bytes/sent           # байт отправлено
+$SYS/broker/bytes/received       # байт получено
 ```
 
-### Load (moving average)
+### Нагрузка (скользящее среднее)
 
 ```
-$SYS/broker/load/connections/1min   # connections/min in the last minute
+$SYS/broker/load/connections/1min   # подключений/мин за последнюю минуту
 $SYS/broker/load/connections/5min
 $SYS/broker/load/connections/15min
 $SYS/broker/load/messages/sent/1min
@@ -234,96 +234,96 @@ $SYS/broker/load/bytes/sent/1min
 $SYS/broker/load/bytes/received/1min
 ```
 
-### Persistence (if enabled)
+### Persistence (если включена)
 
 ```
-$SYS/broker/store/messages/count    # stored messages
-$SYS/broker/store/messages/bytes    # bytes in storage
+$SYS/broker/store/messages/count    # сохранённых сообщений
+$SYS/broker/store/messages/bytes    # байт в хранилище
 ```
 
-### Subscriptions
+### Подписки
 
 ```
-$SYS/broker/subscriptions/count    # active subscriptions
+$SYS/broker/subscriptions/count    # активных подписок
 ```
 
-### How to Read $SYS Topics
+### Как читать $SYS топики
 
 ```bash
-# Single topic
+# Один топик
 mosquitto_sub -t '$SYS/broker/clients/connected'
 
-# All system topics
+# Все системные топики
 mosquitto_sub -t '$SYS/#'
 
-# Real-time monitoring
+# Мониторинг в реальном времени
 mosquitto_sub -t '$SYS/broker/load/#' -v
 ```
 
-> ⚠️ In the shell you need single quotes around topics with `$`, otherwise the shell expands the variable:
-> `$SYS` → empty string → subscription to `/broker/clients`
+> ⚠️ В shell нужны одинарные кавычки вокруг топиков с `$`, иначе shell раскроет переменную:
+> `$SYS` → пустая строка → подписка на `/broker/clients`
 
-### Disabling $SYS Topics
+### Отключение $SYS топиков
 
-If not needed or you want to hide them from clients:
+Если не нужны или нужно скрыть от клиентов:
 
 ```
 # mosquitto.conf
-sys_interval 0   # 0 = disable $SYS publication
+sys_interval 0   # 0 = отключить публикацию $SYS
 ```
 
-## Key Differences MQTT v3.1.1 vs v5
+## Важные различия MQTT v3.1.1 vs v5
 
-MQTT v5 added **Topic Aliases** — a client can replace a long topic with a short numeric alias to save traffic:
-
-```
-# Client tells broker: topic "home/living_room/temperature" = alias 1
-# Further publishes just use alias=1 instead of the full name
-```
-
-On OpenWRT with Mosquitto 2.x this is supported, but the client library must know how to use it.
-
-## Topic Performance on OpenWRT
-
-On a router with 32-64 MB RAM:
-
-1. **Avoid deep hierarchies** (>6 levels) — each level increases parsing time
-2. **Don't use wildcards unnecessarily** — `#` requires traversing the entire subscription tree
-3. **Short segment names** — save memory and traffic
+В MQTT v5 добавлены **Topic Aliases** — клиент может заменить длинный топик коротким числовым псевдонимом для экономии трафика:
 
 ```
-# Bad for embedded systems
+# Клиент говорит брокеру: топик "home/living_room/temperature" = alias 1
+# Дальше публикует просто с alias=1 вместо полного имени
+```
+
+На OpenWRT с Mosquitto 2.x это поддерживается, но клиентская библиотека должна уметь это использовать.
+
+## Производительность топиков на OpenWRT
+
+На роутере с 32-64 МБ RAM важно:
+
+1. **Избегайте глубоких иерархий** (>6 уровней) — каждый уровень увеличивает время парсинга
+2. **Не используйте wildcards без нужды** — `#` требует обхода всего дерева подписок
+3. **Короткие имена сегментов** — экономят память и трафик
+
+```
+# Плохо для встраиваемых систем
 building/floor01/room007/sensor/temperature/celsius/current
 
-# Good
-b1/f1/r7/t   # if the structure is documented
+# Хорошо
+b1/f1/r7/t   # если структура задокументирована
 ```
 
-## ⚠️ Common Mistakes
+## ⚠️ Частые ошибки
 
-❌ **Wildcard when publishing:**
+❌ **Wildcard при публикации:**
 ```bash
 mosquitto_pub -t 'home/+/temp' -m '22'
-# Error! + and # cannot be used in publish topics
+# Ошибка! + и # нельзя использовать в топике при публикации
 ```
-✅ Publish to specific topics.
+✅ Публикуйте в конкретные топики.
 
-❌ **Forgot quotes for $SYS in bash:**
+❌ **Забыли кавычки для $SYS в bash:**
 ```bash
-mosquitto_sub -t $SYS/broker/uptime   # shell expands $SYS to empty string!
+mosquitto_sub -t $SYS/broker/uptime   # shell раскроет $SYS в пустую строку!
 ```
-✅ Always single quotes: `'$SYS/broker/uptime'`
+✅ Всегда одинарные кавычки: `'$SYS/broker/uptime'`
 
-❌ **Topic case sensitivity:**
+❌ **Регистр топика:**
 ```
 home/Temperature  ≠  home/temperature  ≠  HOME/TEMPERATURE
 ```
-✅ Agree on a single convention — and follow it.
+✅ Договоритесь о единой конвенции — и следуйте ей.
 
-❌ **Subscribing to `#` for monitoring** — fine for debugging, a disaster in production with thousands of messages per second.
+❌ **Подписка на `#` для мониторинга** — нормально для отладки, катастрофа в продакшене с тысячами сообщений в секунду.
 
-❌ **Topic with spaces:**
+❌ **Топик с пробелами:**
 ```
-home/ living room/temp   # space in the name — not a protocol error, but a debugging nightmare
+home/ living room/temp   # пробел в имени — не ошибка протокола, но ад при отладке
 ```
-✅ Use `_` or `-`: `home/living_room/temp`
+✅ Используйте `_` или `-`: `home/living_room/temp`

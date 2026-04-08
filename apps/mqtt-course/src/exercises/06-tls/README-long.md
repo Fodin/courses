@@ -1,123 +1,131 @@
-# Level 6: TLS/SSL MQTT Encryption — Detailed Theory
+# Уровень 6: TLS/SSL шифрование MQTT — подробная теория
 
-## Introduction: Why Encryption is Mandatory
+## Введение: почему шифрование обязательно
 
-Imagine sending a letter by post. Without an envelope — everyone who touches the letter along the way can read it. MQTT without TLS is exactly that letter: plain text, visible to everyone on the network.
+Представьте, что вы отправляете письмо по почте. Без конверта — все, кто прикоснётся к письму по
+пути, смогут его прочитать. MQTT без TLS — это именно такое письмо: открытый текст, видимый каждому
+в сети.
 
-Run `tcpdump` on your network while an IoT device publishes data without TLS:
+Запустите `tcpdump` в своей сети в момент, когда IoT-устройство публикует данные без TLS:
 
 ```bash
 tcpdump -i eth0 -A port 1883
 ```
 
-You'll see logins, passwords, and message contents in plain text. On a home network this might be acceptable, but in an industrial environment or if outsiders have access to the router — it's a disaster.
+Вы увидите логины, пароли и содержимое сообщений в открытом виде. В домашней сети это, возможно,
+терпимо, но в промышленной среде или если к роутеру имеют доступ посторонние — это катастрофа.
 
-TLS (Transport Layer Security) solves three tasks at once:
-1. **Confidentiality** — data is encrypted, interception is meaningless
-2. **Authentication** — the client is sure it's connecting to the real broker, not a fake
-3. **Integrity** — data cannot be modified in transit without detection
+TLS (Transport Layer Security) решает сразу три задачи:
+1. **Конфиденциальность** — данные зашифрованы, перехват бессмысленен
+2. **Аутентификация** — клиент уверен, что подключается к настоящему брокеру, а не к подделке
+3. **Целостность** — данные не могут быть изменены в пути без обнаружения
 
 ---
 
-## 1. How TLS Works: Analogy and Mechanism
+## 1. Как работает TLS: аналогия и механизм
 
-### Safe and Key Analogy
+### Аналогия с сейфом и ключами
 
-Imagine a scheme with two locks:
-1. You have a **public key** (a lock everyone can use for encryption)
-2. You have a **private key** (the only key that opens that lock)
+Представьте схему с двумя замками:
+1. У вас есть **публичный ключ** (замок, который все могут использовать для зашифровки)
+2. У вас есть **приватный ключ** (единственный ключ, открывающий этот замок)
 
-The server publishes its lock (public key in the certificate). The client encrypts a message with that lock. Only the server can decrypt it — the sole owner of the private key.
+Сервер публикует свой замок (публичный ключ в сертификате). Клиент шифрует сообщение этим замком.
+Расшифровать может только сервер — единственный владелец приватного ключа.
 
-### TLS Handshake Step by Step
+### TLS Handshake шаг за шагом
 
 ```mermaid
 flowchart LR
-    C["Client"] -->|"1. ClientHello\n(TLS version, ciphers)"| S["Server"]
-    S -->|"2. ServerHello\n(chosen cipher)"| C
+    C["Клиент"] -->|"1. ClientHello\n(версия TLS, шифры)"| S["Сервер"]
+    S -->|"2. ServerHello\n(выбранный шифр)"| C
     S -->|"3. Certificate\n(server.crt)"| C
-    C -->|"4. Certificate verification\nvia ca.crt"| C
-    C -->|"5. ClientKeyExchange\n(encrypted pre-master)"| S
+    C -->|"4. Проверка сертификата\nпо ca.crt"| C
+    C -->|"5. ClientKeyExchange\n(зашифрованный pre-master)"| S
     S -->|"6. Finished"| C
     C -->|"7. Finished"| S
-    C -->|"8. Encrypted MQTT data"| S
+    C -->|"8. Зашифрованные данные MQTT"| S
 ```
 
-This entire process takes a few milliseconds. After it, both parties share a symmetric session key — all subsequent data is encrypted with it.
+Весь этот процесс занимает несколько миллисекунд. После него оба участника имеют общий
+симметричный ключ сессии — им шифруются все последующие данные.
 
 ---
 
-## 2. PKI: Public Key Infrastructure
+## 2. PKI: инфраструктура открытых ключей
 
-### PKI Structure
+### Структура PKI
 
-PKI (Public Key Infrastructure) — a system for managing digital certificates. In our case, it's a three-level structure:
+PKI (Public Key Infrastructure) — система управления цифровыми сертификатами. В нашем случае
+это трёхуровневая структура:
 
 ```mermaid
 flowchart LR
-    CA["CA\n(Certificate Authority)\nca.key + ca.crt"] -->|signs| Server["Server Certificate\nserver.key + server.crt"]
-    CA -->|signs| Client1["Client Certificate\nsensor-01.key + sensor-01.crt"]
-    CA -->|signs| Client2["Client Certificate\ngw-01.key + gw-01.crt"]
-    Server -->|installed on| Broker["Mosquitto Broker"]
-    Client1 -->|installed on| Device1["Sensor sensor-01"]
-    Client2 -->|installed on| Device2["Gateway gw-01"]
+    CA["CA\n(Удостоверяющий центр)\nca.key + ca.crt"] -->|подписывает| Server["Сертификат сервера\nserver.key + server.crt"]
+    CA -->|подписывает| Client1["Сертификат клиента\nsensor-01.key + sensor-01.crt"]
+    CA -->|подписывает| Client2["Сертификат клиента\ngw-01.key + gw-01.crt"]
+    Server -->|установлен на| Broker["Mosquitto брокер"]
+    Client1 -->|установлен на| Device1["Датчик sensor-01"]
+    Client2 -->|установлен на| Device2["Шлюз gw-01"]
 ```
 
-**CA (Certificate Authority)** — the root of trust. This is your own certificate authority. Everyone who trusts the CA automatically trusts all certificates it signed.
+**CA (Certificate Authority)** — корень доверия. Это ваш собственный удостоверяющий центр.
+Все, кто доверяет CA, автоматически доверяют всем сертификатам, которые он подписал.
 
-> 💡 Analogy: the CA is the passport office that issues IDs. When you show your passport at a bank, the bank trusts you because it trusts the passport office.
+> 💡 Аналогия: CA — это паспортный стол, который выдаёт удостоверения личности. Когда вы
+> показываете паспорт в банке, банк доверяет вам, потому что доверяет паспортному столу.
 
-### What's in a Certificate
+### Что хранится в сертификате
 
-An X.509 certificate contains:
-- **Subject** (CN, O, C) — issued to whom
-- **Issuer** — who signed (our CA)
-- **Public Key** — owner's public key
-- **Validity** — validity period (Not Before / Not After)
-- **Signature** — CA's digital signature
+Сертификат X.509 содержит:
+- **Subject** (CN, O, C) — кому выдан
+- **Issuer** — кто подписал (наш CA)
+- **Public Key** — публичный ключ владельца
+- **Validity** — срок действия (Not Before / Not After)
+- **Signature** — цифровая подпись CA
 
 ```bash
-# View certificate contents
+# Посмотреть содержимое сертификата
 openssl x509 -in server.crt -text -noout
 ```
 
 ---
 
-## 3. Generating Certificates: Step by Step
+## 3. Генерация сертификатов: пошагово
 
-### Step 1: Creating a CA
+### Шаг 1: Создание CA
 
 ```bash
-# Generate CA private key (2048 bits — minimum, 4096 — for the paranoid)
+# Генерируем приватный ключ CA (2048 бит — минимум, 4096 — для параноиков)
 openssl genrsa -out ca.key 2048
 
-# Create a self-signed CA certificate
-# -x509 means: create a certificate (not a CSR)
-# -days 3650 = 10 years
+# Создаём самоподписанный сертификат CA
+# -x509 означает: создать сертификат (не CSR)
+# -days 3650 = 10 лет
 openssl req -new -x509 -days 3650 \
   -key ca.key \
   -out ca.crt \
   -subj "/CN=MQTT CA/O=HomeNetwork/C=RU"
 ```
 
-Subject parameters:
-- `CN` (Common Name) — CA name
-- `O` (Organization) — organization
-- `C` (Country) — two-letter country code
+Параметры Subject:
+- `CN` (Common Name) — название CA
+- `O` (Organization) — организация
+- `C` (Country) — двухбуквенный код страны
 
-### Step 2: Server Certificate
+### Шаг 2: Сертификат сервера
 
 ```bash
-# Server private key
+# Приватный ключ сервера
 openssl genrsa -out server.key 2048
 
-# CSR (Certificate Signing Request) — request for signature
-# CN MUST match the hostname clients use to connect to the broker!
+# CSR (Certificate Signing Request) — запрос на подпись
+# CN ДОЛЖЕН совпадать с hostname, по которому клиенты подключаются к брокеру!
 openssl req -new -key server.key -out server.csr \
   -subj "/CN=mqtt.home/O=HomeNetwork/C=RU"
 
-# CA signs the request
-# -CAcreateserial — creates a ca.srl file with serial numbers
+# CA подписывает запрос
+# -CAcreateserial — создаёт файл ca.srl с серийными номерами
 openssl x509 -req -days 3650 \
   -in server.csr \
   -CA ca.crt \
@@ -126,14 +134,16 @@ openssl x509 -req -days 3650 \
   -out server.crt
 ```
 
-> ⚠️ **Critical:** if a client connects via IP address (e.g., `192.168.1.1`) and the CN in the certificate is `mqtt.home`, you'll get a `hostname mismatch` error. Solution: use SAN (Subject Alternative Names) or always connect via hostname.
+> ⚠️ **Критично:** если клиент подключается по IP-адресу (например, `192.168.1.1`), а CN в
+> сертификате — `mqtt.home`, получите ошибку `hostname mismatch`. Решение: использовать
+> SAN (Subject Alternative Names) или всегда подключаться по hostname.
 
-### Step 3: Client Certificates (for mTLS)
+### Шаг 3: Клиентские сертификаты (для mTLS)
 
-Create a separate certificate for each device:
+Для каждого устройства создаём отдельный сертификат:
 
 ```bash
-# For sensor sensor-01
+# Для датчика sensor-01
 openssl genrsa -out sensor-01.key 2048
 openssl req -new -key sensor-01.key -out sensor-01.csr \
   -subj "/CN=sensor-01/O=HomeNetwork/C=RU"
@@ -141,7 +151,7 @@ openssl x509 -req -days 3650 \
   -in sensor-01.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
   -out sensor-01.crt
 
-# For gateway gw-01
+# Для шлюза gw-01
 openssl genrsa -out gw-01.key 2048
 openssl req -new -key gw-01.key -out gw-01.csr \
   -subj "/CN=gw-01/O=HomeNetwork/C=RU"
@@ -150,39 +160,41 @@ openssl x509 -req -days 3650 \
   -out gw-01.crt
 ```
 
-With `use_identity_as_username true` in Mosquitto, the CN values (`sensor-01`, `gw-01`) become usernames — ACL rules can be based on them.
+При `use_identity_as_username true` в Mosquitto, значения CN (`sensor-01`, `gw-01`) станут
+именами пользователей — ACL-правила можно писать на их основе.
 
 ---
 
-## 4. Configuring Mosquitto 2.x
+## 4. Настройка Mosquitto 2.x
 
-### Basic TLS Configuration
+### Базовая конфигурация TLS
 
 ```conf
 # /etc/mosquitto/mosquitto.conf
 
-# Listener without TLS — localhost only (for local tools)
+# Listener без TLS — только для localhost (для локальных инструментов)
 listener 1883 localhost
 allow_anonymous true
 
-# Listener with TLS
+# Listener с TLS
 listener 8883
 
-# Certificates
+# Сертификаты
 cafile /etc/mosquitto/certs/ca.crt
 certfile /etc/mosquitto/certs/server.crt
 keyfile /etc/mosquitto/certs/server.key
 
-# Minimum TLS version (tlsv1.2 or tlsv1.3)
+# Минимальная версия TLS (tlsv1.2 или tlsv1.3)
 tls_version tlsv1.2
 
-# Optional: cipher restriction (strong only)
+# Опционально: ограничение шифров (только сильные)
 # ciphers ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256
 ```
 
-> 💡 Version `tlsv1.3` is faster and more secure, but some older IoT devices don't support it. `tlsv1.2` is a reasonable compromise for heterogeneous environments.
+> 💡 Версия `tlsv1.3` быстрее и безопаснее, но некоторые старые IoT-устройства её не поддерживают.
+> `tlsv1.2` — разумный компромисс для гетерогенных сред.
 
-### mTLS: Mutual Authentication Configuration
+### mTLS: конфигурация взаимной аутентификации
 
 ```conf
 listener 8883
@@ -191,71 +203,72 @@ certfile /etc/mosquitto/certs/server.crt
 keyfile /etc/mosquitto/certs/server.key
 tls_version tlsv1.2
 
-# mTLS parameters
-require_certificate true          # Client MUST present a certificate
-use_identity_as_username true     # Certificate CN → username
+# mTLS-параметры
+require_certificate true          # Клиент ОБЯЗАН предъявить сертификат
+use_identity_as_username true     # CN сертификата → username
 ```
 
-With `use_identity_as_username true` you can configure ACL based on CN:
+С `use_identity_as_username true` можно настроить ACL на основе CN:
 
 ```conf
 # /etc/mosquitto/acl
 
-# sensor-01 can only publish sensor data
+# sensor-01 может только публиковать данные с датчиков
 user sensor-01
 topic write sensors/01/#
 
-# gw-01 can read all sensor topics
+# gw-01 может читать все топики с датчиков
 user gw-01
 topic read sensors/#
 ```
 
 ---
 
-## 5. File Permissions (Security)
+## 5. Права на файлы (безопасность)
 
 ```bash
-# Create directory
+# Создаём директорию
 mkdir -p /etc/mosquitto/certs
 
-# Copy files
+# Копируем файлы
 cp ca.crt server.crt server.key /etc/mosquitto/certs/
 
-# Private key — owner only (600)
+# Приватный ключ — только для владельца (600)
 chmod 600 /etc/mosquitto/certs/server.key
 
-# Certificates — readable by everyone (644)
+# Сертификаты — можно читать всем (644)
 chmod 644 /etc/mosquitto/certs/ca.crt
 chmod 644 /etc/mosquitto/certs/server.crt
 
-# Mosquitto runs as user mosquitto
+# Mosquitto запускается от пользователя mosquitto
 chown mosquitto:mosquitto /etc/mosquitto/certs/server.key
 ```
 
-> ❌ Never place `server.key` in publicly accessible locations! If the key is compromised, an attacker can decrypt all recorded traffic and impersonate your broker.
+> ❌ Никогда не размещайте `server.key` в публично доступных местах! Если ключ скомпрометирован,
+> злоумышленник может расшифровать весь записанный трафик и выдавать себя за ваш брокер.
 
 ---
 
-## 6. Testing
+## 6. Тестирование
 
-### Basic TLS Connection
+### Базовое TLS-подключение
 
 ```bash
-# Publishing with CA verification
+# Публикация с проверкой CA
 mosquitto_pub \
   --cafile /etc/mosquitto/certs/ca.crt \
   -h mqtt.home -p 8883 \
   -t test/hello -m "TLS works!"
 
-# If CN in the certificate is an IP, not hostname:
+# Если CN в сертификате — IP, а не hostname:
 mosquitto_pub \
   --cafile /etc/mosquitto/certs/ca.crt \
-  --insecure \           # ⚠️ Debug only!
+  --insecure \           # ⚠️ Только для отладки!
   -h 192.168.1.1 -p 8883 \
   -t test -m "hello"
 ```
 
-### mTLS Connection
+### mTLS-подключение
 
 ```bash
 mosquitto_sub \
@@ -266,123 +279,127 @@ mosquitto_sub \
   -t "sensors/#" -v
 ```
 
-### Checking via openssl
+### Проверка через openssl
 
 ```bash
-# See which certificate the server sends
+# Посмотреть, какой сертификат отдаёт сервер
 openssl s_client -connect mqtt.home:8883 -CAfile ca.crt
 
-# Successful output contains:
+# Вывод при успехе содержит:
 # Verify return code: 0 (ok)
 ```
 
 ---
 
-## 7. Certificate Lifetime and Rotation
+## 7. Срок жизни сертификатов и ротация
 
-### Monitoring Expiration
+### Мониторинг срока действия
 
 ```bash
-# Check expiration date
+# Проверить дату истечения
 openssl x509 -in server.crt -noout -dates
 # notBefore=Jan  1 00:00:00 2024 GMT
 # notAfter=Jan  1 00:00:00 2034 GMT
 
-# Script for OpenWRT (cron)
+# Скрипт для OpenWRT (cron)
 DAYS_LEFT=$(( ($(date -d "$(openssl x509 -in /etc/mosquitto/certs/server.crt -noout -enddate | cut -d= -f2)" +%s) - $(date +%s)) / 86400 ))
 [ $DAYS_LEFT -lt 30 ] && logger "MQTT TLS cert expires in $DAYS_LEFT days!"
 ```
 
-### Rotation Strategy
+### Стратегия ротации
 
-When updating certificates:
-1. Generate new certificates
-2. Copy new files
-3. Restart Mosquitto: `service mosquitto restart`
-4. Update certificates on client devices
+При обновлении сертификатов:
+1. Сгенерировать новые сертификаты
+2. Скопировать новые файлы
+3. Перезапустить Mosquitto: `service mosquitto restart`
+4. Обновить сертификаты на клиентских устройствах
 
 ---
 
-## ⚠️ Common Beginner Mistakes
+## ⚠️ Частые ошибки новичков
 
-### 🐛 1. CN Doesn't Match Hostname
+### 🐛 1. CN не совпадает с hostname
 
 ```bash
-# ❌ Certificate issued for "mqtt.home", but connecting via IP
+# ❌ Сертификат выдан для "mqtt.home", но подключаемся по IP
 openssl req -subj "/CN=mqtt.home/..."
 mosquitto_pub -h 192.168.1.1 -p 8883 ...
-# Error: hostname mismatch
+# Ошибка: hostname mismatch
 ```
 
-> **Why this is an error:** TLS client checks that the CN in the certificate matches the address it's connecting to. This is protection against server spoofing.
+> **Почему это ошибка:** TLS-клиент проверяет, что CN в сертификате совпадает с адресом, к
+> которому он подключается. Это защита от подмены сервера.
 
 ```bash
-# ✅ Either issue certificate for IP, or add DNS record
+# ✅ Либо выдать сертификат на IP, либо добавить DNS-запись
 openssl req -subj "/CN=192.168.1.1/..."
-# Or use hostname in all connections
+# Или использовать hostname во всех подключениях
 mosquitto_pub -h mqtt.home -p 8883 ...
 ```
 
-### 🐛 2. Wrong Permissions on server.key
+### 🐛 2. Неправильные права на server.key
 
 ```bash
-# ❌ Mosquitto won't start
+# ❌ Mosquitto не запускается
 [1657891234] Error: Unable to load server cert/key
 ```
 
-> **Why this is an error:** Mosquitto runs as user `mosquitto`, but `server.key` has `root:root 640` permissions — Mosquitto can't read it.
+> **Почему это ошибка:** Mosquitto работает от пользователя `mosquitto`, а файл `server.key` имеет
+> права `root:root 640` — Mosquitto не может его прочитать.
 
 ```bash
-# ✅ Correct permissions
+# ✅ Правильные права
 chown mosquitto:mosquitto /etc/mosquitto/certs/server.key
 chmod 600 /etc/mosquitto/certs/server.key
 ```
 
-### 🐛 3. Forgetting to Pass --cafile to Client
+### 🐛 3. Забыть передать --cafile клиенту
 
 ```bash
-# ❌ Connecting without CA
+# ❌ Подключение без CA
 mosquitto_pub -h mqtt.home -p 8883 -t test -m "hello"
-# Error: certificate verify failed (self-signed certificate in chain)
+# Ошибка: certificate verify failed (self-signed certificate in chain)
 ```
 
-> **Why this is an error:** our CA is self-signed (not registered with public CAs). The client doesn't know about it and doesn't trust certificates signed by it.
+> **Почему это ошибка:** наш CA самоподписан (не зарегистрирован в публичных CA). Клиент не знает
+> о нём и не доверяет подписанным им сертификатам.
 
 ```bash
-# ✅ Pass the CA explicitly
+# ✅ Передаём CA явно
 mosquitto_pub --cafile /path/to/ca.crt -h mqtt.home -p 8883 -t test -m "hello"
 ```
 
-### 🐛 4. Using --insecure in Production
+### 🐛 4. Использовать --insecure в продакшне
 
 ```bash
-# ❌ Disabling certificate verification
+# ❌ Отключение проверки сертификата
 mosquitto_sub --cafile ca.crt --insecure -h mqtt.home -p 8883 -t "#"
 ```
 
-> **Why this is an error:** `--insecure` disables hostname checking. TLS encrypts traffic but doesn't protect against "man-in-the-middle" attacks — an attacker could substitute their own certificate.
+> **Почему это ошибка:** `--insecure` отключает проверку hostname. TLS шифрует трафик, но не
+> защищает от атаки "человек посередине" — злоумышленник может подставить свой сертификат.
 
 ```bash
-# ✅ Always use the correct hostname and don't use --insecure
+# ✅ Всегда использовать правильный hostname и не использовать --insecure
 mosquitto_sub --cafile ca.crt -h mqtt.home -p 8883 -t "#"
 ```
 
 ---
 
-## 📌 Summary
+## 📌 Итоги
 
-| Parameter | Description |
+| Параметр | Описание |
 |----------|---------|
-| `listener 8883` | Standard MQTT+TLS port |
-| `cafile` | CA certificate for client verification (and clients for server verification) |
-| `certfile` | Server certificate (public) |
-| `keyfile` | Server private key (secret!) |
-| `tls_version` | Minimum TLS version (`tlsv1.2` or `tlsv1.3`) |
-| `require_certificate` | `true` = mTLS, client must present a certificate |
-| `use_identity_as_username` | Client certificate CN → username for ACL |
+| `listener 8883` | Стандартный порт MQTT+TLS |
+| `cafile` | Сертификат CA для проверки клиентов (и клиентов для проверки сервера) |
+| `certfile` | Сертификат сервера (публичный) |
+| `keyfile` | Приватный ключ сервера (секретный!) |
+| `tls_version` | Минимальная версия TLS (`tlsv1.2` или `tlsv1.3`) |
+| `require_certificate` | `true` = mTLS, клиент обязан предъявить сертификат |
+| `use_identity_as_username` | CN клиентского сертификата → username для ACL |
 
-- ✅ Always use TLS for MQTT outside localhost
-- ✅ Generate a separate certificate for each device
-- ✅ CN must match the broker's hostname
-- ✅ Private key `server.key` — only for the Mosquitto process
-- ❌ Never use `--insecure` in production systems
+- ✅ Всегда используйте TLS для MQTT вне локального хоста
+- ✅ Генерируйте отдельный сертификат на каждое устройство
+- ✅ CN должен совпадать с hostname брокера
+- ✅ Закрытый ключ `server.key` — только для процесса Mosquitto
+- ❌ Никогда не используйте `--insecure` в рабочих системах

@@ -1,43 +1,44 @@
-# Task 6.2: Configuring TLS in Mosquitto
+# Задание 6.2: Настройка TLS в Mosquitto
 
-## Goal
+## Цель
 
-Configure the Mosquitto 2.x MQTT broker to work over the encrypted TLS protocol on port 8883, using the certificates generated in Task 6.1.
+Настроить MQTT-брокер Mosquitto 2.x для работы по зашифрованному протоколу TLS на порту 8883,
+используя сгенерированные в задании 6.1 сертификаты.
 
-## Requirements
+## Требования
 
-1. Configure two listeners: `1883` (localhost, no TLS) and `8883` (with TLS)
-2. Specify `cafile`, `certfile`, `keyfile` — paths to files from Task 6.1
-3. Set the minimum TLS version: `tls_version tlsv1.2`
-4. Restart Mosquitto and verify the broker starts without errors
-5. Verify the connection with `mosquitto_pub` using the `--cafile` flag
+1. Настройте два listener: `1883` (localhost, без TLS) и `8883` (с TLS)
+2. Укажите `cafile`, `certfile`, `keyfile` — пути к файлам из задания 6.1
+3. Задайте минимальную версию TLS: `tls_version tlsv1.2`
+4. Перезапустите Mosquitto и убедитесь, что брокер стартует без ошибок
+5. Проверьте подключение командой `mosquitto_pub` с флагом `--cafile`
 
-## Checklist
+## Чеклист
 
-- [ ] `listener 1883 localhost` — unencrypted port for localhost only
+- [ ] `listener 1883 localhost` — незашифрованный порт только для localhost
 - [ ] `listener 8883` — TLS listener
-- [ ] `cafile`, `certfile`, `keyfile` point to the correct files
-- [ ] `tls_version tlsv1.2` is set
-- [ ] `service mosquitto restart` completes without errors
-- [ ] `mosquitto_pub --cafile ca.crt -h mqtt.home -p 8883 -t test -m hello` works
-- [ ] Connection attempt without TLS on port 8883 fails
+- [ ] `cafile`, `certfile`, `keyfile` указывают на корректные файлы
+- [ ] `tls_version tlsv1.2` задан
+- [ ] `service mosquitto restart` завершается без ошибок
+- [ ] `mosquitto_pub --cafile ca.crt -h mqtt.home -p 8883 -t test -m hello` работает
+- [ ] Попытка подключения без TLS на порт 8883 завершается ошибкой
 
-## How to Check Yourself
+## Как проверить себя
 
-1. Check Mosquitto logs for errors:
+1. Проверьте лог Mosquitto на ошибки:
    ```bash
    logread | grep mosquitto
    ```
-2. Verify both ports are open:
+2. Убедитесь, что оба порта открыты:
    ```bash
    netstat -tlnp | grep mosquitto
    ```
-3. Check TLS handshake:
+3. Проверьте TLS-рукопожатие:
    ```bash
    openssl s_client -connect mqtt.home:8883 -CAfile /etc/mosquitto/certs/ca.crt
-   # Should output: Verify return code: 0 (ok)
+   # Должно вывести: Verify return code: 0 (ok)
    ```
-4. Try connecting without a certificate — should get an error:
+4. Попробуйте подключиться без сертификата — должна быть ошибка:
    ```bash
    mosquitto_pub -h mqtt.home -p 8883 -t test -m hello
    ```

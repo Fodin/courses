@@ -1,35 +1,36 @@
-# Task 6.3: Mutual Authentication (mTLS)
+# Задание 6.3: Взаимная аутентификация (mTLS)
 
-## Goal
+## Цель
 
-Configure mTLS (mutual TLS) in Mosquitto, where the server verifies the client's certificate. Use the client certificate CN as the username for ACL.
+Настроить mTLS (mutual TLS) в Mosquitto, при котором сервер проверяет сертификат клиента.
+Использовать CN клиентского сертификата как имя пользователя для ACL.
 
-## Requirements
+## Требования
 
-1. Add `require_certificate true` and `use_identity_as_username true` to the configuration
-2. Configure ACL rules based on certificate CNs (`sensor-01`, `gw-01`)
-3. Create two client certificates with different CNs and different ACL permissions
-4. Verify that connection without a certificate is rejected by the broker
-5. Verify that a certificate with CN `sensor-01` can publish but not subscribe to other topics
+1. Добавьте в конфигурацию `require_certificate true` и `use_identity_as_username true`
+2. Настройте ACL-правила на основе CN сертификатов (`sensor-01`, `gw-01`)
+3. Создайте два клиентских сертификата с разными CN и разными правами в ACL
+4. Убедитесь, что подключение без сертификата отклоняется брокером
+5. Убедитесь, что сертификат с CN `sensor-01` может публиковать, но не подписываться на чужие топики
 
-## Checklist
+## Чеклист
 
-- [ ] `require_certificate true` added to config
-- [ ] `use_identity_as_username true` added to config
-- [ ] ACL file contains rules for `sensor-01` (write) and `gw-01` (read)
-- [ ] Connection without certificate is rejected (`Connection Refused`)
-- [ ] `sensor-01.crt` + `sensor-01.key` work with correct topics
-- [ ] `gw-01.crt` + `gw-01.key` can only read
+- [ ] `require_certificate true` добавлено в конфиг
+- [ ] `use_identity_as_username true` добавлено в конфиг
+- [ ] ACL-файл содержит правила для `sensor-01` (запись) и `gw-01` (чтение)
+- [ ] Подключение без сертификата отклоняется (`Connection Refused`)
+- [ ] `sensor-01.crt` + `sensor-01.key` работают с правильными топиками
+- [ ] `gw-01.crt` + `gw-01.key` могут только читать
 
-## How to Check Yourself
+## Как проверить себя
 
-1. Verify that connection without a certificate is rejected:
+1. Проверьте, что без сертификата подключение отклоняется:
    ```bash
    mosquitto_pub --cafile ca.crt -h mqtt.home -p 8883 -t test -m hello
-   # Expected: Connection Refused
+   # Ожидаемо: Connection Refused
    ```
 
-2. Connect with the `sensor-01` certificate:
+2. Подключитесь с сертификатом `sensor-01`:
    ```bash
    mosquitto_pub \
      --cafile ca.crt --cert sensor-01.crt --key sensor-01.key \
@@ -37,15 +38,15 @@ Configure mTLS (mutual TLS) in Mosquitto, where the server verifies the client's
      -t sensors/01/temp -m "22.5"
    ```
 
-3. Verify that `sensor-01` cannot read other topics:
+3. Убедитесь, что `sensor-01` не может читать чужие топики:
    ```bash
    mosquitto_sub \
      --cafile ca.crt --cert sensor-01.crt --key sensor-01.key \
      -h mqtt.home -p 8883 -t "sensors/#"
-   # Should get an authorization error
+   # Должна быть ошибка авторизации
    ```
 
-4. Verify that `gw-01` can read all sensor data:
+4. Убедитесь, что `gw-01` может читать все данные датчиков:
    ```bash
    mosquitto_sub \
      --cafile ca.crt --cert gw-01.crt --key gw-01.key \

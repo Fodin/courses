@@ -1,209 +1,214 @@
 [
   {
-    "question": "An administrator added a new user via mosquitto_passwd, but they can't connect. The broker is running. What's the problem?",
+    "question": "Администратор добавил нового пользователя через mosquitto_passwd, но тот не может подключиться. Брокер запущен. В чём проблема?",
     "type": "single",
     "options": [
       {
-        "text": "The client needs to be restarted",
-        "correct": false,
-        "explanation": "No. The problem is on the broker side — it doesn't know about the new user. The client is not the issue."
-      },
-      {
-        "text": "The broker hasn't re-read the password file — needs kill -HUP or reload",
+        "text": "Брокер не перечитал файл паролей — нужно kill -HUP или reload",
         "correct": true,
-        "explanation": "Correct. Mosquitto reads the password file at startup and on SIGHUP signal. After modifying the passwd file: kill -HUP $(pgrep mosquitto) or /etc/init.d/mosquitto reload."
+        "explanation": "Правильно. Mosquitto читает файл паролей при старте и при получении сигнала SIGHUP. После изменения passwd файла нужно: kill -HUP $(pgrep mosquitto) или /etc/init.d/mosquitto reload."
       },
       {
-        "text": "mosquitto_passwd creates a user with a locked account",
+        "text": "mosquitto_passwd создаёт пользователя с заблокированным аккаунтом",
         "correct": false,
-        "explanation": "No. mosquitto_passwd simply adds a record with a password hash. There are no locks."
+        "explanation": "Нет. mosquitto_passwd просто добавляет запись с хешем пароля. Блокировок нет."
       },
       {
-        "text": "The user needs to be added to the system's /etc/passwd",
+        "text": "Нужно перезапустить клиент",
         "correct": false,
-        "explanation": "No. The system's /etc/passwd and /etc/mosquitto/passwd are different files. Mosquitto uses its own password file."
+        "explanation": "Нет. Проблема на стороне брокера — он не знает о новом пользователе. Клиент тут ни при чём."
+      },
+      {
+        "text": "Нужно добавить пользователя в /etc/passwd системы",
+        "correct": false,
+        "explanation": "Нет. /etc/passwd системы и /etc/mosquitto/passwd — разные файлы. Mosquitto использует собственный файл паролей."
       }
     ]
   },
   {
-    "question": "There's no ACL rule for topic 'device/sensor/data' for user 'sensor'. What happens on a publish attempt?",
+    "question": "В ACL файле Mosquitto нет правила для топика 'device/sensor/data' для пользователя 'sensor'. Что произойдёт при попытке публикации?",
     "type": "single",
     "options": [
       {
-        "text": "Access will be granted — denial must be explicit",
-        "correct": false,
-        "explanation": "No. Mosquitto ACL works on a 'whitelist' principle: explicitly allow what's needed. Everything else is denied."
-      },
-      {
-        "text": "The global rule for anonymous users will apply",
-        "correct": false,
-        "explanation": "No. The user is authenticated, so rules for their name apply. If there's no rule — access is denied."
-      },
-      {
-        "text": "Access will be denied — absence of a rule means deny",
+        "text": "Доступ будет запрещён — отсутствие правила = запрет",
         "correct": true,
-        "explanation": "Correct. If an ACL file is set and there's no matching rule for the user and topic, access is denied by default (deny by default)."
+        "explanation": "Правильно. Если ACL файл задан и нет совпадающего правила для пользователя и топика — доступ запрещён по умолчанию (deny by default)."
       },
       {
-        "text": "The broker will ask the administrator",
+        "text": "Доступ будет разрешён — запрет нужно указывать явно",
         "correct": false,
-        "explanation": "No. The broker operates autonomously based on configured rules. There's no interactive authorization."
+        "explanation": "Нет. В Mosquitto ACL работает по принципу 'whitelist': явно разрешить то, что нужно. Всё остальное запрещено."
+      },
+      {
+        "text": "Применится глобальное правило для анонимных",
+        "correct": false,
+        "explanation": "Нет. Пользователь аутентифицирован, применяются правила для его имени. Если правила нет — отказ."
+      },
+      {
+        "text": "Брокер спросит у администратора",
+        "correct": false,
+        "explanation": "Нет. Брокер работает автономно по настроенным правилам. Интерактивной авторизации нет."
       }
     ]
   },
   {
-    "question": "What does this line in the ACL file mean: pattern write devices/%c/data",
+    "question": "Что означает строка в ACL файле: pattern write devices/%c/data",
     "type": "single",
     "options": [
       {
-        "text": "Each client can publish only to a topic with its client_id",
+        "text": "%c означает контроллер (controller)",
+        "correct": false,
+        "explanation": "Нет. %c = client_id (идентификатор клиента). %u = username (имя пользователя)."
+      },
+      {
+        "text": "Каждый клиент может публиковать только в топик с его client_id",
         "correct": true,
-        "explanation": "Correct. %c is replaced with the client_id of the connected client. Client 'esp32-01' can publish to devices/esp32-01/data but not to devices/esp32-02/data."
+        "explanation": "Правильно. %c заменяется на client_id подключившегося клиента. Клиент 'esp32-01' может публиковать в devices/esp32-01/data, но не в devices/esp32-02/data."
       },
       {
-        "text": "%c means controller",
+        "text": "Правило применяется только к пользователям с именем начинающимся на 'c'",
         "correct": false,
-        "explanation": "No. %c = client_id. %u = username."
+        "explanation": "Нет. %c — специальная переменная, которая заменяется на client_id при проверке доступа."
       },
       {
-        "text": "The rule applies only to users with names starting with 'c'",
+        "text": "Все пользователи могут публиковать в любой топик начинающийся с devices/",
         "correct": false,
-        "explanation": "No. %c is a special variable that is replaced with the client_id during access check."
-      },
-      {
-        "text": "All users can publish to any topic starting with devices/",
-        "correct": false,
-        "explanation": "No. %c is not a wildcard. It's a substitution of the specific client_id. Access is strictly to devices/{own_id}/data."
+        "explanation": "Нет. %c — это не wildcard. Это подстановка конкретного client_id. Доступ строго к devices/{свой_id}/data."
       }
     ]
   },
   {
-    "question": "How does the Dynamic Security Plugin differ from password_file + ACL?",
+    "question": "Чем Dynamic Security Plugin отличается от password_file + ACL?",
     "type": "multiple",
     "options": [
       {
-        "text": "Supports user roles and groups",
-        "correct": true,
-        "explanation": "Yes. Dynamic Security introduces the concept of roles — sets of ACL rules assigned to multiple users. Changing a role changes the permissions of all users in that role."
-      },
-      {
-        "text": "Allows managing users via MQTT without restart",
-        "correct": true,
-        "explanation": "Yes. Management via $CONTROL/dynamic-security/v1 topics. No SIGHUP or restart needed."
-      },
-      {
-        "text": "Requires an external database (PostgreSQL, MySQL)",
+        "text": "Это возможно только в облачных решениях",
         "correct": false,
-        "explanation": "No. Dynamic Security Plugin stores data in a JSON file on disk. No external database needed."
+        "explanation": "Это работает как в облаке, так и on-premise."
       },
       {
-        "text": "Built into Mosquitto 2.x",
+        "text": "Встроен в Mosquitto 2.x",
+        "correct": true,
+        "explanation": "Да. С версии Mosquitto 2.0 Dynamic Security Plugin является частью стандартного пакета."
+      },
+      {
+        "text": "Позволяет управлять пользователями через MQTT без перезапуска",
+        "correct": true,
+        "explanation": "Да. Управление через $CONTROL/dynamic-security/v1 топики. Не нужен SIGHUP или перезапуск."
+      },
+      {
+        "text": "Требует внешней базы данных (PostgreSQL, MySQL)",
         "correct": false,
-        "explanation": "Yes. Since Mosquitto 2.0, the Dynamic Security Plugin is part of the standard package."
+        "explanation": "Нет. Dynamic Security Plugin хранит данные в JSON файле на диске. Внешняя база не нужна."
+      },
+      {
+        "text": "Поддерживает роли и группы пользователей",
+        "correct": true,
+        "explanation": "Да. Dynamic Security вводит концепцию ролей (roles) — набор ACL правил, назначаемых нескольким пользователям. Изменение роли меняет права всех пользователей этой роли."
       }
     ]
   },
   {
-    "question": "Why does mosquitto-go-auth have 'limited support' on OpenWRT?",
+    "question": "Почему mosquitto-go-auth имеет 'ограниченную поддержку' на OpenWRT?",
     "type": "single",
     "options": [
       {
-        "text": "OpenWRT uses musl libc, while mosquitto-go-auth requires glibc (CGO incompatibility)",
+        "text": "На OpenWRT нет пакета go для компиляции",
+        "correct": false,
+        "explanation": "Это частичная правда (go действительно нет в opkg), но основная проблема — несовместимость libc при запуске уже скомпилированного бинарника."
+      },
+      {
+        "text": "OpenWRT использует musl libc, а mosquitto-go-auth требует glibc (несовместимость CGO)",
         "correct": true,
-        "explanation": "Correct. mosquitto-go-auth is written in Go with CGO. Compiled binaries are usually linked with glibc, while OpenWRT uses musl libc. Cross-compilation with musl is required."
+        "explanation": "Правильно. mosquitto-go-auth написан на Go с CGO. Скомпилированные бинарники обычно линкуются с glibc, тогда как OpenWRT использует musl libc. Требуется кросс-компиляция с musl."
       },
       {
-        "text": "OpenWRT doesn't have the go package for compilation",
+        "text": "mosquitto-go-auth не поддерживает MQTT v3.1.1",
         "correct": false,
-        "explanation": "This is partially true (go is indeed not in opkg), but the main issue is libc incompatibility when running an already-compiled binary."
+        "explanation": "Нет. Совместимость с версией MQTT не является проблемой. Проблема в libc."
       },
       {
-        "text": "mosquitto-go-auth doesn't support MQTT v3.1.1",
+        "text": "mosquitto-go-auth потребляет слишком много RAM",
         "correct": false,
-        "explanation": "No. MQTT version compatibility is not the issue. The problem is with libc."
-      },
-      {
-        "text": "mosquitto-go-auth consumes too much RAM",
-        "correct": false,
-        "explanation": "RAM is a secondary issue. The main problem is the inability to run a glibc binary on a musl system."
+        "explanation": "RAM — вторичная проблема. Основная — невозможность запуска glibc-бинарника на musl системе."
       }
     ]
   },
   {
-    "question": "The developer specified in mosquitto.conf: allow_anonymous true and password_file /etc/mosquitto/passwd. Can a client without login and password connect?",
+    "question": "Разработчик указал в mosquitto.conf: allow_anonymous true и password_file /etc/mosquitto/passwd. Может ли клиент без логина и пароля подключиться?",
     "type": "single",
     "options": [
       {
-        "text": "Depends on Mosquitto version",
+        "text": "Нет — Mosquitto всегда требует аутентификацию при наличии password_file",
         "correct": false,
-        "explanation": "No. Behavior is the same for Mosquitto 1.x and 2.x: allow_anonymous is independent of password_file."
+        "explanation": "Нет. Mosquitto требует аутентификацию только при allow_anonymous false."
       },
       {
-        "text": "No — presence of password_file automatically denies anonymous users",
+        "text": "Нет — presence of password_file автоматически запрещает анонимов",
         "correct": false,
-        "explanation": "No. password_file only adds the ability to verify passwords. To deny anonymous users, you need explicit allow_anonymous false."
+        "explanation": "Нет. password_file только добавляет возможность проверки паролей. Для запрета анонимов нужен явный allow_anonymous false."
       },
       {
-        "text": "Yes — allow_anonymous true permits anonymous connections despite password_file",
+        "text": "Да — allow_anonymous true разрешает анонимные подключения несмотря на password_file",
         "correct": true,
-        "explanation": "Correct. allow_anonymous true and password_file don't conflict. An anonymous client connects via allow_anonymous. password_file is only checked for clients that PROVIDED credentials."
+        "explanation": "Правильно. allow_anonymous true и password_file не конфликтуют. Анонимный клиент подключается по allow_anonymous. password_file проверяется только для клиентов, которые ПРЕДОСТАВИЛИ credentials."
       },
       {
-        "text": "No — Mosquitto always requires authentication when password_file exists",
+        "text": "Зависит от версии Mosquitto",
         "correct": false,
-        "explanation": "No. Mosquitto only requires authentication when allow_anonymous is false."
+        "explanation": "Нет. Поведение одинаково для Mosquitto 1.x и 2.x: allow_anonymous независим от password_file."
       }
     ]
   },
   {
-    "question": "Which mosquitto_passwd command flag RECREATES the file (deletes all existing users)?",
+    "question": "Какой флаг команды mosquitto_passwd ПЕРЕСОЗДАЁТ файл (удаляет всех существующих пользователей)?",
     "type": "single",
     "options": [
-      {
-        "text": "-D (delete)",
-        "correct": false,
-        "explanation": "No. -D deletes a specific user from the file but doesn't recreate it."
-      },
-      {
-        "text": "-b (batch)",
-        "correct": false,
-        "explanation": "No. -b means batch mode: pass the password as a command-line argument. Doesn't recreate the file."
-      },
       {
         "text": "-c (create)",
         "correct": true,
-        "explanation": "Correct. mosquitto_passwd -c /etc/mosquitto/passwd user creates a NEW file. If the file existed, it will be overwritten and all users lost!"
+        "explanation": "Правильно. mosquitto_passwd -c /etc/mosquitto/passwd user создаёт НОВЫЙ файл. Если файл существовал — он будет перезаписан, все пользователи потеряны!"
       },
       {
         "text": "-U (update)",
         "correct": false,
-        "explanation": "No. There's no -U flag. Password update — call mosquitto_passwd again without -c for an existing user."
+        "explanation": "Нет. Флага -U нет. Обновление пароля — повторный вызов mosquitto_passwd без -c для существующего пользователя."
+      },
+      {
+        "text": "-D (delete)",
+        "correct": false,
+        "explanation": "Нет. -D удаляет конкретного пользователя из файла, но не пересоздаёт файл."
+      },
+      {
+        "text": "-b (batch)",
+        "correct": false,
+        "explanation": "Нет. -b означает batch mode: передать пароль как аргумент командной строки. Не пересоздаёт файл."
       }
     ]
   },
   {
-    "question": "For an IoT system on OpenWRT with 100 sensors, you need to add new devices without restarting the broker. Which authentication mechanism to choose?",
+    "question": "Для IoT-системы на OpenWRT с 100 датчиками нужно иметь возможность добавлять новые устройства без перезапуска брокера. Какой механизм аутентификации выбрать?",
     "type": "single",
     "options": [
       {
-        "text": "Dynamic Security Plugin (mosquitto_dynamic_security.so)",
-        "correct": true,
-        "explanation": "Correct. Dynamic Security Plugin is built into Mosquitto 2.x, supported on OpenWRT 23.x, requires no external dependencies, and allows managing users via MQTT without restart."
+        "text": "mosquitto-go-auth с Redis бэкендом",
+        "correct": false,
+        "explanation": "Проблемы с musl libc на OpenWRT + дополнительная зависимость (Redis сервер). Избыточно для IoT роутера."
       },
       {
         "text": "password_file + kill -HUP",
         "correct": false,
-        "explanation": "kill -HUP allows re-reading the file without restart, but requires SSH access to the router. Dynamic Security Plugin is more convenient — management via MQTT."
+        "explanation": "kill -HUP позволяет перечитать файл без перезапуска, но требует SSH-доступа к роутеру. Dynamic Security Plugin удобнее — управление через MQTT."
       },
       {
-        "text": "JWT tokens",
+        "text": "JWT токены",
         "correct": false,
-        "explanation": "JWT requires additional implementation for token issuance. Harder to configure, no ready-made package for OpenWRT."
+        "explanation": "JWT требует дополнительной реализации выдачи токенов. Сложнее в настройке, нет готового пакета для OpenWRT."
       },
       {
-        "text": "mosquitto-go-auth with Redis backend",
-        "correct": false,
-        "explanation": "Issues with musl libc on OpenWRT + additional dependency (Redis server). Excessive for an IoT router."
+        "text": "Dynamic Security Plugin (mosquitto_dynamic_security.so)",
+        "correct": true,
+        "explanation": "Правильно. Dynamic Security Plugin встроен в Mosquitto 2.x, поддерживается на OpenWRT 23.x, не требует внешних зависимостей и позволяет управлять пользователями через MQTT без перезапуска."
       }
     ]
   }

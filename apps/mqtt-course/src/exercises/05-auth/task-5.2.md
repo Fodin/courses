@@ -1,36 +1,36 @@
-# Task 5.2: ACL — Access Control Lists
+# Задание 5.2: ACL — списки контроля доступа
 
-## Goal
+## Цель
 
-Learn to write Mosquitto ACL files. Understand rule syntax and order of application. Practice checking user access to topics.
+Научиться писать ACL файлы для Mosquitto. Понять синтаксис правил и порядок их применения. Отработать проверку доступа пользователей к топикам.
 
-## Requirements
+## Требования
 
-1. Study the built-in ACL file in the editor
-2. Check: can `sensor_kitchen` publish to `home/kitchen/temp`? (should be allowed)
-3. Check: can `sensor_kitchen` publish to `home/living/temp`? (should be denied)
-4. Check: can `dashboard` subscribe to `home/#`? (should be allowed)
-5. Check: can `dashboard` publish to any topic? (should be denied)
-6. Add a new user `automation` with permission to read `home/#` and write to `home/+/cmd`
+1. Изучите встроенный ACL файл в редакторе
+2. Проверьте: может ли `sensor_kitchen` опубликовать в `home/kitchen/temp`? (должно быть разрешено)
+3. Проверьте: может ли `sensor_kitchen` опубликовать в `home/living/temp`? (должно быть запрещено)
+4. Проверьте: может ли `dashboard` подписаться на `home/#`? (должно быть разрешено)
+5. Проверьте: может ли `dashboard` опубликовать в любой топик? (должно быть запрещено)
+6. Добавьте нового пользователя `automation` с правом читать `home/#` и писать в `home/+/cmd`
 
-## Checklist
+## Чеклист
 
-- [ ] Understood rule order: first match is applied
-- [ ] Know the difference between `read`, `write`, `readwrite`, `deny`
-- [ ] Understood that `topic` without `user` is a global rule
-- [ ] Understood that `%c` variable in `pattern` is replaced with client_id
-- [ ] Know: if no matching rule exists → access is DENIED
+- [ ] Понял порядок правил: первое совпадение применяется
+- [ ] Знаю разницу между `read`, `write`, `readwrite`, `deny`
+- [ ] Понял, что строка `topic` без `user` — глобальное правило
+- [ ] Понял, что переменная `%c` в `pattern` заменяется на client_id
+- [ ] Знаю: если нет совпадающего правила → доступ ЗАПРЕЩЁН
 
-## How to Check Yourself
+## Как проверить себя
 
-Write ACL rules for the following requirements:
+Напишите ACL правила для следующих требований:
 
-1. User `esp32-01` can only write to `sensor/esp32-01/#`
-2. User `reader` can only read all topics `home/#`
-3. All users can read `$SYS/broker/clients/connected`
-4. Nobody except `admin` can write to `system/#`
+1. Пользователь `esp32-01` может только писать в `sensor/esp32-01/#`
+2. Пользователь `reader` может только читать все топики `home/#`
+3. Все пользователи могут читать `$SYS/broker/clients/connected`
+4. Никто кроме `admin` не может писать в `system/#`
 
-Example rules:
+Пример правил:
 ```
 topic read $SYS/broker/clients/connected
 

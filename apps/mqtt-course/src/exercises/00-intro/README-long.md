@@ -1,60 +1,60 @@
-# Level 0: Introduction to MQTT — Detailed Theory
+# Уровень 0: Введение в MQTT — Подробная теория
 
-## History and Context
+## История и контекст
 
-In 1999, engineers Andy Stanford-Clark (IBM) and Arlen Nipper (Arcom) were solving the problem of monitoring oil pipelines via satellite links. The conditions were harsh: unstable connection, high latency, limited bandwidth, battery-powered devices. HTTP was completely unsuitable for this.
+В 1999 году инженеры Andy Stanford-Clark (IBM) и Arlen Nipper (Arcom) решали задачу мониторинга нефтепроводов через спутниковые каналы. Условия были жёсткими: нестабильное соединение, высокая задержка, ограниченная пропускная способность, батарейные устройства. HTTP для этого совершенно не подходил.
 
-They created MQTT — a protocol where every byte counts, connections recover automatically, and devices don't need to stay permanently connected.
+Они создали MQTT — протокол, где каждый байт на счету, соединение восстанавливается автоматически, а устройства не нуждаются в постоянном подключении.
 
-Today MQTT is used by: Philips Hue smart bulbs, Facebook Messenger (messages), Amazon IoT, Azure IoT Hub, smart water and electricity meters worldwide.
+Сегодня MQTT используют: умные лампочки Philips Hue, Facebook Messenger (сообщения), Amazon IoT, Azure IoT Hub, умные счётчики воды и электричества по всему миру.
 
 ---
 
-## Architectural Model in Detail
+## Архитектурная модель подробно
 
-### The Problem with HTTP in IoT
+### Проблема с HTTP в IoT
 
-Imagine 1000 temperature sensors. Each needs to send data to a server every 10 seconds.
+Представь 1000 датчиков температуры. Каждый должен каждые 10 секунд отправить данные на сервер.
 
-**With HTTP:**
-- Each sensor makes an HTTP POST request
-- Headers: 400+ bytes per request
-- No persistent connection — TCP handshake every time
-- Server cannot "push" data to a sensor
-- 1000 sensors × 400 bytes × 6 times/min = ~2.4 MB/min in overhead
+**С HTTP:**
+- Каждый датчик делает HTTP POST запрос
+- Заголовки: 400+ байт на каждый запрос
+- Нет постоянного соединения — TCP handshake каждый раз
+- Сервер не может "толкнуть" данные датчику
+- 1000 датчиков × 400 байт × 6 раз/мин = ~2.4 МБ/мин на накладные расходы
 
-**With MQTT:**
-- Each sensor maintains a single persistent TCP connection
-- Data: 2 bytes header + topic length + payload
-- Server can send commands to a sensor at any time
-- 1000 sensors × ~30 bytes × 6 times/min = ~180 KB/min
+**С MQTT:**
+- Каждый датчик поддерживает одно постоянное TCP-соединение
+- Данные: 2 байта заголовок + длина топика + payload
+- Сервер может отправлять команды датчику в любой момент
+- 1000 датчиков × ~30 байт × 6 раз/мин = ~180 КБ/мин
 
-### The Broker — Heart of the System
+### Брокер — сердце системы
 
 ```mermaid
 graph LR
-    A[Temperature\nSensor] -->|PUBLISH home/temp| B[Mosquitto\nBroker]
-    C[Door\nSensor] -->|PUBLISH home/door| B
-    D[Light\nSwitch] -->|PUBLISH home/light| B
-    B -->|DELIVER| E[Node-RED\nAutomation]
-    B -->|DELIVER| F[InfluxDB\nLogger]
-    B -->|DELIVER| G[Web\nDashboard]
+    A[Датчик\nтемпературы] -->|PUBLISH home/temp| B[Mosquitto\nBroker]
+    C[Датчик\nдвери] -->|PUBLISH home/door| B
+    D[Выключатель\nсвета] -->|PUBLISH home/light| B
+    B -->|DELIVER| E[Node-RED\nАвтоматизация]
+    B -->|DELIVER| F[InfluxDB\nЛоггер]
+    B -->|DELIVER| G[Веб-дашборд]
 ```
 
-The broker performs three key functions:
-1. **Routing** — delivers messages to all subscribed clients
-2. **Buffering** — stores messages for temporarily offline clients (QoS 1/2)
-3. **Retained messages** — stores the last value per topic for new subscribers
+Брокер выполняет три ключевые функции:
+1. **Маршрутизация** — доставляет сообщение всем подписанным клиентам
+2. **Буферизация** — хранит сообщения для temporarily offline клиентов (QoS 1/2)
+3. **Retained messages** — хранит последнее значение по топику для новых подписчиков
 
-### Connection Lifecycle
+### Жизненный цикл подключения
 
 ```mermaid
 graph LR
-    A[Client] -->|CONNECT| B[Broker]
+    A[Клиент] -->|CONNECT| B[Broker]
     B -->|CONNACK| A
     A -->|SUBSCRIBE home/+| B
     B -->|SUBACK| A
-    C[Another Client] -->|PUBLISH home/temp| B
+    C[Другой клиент] -->|PUBLISH home/temp| B
     B -->|PUBLISH home/temp| A
     A -->|PINGREQ| B
     B -->|PINGRESP| A
@@ -63,54 +63,54 @@ graph LR
 
 ---
 
-## Topics: Anatomy and Rules
+## Топики: анатомия и правила
 
-### Topic Structure
+### Структура топика
 
-A topic is a UTF-8 string, separator is `/` (U+002F). Maximum length — 65535 bytes.
+Топик — это UTF-8 строка, разделитель — `/` (U+002F). Максимальная длина — 65535 байт.
 
 ```
-# Well-structured topics
+# Хорошо структурированные топики
 home/floor1/bedroom/sensor/temperature
 factory/line-3/machine-12/rpm
 vehicles/truck-42/gps/coordinates
 users/alice/notifications/inbox
 
-# Bad practice
-/sensor/temp          # leading slash = empty first level
-TEMPERATURE           # all uppercase, no hierarchy
-a                     # not informative
+# Плохая практика
+/sensor/temp          # ведущий слэш = пустой первый уровень
+TEMPERATURE           # всё в верхнем регистре, нет иерархии
+a                     # неинформативно
 ```
 
-### Wildcards (SUBSCRIBE only)
+### Wildcards (только для SUBSCRIBE)
 
-The `+` and `#` symbols work **only in subscription patterns**. They are invalid in publish topics.
+Символы `+` и `#` работают **только в паттернах подписки**. В топиках при публикации они недопустимы.
 
 ```
-Publish topic:       home/bedroom/temperature  (concrete path)
-Subscribe pattern:   home/+/temperature        (single level)
-Subscribe pattern:   home/#                    (all levels)
-Subscribe pattern:   #                         (EVERYTHING — be careful!)
+Топик публикации:  home/bedroom/temperature  (конкретный путь)
+Паттерн подписки:  home/+/temperature        (один уровень)
+Паттерн подписки:  home/#                    (все уровни)
+Паттерн подписки:  #                         (ВСЕ топики — осторожно!)
 ```
 
-**Match table:**
+**Таблица совпадений:**
 
-| Pattern | Matches | Does not match |
-|---------|---------|----------------|
+| Паттерн | Совпадает | Не совпадает |
+|---------|-----------|-------------|
 | `home/+/temp` | `home/bedroom/temp` | `home/floor1/bedroom/temp` |
 | `home/#` | `home/`, `home/a/b/c/d` | `office/` |
 | `+/+` | `a/b` | `a/b/c` |
-| `#` | anything | — |
+| `#` | всё что угодно | — |
 
-### System Topics $SYS
+### Системные топики $SYS
 
-Mosquitto publishes metadata about its operation to special topics:
+Mosquitto публикует метаданные о своей работе в специальные топики:
 
 ```bash
-# Subscribe to all system topics
+# Подписаться на все системные топики
 mosquitto_sub -t '$SYS/#' -v
 
-# Examples of system topics:
+# Примеры системных топиков:
 $SYS/broker/version          → "mosquitto version 2.0.18"
 $SYS/broker/uptime           → "3600 seconds"
 $SYS/broker/clients/connected → "42"
@@ -118,25 +118,25 @@ $SYS/broker/messages/received → "18293"
 $SYS/broker/load/messages/received/1min → "12.5"
 ```
 
-📌 Notice the quotes around `$SYS` in the command line — otherwise the shell expands `$SYS` as an environment variable.
+📌 Обрати внимание на кавычки вокруг `$SYS` в командной строке — иначе shell раскрывает `$SYS` как переменную окружения.
 
 ---
 
-## Quality of Service (QoS)
+## Качество обслуживания (QoS)
 
-Three levels of delivery guarantee:
+Три уровня гарантии доставки:
 
-### QoS 0 — At most once
+### QoS 0 — At most once (максимум один раз)
 
 ```
 Publisher  →  Broker  →  Subscriber
    PUBLISH ─────────────────────→
-              (no confirmation)
+              (нет подтверждения)
 ```
 
-The message is sent once without confirmation. If the broker is unavailable — the message is lost. Suitable for: frequent telemetry data where losing a single value is non-critical.
+Сообщение отправляется один раз без подтверждения. Если брокер недоступен — сообщение теряется. Подходит для: частые телеметрические данные, где потеря одного значения некритична.
 
-### QoS 1 — At least once
+### QoS 1 — At least once (минимум один раз)
 
 ```
 Publisher  →  Broker  →  Subscriber
@@ -146,40 +146,40 @@ Publisher  →  Broker  →  Subscriber
                                    PUBACK ←
 ```
 
-Guarantee: the message will arrive **at least once** (duplicates are possible). Suitable for: control commands, events, data important for logic.
+Гарантия: сообщение дойдёт **хотя бы один раз** (возможны дубликаты). Подходит для: команды управления, события, данные, важные для логики.
 
-### QoS 2 — Exactly once
+### QoS 2 — Exactly once (ровно один раз)
 
 ```
-PUBLISH → PUBREC → PUBREL → PUBCOMP (4 exchanges)
+PUBLISH → PUBREC → PUBREL → PUBCOMP (4 обмена)
 ```
 
-Guaranteed delivery without duplication. The slowest and most resource-intensive. Suitable for: critical transactions, financial data.
+Гарантия доставки без дублирования. Самый медленный и ресурсоёмкий. Подходит для: критически важные транзакции, финансовые данные.
 
 ---
 
-## Retained Messages and LWT
+## Retained messages и LWT
 
-### Retained Messages
+### Retained messages
 
-When publishing with `retain=true`, the broker stores the **last** message for that topic. A new subscriber immediately receives this message upon subscribing.
+При публикации с флагом `retain=true` брокер сохраняет **последнее** сообщение по этому топику. Новый подписчик немедленно получает это сообщение при подписке.
 
 ```bash
-# Publish a retained message
+# Опубликовать retained сообщение
 mosquitto_pub -t "home/boiler/status" -m "online" -r
 
-# Clear a retained message (empty payload)
+# Сбросить retained сообщение (пустой payload)
 mosquitto_pub -t "home/boiler/status" -m "" -r
 ```
 
-💡 Analogy: retained message = the latest status on a bulletin board. A new employee immediately sees the current state without waiting for the next update.
+💡 Аналогия: retained message = последний статус на доске объявлений. Новый сотрудник сразу видит текущее состояние, не дожидаясь следующего обновления.
 
 ### Last Will and Testament (LWT)
 
-When connecting, a client can specify a "will" — a message the broker will publish if the client disconnects unexpectedly.
+При подключении клиент может указать "завещание" — сообщение, которое брокер опубликует, если клиент неожиданно отключится.
 
 ```python
-# Example (paho-mqtt Python):
+# Пример (paho-mqtt Python):
 client.will_set(
     topic="home/sensors/boiler/status",
     payload="offline",
@@ -188,15 +188,15 @@ client.will_set(
 )
 ```
 
-This is a powerful mechanism for detecting emergency disconnects without periodic polling.
+Это мощный механизм обнаружения аварийных отключений без периодического опроса.
 
 ---
 
-## MQTT 5.0: What's New
+## MQTT 5.0: что нового
 
-MQTT 5.0 added important mechanisms missing in v3.1.1:
+MQTT 5.0 добавил важные механизмы, недостававшие в v3.1.1:
 
-### Properties (metadata)
+### Properties (метаданные)
 
 ```
 Message Properties:
@@ -204,12 +204,12 @@ Message Properties:
   Response-Topic: "response/request-id-123"
   Correlation-Data: [binary]
   User-Property: {"source": "sensor-42", "firmware": "1.2.3"}
-  Message-Expiry-Interval: 3600  # auto-delete after an hour
+  Message-Expiry-Interval: 3600  # автоудаление через час
 ```
 
-### Reason Codes
+### Reason codes
 
-In v5, every CONNACK, PUBACK, SUBACK contains a numeric reason code:
+В v5 каждый CONNACK, PUBACK, SUBACK содержит числовой reason code:
 
 ```
 0x00 = Success
@@ -220,10 +220,10 @@ In v5, every CONNACK, PUBACK, SUBACK contains a numeric reason code:
 
 ### Shared Subscriptions
 
-Allows load balancing between multiple consumers:
+Позволяют балансировать нагрузку между несколькими потребителями:
 
 ```bash
-# Group "workers" — each message goes to only one subscriber
+# Группа "workers" — каждое сообщение получает только один из подписчиков
 mosquitto_sub -t '$share/workers/jobs/#'
 ```
 
@@ -231,102 +231,102 @@ mosquitto_sub -t '$share/workers/jobs/#'
 
 ## MQTT vs HTTP vs WebSocket vs AMQP
 
-### When to Choose MQTT
+### Когда выбирать MQTT
 
-✅ Use MQTT if:
-- Devices have limited resources (RAM < 64 MB, unstable internet)
-- You need push notifications from devices to server AND from server to devices
-- Many devices → one server (message fan-out)
-- You need LWT (connection drop detection)
-- Battery-powered devices (minimal network traffic)
+✅ Используй MQTT, если:
+- Устройства имеют ограниченные ресурсы (RAM < 64 МБ, нестабильный интернет)
+- Нужны push-уведомления от устройств к серверу И от сервера к устройствам
+- Много устройств → один сервер (fan-out сообщений)
+- Нужен LWT (обнаружение обрывов соединения)
+- Батарейные устройства (минимальный сетевой трафик)
 
-❌ Don't use MQTT if:
-- You need request/response with a guaranteed specific response (HTTP is better)
-- Transactional message processing (AMQP with RabbitMQ is better)
-- Single device, web browser, public API (WebSocket or HTTP is better)
+❌ Не используй MQTT, если:
+- Нужен request/response с гарантией конкретного ответа (HTTP лучше)
+- Транзакционная обработка сообщений (AMQP с RabbitMQ лучше)
+- Одно устройство, веб-браузер, публичный API (WebSocket или HTTP лучше)
 
-### Comparison Table
+### Таблица сравнения
 
-| Parameter | MQTT 5 | HTTP/2 | WebSocket | AMQP 1.0 |
+| Параметр | MQTT 5 | HTTP/2 | WebSocket | AMQP 1.0 |
 |---------|--------|--------|-----------|----------|
-| Fixed header | 2 bytes | ~200 bytes | ~10 bytes (after HS) | ~8 bytes |
-| Persistent connection | ✅ | ✅ (HTTP/2) | ✅ | ✅ |
-| Pub/Sub out of the box | ✅ | ❌ | ❌ | ✅ |
-| QoS guarantees | QoS 0/1/2 | ❌ | ❌ | ACK/txn |
+| Фикс. заголовок | 2 байта | ~200 байт | ~10 байт (после HS) | ~8 байт |
+| Персист. соединение | ✅ | ✅ (HTTP/2) | ✅ | ✅ |
+| Pub/Sub из коробки | ✅ | ❌ | ❌ | ✅ |
+| QoS гарантии | QoS 0/1/2 | ❌ | ❌ | ACK/txn |
 | Broker-free | ❌ | ✅ | ✅ | ❌ |
 | Wildcards | ✅ | ❌ | ❌ | ✅ |
 | LWT | ✅ | ❌ | ❌ | ❌ |
-| IoT Standard | ✅ IANA 1883 | ❌ | partial | ❌ |
+| IoT Standard | ✅ IANA 1883 | ❌ | частично | ❌ |
 
 ---
 
-## ⚠️ Common Beginner Mistakes
+## ⚠️ Частые ошибки новичков
 
-### ❌ Publishing from a single client to all topics
+### ❌ Публикация одним единственным клиентом на все топики
 
 ```python
-# Bad: one "central client" publishing on behalf of all sensors
+# Плохо: один "центральный клиент" публикует от имени всех датчиков
 central_client.publish("home/sensor1/temp", "23.5")
 central_client.publish("home/sensor2/temp", "21.0")
 ```
-**Why it's a problem:** if the central client disconnects, all topics go silent. LWT won't help for each sensor.
+**Почему проблема:** при отключении центрального клиента все топики "замолкают". LWT не поможет для каждого датчика.
 
-✅ Each device = its own MQTT client. The broker is designed for thousands of simultaneous connections.
+✅ Каждое устройство = свой MQTT-клиент. Брокер спроектирован для тысяч одновременных соединений.
 
-### ❌ Using `#` as the only subscription pattern
+### ❌ Использовать `#` как единственный паттерн подписки
 
 ```python
-# Bad: subscribing to everything in production
+# Плохо: подписка на всё в продакшне
 client.subscribe("#")
 ```
-**Why it's a problem:** the broker will send ABSOLUTELY ALL messages to the client. Under high load the client will choke.
+**Почему проблема:** брокер будет отправлять клиенту АБСОЛЮТНО ВСЕ сообщения. При высокой нагрузке клиент захлебнётся.
 
-✅ Subscribe to specific subtrees: `home/#`, `factory/line1/#`.
+✅ Подписывайся на конкретные поддеревья: `home/#`, `factory/line1/#`.
 
-### ❌ Storing state only in retained messages
+### ❌ Хранить состояние только в retained messages
 
 ```bash
-# Bad: the only state storage is a retained message
+# Плохо: единственное хранилище состояния — retained message
 mosquitto_pub -t "system/config" -m '{"timeout":30}' -r
-# After a broker restart without persistence, data is lost!
+# При перезапуске брокера без persistence данные теряются!
 ```
-✅ Retained messages are a cache, not a database. Duplicate critical data to external storage.
+✅ Retained messages — это кэш, а не база данных. Дублируй критически важные данные во внешнее хранилище.
 
-### ❌ Leaving clientId empty or generating it randomly
+### ❌ clientId оставлять пустым или генерировать случайно
 
 ```python
-# Bad:
-client = mqtt.Client()  # random clientId
+# Плохо:
+client = mqtt.Client()  # случайный clientId
 
-# Even worse:
-client = mqtt.Client(client_id="")  # broker will assign a random one
+# Ещё хуже:
+client = mqtt.Client(client_id="")  # брокер присвоит случайный
 ```
-**Why it's a problem:** a persistent session with QoS 1/2 will never recover. The broker accumulates "abandoned" sessions.
+**Почему проблема:** persistent session с QoS 1/2 никогда не восстановится. Брокер накапливает "брошенные" сессии.
 
-✅ Use stable, unique clientIds: `sensor-bedroom-01`, `dashboard-main`.
+✅ Используй стабильные, уникальные clientId: `sensor-bedroom-01`, `dashboard-main`.
 
 ---
 
-## Practice: First Steps with mosquitto_pub/sub
+## Практика: первые шаги с mosquitto_pub/sub
 
 ```bash
-# Terminal 1: subscriber
+# Терминал 1: подписчик
 mosquitto_sub -h 192.168.1.1 -p 1883 -t "test/#" -v
 
-# Terminal 2: publisher
-mosquitto_pub -h 192.168.1.1 -p 1883 -t "test/hello" -m "Hello, MQTT!"
+# Терминал 2: публикатор
+mosquitto_pub -h 192.168.1.1 -p 1883 -t "test/hello" -m "Привет, MQTT!"
 
-# Terminal 1 will receive:
-# test/hello Hello, MQTT!
+# Терминал 1 получит:
+# test/hello Привет, MQTT!
 ```
 
-mosquitto_pub flags:
-| Flag | Meaning |
+Флаги mosquitto_pub:
+| Флаг | Значение |
 |------|---------|
-| `-h` | broker address |
-| `-p` | port (default 1883) |
-| `-t` | topic |
-| `-m` | payload (message) |
+| `-h` | адрес брокера |
+| `-p` | порт (по умолчанию 1883) |
+| `-t` | топик |
+| `-m` | payload (сообщение) |
 | `-q` | QoS (0, 1, 2) |
 | `-r` | retain flag |
 | `-u` / `-P` | username / password |

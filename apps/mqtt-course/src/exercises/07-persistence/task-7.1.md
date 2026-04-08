@@ -1,45 +1,45 @@
-# Task 7.1: Configuring the Persistence Database
+# Задание 7.1: Настройка persistence database
 
-## Goal
+## Цель
 
-Learn to configure persistence in Mosquitto to retain retained messages, sessions, and QoS 1/2 queues
-across broker restarts.
+Научиться настраивать persistence в Mosquitto для сохранения retained-сообщений, сессий и очередей
+QoS 1/2 между перезапусками брокера.
 
-## Requirements
+## Требования
 
-1. Enable persistence with the correct `persistence_location` (not /tmp!)
-2. Configure `autosave_interval` (recommended: 300 seconds)
-3. Set `autosave_on_changes false` to conserve flash resources
-4. Create the `/var/lib/mosquitto/` directory with correct permissions (owner `mosquitto`)
-5. Visualize what is and isn't persisted with an interactive slider for autosave_interval
+1. Включите persistence с правильным `persistence_location` (не /tmp!)
+2. Настройте `autosave_interval` (рекомендуется 300 секунд)
+3. Установите `autosave_on_changes false` для экономии ресурса flash
+4. Создайте директорию `/var/lib/mosquitto/` с правильными правами (владелец `mosquitto`)
+5. Визуализируйте параметры с интерактивным слайдером для autosave_interval
 
-## Checklist
+## Чеклист
 
-- [ ] `persistence true` is specified in the config
-- [ ] `persistence_location` does NOT point to `/tmp`
-- [ ] Directory exists and is accessible by Mosquitto: `chown mosquitto:mosquitto /var/lib/mosquitto`
-- [ ] `autosave_interval` is set (not 0, not too small)
-- [ ] `autosave_on_changes false` is set
-- [ ] Component shows what gets persisted and what doesn't
-- [ ] autosave_interval slider updates config preview
+- [ ] `persistence true` указан в конфиге
+- [ ] `persistence_location` НЕ указывает на `/tmp`
+- [ ] Директория существует и доступна Mosquitto: `chown mosquitto:mosquitto /var/lib/mosquitto`
+- [ ] `autosave_interval` задан (не 0, не слишком мало)
+- [ ] `autosave_on_changes false` установлен
+- [ ] Компонент показывает перечень того, что сохраняется и что нет
+- [ ] Слайдер autosave_interval обновляет превью конфига
 
-## How to verify
+## Как проверить себя
 
-1. Restart Mosquitto and ensure there are no errors:
+1. Перезапустите Mosquitto и убедитесь в отсутствии ошибок:
    ```bash
    service mosquitto restart && logread | grep mosquitto | tail -5
    ```
-2. Publish a retained message:
+2. Опубликуйте retained-сообщение:
    ```bash
    mosquitto_pub -t home/temp -m "22.5" -r
    ```
-3. Restart Mosquitto and verify the retained message was not lost:
+3. Перезапустите Mosquitto и проверьте, что retained-сообщение не потерялось:
    ```bash
    service mosquitto restart
    mosquitto_sub -t home/temp -C 1
-   # Should return "22.5" immediately
+   # Должно вернуть "22.5" немедленно
    ```
-4. Verify the DB file was created:
+4. Убедитесь, что файл БД создан:
    ```bash
    ls -la /var/lib/mosquitto/mosquitto.db
    ```

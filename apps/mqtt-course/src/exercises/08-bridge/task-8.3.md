@@ -1,51 +1,51 @@
-# Task 8.3: Topic Filtering in a Bridge
+# Задание 8.3: Фильтрация топиков в мосте
 
-## Goal
+## Цель
 
-Master detailed message flow control through a Bridge: topic patterns, directions,
-QoS, and prefix mapping for topic transformation during forwarding.
+Освоить детальное управление потоком сообщений через Bridge: паттерны топиков, направления,
+QoS и маппинг префиксов для трансформации топиков при пересылке.
 
-## Requirements
+## Требования
 
-1. Create 4 topic rules with different directions and QoS:
-   - `sensors/#` → out QoS 0 (telemetry, not critical)
-   - `commands/#` ← in QoS 1 (commands, need delivery)
-   - `status` ⇄ both QoS 1 (state synchronization)
-   - `alerts/#` → out QoS 2 (critical events, exactly-once)
-2. Add an example with prefix mapping: `sensors/#` → `home/sensors/#` on the remote
-3. Create an interactive rule builder with pattern, direction, and QoS selection
-4. Explain the loop risk when using `both`
+1. Создайте 4 правила topic с разными направлениями и QoS:
+   - `sensors/#` → out QoS 0 (телеметрия, не критично)
+   - `commands/#` ← in QoS 1 (команды, нужна доставка)
+   - `status` ⇄ both QoS 1 (синхронизация состояния)
+   - `alerts/#` → out QoS 2 (критические события, exactly-once)
+2. Добавьте пример с маппингом префиксов: `sensors/#` → `home/sensors/#` на удалённом
+3. Создайте интерактивный конструктор правила с выбором паттерна, направления и QoS
+4. Объясните риск петель при использовании `both`
 
-## Checklist
+## Чеклист
 
-- [ ] Four rule examples with different directions
-- [ ] Explanation of each direction (in/out/both)
-- [ ] Prefix mapping example with transformation visualization
-- [ ] Rule builder: input fields + config line generation
-- [ ] Warning about loops with `both`
-- [ ] Component is clickable: clicking a rule expands its description
+- [ ] Четыре примера правил с разными направлениями
+- [ ] Объяснение каждого направления (in/out/both)
+- [ ] Пример маппинга префиксов с визуализацией трансформации
+- [ ] Конструктор правила: поля ввода + генерация строки конфига
+- [ ] Предупреждение о петлях при `both`
+- [ ] Компонент кликабелен: по клику на правило раскрывается описание
 
-## How to verify
+## Как проверить себя
 
-1. Verify that `sensors/#` is forwarded outward (out):
+1. Проверьте, что `sensors/#` пересылается наружу (out):
    ```bash
    mosquitto_pub -t sensors/temp -m "22.5"
-   # On the remote broker: mosquitto_sub -t 'sensors/#' -C 1
+   # На удалённом брокере: mosquitto_sub -t 'sensors/#' -C 1
    ```
-2. Verify prefix mapping:
+2. Проверьте маппинг префиксов:
    ```bash
-   # Configured: topic sensors/# out 0 "" home/
+   # Настроено: topic sensors/# out 0 "" home/
    mosquitto_pub -t sensors/temp -m "test"
-   # On the remote: mosquitto_sub -t 'home/sensors/#' -C 1  → should receive "test"
+   # На удалённом: mosquitto_sub -t 'home/sensors/#' -C 1  → должно прийти "test"
    ```
-3. Verify that `commands/#` arrives locally (in):
+3. Проверьте, что `commands/#` приходит локально (in):
    ```bash
-   # Publish on the remote:
+   # Опубликовать на удалённом:
    mosquitto_pub -h remote-broker -t commands/led -m "on"
-   # Locally: mosquitto_sub -t 'commands/#' -C 1  → should receive "on"
+   # Локально: mosquitto_sub -t 'commands/#' -C 1  → должно прийти "on"
    ```
-4. Verify that topics outside the rules are NOT forwarded:
+4. Убедитесь, что топики вне правил НЕ пересылаются:
    ```bash
    mosquitto_pub -t private/data -m "secret"
-   # On the remote: nothing should appear
+   # На удалённом: ничего не должно появиться
    ```

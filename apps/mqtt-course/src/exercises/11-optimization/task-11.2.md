@@ -1,51 +1,51 @@
-# Task 11.2: Mosquitto Tuning
+# Задание 11.2: Тюнинг Mosquitto
 
-## Goal
+## Цель
 
-Apply key Mosquitto optimization parameters in `mosquitto.conf` for a router with 64-128 MB RAM.
+Применить ключевые параметры оптимизации Mosquitto в `mosquitto.conf` для роутера с 64-128 MB RAM.
 
-## Requirements
+## Требования
 
-1. Set `max_connections` according to available RAM (formula from task 11.1)
-2. Limit `message_size_limit` to a reasonable value (no more than 8192 for IoT)
-3. Configure `max_queued_messages 100` and `max_queued_bytes 524288`
-4. Set `memory_limit` (40% of RAM in bytes)
-5. Increase `sys_interval` to 30 seconds
-6. Configure lightweight logging: `error warning` only
+1. Установить `max_connections` согласно доступной RAM (формула из задания 11.1)
+2. Ограничить `message_size_limit` до разумного значения (не более 8192 для IoT)
+3. Настроить `max_queued_messages 100` и `max_queued_bytes 524288`
+4. Задать `memory_limit` (40% от RAM в байтах)
+5. Увеличить `sys_interval` до 30 секунд
+6. Настроить облегчённое логирование: только `error warning`
 
-## Checklist
+## Чеклист
 
-- [ ] `max_connections` is set explicitly (not left at -1)
-- [ ] `message_size_limit` is set explicitly (not left at default 268 MB)
+- [ ] `max_connections` задан явно (не оставлен -1)
+- [ ] `message_size_limit` задан явно (не оставлен на дефолте 268 MB)
 - [ ] `max_queued_messages` ≤ 500
-- [ ] `max_queued_bytes` is set (Mosquitto 2.x)
-- [ ] `memory_limit` is set (not 0)
-- [ ] `sys_interval 30` or higher
-- [ ] `log_type error warning` (no debug/information)
-- [ ] Mosquitto runs correctly after restart
+- [ ] `max_queued_bytes` задан (Mosquitto 2.x)
+- [ ] `memory_limit` задан (не 0)
+- [ ] `sys_interval 30` или больше
+- [ ] `log_type error warning` (без debug/information)
+- [ ] Mosquitto после перезапуска работает корректно
 
-## How to verify
+## Как проверить себя
 
 ```bash
-# 1. Verify config application:
+# 1. Проверить применение конфига:
 mosquitto -c /etc/mosquitto/mosquitto.conf -v 2>&1 | head -20
-# Look for parameter application lines
+# Ищем строки о применении параметров
 
-# 2. After connecting several clients — monitor memory:
+# 2. После подключения нескольких клиентов — мониторинг памяти:
 cat /proc/$(pidof mosquitto)/status | grep VmRSS
 
-# 3. Check heap via $SYS:
+# 3. Проверить heap через $SYS:
 mosquitto_sub -h localhost -u admin -P pass \
   -t '$SYS/broker/heap/current' -C 1 -W 5
 
-# 4. Try sending a message larger than message_size_limit:
+# 4. Попробовать отправить сообщение больше message_size_limit:
 python3 -c "print('x' * 10000)" | \
   mosquitto_pub -h localhost -u user -P pass \
   -t test/big -s
-# Should get an error: Message too large
+# Должен получить ошибку: Message too large
 
-# 5. Verify sys_interval works (metrics update every 30s):
+# 5. Убедиться что sys_interval работает (метрики обновляются каждые 30с):
 mosquitto_sub -h localhost -u admin -P pass \
   -t '$SYS/broker/uptime' -v -W 65
-# Should output 2 values with ~30 sec interval
+# Должно вывести 2 значения с интервалом ~30 сек
 ```

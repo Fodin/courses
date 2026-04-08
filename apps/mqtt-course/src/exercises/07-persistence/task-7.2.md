@@ -1,43 +1,43 @@
-# Task 7.2: Choosing Storage on OpenWRT
+# Задание 7.2: Выбор хранилища на OpenWRT
 
-## Goal
+## Цель
 
-Understand the characteristics of different OpenWRT storage types (/tmp, /overlay, /mnt/usb)
-for storing the Mosquitto database, taking flash memory wear-leveling into account.
+Разобраться в особенностях разных типов хранилищ OpenWRT (/tmp, /overlay, /mnt/usb)
+для хранения базы данных Mosquitto, с учётом wear-leveling flash-памяти.
 
-## Requirements
+## Требования
 
-1. Create a storage selection component: `/tmp`, `/overlay`, `/mnt/usb`
-2. For each option, show: memory type, volatility, pros and cons
-3. For `/overlay`, add an interactive flash wear calculator:
-   - Slider for autosave_interval (60–3600 seconds)
-   - Calculate: writes per day, data per day, estimated endurance in years
-4. For `/mnt/usb`, show automount configuration commands
-5. Add a recommendation for each option
+1. Создайте компонент с выбором хранилища: `/tmp`, `/overlay`, `/mnt/usb`
+2. Для каждого варианта покажите: тип памяти, энергозависимость, плюсы и минусы
+3. Для `/overlay` добавьте интерактивный калькулятор износа flash:
+   - Слайдер autosave_interval (60–3600 секунд)
+   - Рассчитать: количество записей в день, данных в день, расчётный ресурс в годах
+4. Для `/mnt/usb` покажите команды настройки автомонтирования
+5. Добавьте рекомендацию для каждого варианта
 
-## Checklist
+## Чеклист
 
-- [ ] Three storage options with characteristics
-- [ ] Visual distinction: volatile (yellow) vs non-volatile (green)
-- [ ] Wear calculator for `/overlay` with formula
-- [ ] Slider updates calculator in real time
-- [ ] USB mount commands for the `/mnt/usb` option
-- [ ] Mosquitto config for the selected option
+- [ ] Три варианта хранилища с характеристиками
+- [ ] Визуальное различие: энергозависимое (жёлтый) vs энергонезависимое (зелёный)
+- [ ] Калькулятор износа для `/overlay` с формулой
+- [ ] Слайдер обновляет калькулятор в реальном времени
+- [ ] Команды монтирования USB для варианта `/mnt/usb`
+- [ ] Конфиг Mosquitto для выбранного варианта
 
-## How to verify
+## Как проверить себя
 
-1. Verify that `/tmp` is volatile storage:
+1. Проверьте, что `/tmp` — энергозависимое хранилище:
    ```bash
-   df -h /tmp    # should show tmpfs
+   df -h /tmp    # должен показать tmpfs
    ```
-2. Verify that `/overlay` survives reboot:
+2. Убедитесь, что `/overlay` переживает перезагрузку:
    ```bash
    echo "test" > /overlay/test.txt
    reboot
-   cat /overlay/test.txt    # should show "test"
+   cat /overlay/test.txt    # должно показать "test"
    ```
-3. For USB: check mount:
+3. Для USB: проверьте монтирование:
    ```bash
-   mountpoint /mnt/usb && echo "mounted" || echo "not mounted"
+   mountpoint /mnt/usb && echo "смонтировано" || echo "не смонтировано"
    ```
-4. Set `persistence_location` to the selected path and verify Mosquitto starts.
+4. Установите `persistence_location` на выбранный путь и убедитесь, что Mosquitto стартует.

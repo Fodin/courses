@@ -1,110 +1,105 @@
 [
   {
-    "question": "On which port does MQTT over TLS operate by standard?",
+    "question": "На каком порту по стандарту работает MQTT over TLS?",
     "type": "single",
     "options": [
       {
-        "text": "8883",
-        "correct": true,
-        "explanation": "8883 — standard port for MQTT over TLS (just like HTTPS uses 443 instead of 80)"
+        "text": "1883",
+        "correct": false,
+        "explanation": "1883 — стандартный порт MQTT без шифрования"
       },
       {
-        "text": "9001",
-        "correct": false,
-        "explanation": "9001 is often used for MQTT over WebSocket (without TLS), but not for standard MQTT+TLS"
+        "text": "8883",
+        "correct": true,
+        "explanation": "8883 — стандартный порт MQTT over TLS (аналогично тому, как HTTPS использует 443 вместо 80)"
       },
       {
         "text": "443",
         "correct": false,
-        "explanation": "443 — standard HTTPS port, not MQTT. MQTT over WebSocket+TLS often uses 443, but standard MQTT+TLS port is 8883"
+        "explanation": "443 — стандартный порт HTTPS, не MQTT. Для MQTT over WebSocket+TLS часто используют 443, но стандартный MQTT+TLS порт — 8883"
       },
       {
-        "text": "1883",
+        "text": "9001",
         "correct": false,
-        "explanation": "1883 — standard port for unencrypted MQTT"
+        "explanation": "9001 часто используют для MQTT over WebSocket (без TLS), но не для стандартного MQTT+TLS"
       }
     ]
   },
   {
-    "question": "Which three files are mandatory for TLS configuration in Mosquitto?",
+    "question": "Какие три файла обязательны для настройки TLS в Mosquitto?",
     "type": "multiple",
     "options": [
       {
-        "text": "certfile — server certificate",
-        "correct": true,
-        "explanation": "certfile — the server's public certificate, sent to clients during TLS handshake"
-      },
-      {
-        "text": "cafile — Certificate Authority certificate",
-        "correct": true,
-        "explanation": "cafile is needed by Mosquitto to verify client certificates in mTLS, and by clients to verify the server"
-      },
-      {
-        "text": "dhparam — Diffie-Hellman parameters",
+        "text": "dhparam — параметры Диффи-Хеллмана",
         "correct": false,
-        "explanation": "dhparam is used in some configurations for PFS, but is not mandatory for basic TLS setup in Mosquitto 2.x"
+        "explanation": "dhparam используется в некоторых конфигурациях для PFS, но не обязателен для базовой настройки TLS в Mosquitto 2.x"
       },
       {
-        "text": "Данный подход устарел и больше не используется",
-        "correct": false,
-        "explanation": "Этот подход активно применяется в современных системах."
-      },
-      {
-        "text": "keyfile — server private key",
+        "text": "keyfile — приватный ключ сервера",
         "correct": true,
-        "explanation": "keyfile — the secret key with which the server proves ownership of the certificate. Never sent to clients"
+        "explanation": "keyfile — секретный ключ, которым сервер доказывает владение сертификатом. Никогда не передаётся клиентам"
+      },
+      {
+        "text": "certfile — сертификат сервера",
+        "correct": true,
+        "explanation": "certfile — публичный сертификат сервера, который отправляется клиентам во время TLS handshake"
+      },
+      {
+        "text": "cafile — сертификат удостоверяющего центра",
+        "correct": true,
+        "explanation": "cafile нужен Mosquitto для проверки клиентских сертификатов при mTLS, и клиентам — для проверки сервера"
       }
     ]
   },
   {
-    "question": "What happens when use_identity_as_username is true in Mosquitto?",
+    "question": "Что происходит при use_identity_as_username true в Mosquitto?",
     "type": "single",
     "options": [
       {
-        "text": "The client sends the username in the CONNECT packet itself, the certificate is ignored",
+        "text": "Клиент сам передаёт имя пользователя в CONNECT-пакете, сертификат игнорируется",
         "correct": false,
-        "explanation": "On the contrary: with use_identity_as_username true, the certificate determines the username, not the username field in the CONNECT packet."
+        "explanation": "Наоборот: при use_identity_as_username true именно сертификат определяет username, а не поле username в CONNECT-пакете"
       },
       {
-        "text": "Username is taken from the CN field of the client certificate",
+        "text": "Имя пользователя берётся из поля CN клиентского сертификата",
         "correct": true,
-        "explanation": "When use_identity_as_username is true, Mosquitto extracts the CN (Common Name) from the client certificate and uses it as the username for ACL checks. No password is required."
+        "explanation": "При use_identity_as_username true Mosquitto извлекает CN (Common Name) из клиентского сертификата и использует его как username для ACL-проверок. Пароль не требуется."
       },
       {
-        "text": "Username is taken from the O (Organization) field of the certificate",
+        "text": "Имя пользователя берётся из поля O (Organization) сертификата",
         "correct": false,
-        "explanation": "It uses the CN (Common Name) field, not O (Organization)."
+        "explanation": "Используется именно поле CN (Common Name), не O (Organization)"
       },
       {
-        "text": "Username = certificate fingerprint (hash)",
+        "text": "Имя пользователя = fingerprint (отпечаток) сертификата",
         "correct": false,
-        "explanation": "Fingerprint is the hash of the certificate; it's not used as the username. The name is taken from CN."
+        "explanation": "Fingerprint — это хэш сертификата, он не используется как username. Имя берётся из CN."
       }
     ]
   },
   {
-    "question": "A developer gets a 'hostname mismatch' error when connecting to the broker. What is most likely wrong?",
+    "question": "Разработчик получает ошибку 'hostname mismatch' при подключении к брокеру. Что скорее всего неверно?",
     "type": "single",
     "options": [
       {
-        "text": "The CN in the server certificate doesn't match the hostname the client is connecting to",
+        "text": "Неверный порт подключения",
+        "correct": false,
+        "explanation": "Порт не влияет на проверку hostname. Ошибка hostname mismatch возникает именно из-за несоответствия CN и адреса."
+      },
+      {
+        "text": "CN в сертификате сервера не совпадает с hostname, по которому подключается клиент",
         "correct": true,
-        "explanation": "This is a classic error: the certificate was issued for 'mqtt.home', but the client connects to '192.168.1.1'. The TLS client checks CN-to-address correspondence."
+        "explanation": "Это классическая ошибка: сертификат выдан для 'mqtt.home', а клиент подключается к '192.168.1.1'. TLS-клиент проверяет соответствие CN и адреса подключения."
       },
       {
-        "text": "Certificate has expired",
+        "text": "Неверный приватный ключ",
         "correct": false,
-        "explanation": "An expired certificate gives a 'certificate has expired' error, not 'hostname mismatch'."
+        "explanation": "Неверный ключ даст ошибку на этапе handshake ('key does not match certificate'), но не 'hostname mismatch'"
       },
       {
-        "text": "Wrong private key",
+        "text": "Сертификат истёк",
         "correct": false,
-        "explanation": "A wrong key gives an error during handshake ('key does not match certificate'), not 'hostname mismatch'."
-      },
-      {
-        "text": "Wrong connection port",
-        "correct": false,
-        "explanation": "Port doesn't affect hostname verification. The hostname mismatch error occurs specifically due to CN-address mismatch."
+        "explanation": "Истёкший сертификат даёт ошибку 'certificate has expired', а не 'hostname mismatch'"
       }
     ]
   }

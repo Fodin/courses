@@ -1,214 +1,214 @@
 [
   {
-    "question": "A client publishes temperature data every 3 seconds. Losing one value is not critical. Which QoS is optimal?",
+    "question": "Клиент публикует данные температуры каждые 3 секунды. Потеря одного значения некритична. Какой QoS оптимален?",
     "type": "single",
     "options": [
       {
-        "text": "QoS 2",
-        "correct": false,
-        "explanation": "QoS 2 — 4 packets per message, 4x slower. Completely excessive for telemetry and can overload an OpenWRT router."
-      },
-      {
-        "text": "Depends on the client",
-        "correct": false,
-        "explanation": "No. QoS selection is determined by delivery reliability requirements, not the client type."
-      },
-      {
         "text": "QoS 1",
         "correct": false,
-        "explanation": "QoS 1 creates overhead (PUBACK) and possible duplicates. For frequent telemetry without critical requirements, it's excessive."
+        "explanation": "QoS 1 создаёт накладные расходы (PUBACK) и возможные дубликаты. Для частой телеметрии без критических требований — избыточно."
       },
       {
         "text": "QoS 0",
         "correct": true,
-        "explanation": "Correct. High-frequency telemetry is a classic QoS 0 case. Losing one value is not critical, and it minimizes the load on the broker and client."
+        "explanation": "Правильно. Телеметрия высокой частоты — классический случай QoS 0. Потеря одного значения некритична, зато минимальная нагрузка на брокер и клиент."
+      },
+      {
+        "text": "Зависит от клиента",
+        "correct": false,
+        "explanation": "Нет. Выбор QoS определяется требованиями к надёжности доставки, а не типом клиента."
+      },
+      {
+        "text": "QoS 2",
+        "correct": false,
+        "explanation": "QoS 2 — 4 пакета на сообщение, в 4x медленнее. Для телеметрии совершенно избыточен и может перегрузить роутер OpenWRT."
       }
     ]
   },
   {
-    "question": "What happens if a QoS 1 client doesn't receive a PUBACK from the broker?",
+    "question": "Что произойдёт, если клиент с QoS 1 не получит PUBACK от брокера?",
     "type": "single",
     "options": [
       {
-        "text": "The connection will be terminated",
+        "text": "Брокер удалит сообщение",
         "correct": false,
-        "explanation": "No. Missing PUBACK causes message resend, not connection termination."
+        "explanation": "Нет. Брокер уже получил и сохранил сообщение. Проблема в том, что клиент не знает об этом — потому и повторяет."
       },
       {
-        "text": "The broker will delete the message",
-        "correct": false,
-        "explanation": "No. The broker has already received and stored the message. The problem is that the client doesn't know about it — hence the repeat."
-      },
-      {
-        "text": "The client will resend the message with DUP=1 flag",
+        "text": "Клиент повторно отправит сообщение с флагом DUP=1",
         "correct": true,
-        "explanation": "Correct. On PUBACK timeout, the client repeats PUBLISH with DUP=1, indicating a possible duplicate. This is exactly why QoS 1 = 'at least once'."
+        "explanation": "Правильно. При таймауте PUBACK клиент повторяет PUBLISH с DUP=1, что означает возможный дубликат. Именно поэтому QoS 1 = 'не менее одного раза'."
       },
       {
-        "text": "The message will be lost",
+        "text": "Соединение будет разорвано",
         "correct": false,
-        "explanation": "No. With QoS 1, the client stores the message until confirmation is received and repeats if necessary."
+        "explanation": "Нет. Отсутствие PUBACK вызывает повтор сообщения, а не разрыв соединения."
+      },
+      {
+        "text": "Сообщение будет потеряно",
+        "correct": false,
+        "explanation": "Нет. При QoS 1 клиент хранит сообщение до получения подтверждения и повторяет при необходимости."
       }
     ]
   },
   {
-    "question": "Which packets participate in QoS 2 exchange between publisher and broker?",
+    "question": "Какие пакеты участвуют в QoS 2 обмене между издателем и брокером?",
     "type": "multiple",
     "options": [
       {
-        "text": "PUBREL",
+        "text": "PUBCOMP",
         "correct": true,
-        "explanation": "Yes. Third step — PUBREL (Publish Release) from publisher: 'allowing delivery to subscriber'."
+        "explanation": "Да. Четвёртый шаг — PUBCOMP (Publish Complete) от брокера: 'завершено, удали из своей очереди'."
       },
       {
         "text": "PUBREC",
         "correct": true,
-        "explanation": "Yes. Second step — PUBREC (Publish Received) from broker: 'received, wait for release'."
+        "explanation": "Да. Второй шаг — PUBREC (Publish Received) от брокера: 'получил, жди разрешения'."
       },
       {
         "text": "PUBACK",
         "correct": false,
-        "explanation": "No. PUBACK is only used in QoS 1. In QoS 2, PUBREC is used instead."
-      },
-      {
-        "text": "PUBCOMP",
-        "correct": true,
-        "explanation": "Yes. Fourth step — PUBCOMP (Publish Complete) from broker: 'complete, remove from your queue'."
+        "explanation": "Нет. PUBACK используется только в QoS 1. В QoS 2 вместо него PUBREC."
       },
       {
         "text": "PUBLISH",
         "correct": true,
-        "explanation": "Yes. First step — PUBLISH from publisher to broker."
+        "explanation": "Да. Первый шаг — PUBLISH от издателя к брокеру."
+      },
+      {
+        "text": "PUBREL",
+        "correct": true,
+        "explanation": "Да. Третий шаг — PUBREL (Publish Release) от издателя: 'разрешаю доставить подписчику'."
       }
     ]
   },
   {
-    "question": "A developer wants new subscribers to immediately receive the current device state upon subscription. What should be done?",
+    "question": "Разработчик хочет, чтобы новые подписчики сразу получали текущее состояние устройства при подписке. Что нужно сделать?",
     "type": "single",
     "options": [
       {
-        "text": "Publish with retain=true flag",
+        "text": "Настроить persistent session",
+        "correct": false,
+        "explanation": "Нет. Persistent session сохраняет очередь для КОНКРЕТНОГО клиента в offline. Retained — для ЛЮБОГО нового подписчика."
+      },
+      {
+        "text": "Использовать sys_interval",
+        "correct": false,
+        "explanation": "Нет. sys_interval управляет $SYS топиками, не retained сообщениями."
+      },
+      {
+        "text": "Публиковать с флагом retain=true",
         "correct": true,
-        "explanation": "Correct. A retained message is stored by the broker and immediately delivered to new subscribers when they subscribe to the corresponding topic."
+        "explanation": "Правильно. Retained сообщение хранится брокером и немедленно отдаётся новым подписчикам при подписке на соответствующий топик."
       },
       {
-        "text": "Use QoS 2 when publishing",
+        "text": "Использовать QoS 2 при публикации",
         "correct": false,
-        "explanation": "No. QoS 2 guarantees exactly-once delivery but doesn't help new subscribers get the current value."
-      },
-      {
-        "text": "Use sys_interval",
-        "correct": false,
-        "explanation": "No. sys_interval controls $SYS topics, not retained messages."
-      },
-      {
-        "text": "Configure persistent session",
-        "correct": false,
-        "explanation": "No. Persistent session preserves the queue for a SPECIFIC offline client. Retained is for ANY new subscriber."
+        "explanation": "Нет. QoS 2 гарантирует ровно одну доставку, но не помогает новым подписчикам получить текущее значение."
       }
     ]
   },
   {
-    "question": "A client connected with LWT, then correctly called disconnect(). What happens to the LWT?",
+    "question": "Клиент подключился с LWT, затем корректно вызвал disconnect(). Что произойдёт с LWT?",
     "type": "single",
     "options": [
       {
-        "text": "LWT will be sent immediately",
+        "text": "LWT будет отправлен с задержкой 60 секунд",
         "correct": false,
-        "explanation": "No. Immediate LWT sending only happens on abnormal disconnection. Normal DISCONNECT = client is alive, LWT is not needed."
+        "explanation": "Нет. Задержка LWT (Will Delay Interval) — опция MQTT v5, но и там при нормальном DISCONNECT LWT не отправляется."
       },
       {
-        "text": "LWT will become a retained message",
+        "text": "LWT превратится в retained сообщение",
         "correct": false,
-        "explanation": "No. LWT becomes retained only if will_retain=true was set during LWT configuration. But even then, it's only sent on abnormal disconnection, not on normal DISCONNECT."
+        "explanation": "Нет. LWT становится retained только если при настройке LWT указан флаг will_retain=true. Но и тогда он отправляется только при аварии, не при нормальном DISCONNECT."
       },
       {
-        "text": "LWT will not be sent — the broker cancels it on normal DISCONNECT",
+        "text": "LWT не будет отправлен — брокер отменяет его при нормальном DISCONNECT",
         "correct": true,
-        "explanation": "Correct. LWT is only sent on abnormal connection termination (keepalive timeout, network failure). A normal DISCONNECT cancels the LWT."
+        "explanation": "Правильно. LWT отправляется только при аварийном разрыве соединения (timeout keepalive, обрыв сети). Нормальный DISCONNECT отменяет LWT."
       },
       {
-        "text": "LWT will be sent with a 60-second delay",
+        "text": "LWT будет отправлен немедленно",
         "correct": false,
-        "explanation": "No. LWT Delay Interval is an MQTT v5 option, but even there, LWT is not sent on normal DISCONNECT."
+        "explanation": "Нет. Немедленная отправка LWT только при аварийном разрыве. Нормальный DISCONNECT = клиент жив, LWT не нужен."
       }
     ]
   },
   {
-    "question": "On OpenWRT (64 MB RAM), a broker with 50 clients accumulates QoS 1 message queues for offline clients. Which mosquitto.conf parameter helps control memory consumption?",
+    "question": "На OpenWRT (64 МБ RAM) брокер с 50 клиентами накапливает очереди QoS 1 сообщений для offline-клиентов. Какой параметр mosquitto.conf поможет контролировать потребление памяти?",
     "type": "single",
     "options": [
       {
         "text": "max_queued_messages",
         "correct": true,
-        "explanation": "Correct. max_queued_messages limits the number of messages in the queue for each offline client with persistent session. On OpenWRT, 10-50 is recommended."
-      },
-      {
-        "text": "message_size_limit",
-        "correct": false,
-        "explanation": "message_size_limit limits the payload size of a message, not the size of the accumulated queue."
-      },
-      {
-        "text": "max_packet_size",
-        "correct": false,
-        "explanation": "max_packet_size limits the size of a single packet, not the number of messages in a queue."
+        "explanation": "Правильно. max_queued_messages ограничивает количество сообщений в очереди для каждого offline-клиента с persistent session. На OpenWRT рекомендуется 10-50."
       },
       {
         "text": "max_connections",
         "correct": false,
-        "explanation": "max_connections limits the number of simultaneous connections, not message queue sizes."
+        "explanation": "max_connections ограничивает число одновременных подключений, но не размер очередей сообщений."
+      },
+      {
+        "text": "max_packet_size",
+        "correct": false,
+        "explanation": "max_packet_size ограничивает размер одного пакета, но не количество сообщений в очереди."
+      },
+      {
+        "text": "message_size_limit",
+        "correct": false,
+        "explanation": "message_size_limit ограничивает размер payload сообщения, но не размер накапливаемой очереди."
       }
     ]
   },
   {
-    "question": "How to delete a retained message from the broker?",
+    "question": "Как удалить retained сообщение из брокера?",
     "type": "single",
     "options": [
       {
-        "text": "Use a special mosquitto_clear command",
+        "text": "Перезапустить брокер Mosquitto",
         "correct": false,
-        "explanation": "No such command exists. Retained message deletion is via publishing an empty payload with retain=true."
+        "explanation": "Нет. Если включена persistence, retained сообщения переживут перезапуск. Нужно явно удалить через пустой payload."
       },
       {
-        "text": "Publish with retain=false and payload 'delete'",
+        "text": "Опубликовать с retain=false и payload 'delete'",
         "correct": false,
-        "explanation": "No. The word 'delete' is just a string. Deletion is via retain=true + empty payload."
+        "explanation": "Нет. Слово 'delete' — это просто строка. Удаление через retain=true + пустой payload."
       },
       {
-        "text": "Restart the Mosquitto broker",
+        "text": "Использовать специальную команду mosquitto_clear",
         "correct": false,
-        "explanation": "No. If persistence is enabled, retained messages survive a restart. You need to explicitly delete via empty payload."
+        "explanation": "Такой команды не существует. Удаление retained — через публикацию пустого payload с retain=true."
       },
       {
-        "text": "Publish with retain=true and empty payload to the same topic",
+        "text": "Опубликовать с retain=true и пустым payload в тот же топик",
         "correct": true,
-        "explanation": "Correct. Publishing retained with an empty payload (length 0) removes the stored retained message for that topic."
+        "explanation": "Правильно. Публикация retained с пустым payload (длина 0) удаляет сохранённое retained сообщение для этого топика."
       }
     ]
   },
   {
-    "question": "For LWT (Last Will and Testament), a developer wants maximum delivery reliability for the 'offline' message. Which QoS to use for will_qos?",
+    "question": "Для LWT (Last Will and Testament) разработчик хочет максимальную надёжность доставки сообщения 'offline'. Какой QoS использовать для will_qos?",
     "type": "single",
     "options": [
       {
         "text": "QoS 1",
         "correct": true,
-        "explanation": "Correct. QoS 1 guarantees delivery (at least once) and is much lighter than QoS 2. For an 'offline' LWT — ideal choice: reliable without excessive 4-step handshake."
-      },
-      {
-        "text": "QoS 0",
-        "correct": false,
-        "explanation": "QoS 0 doesn't guarantee delivery. LWT is a critical message about device unavailability. Losing it would break monitoring."
-      },
-      {
-        "text": "QoS doesn't matter for LWT",
-        "correct": false,
-        "explanation": "No, QoS for LWT is important — it determines the delivery guarantee of the will message to subscribers."
+        "explanation": "Правильно. QoS 1 гарантирует доставку (at least once) и значительно легче QoS 2. Для LWT 'offline' — идеальный выбор: надёжно и без избыточных 4-шаговых handshake."
       },
       {
         "text": "QoS 2",
         "correct": false,
-        "explanation": "QoS 2 is excessive for LWT. A 4-step handshake during abnormal disconnection creates extra load. QoS 1 is sufficient."
+        "explanation": "QoS 2 избыточен для LWT. 4-шаговый handshake при аварийном отключении создаёт лишнюю нагрузку. QoS 1 достаточен."
+      },
+      {
+        "text": "QoS не имеет значения для LWT",
+        "correct": false,
+        "explanation": "Нет, QoS для LWT важен — он определяет гарантию доставки will-сообщения подписчикам."
+      },
+      {
+        "text": "QoS 0",
+        "correct": false,
+        "explanation": "QoS 0 не гарантирует доставку. LWT — критически важное сообщение о недоступности устройства. Потеря его разрушит мониторинг."
       }
     ]
   }

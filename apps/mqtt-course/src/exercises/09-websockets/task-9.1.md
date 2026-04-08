@@ -1,49 +1,49 @@
-# Task 9.1: WebSocket Listener
+# Задание 9.1: WebSocket listener
 
-## Goal
+## Цель
 
-Configure Mosquitto to work over the WebSocket protocol so browsers can connect to the broker directly.
+Настроить Mosquitto для работы через WebSocket-протокол, чтобы браузеры могли подключаться к брокеру напрямую.
 
-## Requirements
+## Требования
 
-1. Add a second listener in `mosquitto.conf` with `protocol websockets` on port 9001
-2. Keep the main TCP listener (port 1883)
-3. Ensure authentication works for both listeners
-4. Verify Mosquitto starts without errors and port 9001 is open
-5. Test the WebSocket connection using a utility or browser console
+1. Добавить второй слушатель в `mosquitto.conf` с `protocol websockets` на порту 9001
+2. Основной TCP-слушатель (порт 1883) сохранить
+3. Убедиться, что аутентификация работает для обоих слушателей
+4. Проверить, что Mosquitto запускается без ошибок и порт 9001 открыт
+5. Протестировать WebSocket-подключение с помощью утилиты или браузерной консоли
 
-## Checklist
+## Чеклист
 
-- [ ] Two `listener` blocks in `mosquitto.conf`
-- [ ] Second listener has `protocol websockets`
-- [ ] `allow_anonymous false` applies to all listeners
-- [ ] Command `netstat -tlnp | grep 9001` shows open port
-- [ ] No errors in Mosquitto logs at startup
-- [ ] WebSocket connection established successfully (code 101)
+- [ ] В `mosquitto.conf` есть два блока `listener`
+- [ ] Второй listener имеет `protocol websockets`
+- [ ] `allow_anonymous false` применяется ко всем слушателям
+- [ ] Команда `netstat -tlnp | grep 9001` показывает открытый порт
+- [ ] В логах Mosquitto нет ошибок при старте
+- [ ] WebSocket-соединение успешно устанавливается (код 101)
 
-## How to verify
+## Как проверить себя
 
 ```bash
-# 1. Restart the broker:
+# 1. Перезапустить брокер:
 /etc/init.d/mosquitto restart
 
-# 2. Check the port:
+# 2. Проверить порт:
 netstat -tlnp | grep mosquitto
 
-# 3. Check startup log:
+# 3. Проверить лог старта:
 logread | grep mosquitto | tail -20
 
-# 4. Test WebSocket handshake (curl):
+# 4. Тест WebSocket handshake (curl):
 curl -v -N \
   -H "Upgrade: websocket" \
   -H "Connection: Upgrade" \
   -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" \
   -H "Sec-WebSocket-Version: 13" \
   http://192.168.1.1:9001/
-# Should get: HTTP/1.1 101 Switching Protocols
+# Должен получить: HTTP/1.1 101 Switching Protocols
 ```
 
-Minimal config to complete the task:
+Минимальный конфиг для выполнения:
 ```conf
 listener 1883
 protocol mqtt

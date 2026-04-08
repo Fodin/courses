@@ -1,50 +1,50 @@
-# Task 10.2: Monitoring Scripts
+# Задание 10.2: Скрипты мониторинга
 
-## Goal
+## Цель
 
-Create a shell script for OpenWRT that collects Mosquitto metrics and sends an alert if the broker is overloaded.
+Создать shell-скрипт для OpenWRT, который собирает метрики Mosquitto и отправляет алерт, если брокер перегружен.
 
-## Requirements
+## Требования
 
-1. Write a script `/usr/local/bin/mqtt-stats.sh` with a `get_metric()` function
-2. The script should output: clients, messages/received, heap/current, uptime, retained/count, messages/publish/dropped
-3. Add an alert threshold: if `clients > 50` — publish to `system/mqtt/alert`
-4. Add CSV logging: `/tmp/mqtt-metrics.csv` (timestamp + all metrics)
-5. Add the script to cron: run every 5 minutes
-6. Implement log rotation (no more than 1000 lines)
+1. Написать скрипт `/usr/local/bin/mqtt-stats.sh` с функцией `get_metric()`
+2. Скрипт должен выводить: clients, messages/received, heap/current, uptime, retained/count, messages/publish/dropped
+3. Добавить порог алерта: если `clients > 50` — публиковать в `system/mqtt/alert`
+4. Добавить запись в CSV: `/tmp/mqtt-metrics.csv` (timestamp + все метрики)
+5. Добавить скрипт в cron: запускать каждые 5 минут
+6. Реализовать ротацию лога (не более 1000 строк)
 
-## Checklist
+## Чеклист
 
-- [ ] Script is created and executable (`chmod +x`)
-- [ ] `get_metric()` function uses `-C 1 -W 5`
-- [ ] All 6 metrics are output on run
-- [ ] Alert is sent via `mosquitto_pub` when threshold is exceeded
-- [ ] CSV log writes to `/tmp/` (not flash)
-- [ ] Cron runs the script: `*/5 * * * * /usr/local/bin/mqtt-stats.sh`
-- [ ] Rotation implemented: `tail -1001 "$LOG" > ...`
+- [ ] Скрипт создан и исполняем (`chmod +x`)
+- [ ] Функция `get_metric()` использует `-C 1 -W 5`
+- [ ] Все 6 метрик выводятся при запуске
+- [ ] Алерт отправляется через `mosquitto_pub` при превышении порога
+- [ ] CSV-лог записывается в `/tmp/` (не в flash)
+- [ ] Cron запускает скрипт: `*/5 * * * * /usr/local/bin/mqtt-stats.sh`
+- [ ] Реализована ротация: `tail -1001 "$LOG" > ...`
 
-## How to verify
+## Как проверить себя
 
 ```bash
-# 1. Run the script manually:
+# 1. Запустить скрипт вручную:
 /usr/local/bin/mqtt-stats.sh
 
-# Expected output:
+# Ожидаемый вывод:
 # === Mosquitto Status ===
-# Clients connected: 3
-# Messages received:  1247
+# Клиентов подключено: 3
+# Сообщений получено:  1247
 # Heap memory:         524288 bytes
 # ...
 
-# 2. Check CSV:
+# 2. Проверить CSV:
 head -5 /tmp/mqtt-metrics.csv
 # timestamp,clients,msg_rx,msg_tx,heap,retained,dropped
 
-# 3. Check cron:
+# 3. Проверить cron:
 crontab -l | grep mqtt
 
-# 4. Simulate alert (connect 50+ clients or lower threshold for testing):
-# Change MAX_CLIENTS=1 and run — should publish an alert
+# 4. Симулировать алерт (подключить 50+ клиентов или изменить порог для теста):
+# Изменить MAX_CLIENTS=1 и запустить — должно опубликовать алерт
 mosquitto_sub -h localhost -u monitor -P monpass \
   -t 'system/mqtt/alert' -C 1 -W 10
 ```

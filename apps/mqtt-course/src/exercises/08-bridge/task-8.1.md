@@ -1,32 +1,32 @@
-# Task 8.1: MQTT Bridge Concept
+# Задание 8.1: Концепция MQTT Bridge
 
-## Goal
+## Цель
 
-Understand the MQTT Bridge architecture: how Mosquitto connects two brokers, when it's needed,
-and what topologies exist.
+Разобраться в архитектуре MQTT Bridge: как Mosquitto соединяет два брокера, когда это нужно
+и какие существуют топологии.
 
-## Requirements
+## Требования
 
-1. Create a component with three Bridge use-case scenarios:
-   - OpenWRT local network → Cloud (AWS IoT, HiveMQ Cloud, etc.)
-   - Two offices/sites via VPN or internet
-   - Hierarchy: multiple edge brokers → central broker
-2. For each scenario, show an ASCII data flow diagram
-3. Add an explanation of "how it works under the hood" (Mosquitto as MQTT client)
-4. For each scenario, list specific use cases (at least 3)
+1. Создайте компонент с тремя сценариями применения Bridge:
+   - Локальная сеть OpenWRT → Облако (AWS IoT, HiveMQ Cloud и т.д.)
+   - Два офиса/объекта через VPN или интернет
+   - Иерархия: несколько edge-брокеров → центральный брокер
+2. Для каждого сценария покажите ASCII-схему потока данных
+3. Добавьте объяснение "как работает под капотом" (Mosquitto как MQTT-клиент)
+4. Для каждого сценария перечислите конкретные сценарии использования (не менее 3)
 
-## Checklist
+## Чеклист
 
-- [ ] Three use-case scenarios with toggle buttons
-- [ ] ASCII diagram for each scenario
-- [ ] Description of the mechanism (one broker as client of another)
-- [ ] List of use cases (3+ for each)
-- [ ] Information block explaining the concept at the top of the component
+- [ ] Три сценария применения с кнопками переключения
+- [ ] ASCII-схема для каждого сценария
+- [ ] Описание механизма работы (один брокер как клиент другого)
+- [ ] Список сценариев использования (3+ для каждого)
+- [ ] Информационный блок с объяснением концепции в начале компонента
 
-## How to verify
+## Как проверить себя
 
-1. Check your understanding: can you explain why IoT devices don't know
-   about the cloud when using a Bridge?
-2. In which direction (in/out) should the Bridge be configured to receive commands from the cloud
-   to local devices?
-3. How does Bridge differ from simply opening port 1883 to the internet?
+1. Проверьте своё понимание: сможете ли вы объяснить, почему IoT-устройства не знают
+   об облаке при использовании Bridge?
+2. В каком направлении (in/out) нужно настроить Bridge, чтобы получить команды из облака
+   на локальные устройства?
+3. Чем Bridge отличается от простого открытия порта 1883 в интернет?

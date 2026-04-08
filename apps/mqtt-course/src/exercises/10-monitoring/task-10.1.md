@@ -1,45 +1,45 @@
-# Task 10.1: Broker $SYS Topics
+# Задание 10.1: $SYS топики брокера
 
-## Goal
+## Цель
 
-Study Mosquitto's built-in metrics system via $SYS topics and learn to retrieve real-time broker state data.
+Изучить встроенную систему метрик Mosquitto через $SYS-топики и научиться получать данные о состоянии брокера в реальном времени.
 
-## Requirements
+## Требования
 
-1. Subscribe to all $SYS topics with `mosquitto_sub -t '$SYS/#' -v`
-2. Find and record current values for 6 key metrics: connected, messages/received, heap/current, uptime, subscriptions/count, retained/count
-3. Ensure user `monitor` has permission to read `$SYS/#` via ACL
-4. Set `sys_interval 30` in mosquitto.conf (reduce publish frequency)
-5. Write a command that gets exactly one value from a specific topic and exits
+1. Подписаться на все $SYS-топики командой `mosquitto_sub -t '$SYS/#' -v`
+2. Найти и записать текущие значения 6 ключевых метрик: connected, messages/received, heap/current, uptime, subscriptions/count, retained/count
+3. Убедиться, что пользователь `monitor` имеет право читать `$SYS/#` через ACL
+4. Настроить `sys_interval 30` в mosquitto.conf (снизить частоту публикации)
+5. Написать команду, которая получает ровно одно значение конкретного топика и выходит
 
-## Checklist
+## Чеклист
 
-- [ ] Command `mosquitto_sub -t '$SYS/#' -v` returns metrics
-- [ ] ACL has `topic read $SYS/#` for user monitor
-- [ ] `sys_interval 30` is set in mosquitto.conf
-- [ ] Command `mosquitto_sub -t '$SYS/broker/clients/connected' -C 1 -W 5` works
-- [ ] Values for all 6 metrics are recorded
+- [ ] Команда `mosquitto_sub -t '$SYS/#' -v` выдаёт метрики
+- [ ] В ACL прописано `topic read $SYS/#` для пользователя monitor
+- [ ] `sys_interval 30` установлен в mosquitto.conf
+- [ ] Команда `mosquitto_sub -t '$SYS/broker/clients/connected' -C 1 -W 5` работает
+- [ ] Записаны значения всех 6 метрик
 
-## How to verify
+## Как проверить себя
 
 ```bash
-# 1. Get connected client count:
+# 1. Получить количество подключённых клиентов:
 mosquitto_sub -h localhost -u monitor -P monpass \
   -t '$SYS/broker/clients/connected' -C 1 -W 5
 
-# 2. Get all metrics at once:
+# 2. Получить все метрики разом:
 mosquitto_sub -h localhost -u monitor -P monpass \
   -t '$SYS/#' -v -W 15
 
-# 3. Filter only heap metrics:
+# 3. Отфильтровать только heap-метрики:
 mosquitto_sub -h localhost -u monitor -P monpass \
   -t '$SYS/broker/heap/#' -v -W 10
 
-# 4. Check sys_interval:
+# 4. Проверить sys_interval:
 grep sys_interval /etc/mosquitto/mosquitto.conf
 ```
 
-Expected output:
+Ожидаемый вывод:
 ```
 $SYS/broker/clients/connected 3
 $SYS/broker/messages/received 1247

@@ -1,38 +1,38 @@
-# Task 3.3: System Topics $SYS
+# Задание 3.3: Системные топики $SYS
 
-## Goal
+## Цель
 
-Study Mosquitto system topics ($SYS) for broker monitoring. Know where to find information about clients, messages, traffic, and load.
+Изучить системные топики Mosquitto ($SYS) для мониторинга брокера. Знать, где найти информацию о клиентах, сообщениях, трафике и нагрузке.
 
-## Requirements
+## Требования
 
-1. Open the $SYS topics reference in the component
-2. Find topics for monitoring the number of connected clients
-3. Identify topics for tracking traffic in bytes
-4. Find load topics (moving average over 1/5/15 minutes)
-5. Click on several topics — copy the commands and study their format
+1. Откройте справочник $SYS топиков в компоненте
+2. Найдите топики для мониторинга количества подключённых клиентов
+3. Определите топики для отслеживания трафика в байтах
+4. Найдите топики с нагрузкой (скользящее среднее за 1/5/15 минут)
+5. Нажмите на несколько топиков — скопируйте команды и изучите их формат
 
-## Checklist
+## Чеклист
 
-- [ ] Know the topic for the current number of connected clients
-- [ ] Know the topic for the total number of sent messages
-- [ ] Understood the difference between `messages/sent` and `publish/messages/sent`
-- [ ] Found load topics and understood the meaning of 1min/5min/15min
-- [ ] Understood why single quotes are needed in the shell when working with `$SYS`
+- [ ] Знаю топик для текущего количества подключённых клиентов
+- [ ] Знаю топик для общего числа отправленных сообщений
+- [ ] Понял разницу между `messages/sent` и `publish/messages/sent`
+- [ ] Нашёл топики нагрузки (load) и понял смысл 1min/5min/15min
+- [ ] Понял, почему нужны одинарные кавычки в shell при работе с `$SYS`
 
-## How to Check Yourself
+## Как проверить себя
 
-On a real or training broker, run:
+На реальном или учебном брокере выполните:
 ```bash
-# Subscribe to all system topics
+# Подписаться на все системные топики
 mosquitto_sub -v -t '$SYS/#'
 
-# After 10 seconds, check the values:
-# - How many clients are connected?
-# - How many messages have been sent?
-# - What is the load over the last minute?
+# Через 10 секунд посмотреть значения:
+# - Сколько клиентов подключено?
+# - Сколько сообщений отправлено?
+# - Какова нагрузка за последнюю минуту?
 ```
 
-If there's no broker, explain: what is the `sys_interval` parameter in `mosquitto.conf` for?
+Если брокера нет, объясните: зачем нужен параметр `sys_interval` в `mosquitto.conf`?
 
-Answer: `sys_interval` sets the frequency of $SYS topic publication in seconds. `sys_interval 0` disables publication.
+Ответ: `sys_interval` задаёт частоту публикации $SYS топиков в секундах. `sys_interval 0` отключает публикацию.

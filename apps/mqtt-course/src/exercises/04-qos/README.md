@@ -1,50 +1,50 @@
-# Level 4: QoS and Delivery
+# Уровень 4: QoS и доставка
 
-## What is QoS?
+## Что такое QoS?
 
-QoS (Quality of Service) — the level of message delivery guarantee. Imagine three ways to send an important letter:
+QoS (Quality of Service) — уровень гарантии доставки сообщения. Представьте три способа отправить важное письмо:
 
-- **QoS 0** — drop it in the mailbox and forget. Will it arrive? Most likely. Definitely? No.
-- **QoS 1** — send with delivery confirmation. May be delivered twice (if the confirmation was lost).
-- **QoS 2** — notarized delivery. Exactly once, guaranteed.
+- **QoS 0** — бросить в почтовый ящик и забыть. Доставят? Скорее всего да. Точно? Нет.
+- **QoS 1** — отправить с уведомлением о доставке. Могут доставить дважды (если подтверждение потерялось).
+- **QoS 2** — нотариально заверенная передача. Ровно один раз, гарантированно.
 
-## QoS 0 — At most once
+## QoS 0 — At most once (не более одного раза)
 
 ```
 Publisher → PUBLISH → Broker → PUBLISH → Subscriber
 ```
 
-The lightest mode. No confirmations, no retries. Suitable for data where loss is non-critical: temperature readings, GPS coordinates, real-time monitoring.
+Самый лёгкий режим. Нет подтверждений, нет повторных попыток. Подходит для данных, где потеря некритична: показания температуры, координаты GPS, мониторинг в реальном времени.
 
 ```bash
 mosquitto_pub -q 0 -t 'home/temp' -m '22.5'
 ```
 
-## QoS 1 — At least once
+## QoS 1 — At least once (не менее одного раза)
 
 ```
 Publisher → PUBLISH     → Broker
 Publisher ← PUBACK      ← Broker
 ```
 
-The broker confirms receipt via `PUBACK`. If the confirmation doesn't arrive — the publisher retries. The subscriber may receive duplicates.
+Брокер подтверждает получение через `PUBACK`. Если подтверждение не пришло — издатель повторит. Подписчик может получить дубликаты.
 
 ```bash
 mosquitto_pub -q 1 -t 'alarm/door' -m 'opened'
 ```
 
-📌 Messages with QoS 1 are stored in the queue while the subscriber is offline (if it has a persistent session).
+📌 Сообщения с QoS 1 сохраняются в очереди пока подписчик недоступен (если у него persistent session).
 
-## QoS 2 — Exactly once
+## QoS 2 — Exactly once (ровно один раз)
 
 ```
-Publisher → PUBLISH  → Broker  (stored)
-Publisher ← PUBREC   ← Broker  (received)
-Publisher → PUBREL   → Broker  (release)
-Publisher ← PUBCOMP  ← Broker  (complete)
+Publisher → PUBLISH  → Broker  (сохранил)
+Publisher ← PUBREC   ← Broker  (получено)
+Publisher → PUBREL   → Broker  (освободи)
+Publisher ← PUBCOMP  ← Broker  (готово)
 ```
 
-Four steps guarantee exactly-once delivery. The slowest and heaviest mode. Use for financial operations, execution commands, critical alerts.
+Четыре шага гарантируют ровно одну доставку. Самый медленный и тяжёлый режим. Используйте для финансовых операций, команд исполнения, критических алертов.
 
 ```bash
 mosquitto_pub -q 2 -t 'valve/cmd' -m 'close'
@@ -52,50 +52,50 @@ mosquitto_pub -q 2 -t 'valve/cmd' -m 'close'
 
 ## Retained Messages
 
-A retained message is a message the broker stores and immediately delivers to new subscribers.
+Retained message — сообщение, которое брокер сохраняет и немедленно отдаёт новым подписчикам.
 
-Imagine an information board at a station: when you approach, you immediately see the current schedule — you don't wait for the next update.
+Представьте информационное табло на вокзале: когда вы подходите, вы сразу видите текущее расписание — не ждёте следующего обновления.
 
 ```bash
-# Publish with retained flag
+# Опубликовать с флагом retained
 mosquitto_pub -r -t 'home/temp' -m '22.5'
 
-# New subscriber immediately receives "22.5"
+# Новый подписчик сразу получит "22.5"
 mosquitto_sub -t 'home/temp'
 
-# Delete retained message
-mosquitto_pub -r -t 'home/temp' -m ''  # empty payload
+# Удалить retained message
+mosquitto_pub -r -t 'home/temp' -m ''  # пустой payload
 ```
 
-Setting in `mosquitto.conf`:
+Настройка в `mosquitto.conf`:
 ```
-retain_available true   # enabled by default
+retain_available true   # включено по умолчанию
 max_inflight_messages 20
 ```
 
 ## Last Will and Testament (LWT)
 
-LWT — a message the broker will automatically send if a client disconnects improperly (connection drop, crash, power loss).
+LWT — сообщение, которое брокер отправит автоматически, если клиент отключится некорректно (обрыв соединения, краш, потеря питания).
 
-Analogy: a will. When connecting, the client tells the broker: "If I disappear — send this message to this topic."
+Аналогия: завещание. Клиент при подключении говорит брокеру: «Если я вдруг пропаду — отправь вот это сообщение на вот этот топик».
 
 ```bash
-# Connect with LWT (via client library)
-# On disconnect the broker sends: device/esp32/status → "offline"
+# Подключиться с LWT (через клиентскую библиотеку)
+# При обрыве брокер отправит: device/esp32/status → "offline"
 mosquitto_sub -t 'device/+/status' \
   --will-topic 'monitor/lwt' \
   --will-payload 'monitor disconnected' \
   --will-qos 1
 ```
 
-Typical usage: `device/{id}/status` → `online` on connect, LWT → `offline` on disconnect.
+Типичное использование: `device/{id}/status` → `online` при подключении, LWT → `offline` при разрыве.
 
-## ⚠️ Common Mistakes
+## ⚠️ Частые ошибки
 
-❌ **QoS 2 everywhere "for reliability"** — slows down 4× compared to QoS 0. On a slow OpenWRT link this is critical.
+❌ **QoS 2 везде "для надёжности"** — замедляет работу в 4× по сравнению с QoS 0. На медленном канале OpenWRT это критично.
 
-❌ **Retained + QoS 0 for critical data** — the message will be stored, but may be lost during delivery.
+❌ **Retained + QoS 0 для критических данных** — сообщение сохранится, но при доставке может потеряться.
 
-❌ **Not clearing retained messages** — the old value will be given to new subscribers forever. Delete with an empty payload.
+❌ **Не очищать retained** — старое значение будет выдаваться новым подписчикам бесконечно. Удаляйте пустым payload.
 
-❌ **LWT with QoS 0** — the "crash" message may not arrive. Use QoS 1 for LWT.
+❌ **LWT с QoS 0** — сообщение о "падении" может не дойти. Используйте QoS 1 для LWT.

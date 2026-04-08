@@ -1,37 +1,37 @@
-# Level 12: MQTT Security on OpenWRT
+# Уровень 12: Безопасность MQTT на OpenWRT
 
-## Why this matters
+## Зачем это важно
 
-MQTT without protection is an open door to your IoT network. An attacker can:
-- Read all messages (temperature, lock states, cameras)
-- Publish fake data (turn off heating, unlock doors)
-- Block the broker via DoS
+MQTT без защиты — открытая дверь в IoT-сеть. Атакующий может:
+- Читать все сообщения (температура, состояние замков, камеры)
+- Публиковать фейковые данные (отключить отопление, открыть замок)
+- Заблокировать брокер через DoS
 
-## Threat model
+## Модель угроз
 
 ```mermaid
 graph LR
-  Internet[Internet] -->|port scanning| Router
-  Router -->|port 1883 open?| Mosquitto
-  Attacker -->|password bruteforce| Mosquitto
+  Internet[Интернет] -->|сканирование портов| Router
+  Router -->|порт 1883 открыт?| Mosquitto
+  Attacker -->|брутфорс паролей| Mosquitto
   Attacker -->|oversized message| Mosquitto
-  Mosquitto -->|no ACL| AllTopics[All topics]
+  Mosquitto -->|без ACL| AllTopics[Все топики]
 ```
 
-## Firewall: first line of defense
+## Firewall: первый рубеж
 
-By default, OpenWRT blocks incoming WAN traffic. Make sure port 1883 is not open:
+По умолчанию OpenWRT блокирует входящий WAN-трафик. Убедитесь, что порт 1883 не открыт:
 
 ```bash
-# Check open ports:
-nmap -p 1883,8883,9001 <your-external-IP>
-# All should be filtered or closed
+# Проверить открытые порты:
+nmap -p 1883,8883,9001 <ваш-внешний-IP>
+# Все должны быть filtered или closed
 ```
 
-If external access is needed — use only VPN or TLS:
+Если нужен доступ снаружи — только через VPN или с TLS:
 
 ```bash
-# Allow only for LAN via UCI:
+# Открыть только для LAN через UCI:
 uci add firewall rule
 uci set firewall.@rule[-1].name='Block-MQTT-WAN'
 uci set firewall.@rule[-1].src='wan'
@@ -44,54 +44,54 @@ uci commit firewall && /etc/init.d/firewall restart
 ## Rate limiting
 
 ```bash
-# No more than 5 new connections per minute from a single IP:
+# Не более 5 новых подключений в минуту с одного IP:
 iptables -A INPUT -p tcp --dport 1883 --syn \
   -m recent --name mqtt --update --seconds 60 --hitcount 5 -j DROP
 iptables -A INPUT -p tcp --dport 1883 --syn \
   -m recent --name mqtt --set -j ACCEPT
 ```
 
-## Mosquitto-level protection
+## Защита на уровне Mosquitto
 
 ```conf
-# Limits (DoS protection):
+# Лимиты (защита от DoS):
 max_connections 50
 message_size_limit 4096
 max_queued_messages 100
 memory_limit 25000000
 
-# Authentication:
+# Аутентификация:
 allow_anonymous false
 password_file /etc/mosquitto/passwd
-acl_file /etc/mqosquitto/acl
+acl_file /etc/mosquitto/acl
 
-# Bind to LAN only:
+# Bind только на LAN:
 listener 1883
 bind_address 192.168.1.1
 ```
 
-## Security checklist (minimum)
+## Чеклист безопасности (минимум)
 
-| # | Item | Criticality |
+| # | Пункт | Критичность |
 |---|---|---|
-| 1 | `allow_anonymous false` | CRITICAL |
-| 2 | Port 1883 blocked from WAN | CRITICAL |
-| 3 | TLS enabled (port 8883) | CRITICAL |
-| 4 | ACL configured | High |
-| 5 | `max_connections` set | High |
-| 6 | `message_size_limit` set | Medium |
-| 7 | Rate limiting via iptables | Medium |
-| 8 | Connection monitoring | Low |
+| 1 | `allow_anonymous false` | КРИТИЧНО |
+| 2 | Порт 1883 закрыт от WAN | КРИТИЧНО |
+| 3 | TLS включён (порт 8883) | КРИТИЧНО |
+| 4 | ACL настроен | Высокая |
+| 5 | `max_connections` задан | Высокая |
+| 6 | `message_size_limit` задан | Средняя |
+| 7 | Rate limiting через iptables | Средняя |
+| 8 | Мониторинг подключений | Низкая |
 
-## Attack detection
+## Обнаружение атак
 
 ```bash
-# Watch failed connection attempts:
+# Смотреть неудачные подключения:
 logread | grep -E "auth|password|refused"
 
-# Active connections:
+# Активные подключения:
 netstat -tnp | grep :1883
 
-# Connection count per IP:
+# Количество соединений с одного IP:
 netstat -tn | grep :1883 | awk '{print $5}' | cut -d: -f1 | sort | uniq -c | sort -rn
 ```

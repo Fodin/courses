@@ -1,60 +1,60 @@
-# Level 0: Introduction to MQTT
+# Уровень 0: Введение в MQTT
 
-## What is MQTT and Why It's Needed
+## Что такое MQTT и зачем он нужен
 
-Imagine a post office with a bulletin board. The sender attaches a note with a topic ("weather/street"), and everyone subscribed to that topic receives it — without knowing about each other. That's MQTT.
+Представь почту с доской объявлений. Отправитель прикрепляет записку с темой ("погода/улица"), и все, кто подписан на эту тему, её получают — не зная друг о друге. Это и есть MQTT.
 
-**MQTT** (Message Queuing Telemetry Transport) is a lightweight messaging protocol for resource-constrained devices. Developed by IBM in 1999 for monitoring oil pipelines via satellite links with high latency and low bandwidth.
+**MQTT** (Message Queuing Telemetry Transport) — это лёгкий протокол передачи сообщений для устройств с ограниченными ресурсами. Разработан IBM в 1999 году для мониторинга нефтепроводов через спутниковые каналы с высокой задержкой и малой пропускной способностью.
 
-Today MQTT is the de facto standard for IoT (smart home, industrial automation, telematics).
+Сегодня MQTT — стандарт де-факто для IoT (умный дом, промышленная автоматизация, телематика).
 
 ```mermaid
 graph LR
-    A[Temperature\nSensor] -->|PUBLISH| B[Mosquitto\nBroker]
-    C[Door\nSensor] -->|PUBLISH| B
-    B -->|DELIVER| D[Web\nDashboard]
-    B -->|DELIVER| E[Automation]
-    B -->|DELIVER| F[Logger]
+    A[Датчик\nтемпературы] -->|PUBLISH| B[Mosquitto\nBroker]
+    C[Датчик\nдвери] -->|PUBLISH| B
+    B -->|DELIVER| D[Веб-дашборд]
+    B -->|DELIVER| E[Автоматизация]
+    B -->|DELIVER| F[Логгер]
 ```
 
 ---
 
-## The Pub/Sub Model
+## Модель pub/sub
 
-MQTT uses the **publish/subscribe** pattern — unlike HTTP, where the client explicitly requests data.
+MQTT использует паттерн **publish/subscribe** — в отличие от HTTP, где клиент сам запрашивает данные.
 
-| Role | What it does |
-|------|-------------|
-| **Publisher** | Publishes a message to a topic |
-| **Broker** | Routes messages from publishers to subscribers |
-| **Subscriber** | Subscribes to topics and receives messages |
+| Роль | Что делает |
+|------|-----------|
+| **Publisher** | Публикует сообщение в топик |
+| **Broker** | Маршрутизирует сообщения от publishers к subscribers |
+| **Subscriber** | Подписывается на топики и получает сообщения |
 
-💡 Key point: the publisher doesn't know who will receive the message. The subscriber doesn't know who sent it. The broker is the sole intermediary.
+💡 Ключевой момент: publisher не знает, кто получит сообщение. Subscriber не знает, кто его отправил. Брокер — единственный посредник.
 
 ---
 
-## MQTT Message Structure
+## Структура MQTT-сообщения
 
 ```
-MQTT packet = Fixed Header (2 bytes) + Variable Header + Payload
+MQTT packet = Fixed Header (2 байта) + Variable Header + Payload
 
-Minimal PUBLISH packet:
-  [0x30] [length] [topic length] [topic] [payload]
+Минимальный пакет PUBLISH:
+  [0x30] [длина] [длина топика] [топик] [payload]
 
-Example:
+Пример:
   topic:   "home/sensor/temperature"
   payload: "23.5"
   QoS:     0
   retain:  false
 ```
 
-📌 The fixed header size is **only 2 bytes**. For comparison, HTTP headers take 200–800 bytes.
+📌 Размер фиксированного заголовка — **всего 2 байта**. Для сравнения, HTTP-заголовки занимают 200–800 байт.
 
 ---
 
-## Topics and Hierarchy
+## Топики и иерархия
 
-A topic is a slash-separated string, like a file system path:
+Топик — это строка, разделённая слэшами, как путь в файловой системе:
 
 ```
 home/living_room/temperature
@@ -63,48 +63,48 @@ home/bedroom/light/status
 factory/line1/machine3/rpm
 ```
 
-Wildcards for subscriptions:
-- `+` — single level: `home/+/temperature` matches `home/bedroom/temperature`
-- `#` — all levels below: `home/#` matches everything under `home/`
+Wildcards при подписке:
+- `+` — один уровень: `home/+/temperature` матчит `home/bedroom/temperature`
+- `#` — все уровни ниже: `home/#` матчит всё внутри `home/`
 
 ---
 
-## MQTT vs Other Protocols
+## MQTT vs другие протоколы
 
-| Criterion | MQTT | HTTP | WebSocket | AMQP |
+| Критерий | MQTT | HTTP | WebSocket | AMQP |
 |---------|------|------|-----------|------|
-| Overhead | 2 bytes | 200–800 bytes | Small (after handshake) | Medium |
-| Server push | ✅ yes | ❌ polling only | ✅ yes | ✅ yes |
-| Requires broker | ✅ yes | ❌ no | ❌ no | ✅ yes |
-| QoS | 3 levels | ❌ no | ❌ no | ACK/transactions |
-| IoT suitability | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ |
+| Overhead | 2 байта | 200–800 байт | Малый (после handshake) | Средний |
+| Push от сервера | ✅ да | ❌ только polling | ✅ да | ✅ да |
+| Нужен брокер | ✅ да | ❌ нет | ❌ нет | ✅ да |
+| QoS | 3 уровня | ❌ нет | ❌ нет | ACK/транзакции |
+| IoT-пригодность | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐ |
 
 ---
 
-## Protocol Versions
+## Версии протокола
 
-- **MQTT 3.1.1** (2014) — the most widespread version, supported by all devices
-- **MQTT 5.0** (2019) — adds: properties (metadata), reason codes, session expiry, shared subscriptions, request/response pattern
+- **MQTT 3.1.1** (2014) — самая распространённая версия, поддерживается всеми устройствами
+- **MQTT 5.0** (2019) — добавляет: properties (метаданные), reason codes, session expiry, shared subscriptions, request/response pattern
 
-Mosquitto 2.x supports both protocols simultaneously.
+Mosquitto 2.x поддерживает оба протокола одновременно.
 
 ---
 
-## ⚠️ Common Beginner Mistakes
+## ⚠️ Частые ошибки новичков
 
-**❌ Thinking MQTT = task queue**
+**❌ Думать, что MQTT = очередь задач**
 ```
-# Wrong understanding: "the broker stores all messages"
-# Actually: without retain flag, messages are not stored!
+# Неверное понимание: "брокер хранит все сообщения"
+# На самом деле: без retain flag сообщения не хранятся!
 ```
-✅ The broker is a router, not a permanent storage. Retained message = only the last value.
+✅ Брокер — маршрутизатор, а не постоянное хранилище. Retained message = только одно последнее значение.
 
-**❌ Starting topics with a slash**
+**❌ Топики начинать со слэша**
 ```
-# Bad:
+# Плохо:
 /home/sensor/temperature
 
-# Good:
+# Хорошо:
 home/sensor/temperature
 ```
-✅ A leading slash creates an empty first level — it's redundant and breaks standard wildcards.
+✅ Ведущий слэш создаёт пустой первый уровень — избыточно и ломает стандартные wildcards.

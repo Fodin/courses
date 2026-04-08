@@ -1,49 +1,49 @@
-# Task 4.3: Last Will and Testament
+# Задание 4.3: Last Will and Testament
 
-## Goal
+## Цель
 
-Master the LWT (Last Will and Testament) mechanism — automatic notification of client drop. Learn to configure the Online/Offline pattern for IoT devices.
+Освоить механизм LWT (Last Will and Testament) — автоматическое уведомление о падении клиента. Научиться настраивать паттерн Online/Offline для IoT-устройств.
 
-## Requirements
+## Требования
 
-1. Study the list of devices with configured LWT
-2. Simulate an emergency disconnect (crash) for device esp32-01
-3. Verify in the log: the broker automatically sent the LWT message
-4. Simulate a normal disconnect (DISCONNECT) — LWT should not be sent
-5. Reconnect the device and see how it publishes "online"
+1. Изучите список устройств с настроенным LWT
+2. Симулируйте аварийное отключение (краш) для устройства esp32-01
+3. Убедитесь в логе: брокер автоматически отправил LWT сообщение
+4. Симулируйте нормальное отключение (DISCONNECT) — LWT не должен отправиться
+5. Переподключите устройство и посмотрите, как оно публикует "online"
 
-## Checklist
+## Чеклист
 
-- [ ] Understood the difference between a crash disconnect and DISCONNECT
-- [ ] Saw that on DISCONNECT the broker does NOT send LWT
-- [ ] Know the Online/Offline pattern: will_set → connect → publish "online"
-- [ ] Understood why LWT should use retain=true
-- [ ] Know why QoS 1 is recommended for LWT, not 0
+- [ ] Понял разницу между краш-отключением и DISCONNECT
+- [ ] Видел, что при DISCONNECT брокер НЕ отправляет LWT
+- [ ] Знаю паттерн Online/Offline: will_set → connect → publish "online"
+- [ ] Понял, зачем LWT использовать с retain=true
+- [ ] Знаю, почему для LWT рекомендуется QoS 1, а не 0
 
-## How to Check Yourself
+## Как проверить себя
 
-Write pseudocode for configuring LWT for a device with the Online/Offline pattern:
+Напишите псевдокод настройки LWT для устройства с паттерном Online/Offline:
 
 ```python
 client = mqtt.Client(client_id='sensor-01')
 
-# 1. Set Last Will (before connect!)
+# 1. Задать Last Will (до connect!)
 client.will_set(
-    topic=___,      # status topic
-    payload=___,    # what to send on crash
-    qos=___,        # which QoS? why?
-    retain=___      # need retain? why?
+    topic=___,      # топик для статуса
+    payload=___,    # что отправить при краше
+    qos=___,        # какой QoS? почему?
+    retain=___      # нужен ли retain? зачем?
 )
 
-# 2. Connect
+# 2. Подключиться
 client.connect('192.168.1.1', 1883)
 
-# 3. Report readiness
+# 3. Сообщить о готовности
 client.publish(
-    topic=___,      # same topic
+    topic=___,      # тот же топик
     payload=___,    # "online"
-    retain=___      # need retain?
+    retain=___      # нужен ли retain?
 )
 ```
 
-Answer: topic `device/sensor-01/status`, LWT payload `offline`, QoS 1 (to ensure delivery), retain True (so new subscribers know the status immediately).
+Ответ: топик `device/sensor-01/status`, LWT payload `offline`, QoS 1 (чтобы дошло), retain True (чтобы новые подписчики знали статус сразу).

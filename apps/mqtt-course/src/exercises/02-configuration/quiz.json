@@ -1,157 +1,162 @@
 [
   {
-    "question": "In Mosquitto 2.x, the allow_anonymous parameter is specified BEFORE the first listener. How is it applied?",
+    "question": "В Mosquitto 2.x параметр allow_anonymous указан ДО первого listener. Как он применяется?",
     "type": "single",
     "options": [
       {
-        "text": "Causes a configuration error in Mosquitto 2.x",
+        "text": "Вызывает ошибку конфигурации в Mosquitto 2.x",
         "correct": false,
-        "explanation": "There's no error — this is valid syntax. The global allow_anonymous works as a default for all listeners."
+        "explanation": "Ошибки нет — это корректный синтаксис. Глобальный allow_anonymous работает как умолчание для всех listener-ов."
       },
       {
-        "text": "Ignored in Mosquitto 2.x — must be specified inside listener",
+        "text": "Применяется только к первому listener",
         "correct": false,
-        "explanation": "It's not ignored — it's applied as a default. But best practice is to explicitly specify allow_anonymous inside each listener for readability and config predictability."
+        "explanation": "Параметр до первого listener — глобальное умолчание для ВСЕХ listener-ов. Если нужно разное поведение — указывай allow_anonymous внутри каждого listener-блока."
       },
       {
-        "text": "Applied to all listeners as the default value",
+        "text": "Игнорируется в Mosquitto 2.x — нужно указывать внутри listener",
+        "correct": false,
+        "explanation": "Он не игнорируется — применяется как умолчание. Но лучшая практика — явно указывать allow_anonymous внутри каждого listener для читаемости и предсказуемости конфига."
+      },
+      {
+        "text": "Применяется ко всем listener-ам как значение по умолчанию",
         "correct": true,
-        "explanation": "In Mosquitto 2.x, security parameters before the first listener become global defaults for all listeners. Each listener can override this value with its own allow_anonymous."
-      },
-      {
-        "text": "Applied only to the first listener",
-        "correct": false,
-        "explanation": "The parameter before the first listener is a global default for ALL listeners. If you need different behavior, specify allow_anonymous inside each listener block."
+        "explanation": "В Mosquitto 2.x параметры безопасности до первого listener становятся глобальными умолчаниями для всех listener-ов. Каждый listener может переопределить это значение своим own allow_anonymous."
       }
     ]
   },
   {
-    "question": "What changed in the configuration syntax when migrating from Mosquitto 1.x to 2.x?",
+    "question": "Что изменилось в синтаксисе конфигурации при переходе с Mosquitto 1.x на 2.x?",
     "type": "multiple",
     "options": [
       {
-        "text": "allow_anonymous is now false by default (was true)",
+        "text": "Параметры port и bind_address теперь работают только внутри блока listener",
         "correct": true,
-        "explanation": "Breaking change in v2.0: anonymous access is denied by default. v1.x configs without explicit allow_anonymous stop working after the update."
+        "explanation": "В v1.x port и bind_address были глобальными. В v2.x они стали частью listener-синтаксиса: listener 1883 192.168.1.1 (порт и адрес в одной строке)."
       },
       {
-        "text": "port and bind_address parameters now work only inside a listener block",
+        "text": "Формат файла паролей изменился на JSON",
+        "correct": false,
+        "explanation": "Формат файла паролей остался прежним (username:hashed_password). Изменился алгоритм хеширования (PBKDF2-SHA512 вместо SHA1), но не формат файла."
+      },
+      {
+        "text": "Данный подход устарел и больше не используется",
+        "correct": false,
+        "explanation": "Этот подход активно применяется в современных системах."
+      },
+      {
+        "text": "TLS-параметры (cafile, certfile, keyfile) теперь указываются внутри listener",
         "correct": true,
-        "explanation": "In v1.x, port and bind_address were global. In v2.x, they became part of listener syntax: listener 1883 192.168.1.1 (port and address on one line)."
+        "explanation": "В v1.x TLS-параметры могли быть глобальными. В v2.x они должны быть внутри конкретного listener — это логично, т.к. разные listener-ы могут иметь разные сертификаты."
       },
       {
-        "text": "TLS parameters (cafile, certfile, keyfile) are now specified inside listener",
-        "correct": false,
-        "explanation": "In v1.x, TLS parameters could be global. In v2.x, they must be inside a specific listener — logical since different listeners can have different certificates."
-      },
-      {
-        "text": "Password file format changed to JSON",
-        "correct": false,
-        "explanation": "The password file format remains the same (username:hashed_password). The hashing algorithm changed (PBKDF2-SHA512 instead of SHA1), but not the file format."
+        "text": "allow_anonymous теперь false по умолчанию (был true)",
+        "correct": true,
+        "explanation": "Breaking change в v2.0: анонимный доступ запрещён по умолчанию. Конфиги v1.x, не имеющие явного allow_anonymous, перестают работать после обновления."
       }
     ]
   },
   {
-    "question": "Which log_dest is recommended for OpenWRT and why?",
+    "question": "Какой log_dest рекомендуется использовать на OpenWRT и почему?",
     "type": "single",
     "options": [
       {
-        "text": "syslog — integrates with system journal, readable via logread",
+        "text": "topic — публикация логов в $SYS/broker/log для мониторинга",
+        "correct": false,
+        "explanation": "Публикация логов в топик создаёт рекурсивную нагрузку: каждый лог-запрос генерирует MQTT-сообщение, что само генерирует лог. Для мониторинга используй $SYS-топики напрямую."
+      },
+      {
+        "text": "stdout — удобно видеть логи в реальном времени",
+        "correct": false,
+        "explanation": "stdout полезен при ручном запуске для отладки. В продакшне сервис запускается через init.d и stdout теряется. Для постоянной работы — syslog."
+      },
+      {
+        "text": "syslog — интегрируется с системным журналом, читается через logread",
         "correct": true,
-        "explanation": "syslog is the standard logging mechanism for OpenWRT. Logs are available via logread, don't require a separate file, and are automatically rotated by the system. Ideal for embedded devices."
+        "explanation": "syslog — стандартный механизм логирования OpenWRT. Логи доступны через logread, не требуют отдельного файла, автоматически ротируются системой. Идеально для встраиваемых устройств."
       },
       {
-        "text": "topic — publish logs to $SYS/broker/log for monitoring",
+        "text": "file /var/log/mosquitto.log — стандартный путь для логов в Linux",
         "correct": false,
-        "explanation": "Publishing logs to a topic creates recursive load: each log query generates an MQTT message, which itself generates a log. For monitoring, use $SYS topics directly."
-      },
-      {
-        "text": "stdout — convenient for seeing logs in real time",
-        "correct": false,
-        "explanation": "stdout is useful for manual debugging runs. In production, the service is launched via init.d and stdout is lost. For continuous operation — syslog."
-      },
-      {
-        "text": "file /var/log/mosquitto.log — standard Linux log path",
-        "correct": false,
-        "explanation": "/var/log/ in OpenWRT is stored on flash. Continuous log writing wears out flash memory. If you need file logging, use /tmp/mosquitto.log (tmpfs)."
+        "explanation": "/var/log/ в OpenWRT хранится на flash. Постоянная запись логов изнашивает flash-память. Если нужен файловый лог — используй /tmp/mosquitto.log (tmpfs)."
       }
     ]
   },
   {
-    "question": "The config has: listener 1883\nallow_anonymous false\npassword_file /etc/mosquitto/passwd\nlistener 9001\nprotocol websockets. Does the WebSocket listener require authentication?",
+    "question": "В конфиге написано: listener 1883\nallow_anonymous false\npassword_file /etc/mosquitto/passwd\nlistener 9001\nprotocol websockets. Требует ли WebSocket listener аутентификацию?",
     "type": "single",
     "options": [
       {
-        "text": "Yes — allow_anonymous false acts globally for the entire process",
+        "text": "Да — allow_anonymous false действует глобально для всего процесса",
         "correct": false,
-        "explanation": "In Mosquitto 2.x, allow_anonymous is a per-listener setting. To apply to all listeners, either specify it globally BEFORE the first listener or repeat it in each one."
+        "explanation": "В Mosquitto 2.x allow_anonymous — per-listener настройка. Для применения ко всем listener-ам нужно либо указать глобально ДО первого listener, либо повторить в каждом."
       },
       {
-        "text": "No — allow_anonymous and password_file apply only to the first listener",
+        "text": "Да — параметры аутентификации применяются ко всем listener-ам после них",
+        "correct": false,
+        "explanation": "Нет, параметры применяются только к listener-у, под которым они указаны. Каждый listener независим. Если нужна аутентификация на порту 9001 — добавь параметры явно."
+      },
+      {
+        "text": "Нет — параметры allow_anonymous и password_file применяются только к первому listener",
         "correct": true,
-        "explanation": "In Mosquitto 2.x, authentication parameters belong to the listener under which they are listed. The second listener (9001) has no own authentication settings — you must explicitly add allow_anonymous and password_file under it."
+        "explanation": "В Mosquitto 2.x параметры аутентификации относятся к listener-у, под которым указаны. Второй listener (9001) не имеет собственных настроек аутентификации — нужно явно добавить allow_anonymous и password_file под ним."
       },
       {
-        "text": "The config is invalid — two listeners can't have different settings",
+        "text": "Конфиг некорректен — два listener не могут иметь разные настройки",
         "correct": false,
-        "explanation": "Two listeners with different settings is an absolutely valid configuration and common practice. For example: a local listener without passwords + an external one with authentication."
-      },
-      {
-        "text": "Yes — authentication parameters apply to all listeners after them",
-        "correct": false,
-        "explanation": "No, parameters apply only to the listener under which they are listed. Each listener is independent. If you need authentication on port 9001, add the parameters explicitly."
+        "explanation": "Два listener-а с разными настройками — абсолютно корректная конфигурация и частая практика. Например: локальный listener без паролей + внешний с аутентификацией."
       }
     ]
   },
   {
-    "question": "The command kill -HUP $(cat /var/run/mosquitto.pid) is executed after changing mosquitto.conf. What will NOT be applied?",
+    "question": "Команда kill -HUP $(cat /var/run/mosquitto.pid) выполнена после изменения mosquitto.conf. Что НЕ будет применено?",
     "type": "multiple",
     "options": [
       {
-        "text": "Changing the listener port (e.g., from 1883 to 1884)",
-        "correct": true,
-        "explanation": "Listener parameters are network sockets already opened. SIGHUP cannot close the old port and open a new one without a restart. To change the port, use /etc/init.d/mosquitto restart."
-      },
-      {
-        "text": "Enabling persistence (persistence false → true)",
-        "correct": true,
-        "explanation": "Persistence parameters require a restart — the broker cannot 'on the fly' open a database for already running connections. You need /etc/init.d/mosquitto restart."
-      },
-      {
-        "text": "Adding a new user to password_file",
+        "text": "Изменение log_type с notice на debug",
         "correct": false,
-        "explanation": "password_file is re-read on SIGHUP. If you add a user via mosquitto_passwd and send HUP, the new user can connect without a restart."
+        "explanation": "Параметры логирования (log_type, log_dest) применяются при SIGHUP без перезапуска. Это удобно для временного включения debug-логов на работающей системе."
       },
       {
-        "text": "Changing log_type from notice to debug",
+        "text": "Изменение порта listener (например, с 1883 на 1884)",
+        "correct": true,
+        "explanation": "Параметры listener — сетевые сокеты, уже открытые. SIGHUP не может закрыть старый порт и открыть новый без перезапуска. Для смены порта нужен /etc/init.d/mosquitto restart."
+      },
+      {
+        "text": "Включение persistence (persistence false → true)",
+        "correct": true,
+        "explanation": "Параметры persistence требуют перезапуска — брокер не может 'на лету' открыть базу данных для уже запущенных соединений. Нужен /etc/init.d/mosquitto restart."
+      },
+      {
+        "text": "Добавление нового пользователя в password_file",
         "correct": false,
-        "explanation": "Logging parameters (log_type, log_dest) are applied on SIGHUP without a restart. This is convenient for temporarily enabling debug logs on a running system."
+        "explanation": "password_file перечитывается при SIGHUP. Если добавить пользователя через mosquitto_passwd и сделать HUP — новый пользователь сможет подключиться без перезапуска."
       }
     ]
   },
   {
-    "question": "What is the default value of max_connections in Mosquitto?",
+    "question": "Чему равно значение max_connections по умолчанию в Mosquitto?",
     "type": "single",
     "options": [
       {
-        "text": "0 (all connections prohibited until explicitly allowed)",
-        "correct": false,
-        "explanation": "0 would mean a complete ban, which makes no sense. The default is -1 — unlimited. A value of 0 would immediately reject all clients."
-      },
-      {
-        "text": "1000 connections",
-        "correct": false,
-        "explanation": "1000 is not the default. The default is -1 (no limit). Mosquitto is designed for scaling — some production installations handle hundreds of thousands of connections."
-      },
-      {
-        "text": "-1 (no limit)",
+        "text": "-1 (без ограничений)",
         "correct": true,
-        "explanation": "By default, max_connections = -1, meaning no limit. The broker accepts as many connections as the system resources allow. On a router, it's recommended to set an explicit limit."
+        "explanation": "По умолчанию max_connections = -1, что означает отсутствие лимита. Брокер принимает столько соединений, сколько позволяют ресурсы системы. На роутере рекомендуется ставить явный лимит."
       },
       {
-        "text": "100 connections",
+        "text": "1000 соединений",
         "correct": false,
-        "explanation": "100 is not the default. The default value is -1. For OpenWRT with 128 MB RAM, a reasonable limit is 50-200, but this needs to be set explicitly."
+        "explanation": "1000 — не дефолт. По умолчанию -1 (без ограничений). Mosquitto спроектирован для масштабирования — некоторые production-инсталляции держат сотни тысяч соединений."
+      },
+      {
+        "text": "100 соединений",
+        "correct": false,
+        "explanation": "100 — не дефолт. Значение по умолчанию -1. Для OpenWRT со 128 МБ RAM разумный лимит — 50–200, но это нужно задавать явно."
+      },
+      {
+        "text": "0 (запрещены все соединения до явного разрешения)",
+        "correct": false,
+        "explanation": "0 означало бы полный запрет, что бессмысленно. По умолчанию -1 — unlimited. Значение 0 вызвало бы немедленный отказ всем клиентам."
       }
     ]
   }

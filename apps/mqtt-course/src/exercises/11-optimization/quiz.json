@@ -1,105 +1,105 @@
 [
   {
-    "question": "What memory_limit value is recommended for a router with 64 MB RAM?",
+    "question": "Какое значение memory_limit рекомендуется для роутера с 64 MB RAM?",
     "type": "single",
     "options": [
       {
-        "text": "0 (no limit)",
-        "correct": false,
-        "explanation": "0 means no limit — Mosquitto can use all the router's RAM, leading to OOM and system freeze."
-      },
-      {
         "text": "1000000 (1 MB)",
         "correct": false,
-        "explanation": "1 MB is too little — Mosquitto will not be able to serve even 10 clients."
+        "explanation": "1 MB слишком мало — Mosquitto не сможет обслуживать даже 10 клиентов."
+      },
+      {
+        "text": "0 (без лимита)",
+        "correct": false,
+        "explanation": "0 означает отсутствие лимита — Mosquitto может использовать всю память роутера, что приведёт к OOM и зависанию."
+      },
+      {
+        "text": "64000000 (64 MB — вся RAM)",
+        "correct": false,
+        "explanation": "Нельзя выделять всю RAM — ОС, сетевой стек и другие процессы тоже нужна память."
       },
       {
         "text": "20000000-25000000 (20-25 MB)",
         "correct": true,
-        "explanation": "It is recommended to allocate 30-40% of available RAM. For 64 MB: 64 × 0.35 ≈ 22 MB. This protects against OOM while leaving room for the OS."
-      },
-      {
-        "text": "64000000 (64 MB — all RAM)",
-        "correct": false,
-        "explanation": "You cannot allocate all RAM — the OS, network stack, and other processes also need memory."
+        "explanation": "Рекомендуется выделять 30-40% от свободной RAM. Для 64 MB: 64 × 0.35 ≈ 22 MB. Это защитит от OOM, оставив место для ОС."
       }
     ]
   },
   {
-    "question": "Why is persistence_location recommended to be in /tmp/ rather than /etc/?",
+    "question": "Почему persistence_location рекомендуется указывать в /tmp/, а не в /etc/?",
     "type": "multiple",
     "options": [
       {
-        "text": "Mosquitto does not have write permissions to /etc/",
+        "text": "Mosquitto не имеет прав записи в /etc/",
         "correct": false,
-        "explanation": "Mosquitto usually runs as root or has the necessary permissions. This is not the reason."
+        "explanation": "Mosquitto обычно запускается от root или имеет нужные права. Это не причина."
       },
       {
-        "text": "/etc/ is flash memory, which wears out from frequent writes",
-        "correct": true,
-        "explanation": "Flash NAND has a limited lifespan (10-100k write cycles). Mosquitto periodically writes persistence.db, accelerating wear."
-      },
-      {
-        "text": "/tmp/ is tmpfs (RAM), writes are faster and do not wear flash",
-        "correct": true,
-        "explanation": "tmpfs stores data in RAM — no flash wear, faster writes. Downside: data is lost on reboot."
-      },
-      {
-        "text": "/etc/ is write-protected in OpenWRT",
+        "text": "/etc/ защищён от записи в OpenWRT",
         "correct": false,
-        "explanation": "/etc/ is writable in OpenWRT (overlayfs). The issue is not access permissions."
+        "explanation": "/etc/ доступен для записи в OpenWRT (overlayfs). Проблема не в правах доступа."
+      },
+      {
+        "text": "/tmp/ — это tmpfs (RAM), записи быстрее и не изнашивают flash",
+        "correct": true,
+        "explanation": "tmpfs хранит данные в RAM — нет износа flash, записи быстрее. Минус: данные теряются при перезагрузке."
+      },
+      {
+        "text": "/etc/ — это flash-память, которая изнашивается от частых записей",
+        "correct": true,
+        "explanation": "Flash NAND имеет ограниченный ресурс (10-100k циклов записи). Mosquitto periodically записывает persistence.db, что ускоряет износ."
       }
     ]
   },
   {
-    "question": "A client sets keepalive=600 seconds, but mosquitto.conf has max_keepalive=300. What happens in Mosquitto 2.x?",
+    "question": "Клиент установил keepalive=600 секунд, но в mosquitto.conf задан max_keepalive=300. Что произойдёт в Mosquitto 2.x?",
     "type": "single",
     "options": [
       {
-        "text": "Behavior is undefined",
-        "correct": false,
-        "explanation": "The behavior is clearly defined in Mosquitto 2.x: min(client_keepalive, max_keepalive) is applied."
-      },
-      {
-        "text": "The client will be disconnected with an error",
-        "correct": false,
-        "explanation": "In Mosquitto 2.x, the client is not disconnected — the broker accepts the connection but sets keepalive = min(client, max_keepalive)."
-      },
-      {
-        "text": "The broker will use keepalive = min(600, 300) = 300",
+        "text": "Брокер будет использовать keepalive = min(600, 300) = 300",
         "correct": true,
-        "explanation": "Mosquitto 2.x automatically reduces the client's keepalive to max_keepalive. The client will connect but must send PINGREQ every 300 seconds."
+        "explanation": "Mosquitto 2.x автоматически снижает keepalive клиента до max_keepalive. Клиент подключится, но должен отправлять PINGREQ каждые 300 секунд."
       },
       {
-        "text": "The broker ignores max_keepalive and uses 600",
+        "text": "Поведение неопределено",
         "correct": false,
-        "explanation": "max_keepalive exists precisely to limit the client's maximum keepalive."
+        "explanation": "Поведение чётко определено в Mosquitto 2.x: применяется min(client_keepalive, max_keepalive)."
+      },
+      {
+        "text": "Клиент будет отключён с ошибкой",
+        "correct": false,
+        "explanation": "В Mosquitto 2.x клиент не отключается — брокер принимает подключение, но устанавливает keepalive = min(client, max_keepalive)."
+      },
+      {
+        "text": "Брокер проигнорирует max_keepalive и использует 600",
+        "correct": false,
+        "explanation": "max_keepalive именно для этого и существует — ограничить максимальный keepalive клиента."
       }
     ]
   },
   {
-    "question": "When should you use Persistent Session (clean=false) instead of Clean Session?",
+    "question": "Когда следует использовать Persistent Session (clean=false) вместо Clean Session?",
     "type": "multiple",
     "options": [
       {
-        "text": "A client with a dynamically generated clientId",
-        "correct": false,
-        "explanation": "A persistent session requires a fixed clientId. A new clientId each time = a new session without history."
-      },
-      {
-        "text": "A battery-powered IoT sensor that connects once per hour",
+        "text": "Устройство, которое периодически теряет сеть (GSM-модем в подвале)",
         "correct": true,
-        "explanation": "A persistent session allows the broker to accumulate commands while the sensor is sleeping. After waking up, the sensor receives everything accumulated."
+        "explanation": "При нестабильном соединении persistent session гарантирует, что команды, отправленные во время обрыва, будут доставлены при восстановлении."
       },
       {
-        "text": "A web dashboard in the browser",
-        "correct": false,
-        "explanation": "The dashboard is constantly online and does not miss messages. A persistent session only wastes broker memory without benefit."
-      },
-      {
-        "text": "A device that periodically loses connectivity (GSM modem in a basement)",
+        "text": "IoT-датчик на батарейке, который подключается раз в час",
         "correct": true,
-        "explanation": "With an unstable connection, a persistent session ensures that commands sent during a drop will be delivered when connectivity is restored."
+        "explanation": "Persistent session позволяет брокеру накапливать команды пока датчик спит. После пробуждения датчик получит всё накопленное."
+      },
+      {
+        "text": "Веб-дашборд в браузере",
+        "correct": false,
+        "explanation": "Дашборд постоянно онлайн и не пропускает сообщения. Persistent session только расходует память брокера без пользы."
+      },
+      {
+        "text": "Клиент с dynamically генерируемым clientId",
+        "correct": false,
+        "explanation": "Persistent session требует фиксированного clientId. Каждый раз новый clientId = новая сессия без истории."
       }
     ]
   }

@@ -1,51 +1,51 @@
-# Task 1.3: First Launch and Verification
+# Задание 1.3: Первый запуск и проверка
 
-## Goal
+## Цель
 
-Learn how to verify Mosquitto functionality after installation using a set of diagnostic commands. Implement an interactive "terminal simulator" with verification commands and their realistic output.
-
----
-
-## Requirements
-
-1. Define the `VerifyCommand` interface with fields: `id`, `title`, `command`, `description`, `expectedOutput`, `category` (`'status' | 'publish' | 'subscribe' | 'debug'`)
-
-2. Create a `verifyCommands` array with at least 6 commands covering:
-   - Process status check (`/etc/init.d/mosquitto status`, `ps | grep mosquitto`)
-   - Port check (`netstat -tlnp | grep 1883`)
-   - Subscription (`mosquitto_sub`)
-   - Publishing (`mosquitto_pub`)
-   - System topics (`mosquitto_sub -t '$SYS/#'`)
-   - Log viewing (`logread | grep mosquitto`)
-
-3. Group commands by category. Each group has a header with an icon and color.
-
-4. For each command display: the command itself (code), description, "Run" button. On click — a 400–800 ms delay, then output appears in terminal style. Button changes to "✓ Done".
-
-5. The simulator should not require a real connection — all outputs are hardcoded in `expectedOutput`.
+Научиться проверять работоспособность Mosquitto после установки с помощью набора диагностических команд. Реализовать интерактивный "симулятор терминала" с командами проверки и их реалистичным выводом.
 
 ---
 
-## Checklist
+## Требования
 
-- [ ] Defined `VerifyCommand` interface with `category` field
-- [ ] At least 6 commands covering all verification aspects
-- [ ] Grouping by categories with headers and icons
-- [ ] "Run" button simulates execution (with delay)
-- [ ] Output displayed in dark terminal style
-- [ ] Button changes after completion ("✓ Done")
-- [ ] Realistic command output (matches OpenWRT/Mosquitto 2.x)
-- [ ] Log command output contains real OpenWRT syslog format
-- [ ] `runOutput` state — object with id → output string
-- [ ] Correct TypeScript typing
+1. Определи интерфейс `VerifyCommand` с полями: `id`, `title`, `command`, `description`, `expectedOutput`, `category` (`'status' | 'publish' | 'subscribe' | 'debug'`)
+
+2. Создай массив `verifyCommands` с минимум 6 командами, покрывающими:
+   - Проверку статуса процесса (`/etc/init.d/mosquitto status`, `ps | grep mosquitto`)
+   - Проверку порта (`netstat -tlnp | grep 1883`)
+   - Подписку (`mosquitto_sub`)
+   - Публикацию (`mosquitto_pub`)
+   - Системные топики (`mosquitto_sub -t '$SYS/#'`)
+   - Просмотр логов (`logread | grep mosquitto`)
+
+3. Сгруппируй команды по категориям. Каждая группа имеет заголовок с иконкой и цветом.
+
+4. Для каждой команды отображай: саму команду (код), описание, кнопку "Запустить". При клике — задержка 400–800 мс, затем появляется вывод в стиле терминала. Кнопка меняется на "✓ Выполнено".
+
+5. Симулятор не должен требовать реального подключения — все выводы хардкожены в `expectedOutput`.
 
 ---
 
-## How to Check Yourself
+## Чеклист
 
-1. Do you see several command groups (Status, Subscription, Publishing, Debug)?
-2. Click "Run" next to `ps | grep mosquitto` — does output appear after a second?
-3. Does `netstat` output show port 1883 and mosquitto process?
-4. Does `mosquitto_sub -t '$SYS/#'` output contain several system topics?
-5. Does `logread | grep mosquitto` output contain lines in OpenWRT syslog format?
-6. Do completed command buttons show "✓ Done"?
+- [ ] Определён интерфейс `VerifyCommand` с полем `category`
+- [ ] Минимум 6 команд, охватывающих все аспекты проверки
+- [ ] Группировка по категориям с заголовками и иконками
+- [ ] Кнопка "Запустить" симулирует выполнение (с задержкой)
+- [ ] Вывод отображается в стиле тёмного терминала
+- [ ] Кнопка меняется после выполнения ("✓ Выполнено")
+- [ ] Реалистичный вывод команд (соответствует OpenWRT/Mosquitto 2.x)
+- [ ] Вывод команды логов содержит реальный формат OpenWRT syslog
+- [ ] Состояние `runOutput` — объект с id → строка вывода
+- [ ] Корректная типизация TypeScript
+
+---
+
+## Как проверить себя
+
+1. Видишь несколько групп команд (Статус, Подписка, Публикация, Отладка)?
+2. Нажми "Запустить" рядом с `ps | grep mosquitto` — через секунду появился вывод?
+3. Вывод `netstat` показывает порт 1883 и процесс mosquitto?
+4. Вывод `mosquitto_sub -t '$SYS/#'` содержит несколько системных топиков?
+5. Вывод `logread | grep mosquitto` содержит строки в формате OpenWRT syslog?
+6. Кнопки выполненных команд показывают "✓ Выполнено"?

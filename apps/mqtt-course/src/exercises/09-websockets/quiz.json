@@ -1,105 +1,105 @@
 [
   {
-    "question": "Why can't a browser connect directly to an MQTT broker over TCP?",
+    "question": "Почему браузер не может подключиться к MQTT-брокеру напрямую через TCP?",
     "type": "single",
     "options": [
       {
-        "text": "MQTT does not support browsers",
+        "text": "MQTT не поддерживает браузеры",
         "correct": false,
-        "explanation": "MQTT supports any client, but browsers are limited in their network capabilities."
+        "explanation": "MQTT поддерживает любых клиентов, но браузер ограничен в возможностях сетевого взаимодействия."
       },
       {
-        "text": "TCP and MQTT use different packet formats",
+        "text": "TCP и MQTT используют разные форматы пакетов",
         "correct": false,
-        "explanation": "MQTT runs over TCP. The issue is not the format but that browsers cannot open raw TCP connections."
+        "explanation": "MQTT работает поверх TCP. Проблема не в формате, а в том, что браузер не может открыть raw TCP-соединение."
       },
       {
-        "text": "Port 1883 is blocked in all browsers",
+        "text": "Порт 1883 заблокирован во всех браузерах",
         "correct": false,
-        "explanation": "Browsers do not block specific ports for WebSocket. The issue is the connection type (TCP vs WebSocket)."
+        "explanation": "Браузеры не блокируют конкретные порты для WebSocket. Проблема в типе соединения (TCP vs WebSocket)."
       },
       {
-        "text": "Browsers run in a sandbox and do not have access to raw TCP sockets",
+        "text": "Браузеры работают в песочнице и не имеют доступа к raw TCP-сокетам",
         "correct": true,
-        "explanation": "Browsers can only open HTTP/HTTPS and WebSocket connections. WebSocket transport is required for TCP access."
+        "explanation": "Браузеры могут открывать только HTTP/HTTPS и WebSocket-соединения. Для доступа к TCP нужен WebSocket-транспорт."
       }
     ]
   },
   {
-    "question": "Which parameter must be added to the `listener` directive in mosquitto.conf for WebSocket?",
+    "question": "Какой параметр нужно добавить к директиве `listener` в mosquitto.conf для WebSocket?",
     "type": "single",
     "options": [
       {
-        "text": "protocol websocket",
-        "correct": false,
-        "explanation": "The correct name is `websockets` (plural)."
+        "text": "protocol websockets",
+        "correct": true,
+        "explanation": "Именно `protocol websockets` включает WebSocket-транспорт для данного слушателя в Mosquitto 2.x."
       },
       {
         "text": "transport websockets",
         "correct": false,
-        "explanation": "Such a directive does not exist. Use `protocol websockets`."
-      },
-      {
-        "text": "protocol websockets",
-        "correct": true,
-        "explanation": "Exactly `protocol websockets` enables WebSocket transport for a given listener in Mosquitto 2.x."
+        "explanation": "Такой директивы не существует. Используйте `protocol websockets`."
       },
       {
         "text": "enable_websockets true",
         "correct": false,
-        "explanation": "Such a directive does not exist. WebSocket is configured via `protocol websockets` within a listener block."
+        "explanation": "Такой директивы не существует. WebSocket настраивается через `protocol websockets` в блоке listener."
+      },
+      {
+        "text": "protocol websocket",
+        "correct": false,
+        "explanation": "Правильное название — `websockets` (во множественном числе)."
       }
     ]
   },
   {
-    "question": "Which headers are REQUIRED in nginx for WebSocket proxying?",
+    "question": "Какие заголовки ОБЯЗАТЕЛЬНЫ в nginx для проксирования WebSocket?",
     "type": "multiple",
     "options": [
       {
+        "text": "proxy_set_header Connection \"upgrade\"",
+        "correct": true,
+        "explanation": "Заголовок Connection: upgrade нужен для указания на постоянное соединение с переключением протокола."
+      },
+      {
         "text": "proxy_set_header X-WebSocket-Protocol mqtt",
         "correct": false,
-        "explanation": "This header is not required. Mosquitto negotiates the mqtt sub-protocol itself during WebSocket handshake."
+        "explanation": "Этот заголовок не обязателен. Mosquitto сам согласует подпротокол mqtt при WebSocket handshake."
       },
       {
         "text": "proxy_set_header Upgrade $http_upgrade",
         "correct": true,
-        "explanation": "The Upgrade header tells the server about the protocol switch. Without it, the WebSocket handshake will not occur."
+        "explanation": "Заголовок Upgrade сообщает серверу о переключении протокола. Без него WebSocket handshake не состоится."
       },
       {
         "text": "proxy_http_version 1.1",
         "correct": true,
-        "explanation": "WebSocket requires HTTP/1.1. By default nginx uses HTTP/1.0 for proxy_pass, which does not support keep-alive."
-      },
-      {
-        "text": "proxy_set_header Connection \"upgrade\"",
-        "correct": true,
-        "explanation": "The Connection: upgrade header is needed to indicate a persistent connection with protocol switching."
+        "explanation": "WebSocket требует HTTP/1.1. По умолчанию nginx использует HTTP/1.0 для proxy_pass, что не поддерживает keep-alive."
       }
     ]
   },
   {
-    "question": "An MQTT.js client connects and immediately disconnects. In Mosquitto logs: 'New client connected... then disconnected'. What is the most likely cause?",
+    "question": "Клиент MQTT.js подключается и сразу отваливается. В логах Mosquitto: 'New client connected... then disconnected'. В чём скорее всего причина?",
     "type": "single",
     "options": [
       {
-        "text": "Keepalive value is too large",
-        "correct": false,
-        "explanation": "A large keepalive does not cause immediate disconnection. It is the heartbeat packet interval."
-      },
-      {
-        "text": "Incorrect broker URL",
-        "correct": false,
-        "explanation": "With an incorrect URL, the client would not connect at all (connect would not happen)."
-      },
-      {
-        "text": "The MQTT.js library is incompatible with Mosquitto",
-        "correct": false,
-        "explanation": "MQTT.js is fully compatible with Mosquitto 2.x, including MQTT v3.1.1 and v5."
-      },
-      {
-        "text": "Multiple browser tabs are using the same clientId",
+        "text": "Несколько вкладок браузера используют одинаковый clientId",
         "correct": true,
-        "explanation": "When a client with an existing clientId connects, the broker disconnects the previous connection. The second tab kicks out the first, which tries to reconnect — and so on in a loop."
+        "explanation": "При подключении клиента с уже существующим clientId брокер разрывает предыдущее соединение. Вторая вкладка выбивает первую, та пытается переподключиться — и так по кругу."
+      },
+      {
+        "text": "Слишком большое значение keepalive",
+        "correct": false,
+        "explanation": "Большое keepalive не вызывает немедленного отключения. Это значение интервала heartbeat-пакетов."
+      },
+      {
+        "text": "Библиотека MQTT.js несовместима с Mosquitto",
+        "correct": false,
+        "explanation": "MQTT.js полностью совместима с Mosquitto 2.x, включая MQTT v3.1.1 и v5."
+      },
+      {
+        "text": "Неверный URL брокера",
+        "correct": false,
+        "explanation": "При неверном URL клиент вообще не подключится (connect не произойдёт)."
       }
     ]
   }

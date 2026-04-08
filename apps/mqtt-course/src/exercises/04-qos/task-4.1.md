@@ -1,35 +1,35 @@
-# Task 4.1: QoS Levels (0, 1, 2)
+# Задание 4.1: Уровни QoS (0, 1, 2)
 
-## Goal
+## Цель
 
-Understand the message delivery mechanism for each QoS level in MQTT. Learn to choose the appropriate level for different scenarios.
+Понять механизм доставки сообщений для каждого уровня QoS в MQTT. Научиться выбирать подходящий уровень для разных сценариев.
 
-## Requirements
+## Требования
 
-1. Open the QoS visualization and switch between levels 0, 1, 2
-2. Click "Animate" for each level — watch the packet sequence
-3. Study the difference in packet count: 1 → 2-4 → 4
-4. Open the comparison table and study all parameters
-5. Determine the correct QoS for each scenario below
+1. Откройте визуализацию QoS и переключитесь между уровнями 0, 1, 2
+2. Нажмите «Анимировать» для каждого уровня — посмотрите последовательность пакетов
+3. Изучите разницу в количестве пакетов: 1 → 2-4 → 4
+4. Откройте сравнительную таблицу и изучите все параметры
+5. Определите правильный QoS для каждого сценария ниже
 
-## Checklist
+## Чеклист
 
-- [ ] Viewed animations for all three QoS levels
-- [ ] Understood that QoS 1 may deliver a message twice (DUP flag)
-- [ ] Know that QoS 2 uses 4 packets: PUBLISH → PUBREC → PUBREL → PUBCOMP
-- [ ] Read the comparison table
-- [ ] Know QoS selection recommendations for OpenWRT
+- [ ] Посмотрел анимацию для всех трёх уровней QoS
+- [ ] Понял, что QoS 1 может доставить сообщение дважды (DUP flag)
+- [ ] Знаю, что QoS 2 использует 4 пакета: PUBLISH → PUBREC → PUBREL → PUBCOMP
+- [ ] Прочитал сравнительную таблицу
+- [ ] Знаю рекомендации по выбору QoS для OpenWRT
 
-## How to Check Yourself
+## Как проверить себя
 
-Choose QoS for each case:
+Выберите QoS для каждого случая:
 
-| Scenario | QoS |
+| Сценарий | QoS |
 |---|---|
-| Temperature sensor reading every 5 sec | ? |
-| CO2 threshold exceeded alert | ? |
-| Command to open a gas valve | ? |
-| GPS tracker coordinates every second | ? |
-| Financial transaction | ? |
+| Показания температурного датчика каждые 5 сек | ? |
+| Алерт о превышении порога CO2 | ? |
+| Команда открыть газовый клапан | ? |
+| GPS-координаты трекера каждую секунду | ? |
+| Финансовая транзакция | ? |
 
-Answers: 0, 1, 2, 0, 2
+Ответы: 0, 1, 2, 0, 2

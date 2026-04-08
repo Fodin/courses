@@ -1,10 +1,10 @@
-# Level 3: Topics and Messages
+# Уровень 3: Топики и сообщения
 
-## What is a Topic?
+## Что такое топик?
 
-A topic in MQTT is a string address used for publishing and receiving messages. Think of a mailbox: the sender writes the address on the envelope, and the mail delivers to everyone subscribed to that address.
+Топик в MQTT — это строка-адрес, по которому публикуются и принимаются сообщения. Представьте почтовый ящик: отправитель пишет адрес на конверте, почта доставляет всем, кто подписан на этот адрес.
 
-A topic is **not a queue** and not storage. It's simply a route.
+Топик — это **не очередь** и не хранилище. Это просто маршрут.
 
 ```
 home/living_room/temperature  →  "22.5"
@@ -12,9 +12,9 @@ home/kitchen/humidity         →  "65"
 factory/line1/sensor3/rpm     →  "3600"
 ```
 
-## Topic Hierarchy
+## Иерархия топиков
 
-Topics are built as a tree via `/`. Each segment is a hierarchy level:
+Топики строятся как дерево через `/`. Каждый сегмент — уровень иерархии:
 
 ```
 home/
@@ -29,46 +29,46 @@ home/
     └── temperature
 ```
 
-📌 Naming rules:
-- Separator is `/`
-- Maximum 65535 bytes in topic name
-- Don't start with `/` unless necessary (creates an empty first level)
-- Case-sensitive: `Home/Temp` ≠ `home/temp`
-- Cannot use `#` and `+` in topic names when publishing
+📌 Правила именования:
+- Разделитель — `/`
+- Максимум 65535 байт в имени топика
+- Не начинайте с `/` без необходимости (создаёт пустой первый уровень)
+- Чувствительность к регистру: `Home/Temp` ≠ `home/temp`
+- Нельзя использовать `#` и `+` в именах топиков при публикации
 
-## Wildcards: + and #
+## Wildcards: + и #
 
-Wildcards are used **only when subscribing**, never when publishing.
+Wildcards используются **только при подписке**, никогда при публикации.
 
-### Single-level wildcard: `+`
+### Одноуровневый wildcard: `+`
 
-Replaces exactly **one** topic level:
+Заменяет ровно **один** уровень топика:
 
 ```
 home/+/temperature    →  home/living_room/temperature ✅
                           home/kitchen/temperature     ✅
-                          home/bedroom/temp            ❌ (different last segment)
-                          home/floor1/room1/temp       ❌ (two levels instead of one)
+                          home/bedroom/temp            ❌ (другой последний сегмент)
+                          home/floor1/room1/temp       ❌ (два уровня вместо одного)
 ```
 
-### Multi-level wildcard: `#`
+### Многоуровневый wildcard: `#`
 
-Replaces **any number** of levels from the current position to the end. Always placed last:
+Заменяет **любое количество** уровней от текущей позиции до конца. Всегда стоит последним:
 
 ```
 home/#           →  home/living_room/temperature  ✅
                     home/kitchen/humidity          ✅
                     home/a/b/c/d/e                ✅
-                    office/temp                   ❌ (different root)
+                    office/temp                   ❌ (другой корень)
 
 home/+/light/#   →  home/living_room/light/state  ✅
                     home/kitchen/light/brightness  ✅
                     home/kitchen/light/rgb/r       ✅
 ```
 
-## System Topics $SYS
+## Системные топики $SYS
 
-Mosquitto publishes broker statistics to reserved `$SYS` topics:
+Mosquitto публикует статистику брокера в зарезервированных топиках `$SYS`:
 
 ```
 $SYS/broker/uptime                    →  "3600 seconds"
@@ -77,43 +77,43 @@ $SYS/broker/messages/sent            →  "100500"
 $SYS/broker/load/messages/sent/1min  →  "15.23"
 ```
 
-> ⚠️ Topics starting with `$` are invisible to root subscription `#`.
-> `#` does not cover `$SYS/#` — this is intentional protection against system data leakage.
+> ⚠️ Топики начинающиеся с `$` невидимы для подписки `#` с корня.
+> `#` не покрывает `$SYS/#` — это намеренная защита от утечки системных данных.
 
-Update interval setting in `mosquitto.conf`:
+Настройка интервала обновления в `mosquitto.conf`:
 ```
-sys_interval 10   # update every 10 seconds (0 = disabled)
+sys_interval 10   # обновлять каждые 10 секунд (0 = отключить)
 ```
 
-## Naming Best Practices
+## Лучшие практики именования
 
-| Context | Good | Bad |
+| Контекст | Хорошо | Плохо |
 |---|---|---|
-| IoT home | `home/room/device/metric` | `home_room_device` |
-| Industry | `plant/line/machine/param` | `data` |
-| Commands | `device/id/cmd/action` | `device/cmd` |
-| Status | `device/id/status` | `status/device/id` |
+| IoT дом | `home/room/device/metric` | `home_room_device` |
+| Промышленность | `plant/line/machine/param` | `data` |
+| Команды | `device/id/cmd/action` | `device/cmd` |
+| Статус | `device/id/status` | `status/device/id` |
 
-💡 Include the device ID so you can use `+`:
+💡 Включайте ID устройства, чтобы можно было использовать `+`:
 ```
-sensor/+/temperature   # all temperature sensors
-sensor/esp32-01/+      # all metrics of a single device
-```
-
-## ⚠️ Common Beginner Mistakes
-
-❌ **Subscribing to `#` for everything:**
-```
-mosquitto_sub -t '#'   # will receive EVERYTHING, will overload the client
-```
-✅ Use specific prefixes: `home/#`, `sensor/#`
-
-❌ **Empty topic or spaces:**
-```
-publish " home/temp"   # space at the beginning — error
+sensor/+/temperature   # все температурные датчики
+sensor/esp32-01/+      # все метрики одного устройства
 ```
 
-❌ **Wildcard when publishing:**
+## ⚠️ Частые ошибки новичков
+
+❌ **Подписка на `#` для всего:**
 ```
-mosquitto_pub -t 'home/+/temp' -m '22'   # error! + is for subscriptions only
+mosquitto_sub -t '#'   # получит ВСЁ, перегрузит клиент
+```
+✅ Используйте конкретные префиксы: `home/#`, `sensor/#`
+
+❌ **Пустой топик или пробелы:**
+```
+publish " home/temp"   # пробел в начале — ошибка
+```
+
+❌ **Wildcard при публикации:**
+```
+mosquitto_pub -t 'home/+/temp' -m '22'   # ошибка! + только для подписки
 ```

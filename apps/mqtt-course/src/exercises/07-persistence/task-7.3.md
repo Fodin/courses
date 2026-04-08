@@ -1,53 +1,53 @@
-# Task 7.3: Mosquitto Backup and Restore
+# Задание 7.3: Бэкап и восстановление Mosquitto
 
-## Goal
+## Цель
 
-Create a backup system for Mosquitto on OpenWRT: automated scheduled backup
-with rotation and a restore script from archive.
+Создать систему резервного копирования для Mosquitto на OpenWRT: автоматический бэкап по расписанию
+с ротацией и скрипт восстановления из архива.
 
-## Requirements
+## Требования
 
-1. Write a `/usr/bin/mqtt-backup.sh` script that:
-   - Sends SIGUSR1 to flush buffers before backup
-   - Archives `mosquitto.db`, `mosquitto.conf`, certificates
-   - Names the archive with a timestamp: `mosquitto_YYYYMMDD_HHMMSS.tar.gz`
-   - Keeps only the last 7 backups (rotation)
-   - Logs the result via `logger`
-2. Configure cron to run the script daily at 02:00
-3. Write a restore script from archive
-4. Visualize all scripts in a component with tab switching between them
+1. Напишите скрипт `/usr/bin/mqtt-backup.sh` который:
+   - Отправляет SIGUSR1 для сброса буферов перед бэкапом
+   - Архивирует `mosquitto.db`, `mosquitto.conf`, сертификаты
+   - Именует архив с временной меткой: `mosquitto_YYYYMMDD_HHMMSS.tar.gz`
+   - Оставляет только последние 7 бэкапов (ротация)
+   - Логирует результат через `logger`
+2. Настройте cron для запуска скрипта ежедневно в 02:00
+3. Напишите скрипт восстановления из архива
+4. Визуализируйте все скрипты в компоненте с переключением между ними
 
-## Checklist
+## Чеклист
 
-- [ ] Backup script sends SIGUSR1 before copying files
-- [ ] Archive contains DB, config, and certificates
-- [ ] Archive naming includes a timestamp
-- [ ] Rotation: no more than 7 backups stored
-- [ ] Logging via `logger` (visible in `logread`)
-- [ ] Cron configured: `0 2 * * * /usr/bin/mqtt-backup.sh`
-- [ ] Restore script stops, restores, and starts Mosquitto
-- [ ] Component shows all 4 scripts with tab switching
+- [ ] Скрипт бэкапа отправляет SIGUSR1 до копирования файлов
+- [ ] Архив содержит БД, конфиг и сертификаты
+- [ ] Именование архива включает временную метку
+- [ ] Ротация: хранится не более 7 бэкапов
+- [ ] Логирование через `logger` (попадает в `logread`)
+- [ ] Cron настроен: `0 2 * * * /usr/bin/mqtt-backup.sh`
+- [ ] Скрипт восстановления останавливает, восстанавливает, запускает Mosquitto
+- [ ] Компонент показывает все 4 скрипта с переключением
 
-## How to verify
+## Как проверить себя
 
-1. Run the backup script manually and verify the archive was created:
+1. Запустите скрипт бэкапа вручную и убедитесь, что архив создан:
    ```bash
    sh /usr/bin/mqtt-backup.sh
    ls -la /mnt/usb/backups/mosquitto/
    ```
-2. Check the log:
+2. Проверьте лог:
    ```bash
    logread | grep mqtt-backup | tail -3
    ```
-3. Check archive contents:
+3. Проверьте содержимое архива:
    ```bash
    tar tzf /mnt/usb/backups/mosquitto/mosquitto_*.tar.gz
    ```
-4. Check cron:
+4. Проверьте cron:
    ```bash
    crontab -l | grep mqtt-backup
    ```
-5. Test restore (on a test system!):
+5. Протестируйте восстановление (на тестовой системе!):
    ```bash
    sh /usr/bin/mqtt-restore.sh /mnt/usb/backups/mosquitto/mosquitto_LATEST.tar.gz
    ```

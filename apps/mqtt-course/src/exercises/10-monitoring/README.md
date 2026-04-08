@@ -1,43 +1,43 @@
-# Level 10: Mosquitto Monitoring
+# Уровень 10: Мониторинг Mosquitto
 
-## Why monitor the broker?
+## Зачем мониторить брокер?
 
-A router with Mosquitto is part of the IoT infrastructure. Without monitoring, you won't know that:
-- the number of clients is growing and memory will run out soon
-- retained messages have clogged the storage
-- the broker is overloaded and losing messages
+Роутер с Mosquitto — часть IoT-инфраструктуры. Без мониторинга вы не узнаете, что:
+- количество клиентов растёт и скоро закончится память
+- retained-сообщения засорили хранилище
+- брокер перегружен и теряет сообщения
 
-## $SYS topics — built-in telemetry
+## $SYS топики — встроенная телеметрия
 
-Mosquitto automatically publishes metrics to the `$SYS/broker/...` topic every 10 seconds (configurable via `sys_interval`).
+Mosquitto автоматически публикует метрики в топик `$SYS/broker/...` каждые 10 секунд (настраивается через `sys_interval`).
 
 ```bash
-# View all metrics:
+# Просмотр всех метрик:
 mosquitto_sub -h localhost -u admin -P pass -t '$SYS/#' -v
 ```
 
 ```mermaid
 graph LR
-  Mosquitto -->|every 10s| SYS[$SYS/broker/...]
+  Mosquitto -->|каждые 10с| SYS[$SYS/broker/...]
   SYS --> Clients[$SYS/broker/clients/connected]
   SYS --> Messages[$SYS/broker/messages/received]
   SYS --> Heap[$SYS/broker/heap/current]
   SYS --> Load[$SYS/broker/load/...]
 ```
 
-## Key metrics
+## Ключевые метрики
 
-| Topic | What it shows |
+| Топик | Что показывает |
 |---|---|
-| `$SYS/broker/clients/connected` | Active clients |
-| `$SYS/broker/messages/received` | Total messages received |
-| `$SYS/broker/heap/current` | Memory (bytes) |
-| `$SYS/broker/uptime` | Uptime |
-| `$SYS/broker/subscriptions/count` | Active subscriptions |
-| `$SYS/broker/messages/retained/count` | Retained messages |
-| `$SYS/broker/load/messages/received/1min` | Messages per minute |
+| `$SYS/broker/clients/connected` | Активных клиентов |
+| `$SYS/broker/messages/received` | Всего сообщений получено |
+| `$SYS/broker/heap/current` | Память (байт) |
+| `$SYS/broker/uptime` | Время работы |
+| `$SYS/broker/subscriptions/count` | Активных подписок |
+| `$SYS/broker/messages/retained/count` | Retained сообщений |
+| `$SYS/broker/load/messages/received/1min` | Сообщений в минуту |
 
-## Shell monitoring script
+## Shell-скрипт мониторинга
 
 ```sh
 #!/bin/sh
@@ -46,31 +46,31 @@ get_metric() {
     -t "$1" -C 1 -W 5 2>/dev/null || echo "N/A"
 }
 
-echo "Clients: $(get_metric '$SYS/broker/clients/connected')"
-echo "Memory:   $(get_metric '$SYS/broker/heap/current') bytes"
+echo "Клиентов: $(get_metric '$SYS/broker/clients/connected')"
+echo "Память:   $(get_metric '$SYS/broker/heap/current') bytes"
 echo "Uptime:   $(get_metric '$SYS/broker/uptime')"
 ```
 
-> 💡 `-C 1` means "get one message and exit". `-W 5` — 5 second timeout.
+> 💡 `-C 1` означает "получить одно сообщение и выйти". `-W 5` — таймаут 5 секунд.
 
-## Configuring sys_interval
+## Настройка sys_interval
 
 ```conf
 # /etc/mosquitto/mosquitto.conf
-sys_interval 30  # Update $SYS every 30 seconds (default 10)
+sys_interval 30  # Обновление $SYS каждые 30 секунд (по умолчанию 10)
 ```
 
-On weak routers, increase the interval — each $SYS publication creates load.
+На слабых роутерах увеличьте интервал — каждая публикация в $SYS создаёт нагрузку.
 
 ## collectd-mod-exec
 
-collectd is a metrics collection daemon, available on OpenWRT:
+collectd — демон сбора метрик, доступен в OpenWRT:
 
 ```bash
 opkg install collectd collectd-mod-exec
 ```
 
-The exec plugin script outputs lines like:
+Скрипт для exec-плагина выводит строки вида:
 ```
 PUTVAL "hostname/mqtt-clients/gauge" N:42
 ```
@@ -82,9 +82,9 @@ PUTVAL "hostname/mqtt-clients/gauge" N:42
 </Plugin>
 ```
 
-## Alerts via MQTT
+## Алерты через MQTT
 
-The script can publish alerts directly to MQTT:
+Скрипт может сам публиковать алерт в MQTT:
 
 ```sh
 MAX_CLIENTS=100
@@ -93,10 +93,10 @@ CLIENTS=$(get_metric '$SYS/broker/clients/connected')
   mosquitto_pub -t 'system/alert' -m "Too many clients: $CLIENTS"
 ```
 
-## ⚠️ Common errors
+## ⚠️ Типичные ошибки
 
-| Error | Solution |
+| Ошибка | Решение |
 |---|---|
-| `$SYS` not published | Check `allow_anonymous` or ACL — subscriber must have access to `$SYS` |
-| `-C 1` hangs | Broker unreachable or wrong password. Add `-W 5` |
-| collectd exec won't start | Script path must be absolute, script must be executable (`chmod +x`) |
+| `$SYS` не публикуется | Проверьте `allow_anonymous` или ACL — подписчик должен иметь доступ к `$SYS` |
+| `-C 1` зависает | Брокер недоступен или неверный пароль. Добавьте `-W 5` |
+| collectd exec не запускается | Путь к скрипту должен быть абсолютным, скрипт — исполняемым (`chmod +x`) |

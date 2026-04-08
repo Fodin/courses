@@ -1,47 +1,47 @@
-# Task 11.1: Embedded System Resource Limits
+# Задание 11.1: Ограничения встраиваемых систем
 
-## Goal
+## Цель
 
-Understand the router's resource constraints and estimate how many clients and messages your device can handle.
+Понять ресурсные ограничения роутера и оценить, сколько клиентов и сообщений может обработать ваше устройство.
 
-## Requirements
+## Требования
 
-1. Determine your router's specs: RAM, Flash, CPU
-2. Calculate the maximum MQTT clients using the formula: `free_ram × 0.4 / 0.025`
-3. Determine the appropriate `message_size_limit` for your IoT scenario
-4. List the Mosquitto features that should be disabled on a budget router (≤32 MB RAM)
-5. Write a `mosquitto.conf` with limits appropriate for your device's specs
+1. Определить характеристики вашего роутера: RAM, Flash, CPU
+2. Рассчитать максимальное количество MQTT-клиентов по формуле: `free_ram × 0.4 / 0.025`
+3. Определить подходящий `message_size_limit` для вашего IoT-сценария
+4. Составить список функций Mosquitto, которые следует отключить на бюджетном роутере (≤32 MB RAM)
+5. Написать `mosquitto.conf` с ограничениями, учитывающими характеристики устройства
 
-## Checklist
+## Чеклист
 
-- [ ] Device specs noted: RAM, Flash, CPU model
-- [ ] `max_connections` calculated using the formula
-- [ ] `message_size_limit` determined (not left at default)
-- [ ] `memory_limit` written (at least 20% and no more than 40% of RAM)
-- [ ] Config applied and Mosquitto starts without errors
+- [ ] Характеристики устройства выписаны: RAM, Flash, CPU модель
+- [ ] Рассчитан `max_connections` по формуле
+- [ ] Определён `message_size_limit` (не оставлен по умолчанию)
+- [ ] Написан `memory_limit` (не менее 20% и не более 40% от RAM)
+- [ ] Конфиг применён и Mosquitto запущен без ошибок
 
-## How to verify
+## Как проверить себя
 
 ```bash
-# Device specs:
+# Характеристики устройства:
 cat /proc/meminfo | grep MemTotal
 cat /proc/cpuinfo | grep "model name\|cpu MHz"
-df -h /overlay   # Free flash space
+df -h /overlay   # Свободное место в flash
 
-# Current Mosquitto consumption:
+# Текущее потребление Mosquitto:
 top -b -n 1 | grep mosquitto
-# Or:
+# Или:
 cat /proc/$(pidof mosquitto)/status | grep -E "VmRSS|VmPeak"
 
-# Free memory after startup:
+# Свободная память после запуска:
 free -m
 
-# Verify settings are applied:
+# Убедиться в применении настроек:
 mosquitto -c /etc/mosquitto/mosquitto.conf --help 2>/dev/null || \
   mosquitto -c /etc/mosquitto/mosquitto.conf -v & sleep 2; kill %1
 ```
 
-Reference table (minimum recommendations):
+Справочная таблица (min рекомендации):
 
 | RAM | max_connections | memory_limit | message_size_limit |
 |---|---|---|---|

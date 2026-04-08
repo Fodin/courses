@@ -1,51 +1,51 @@
-# Task 9.3: MQTT Web Client
+# Задание 9.3: Веб-клиент MQTT
 
-## Goal
+## Цель
 
-Create a minimal HTML page that connects to the broker via WebSocket and displays messages in real time.
+Создать минимальную HTML-страницу, которая подключается к брокеру через WebSocket и отображает сообщения в реальном времени.
 
-## Requirements
+## Требования
 
-1. Create an HTML file with MQTT.js loaded via CDN
-2. Connect to the broker: `ws://192.168.1.1:9001` (or through nginx)
-3. Subscribe to topic `sensors/#` with QoS 1
-4. Display received messages on the page (topic + value + time)
-5. Implement a publish button: send a message to `home/cmd/test`
-6. Handle `error`, `offline`, `reconnect` events
+1. Создать HTML-файл с подключением MQTT.js через CDN
+2. Подключиться к брокеру: `ws://192.168.1.1:9001` (или через nginx)
+3. Подписаться на топик `sensors/#` с QoS 1
+4. Отображать полученные сообщения на странице (топик + значение + время)
+5. Реализовать кнопку публикации: отправить сообщение в `home/cmd/test`
+6. Обработать события `error`, `offline`, `reconnect`
 
-## Checklist
+## Чеклист
 
-- [ ] HTML file contains `<script src="...mqtt.min.js">`
-- [ ] `clientId` is generated uniquely each time the page opens
-- [ ] `connect` event is handled, subscription is made inside it
-- [ ] Incoming messages are displayed in the DOM (list or table)
-- [ ] Publish button works
-- [ ] `error` and `offline` events are handled
-- [ ] `client.end()` is called when the page closes
+- [ ] HTML-файл содержит `<script src="...mqtt.min.js">`
+- [ ] `clientId` генерируется уникально для каждого открытия страницы
+- [ ] Событие `connect` обрабатывается, подписка выполняется внутри него
+- [ ] Входящие сообщения отображаются в DOM (список или таблица)
+- [ ] Кнопка публикации работает
+- [ ] Обработаны события `error` и `offline`
+- [ ] При закрытии страницы вызывается `client.end()`
 
-## How to verify
+## Как проверить себя
 
 ```bash
-# Publish test messages from the router:
+# Публикуйте тестовые сообщения с роутера:
 mosquitto_pub -h localhost -u user -P pass \
   -t "sensors/room1/temp" -m "22.5" -q 1 -r
 
-# Should appear on the browser page.
+# Должно появиться на странице в браузере.
 
-# Check the browser console for errors (F12 -> Console).
+# Проверьте консоль браузера на ошибки (F12 -> Console).
 
-# Verify clientId is unique in Mosquitto logs:
+# Проверьте, что clientId в логах Mosquitto уникален:
 logread | grep "New client"
 ```
 
-Minimal code to complete the task:
+Минимальный код для выполнения:
 ```html
 <!DOCTYPE html>
 <html>
 <head><title>MQTT Dashboard</title></head>
 <body>
   <ul id="messages"></ul>
-  <button id="publish">Send Test</button>
+  <button id="publish">Отправить тест</button>
 
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <script>

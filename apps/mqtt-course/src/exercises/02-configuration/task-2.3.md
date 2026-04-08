@@ -1,53 +1,53 @@
-# Task 2.3: Logging Configuration
+# Задание 2.3: Настройка логирования
 
-## Goal
+## Цель
 
-Master Mosquitto logging parameters (`log_dest`, `log_type`, `log_timestamp`) and understand how to properly configure logs for OpenWRT. Implement an interactive logging configuration builder with log output preview.
-
----
-
-## Requirements
-
-1. Define the `LogType` interface with fields: `id`, `label`, `description`, `example` (log line example), `verbosity` (1–5)
-
-2. Create a `logTypes` array with 8 types: `error`, `warning`, `notice`, `information`, `subscribe`, `unsubscribe`, `websockets`, `debug`
-
-3. Create a `logDestOptions` array with 6 destination options: `syslog`, `stdout`, `stderr`, `file /tmp/mosquitto.log`, `topic`, `none`. Mark those recommended for OpenWRT.
-
-4. Implement a component with three sections:
-   - **log_dest**: radio buttons for destination selection (single choice)
-   - **log_type**: checkboxes for type selection (multi-select). Color depends on verbosity
-   - **log_timestamp**: checkbox with highlighting
-
-5. A "Show Config" button reveals two blocks:
-   - Generated `mosquitto.conf` fragment
-   - Log output example based on the selected `log_type` values
-
-6. `log_type` checkbox colors reflect severity: red (error/warning), orange (notice), green (informational). Cannot deselect all types — minimum `error` must remain.
+Освоить параметры логирования Mosquitto (`log_dest`, `log_type`, `log_timestamp`) и понять, как правильно настроить логи для OpenWRT. Реализовать интерактивный конструктор конфигурации логирования с предварительным просмотром лог-вывода.
 
 ---
 
-## Checklist
+## Требования
 
-- [ ] Defined `LogType` interface with `verbosity` field
-- [ ] 8 logging types with realistic log line examples
-- [ ] 6 `log_dest` variants with `recommended` flag
-- [ ] Radio buttons for `log_dest` (single selection)
-- [ ] Checkboxes for `log_type` with color coding by verbosity
-- [ ] Cannot deselect all types (at least `error` remains)
-- [ ] `log_timestamp` checkbox with highlighting
-- [ ] Recommended variants marked with a badge
-- [ ] Button reveals two blocks: config and output example
-- [ ] Output example is generated from `example` of selected types
-- [ ] Correct TypeScript typing
+1. Определи интерфейс `LogType` с полями: `id`, `label`, `description`, `example` (пример строки лога), `verbosity` (1–5)
+
+2. Создай массив `logTypes` с 8 типами: `error`, `warning`, `notice`, `information`, `subscribe`, `unsubscribe`, `websockets`, `debug`
+
+3. Создай массив `logDestOptions` с 6 вариантами назначения: `syslog`, `stdout`, `stderr`, `file /tmp/mosquitto.log`, `topic`, `none`. Отметь рекомендуемые для OpenWRT.
+
+4. Реализуй компонент с тремя секциями:
+   - **log_dest**: радиокнопки для выбора назначения (одно)
+   - **log_type**: чекбоксы для выбора типов (множественный). Цвет зависит от verbosity
+   - **log_timestamp**: чекбокс с подсветкой
+
+5. Кнопка "Показать конфиг" раскрывает два блока:
+   - Сгенерированный фрагмент `mosquitto.conf`
+   - Пример лог-вывода на основе выбранных `log_type`
+
+6. Цвет чекбоксов `log_type` отражает критичность: красный (error/warning), оранжевый (notice), зелёный (информационные). Нельзя снять все типы — минимум `error`.
 
 ---
 
-## How to Check Yourself
+## Чеклист
 
-1. Do you see three sections: log_dest, log_type, log_timestamp?
-2. Are `syslog` and `file /tmp/mosquitto.log` marked as recommended?
-3. Do `error` and `warning` have red color, `notice` — orange?
-4. Try to deselect all types except `error` — does `error` stay selected?
-5. Click "Show Config" — do you see `log_dest syslog` and selected `log_type` entries?
-6. Does the output example show lines from `example` of the selected types?
+- [ ] Определён интерфейс `LogType` с полем `verbosity`
+- [ ] 8 типов логирования с реалистичными примерами строк
+- [ ] 6 вариантов `log_dest` с флагом `recommended`
+- [ ] Радиокнопки для `log_dest` (выбор одного)
+- [ ] Чекбоксы для `log_type` с цветовым кодированием по verbosity
+- [ ] Нельзя снять все типы (минимум error остаётся)
+- [ ] Чекбокс `log_timestamp` с подсветкой
+- [ ] Рекомендуемые варианты помечены бейджем
+- [ ] Кнопка раскрывает два блока: конфиг и пример вывода
+- [ ] Пример вывода формируется из `example` выбранных типов
+- [ ] Корректная TypeScript типизация
+
+---
+
+## Как проверить себя
+
+1. Видишь три секции: log_dest, log_type, log_timestamp?
+2. `syslog` и `file /tmp/mosquitto.log` помечены как рекомендуемые?
+3. `error` и `warning` имеют красный цвет, `notice` — оранжевый?
+4. Попробуй снять все типы кроме `error` — `error` не снимается?
+5. Нажми "Показать конфиг" — видишь `log_dest syslog` и выбранные `log_type`?
+6. В примере вывода видны строки из `example` выбранных типов?

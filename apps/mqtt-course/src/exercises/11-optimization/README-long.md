@@ -1,92 +1,92 @@
-# Level 11: Mosquitto Optimization for OpenWRT — Detailed Theory
+# Уровень 11: Оптимизация Mosquitto для OpenWRT — Развёрнутая теория
 
-## Why embedded is a different world
+## Почему embedded — это другой мир
 
-When a developer first installs Mosquitto on a router, they're in for a surprise: an app that worked fine on a server freezes on the router within an hour. The reason — drastically different resource constraints.
+Когда разработчик впервые устанавливает Mosquitto на роутер, его ждёт сюрприз: приложение, которое на сервере работало без проблем, на роутере зависает через час. Причина — кардинально другие ограничения ресурсов.
 
-Analogy: configuring Mosquitto for OpenWRT is like tuning a race car for off-road driving. It requires different thinking, different priorities.
+Аналогия: настройка Mosquitto для OpenWRT — как настройка гоночного болида для езды по бездорожью. Нужно другое мышление, другие приоритеты.
 
 ```mermaid
 graph LR
-  Server[Server 32 GB RAM] -->|no limits| MQ1[Mosquitto]
-  Router[Router 64 MB RAM] -->|tuning required| MQ2[Mosquitto]
-  MQ2 -->|without tuning| OOM[OOM: router freezes]
+  Server[Сервер 32 GB RAM] -->|без ограничений| MQ1[Mosquitto]
+  Router[Роутер 64 MB RAM] -->|тюнинг обязателен| MQ2[Mosquitto]
+  MQ2 -->|без тюнинга| OOM[OOM: роутер зависает]
 ```
 
-## Memory consumption analysis
+## Анализ потребления памяти
 
-Mosquitto consists of several memory pools:
+Mosquitto состоит из нескольких пулов памяти:
 
-### 1. Base consumption
-- Mosquitto process itself: **~2-3 MB** RSS at startup
-- Config processing, TLS context (if enabled): **+1-5 MB**
+### 1. Базовое потребление
+- Сам процесс Mosquitto: **~2-3 MB** RSS при старте
+- Обработка конфига, TLS-контекст (если включён): **+1-5 MB**
 
-### 2. Per connection
-- TCP socket + kernel buffers: **~8-16 KB** (depends on OS)
-- Client structure in Mosquitto: **~1-2 KB**
-- Send/receive buffer: **~4-8 KB**
+### 2. На каждое соединение
+- TCP-сокет + буферы ядра: **~8-16 KB** (зависит от ОС)
+- Структура клиента в Mosquitto: **~1-2 KB**
+- Буфер отправки/приёма: **~4-8 KB**
 
-Total: **~15-30 KB per client**. 50 clients = 750 KB - 1.5 MB.
+Итого: **~15-30 KB на клиента**. 50 клиентов = 750 KB - 1.5 MB.
 
-### 3. Message queues (QoS 1/2)
-Each unread QoS 1/2 message is stored in memory:
-- Message metadata: ~100 bytes
-- Payload: size of payload
+### 3. Очереди сообщений (QoS 1/2)
+Каждое непрочитанное QoS 1/2 сообщение хранится в памяти:
+- Метаданные сообщения: ~100 байт
+- Полезная нагрузка: размер payload
 
-With 100 clients × 1000 messages in queue × 4 KB = **400 MB**. On a router, that's a disaster.
+При 100 клиентах × 1000 сообщений в очереди × 4 KB = **400 MB**. На роутере это катастрофа.
 
-### 4. Retained messages
-Each retained topic is stored in memory indefinitely:
-- Structure: ~100 bytes metadata + payload
-- 10,000 retained topics × 1 KB = **10 MB**
+### 4. Retained сообщения
+Каждый retained топик хранится в памяти бессрочно:
+- Структура: ~100 байт метаданных + payload
+- 10 000 retained топиков × 1 KB = **10 MB**
 
-## Detailed parameter breakdown
+## Детальный разбор каждого параметра
 
 ### `max_connections N`
 
 ```conf
-max_connections 50   # Recommended for 64 MB RAM
+max_connections 50   # Рекомендуется для 64 MB RAM
 ```
 
-What happens when exceeded: new connection attempts are immediately rejected with code `0x05 (Connection Refused, not authorized)` or the connection simply drops.
+Что происходит при превышении: новые попытки подключения немедленно отклоняются с кодом `0x05 (Connection Refused, not authorized)` или соединение просто обрывается.
 
-How to calculate the limit:
-- Available RAM for MQTT: `total_ram × 0.4` (no more than 40% of free)
-- Divide by ~25 KB per client: `25 MB / 0.025 = 1000` (for 64 MB this is ~25 MB / 0.025 = ~1000, but that's theoretical max)
-- Practically: for 64 MB RAM → `max_connections 30-50`
+Как рассчитать лимит:
+- Доступная RAM для MQTT: `total_ram × 0.4` (не больше 40% от свободной)
+- Делим на ~25 KB на клиента: `25 MB / 0.025 = 1000` (для 64 MB это ~25 MB / 0.025 = ~1000, но это теоретический максимум)
+- Практически: для 64 MB RAM → `max_connections 30-50`
 
 ### `message_size_limit N`
 
 ```conf
-message_size_limit 4096   # 4 KB — for most IoT
-message_size_limit 65536  # 64 KB — if binary data needed
+message_size_limit 4096   # 4 KB — для большинства IoT
+message_size_limit 65536  # 64 KB — если нужны бинарные данные
 ```
 
-> ⚠️ Default limit = 268,435,455 bytes (256 MB)! One large message can kill a router.
+> ⚠️ По умолчанию лимит = 268 435 455 байт (256 MB)! Одно большое сообщение может убить роутер.
 
-Typical IoT message sizes:
-- JSON with temperature: `{"t":22.5}` = ~12 bytes
-- Sensor telemetry: ~100-500 bytes
-- Camera image: > 100 KB (not recommended via MQTT on a router)
+Типичные размеры IoT-сообщений:
+- JSON с температурой: `{"t":22.5}` = ~12 байт
+- Телеметрия датчика: ~100-500 байт
+- Изображение с камеры: > 100 KB (не рекомендуется через MQTT на роутере)
 
-### `max_queued_messages N` and `max_queued_bytes N`
+### `max_queued_messages N` и `max_queued_bytes N`
 
 ```conf
-max_queued_messages 100    # No more than 100 messages per client queue
-max_queued_bytes 524288    # No more than 512 KB per client (Mosquitto 2.x)
+max_queued_messages 100    # Не более 100 сообщений в очереди на клиента
+max_queued_bytes 524288    # Не более 512 KB на клиента (Mosquitto 2.x)
 ```
 
-When queue limit is exceeded: messages are **dropped** (oldest first). The drop counter is visible in `$SYS/broker/messages/publish/dropped`.
+При превышении лимита очереди: сообщения **отбрасываются** (oldest first). Счётчик отброшенных виден в `$SYS/broker/messages/publish/dropped`.
 
 ### `memory_limit N`
 
 ```conf
-memory_limit 25000000  # 25 MB — hard heap limit
+memory_limit 25000000  # 25 MB — жёсткий лимит heap
 ```
 
-When the limit is reached, Mosquitto starts rejecting new connections and refusing new messages. This protects against the OOM-killer, which would otherwise kill an arbitrary process (possibly the entire network stack).
+При достижении лимита Mosquitto начинает отклонять новые подключения и не принимает новые сообщения. Это защищает от OOM-killer'а, который иначе убьёт произвольный процесс (возможно, весь сетевой стек).
 
-**Calculation rule** for a router with `R` MB RAM:
+**Правило расчёта** для роутера с `R` MB RAM:
 ```
 memory_limit = min(R * 0.4 * 1000000, 64000000)
 ```
@@ -94,13 +94,13 @@ memory_limit = min(R * 0.4 * 1000000, 64000000)
 ### `sys_interval N`
 
 ```conf
-sys_interval 30   # Every 30 seconds instead of 10
-sys_interval 0    # Fully disable $SYS (maximum savings)
+sys_interval 30   # Каждые 30 секунд вместо 10
+sys_interval 0    # Полностью отключить $SYS (максимальная экономия)
 ```
 
-Each $SYS publication creates load: Mosquitto must update ~20 topics and deliver them to all subscribers. On a weak CPU, this is noticeable.
+Каждая публикация в $SYS создаёт нагрузку: Mosquitto должен обновить ~20 топиков и доставить их всем подписчикам. На слабом CPU это заметно.
 
-## Clean Session vs Persistent Session: in detail
+## Clean Session vs Persistent Session: детально
 
 ### Clean Session (clean: true)
 
@@ -111,23 +111,23 @@ sequenceDiagram
   Client->>Mosquitto: CONNECT (clean=true)
   Mosquitto->>Client: CONNACK (session_present=0)
   Client->>Mosquitto: SUBSCRIBE sensors/#
-  Note over Mosquitto: Stores subscription ONLY while connected
+  Note over Mosquitto: Хранит подписку ТОЛЬКО пока подключён
   Client->>Mosquitto: DISCONNECT
-  Note over Mosquitto: Removes subscription and state
-  Client->>Mosquitto: CONNECT again
-  Note over Client: Must re-subscribe!
+  Note over Mosquitto: Удаляет подписку и состояние
+  Client->>Mosquitto: CONNECT снова
+  Note over Client: Нужно заново подписаться!
 ```
 
-Pros:
-- No data accumulation in memory
-- No disk persistence required
-- Simple behavior
+Плюсы:
+- Нет накопления данных в памяти
+- Не требует persistence на диске
+- Простое поведение
 
-Cons:
-- Client misses messages while disconnected
-- Must re-subscribe after every reconnect
+Минусы:
+- Клиент пропускает сообщения, пока отключён
+- Нужно переподписываться после каждого reconnect
 
-**When to use**: browsers, dashboards, any clients that are always online.
+**Когда использовать**: браузеры, дашборды, любые клиенты, которые постоянно онлайн.
 
 ### Persistent Session (clean: false)
 
@@ -137,201 +137,201 @@ sequenceDiagram
   participant Mosquitto
   participant DB[(persistence.db)]
   Sensor->>Mosquitto: CONNECT (clean=false, clientId=sensor-1)
-  Mosquitto->>DB: Save session sensor-1
-  Mosquitto->>Sensor: CONNACK (session_present=0 or 1)
+  Mosquitto->>DB: Сохранить сессию sensor-1
+  Mosquitto->>Sensor: CONNACK (session_present=0 или 1)
   Sensor->>Mosquitto: SUBSCRIBE commands/#
-  Note over Mosquitto,DB: Store subscription in persistence.db
-  Sensor->>Mosquitto: DISCONNECT (power off — went to sleep)
-  Note over Mosquitto: Someone publishes to commands/#
-  Mosquitto->>DB: Save message for sensor-1
-  Sensor->>Mosquitto: CONNECT again (an hour later)
+  Note over Mosquitto,DB: Хранит подписку в persistence.db
+  Sensor->>Mosquitto: DISCONNECT (нет тока — уснул)
+  Note over Mosquitto: Кто-то публикует в commands/#
+  Mosquitto->>DB: Сохранить сообщение для sensor-1
+  Sensor->>Mosquitto: CONNECT снова (через час)
   Mosquitto->>Sensor: CONNACK (session_present=1)
-  DB->>Mosquitto: Accumulated messages
-  Mosquitto->>Sensor: Deliver accumulated data
+  DB->>Mosquitto: Накопленные сообщения
+  Mosquitto->>Sensor: Доставить накопленное
 ```
 
-Pros:
-- Sensor doesn't miss commands while sleeping
-- Broker guarantees delivery (QoS 1/2)
+Плюсы:
+- Датчик не пропускает команды, пока спит
+- Брокер гарантирует доставку (QoS 1/2)
 
-Cons:
-- Requires `persistence true` and disk space
-- Dead sessions accumulate
+Минусы:
+- Требует `persistence true` и место на диске
+- Мёртвые сессии накапливаются
 
 ```conf
-# Required settings for persistent sessions:
+# Обязательные настройки для persistent sessions:
 persistence true
-persistence_location /tmp/mosquitto/  # In RAM!
-persistent_client_expiration 1d       # Remove after 1 day
+persistence_location /tmp/mosquitto/  # В RAM!
+persistent_client_expiration 1d       # Удалять через 1 день
 ```
 
-**When to use**: battery-powered IoT sensors, infrequently connecting clients.
+**Когда использовать**: IoT-датчики на батарейках, редко подключающиеся клиенты.
 
-## Keepalive: connection loss detection
+## Keepalive: механизм обнаружения обрыва
 
-TCP doesn't always immediately detect a broken connection — especially through NAT/firewall, where connection state "stales". Keepalive solves this at the MQTT level.
+TCP не всегда сразу замечает обрыв соединения — особенно через NAT/firewall, где состояние соединения "протухает". Keepalive решает это через MQTT-уровень.
 
-### How it works:
+### Как работает:
 
-1. Client sets `keepalive = 60` (seconds)
-2. If no packet is sent within 60 seconds — client must send `PINGREQ`
-3. Broker responds with `PINGRESP`
-4. If no packet is received within `keepalive × 1.5 = 90` seconds — connection is dropped
+1. Клиент устанавливает `keepalive = 60` (секунды)
+2. Если за 60 секунд клиент не отправил ни одного пакета — он должен отправить `PINGREQ`
+3. Брокер отвечает `PINGRESP`
+4. Если брокер не получил пакета за `keepalive × 1.5 = 90` секунд — разрывает соединение
 
 ```conf
 # mosquitto.conf:
-max_keepalive 300    # Client cannot set keepalive > 300 seconds
+max_keepalive 300    # Клиент не может установить keepalive > 300 секунд
 ```
 
-### Keepalive recommendations:
+### Рекомендации по keepalive:
 
-| Client type | Recommended keepalive | Why |
+| Тип клиента | Рекомендуемый keepalive | Почему |
 |---|---|---|
-| Battery IoT sensor | 300-600 s | Infrequent PINGREQ saves energy |
-| Wired sensor | 60-120 s | No power constraints |
-| Web dashboard | 30-60 s | Quickly detect disconnections |
-| Mobile app | 60 s | Battery/reliability balance |
+| IoT-датчик с батареей | 300-600 с | Редкие PINGREQ экономят энергию |
+| Проводной датчик | 60-120 с | Нет ограничений по энергии |
+| Веб-дашборд | 30-60 с | Быстро обнаруживать обрыв |
+| Мобильное приложение | 60 с | Баланс батарея/надёжность |
 
-> ⚠️ NAT tables in routers often remove entries after 60-120 seconds of inactivity. Client keepalive should be **less** than this value.
+> ⚠️ NAT-таблицы в роутерах часто удаляют записи через 60-120 секунд простоя. Keepalive клиента должен быть **меньше** этого значения.
 
-## Logging: compromise between debugging and performance
+## Логирование: компромисс между отладкой и производительностью
 
 ```conf
-# Minimal logging (production):
+# Минимальное логирование (продакшен):
 log_type error warning
 log_dest syslog
 
-# Extended (for debugging):
+# Расширенное (для отладки):
 log_type error warning notice information
 log_dest file /tmp/mosquitto.log
 
-# Full (temporary only!):
+# Полное (только временно!):
 log_type all
 ```
 
-> ⚠️ `log_type all` on an active broker — thousands of lines per second. Will quickly fill /tmp/ (RAM).
+> ⚠️ `log_type all` на активном брокере — тысячи строк в секунду. Быстро заполнит /tmp/ (RAM).
 
-## Persistence on flash: wear danger
+## Persistence на flash: опасность износа
 
-OpenWRT flash memory has limited endurance:
-- NAND flash: 10,000 - 100,000 write cycles per block
-- Mosquitto writes persistence every `autosave_interval` seconds by default
+Flash-память OpenWRT имеет ограниченный ресурс:
+- NAND flash: 10 000 - 100 000 циклов записи на блок
+- Mosquitto по умолчанию записывает persistence каждые `autosave_interval` секунд
 
 ```conf
-# DON'T DO THIS (flash wear):
+# НЕ ДЕЛАЙТЕ ТАК (износ flash):
 persistence true
-persistence_location /etc/mosquitto/  # on flash!
+persistence_location /etc/mosquitto/  # во flash!
 
-# CORRECT (in RAM):
+# ПРАВИЛЬНО (в RAM):
 persistence true
 persistence_location /tmp/mosquitto/  # tmpfs
 
-# Or disable persistence if not needed:
+# Или отключить persistence совсем если не нужен:
 persistence false
 ```
 
-If persistence with reboot survival is needed — use a USB flash drive or microSD (not built-in flash):
+Если нужна persistence с сохранением после перезагрузки — используйте USB-флешку или microSD (не встроенный flash):
 
 ```conf
 persistence_location /mnt/usb/mosquitto/
 ```
 
-## Example optimal config for 128 MB RAM
+## Пример оптимального конфига для 128 MB RAM
 
 ```conf
 # /etc/mosquitto/mosquitto.conf
-# Optimized for router with 128 MB RAM, up to 50 IoT clients
+# Оптимизирован для роутера с 128 MB RAM, до 50 IoT-клиентов
 
 listener 1883
 protocol mqtt
-bind_address 192.168.1.1  # LAN interface only
+bind_address 192.168.1.1  # Только LAN-интерфейс
 
-# Authentication
+# Аутентификация
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 acl_file /etc/mosquitto/acl
 
-# Memory and connection limits
+# Лимиты памяти и соединений
 max_connections 50
-message_size_limit 8192         # 8 KB maximum
+message_size_limit 8192         # 8 KB максимум
 max_queued_messages 100
-max_queued_bytes 524288          # 512 KB per client
+max_queued_bytes 524288          # 512 KB на клиента
 memory_limit 32000000            # 32 MB heap limit
 
-# Sessions
+# Сессии
 persistence true
 persistence_location /tmp/mosquitto/
 persistent_client_expiration 2d
-autosave_interval 300            # Save every 5 minutes
+autosave_interval 300            # Сохранять раз в 5 минут
 
 # Keepalive
 max_keepalive 300
 
-# Monitoring
+# Мониторинг
 sys_interval 30
 
-# Logging
+# Логирование
 log_type error warning
 log_dest syslog
 ```
 
-## ⚠️ Common beginner mistakes
+## ⚠️ Типичные ошибки начинающих
 
-### Mistake 1: leaving memory_limit at zero
+### Ошибка 1: оставить memory_limit на нуле
 
 ```conf
-# Bad (default):
-# memory_limit not set = 0 = no limit
+# Плохо (по умолчанию):
+# memory_limit не задан = 0 = без лимита
 
-# Good:
-memory_limit 25000000  # For 64 MB RAM
+# Хорошо:
+memory_limit 25000000  # Для 64 MB RAM
 ```
 
-Without a limit, Mosquitto can use all router memory → OOM → freeze.
+Без лимита Mosquitto может использовать всю память роутера → OOM → зависание.
 
-### Mistake 2: not limiting message_size_limit
+### Ошибка 2: не ограничить message_size_limit
 
 ```conf
-# Bad — client can send 256 MB:
-# message_size_limit not set
+# Плохо — клиент может отправить 256 MB:
+# message_size_limit не задан
 
-# Good:
+# Хорошо:
 message_size_limit 4096  # 4 KB
 ```
 
-One large message can destroy everything accumulated: `max_queued_bytes` doesn't protect against a single large message.
+Одно большое сообщение может уничтожить всё накопленное: `max_queued_bytes` не защищает от single large message.
 
-### Mistake 3: persistent sessions without expiration limit
-
-```conf
-# Bad — dead sessions accumulate forever:
-persistence true
-# persistent_client_expiration not set
-
-# Good:
-persistence true
-persistent_client_expiration 7d  # Remove after a week
-```
-
-After a month, persistence.db can grow to several MB.
-
-### Mistake 4: keepalive longer than NAT timeout
-
-```
-Client sets keepalive=3600 (1 hour).
-Router/provider closes NAT entry after 120 seconds.
-Client "thinks" it's connected, broker also "thinks" — but packets don't pass.
-```
-
-Solution: `max_keepalive 120` in mosquitto.conf, so clients can't set a large keepalive.
-
-### Mistake 5: writing logs to /tmp/ without rotation
+### Ошибка 3: persistent sessions без ограничения expiration
 
 ```conf
-# Bad — /tmp/ (tmpfs/RAM) will fill up:
+# Плохо — мёртвые сессии копятся вечно:
+persistence true
+# persistent_client_expiration не задан
+
+# Хорошо:
+persistence true
+persistent_client_expiration 7d  # Удалять через неделю
+```
+
+Через месяц persistence.db может вырасти до нескольких MB.
+
+### Ошибка 4: keepalive больше времени NAT
+
+```
+Клиент устанавливает keepalive=3600 (1 час).
+Роутер/провайдер закрывает NAT-запись через 120 секунд.
+Клиент "думает" что подключён, брокер тоже "думает" — но пакеты не проходят.
+```
+
+Решение: `max_keepalive 120` в mosquitto.conf, чтобы клиенты не могли ставить большой keepalive.
+
+### Ошибка 5: запись логов в /tmp/ без ротации
+
+```conf
+# Плохо — /tmp/ (tmpfs/RAM) будет заполнен:
 log_dest file /tmp/mosquitto.log
-# After a few days /tmp/ is full → errors everywhere
+# Через несколько дней /tmp/ полный → ошибки везде
 
-# Good — syslog with automatic rotation:
+# Хорошо — syslog с автоматической ротацией:
 log_dest syslog
 ```

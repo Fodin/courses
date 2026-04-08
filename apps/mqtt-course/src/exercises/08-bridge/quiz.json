@@ -1,105 +1,105 @@
 [
   {
-    "question": "How does Mosquitto implement Bridge at the MQTT protocol level?",
+    "question": "Как Mosquitto реализует Bridge на уровне протокола MQTT?",
     "type": "single",
     "options": [
       {
-        "text": "Two brokers establish a special inter-broker TCP connection",
+        "text": "Bridge использует специальный порт 8444 для межброкерного обмена",
         "correct": false,
-        "explanation": "There is no special protocol. Standard MQTT protocol is used: one broker acts as a client of the other."
+        "explanation": "Никакого специального порта нет. Bridge использует стандартные MQTT-порты (1883, 8883) в зависимости от настройки."
       },
       {
-        "text": "Bridge uses a special port 8444 for inter-broker communication",
-        "correct": false,
-        "explanation": "There is no special port. Bridge uses standard MQTT ports (1883, 8883) depending on configuration."
-      },
-      {
-        "text": "Brokers exchange data through a shared database",
-        "correct": false,
-        "explanation": "Brokers do not share storage. Communication happens through regular MQTT PUBLISH/SUBSCRIBE messages."
-      },
-      {
-        "text": "The local broker acts as an MQTT client to the remote broker",
+        "text": "Локальный брокер выступает MQTT-клиентом для удалённого брокера",
         "correct": true,
-        "explanation": "Bridge is a built-in MQTT client in Mosquitto. The local broker connects to the remote broker as a regular client with a client_id like 'mosquitto.bridge.<name>.<host>'."
+        "explanation": "Bridge — это встроенный MQTT-клиент в Mosquitto. Локальный брокер подключается к удалённому как обычный клиент с client_id вида 'mosquitto.bridge.<name>.<host>'."
+      },
+      {
+        "text": "Брокеры обмениваются данными через общую базу данных",
+        "correct": false,
+        "explanation": "Брокеры не имеют общего хранилища. Обмен происходит через обычные MQTT PUBLISH/SUBSCRIBE сообщения."
+      },
+      {
+        "text": "Два брокера устанавливают специальное межброкерное TCP-соединение",
+        "correct": false,
+        "explanation": "Никакого специального протокола нет. Используется обычный MQTT-протокол: один брокер выступает клиентом другого."
       }
     ]
   },
   {
-    "question": "What does the 'out' direction in a Bridge topic configuration line mean?",
+    "question": "Что означает направление 'out' в строке topic конфигурации Bridge?",
     "type": "single",
     "options": [
       {
-        "text": "Messages are encrypted before sending",
+        "text": "Сообщения с удалённого брокера получаются локально",
         "correct": false,
-        "explanation": "Encryption is configured via bridge_cafile/bridge_certfile/bridge_keyfile, not through topic direction."
+        "explanation": "Это направление 'in': входящие сообщения из удалённого брокера появляются на локальном. 'out' — наоборот."
       },
       {
-        "text": "Messages from the remote broker are received locally",
+        "text": "Сообщения удаляются после пересылки (one-way delete)",
         "correct": false,
-        "explanation": "That is the 'in' direction: incoming messages from the remote broker appear locally. 'out' is the opposite."
+        "explanation": "Направления в Bridge — это in/out/both для потока данных, а не операции с сообщениями. Пересланное сообщение остаётся на источнике."
       },
       {
-        "text": "Messages are deleted after forwarding (one-way delete)",
-        "correct": false,
-        "explanation": "Bridge directions (in/out/both) refer to data flow, not message operations. The forwarded message remains on the source."
-      },
-      {
-        "text": "Messages published on the local broker are forwarded to the remote broker",
+        "text": "Сообщения, опубликованные на локальном брокере, пересылаются на удалённый",
         "correct": true,
-        "explanation": "'out' is the outgoing direction: local publications are sent to the remote broker. Clients connected to the remote broker can receive them."
+        "explanation": "'out' — исходящее направление: локальные публикации уходят на удалённый брокер. Клиенты, подключённые к удалённому брокеру, могут их получить."
+      },
+      {
+        "text": "Сообщения шифруются перед отправкой",
+        "correct": false,
+        "explanation": "Шифрование настраивается через bridge_cafile/bridge_certfile/bridge_keyfile, а не через направление topic."
       }
     ]
   },
   {
-    "question": "A developer configured a Bridge: 'topic sensors/# out 0 \"\" home/'. What happens to a message published to sensors/temp?",
+    "question": "Разработчик настроил Bridge: 'topic sensors/# out 0 \"\" home/'. Что произойдёт с сообщением, опубликованным в топик sensors/temp?",
     "type": "single",
     "options": [
       {
-        "text": "The message will not be forwarded — pattern sensors/# does not match sensors/temp",
+        "text": "На удалённом брокере появится сообщение в топике sensors/temp",
         "correct": false,
-        "explanation": "The pattern sensors/# does match sensors/temp — the # wildcard matches any topic level, including temp."
+        "explanation": "Без маппинга было бы так. Но указан удалённый префикс 'home/', поэтому топик трансформируется в home/sensors/temp."
       },
       {
-        "text": "A message appears on the remote broker in topic home/sensors/temp",
+        "text": "Сообщение не будет переслано — паттерн sensors/# не совпадает с sensors/temp",
+        "correct": false,
+        "explanation": "Паттерн sensors/# совпадает с sensors/temp — символ # соответствует любому уровню топика, включая temp."
+      },
+      {
+        "text": "На удалённом брокере появится сообщение в топике home/temp (sensors/ удаляется)",
+        "correct": false,
+        "explanation": "Префикс добавляется, а не заменяет часть топика. sensors/temp с префиксом home/ даёт home/sensors/temp."
+      },
+      {
+        "text": "На удалённом брокере появится сообщение в топике home/sensors/temp",
         "correct": true,
-        "explanation": "Mapping format: 'topic <pattern> <direction> <QoS> [local_prefix] [remote_prefix]'. Empty local prefix ('') + remote prefix 'home/' = sensors/temp → home/sensors/temp."
-      },
-      {
-        "text": "A message appears on the remote broker in topic sensors/temp",
-        "correct": false,
-        "explanation": "That would be the case without mapping. But since the remote prefix 'home/' is specified, the topic transforms to home/sensors/temp."
-      },
-      {
-        "text": "A message appears on the remote broker in topic home/temp (sensors/ is removed)",
-        "correct": false,
-        "explanation": "The prefix is added, not replacing part of the topic. sensors/temp with prefix home/ gives home/sensors/temp."
+        "explanation": "Формат маппинга: 'topic <паттерн> <direction> <QoS> [локальный_префикс] [удалённый_префикс]'. Пустой локальный префикс ('') + удалённый 'home/' = sensors/temp → home/sensors/temp."
       }
     ]
   },
   {
-    "question": "Which measures help prevent message loops when using direction 'both'?",
+    "question": "Какие меры помогают предотвратить петли сообщений при использовании direction 'both'?",
     "type": "multiple",
     "options": [
       {
-        "text": "Use directional rules (out/in) instead of both when possible",
-        "correct": true,
-        "explanation": "If data flows strictly in one direction (e.g., sensors → cloud), use 'out'. This completely eliminates loops in that direction."
-      },
-      {
-        "text": "Set autosave_interval 0 for persistence",
+        "text": "Установить autosave_interval 0 для persistence",
         "correct": false,
-        "explanation": "Persistence settings do not affect message loops in Bridge. These are different Mosquitto functions."
+        "explanation": "Настройки persistence не влияют на петли сообщений в Bridge. Это разные функции Mosquitto."
       },
       {
-        "text": "Configure separate topics for sending and receiving instead of a single both rule",
-        "correct": false,
-        "explanation": "Instead of 'topic status both 1', you can use 'topic local/status out 1' + 'topic remote/status in 1' with different prefixes, eliminating loops."
-      },
-      {
-        "text": "Use cleansession true for the bridge connection",
+        "text": "По возможности использовать направленные правила (out/in) вместо both",
         "correct": true,
-        "explanation": "cleansession true prevents accumulation of stale subscriptions, reducing the risk of loops."
+        "explanation": "Если данные идут строго в одну сторону (например, датчики → облако), используйте 'out'. Это полностью исключает петли в данном направлении."
+      },
+      {
+        "text": "Использовать cleansession true для bridge-соединения",
+        "correct": true,
+        "explanation": "cleansession true предотвращает накопление устаревших подписок, что снижает риск петель."
+      },
+      {
+        "text": "Настроить разные топики для отправки и получения вместо одного both-правила",
+        "correct": true,
+        "explanation": "Вместо 'topic status both 1' можно использовать 'topic local/status out 1' + 'topic remote/status in 1' с разными префиксами, что исключает петли."
       }
     ]
   }

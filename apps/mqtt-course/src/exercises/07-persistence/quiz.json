@@ -1,105 +1,105 @@
 [
   {
-    "question": "Which of the following is NOT stored in mosquitto.db when persistence is enabled?",
-    "type": "multiple",
-    "options": [
-      {
-        "text": "Current broker statistics ($SYS/#)",
-        "correct": true,
-        "explanation": "$SYS topics are runtime statistics that are recalculated after each start. They are not saved in the database."
-      },
-      {
-        "text": "QoS 0 messages in transit to offline clients",
-        "correct": true,
-        "explanation": "QoS 0 is 'fire and forget'. Per the MQTT specification, QoS 0 messages are not buffered for offline clients and are not saved in persistent storage."
-      },
-      {
-        "text": "Subscriptions of persistent sessions (clean_session=false)",
-        "correct": false,
-        "explanation": "Subscriptions of clients with clean_session=false are saved in mosquitto.db and restored after a restart."
-      },
-      {
-        "text": "Retained messages",
-        "correct": false,
-        "explanation": "Retained messages are one of the key things that persistence saves. After a broker restart, retained messages are restored."
-      }
-    ]
-  },
-  {
-    "question": "Why is using persistence_location /tmp a mistake on OpenWRT?",
+    "question": "Как Mosquitto реализует Bridge на уровне протокола MQTT?",
     "type": "single",
     "options": [
       {
-        "text": "/tmp does not have write permissions for the mosquitto process",
+        "text": "Брокеры обмениваются данными через общую базу данных",
         "correct": false,
-        "explanation": "Mosquitto usually has write access to /tmp. The issue is not permissions but that tmpfs does not persist data."
+        "explanation": "Брокеры не имеют общего хранилища. Обмен происходит через обычные MQTT PUBLISH/SUBSCRIBE сообщения."
       },
       {
-        "text": "/tmp is tmpfs (RAM), data is lost on reboot",
+        "text": "Bridge использует специальный порт 8444 для межброкерного обмена",
+        "correct": false,
+        "explanation": "Никакого специального порта нет. Bridge использует стандартные MQTT-порты (1883, 8883) в зависимости от настройки."
+      },
+      {
+        "text": "Локальный брокер выступает MQTT-клиентом для удалённого брокера",
         "correct": true,
-        "explanation": "On OpenWRT, /tmp is mounted as tmpfs — a virtual file system in RAM. After a reboot or power loss, all data disappears, completely defeating the purpose of persistence."
+        "explanation": "Bridge — это встроенный MQTT-клиент в Mosquitto. Локальный брокер подключается к удалённому как обычный клиент с client_id вида 'mosquitto.bridge.<name>.<host>'."
       },
       {
-        "text": "Mosquitto does not support storing data in /tmp",
+        "text": "Два брокера устанавливают специальное межброкерное TCP-соединение",
         "correct": false,
-        "explanation": "Mosquitto will technically start with persistence_location /tmp, but data will be lost after reboot — this is a logical configuration error."
-      },
-      {
-        "text": "/tmp is too slow for database operations",
-        "correct": false,
-        "explanation": "On the contrary, tmpfs is the fastest option (RAM). The problem is volatility, not speed."
+        "explanation": "Никакого специального протокола нет. Используется обычный MQTT-протокол: один брокер выступает клиентом другого."
       }
     ]
   },
   {
-    "question": "Why send SIGUSR1 to the Mosquitto process before creating a backup?",
+    "question": "Что означает направление 'out' в строке topic конфигурации Bridge?",
     "type": "single",
     "options": [
       {
-        "text": "To make Mosquitto terminate all active client connections before backup",
-        "correct": false,
-        "explanation": "SIGUSR1 does not affect active client connections; it only saves the database to disk."
-      },
-      {
-        "text": "To lock the database file during copying",
-        "correct": false,
-        "explanation": "SIGUSR1 does not lock the file. It is simply a forced buffer flush. For atomic copying, you should pause after the signal (sleep 2)."
-      },
-      {
-        "text": "To reload the Mosquitto configuration",
-        "correct": false,
-        "explanation": "SIGUSR1 forces a database save. For configuration reload, Mosquitto 1.x used SIGHUP, and 2.x uses mosquitto_ctrl reload."
-      },
-      {
-        "text": "To force Mosquitto to immediately flush in-memory buffers to disk",
+        "text": "Сообщения, опубликованные на локальном брокере, пересылаются на удалённый",
         "correct": true,
-        "explanation": "Mosquitto does not write every change to disk immediately — it buffers data for performance. SIGUSR1 triggers an immediate buffer flush. Without it, the mosquitto.db file on disk may contain stale data."
+        "explanation": "'out' — исходящее направление: локальные публикации уходят на удалённый брокер. Клиенты, подключённые к удалённому брокеру, могут их получить."
+      },
+      {
+        "text": "Сообщения удаляются после пересылки (one-way delete)",
+        "correct": false,
+        "explanation": "Направления в Bridge — это in/out/both для потока данных, а не операции с сообщениями. Пересланное сообщение остаётся на источнике."
+      },
+      {
+        "text": "Сообщения с удалённого брокера получаются локально",
+        "correct": false,
+        "explanation": "Это направление 'in': входящие сообщения из удалённого брокера появляются на локальном. 'out' — наоборот."
+      },
+      {
+        "text": "Сообщения шифруются перед отправкой",
+        "correct": false,
+        "explanation": "Шифрование настраивается через bridge_cafile/bridge_certfile/bridge_keyfile, а не через направление topic."
       }
     ]
   },
   {
-    "question": "Which parameters are recommended to reduce flash memory wear on OpenWRT when using /overlay?",
+    "question": "Разработчик настроил Bridge: 'topic sensors/# out 0 \"\" home/'. Что произойдёт с сообщением, опубликованным в топик sensors/temp?",
+    "type": "single",
+    "options": [
+      {
+        "text": "На удалённом брокере появится сообщение в топике home/temp (sensors/ удаляется)",
+        "correct": false,
+        "explanation": "Префикс добавляется, а не заменяет часть топика. sensors/temp с префиксом home/ даёт home/sensors/temp."
+      },
+      {
+        "text": "На удалённом брокере появится сообщение в топике sensors/temp",
+        "correct": false,
+        "explanation": "Без маппинга было бы так. Но указан удалённый префикс 'home/', поэтому топик трансформируется в home/sensors/temp."
+      },
+      {
+        "text": "На удалённом брокере появится сообщение в топике home/sensors/temp",
+        "correct": true,
+        "explanation": "Формат маппинга: 'topic <паттерн> <direction> <QoS> [локальный_префикс] [удалённый_префикс]'. Пустой локальный префикс ('') + удалённый 'home/' = sensors/temp → home/sensors/temp."
+      },
+      {
+        "text": "Сообщение не будет переслано — паттерн sensors/# не совпадает с sensors/temp",
+        "correct": false,
+        "explanation": "Паттерн sensors/# совпадает с sensors/temp — символ # соответствует любому уровню топика, включая temp."
+      }
+    ]
+  },
+  {
+    "question": "Какие меры помогают предотвратить петли сообщений при использовании direction 'both'?",
     "type": "multiple",
     "options": [
       {
-        "text": "autosave_interval 0",
-        "correct": false,
-        "explanation": "autosave_interval 0 means saving only on clean shutdown (SIGTERM). This minimizes flash wear, but on power loss, all changes since the last start are lost."
-      },
-      {
-        "text": "autosave_interval 600 or more",
+        "text": "Использовать cleansession true для bridge-соединения",
         "correct": true,
-        "explanation": "A larger autosave interval means fewer write operations to flash per day. 600 seconds (10 minutes) is a reasonable compromise between potential data loss and flash wear."
+        "explanation": "cleansession true предотвращает накопление устаревших подписок, что снижает риск петель."
       },
       {
-        "text": "persistence false",
-        "correct": false,
-        "explanation": "Disabling persistence eliminates flash wear, but retained messages and sessions are lost on reboot — this is not a solution."
-      },
-      {
-        "text": "autosave_on_changes false",
+        "text": "По возможности использовать направленные правила (out/in) вместо both",
         "correct": true,
-        "explanation": "With autosave_on_changes true, the database is saved on every retained message or subscription change. On an active broker, this could be hundreds of writes per hour. Setting it to false conserves flash lifespan."
+        "explanation": "Если данные идут строго в одну сторону (например, датчики → облако), используйте 'out'. Это полностью исключает петли в данном направлении."
+      },
+      {
+        "text": "Установить autosave_interval 0 для persistence",
+        "correct": false,
+        "explanation": "Настройки persistence не влияют на петли сообщений в Bridge. Это разные функции Mosquitto."
+      },
+      {
+        "text": "Настроить разные топики для отправки и получения вместо одного both-правила",
+        "correct": true,
+        "explanation": "Вместо 'topic status both 1' можно использовать 'topic local/status out 1' + 'topic remote/status in 1' с разными префиксами, что исключает петли."
       }
     ]
   }

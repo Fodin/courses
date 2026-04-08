@@ -1,105 +1,110 @@
 [
   {
-    "question": "What happens if port 1883 is open to the internet without TLS and authentication?",
+    "question": "Что произойдёт, если порт 1883 открыт в интернет без TLS и аутентификации?",
     "type": "multiple",
     "options": [
       {
-        "text": "An attacker can cause OOM through large messages",
-        "correct": true,
-        "explanation": "Without message_size_limit, an attacker can send a 256 MB message, exhausting the router's RAM."
-      },
-      {
-        "text": "The MQTT protocol automatically encrypts data",
+        "text": "Все перечисленные варианты неверны",
         "correct": false,
-        "explanation": "MQTT does not encrypt data on its own. TLS over MQTT (port 8883) is required for encryption."
+        "explanation": "Некоторые из перечисленных вариантов действительно верны."
       },
       {
-        "text": "Anyone can read all MQTT topics",
+        "text": "Любой может читать все MQTT-топики",
         "correct": true,
-        "explanation": "Without authentication (allow_anonymous true) and without ACL, any client can subscribe to # and read everything."
+        "explanation": "Без аутентификации (allow_anonymous true) и без ACL любой клиент может подписаться на # и читать всё."
       },
       {
-        "text": "Anyone can publish fake data to any topic",
+        "text": "Атакующий может вызвать OOM через большие сообщения",
         "correct": true,
-        "explanation": "Without authentication, anyone can publish to any topic, allowing spoofing of sensor data or sending commands."
+        "explanation": "Без message_size_limit атакующий может отправить сообщение в 256 MB, исчерпав RAM роутера."
+      },
+      {
+        "text": "Любой может публиковать фейковые данные в любой топик",
+        "correct": true,
+        "explanation": "Без аутентификации любой может публиковать в любой топик, что позволяет подделывать данные датчиков или отправлять команды."
+      },
+      {
+        "text": "MQTT-протокол автоматически шифрует данные",
+        "correct": false,
+        "explanation": "MQTT не шифрует данные самостоятельно. Для шифрования нужен TLS поверх MQTT (порт 8883)."
       }
     ]
   },
   {
-    "question": "What does the `bind_address 192.168.1.1` directive do in mosquitto.conf?",
+    "question": "Что делает директива `bind_address 192.168.1.1` в mosquitto.conf?",
     "type": "single",
     "options": [
       {
-        "text": "Mosquitto listens only on the network interface with IP 192.168.1.1 (LAN)",
+        "text": "Ограничивает, кто может подключаться — только клиенты с адресом 192.168.1.1",
+        "correct": false,
+        "explanation": "bind_address определяет, на каком ЛОКАЛЬНОМ интерфейсе слушает Mosquitto. Это не фильтр клиентов."
+      },
+      {
+        "text": "Включает NAT для MQTT-трафика",
+        "correct": false,
+        "explanation": "NAT настраивается на уровне iptables/firewall, а не в mosquitto.conf."
+      },
+      {
+        "text": "Mosquitto будет подключаться к другому брокеру по адресу 192.168.1.1",
+        "correct": false,
+        "explanation": "Для подключения к другому брокеру используется конфигурация bridge. bind_address — это локальный адрес."
+      },
+      {
+        "text": "Mosquitto слушает только на сетевом интерфейсе с IP 192.168.1.1 (LAN)",
         "correct": true,
-        "explanation": "bind_address sets the local address the socket binds to. If this is a LAN IP, Mosquitto physically cannot accept connections from the WAN interface."
-      },
-      {
-        "text": "Enables NAT for MQTT traffic",
-        "correct": false,
-        "explanation": "NAT is configured at the iptables/firewall level, not in mosquitto.conf."
-      },
-      {
-        "text": "Mosquitto will connect to another broker at address 192.168.1.1",
-        "correct": false,
-        "explanation": "Bridge configuration is used to connect to another broker. bind_address is the local address."
-      },
-      {
-        "text": "Restricts who can connect — only clients with address 192.168.1.1",
-        "correct": false,
-        "explanation": "bind_address determines which LOCAL interface Mosquitto listens on. This is not a client filter."
+        "explanation": "bind_address задаёт локальный адрес, к которому привязывается socket. Если это LAN-IP, Mosquitto физически не принимает подключения с WAN-интерфейса."
       }
     ]
   },
   {
-    "question": "The `%u` pattern in a Mosquitto ACL file means:",
+    "question": "Паттерн `%u` в файле ACL Mosquitto означает:",
     "type": "single",
     "options": [
       {
-        "text": "Any user (wildcard)",
+        "text": "Неизвестный пользователь (анонимный)",
         "correct": false,
-        "explanation": "The wildcard in ACL is denoted by #. %u is a substitution variable."
+        "explanation": "%u — это не анонимный. Анонимные пользователи обозначаются отдельным блоком в ACL."
       },
       {
-        "text": "The client UUID (clientId)",
+        "text": "Любой пользователь (wildcard)",
         "correct": false,
-        "explanation": "%u is the username. For clientId, %c is used."
+        "explanation": "Wildcard в ACL обозначается #. %u — это переменная подстановки."
       },
       {
-        "text": "The current authenticated user's name",
+        "text": "UUID клиента (clientId)",
+        "correct": false,
+        "explanation": "%u — username пользователя. Для clientId используется %c."
+      },
+      {
+        "text": "Имя текущего аутентифицированного пользователя",
         "correct": true,
-        "explanation": "%u is replaced with the username during ACL checking. For example, topic readwrite devices/%u/# for user sensor1 means devices/sensor1/#."
-      },
-      {
-        "text": "An unknown user (anonymous)",
-        "correct": false,
-        "explanation": "%u is not anonymous. Anonymous users are denoted by a separate block in the ACL."
+        "explanation": "%u заменяется на имя пользователя при проверке ACL. Например, topic readwrite devices/%u/# для user sensor1 означает devices/sensor1/#."
       }
     ]
   },
   {
-    "question": "An iptables rate limiting command contains: `-m recent --name mqtt --update --seconds 60 --hitcount 5 -j DROP`. What does it do?",
+    "question": "Команда iptables для rate limiting содержит: `-m recent --name mqtt --update --seconds 60 --hitcount 5 -j DROP`. Что она делает?",
     "type": "single",
     "options": [
       {
-        "text": "Limits the rate to 5 packets per second per IP",
+        "text": "Ограничивает скорость до 5 пакетов в секунду с каждого IP",
         "correct": false,
-        "explanation": "The parameter --hitcount 5 with --seconds 60 means 5 packets per 60 seconds, not 5 per second."
+        "explanation": "Параметр --hitcount 5 с --seconds 60 означает 5 пакетов за 60 секунд, а не 5 в секунду."
       },
       {
-        "text": "Blocks an IP if it sent 5 or more packets in the last 60 seconds",
+        "text": "Блокирует IP, если за последние 60 секунд от него пришло 5 или более пакетов",
         "correct": true,
-        "explanation": "--recent tracks packets by IP. --update updates the counter and checks the condition. --seconds 60 --hitcount 5: if >= 5 packets in 60 seconds — the condition is met, packet is DROP."
+        "explanation": "--recent отслеживает пакеты по IP. --update обновляет счётчик и проверяет условие. --seconds 60 --hitcount 5: если за 60 секунд >=5 пакетов — условие выполнено, пакет DROP."
       },
       {
-        "text": "Blocks the first 5 packets and allows the rest",
+        "text": "Блокирует первые 5 пакетов и пропускает остальные",
         "correct": false,
-        "explanation": "The logic is reversed: it allows up to 5 packets and blocks starting from the 6th (when paired with a -j ACCEPT rule)."
+        "explanation": "Логика обратная: пропускает до 5 пакетов, блокирует начиная с 6-го (при наличии пары с -j ACCEPT)."
       },
       {
-        "text": "Blocks all connections from every IP for 60 seconds",
+        "text": "Блокирует все подключения с каждого IP на 60 секунд",
         "correct": false,
-        "explanation": "The rule does not block all connections. It counts packets over a period."
+        "explanation": "Правило не блокирует все подключения. Оно считает количество пакетов за период."
       }
     ]
   }

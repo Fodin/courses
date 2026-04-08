@@ -1,10 +1,10 @@
-# Level 9: WebSockets in Mosquitto — Detailed Theory
+# Уровень 9: WebSockets в Mosquitto — Развёрнутая теория
 
-## Why browsers can't work directly with MQTT
+## Почему браузер не может работать напрямую с MQTT
 
-Imagine MQTT/TCP as a phone line. A browser is a guest in a hotel who is only allowed to use the hotel's internal phone system (HTTP/HTTPS). To call an outside line, the guest needs an adapter — and WebSocket plays exactly that role.
+Представьте, что MQTT/TCP — это телефонная линия. Браузер — гость в отеле, которому разрешено пользоваться только внутренней телефонной системой отеля (HTTP/HTTPS). Чтобы гость позвонил на обычный телефон, нужен переходник — и WebSocket как раз играет роль такого переходника.
 
-Technically: the browser runs in a "sandbox" and has no access to raw TCP sockets. The only way to establish a bidirectional channel is WebSocket, which starts as an HTTP request (GET + Upgrade) and switches to a persistent connection.
+Технически: браузер работает в "песочнице" и не имеет доступа к raw TCP-сокетам. Единственный способ установить двунаправленный канал — WebSocket, который начинается как HTTP-запрос (GET + Upgrade) и переключается в постоянное соединение.
 
 ```mermaid
 sequenceDiagram
@@ -12,71 +12,71 @@ sequenceDiagram
   participant Mosquitto
   Browser->>Mosquitto: HTTP GET /mqtt (Upgrade: websocket)
   Mosquitto->>Browser: 101 Switching Protocols
-  Browser->>Mosquitto: MQTT CONNECT (over WebSocket)
+  Browser->>Mosquitto: MQTT CONNECT (поверх WebSocket)
   Mosquitto->>Browser: MQTT CONNACK
-  Note over Browser,Mosquitto: Now — full MQTT
+  Note over Browser,Mosquitto: Теперь — полноценный MQTT
 ```
 
-## How Mosquitto implements WebSocket
+## Как Mosquitto реализует WebSocket
 
-Mosquitto doesn't run a separate web server. Internally — libwebsockets, which can:
-1. Accept an HTTP connection
-2. Perform a WebSocket upgrade
-3. Pass data to the MQTT stack as regular bytes
+Mosquitto не запускает отдельный веб-сервер. Внутри — libwebsockets, которая умеет:
+1. Принять HTTP-соединение
+2. Сделать WebSocket upgrade
+3. Передать данные в MQTT-стек как обычные байты
 
-From the MQTT protocol perspective, nothing changes — the same CONNECT, PUBLISH, SUBSCRIBE packets, just wrapped in WebSocket frames.
+С точки зрения MQTT-протокола ничего не меняется — те же CONNECT, PUBLISH, SUBSCRIBE пакеты, просто завёрнутые в WebSocket-фреймы.
 
-## Listener configuration — detailed breakdown
+## Настройка listener — детальный разбор
 
 ```conf
 # /etc/mosquitto/mosquitto.conf
 
 # ============================================
-# Listener 1: regular MQTT (for IoT devices)
+# Слушатель 1: обычный MQTT (для IoT-устройств)
 # ============================================
 listener 1883
 protocol mqtt
-# Bind to LAN interface only (more secure):
+# Bind только на LAN-интерфейс (безопаснее):
 bind_address 192.168.1.1
 
 # ============================================
-# Listener 2: WebSocket (for browsers)
+# Слушатель 2: WebSocket (для браузеров)
 # ============================================
 listener 9001
 protocol websockets
-# Can bind to localhost if nginx proxies:
+# Можно bind на localhost, если nginx проксирует:
 # bind_address 127.0.0.1
 
 # ============================================
-# Common security settings
+# Общие настройки безопасности
 # ============================================
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 acl_file /etc/mosquitto/acl
 ```
 
-### The `per_listener_settings` directive
+### Директива `per_listener_settings`
 
-By default, all listeners share one authentication configuration. If you need different rules:
+По умолчанию все слушатели делят одну конфигурацию аутентификации. Если нужны разные правила:
 
 ```conf
 per_listener_settings true
 
 listener 1883
 protocol mqtt
-allow_anonymous true   # IoT devices without password (internal network)
+allow_anonymous true   # IoT-устройства без пароля (внутренняя сеть)
 
 listener 9001
 protocol websockets
-allow_anonymous false  # Browsers — password required
+allow_anonymous false  # Браузеры — только с паролем
 password_file /etc/mosquitto/passwd
 ```
 
-> ⚠️ `per_listener_settings true` is a global directive and must appear before the first `listener`.
+> ⚠️ `per_listener_settings true` — глобальная директива, должна быть до первого `listener`.
 
-## WebSocket with TLS (WSS)
+## WebSocket с TLS (WSS)
 
-For production, WSS (`wss://`) is needed, otherwise passwords are transmitted in plain text:
+Для продакшена нужен WSS (`wss://`), иначе пароли передаются открытым текстом:
 
 ```conf
 listener 9002
@@ -87,37 +87,37 @@ keyfile /etc/mosquitto/server.key
 tls_version tlsv1.2
 ```
 
-On the client:
+На клиенте:
 ```javascript
 const client = mqtt.connect('wss://192.168.1.1:9002', { ... })
 ```
 
-## Reverse Proxy: why and when it's needed
+## Reverse Proxy: зачем и когда нужен
 
-Direct browser connection to `ws://router:9001` works, but has limitations:
-- Need to open an extra port in the firewall
-- No SSL termination in one place
-- No rate limiting, access logging
+Прямое подключение браузера к `ws://router:9001` работает, но имеет ограничения:
+- Нужно открывать лишний порт в firewall
+- Нет SSL-терминации в одном месте
+- Нет rate limiting, логирования доступа
 
-The nginx approach:
+Схема с nginx:
 
 ```mermaid
 graph LR
   Browser -->|wss://router/mqtt| nginx
   nginx -->|ws://127.0.0.1:9001| Mosquitto
-  nginx -->|https://router| WebUI[Web Interface]
+  nginx -->|https://router| WebUI[Веб-интерфейс]
 ```
 
-### nginx — full configuration
+### nginx — полная конфигурация
 
 ```nginx
 # /etc/nginx/nginx.conf
-worker_processes 1;  # On OpenWRT — one worker
+worker_processes 1;  # На OpenWRT — один воркер
 
 events { worker_connections 64; }
 
 http {
-  # Map for detecting WebSocket connections
+  # Карта для определения WebSocket-соединений
   map $http_upgrade $connection_upgrade {
     default upgrade;
     ''      close;
@@ -131,7 +131,7 @@ http {
     ssl_certificate     /etc/nginx/ssl/server.crt;
     ssl_certificate_key /etc/nginx/ssl/server.key;
 
-    # HTTP -> HTTPS redirect
+    # Редирект HTTP -> HTTPS
     if ($scheme = http) {
       return 301 https://$host$request_uri;
     }
@@ -145,12 +145,12 @@ http {
       proxy_set_header Host $host;
       proxy_set_header X-Real-IP $remote_addr;
 
-      # Long-lived connections (MQTT persistent session)
+      # Долгоживущие соединения (MQTT persistent session)
       proxy_read_timeout 86400s;
       proxy_send_timeout 86400s;
     }
 
-    # LuCI web interface
+    # Веб-интерфейс LuCI
     location / {
       proxy_pass http://127.0.0.1:80;
     }
@@ -158,52 +158,52 @@ http {
 }
 ```
 
-### uhttpd: limitations
+### uhttpd: ограничения
 
-uhttpd (OpenWRT's built-in web server) **does not support** WebSocket proxying. Options:
-1. Install nginx: `opkg install nginx`
-2. Connect to Mosquitto directly (open port in firewall)
-3. Use stunnel for SSL termination
+uhttpd (встроенный веб-сервер OpenWRT) **не поддерживает** WebSocket проксирование. Варианты:
+1. Установить nginx: `opkg install nginx`
+2. Подключаться к Mosquitto напрямую (открыть порт в firewall)
+3. Использовать stunnel для SSL-терминации
 
-## MQTT.js — detailed breakdown
+## MQTT.js — детальный разбор
 
-MQTT.js is the most popular JavaScript library. Works in browsers and Node.js.
+MQTT.js — наиболее популярная JavaScript-библиотека. Работает в браузере и Node.js.
 
 ```html
-<!-- From CDN (recommended to pin the version) -->
+<!-- Из CDN (рекомендуется зафиксировать версию) -->
 <script src="https://unpkg.com/mqtt@5.0.5/dist/mqtt.min.js"></script>
 ```
 
-### Basic connection
+### Базовое подключение
 
 ```javascript
 const client = mqtt.connect('ws://192.168.1.1:9001', {
-  // Unique client identifier (required)
+  // Уникальный идентификатор клиента (обязателен)
   clientId: 'dashboard-' + Date.now(),
 
-  // Authentication
+  // Аутентификация
   username: 'webuser',
   password: 'webpass',
 
-  // Connection settings
-  keepalive: 60,        // heartbeat every 60 seconds
-  clean: true,          // don't store session after disconnect
-  connectTimeout: 4000, // connection timeout
+  // Настройки соединения
+  keepalive: 60,        // heartbeat каждые 60 секунд
+  clean: true,          // не хранить сессию после отключения
+  connectTimeout: 4000, // таймаут подключения
 
-  // Auto-reconnect
-  reconnectPeriod: 2000,   // attempt every 2 seconds
-  reconnectPeriodMax: 30000 // maximum 30 seconds
+  // Авто-переподключение
+  reconnectPeriod: 2000,   // попытка каждые 2 секунды
+  reconnectPeriodMax: 30000 // максимум 30 секунд
 })
 ```
 
-### Handling events
+### Обработка событий
 
 ```javascript
-// Successful connection
+// Успешное подключение
 client.on('connect', (connack) => {
   console.log('Connected, session present:', connack.sessionPresent)
-
-  // Subscribe with callback
+  
+  // Подписка с callback
   client.subscribe([
     { topic: 'sensors/+/temperature', qos: 1 },
     { topic: 'home/+/+', qos: 0 },
@@ -215,17 +215,17 @@ client.on('connect', (connack) => {
   })
 })
 
-// Receiving messages
+// Получение сообщений
 client.on('message', (topic, payload, packet) => {
-  // payload is a Buffer, needs conversion
+  // payload — Buffer, нужно конвертировать
   const message = payload.toString()
   const retained = packet.retain
   const qos = packet.qos
-
+  
   console.log(`[${topic}] ${message} (QoS ${qos}, retained: ${retained})`)
 })
 
-// Publishing
+// Публикация
 client.publish('home/cmd/light1', 'ON', {
   qos: 1,
   retain: false,
@@ -233,21 +233,21 @@ client.publish('home/cmd/light1', 'ON', {
   if (err) console.error('Publish failed:', err)
 })
 
-// Disconnect client
+// Отключение клиента
 client.end(false, () => console.log('Disconnected'))
 ```
 
-### Pattern: dynamic dashboard
+### Паттерн: динамический дашборд
 
 ```javascript
-// Wrapper class for convenient UI usage
+// Класс-обёртка для удобного использования в UI
 class MqttDashboard {
   constructor(brokerUrl, options) {
     this.client = mqtt.connect(brokerUrl, options)
     this.handlers = new Map()
-
+    
     this.client.on('message', (topic, payload) => {
-      // Match topic with subscription patterns
+      // Матчим топик с паттернами подписок
       for (const [pattern, handler] of this.handlers) {
         if (this.matchTopic(pattern, topic)) {
           handler(topic, payload.toString())
@@ -262,7 +262,7 @@ class MqttDashboard {
   }
 
   matchTopic(pattern, topic) {
-    // Simple wildcard matching implementation
+    // Простая реализация wildcard matching
     const regexStr = pattern
       .replace(/\+/g, '[^/]+')
       .replace(/#/, '.+')
@@ -270,7 +270,7 @@ class MqttDashboard {
   }
 }
 
-// Usage:
+// Использование:
 const dashboard = new MqttDashboard('ws://192.168.1.1:9001', {
   username: 'user', password: 'pass'
 })
@@ -281,26 +281,26 @@ dashboard.subscribe('sensors/+/temperature', (topic, value) => {
 })
 ```
 
-## Eclipse Paho: comparison with MQTT.js
+## Eclipse Paho: сравнение с MQTT.js
 
-| Characteristic | MQTT.js | Eclipse Paho |
+| Характеристика | MQTT.js | Eclipse Paho |
 |---|---|---|
-| Active development | Yes | Slow |
-| MQTT v5 | Yes | No |
-| TypeScript | Yes (built-in) | Weak |
-| Size (minified) | ~50 KB | ~100 KB |
-| Auto-reconnect | Yes | No (manual) |
-| Recommended | Yes | For legacy |
+| Активное развитие | Да | Медленно |
+| MQTT v5 | Да | Нет |
+| TypeScript | Да (встроен) | Слабо |
+| Размер (minified) | ~50 KB | ~100 KB |
+| Авто-переподключение | Да | Нет (нужно вручную) |
+| Рекомендуется | Да | Для legacy |
 
-## WebSocket MQTT security
+## Безопасность WebSocket MQTT
 
-### CORS for WebSocket
+### CORS для WebSocket
 
-WebSocket is not subject to CORS in the classical sense, but the browser checks `Origin`. Mosquitto only checks the `Host` header, so use nginx for additional protection:
+WebSocket не подвержен CORS в классическом смысле, но браузер проверяет `Origin`. Mosquitto проверяет только заголовок `Host`, поэтому для дополнительной защиты используйте nginx:
 
 ```nginx
 location /mqtt {
-  # Allow only from your domain
+  # Разрешить только с вашего домена
   if ($http_origin !~* "^https?://192\.168\.1\.") {
     return 403;
   }
@@ -309,80 +309,80 @@ location /mqtt {
 }
 ```
 
-### Always use WSS in production
+### Всегда WSS в продакшене
 
 ```mermaid
 graph LR
-  Browser -->|wss:// encrypted| nginx
-  nginx -->|ws:// local| Mosquitto
+  Browser -->|wss:// зашифровано| nginx
+  nginx -->|ws:// локально| Mosquitto
 ```
 
-Inside the router, traffic travels in the clear (ws://), but this is safe since it's local. Encryption is only needed for the external channel.
+Внутри роутера трафик идёт в открытом виде (ws://), но это безопасно, т.к. локально. Шифрование нужно только для внешнего канала.
 
-## Troubleshooting
+## Диагностика проблем
 
 ```bash
-# 1. Is Mosquitto listening on the port?
+# 1. Mosquitto слушает на порту?
 netstat -tlnp | grep 9001
-# Expect: tcp  0  0 0.0.0.0:9001  0.0.0.0:*  LISTEN
+# Ожидаем: tcp  0  0 0.0.0.0:9001  0.0.0.0:*  LISTEN
 
-# 2. Does the firewall allow it?
+# 2. Firewall разрешает?
 iptables -L INPUT -n | grep 9001
 
-# 3. Detailed Mosquitto log:
+# 3. Детальный лог Mosquitto:
 mosquitto -c /etc/mosquitto/mosquitto.conf -v
-# Look for: "Opening websockets listen socket on port 9001."
+# Ищем: "Opening websockets listen socket on port 9001."
 
-# 4. Manual WebSocket handshake check:
+# 4. Ручная проверка WebSocket handshake:
 curl -v -N -H "Upgrade: websocket" \
   -H "Connection: Upgrade" \
   -H "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==" \
   -H "Sec-WebSocket-Version: 13" \
   http://192.168.1.1:9001/
 
-# Expect: HTTP/1.1 101 Switching Protocols
+# Ожидаем: HTTP/1.1 101 Switching Protocols
 
-# 5. nginx error log:
+# 5. nginx лог ошибок:
 tail -f /var/log/nginx/error.log
 ```
 
-## ⚠️ Common beginner mistakes
+## ⚠️ Типичные ошибки начинающих
 
-### Mistake 1: forgot to specify `protocol websockets`
+### Ошибка 1: забыли указать `protocol websockets`
 
 ```conf
-# Wrong:
+# Неправильно:
 listener 9001
-# Without protocol — this is MQTT/TCP, browser won't connect
+# Без protocol — это MQTT/TCP, браузер не подключится
 
-# Correct:
+# Правильно:
 listener 9001
 protocol websockets
 ```
 
-Symptom: `WebSocket connection failed: Error during WebSocket handshake`.
+Симптом: `WebSocket connection failed: Error during WebSocket handshake`.
 
-### Mistake 2: wrong URL in the client
+### Ошибка 2: неправильный URL в клиенте
 
 ```javascript
-// Wrong — MQTT/TCP, not WebSocket:
+// Неправильно — MQTT/TCP, не WebSocket:
 mqtt.connect('mqtt://192.168.1.1:9001')
 
-// Correct — WebSocket:
+// Правильно — WebSocket:
 mqtt.connect('ws://192.168.1.1:9001')
-// Or with TLS:
+// Или с TLS:
 mqtt.connect('wss://192.168.1.1:9002')
 ```
 
-### Mistake 3: nginx without proper headers
+### Ошибка 3: nginx без правильных заголовков
 
 ```nginx
-# Wrong — no WebSocket upgrade:
+# Неправильно — нет WebSocket upgrade:
 location /mqtt {
   proxy_pass http://127.0.0.1:9001;
 }
 
-# Correct:
+# Правильно:
 location /mqtt {
   proxy_pass http://127.0.0.1:9001;
   proxy_http_version 1.1;
@@ -391,39 +391,39 @@ location /mqtt {
 }
 ```
 
-Symptom: nginx returns 400 Bad Request or the connection drops immediately.
+Симптом: nginx возвращает 400 Bad Request или соединение обрывается сразу.
 
-### Mistake 4: short proxy timeout
+### Ошибка 4: короткий таймаут proxy
 
 ```nginx
-# Wrong — nginx closes WS after 60 seconds:
-# (default proxy_read_timeout = 60s)
+# Неправильно — nginx закрывает WS через 60 секунд:
+# (по умолчанию proxy_read_timeout = 60s)
 
-# Correct:
-proxy_read_timeout 3600s;   # 1 hour
+# Правильно:
+proxy_read_timeout 3600s;   # 1 час
 proxy_send_timeout 3600s;
 ```
 
-### Mistake 5: duplicate clientIds
+### Ошибка 5: одинаковые clientId
 
 ```javascript
-// Wrong — multiple tabs with the same ID:
-clientId: 'my-dashboard'  // Second tab will kick the first!
+// Неправильно — несколько вкладок с одним ID:
+clientId: 'my-dashboard'  // Вторая вкладка выбьет первую!
 
-// Correct:
+// Правильно:
 clientId: 'dashboard-' + Math.random().toString(16).slice(2, 8)
 ```
 
-## WebSocket performance on OpenWRT
+## Производительность WebSocket на OpenWRT
 
-WebSocket adds negligible overhead (~10 bytes per frame) compared to raw TCP. On OpenWRT, more important:
+WebSocket добавляет незначительный оверхед (~10 байт на фрейм) по сравнению с raw TCP. На OpenWRT важнее:
 
-- Limit simultaneous WS connections: `max_connections 50`
-- Use `clean: true` for browsers (no point storing sessions)
-- Don't use QoS 2 from the browser — too many round-trips
+- Ограничьте количество одновременных WS-соединений: `max_connections 50`
+- Используйте `clean: true` для браузеров (нет смысла хранить сессию)
+- Не используйте QoS 2 из браузера — слишком много round-trip
 
 ```conf
-# Limit for the WS listener:
+# Лимит для WS-слушателя:
 listener 9001
 protocol websockets
 max_connections 20

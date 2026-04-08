@@ -1,40 +1,40 @@
-# Task 4.2: Retained Messages
+# Задание 4.2: Retained Messages
 
-## Goal
+## Цель
 
-Understand the retained message mechanism: how the broker stores the last value and immediately delivers it to new subscribers.
+Понять механизм retained-сообщений: как брокер сохраняет последнее значение и немедленно отдаёт его новым подписчикам.
 
-## Requirements
+## Требования
 
-1. Publish a message with the retained flag (e.g., `home/light/state` = `ON`)
-2. Verify it appeared in the broker storage
-3. Click "Connect Client" — it should immediately receive the stored value
-4. Publish a new value to the same topic — verify the retained message updated
-5. Delete the retained message (publish empty payload with retain=true)
+1. Опубликуйте сообщение с флагом retained (например, `home/light/state` = `ON`)
+2. Убедитесь, что оно появилось в хранилище брокера
+3. Нажмите «Подключить клиента» — он должен сразу получить сохранённое значение
+4. Опубликуйте новое значение на тот же топик — убедитесь, что retained обновилось
+5. Удалите retained (опубликуйте пустой payload с retain=true)
 
-## Checklist
+## Чеклист
 
-- [ ] Published a retained message and saw it in storage
-- [ ] New subscriber immediately received retained without waiting for the next publish
-- [ ] Understood that retained stores only the LAST value per topic
-- [ ] Deleted retained via empty payload
-- [ ] Know the `max_retained_messages` parameter and why to limit it on OpenWRT
+- [ ] Опубликовал retained сообщение и увидел его в хранилище
+- [ ] Новый подписчик сразу получил retained без ожидания следующей публикации
+- [ ] Понял, что retained хранит только ПОСЛЕДНЕЕ значение на топик
+- [ ] Удалил retained через пустой payload
+- [ ] Знаю параметр `max_retained_messages` и зачем его ограничивать на OpenWRT
 
-## How to Check Yourself
+## Как проверить себя
 
-On a real broker:
+На реальном брокере:
 ```bash
-# Publish retained
+# Опубликовать retained
 mosquitto_pub -r -t 'home/temp' -m '22.5'
 
-# New subscriber receives the value immediately on subscribe:
+# Новый подписчик получит значение немедленно при подписке:
 mosquitto_sub -t 'home/temp'
-# Should output: home/temp 22.5
+# Должно выдать: home/temp 22.5
 
-# Delete retained:
+# Удалить retained:
 mosquitto_pub -r -t 'home/temp' -m ''
 ```
 
-Answer: why does `mosquitto_pub -r -t 'home/#' -m 'test'` return an error?
+Ответьте: почему `mosquitto_pub -r -t 'home/#' -m 'test'` вернёт ошибку?
 
-Answer: wildcards cannot be used when publishing.
+Ответ: wildcard нельзя использовать при публикации.

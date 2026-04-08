@@ -1,50 +1,50 @@
-# Task 1.2: Mosquitto File Structure
+# Задание 1.2: Структура файлов Mosquitto
 
-## Goal
+## Цель
 
-Study the Mosquitto file structure on OpenWRT: where configs, executables, and data are stored. Implement an interactive file manager with descriptions and file content examples.
-
----
-
-## Requirements
-
-1. Define the `FileNode` interface with fields: `name` (display name), `path` (full path), `type: 'file' | 'dir'`, optional `size`, `description`, `content` (content example), `important` (importance flag)
-
-2. Create a `fileStructure` array with at least 10 entries covering:
-   - `/etc/mosquitto/` directory and its contents (mosquitto.conf, passwd, acl)
-   - Executable files (`/usr/sbin/mosquitto`, `/usr/bin/mosquitto_pub`, `/usr/bin/mosquitto_sub`)
-   - Runtime files (`/var/run/mosquitto.pid`)
-   - Persistence data (`/var/lib/mosquitto/`, `mosquitto.db`)
-
-3. Display the file tree in terminal style (dark background). Important files are highlighted in gold.
-
-4. Clicking an entry opens a panel with: full path, description, "important file" badge (if `important`), content example in terminal style (if `content` exists)
-
-5. File nesting is displayed through indentation (paddingLeft)
+Изучить файловую структуру Mosquitto на OpenWRT: где хранятся конфиги, исполняемые файлы, данные. Реализовать интерактивный файловый менеджер с описаниями и примерами содержимого файлов.
 
 ---
 
-## Checklist
+## Требования
 
-- [ ] Defined `FileNode` interface with all fields
-- [ ] Array of 10+ files/directories with realistic paths
-- [ ] Tree in dark terminal style
-- [ ] Icons `📁` / `📄` for directories and files
-- [ ] Important files highlighted in color (gold/yellow)
-- [ ] File size displayed next to entry (if set)
-- [ ] Click opens detail panel
-- [ ] Panel: full path, description, importance badge
-- [ ] Content example in terminal style (if available)
-- [ ] `selected` state updates on click
-- [ ] Correct TypeScript typing
+1. Определи интерфейс `FileNode` с полями: `name` (отображаемое имя), `path` (полный путь), `type: 'file' | 'dir'`, опционально `size`, `description`, `content` (пример содержимого), `important` (флаг важности)
+
+2. Создай массив `fileStructure` с минимум 10 записями, охватывающими:
+   - `/etc/mosquitto/` директорию и её содержимое (mosquitto.conf, passwd, acl)
+   - Исполняемые файлы (`/usr/sbin/mosquitto`, `/usr/bin/mosquitto_pub`, `/usr/bin/mosquitto_sub`)
+   - Рантайм-файлы (`/var/run/mosquitto.pid`)
+   - Данные persistence (`/var/lib/mosquitto/`, `mosquitto.db`)
+
+3. Отобрази дерево файлов в стиле терминала (тёмный фон). Важные файлы выделяются золотым цветом.
+
+4. Клик на запись открывает панель с: полным путём, описанием, бейджем "важный файл" (если `important`), примером содержимого в стиле терминала (если есть `content`)
+
+5. Вложенность файлов отображается через отступы (paddingLeft)
 
 ---
 
-## How to Check Yourself
+## Чеклист
 
-1. Do you see a file tree on a dark background?
-2. Are `mosquitto.conf` and `/usr/sbin/mosquitto` highlighted in gold?
-3. Click on `mosquitto.conf` → do you see a description and config example in the right panel?
-4. Click on `/var/run/mosquitto.pid` → does the description explain the PID file purpose?
-5. Click on `passwd` → does it show the password file format?
-6. Do nested files in `/etc/mosquitto/` have indentation?
+- [ ] Определён интерфейс `FileNode` со всеми полями
+- [ ] Массив 10+ файлов/директорий с реалистичными путями
+- [ ] Дерево в стиле тёмного терминала
+- [ ] Иконки `📁` / `📄` для директорий и файлов
+- [ ] Важные файлы выделяются цветом (золотой/жёлтый)
+- [ ] Отображение размера файла рядом (если задан)
+- [ ] Клик открывает панель с деталями
+- [ ] В панели: полный путь, описание, бейдж важности
+- [ ] Пример содержимого в стиле терминала (если есть)
+- [ ] Состояние `selected` обновляется при клике
+- [ ] Корректная типизация TypeScript
+
+---
+
+## Как проверить себя
+
+1. Видишь дерево файлов на тёмном фоне?
+2. `mosquitto.conf` и `/usr/sbin/mosquitto` выделены золотым?
+3. Клик на `mosquitto.conf` → в панели справа видно описание и пример конфига?
+4. Клик на `/var/run/mosquitto.pid` → описание объясняет назначение PID-файла?
+5. Клик на `passwd` → показывается формат файла паролей?
+6. Вложенные файлы в `/etc/mosquitto/` имеют отступ?

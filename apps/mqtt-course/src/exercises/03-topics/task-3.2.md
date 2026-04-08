@@ -1,30 +1,30 @@
-# Task 3.2: Wildcards: + and #
+# Задание 3.2: Wildcards: + и #
 
-## Goal
+## Цель
 
-Master MQTT wildcard patterns (`+` and `#`) through interactive demonstration. Understand which topics match each pattern.
+Освоить работу с wildcard-паттернами MQTT (`+` и `#`) через интерактивную демонстрацию. Понять, какие топики соответствуют каждому паттерну.
 
-## Requirements
+## Требования
 
-1. Launch the component and select the `home/+/temperature` pattern
-2. Verify that only topics with exactly one level between `home` and `temperature` match
-3. Switch to `home/#` — all topics with the `home/` prefix should match
-4. Check `home/+/light/#` — a combination of both wildcards
-5. Enter your own pattern and verify the result
+1. Запустите компонент и выберите паттерн `home/+/temperature`
+2. Убедитесь, что совпали только топики с одним уровнем между `home` и `temperature`
+3. Переключитесь на `home/#` — должны совпасть все топики с префиксом `home/`
+4. Проверьте `home/+/light/#` — комбинацию обоих wildcards
+5. Введите собственный паттерн и проверьте результат
 
-## Checklist
+## Чеклист
 
-- [ ] Understood that `+` replaces exactly one hierarchy level
-- [ ] Understood that `#` replaces any number of levels and must be at the end only
-- [ ] Saw that `home/temperature` does NOT match `home/+/temperature`
-- [ ] Entered and tested your own custom pattern
-- [ ] Remembered: wildcards are for subscriptions only, not for publishing
+- [ ] Понял, что `+` заменяет ровно один уровень иерархии
+- [ ] Понял, что `#` заменяет любое число уровней и стоит только в конце
+- [ ] Видел, что `home/temperature` НЕ совпадает с `home/+/temperature`
+- [ ] Ввёл и протестировал свой собственный паттерн
+- [ ] Запомнил: wildcards только для подписки, не для публикации
 
-## How to Check Yourself
+## Как проверить себя
 
-Determine without running, whether the pattern and topic match:
+Определите без запуска, совпадут ли паттерн и топик:
 
-| Pattern | Topic | Match? |
+| Паттерн | Топик | Совпадение? |
 |---|---|---|
 | `home/+/temperature` | `home/living_room/temperature` | ? |
 | `home/+/temperature` | `home/floor1/room1/temperature` | ? |
@@ -32,4 +32,4 @@ Determine without running, whether the pattern and topic match:
 | `+/+/temperature` | `office/room1/temperature` | ? |
 | `home/+/light/#` | `home/bedroom/light/rgb/r` | ? |
 
-Answers: ✅, ❌, ✅, ✅, ✅
+Ответы: ✅, ❌, ✅, ✅, ✅

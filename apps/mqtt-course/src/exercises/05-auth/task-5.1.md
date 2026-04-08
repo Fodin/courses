@@ -1,43 +1,43 @@
-# Task 5.1: Password File (password_file)
+# Задание 5.1: Файл паролей (password_file)
 
-## Goal
+## Цель
 
-Learn to manage Mosquitto users via `password_file`. Know the `mosquitto_passwd` commands for creating, updating, and deleting users.
+Научиться управлять пользователями Mosquitto через `password_file`. Знать команды `mosquitto_passwd` для создания, обновления и удаления пользователей.
 
-## Requirements
+## Требования
 
-1. Study the list of existing users in the component
-2. Add a new user with the `sensor` role
-3. Add a user with the `dashboard` role
-4. View the password file contents — verify passwords are hashed
-5. View the `mosquitto.conf` configuration with `allow_anonymous false`
+1. Изучите список существующих пользователей в компоненте
+2. Добавьте нового пользователя с ролью `sensor`
+3. Добавьте пользователя с ролью `dashboard`
+4. Просмотрите содержимое файла паролей — убедитесь, что пароли захешированы
+5. Просмотрите конфигурацию `mosquitto.conf` с `allow_anonymous false`
 
-## Checklist
+## Чеклист
 
-- [ ] Know the command for creating a new password file (`-c` flag)
-- [ ] Know the command for adding a user without recreating the file
-- [ ] Understood that passwords are stored as PBKDF2-SHA512 hashes
-- [ ] Know the command for applying changes without restart (`kill -HUP`)
-- [ ] Understood the difference between `allow_anonymous true` and `allow_anonymous false`
+- [ ] Знаю команду для создания нового файла паролей (`-c` флаг)
+- [ ] Знаю команду для добавления пользователя без пересоздания файла
+- [ ] Понял, что пароли хранятся в виде PBKDF2-SHA512 хешей
+- [ ] Знаю команду для применения изменений без перезапуска (`kill -HUP`)
+- [ ] Понял разницу между `allow_anonymous true` и `allow_anonymous false`
 
-## How to Check Yourself
+## Как проверить себя
 
-On a real broker:
+На реальном брокере:
 ```bash
-# Create a file and add admin (will prompt for password)
+# Создать файл и добавить admin (запросит пароль)
 mosquitto_passwd -c /etc/mosquitto/passwd admin
 
-# Add more users
+# Добавить ещё пользователей
 mosquitto_passwd /etc/mosquitto/passwd sensor1
 
-# Verify connection
-mosquitto_pub -u admin -P <password> -t 'test' -m 'hello'
+# Проверить подключение
+mosquitto_pub -u admin -P <пароль> -t 'test' -m 'hello'
 
-# Verify anonymous is rejected
+# Проверить, что анонимный отклонён
 mosquitto_pub -t 'test' -m 'hello'
-# Expected: Connection Refused
+# Ожидаем: Connection Refused
 ```
 
-Answer: why is it dangerous to use `mosquitto_passwd -b user password` in production?
+Ответьте: почему опасно использовать `mosquitto_passwd -b user password` в продакшене?
 
-Answer: the password remains in shell history (`~/.bash_history`) and is visible to other system users.
+Ответ: пароль остаётся в истории shell (`~/.bash_history`) и виден другим пользователям системы.

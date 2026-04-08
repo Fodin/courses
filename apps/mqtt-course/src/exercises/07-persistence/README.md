@@ -1,75 +1,75 @@
-# Level 7: Persistence — Broker State Preservation
+# Уровень 7: Persistence — сохранение состояния брокера
 
-## Why is persistence needed?
+## Зачем нужна persistence?
 
-Without persistence, Mosquitto is an "amnesia broker": on every restart, it forgets everything.
-Retained messages disappear, clients lose their queues, sensors are forced to re-publish
-their state.
+Без persistence Mosquitto — это "amnesia-брокер": при каждом перезапуске он забывает всё.
+Retained-сообщения исчезают, клиенты теряют свои очереди, датчики вынуждены повторно
+публиковать своё состояние.
 
-With persistence, the broker remembers state between restarts:
+С persistence брокер помнит состояние между перезагрузками:
 
 ```mermaid
 flowchart LR
-    A["Mqtt broker\nrunning"] -->|"autosave every 5 min"| DB["mosquitto.db\n(disk)"]
+    A["Mqtt broker\nработает"] -->|"autosave каждые 5 мин"| DB["mosquitto.db\n(диск)"]
     A -->|"SIGUSR1"| DB
-    DB -->|"load on startup"| B["Mqtt broker\nrestarted"]
+    DB -->|"загрузка при старте"| B["Mqtt broker\nперезапущен"]
 ```
 
-## What is stored in mosquitto.db
+## Что хранится в mosquitto.db
 
-| Data | Persisted? |
+| Данные | Сохраняется? |
 |--------|:---:|
-| Retained messages | ✅ |
-| Persistent client sessions | ✅ |
-| QoS 1/2 queues | ✅ |
-| Incomplete QoS 2 transactions | ✅ |
-| QoS 0 messages | ❌ |
+| Retained-сообщения | ✅ |
+| Persistent-сессии клиентов | ✅ |
+| Очереди QoS 1/2 | ✅ |
+| Незавершённые транзакции QoS 2 | ✅ |
+| QoS 0 сообщения | ❌ |
 
-## Configuration
+## Конфигурация
 
 ```conf
 # /etc/mosquitto/mosquitto.conf
 
 persistence true
 persistence_location /var/lib/mosquitto/
-autosave_interval 300       # Save every 5 minutes
-autosave_on_changes false   # Don't save on every change
+autosave_interval 300       # Сохранять каждые 5 минут
+autosave_on_changes false   # Не сохранять при каждом изменении
 ```
 
-### Parameters
+### Параметры
 
-- **persistence** — enables/disables database writing
-- **persistence_location** — directory for `mosquitto.db`
-- **autosave_interval** — interval in seconds (`0` = on shutdown only)
-- **autosave_on_changes** — save on every retained/subscription change
+- **persistence** — включает/выключает запись базы данных
+- **persistence_location** — директория для `mosquitto.db`
+- **autosave_interval** — интервал в секундах (`0` = только при завершении)
+- **autosave_on_changes** — сохранять при каждом изменении retained/подписок
 
-## Storage on OpenWRT: /tmp vs /overlay
+## Хранилище на OpenWRT: /tmp vs /overlay
 
 ```mermaid
 flowchart LR
-    TMP["/tmp\ntmpfs (RAM)"] -->|"volatile"| Bad["❌ Data lost\non reboot"]
-    OVL["/overlay\nJFFS2/UBIFS Flash"] -->|"non-volatile"| OK1["✅ Survives\nreboot"]
-    USB["/mnt/usb\next4 USB/SD"] -->|"non-volatile"| OK2["✅ Large capacity"]
+    TMP["/tmp\ntmpfs (RAM)"] -->|"энергозависимо"| Bad["❌ Данные теряются\nпри перезагрузке"]
+    OVL["/overlay\nJFFS2/UBIFS Flash"] -->|"энергонезависимо"| OK1["✅ Переживает\nперезагрузку"]
+    USB["/mnt/usb\next4 USB/SD"] -->|"энергонезависимо"| OK2["✅ Большой объём"]
 ```
 
-### Flash memory wear
+### Износ flash-памяти
 
-Built-in flash has a limited write endurance (~100,000 write cycles per block).
-With `autosave_interval 60` and a 10 KB database — ~864 MB of writes per day. This is critical for small flash!
+Встроенная flash-память имеет ограниченный ресурс (~100 000 циклов записи на блок).
+При `autosave_interval 60` и 10 КБ БД — ~864 МБ в день записи. Это критично для малых flash!
 
-**Recommendation for /overlay:** `autosave_interval 600` or more.
-**Best option:** USB flash drive or SD card at `/mnt/usb/mosquitto/`.
+**Рекомендация для /overlay:** `autosave_interval 600` или больше.
+**Лучший вариант:** USB-флешка или SD-карта в `/mnt/usb/mosquitto/`.
 
-## Manual save: SIGUSR1
+## Ручное сохранение: SIGUSR1
 
 ```bash
-# Force database save (without restart)
+# Принудительное сохранение БД (без перезапуска)
 kill -USR1 $(cat /var/run/mosquitto.pid)
 ```
 
-Use before backup or scheduled power-off.
+Используйте перед бэкапом или плановым отключением питания.
 
-## Backup
+## Бэкап
 
 ```bash
 #!/bin/sh
@@ -77,26 +77,26 @@ Use before backup or scheduled power-off.
 BACKUP_DIR="/mnt/usb/backups"
 DATE=$(date +%Y%m%d_%H%M%S)
 
-# 1. Save DB
+# 1. Сохранить БД
 kill -USR1 $(cat /var/run/mosquitto.pid) && sleep 2
 
-# 2. Archive
+# 2. Архивировать
 tar czf "$BACKUP_DIR/mqtt_$DATE.tar.gz" \
   /var/lib/mosquitto/mosquitto.db \
   /etc/mosquitto/
 
-# 3. Keep only the last 7 backups
+# 3. Оставить только 7 последних бэкапов
 ls -t $BACKUP_DIR/mqtt_*.tar.gz | tail -n +8 | xargs rm -f
 ```
 
-### Cron for automated backup
+### Cron для автобэкапа
 
 ```sh
-# /etc/crontabs/root — daily at 02:00
+# /etc/crontabs/root — ежедневно в 02:00
 0 2 * * * /usr/bin/mqtt-backup.sh
 ```
 
-## Restore
+## Восстановление
 
 ```bash
 #!/bin/sh
@@ -106,19 +106,19 @@ tar xzf "$BACKUP_FILE" -C /
 service mosquitto start
 ```
 
-## ⚠️ Common mistakes
+## ⚠️ Частые ошибки
 
-| Mistake | Cause | Solution |
+| Ошибка | Причина | Решение |
 |--------|---------|---------|
-| `persistence_location /tmp` | tmpfs — data lost on reboot | Use `/var/lib/mosquitto/` or `/mnt/usb/` |
-| `autosave_on_changes true` on flash | Memory wear | Set `false`, use interval |
-| Backup without SIGUSR1 | Buffers not flushed | Always send SIGUSR1 before backup |
-| DB not created | Directory does not exist | `mkdir -p /var/lib/mosquitto; chown mosquitto:` |
+| `persistence_location /tmp` | tmpfs — данные теряются | Использовать `/var/lib/mosquitto/` или `/mnt/usb/` |
+| `autosave_on_changes true` на flash | Износ памяти | Установить `false`, использовать интервал |
+| Бэкап без SIGUSR1 | Буферы не сброшены | Всегда делать SIGUSR1 перед бэкапом |
+| БД не создаётся | Директория не существует | `mkdir -p /var/lib/mosquitto; chown mosquitto:` |
 
-## 📌 Summary
+## 📌 Итоги
 
-- ✅ `persistence true` + correct `persistence_location`
-- ✅ For OpenWRT: `/overlay` (careful) or USB (`/mnt/usb/mosquitto/`)
-- ✅ `autosave_on_changes false` — protects flash from wear
-- ✅ SIGUSR1 before backup ensures data integrity
-- ❌ Never use `/tmp` as persistence_location
+- ✅ `persistence true` + правильный `persistence_location`
+- ✅ Для OpenWRT: `/overlay` (осторожно) или USB (`/mnt/usb/mosquitto/`)
+- ✅ `autosave_on_changes false` — защита flash от износа
+- ✅ SIGUSR1 перед бэкапом гарантирует целостность данных
+- ❌ Никогда не используйте `/tmp` как persistence_location

@@ -1,56 +1,56 @@
-# Level 2: Basic Mosquitto Configuration — Detailed Theory
+# Уровень 2: Базовая конфигурация Mosquitto — Подробная теория
 
-## Mosquitto 2.x Configuration System
+## Система конфигурации Mosquitto 2.x
 
-### Configuration File Syntax
+### Синтаксис конфигурационного файла
 
 ```ini
-# Comment (starts with #)
+# Комментарий (начинается с #)
 
-# Simple value
+# Простое значение
 pid_file /var/run/mosquitto.pid
 
-# Boolean values: true/false
+# Булевы значения: true/false
 persistence false
 log_timestamp true
 
-# Numeric values
+# Числовые значения
 max_connections 100
 listener 1883
 
-# Value with address on one line
+# Значение с адресом в одной строке
 listener 1883 192.168.1.1
 
-# include directive — for config modularity
+# include директива — для модульности конфига
 include_dir /etc/mosquitto/conf.d
 ```
 
-Important rules:
-- Separator: **space** (not `=`)
-- Quotes: only if the value contains spaces
-- `#` in the middle of a line — this is a comment
-- Order matters: parameters after `listener` apply to it
+Важные правила:
+- Разделитель: **пробел** (не `=`)
+- Кавычки: только если значение содержит пробелы
+- `#` в середине строки — это комментарий
+- Порядок имеет значение: параметры после `listener` применяются к нему
 
-### Listener Context in v2.x
+### Контекст listener в v2.x
 
-Mosquitto 2.x introduced an important change: security parameters became **per-listener**. This is a powerful model allowing different policies on different ports.
+В Mosquitto 2.x введено важное изменение: параметры безопасности стали **per-listener**. Это мощная модель, позволяющая иметь разные политики на разных портах.
 
 ```ini
-# Global parameters (apply before the first listener)
+# Глобальные параметры (применяются до первого listener)
 pid_file /var/run/mosquitto.pid
 persistence false
 
-# === Listener 1: local MQTT without authentication ===
+# === Listener 1: локальный MQTT без аутентификации ===
 listener 1883 127.0.0.1
-allow_anonymous true    # local processes only
+allow_anonymous true    # только локальные процессы
 
-# === Listener 2: LAN MQTT with passwords ===
+# === Listener 2: LAN MQTT с паролями ===
 listener 1883 192.168.1.1
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 acl_file /etc/mosquitto/acl
 
-# === Listener 3: TLS for external ===
+# === Listener 3: TLS для внешних ===
 listener 8883 0.0.0.0
 allow_anonymous false
 password_file /etc/mosquitto/passwd
@@ -61,167 +61,167 @@ keyfile /etc/mosquitto/certs/server.key
 
 ---
 
-## Detailed Parameter Reference
+## Подробный справочник параметров
 
-### Group: Network Connections
+### Группа: Сетевые соединения
 
 **`listener [port] [bind_address]`**
 
-Defines the port and optionally the IP address to listen on. If bind_address is not specified — listens on all interfaces (`0.0.0.0`).
+Определяет порт и опционально IP-адрес для прослушивания. Если bind_address не указан — слушает на всех интерфейсах (`0.0.0.0`).
 
 ```ini
-listener 1883              # all interfaces, port 1883
-listener 1883 127.0.0.1    # loopback only
-listener 1883 192.168.1.1  # LAN only
-listener 8883              # TLS port on all interfaces
+listener 1883              # все интерфейсы, порт 1883
+listener 1883 127.0.0.1    # только loopback
+listener 1883 192.168.1.1  # только LAN
+listener 8883              # TLS порт на всех интерфейсах
 ```
 
-**`max_connections [-1 | number]`**
+**`max_connections [-1 | число]`**
 
 ```ini
-max_connections -1   # no limit (default)
-max_connections 50   # max 50 simultaneous clients
+max_connections -1   # без ограничений (по умолчанию)
+max_connections 50   # максимум 50 одновременных клиентов
 ```
 
-On a router with 64 MB RAM and ~150 KB per client, the limit is recommended to be ~50–200.
+На роутере с 64 МБ RAM и ~150 KB per client лимит рекомендуется ставить ~50–200.
 
-**`max_inflight_messages [0 | number]`**
+**`max_inflight_messages [0 | число]`**
 
-Maximum number of QoS 1/2 messages "in flight" (sent but not confirmed) per client:
+Максимальное число QoS 1/2 сообщений в "полёте" (отправлены, но не подтверждены) для одного клиента:
 
 ```ini
-max_inflight_messages 0   # no limit (default: 20)
-max_inflight_messages 10  # limit for IoT router
+max_inflight_messages 0   # без лимита (по умолчанию: 20)
+max_inflight_messages 10  # ограничить для IoT-роутера
 ```
 
-**`max_queued_messages [0 | number]`**
+**`max_queued_messages [0 | число]`**
 
-Queue length for temporarily disconnected clients (persistent session, QoS > 0):
+Длина очереди для клиентов, временно отключённых (persistent session, QoS > 0):
 
 ```ini
-max_queued_messages 1000  # default
-max_queued_messages 100   # save RAM on router
-max_queued_messages 0     # no limit
+max_queued_messages 1000  # по умолчанию
+max_queued_messages 100   # экономия RAM на роутере
+max_queued_messages 0     # без ограничений
 ```
 
-**`message_size_limit [bytes]`**
+**`message_size_limit [число_байт]`**
 
 ```ini
-message_size_limit 0       # MQTT spec limit: 256 MB (default)
-message_size_limit 65536   # 64 KB — reasonable limit for IoT
-message_size_limit 1048576 # 1 MB
+message_size_limit 0       # MQTT spec limit: 256 МБ (по умолчанию)
+message_size_limit 65536   # 64 КБ — разумный лимит для IoT
+message_size_limit 1048576 # 1 МБ
 ```
 
-**`keepalive_interval [seconds]`**
+**`keepalive_interval [секунды]`**
 
-Maximum interval after which the client must send a PINGREQ:
+Максимальный интервал, через который клиент должен прислать PINGREQ:
 
 ```ini
-keepalive_interval 60   # default
-keepalive_interval 30   # more aggressive disconnect detection
-keepalive_interval 0    # disable keepalive
+keepalive_interval 60   # по умолчанию
+keepalive_interval 30   # агрессивнее обнаружение отключений
+keepalive_interval 0    # отключить keepalive
 ```
 
-### Group: Persistence
+### Группа: Persistence
 
 **`persistence [true|false]`**
 
-Enables saving retained messages and QoS 1/2 queues to a file:
+Включает сохранение retained messages и QoS 1/2 очередей в файл:
 
 ```ini
-persistence false  # default in OpenWRT package
+persistence false  # по умолчанию в OpenWRT пакете
 persistence true
 ```
 
-**Pitfalls of persistence on OpenWRT:**
+**Подводные камни persistence на OpenWRT:**
 
-1. By default writes to `/var/lib/mosquitto/` — this is overlay FS stored on flash
-2. With high frequency of retained messages, flash wears out (limited write cycles)
-3. Size of mosquitto.db depends on the number of retained messages and QoS queues
+1. По умолчанию пишет в `/var/lib/mosquitto/` — это overlay FS, которая хранится на flash
+2. При высокой частоте retained-сообщений flash изнашивается (ограниченный ресурс перезаписи)
+3. Размер mosquitto.db зависит от количества retained messages и QoS-очередей
 
 ```ini
-# Safe variant: tmpfs (data lost on reboot)
+# Безопасный вариант: tmpfs (данные теряются при перезагрузке)
 persistence true
 persistence_location /tmp/mosquitto/
 persistence_file mosquitto.db
 
-# If you need to persist data — external USB
+# Если нужно сохранять данные — внешний USB
 persistence true
 persistence_location /mnt/usb/mosquitto/
 ```
 
-**`autosave_interval [seconds]`**
+**`autosave_interval [секунды]`**
 
-How often to write to disk in the background:
+Как часто писать на диск в фоне:
 
 ```ini
-autosave_interval 1800  # every 30 minutes (default)
-autosave_interval 0     # only on shutdown
+autosave_interval 1800  # каждые 30 минут (по умолчанию)
+autosave_interval 0     # только при останове
 ```
 
-### Group: Security (basic)
+### Группа: Безопасность (базовая)
 
 **`allow_anonymous [true|false]`**
 
-In Mosquitto 2.0 the default changed from `true` to `false`:
+В Mosquitto 2.0 значение по умолчанию изменилось с `true` на `false`:
 
 ```ini
 allow_anonymous false  # v2.0+ default
-allow_anonymous true   # explicitly allow (for development)
+allow_anonymous true   # явно разрешить (для разработки)
 ```
 
-**`password_file [path]`**
+**`password_file [путь]`**
 
 ```ini
 password_file /etc/mosquitto/passwd
 ```
 
-Creating users:
+Создание пользователей:
 ```bash
-# Create a new file + add first user
+# Создать новый файл + добавить первого пользователя
 mosquitto_passwd -c /etc/mosquitto/passwd admin
 
-# Add user to existing file
+# Добавить пользователя в существующий файл
 mosquitto_passwd /etc/mosquitto/passwd sensor01
 
-# Batch creation (batch mode)
+# Пакетное создание (batch mode)
 echo "sensor01:password123" | mosquitto_passwd -U /etc/mosquitto/passwd
 ```
 
-**`acl_file [path]`**
+**`acl_file [путь]`**
 
 ```ini
 acl_file /etc/mosquitto/acl
 ```
 
-Example ACL file:
+Пример ACL-файла:
 ```
-# User admin: full access
+# Пользователь admin: полный доступ
 user admin
 topic readwrite #
 
-# User sensor01: publish only their own data
+# Пользователь sensor01: только публикация своих данных
 user sensor01
 topic write home/sensor/sensor01/#
 topic read home/sensor/sensor01/config
 
-# Pattern with substitution %u (username)
+# Паттерн с подстановкой %u (имя пользователя)
 pattern write devices/%u/telemetry
 pattern read devices/%u/commands
 ```
 
 ---
 
-## Listeners — Multi-Port Architecture
+## Listeners — архитектура с несколькими портами
 
-### Typical Smart Home Configuration
+### Типичная конфигурация для умного дома
 
 ```mermaid
 graph LR
-    A[ESP8266\nsensors] -->|1883 LAN MQTT| B[Mosquitto\n192.168.1.1]
+    A[ESP8266\nсенсоры] -->|1883 LAN MQTT| B[Mosquitto\n192.168.1.1]
     C[Node-RED] -->|1883 localhost| B
-    D[HASS\nbrowser] -->|9001 WebSocket| B
-    E[Phone\nexternal] -->|8883 TLS| B
+    D[HASS\nбраузер] -->|9001 WebSocket| B
+    E[Телефон\nизвне] -->|8883 TLS| B
 ```
 
 ```ini
@@ -232,80 +232,80 @@ log_type error
 log_type warning
 log_type notice
 
-# 1. Localhost — for local scripts (no passwords)
+# 1. Localhost — для локальных скриптов (без паролей)
 listener 1883 127.0.0.1
 protocol mqtt
 allow_anonymous true
 
-# 2. LAN — for smart devices (with passwords)
+# 2. LAN — для умных устройств (с паролями)
 listener 1883 192.168.1.1
 protocol mqtt
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 acl_file /etc/mosquitto/acl
 
-# 3. WebSocket — for browser clients
+# 3. WebSocket — для браузерных клиентов
 listener 9001 192.168.1.1
 protocol websockets
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 ```
 
-### Binding to a Specific Interface
+### Привязка к конкретному интерфейсу
 
-An OpenWRT router typically has at least two interfaces: LAN (`br-lan`, usually 192.168.1.1) and WAN (public IP). Binding the broker to the WAN interface without TLS is a critical security error.
+OpenWRT роутер обычно имеет как минимум два интерфейса: LAN (`br-lan`, обычно 192.168.1.1) и WAN (публичный IP). Привязывать брокер к WAN-интерфейсу без TLS — критическая ошибка безопасности.
 
 ```bash
-# Check interface IPs
+# Узнать IP интерфейсов
 ip addr show
 
-# Example: br-lan = 192.168.1.1, eth0.2 = 88.xx.xx.xx (WAN)
-# Correct: listen only on LAN
+# Пример: br-lan = 192.168.1.1, eth0.2 = 88.xx.xx.xx (WAN)
+# Правильно: слушать только на LAN
 listener 1883 192.168.1.1
 ```
 
 ---
 
-## Logging Configuration — In Detail
+## Настройка логирования — детально
 
-### All Available log_dest Options
+### Все доступные log_dest
 
 ```ini
-# System log (recommended for OpenWRT)
+# Системный журнал (рекомендуется для OpenWRT)
 log_dest syslog
 
-# Standard output (when running manually for debugging)
+# Стандартный вывод (если запускать вручную для отладки)
 log_dest stdout
 
-# File (better in tmpfs)
+# Файл (лучше в tmpfs)
 log_dest file /tmp/mosquitto.log
 
-# Multiple destinations simultaneously
+# Несколько назначений одновременно
 log_dest syslog
 log_dest file /tmp/mosquitto.log
 
-# Publishing logs to an MQTT topic (interesting approach for monitoring)
+# Публикация логов в MQTT-топик (интересный подход для мониторинга)
 log_dest topic
-# Topics: $SYS/broker/log/D, /I, /N, /W, /E (debug/info/notice/warn/err)
+# Топики: $SYS/broker/log/D, /I, /N, /W, /E (debug/info/notice/warn/err)
 ```
 
-### File Log Rotation
+### Ротация файловых логов
 
-Mosquitto doesn't rotate logs automatically. On OpenWRT you can use `logrotate` or a simpler solution:
+Mosquitto не ротирует логи автоматически. На OpenWRT можно использовать `logrotate` или решение проще:
 
 ```bash
 # /etc/cron.d/mosquitto-logrotate
-# Rotate daily if file > 1 MB
+# Ротация раз в сутки если файл > 1 МБ
 0 3 * * * [ -f /tmp/mosquitto.log ] && [ $(wc -c < /tmp/mosquitto.log) -gt 1048576 ] && \
   kill -USR1 $(cat /var/run/mosquitto.pid) && \
   mv /tmp/mosquitto.log /tmp/mosquitto.log.1
 ```
 
-Mosquitto supports `SIGUSR1` for reopening the log file (without restart).
+Mosquitto поддерживает `SIGUSR1` для reopening log file (без перезапуска).
 
-### What Each Level Shows
+### Что показывает каждый уровень
 
-**notice** (recommended for production):
+**notice** (рекомендуемый для продакшна):
 ```
 1712345678: mosquitto version 2.0.18 starting
 1712345678: Config loaded from /etc/mosquitto/mosquitto.conf
@@ -315,7 +315,7 @@ Mosquitto supports `SIGUSR1` for reopening the log file (without restart).
 1712345678: Client sensor01 disconnected.
 ```
 
-**debug** (for temporary diagnostics):
+**debug** (для временной диагностики):
 ```
 1712345678: Received CONNECT from sensor01
 1712345678: Creating persistence database at /tmp/mosquitto/mosquitto.db
@@ -324,48 +324,48 @@ Mosquitto supports `SIGUSR1` for reopening the log file (without restart).
 
 ---
 
-## Reloading Config Without Restart
+## Reload конфига без перезапуска
 
-Mosquitto supports `SIGHUP` for reloading the config:
+Mosquitto поддерживает `SIGHUP` для перечитывания конфига:
 
 ```bash
-# Reload config (without dropping existing connections)
+# Reload конфига (без обрыва существующих соединений)
 kill -HUP $(cat /var/run/mosquitto.pid)
 
-# Verify reload was successful
+# Проверить что reload прошёл успешно
 logread | grep mosquitto | tail -5
-# Should show: "Reloading config."
+# Должно появиться: "Reloading config."
 ```
 
-**What IS reloaded on SIGHUP:**
+**Что ПЕРЕЧИТЫВАЕТСЯ при SIGHUP:**
 - `log_type`, `log_dest`
 - `password_file`, `acl_file`
 - `allow_anonymous`
 
-**What is NOT reloaded (requires full restart):**
-- `listener` parameters
-- `persistence` settings
-- TLS certificates (in some versions)
+**Что НЕ перечитывается (требует полного рестарта):**
+- `listener` параметры
+- `persistence` настройки
+- TLS сертификаты (в некоторых версиях)
 
 ---
 
-## Full Production Config for OpenWRT
+## Полный production-конфиг для OpenWRT
 
 ```ini
 # /etc/mosquitto/mosquitto.conf
-# Version: production, OpenWRT 23.05, Mosquitto 2.0.18
+# Версия: production, OpenWRT 23.05, Mosquitto 2.0.18
 
-# === System settings ===
+# === Системные настройки ===
 pid_file /var/run/mosquitto.pid
 user mosquitto
 
-# === Persistence — tmpfs to protect flash ===
+# === Persistence — tmpfs для защиты flash ===
 persistence true
 persistence_location /tmp/mosquitto/
 persistence_file mosquitto.db
 autosave_interval 1800
 
-# === Logging ===
+# === Логирование ===
 log_dest syslog
 log_type error
 log_type warning
@@ -385,67 +385,67 @@ message_size_limit 65536
 
 ---
 
-## ⚠️ Common Mistakes and How to Fix Them
+## ⚠️ Частые ошибки и как их исправить
 
-### ❌ Security parameters outside listener context
+### ❌ Параметры безопасности вне контекста listener
 
 ```ini
-# WRONG in Mosquitto 2.x:
+# НЕПРАВИЛЬНО в Mosquitto 2.x:
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 listener 1883
 ```
 
-Problem: Mosquitto 2.x ignores `allow_anonymous false` at the global level in some builds.
+Проблема: Mosquitto 2.x игнорирует `allow_anonymous false` на глобальном уровне в некоторых сборках.
 
 ```ini
-# CORRECT:
+# ПРАВИЛЬНО:
 listener 1883
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 ```
 
-### ❌ Wrong persistence path on flash
+### ❌ Неправильный путь к persistence на flash
 
 ```ini
-# WRONG — wears out flash memory:
+# НЕПРАВИЛЬНО — изнашивает flash-память:
 persistence true
 persistence_location /var/lib/mosquitto/
 
-# CORRECT — tmpfs in RAM:
+# ПРАВИЛЬНО — tmpfs в RAM:
 persistence true
 persistence_location /tmp/mosquitto/
 ```
 
 ```bash
-# Create the directory (if it doesn't exist):
+# Создать директорию (если не существует):
 mkdir -p /tmp/mosquitto
 chown mosquitto:mosquitto /tmp/mosquitto
 ```
 
-### ❌ Forgetting to restart after changing listener
+### ❌ Забыть перезапустить после изменения listener
 
 ```bash
-# Changed listener port in config
-kill -HUP $(cat /var/run/mosquitto.pid)  # Will NOT apply listener change!
+# Изменил порт listener в конфиге
+kill -HUP $(cat /var/run/mosquitto.pid)  # НЕ применит изменение listener!
 
-# Instead:
+# Нужно:
 /etc/init.d/mosquitto restart
 ```
 
-### ❌ Space before = in config
+### ❌ Пробел перед = в конфиге
 
 ```ini
-# WRONG (syntax error):
+# НЕПРАВИЛЬНО (синтаксическая ошибка):
 log_dest = syslog
 persistence = false
 
-# CORRECT:
+# ПРАВИЛЬНО:
 log_dest syslog
 persistence false
 ```
 
-Mosquitto will report the error:
+Mosquitto сообщит об ошибке:
 ```
 Error: Invalid configuration option "log_dest = syslog"
 ```

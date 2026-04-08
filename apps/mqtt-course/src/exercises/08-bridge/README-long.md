@@ -1,65 +1,65 @@
-# Level 8: Bridge — Detailed Theory
+# Уровень 8: Bridge — подробная теория
 
-## Introduction: Why link brokers
+## Введение: зачем связывать брокеры
 
-Imagine a smart home: an OpenWRT router with Mosquitto collects data from all sensors. Everything
-works great — while you're at home. But you want to see the data from your phone when you're in another city.
-Or you want notifications if a fire sensor triggers at night.
+Представьте умный дом: OpenWRT-роутер с Mosquitto собирает данные со всех датчиков. Всё
+прекрасно — пока вы дома. Но вы хотите видеть данные с телефона когда вы в другом городе.
+Или хотите получать уведомления, если датчик пожара сработал ночью.
 
-Options:
-1. Open port 1883 to the internet — **bad idea** (security)
-2. VPN to the router — works, but complex for mobile clients
-3. **Bridge** — the local broker itself forwards the needed data to the cloud
+Варианты решения:
+1. Открыть порт 1883 в интернет — **плохая идея** (безопасность)
+2. VPN до роутера — работает, но сложно для мобильных клиентов
+3. **Bridge** — локальный брокер сам пересылает нужные данные в облако
 
-A bridge is an elegant solution where devices keep working with the local broker,
-completely unaware of the "outside world". The broker takes care of forwarding the right data outward.
+Bridge — это элегантное решение, при котором устройства продолжают работать с локальным брокером,
+никак не зная о "внешнем мире". Брокер сам заботится о передаче нужных данных наружу.
 
 ---
 
-## 1. How a bridge works under the hood
+## 1. Как работает Bridge под капотом
 
-### Architecture
+### Архитектура
 
 ```mermaid
 flowchart LR
-    D["IoT Sensors"] -->|MQTT| LB["Mosquitto\nLocalBroker\nOpenWRT"]
+    D["IoT Датчики"] -->|MQTT| LB["Mosquitto\nLocalBroker\nOpenWRT"]
     LB -->|"Bridge\n(Mosquitto as client)"| RB["Mosquitto\nRemoteBroker\nCloud"]
-    RB --> App["App\n/ Dashboard"]
+    RB --> App["Приложение\n/ Dashboard"]
     App -->|"commands/#"| RB
     RB -->|"Bridge\nin direction"| LB
     LB -->|"commands/#"| D
 ```
 
-Key understanding: Mosquitto with a configured bridge **is itself an MQTT client** for the remote
-broker. From the remote broker's perspective — it's a regular client with a client_id like
-`mosquitto.bridge.<connection_name>.<hostname>`.
+Ключевое понимание: Mosquitto с настроенным bridge **сам является MQTT-клиентом** для удалённого
+брокера. С точки зрения удалённого брокера — это обычный клиент с client_id вида
+`mosquitto.bridge.<имя_соединения>.<hostname>`.
 
-### Bridge connection lifecycle
+### Жизненный цикл Bridge-соединения
 
 ```mermaid
 flowchart LR
-    Start["Mosquitto\nstarts"] -->|"start_type: automatic"| Connect["TCP + MQTT\nCONNECT"]
-    Connect -->|"success"| Active["Bridge active\nCONNECT Accepted"]
-    Connect -->|"error"| Retry["Retry after\nreconnect_delay"]
+    Start["Mosquitto\nзапускается"] -->|"start_type: automatic"| Connect["TCP + MQTT\nCONNECT"]
+    Connect -->|"успех"| Active["Bridge активен\nCONNECT Accepted"]
+    Connect -->|"ошибка"| Retry["Retry через\nreconnect_delay"]
     Retry --> Connect
-    Active -->|"connection lost"| Retry
-    Active -->|"SIGTERM"| Graceful["Clean\nshutdown\nDISCONNECT"]
+    Active -->|"разрыв связи"| Retry
+    Active -->|"SIGTERM"| Graceful["Корректное\nзавершение\nDISCONNECT"]
 ```
 
 ### start_type: automatic vs lazy vs once
 
-- **automatic** — Mosquitto immediately establishes the connection on startup and keeps it alive always.
-  Best choice for permanent bridges.
-- **lazy** — the connection is only established when there are messages to forward. For bridges
-  with infrequent data and unstable internet.
-- **once** — one-time connection. After sending all messages, the connection closes.
-  Rarely used.
+- **automatic** — Mosquitto сразу устанавливает соединение при старте и поддерживает его всегда.
+  Лучший вариант для постоянных мостов.
+- **lazy** — соединение устанавливается только когда есть сообщения для пересылки. Для мостов
+  с редкими данными и нестабильным интернетом.
+- **once** — одноразовое подключение. После отправки всех сообщений соединение закрывается.
+  Редко используется.
 
 ---
 
-## 2. Full bridge configuration
+## 2. Полная конфигурация Bridge
 
-### Minimal configuration
+### Минимальная конфигурация
 
 ```conf
 connection my-bridge
@@ -67,65 +67,65 @@ address remote-broker.example.com:1883
 topic sensors/# out 0
 ```
 
-### Full configuration with comments
+### Полная конфигурация с пояснениями
 
 ```conf
-# Connection name — unique for each bridge
+# Имя соединения — уникальное для каждого моста
 connection bridge-to-cloud
 
-# Remote broker address
-# Format: hostname:port
-# For multiple addresses (failover):
+# Адрес удалённого брокера
+# Формат: hostname:port
+# Для нескольких адресов (резервирование):
 # address primary.cloud.com:1883 backup.cloud.com:1883
 address mqtt.mycloud.com:8883
 
-# Authentication on the remote broker
+# Аутентификация на удалённом брокере
 remote_username homebridge
 remote_password S3cur3Pass!
 
-# TLS for cloud connection
+# TLS для подключения к облаку
 bridge_cafile /etc/mosquitto/certs/cloud-ca.crt
-# For mTLS:
+# При mTLS:
 # bridge_certfile /etc/mosquitto/certs/bridge.crt
 # bridge_keyfile  /etc/mosquitto/certs/bridge.key
 bridge_tls_version tlsv1.2
 
-# Topic forwarding rules
-topic sensors/# out 0             # Sensor data → cloud
-topic commands/# in 1             # Commands from cloud → local
-topic alerts/# out 2              # Critical alerts with guaranteed delivery
+# Правила пересылки топиков
+topic sensors/# out 0             # Данные датчиков → облако
+topic commands/# in 1             # Команды из облака → локально
+topic alerts/# out 2              # Критические оповещения с гарантией
 
-# Keep-alive: ping every 60 seconds
+# Keep-alive: каждые 60 секунд пинг
 keepalive_interval 60
 
-# Reconnection strategy
+# Стратегия переподключения
 start_type automatic
-reconnect_delay 5            # First attempt after 5 sec
-reconnect_delay_max 120      # Max interval 2 minutes
+reconnect_delay 5            # Первая попытка через 5 сек
+reconnect_delay_max 120      # Максимальный интервал 2 минуты
 
-# Use clean session (recommended for bridges)
+# Использовать clean session (рекомендуется для мостов)
 cleansession true
 
-# QoS override for bridge forwarding (lower if needed)
+# Вариант QoS для передачи через мост (понизить, если нужно)
 # bridge_attempt_unsubscribe false
 ```
 
-### Multiple bridges
+### Несколько мостов
 
-You can configure multiple bridges in a single `mosquitto.conf`:
+В одном `mosquitto.conf` можно настроить несколько мостов:
 
 ```conf
-# Bridge to primary cloud
+# Мост к основному облаку
 connection cloud-primary
 address mqtt.primary-cloud.com:8883
 topic sensors/# out 0
 
-# Bridge to backup cloud
+# Мост к резервному облаку
 connection cloud-backup
 address mqtt.backup-cloud.com:8883
 topic alerts/# out 2
 
-# Bridge to office broker
+# Мост к офисному брокеру
 connection office-broker
 address 10.0.1.5:1883
 topic office/# both 1
@@ -133,223 +133,223 @@ topic office/# both 1
 
 ---
 
-## 3. Topic string format: detailed breakdown
+## 3. Формат строки topic: детальный разбор
 
-The `topic` line is the key element of bridge configuration:
+Строка `topic` — это ключевой элемент конфигурации Bridge:
 
 ```
-topic <pattern> <direction> <QoS> [local_prefix] [remote_prefix]
+topic <паттерн> <направление> <QoS> [локальный_префикс] [удалённый_префикс]
 ```
 
-### Directions
+### Направления
 
-| Direction | Meaning |
+| Направление | Значение |
 |-------------|---------|
-| `out` | Local messages → remote broker |
-| `in` | Remote broker messages → local |
-| `both` | Bidirectional (watch out for loops!) |
+| `out` | Локальные сообщения → удалённый брокер |
+| `in` | Сообщения удалённого брокера → локальный |
+| `both` | Двустороннее (аккуратно с петлями!) |
 
-### QoS in Bridge
+### QoS в Bridge
 
-QoS in the `topic` line sets the maximum QoS for forwarding. Actual QoS is the minimum of:
-publisher QoS and QoS in the `topic` line.
+QoS в строке `topic` определяет максимальный QoS при пересылке. Реальный QoS — минимум из:
+QoS публикатора и QoS в `topic`-строке.
 
-### Prefix mapping
+### Маппинг префиксов
 
-The last two parameters are local and remote prefixes:
+Последние два параметра — локальный и удалённый префиксы:
 
 ```conf
-# No mapping
+# Без маппинга
 topic sensors/# out 0
-# sensors/temp → sensors/temp (on remote)
+# sensors/temp → sensors/temp (на удалённом)
 
-# With remote prefix
+# С удалённым префиксом
 topic sensors/# out 0 "" home/
-# sensors/temp → home/sensors/temp (on remote)
+# sensors/temp → home/sensors/temp (на удалённом)
 
-# Local prefix only
+# Только с локальным префиксом
 topic # in 0 remote/ ""
-# remote/cmd → cmd (receive remote topic without prefix locally)
+# remote/cmd → cmd (получаем удалённый топик без префикса локально)
 
-# With both prefixes
+# С обоими префиксами
 topic data out 0 local/ remote/
 # local/data → remote/data
 ```
 
-An empty string `""` means "no prefix". If the last two parameters are omitted —
-topics are not transformed.
+Пустая строка `""` означает "без префикса". Если последние два параметра не указаны —
+топики не преобразуются.
 
-### Practical examples
+### Практические примеры
 
 ```conf
-# Smart home: forward sensor data to cloud with house identifier
+# Умный дом: пересылать данные датчиков в облако с указанием дома
 topic sensors/# out 0 "" house-42/
 
-# Bidirectional light control
+# Двустороннее управление освещением
 topic light/# both 1
 
-# Receive only alerts from another office
+# Получать только алерты из другого офиса
 topic alert/office-B/# in 1
 
-# Full topic synchronization with explicit mapping
+# Полная синхронизация топиков с явным маппингом
 topic status out 1 "" bridge/status
 ```
 
 ---
 
-## 4. Message loops and how to prevent them
+## 4. Петли сообщений и их предотвращение
 
-### What is a bridge loop
+### Что такое bridge loop
 
-With `direction both`, there's a risk of a loop:
-1. Broker A receives a message, forwards it to broker B
-2. Broker B receives the message from A, forwards it back to A
-3. Broker A receives the same message again...
+При `direction both` возникает риск петли:
+1. Брокер A получает сообщение, пересылает на брокер B
+2. Брокер B получает сообщение от A, пересылает обратно на A
+3. Брокер A получает то же сообщение снова...
 
-### Mosquitto's loop protection
+### Защита Mosquitto от петель
 
-Mosquitto automatically adds a special attribute to publications through the bridge. The broker
-does not forward messages that have already passed through the bridge in that direction. This works
-correctly when `cleansession true` and the round-trip is from a single source.
+Mosquitto автоматически добавляет к публикациям через Bridge специальный атрибут. Брокер
+не пересылает сообщения, которые уже прошли через мост в этом направлении. Это работает
+корректно, если `cleansession true` и `round_trip` (петля) из одного источника.
 
-But for complex topologies (triangle, star), loops are still possible.
+Но для сложных топологий (треугольник, звезда) петли всё равно возможны.
 
-### Recommendations
+### Рекомендации
 
 ```conf
-# 1. Prefer directed rules instead of both
-topic sensors/# out 0     # Not "both" — only from local
-topic commands/# in 1     # Only into local
+# 1. Предпочитайте направленные правила вместо both
+topic sensors/# out 0     # Не "both" — только из локальной
+topic commands/# in 1     # Только в локальную
 
-# 2. Use cleansession true
+# 2. Используйте cleansession true
 cleansession true
 
-# 3. For state synchronization — retained + both with caution
+# 3. Для синхронизации состояния — retained + both с осторожностью
 topic status both 1
 ```
 
 ---
 
-## 5. Bridge with TLS
+## 5. Мост с TLS
 
 ```conf
 connection secure-cloud-bridge
 address mqtt.cloud.example.com:8883
 
-# TLS: CA only (verify the server)
+# TLS: только CA (проверяем сервер)
 bridge_cafile /etc/mosquitto/certs/cloud-ca.crt
 bridge_tls_version tlsv1.2
 
-# TLS: mTLS (server verifies us too)
+# TLS: mTLS (и сервер проверяет нас)
 bridge_certfile /etc/mosquitto/certs/bridge-client.crt
 bridge_keyfile /etc/mosquitto/certs/bridge-client.key
 
 topic sensors/# out 0
 ```
 
-The `bridge-client.crt/key` certificates must be signed by a CA trusted by the remote broker.
+Сертификаты `bridge-client.crt/key` должны быть подписаны CA, которому доверяет удалённый брокер.
 
 ---
 
-## 6. Debugging Bridge
+## 6. Отладка Bridge
 
 ```bash
-# Check if the remote broker port is reachable
-nc -z mqtt.cloud.com 1883 && echo "reachable" || echo "unreachable"
+# Проверить, что порт удалённого брокера доступен
+nc -z mqtt.cloud.com 1883 && echo "доступен" || echo "недоступен"
 
-# View Mosquitto logs
+# Просмотр логов Mosquitto
 logread | grep mosquitto | grep -i bridge
 
-# Enable verbose logging in config
+# Включить подробные логи в конфиге
 log_type all
 log_type debug
 
-# Check status via $SYS topics
+# Проверить статус через $SYS-топики
 mosquitto_sub -t '$SYS/broker/connection/#' -v
-# Output like:
-# $SYS/broker/connection/bridge-to-cloud/state 1  (1=connected, 0=disconnected)
+# Вывод типа:
+# $SYS/broker/connection/bridge-to-cloud/state 1  (1=подключён, 0=отключён)
 ```
 
 ---
 
-## ⚠️ Common beginner mistakes
+## ⚠️ Частые ошибки новичков
 
-### 🐛 1. Wrong address or port for the remote broker
+### 🐛 1. Неверный адрес или порт удалённого брокера
 
 ```conf
-# ❌ Port 1883 for a TLS broker
+# ❌ Порт 1883 при TLS-брокере
 connection my-bridge
 address cloud.mqtt.com:1883
 bridge_cafile /etc/mosquitto/certs/ca.crt
 ```
 
-> **Why this is a mistake:** TLS brokers usually listen on port 8883. Attempting a TLS handshake
-> on a plain-text port will result in `ssl handshake failed`.
+> **Почему это ошибка:** TLS-брокер обычно слушает на порту 8883. Попытка TLS-handshake
+> на plain-текстовом порту завершится ошибкой `ssl handshake failed`.
 
 ```conf
-# ✅ Correct port for TLS
+# ✅ Правильный порт для TLS
 address cloud.mqtt.com:8883
 ```
 
-### 🐛 2. Both brokers configured with direction both — loop
+### 🐛 2. Оба брокера настроены с direction both — петля
 
 ```conf
-# ❌ Broker A
+# ❌ Брокер A
 topic data both 1
 
-# ❌ Broker B (mirror config)
+# ❌ Брокер B (зеркальная конфигурация)
 topic data both 1
-# Result: the message loops between brokers infinitely
+# Результат: сообщение гуляет между брокерами бесконечно
 ```
 
-> **Why this is a mistake:** with `both` on both ends, every message is forwarded back and
-> forth. Mosquitto has built-in protection for simple cases, but with complex topologies
-> loops are still possible.
+> **Почему это ошибка:** при `both` на обоих концах каждое сообщение пересылается туда и
+> обратно. Mosquitto имеет встроенную защиту для простых случаев, но при сложных топологиях
+> петли всё равно возможны.
 
 ```conf
-# ✅ One end — out, the other — in (or both, but with topology awareness)
-# Broker A (data source)
+# ✅ Один конец — out, другой — in (или оба, но с пониманием топологии)
+# Брокер A (источник данных)
 topic data out 1
 
-# Broker B (receiver)
-# No bridge config needed — it just receives data
+# Брокер B (получатель)
+# Не нужна конфигурация Bridge — он просто получает данные
 ```
 
-### 🐛 3. Bridge connects, but messages don't arrive
+### 🐛 3. Bridge подключается, но сообщения не приходят
 
 ```conf
-# ❌ Wrong topic pattern
+# ❌ Неверный паттерн топика
 connection my-bridge
 address remote:1883
-topic /sensors/# out 0   # Extra leading slash!
+topic /sensors/# out 0   # Лишний слэш в начале!
 ```
 
-> **Why this is a mistake:** topic `/sensors/temp` (with leading slash) is a different topic than
-> `sensors/temp`. Devices publish to `sensors/temp`, but the rule filters `/sensors/#`.
+> **Почему это ошибка:** топик `/sensors/temp` (с ведущим слэшем) — это другой топик, чем
+> `sensors/temp`. Устройства публикуют в `sensors/temp`, а правило фильтрует `/sensors/#`.
 
 ```conf
-# ✅ No leading slash
+# ✅ Без ведущего слэша
 topic sensors/# out 0
 ```
 
-### 🐛 4. Forgetting permissions for incoming messages
+### 🐛 4. Забыть о правах для входящих сообщений
 
 ```conf
-# Bridge config
+# Конфиг Bridge
 topic commands/# in 1
 
-# ❌ Forgot to add to ACL
-# ACL allows local clients to read commands/#, but the bridge-client has no publish rights
+# ❌ Забыть добавить в ACL
+# ACL разрешает local-клиентам читать commands/#, но bridge-client не имеет права публиковать
 
 # /etc/mosquitto/acl
-# (empty or only user/pass - bridge_client not listed)
+# (пусто или только user/pass - bridge_client не перечислен)
 ```
 
-> **Why this is a mistake:** when the bridge receives a message from the cloud and publishes it locally,
-> Mosquitto checks the bridge client's permissions. If ACL isn't configured — messages are rejected.
+> **Почему это ошибка:** когда Bridge получает сообщение из облака и публикует его локально,
+> Mosquitto проверяет права bridge-клиента. Если ACL не настроен — сообщения отклоняются.
 
 ```conf
-# ✅ Add ACL permissions for the bridge user
+# ✅ Добавить в ACL права для bridge-пользователя
 user bridge_user
 topic write commands/#
 topic read sensors/#
@@ -357,21 +357,21 @@ topic read sensors/#
 
 ---
 
-## 📌 Summary
+## 📌 Итоги
 
-| Parameter | Purpose |
+| Параметр | Назначение |
 |----------|-----------|
-| `connection <name>` | Bridge name |
-| `address host:port` | Remote broker |
-| `topic # out 0` | All local topics → remote |
-| `topic # in 0` | All remote topics → local |
-| `topic # both 1` | Bidirectional synchronization |
-| `bridge_cafile` | TLS CA for remote broker |
-| `start_type automatic` | Automatically maintain connection |
-| `cleansession true` | Clean session (protects against stale subscriptions) |
+| `connection <name>` | Имя моста |
+| `address host:port` | Удалённый брокер |
+| `topic # out 0` | Все локальные топики → удалённый |
+| `topic # in 0` | Все удалённые топики → локальный |
+| `topic # both 1` | Двусторонняя синхронизация |
+| `bridge_cafile` | TLS CA для удалённого брокера |
+| `start_type automatic` | Автоматически поддерживать соединение |
+| `cleansession true` | Чистая сессия (защита от устаревших подписок) |
 
-- ✅ Bridge = Mosquitto as MQTT client for another broker
-- ✅ Use `out`/`in` instead of `both` when possible
-- ✅ Watch for loops with `both`
-- ✅ Add ACL permissions for the bridge user
-- ❌ Don't open port 1883 to the internet — use Bridge via VPN or TLS
+- ✅ Bridge = Mosquitto как MQTT-клиент для другого брокера
+- ✅ Используйте `out`/`in` вместо `both` когда это возможно
+- ✅ Следите за петлями при `both`
+- ✅ Добавьте права ACL для bridge-пользователя
+- ❌ Не открывайте порт 1883 в интернет — используйте Bridge через VPN или TLS

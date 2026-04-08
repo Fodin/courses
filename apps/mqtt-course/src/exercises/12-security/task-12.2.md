@@ -1,58 +1,58 @@
-# Task 12.2: Rate Limiting and Attack Protection
+# Задание 12.2: Rate limiting и защита от атак
 
-## Goal
+## Цель
 
-Configure multi-layered protection against DoS attacks and password bruteforce: through Mosquitto, iptables, and an automatic ban script.
+Настроить многоуровневую защиту от DoS-атак и брутфорса пароля: через Mosquitto, iptables и скрипт автоматического бана.
 
-## Requirements
+## Требования
 
-1. Configure `per_listener_settings true` with different `max_connections` for TCP and WebSocket listeners
-2. Add iptables rate limiting: no more than 5 new TCP connections to port 1883 per minute from a single IP
-3. Create script `/usr/local/bin/mqtt-autoban.sh` — automatically bans IPs with 5+ authentication errors
-4. Add the script to cron: run every 5 minutes
-5. Configure logging of banned IPs via `logger`
+1. Настроить `per_listener_settings true` с разными `max_connections` для TCP и WebSocket слушателей
+2. Добавить iptables rate limiting: не более 5 новых TCP-соединений на порт 1883 в минуту с одного IP
+3. Создать скрипт `/usr/local/bin/mqtt-autoban.sh` — автоматически банит IP с 5+ ошибками аутентификации
+4. Добавить скрипт в cron: запускать каждые 5 минут
+5. Настроить логирование заблокированных IP через `logger`
 
-## Checklist
+## Чеклист
 
-- [ ] `per_listener_settings true` added to mosquitto.conf
-- [ ] Listener 1883 has `max_connections 50`
-- [ ] Listener 9001 has `max_connections 20`
-- [ ] iptables rate limiting applied for port 1883
-- [ ] Script `mqtt-autoban.sh` created and executable (`chmod +x`)
-- [ ] Script added to crontab: `*/5 * * * * ...`
-- [ ] Script test-banned an IP with authentication errors
+- [ ] `per_listener_settings true` добавлен в mosquitto.conf
+- [ ] Слушатель 1883 имеет `max_connections 50`
+- [ ] Слушатель 9001 имеет `max_connections 20`
+- [ ] iptables rate limiting применён для порта 1883
+- [ ] Скрипт `mqtt-autoban.sh` создан и исполняем (`chmod +x`)
+- [ ] Скрипт добавлен в crontab: `*/5 * * * * ...`
+- [ ] Скрипт тестово заблокировал IP с ошибками аутентификации
 
-## How to verify
+## Как проверить себя
 
 ```bash
-# 1. Check per_listener_settings:
+# 1. Проверить per_listener_settings:
 grep -A3 "listener 1883" /etc/mosquitto/mosquitto.conf
-# Should show max_connections 50
+# Должно быть max_connections 50
 
-# 2. Test rate limiting — quickly create > 5 connections:
+# 2. Тест rate limiting — быстро создать > 5 подключений:
 for i in $(seq 1 8); do
   mosquitto_pub -h 192.168.1.1 -u test -P test -t x -m x 2>&1 &
 done
 wait
-# After the 5th attempt — should get Connection refused
+# После 5-й попытки — должны получить Connection refused
 
-# 3. Run the ban script manually:
+# 3. Запустить скрипт бана вручную:
 /usr/local/bin/mqtt-autoban.sh
 
-# 4. Check if IP is banned (if there were auth errors):
+# 4. Проверить, что IP забанен (если были ошибки аут.):
 iptables -L INPUT -n | grep DROP
 
-# 5. Check cron:
+# 5. Проверить cron:
 crontab -l | grep mqtt-autoban
 
-# 6. Check log:
+# 6. Проверить лог:
 logread | grep mqtt-autoban | tail -10
 
-# 7. Unban an IP for testing:
+# 7. Разбанить IP для тестирования:
 iptables -D INPUT -s <IP> -j DROP
 ```
 
-Autoban script structure:
+Структура скрипта autoban:
 ```sh
 #!/bin/sh
 THRESHOLD=5

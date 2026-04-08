@@ -1,22 +1,22 @@
-# Level 9: WebSockets in Mosquitto
+# Уровень 9: WebSockets в Mosquitto
 
-## Why are WebSockets needed?
+## Зачем нужны WebSockets?
 
-MQTT runs over TCP — browsers cannot open "raw" TCP connections. WebSocket is an HTTP connection that upgrades to a bidirectional channel. Mosquitto supports MQTT-over-WebSocket out of the box.
+MQTT работает поверх TCP — браузеры не умеют открывать "голые" TCP-соединения. WebSocket — это HTTP-соединение, которое переключается в режим двунаправленного канала. Mosquitto поддерживает MQTT-over-WebSocket "из коробки".
 
 ```mermaid
 graph LR
   Browser -->|WebSocket ws://| Mosquitto
-  App[Mobile App] -->|TCP MQTT| Mosquitto
-  Sensor[IoT Sensor] -->|TCP MQTT| Mosquitto
+  App[Мобильное приложение] -->|TCP MQTT| Mosquitto
+  Sensor[IoT-датчик] -->|TCP MQTT| Mosquitto
 ```
 
-## Configuring the WebSocket listener
+## Настройка WebSocket-слушателя
 
 ```conf
 # /etc/mosquitto/mosquitto.conf
 
-# Regular MQTT (TCP)
+# Обычный MQTT (TCP)
 listener 1883
 protocol mqtt
 
@@ -24,25 +24,25 @@ protocol mqtt
 listener 9001
 protocol websockets
 
-# General authentication
+# Общая аутентификация
 allow_anonymous false
 password_file /etc/mosquitto/passwd
 ```
 
-> 📌 Each `listener` inherits default authentication settings, or you can set `per_listener_settings true` for separate configurations.
+> 📌 Каждый `listener` наследует настройки аутентификации по умолчанию или можно задать `per_listener_settings true` для раздельных настроек.
 
-## Ports
+## Порты
 
-| Protocol | Port | Description |
+| Протокол | Порт | Описание |
 |---|---|---|
-| MQTT/TCP | 1883 | Regular MQTT |
-| MQTT/TLS | 8883 | Encrypted MQTT |
+| MQTT/TCP | 1883 | Обычный MQTT |
+| MQTT/TLS | 8883 | MQTT с шифрованием |
 | MQTT/WS | 9001 | WebSocket MQTT |
 | MQTT/WSS | 9002 | WebSocket + TLS |
 
-## Reverse proxy via nginx
+## Reverse proxy через nginx
 
-If Mosquitto only listens on `127.0.0.1:9001`, nginx proxies external traffic:
+Если Mosquitto слушает только на `127.0.0.1:9001`, nginx проксирует внешний трафик:
 
 ```nginx
 location /mqtt {
@@ -54,9 +54,9 @@ location /mqtt {
 }
 ```
 
-> ⚠️ Without the `Upgrade` and `Connection` headers, the WebSocket handshake will fail.
+> ⚠️ Без заголовков `Upgrade` и `Connection` WebSocket-рукопожатие не пройдёт.
 
-## Web client with MQTT.js
+## Веб-клиент MQTT.js
 
 ```html
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
@@ -71,23 +71,23 @@ client.on('message', (topic, msg) => console.log(topic, msg.toString()))
 </script>
 ```
 
-## Verifying operation
+## Проверка работы
 
 ```bash
-# Is the port listening?
+# Порт слушает?
 netstat -tlnp | grep 9001
 
-# WebSocket connection (websocat utility):
+# WebSocket-соединение (утилита websocat):
 websocat ws://192.168.1.1:9001/
 
-# Mosquitto log:
+# Лог Mosquitto:
 logread | grep mosquitto
 ```
 
-## Common errors
+## Типичные ошибки
 
-| Error | Cause |
+| Ошибка | Причина |
 |---|---|
-| `Connection refused` | Port not open or wrong `protocol` |
-| 403 from nginx | Missing Upgrade/Connection headers |
-| `Not authorized` | Authentication not configured for WS listener |
+| `Connection refused` | Порт не открыт или неверный `protocol` |
+| 403 от nginx | Нет заголовков Upgrade/Connection |
+| `Not authorized` | Аутентификация не настроена для WS-слушателя |

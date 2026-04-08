@@ -1,31 +1,32 @@
-# Task 6.1: Generating PKI Infrastructure for MQTT TLS
+# Задание 6.1: Генерация PKI-инфраструктуры для MQTT TLS
 
-## Goal
+## Цель
 
-Master creating self-signed certificates using OpenSSL for configuring TLS encryption in Mosquitto: root CA, server certificate, and client certificate for mTLS.
+Освоить создание самоподписанных сертификатов с помощью OpenSSL для настройки TLS-шифрования в
+Mosquitto: корневой CA, серверный сертификат и клиентский сертификат для mTLS.
 
-## Requirements
+## Требования
 
-1. Create a root CA: generate `ca.key` (2048 bit) and self-signed `ca.crt` (10 years)
-2. Create a server certificate: `server.key`, `server.csr`, sign `server.crt` via CA
-3. Create a client certificate with CN=`sensor-01`: `client.key`, `client.csr`, `client.crt`
-4. Place files in `/etc/mosquitto/certs/` with correct access permissions
-5. Visualize the process: the component should show all steps and generated files
+1. Создайте корневой CA: сгенерируйте `ca.key` (2048 бит) и самоподписанный `ca.crt` (10 лет)
+2. Создайте серверный сертификат: `server.key`, `server.csr`, подпишите `server.crt` через CA
+3. Создайте клиентский сертификат с CN=`sensor-01`: `client.key`, `client.csr`, `client.crt`
+4. Разместите файлы в `/etc/mosquitto/certs/` с правильными правами доступа
+5. Визуализируйте процесс: компонент должен показывать все шаги и генерируемые файлы
 
-## Checklist
+## Чеклист
 
-- [ ] `ca.key` — CA private key, 2048 bit
-- [ ] `ca.crt` — self-signed CA certificate, 10 year validity
-- [ ] `server.key` and `server.crt` — server certificate, signed by CA
-- [ ] `client.key` and `client.crt` — client certificate `sensor-01`, signed by CA
-- [ ] Server certificate CN matches the broker hostname
-- [ ] `server.key` has permissions `600`, owner `mosquitto`
-- [ ] Component displays steps with commands and generated files
+- [ ] `ca.key` — приватный ключ CA, 2048 бит
+- [ ] `ca.crt` — самоподписанный сертификат CA, срок 10 лет
+- [ ] `server.key` и `server.crt` — сертификат сервера, подписан CA
+- [ ] `client.key` и `client.crt` — сертификат клиента `sensor-01`, подписан CA
+- [ ] CN серверного сертификата совпадает с hostname брокера
+- [ ] `server.key` имеет права `600`, владелец `mosquitto`
+- [ ] Компонент отображает шаги с командами и генерируемыми файлами
 
-## How to Check Yourself
+## Как проверить себя
 
-1. Run the commands from the solution step by step — there should be no errors
-2. Check the certificate: `openssl x509 -in server.crt -text -noout | grep CN`
-3. Verify the certificate is signed by our CA: `openssl verify -CAfile ca.crt server.crt`
-   Should return `server.crt: OK`
-4. Check the client certificate: `openssl verify -CAfile ca.crt client.crt`
+1. Запустите команды из решения шаг за шагом — не должно быть ошибок
+2. Проверьте сертификат: `openssl x509 -in server.crt -text -noout | grep CN`
+3. Убедитесь, что сертификат подписан нашим CA: `openssl verify -CAfile ca.crt server.crt`
+   Должно вернуть `server.crt: OK`
+4. Проверьте клиентский сертификат: `openssl verify -CAfile ca.crt client.crt`

@@ -1,52 +1,52 @@
-# Task 10.3: collectd Integration
+# Задание 10.3: Интеграция с collectd
 
-## Goal
+## Цель
 
-Configure collectd on OpenWRT for automatic MQTT metrics collection via the exec plugin and saving to RRD files.
+Настроить collectd на OpenWRT для автоматического сбора MQTT-метрик через плагин exec и сохранения в RRD-файлы.
 
-## Requirements
+## Требования
 
-1. Install `collectd` and `collectd-mod-exec` via opkg
-2. Create script `/usr/local/bin/mqtt-collectd.sh` in collectd exec format
-3. Script should output PUTVAL lines for 5+ metrics: clients, messages_rx, messages_tx, heap, retained
-4. Configure `/etc/collectd.conf`: add exec plugin, specify script path
-5. Store RRD files in `/tmp/rrd/` (RAM, not flash)
-6. Start collectd and verify metrics are being collected
+1. Установить `collectd` и `collectd-mod-exec` через opkg
+2. Создать скрипт `/usr/local/bin/mqtt-collectd.sh` в формате collectd exec
+3. Скрипт должен выводить PUTVAL-строки для 5+ метрик: clients, messages_rx, messages_tx, heap, retained
+4. Настроить `/etc/collectd.conf`: подключить exec-плагин, указать путь к скрипту
+5. RRD-файлы хранить в `/tmp/rrd/` (RAM, не flash)
+6. Запустить collectd и проверить, что метрики собираются
 
-## Checklist
+## Чеклист
 
-- [ ] `opkg install collectd collectd-mod-exec` completed without errors
-- [ ] Script is created, executable, runs as user `nobody` without root
-- [ ] Script outputs lines like `PUTVAL "hostname/mqtt-broker/gauge-clients" N:42`
-- [ ] `collectd.conf` contains correct `<Plugin exec>` block
-- [ ] RRD DataDir points to `/tmp/rrd/`
-- [ ] `/etc/init.d/collectd restart` completes without errors
-- [ ] RRD files appear in `/tmp/rrd/` within 60 seconds
+- [ ] `opkg install collectd collectd-mod-exec` выполнено без ошибок
+- [ ] Скрипт создан, исполняем, от пользователя `nobody` не требует root
+- [ ] Скрипт выводит строки вида `PUTVAL "hostname/mqtt-broker/gauge-clients" N:42`
+- [ ] `collectd.conf` содержит корректный блок `<Plugin exec>`
+- [ ] RRD DataDir указывает на `/tmp/rrd/`
+- [ ] `/etc/init.d/collectd restart` проходит без ошибок
+- [ ] Через 60 секунд в `/tmp/rrd/` появились RRD-файлы
 
-## How to verify
+## Как проверить себя
 
 ```bash
-# 1. Verify installation:
-collectd -t  # Config test (should be error-free)
+# 1. Проверить установку:
+collectd -t  # Тест конфига (должно быть без ошибок)
 
-# 2. Run the script manually as nobody:
+# 2. Запустить скрипт вручную от имени nobody:
 su -s /bin/sh nobody -c '/usr/local/bin/mqtt-collectd.sh'
-# Expect PUTVAL lines:
+# Ожидаем строки PUTVAL:
 # PUTVAL "router/mqtt-broker/gauge-clients" N:3
 # PUTVAL "router/mqtt-broker/derive-messages_rx" N:1247
 # ...
 
-# 3. Check for RRD files one minute after starting collectd:
+# 3. Проверить наличие RRD-файлов через минуту после запуска collectd:
 ls /tmp/rrd/$(hostname)/mqtt-broker/
 
-# 4. View last value from RRD:
+# 4. Посмотреть последнее значение из RRD:
 rrdtool lastupdate /tmp/rrd/$(hostname)/mqtt-broker/gauge-clients.rrd
 
-# 5. collectd log (exec plugin errors):
+# 5. Лог collectd (ошибки exec-плагина):
 logread | grep collectd | tail -20
 ```
 
-PUTVAL line format:
+Формат PUTVAL строк:
 ```
 PUTVAL "hostname/plugin-instance/type-instance" N:value
 PUTVAL "router/mqtt-broker/gauge-clients" N:42

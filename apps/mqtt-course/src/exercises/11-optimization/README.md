@@ -1,99 +1,99 @@
-# Level 11: Mosquitto Optimization for OpenWRT
+# Уровень 11: Оптимизация Mosquitto для OpenWRT
 
-## The main problem: limited resources
+## Главная проблема: ресурсов мало
 
-A home router is not a server. Typical specs:
+Домашний роутер — не сервер. Типичные характеристики:
 
-| Class | RAM | Flash | CPU |
+| Класс | RAM | Flash | CPU |
 |---|---|---|---|
-| Budget | 32 MB | 4 MB | MIPS 560 MHz |
-| Mid-range | 128 MB | 16 MB | MIPS 750 MHz |
-| Powerful | 512 MB | 256 MB | ARM 1.3 GHz |
+| Бюджетный | 32 MB | 4 MB | MIPS 560 MHz |
+| Средний | 128 MB | 16 MB | MIPS 750 MHz |
+| Мощный | 512 MB | 256 MB | ARM 1.3 GHz |
 
-Mosquitto without tuning can use **all available memory**, causing the router to freeze.
+Mosquitto без настроек может использовать **всю доступную память**, что приведёт к зависанию роутера.
 
-## Key tuning parameters
+## Ключевые параметры тюнинга
 
-### Memory limits
+### Ограничение памяти
 
 ```conf
-# Maximum heap for Mosquitto (bytes)
-# For 64 MB RAM — allocate ~25 MB:
+# Максимум heap для Mosquitto (байт)
+# Для 64 MB RAM — выделяем ~25 MB:
 memory_limit 25000000
 
-# Maximum single message size:
-message_size_limit 4096  # 4 KB (default 268 MB!)
+# Максимум одного сообщения:
+message_size_limit 4096  # 4 KB (по умолчанию 268 MB!)
 
-# Message queue per client (QoS 1/2):
+# Очередь сообщений на клиента (QoS 1/2):
 max_queued_messages 100
 max_queued_bytes 524288  # 512 KB
 ```
 
-### Connection limits
+### Лимит соединений
 
 ```conf
-max_connections 50  # Default is -1 (no limit!)
+max_connections 50  # По умолчанию -1 (без лимита!)
 ```
 
-> ⚠️ Each connection consumes ~5-10 KB RAM. 100 connections = 1 MB minimum.
+> ⚠️ Каждое соединение потребляет ~5-10 KB RAM. 100 соединений = 1 MB минимум.
 
-### System metrics
+### Системные метрики
 
 ```conf
-sys_interval 30  # Publish $SYS less often (default 10 sec)
+sys_interval 30  # Реже публиковать $SYS (по умолчанию 10 сек)
 ```
 
 ## Clean vs Persistent Session
 
 ```mermaid
 graph LR
-  CleanClient[Client clean=true] -->|CONNECT + DISCONNECT| Broker
-  Broker -->|session deleted| X[no data]
+  CleanClient[Клиент clean=true] -->|CONNECT + DISCONNECT| Broker
+  Broker -->|сессия удалена| X[нет данных]
 
-  PersistClient[Client clean=false] -->|DISCONNECT| Broker
-  Broker -->|keeps subscriptions + queue| DB[(persistence DB)]
-  PersistClient -->|CONNECT again| Broker
-  Broker -->|delivers accumulated| PersistClient
+  PersistClient[Клиент clean=false] -->|DISCONNECT| Broker
+  Broker -->|сохраняет подписки + очередь| DB[(persistence DB)]
+  PersistClient -->|CONNECT снова| Broker
+  Broker -->|доставляет накопленное| PersistClient
 ```
 
-| Parameter | Clean Session | Persistent Session |
+| Параметр | Clean Session | Persistent Session |
 |---|---|---|
-| Subscriptions saved | No | Yes |
-| QoS 1/2 queue | No | Yes |
-| Broker memory | Minimal | Grows |
-| For whom | Browsers, dashboards | IoT sensors |
+| Подписки сохраняются | Нет | Да |
+| Очередь QoS 1/2 | Нет | Да |
+| Память брокера | Минимум | Растёт |
+| Для кого | Браузеры, дашборды | IoT-датчики |
 
 ## Keepalive
 
-Keepalive is the PINGREQ/PINGRESP packet interval. The broker closes the connection if no packets arrive within `keepalive × 1.5`.
+Keepalive — интервал PINGREQ/PINGRESP-пакетов. Брокер закрывает соединение, если не было пакетов за `keepalive × 1.5`.
 
 ```conf
-# Limit the maximum client keepalive:
-max_keepalive 300  # 5 minutes
+# Ограничить максимальный keepalive клиента:
+max_keepalive 300  # 5 минут
 
-# With keepalive=300: timeout = 450 seconds
+# При keepalive=300: таймаут = 450 секунд
 ```
 
-| Scenario | Recommended keepalive |
+| Сценарий | Рекомендуемый keepalive |
 |---|---|
-| IoT sensor | 300-600 sec |
-| Dashboard | 30-60 sec |
-| Mobile app | 60-120 sec |
+| IoT-датчик | 300-600 сек |
+| Дашборд | 30-60 сек |
+| Мобильное приложение | 60-120 сек |
 
-## Persistence on OpenWRT: careful with flash
+## Persistence на OpenWRT: осторожно с flash
 
 ```conf
-# Store persistence in RAM, not flash:
+# Хранить persistence в RAM, не во flash:
 persistence true
 persistence_location /tmp/mosquitto/
 
-# Clean dead sessions:
+# Очищать мёртвые сессии:
 persistent_client_expiration 1d
 ```
 
-> 💡 `/tmp/` on OpenWRT is tmpfs (RAM). Data is lost on reboot, but flash doesn't wear out.
+> 💡 `/tmp/` на OpenWRT — это tmpfs (RAM). Данные теряются при перезагрузке, зато flash не изнашивается.
 
-## Minimal config for 64 MB RAM
+## Минимальный конфиг для 64 MB RAM
 
 ```conf
 listener 1883

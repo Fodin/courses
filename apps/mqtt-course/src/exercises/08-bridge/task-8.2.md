@@ -1,42 +1,42 @@
-# Task 8.2: Configuring a Bridge in Mosquitto
+# Задание 8.2: Настройка моста в Mosquitto
 
-## Goal
+## Цель
 
-Configure an MQTT Bridge in Mosquitto to connect the local OpenWRT broker with a remote broker.
-Understand the main configuration parameters and their purpose.
+Настроить MQTT Bridge в Mosquitto для связи локального брокера OpenWRT с удалённым брокером.
+Понять основные параметры конфигурации и их назначение.
 
-## Requirements
+## Требования
 
-1. Configure a `connection` named `bridge-to-cloud`
-2. Specify the `address` — remote broker address and port
-3. Add at least two `topic` rules: one `out`, one `in`
-4. Configure authentication: `remote_username`, `remote_password`
-5. Configure TLS: `bridge_cafile` (if TLS is used on the remote broker)
-6. Add `start_type automatic` and `keepalive_interval`
+1. Настройте `connection` с именем `bridge-to-cloud`
+2. Укажите `address` — адрес и порт удалённого брокера
+3. Добавьте как минимум два правила `topic`: одно `out`, одно `in`
+4. Настройте аутентификацию: `remote_username`, `remote_password`
+5. Настройте TLS: `bridge_cafile` (если используется TLS на удалённом брокере)
+6. Добавьте `start_type automatic` и `keepalive_interval`
 
-## Checklist
+## Чеклист
 
-- [ ] `connection bridge-to-cloud` — bridge name is set
-- [ ] `address` — address and port are correct
-- [ ] At least one `topic ... out` rule and one `... in` rule
-- [ ] `remote_username` and `remote_password` are set
-- [ ] `start_type automatic` — bridge auto-reconnects
-- [ ] `keepalive_interval 60` — interval is set
-- [ ] Component shows parameters with descriptions and generates the config
+- [ ] `connection bridge-to-cloud` — имя моста задано
+- [ ] `address` — адрес и порт правильные
+- [ ] Есть хотя бы одно правило `topic ... out` и одно `... in`
+- [ ] `remote_username` и `remote_password` заданы
+- [ ] `start_type automatic` — мост автоматически переподключается
+- [ ] `keepalive_interval 60` — задан интервал
+- [ ] Компонент показывает параметры с описаниями и генерирует конфиг
 
-## How to verify
+## Как проверить себя
 
-1. Check the bridge connection in the logs after starting:
+1. Проверьте Bridge-соединение в логах после запуска:
    ```bash
    logread | grep mosquitto | grep -i "bridge\|connect"
    ```
-2. Check the connection status via $SYS:
+2. Проверьте статус соединения через $SYS:
    ```bash
    mosquitto_sub -t '$SYS/broker/connection/bridge-to-cloud/state' -C 1
-   # Should return 1 (connected) or 0 (disconnected)
+   # Должно вернуть 1 (подключён) или 0 (отключён)
    ```
-3. Publish a message locally and verify it appears on the remote broker:
+3. Опубликуйте сообщение локально и убедитесь, что оно появилось на удалённом брокере:
    ```bash
    mosquitto_pub -t sensors/test -m "bridge_test"
-   # On the remote: mosquitto_sub -t sensors/test -C 1
+   # На удалённом: mosquitto_sub -t sensors/test -C 1
    ```

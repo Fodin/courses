@@ -1,163 +1,163 @@
-# Level 5: Authentication — Extended Theory
+# Уровень 5: Аутентификация — Развёрнутая теория
 
-## MQTT Security Model
+## Модель безопасности MQTT
 
-MQTT itself does not provide encryption (that's the job of TLS/SSL). But the protocol supports `username` and `password` fields in the CONNECT packet. Mosquitto uses them for authentication.
+MQTT сам по себе не предоставляет шифрования (это задача TLS/SSL). Но протокол поддерживает поля `username` и `password` в CONNECT пакете. Mosquitto использует их для аутентификации.
 
-Protection levels (from simple to complex):
+Уровни защиты (от простого к сложному):
 
 ```
-1. allow_anonymous false     — require login/password
-2. password_file             — verify password in file
-3. acl_file                  — restrict topic access
-4. TLS                       — encrypt the connection (level 6)
-5. mTLS                      — mutual certificate authentication (level 6)
+1. allow_anonymous false     — требовать логин/пароль
+2. password_file             — проверить пароль в файле
+3. acl_file                  — ограничить доступ к топикам
+4. TLS                       — шифровать соединение (уровень 6)
+5. mTLS                      — взаимная аутентификация сертификатами (уровень 6)
 ```
 
-## Password File: Details
+## Файл паролей: детали
 
-### Storage Format
+### Формат хранения
 
-Mosquitto 2.x uses **PBKDF2-SHA512** for password hashing:
+Mosquitto 2.x использует **PBKDF2-SHA512** для хеширования паролей:
 
 ```
 username:$7$iterations$salt$hash
 ```
 
-Example real entry:
+Пример реальной записи:
 ```
-admin:$7$101$5qOkbrpSgepR1Tld$...long_hash...
+admin:$7$101$5qOkbrpSgepR1Tld$...длинный_хеш...
 ```
 
-`$7` — algorithm version (bcrypt-compatible Mosquitto format)
-`101` — number of iterations (default in Mosquitto 2.x)
+`$7` — версия алгоритма (bcrypt-совместимый формат Mosquitto)
+`101` — число итераций (умолчание в Mosquitto 2.x)
 
-Old format (Mosquitto 1.x):
+Старый формат (Mosquitto 1.x):
 ```
 username:$6$salt$sha512_hash
 ```
 
-### Working with mosquitto_passwd
+### Работа с mosquitto_passwd
 
 ```bash
-# Create a NEW file and add a user
-# -c = create (will overwrite existing!)
+# Создать НОВЫЙ файл и добавить пользователя
+# -c = create (перезапишет существующий!)
 mosquitto_passwd -c /etc/mosquitto/passwd admin
 
-# Add a user to an existing file
+# Добавить пользователя в существующий файл
 mosquitto_passwd /etc/mosquitto/passwd sensor1
 
-# Batch mode (-b = batch, password as argument)
-# CAREFUL: password visible in shell history
+# Пакетный режим (-b = batch, пароль как аргумент)
+# ОСТОРОЖНО: пароль виден в истории shell
 mosquitto_passwd -b /etc/mosquitto/passwd sensor2 mypassword
 
-# Delete a user
+# Удалить пользователя
 mosquitto_passwd -D /etc/mosquitto/passwd sensor1
 
-# Update password (just add again — will overwrite)
+# Обновить пароль (просто добавить ещё раз — перезапишет)
 mosquitto_passwd /etc/mosquitto/passwd admin
 ```
 
-### Applying Changes Without Restart
+### Применение изменений без перезапуска
 
 ```bash
-# Send SIGHUP to the process — reloads config and auth files
+# Отправить SIGHUP процессу — перечитает конфиг и файлы auth
 kill -HUP $(cat /var/run/mosquitto.pid)
-# or
+# или
 kill -HUP $(pgrep mosquitto)
 
-# On OpenWRT via init.d:
+# На OpenWRT через init.d:
 /etc/init.d/mosquitto reload
 ```
 
-### Configuration in mosquitto.conf
+### Настройка в mosquitto.conf
 
 ```
-# Disallow anonymous access
+# Запретить анонимный доступ
 allow_anonymous false
 
-# Password file
+# Файл паролей
 password_file /etc/mosquitto/passwd
 
-# Optional: allow anonymous read-only $SYS
-# (dangerous — don't use in production)
+# Опционально: разрешить анонимам только чтение $SYS
+# (опасно — не используйте на продакшене)
 # allow_anonymous true
 # password_file /etc/mosquitto/passwd
 ```
 
-📌 Verification order: if `allow_anonymous false` and the client didn't provide credentials — rejected BEFORE ACL check.
+📌 Порядок проверки: если `allow_anonymous false` и клиент не предоставил credentials — отклоняется ДО проверки ACL.
 
-## ACL: Detailed Format
+## ACL: подробный формат
 
-### File Syntax
+### Синтаксис файла
 
-The ACL file is processed top to bottom. The first matching rule is applied.
+ACL файл обрабатывается сверху вниз. Первое совпадающее правило применяется.
 
 ```
-# This is a comment
+# Это комментарий
 
-# === Global rules (for all clients, including anonymous) ===
-topic read $SYS/#                    # everyone can read statistics
+# === Глобальные правила (для всех клиентов, включая анонимных) ===
+topic read $SYS/#                    # все могут читать статистику
 
-# === Rules for a specific user ===
+# === Правила для конкретного пользователя ===
 user admin
-topic readwrite #                    # full access to all topics
+topic readwrite #                    # полный доступ ко всем топикам
 
 user sensor_kitchen
-topic write home/kitchen/#           # can only write to their zone
-topic read home/kitchen/cmd/#        # can read commands
+topic write home/kitchen/#           # может только писать в свою зону
+topic read home/kitchen/cmd/#        # может читать команды
 
 user dashboard
-topic read home/#                    # read-only for the whole house
-topic read $SYS/broker/clients/#    # client monitoring
+topic read home/#                    # только чтение всего дома
+topic read $SYS/broker/clients/#    # мониторинг клиентов
 
-# === Rules for patterns (with client ID substitution) ===
-pattern write sensor/%c/data         # client can only write to their topic
+# === Правила для паттернов (с подстановкой ID клиента) ===
+pattern write sensor/%c/data         # клиент может писать только в свой топик
 # %c = client_id, %u = username
 ```
 
-### Special Variables in pattern
+### Специальные переменные в pattern
 
 ```
-%c — client_id (client identifier)
-%u — username
+%c — client_id (идентификатор клиента)
+%u — username (имя пользователя)
 ```
 
-Example with `pattern`:
+Пример с `pattern`:
 ```
-# Sensor with client_id="esp32-kitchen" can only publish to esp32-kitchen/#
+# Сенсор с client_id="esp32-kitchen" может публиковать только в esp32-kitchen/#
 pattern write sensor/%c/+
 ```
 
-If client `esp32-kitchen` publishes to `sensor/esp32-kitchen/temp` → allowed.
-If the same client publishes to `sensor/esp32-living/temp` → denied.
+Если клиент `esp32-kitchen` публикует в `sensor/esp32-kitchen/temp` → разрешено.
+Если тот же клиент публикует в `sensor/esp32-living/temp` → запрещено.
 
-### Rule Hierarchy
+### Иерархия правил
 
-1. `allow_anonymous false` → anonymous rejected without ACL check
-2. `user X` → following `topic` rules apply to user X
-3. `pattern` → applies to all users with substitution
-4. `topic` without preceding `user` → global rules
-5. No match → access **denied**
+1. `allow_anonymous false` → анонимы отклоняются без ACL проверки
+2. `user X` → следующие `topic` правила применяются к пользователю X
+3. `pattern` → применяется ко всем пользователям с подстановкой
+4. `topic` без предшествующего `user` → глобальные правила
+5. Нет совпадений → доступ **запрещён**
 
 ```
-# IMPORTANT: no rule = denied
-# You need to explicitly allow each required topic
+# ВАЖНО: нет правила = запрещено
+# Нужно явно разрешить каждый нужный топик
 ```
 
-### Full Smart Home Example
+### Полный пример для умного дома
 
 ```
 # /etc/mosquitto/acl
 
-# Anonymous can only read statistics (if allow_anonymous true)
+# Анонимы могут читать только статистику (если allow_anonymous true)
 topic read $SYS/#
 
-# Administrator — full access
+# Администратор — полный доступ
 user admin
 topic readwrite #
 
-# Sensors — write only their zone, read commands
+# Датчики — только запись своей зоны, чтение команд
 user sensor_kitchen
 topic write home/kitchen/sensor/#
 topic read home/kitchen/cmd
@@ -166,96 +166,96 @@ user sensor_living
 topic write home/living/sensor/#
 topic read home/living/cmd
 
-# Dashboard — read-only everything
+# Дашборд — только чтение всего
 user dashboard
 topic read home/#
 topic read $SYS/broker/clients/connected
 topic read $SYS/broker/messages/sent
 
-# Automation controller — reads everything, writes commands
+# Контроллер автоматизации — читает всё, пишет команды
 user automation
 topic read home/#
 topic write home/+/cmd
 topic write device/+/cmd
 
-# Bridge (bridge connection) — full access
+# Мост (bridge-подключение) — полный доступ
 user bridge_slave
 topic readwrite #
 
-# Pattern: each client only in their own space
-# client_id must match the device name
+# Паттерн: каждый клиент только в своё пространство
+# client_id должен совпадать с именем устройства
 pattern write devices/%c/#
 pattern read devices/%c/cmd/#
 ```
 
 ## Dynamic Security Plugin (Mosquitto 2.x)
 
-Built-in plugin for dynamic user and ACL management via MQTT without restart.
+Встроенный плагин для динамического управления пользователями и ACL через MQTT без перезапуска.
 
-### Initialization
+### Инициализация
 
 ```bash
-# Create initial configuration
+# Создать начальную конфигурацию
 mosquitto_ctrl dynsec init /etc/mosquitto/dynamic-security.json admin admin_password
 
-# Start with the plugin
-# In mosquitto.conf:
+# Запустить с плагином
+# В mosquitto.conf:
 plugin /usr/lib/mosquitto_dynamic_security.so
 plugin_opt_config_file /etc/mosquitto/dynamic-security.json
 ```
 
-### Management via MQTT Topics
+### Управление через MQTT топики
 
 ```bash
-# Create a role
+# Создать роль
 mosquitto_ctrl dynsec createRole sensors
 mosquitto_ctrl dynsec addRoleACL sensors publishClientSend "sensor/+/data" allow
 mosquitto_ctrl dynsec addRoleACL sensors subscribeLiteral "sensor/+/cmd" allow
 
-# Create a user and assign a role
+# Создать пользователя и назначить роль
 mosquitto_ctrl dynsec createClient esp32_01 -p mypassword
 mosquitto_ctrl dynsec addClientRole esp32_01 sensors
 ```
 
-Or directly via MQTT:
+Или через MQTT напрямую:
 ```bash
-# All management operations via topic $CONTROL/dynamic-security/v1
+# Все операции управления через топик $CONTROL/dynamic-security/v1
 mosquitto_pub -t '$CONTROL/dynamic-security/v1' \
   -m '{"commands":[{"command":"createClient","username":"esp32_01","password":"pass"}]}'
 ```
 
-### Role Concept
+### Концепция ролей
 
-Dynamic Security introduces **roles** — sets of ACL rules:
+Dynamic Security вводит **роли** (roles) — наборы правил ACL:
 
 ```
-Role "sensors" → can write sensor/+/data, read sensor/+/cmd
-Role "dashboard" → can read home/#, read $SYS/#
+Роль "sensors" → может write sensor/+/data, read sensor/+/cmd
+Роль "dashboard" → может read home/#, read $SYS/#
 
-User esp32_01 → role "sensors"
-User grafana → role "dashboard"
+Пользователь esp32_01 → роль "sensors"
+Пользователь grafana → роль "dashboard"
 ```
 
-This allows changing permissions for hundreds of devices by modifying a single role.
+Это позволяет менять права сотен устройств изменением одной роли.
 
-## mosquitto-go-auth: External Backends
+## mosquitto-go-auth: внешние бэкенды
 
-Popular third-party plugin for authentication via external systems.
+Популярный сторонний плагин для аутентификации через внешние системы.
 
-### Supported Backends
+### Поддерживаемые бэкенды
 
-| Backend | Description |
+| Бэкенд | Описание |
 |---|---|
-| files | Files (analog of built-in) |
+| files | Файлы (аналог встроенного) |
 | postgres | PostgreSQL |
 | mysql | MySQL/MariaDB |
 | sqlite3 | SQLite |
 | redis | Redis |
-| http | HTTP API (any service) |
+| http | HTTP API (любой сервис) |
 | jwt | JSON Web Tokens |
-| grpc | gRPC service |
+| grpc | gRPC сервис |
 
-### Example: HTTP Authentication
+### Пример: HTTP аутентификация
 
 ```
 # mosquitto.conf
@@ -267,78 +267,78 @@ plugin_opt_http_getuser_uri /auth/user
 plugin_opt_http_aclcheck_uri /auth/acl
 ```
 
-When a client connects, Mosquitto makes a POST request to your HTTP API:
+При подключении клиента Mosquitto делает POST-запрос к вашему HTTP API:
 ```
 POST /auth/user
 {"username": "sensor1", "password": "mypass"}
-→ 200 OK (allowed) / 403 (denied)
+→ 200 OK (разрешить) / 403 (запретить)
 ```
 
-### On OpenWRT: Practical Limitations
+### На OpenWRT: практические ограничения
 
-- mosquitto-go-auth requires glibc or musl with CGO support
-- OpenWRT uses musl, binaries are often incompatible
-- Recommendation: for OpenWRT use the built-in Dynamic Security Plugin or files
+- mosquitto-go-auth требует glibc или musl с поддержкой CGO
+- OpenWRT использует musl, бинарники часто несовместимы
+- Рекомендация: для OpenWRT использовать встроенный Dynamic Security Plugin или файлы
 
-## Storing Passwords on OpenWRT
+## Хранение паролей на OpenWRT
 
-Flash on OpenWRT is limited and can be wiped on reset. Recommended:
+Flash на OpenWRT ограничена и может стираться при сбросе. Рекомендуется:
 
 ```bash
-# Store auth files on overlay (persist across updates):
+# Хранить auth файлы на overlay (сохраняются при обновлениях):
 /etc/mosquitto/passwd      # ✅ persistent overlay
 /etc/mosquitto/acl         # ✅ persistent overlay
 
-# Do NOT store in /tmp/ — cleared on reboot
-/tmp/mosquitto/passwd      # ❌ will be lost on reboot
+# НЕ хранить в /tmp/ — очищается при перезагрузке
+/tmp/mosquitto/passwd      # ❌ потеряется при reboot
 ```
 
-Overlay configuration on OpenWRT:
+Настройка overlay на OpenWRT:
 ```bash
 # /etc/mosquitto/mosquitto.conf
 password_file /etc/mosquitto/passwd
 acl_file /etc/mosquitto/acl
 
-# Create files on first launch via init script
+# Создать файлы при первом запуске через init script
 ```
 
-## ⚠️ Common Mistakes
+## ⚠️ Частые ошибки
 
 ❌ **allow_anonymous true + password_file:**
 ```
-allow_anonymous true          # anonymous pass through!
-password_file /etc/passwd     # only additionally checks authorized
+allow_anonymous true          # анонимы проходят!
+password_file /etc/passwd     # только дополнительно проверяет авторизованных
 ```
-✅ Always `allow_anonymous false` if using authentication.
+✅ Всегда `allow_anonymous false` если используете аутентификацию.
 
-❌ **ACL file exists but is empty:**
+❌ **ACL файл задан, но пустой:**
 ```
-acl_file /etc/mosquitto/acl   # file exists but empty
-# Result: NO ONE can access any topic!
+acl_file /etc/mosquitto/acl   # файл существует, но пуст
+# Результат: НИКТО не может обратиться ни к одному топику!
 ```
-✅ With an empty ACL file, all topics are denied. Add at least:
+✅ При пустом ACL файле все топики запрещены. Добавьте хотя бы:
 ```
 user admin
 topic readwrite #
 ```
 
-❌ **Forgot to update broker after changing passwd:**
+❌ **Забыли обновить брокер после изменения passwd:**
 ```bash
-# Added a user, try to connect — "Authentication failed"
+# Добавили пользователя, подключаетесь — "Authentication failed"
 mosquitto_passwd /etc/mosquitto/passwd newuser
-# Need: kill -HUP or reload!
+# Нужно: kill -HUP или reload!
 ```
 
-❌ **Too broad ACL permissions:**
+❌ **Слишком широкие права в ACL:**
 ```
 user sensor1
-topic readwrite #    # this sensor can now do everything!
+topic readwrite #    # этот сенсор теперь может всё!
 ```
-✅ Principle of least privilege: allow only the necessary topics.
+✅ Принцип минимальных привилегий: разрешайте только необходимые топики.
 
-❌ **Password in command argument (remains in shell history):**
+❌ **Пароль в аргументе команды (остаётся в истории shell):**
 ```bash
 mosquitto_passwd -b /etc/mosquitto/passwd user password123
-history | grep password123    # password is visible!
+history | grep password123    # пароль виден!
 ```
-✅ Use interactive mode without `-b`, or clear the history.
+✅ Используйте интерактивный режим без `-b`, или очищайте историю.

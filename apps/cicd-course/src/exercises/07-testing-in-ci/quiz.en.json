@@ -1,0 +1,397 @@
+[
+  {
+    "question": "In the test pyramid, unit tests are at the base. What does this mean for the CI pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Unit tests should run last — they are the most important",
+        "correct": false,
+        "explanation": "The opposite. Test importance does not determine order. Unit tests run first precisely because they are fast — the fail-fast principle."
+      },
+      {
+        "text": "Unit tests should run first — they are fast and provide early feedback",
+        "correct": true,
+        "explanation": "Correct. Unit tests run in seconds, require no external dependencies. Failure at unit tests immediately signals a problem, without wasting time on slow E2E."
+      },
+      {
+        "text": "Pipeline position is not related to the test pyramid — these are different concepts",
+        "correct": false,
+        "explanation": "The test pyramid directly influences pipeline structure. The fail-fast principle dictates: fast cheap tests first, slow expensive tests later."
+      },
+      {
+        "text": "Unit tests run in parallel with E2E to save time",
+        "correct": false,
+        "explanation": "This is technically possible, but defeats the fail-fast principle. If unit tests fail, there is no point wasting resources on E2E."
+      }
+    ]
+  },
+  {
+    "question": "You added the postgres:15-alpine service in GitLab CI. How to connect to it from a test job?",
+    "type": "single",
+    "options": [
+      {
+        "text": "At localhost:5432 — all services are available on localhost",
+        "correct": false,
+        "explanation": "localhost works in GitHub Actions (with port forwarding), but not in GitLab CI. In GitLab, services are available by image name."
+      },
+      {
+        "text": "At postgres:5432 — hostname = image name without tag",
+        "correct": true,
+        "explanation": "Correct. GitLab CI creates a separate Docker network. The service postgres:15-alpine is available as host 'postgres'. If you need a different name — use alias."
+      },
+      {
+        "text": "At service.postgres:5432 — GitLab adds a 'service' prefix",
+        "correct": false,
+        "explanation": "There is no prefix. Host = image name without tag and without path (postgresql becomes postgres, my-registry.com/postgres:15 becomes postgres)."
+      },
+      {
+        "text": "At 127.0.0.1:5432 — loopback is always available",
+        "correct": false,
+        "explanation": "Loopback refers to the job container itself, not the service container. PostgreSQL runs in a separate container."
+      }
+    ]
+  },
+  {
+    "question": "What does artifacts:reports:junit do in GitLab CI and why is artifacts:when: always needed?",
+    "type": "single",
+    "options": [
+      {
+        "text": "always is needed so artifacts are not deleted after expire_in",
+        "correct": false,
+        "explanation": "when and expire_in are different settings. when determines under what job outcome to save the artifact. expire_in determines how long to keep it."
+      },
+      {
+        "text": "junit tells GitLab to parse XML and show tests in the MR; always is needed to see details of failed tests",
+        "correct": true,
+        "explanation": "Exactly. artifacts:reports:junit parses JUnit XML and displays results in the Tests tab in the MR. when: always is critical — without it the file won't be saved on job failure (default is on_success), and the MR won't show which tests failed."
+      },
+      {
+        "text": "junit specifies a path for saving the test execution log",
+        "correct": false,
+        "explanation": "artifacts:paths is used for arbitrary files. artifacts:reports:junit is a special type that signals GitLab about the format and processing method."
+      },
+      {
+        "text": "junit sends a Slack notification with test results",
+        "correct": false,
+        "explanation": "JUnit has nothing to do with notifications. It's an XML file format with test results that GitLab can parse and display in the UI."
+      }
+    ]
+  },
+  {
+    "question": "You use parallel: 4 to speed up tests. The job starts and completes successfully, but all 4 shards run the same tests. What is the error?",
+    "type": "single",
+    "options": [
+      {
+        "text": "You need to manually create 4 separate jobs with different names",
+        "correct": false,
+        "explanation": "You could, but that doesn't solve the problem of running the same tests. The key is to pass sharding parameters to the test framework, and parallel: 4 is perfectly suited for that."
+      },
+      {
+        "text": "parallel value cannot be more than 2 in free GitLab",
+        "correct": false,
+        "explanation": "There is no restriction on the parallel value by plan type. Limitations concern CI minutes and runners, but not the parallel keyword itself."
+      },
+      {
+        "text": "parallel: 4 only works with Python, Node.js needs a different approach",
+        "correct": false,
+        "explanation": "parallel: 4 is a GitLab mechanism independent of language. The problem is that the job script does not use CI_NODE_INDEX and CI_NODE_TOTAL variables."
+      },
+      {
+        "text": "The script does not use CI_NODE_INDEX/CI_NODE_TOTAL to split tests into shards",
+        "correct": true,
+        "explanation": "Correct. parallel: 4 only launches 4 copies of the job and passes variables CI_NODE_INDEX (1,2,3,4) and CI_NODE_TOTAL (4). The test framework itself must use them: jest --shard=$CI_NODE_INDEX/$CI_NODE_TOTAL or pytest --splits=$CI_NODE_TOTAL --group=$CI_NODE_INDEX."
+      }
+    ]
+  },
+  {
+    "question": "A test suite takes 20 minutes. With parallel: 5, what is the expected execution time (with uniform test distribution)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "100 minutes — 5 copies of 20 minutes each",
+        "correct": false,
+        "explanation": "That would be the case if parallel: 5 ran all tests in each shard. But the point is to split tests into shards — then each executes only a portion."
+      },
+      {
+        "text": "20 minutes — parallel does not affect total time, only load",
+        "correct": false,
+        "explanation": "parallel is exactly for reducing time. With 5 parallel shards, each executes 1/5 of the tests."
+      },
+      {
+        "text": "4 minutes — each of 5 shards executes 1/5 of tests in parallel",
+        "correct": true,
+        "explanation": "Correct. 20 minutes / 5 shards = 4 minutes (assuming 5 available runners and uniformly distributed tests). This is 5x faster."
+      },
+      {
+        "text": "1 minute — GitLab automatically optimizes test distribution",
+        "correct": false,
+        "explanation": "GitLab does not know about individual test execution times. It only passes CI_NODE_INDEX, and the test framework splits tests evenly by count, not by time."
+      }
+    ]
+  },
+  {
+    "question": "The team notices that a test fails in CI with 'connection refused' to PostgreSQL, but everything works locally. Which TWO actions will fix the situation?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Add POSTGRES_HOST_AUTH_METHOD: trust to the job variables",
+        "correct": false,
+        "explanation": "POSTGRES_HOST_AUTH_METHOD: trust simplifies authentication (no password needed), but does not solve 'connection refused'. This error means the port is unreachable, not an authentication rejection."
+      },
+      {
+        "text": "Add service readiness wait: until pg_isready -h postgres; do sleep 1; done",
+        "correct": true,
+        "explanation": "Correct. PostgreSQL takes several seconds to start. Tests run before the service accepts connections. Waiting for readiness solves the race condition."
+      },
+      {
+        "text": "Change DATABASE_URL from localhost to postgres (service name)",
+        "correct": true,
+        "explanation": "Correct. This is a classic mistake. Locally you use localhost, in GitLab CI you use the service container name (postgres, redis, etc.)."
+      },
+      {
+        "text": "Switch from Docker executor to Shell executor — services are not supported in Docker",
+        "correct": false,
+        "explanation": "Wrong. services work specifically with Docker executor. Shell executor does not support services at all."
+      }
+    ]
+  },
+  {
+    "question": "Which coverage: regex correctly parses Jest output like 'Lines : 85.32% ( 1247/1463 )'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "coverage: 'Lines'",
+        "correct": false,
+        "explanation": "A simple string won't work as a regex for extracting a number. GitLab needs a capture group (parentheses) to get the numeric value."
+      },
+      {
+        "text": "coverage: '/85/'",
+        "correct": false,
+        "explanation": "A hardcoded number won't work across different runs. The regex must dynamically extract the percentage from the output."
+      },
+      {
+        "text": "coverage: '/Lines\\s*:\\s*(\\d+\\.?\\d*)%/'",
+        "correct": true,
+        "explanation": "Correct. \\s* allows spaces around the colon, (\\d+\\.?\\d*) is a capture group with a number (integer or decimal). GitLab takes exactly the first capture group as the coverage value."
+      },
+      {
+        "text": "coverage: '/coverage: (\\d+)/'",
+        "correct": false,
+        "explanation": "This pattern won't match Jest output. Jest outputs 'Lines : 85.32%', not 'coverage: 85'."
+      }
+    ]
+  },
+  {
+    "question": "You set up parallel:matrix to test three Node.js versions (18, 20, 22) and two databases (sqlite, postgres). How many jobs will GitLab create?",
+    "type": "single",
+    "options": [
+      {
+        "text": "5 jobs — 3 + 2",
+        "correct": false,
+        "explanation": "A matrix is a Cartesian product. Each NODE_VERSION value is combined with each DATABASE value."
+      },
+      {
+        "text": "2 jobs — by the number of variables in the matrix",
+        "correct": false,
+        "explanation": "The number of variables does not define the number of jobs. Jobs equal the number of unique value combinations."
+      },
+      {
+        "text": "1 job with variables — GitLab passes the matrix as an array",
+        "correct": false,
+        "explanation": "No. parallel:matrix creates a separate job for each combination — that is the whole point of matrix execution."
+      },
+      {
+        "text": "6 jobs — 3 x 2 (all combinations)",
+        "correct": true,
+        "explanation": "Correct. parallel:matrix creates all possible combinations. 3 Node versions x 2 databases = 6 jobs: [18,sqlite], [18,postgres], [20,sqlite], [20,postgres], [22,sqlite], [22,postgres]."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between artifacts:reports:junit and artifacts:paths when saving JUnit XML?",
+    "type": "single",
+    "options": [
+      {
+        "text": "reports:junit signals GitLab to parse XML and show tests in the MR UI; paths simply saves the file for download",
+        "correct": true,
+        "explanation": "Exactly. artifacts:reports is a special type that tells GitLab about the data format. For junit, GitLab shows a Tests tab in the MR with details. paths is just storage without UI integration."
+      },
+      {
+        "text": "reports:junit requires a GitLab Premium license, paths is free",
+        "correct": false,
+        "explanation": "Basic JUnit integration is available in the free GitLab plan. Some advanced features (detailed coverage diff) require Premium."
+      },
+      {
+        "text": "paths loads faster, reports is slower due to parsing",
+        "correct": false,
+        "explanation": "Load speed is not the key difference. The difference is what GitLab does with the file after saving."
+      },
+      {
+        "text": "Both do the same thing, paths is just a more explicit form",
+        "correct": false,
+        "explanation": "These are different mechanisms with different behaviors. reports:junit gives GitLab UI integration. paths is just a file store."
+      }
+    ]
+  },
+  {
+    "question": "You have 4 parallel test shards, each creates junit-1.xml, junit-2.xml, etc. How to correctly collect all reports?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add a separate 'merge-reports' job that combines the XML files",
+        "correct": false,
+        "explanation": "GitLab can accept multiple JUnit files directly — no additional merge job is needed."
+      },
+      {
+        "text": "GitLab automatically merges all JUnit files without configuration",
+        "correct": false,
+        "explanation": "Not automatically. You must explicitly specify the file list or a glob pattern in artifacts:reports:junit."
+      },
+      {
+        "text": "Use a glob pattern: artifacts: reports: junit: 'junit-*.xml'",
+        "correct": true,
+        "explanation": "Correct. GitLab supports glob patterns for reports:junit. All files junit-1.xml, junit-2.xml, etc. will be collected and merged into a single report in the MR UI."
+      },
+      {
+        "text": "Save only the last junit file — GitLab reads only one XML",
+        "correct": false,
+        "explanation": "GitLab supports multiple JUnit files (via list or glob). Saving only one loses results from the other shards."
+      }
+    ]
+  },
+  {
+    "question": "E2E tests take 20 minutes and are flaky (sometimes fail for no reason). What is the optimal E2E launch strategy?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Add allow_failure: true for E2E so flakiness does not block the pipeline",
+        "correct": true,
+        "explanation": "A reasonable temporary approach for flaky tests. allow_failure: true lets the pipeline continue, but GitLab shows a warning. Gives time to fix flakiness without blocking the team."
+      },
+      {
+        "text": "Run E2E on a schedule (nightly runs), not on every commit",
+        "correct": true,
+        "explanation": "Good approach for flaky E2E. Nightly runs don't block development, but signal degradation by morning."
+      },
+      {
+        "text": "Disable E2E entirely — they are flaky and provide no value",
+        "correct": false,
+        "explanation": "Flakiness is a reason to fix specific tests, not disable E2E. E2E catches integration problems that other test types won't see."
+      },
+      {
+        "text": "Run E2E only on commits to main/master and release branches",
+        "correct": true,
+        "explanation": "Correct. E2E on feature branches is usually excessive — unit and integration tests give enough confidence. E2E is needed before production deployment."
+      },
+      {
+        "text": "This requires a special license",
+        "correct": false,
+        "explanation": "The listed technologies have open-source versions."
+      }
+    ]
+  },
+  {
+    "question": "You connected the postgres:16 service to a test job. Tests completed successfully, but the database contains data from a previous run. How to fix this?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab CI service containers are created fresh on each job run — data should not persist",
+        "correct": true,
+        "explanation": "Correct. On each job run, GitLab CI creates a new Docker container for the service. Data is not persistent between runs — if you see 'old data', it is likely created within the same run (test setup/teardown)."
+      },
+      {
+        "text": "Add cache:key to isolate data between runs",
+        "correct": false,
+        "explanation": "Cache has nothing to do with PostgreSQL data. Cache is used for files on disk (node_modules, etc.)."
+      },
+      {
+        "text": "Use tmpfs for the database: PGDATA=/tmp/pgdata",
+        "correct": false,
+        "explanation": "This may speed up PostgreSQL, but doesn't solve the nonexistent 'old data' problem — they are deleted along with the container anyway."
+      },
+      {
+        "text": "Specify volumes: [] to prohibit data persistence",
+        "correct": false,
+        "explanation": "By default service containers do not mount persistent volumes. Data in PostgreSQL is stored in container memory and deleted with it."
+      }
+    ]
+  },
+  {
+    "question": "What happens if you specify a coverage regex that does not match any line in the test output?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab will show 0% as the default value",
+        "correct": false,
+        "explanation": "0% and 'no data' are different states. When the regex doesn't match, data is simply absent, not equal to zero."
+      },
+      {
+        "text": "The job fails with error 'coverage pattern not found'",
+        "correct": false,
+        "explanation": "GitLab does not fail a job due to coverage regex mismatch. It simply means no coverage data is available."
+      },
+      {
+        "text": "GitLab simply will not show coverage data — no badge, no value in the MR",
+        "correct": true,
+        "explanation": "Correct. If the regex does not match, GitLab ignores coverage — does not show a badge, does not save history. No error, but no data either. This is a common cause of 'missing' coverage in projects."
+      },
+      {
+        "text": "GitLab automatically tries another regex from a list of standard ones",
+        "correct": false,
+        "explanation": "GitLab has no list of fallback regexes. Only the regex specified in the config is used."
+      }
+    ]
+  },
+  {
+    "question": "What is the key difference between services in GitLab CI and services in GitHub Actions in terms of network access?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitHub Actions does not support services for PostgreSQL — only Redis and MySQL",
+        "correct": false,
+        "explanation": "GitHub Actions supports any Docker images in services, including PostgreSQL. There are no image restrictions."
+      },
+      {
+        "text": "In GitLab services are available by image name in an isolated Docker network; in GitHub Actions services forward ports to the runner's localhost",
+        "correct": true,
+        "explanation": "Exactly. GitLab CI: host = image name (postgres, redis), port = standard service port. GitHub Actions: host = localhost or 127.0.0.1, port = as specified in ports. This is important when migrating configs between platforms."
+      },
+      {
+        "text": "In both cases services are available as localhost — the platforms are identical",
+        "correct": false,
+        "explanation": "This is wrong. The difference in the network model is one reason why GitLab CI and GitHub Actions configs are not interchangeable."
+      },
+      {
+        "text": "GitLab CI does not support services — you need to run dependencies manually via before_script",
+        "correct": false,
+        "explanation": "GitLab CI supports services since version 8.7. This is an official feature, not requiring manual launch."
+      }
+    ]
+  },
+  {
+    "question": "You want to run integration tests only when files in the backend/ directory change. How to set this up in GitLab CI?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use only:changes with the pattern 'backend/**/*'",
+        "correct": false,
+        "explanation": "only:changes works, but is deprecated syntax. It is recommended to use rules:changes instead of only/except."
+      },
+      {
+        "text": "Use rules:changes to specify paths that should trigger the job",
+        "correct": true,
+        "explanation": "Correct. rules:changes is the modern and flexible approach. When files matching the pattern 'backend/**/*' change, the job runs. It can be combined with other rules conditions for precise control."
+      },
+      {
+        "text": "Use the CI_COMMIT_CHANGED_FILES variable in a script condition",
+        "correct": false,
+        "explanation": "This variable does not exist in GitLab CI. For conditional execution based on changed files, use rules:changes."
+      },
+      {
+        "text": "Add a script in before_script that checks git diff and exits with 0 if no changes",
+        "correct": false,
+        "explanation": "This is an antipattern. The job will be created and run every time, just exit quickly. The correct approach — don't create the job at all via rules:changes."
+      }
+    ]
+  }
+]

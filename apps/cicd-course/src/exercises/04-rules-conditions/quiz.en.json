@@ -1,0 +1,418 @@
+[
+  {
+    "question": "You use both `only: [main]` and `rules: [{if: ...}]` in the same job. What happens?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab gives a configuration error, the pipeline does not start",
+        "correct": true,
+        "explanation": "only/except and rules cannot be used together in the same job — this is an explicit configuration error."
+      },
+      {
+        "text": "Both mechanisms trigger, the job runs if either condition is met",
+        "correct": false,
+        "explanation": "GitLab does not combine only/except and rules — they are incompatible in the same job."
+      },
+      {
+        "text": "rules takes priority, only is ignored",
+        "correct": false,
+        "explanation": "There is no priority — this is a forbidden combination that causes an error."
+      },
+      {
+        "text": "only takes priority, rules is ignored",
+        "correct": false,
+        "explanation": "GitLab does not pick a winner — the combination is invalid and causes a pipeline error."
+      }
+    ]
+  },
+  {
+    "question": "What value does $CI_PIPELINE_SOURCE take when a pipeline is launched manually via the button in the GitLab UI?",
+    "type": "single",
+    "options": [
+      {
+        "text": "push",
+        "correct": false,
+        "explanation": "push is the source for git push. A manual launch via UI is web."
+      },
+      {
+        "text": "manual",
+        "correct": false,
+        "explanation": "manual is a when value, not a CI_PIPELINE_SOURCE. The source when launching via UI is web."
+      },
+      {
+        "text": "trigger",
+        "correct": false,
+        "explanation": "trigger is the source when launching from another pipeline via a trigger job."
+      },
+      {
+        "text": "web",
+        "correct": true,
+        "explanation": "Launching via the Run pipeline button in GitLab UI sets CI_PIPELINE_SOURCE=web."
+      }
+    ]
+  },
+  {
+    "question": "In a rules list, what happens if no condition matches and there is no final `when: never`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab gives an error",
+        "correct": false,
+        "explanation": "No error occurs — GitLab simply applies the default behavior."
+      },
+      {
+        "text": "The job runs with when: on_success by default",
+        "correct": true,
+        "explanation": "If no rule matches and there is no fallback rule, GitLab uses when: on_success as the default — this is a common cause of unexpected launches."
+      },
+      {
+        "text": "The job does not run",
+        "correct": false,
+        "explanation": "Without an explicit final rule GitLab applies the default value — when: on_success."
+      },
+      {
+        "text": "The job transitions to skipped status",
+        "correct": false,
+        "explanation": "Skipped is not the default behavior when there is no fallback in rules."
+      }
+    ]
+  },
+  {
+    "question": "How does the logic work inside a single rules entry that contains both `if` and `changes`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "OR: the rule triggers if if is met OR files from changes are changed",
+        "correct": false,
+        "explanation": "Within a single rule, conditions are combined with AND, not OR."
+      },
+      {
+        "text": "AND: the rule only triggers if if is met AND files from changes are changed",
+        "correct": true,
+        "explanation": "Within a single rule, if and changes are combined with AND. The rules list itself is OR (the first matching rule wins)."
+      },
+      {
+        "text": "changes takes priority over if",
+        "correct": false,
+        "explanation": "There is no priority — both conditions in a single rule are applied with AND."
+      },
+      {
+        "text": "if takes priority, changes is only checked if if returns false",
+        "correct": false,
+        "explanation": "There is no priority between conditions — they are checked simultaneously with AND."
+      }
+    ]
+  },
+  {
+    "question": "What is `workflow:rules` used for?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Controlling the launch of the entire pipeline as a whole",
+        "correct": true,
+        "explanation": "workflow:rules decides whether to create the pipeline at all, unlike rules in jobs which control individual jobs."
+      },
+      {
+        "text": "Controlling when for individual jobs",
+        "correct": false,
+        "explanation": "Controlling when for individual jobs is done by rules in the jobs themselves, not workflow:rules."
+      },
+      {
+        "text": "Restricting pipeline launch to specific branches only",
+        "correct": true,
+        "explanation": "workflow:rules allows the pipeline only for main, MRs, and tags, blocking everything else."
+      },
+      {
+        "text": "Deduplication of branch and MR pipelines",
+        "correct": false,
+        "explanation": "This is one of the main uses of workflow:rules — preventing double launches on push + open MR."
+      }
+    ]
+  },
+  {
+    "question": "A developer only fixed `docs/README.md`. Which jobs will run?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All jobs will run",
+        "correct": false,
+        "explanation": "If frontend-tests and backend-tests have rules:changes on the corresponding folders, they will not run when only docs/ is changed."
+      },
+      {
+        "text": "Jobs without rules:changes and jobs with the docs/**/* pattern will run",
+        "correct": false,
+        "explanation": "Jobs without rules:changes follow their own logic (if there are no rules at all — they always run). But this depends on the specific configuration."
+      },
+      {
+        "text": "Only jobs with rules:changes on docs/**/*",
+        "correct": true,
+        "explanation": "rules:changes compares changed files with patterns. Jobs with patterns for frontend/ and backend/ will not run."
+      },
+      {
+        "text": "No jobs will run",
+        "correct": false,
+        "explanation": "Jobs with rules:changes on docs/** will run because docs/README.md matches the pattern."
+      }
+    ]
+  },
+  {
+    "question": "Why might rules:changes launch a job on the first push of a new branch even if there are no changes in the target files?",
+    "type": "single",
+    "options": [
+      {
+        "text": "This is a GitLab bug",
+        "correct": false,
+        "explanation": "This is not a bug, it is expected behavior: on the first push to a branch there is no comparison base, so all files are considered changed."
+      },
+      {
+        "text": "On the first push there is no previous commit to compare against, so all files are considered changed",
+        "correct": true,
+        "explanation": "rules:changes compares against the previous state. If there is no previous commit (new branch), all files are considered new/changed."
+      },
+      {
+        "text": "GitLab compares against files in main on the first push",
+        "correct": false,
+        "explanation": "GitLab does not do such comparison automatically. On the first push there is nothing to compare to — all files are considered changed."
+      },
+      {
+        "text": "rules:changes does not work on new branches at all",
+        "correct": false,
+        "explanation": "It works, but behaves specially — considers all files changed on the first push."
+      }
+    ]
+  },
+  {
+    "question": "Which variable allows you to determine if there are open MRs for the current branch?",
+    "type": "single",
+    "options": [
+      {
+        "text": "$CI_MERGE_REQUEST_IID",
+        "correct": false,
+        "explanation": "$CI_MERGE_REQUEST_IID is only available in MR pipelines. It is not set in branch pipelines."
+      },
+      {
+        "text": "$CI_OPEN_MERGE_REQUESTS",
+        "correct": true,
+        "explanation": "$CI_OPEN_MERGE_REQUESTS contains the IIDs of open MRs for the current branch and is available in branch pipelines. Used for deduplication."
+      },
+      {
+        "text": "$CI_PIPELINE_SOURCE == 'merge_request_event'",
+        "correct": false,
+        "explanation": "This is a condition, not a variable. Moreover, in a branch pipeline CI_PIPELINE_SOURCE will be 'push', not 'merge_request_event'."
+      },
+      {
+        "text": "$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME",
+        "correct": false,
+        "explanation": "This variable contains the source branch name of the MR, not the presence of open MRs."
+      }
+    ]
+  },
+  {
+    "question": "You have two rules in a job. First: `if: $CI_COMMIT_BRANCH == 'main', when: manual`. Second: `when: always`. The pipeline is launched on the feature/auth branch. How will the job run?",
+    "type": "single",
+    "options": [
+      {
+        "text": "It runs automatically (when: always) — the second rule triggers as a fallback",
+        "correct": true,
+        "explanation": "The first rule does not match (branch feature/auth != main). The second rule when: always has no condition and triggers as a fallback — the job runs automatically."
+      },
+      {
+        "text": "It does not run — the branch is not main",
+        "correct": false,
+        "explanation": "The first rule did not match (branch is not main), but the second rule when: always will trigger."
+      },
+      {
+        "text": "GitLab gives an error due to conflict between manual and always",
+        "correct": false,
+        "explanation": "There is no conflict — rules are applied sequentially. The first did not match, the second matched."
+      },
+      {
+        "text": "It runs as manual — the rule with main has priority",
+        "correct": false,
+        "explanation": "The rule with main did not match (condition is false). Priority is determined by order, not by when type."
+      }
+    ]
+  },
+  {
+    "question": "What CI_PIPELINE_SOURCE value is set when another pipeline launches yours via the `trigger` keyword?",
+    "type": "single",
+    "options": [
+      {
+        "text": "trigger",
+        "correct": true,
+        "explanation": "When a pipeline is launched from another via the trigger keyword (downstream pipeline), CI_PIPELINE_SOURCE takes the value 'trigger'."
+      },
+      {
+        "text": "api",
+        "correct": false,
+        "explanation": "api is for launching via the GitLab API directly. Launching via a trigger job of another pipeline is 'trigger'."
+      },
+      {
+        "text": "pipeline",
+        "correct": false,
+        "explanation": "The value 'pipeline' is not used for trigger. The correct value is 'trigger'."
+      },
+      {
+        "text": "parent_pipeline",
+        "correct": false,
+        "explanation": "This value does not exist. The correct value when launching from a parent pipeline is 'trigger'."
+      }
+    ]
+  },
+  {
+    "question": "Which pattern in rules:changes will match the file `src/auth/middleware/jwt.ts`?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "`src/auth/**/*`",
+        "correct": true,
+        "explanation": "The pattern src/auth/**/* recursively matches all files in src/auth/ and its subdirectories."
+      },
+      {
+        "text": "`src/auth/*`",
+        "correct": false,
+        "explanation": "src/auth/* only matches files directly in src/auth/, not in subdirectories like middleware/."
+      },
+      {
+        "text": "`**/*.ts`",
+        "correct": true,
+        "explanation": "The pattern **/*.ts matches all TypeScript files in any directory, including jwt.ts."
+      },
+      {
+        "text": "`src/**/*`",
+        "correct": false,
+        "explanation": "The pattern src/**/* recursively matches all files in src/, including src/auth/middleware/jwt.ts."
+      }
+    ]
+  },
+  {
+    "question": "Your team found that every push to a feature branch creates two pipelines — branch and MR. What should you add to .gitlab-ci.yml?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add `interruptible: true` to all jobs",
+        "correct": false,
+        "explanation": "interruptible allows canceling the old pipeline on a new push to the same branch, but does not solve the branch+MR duplication problem."
+      },
+      {
+        "text": "workflow:rules with a $CI_OPEN_MERGE_REQUESTS check for deduplication",
+        "correct": true,
+        "explanation": "workflow:rules with the condition `if: $CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS, when: never` blocks the branch pipeline when an MR pipeline is already created."
+      },
+      {
+        "text": "except: [merge_requests] in every job",
+        "correct": false,
+        "explanation": "except is deprecated syntax. Moreover, this does not solve the duplication — the branch pipeline will still run."
+      },
+      {
+        "text": "rules with `when: never` for all branch pipelines",
+        "correct": false,
+        "explanation": "This removes branch pipelines completely, which is undesirable — you want to keep them when there is no open MR."
+      }
+    ]
+  },
+  {
+    "question": "What does rules:exists do in the context of determining project type?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Checks if a file changed in the last commit",
+        "correct": false,
+        "explanation": "File changes are checked by rules:changes. Exists only checks for the presence of a file in the repo, regardless of changes."
+      },
+      {
+        "text": "Checks for the existence of an artifact from the previous stage",
+        "correct": false,
+        "explanation": "Artifacts are a separate mechanism. rules:exists works with files in the repository."
+      },
+      {
+        "text": "Checks for the presence of a file in the repository and allows launching a job only for projects of the right type",
+        "correct": true,
+        "explanation": "rules:exists looks into the repository. The presence of Dockerfile, package.json, go.mod, or Chart.yaml allows automatically determining the project type and launching the appropriate jobs."
+      },
+      {
+        "text": "Checks if a file exists on the runner's file system",
+        "correct": false,
+        "explanation": "rules:exists checks files in the repository (git tree), not on the runner's file system."
+      }
+    ]
+  },
+  {
+    "question": "A job should run on MR ONLY if files in `backend/` are changed. On the main branch it should always run. Which configuration is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "`rules: [{if: MR, changes: [backend/**/*]}, {if: main}]`",
+        "correct": true,
+        "explanation": "First rule: AND (MR and changes in backend). Second rule: only if (main without changes restrictions). The order is correct."
+      },
+      {
+        "text": "`rules: [{if: main}, {if: MR, changes: [backend/**/*]}]`",
+        "correct": false,
+        "explanation": "Order matters. The rule with main comes first — if the pipeline is on main, it will match. But for MR with changes in frontend/ — no rule matches, the job does not run."
+      },
+      {
+        "text": "`rules: [{changes: [backend/**/*]}, {if: main}]`",
+        "correct": false,
+        "explanation": "The first rule is not limited by source — the job will run on any push with changes in backend/, not only on MR."
+      },
+      {
+        "text": "`rules: [{if: MR || main, changes: [backend/**/*]}]`",
+        "correct": false,
+        "explanation": "This syntax does not allow setting different changes conditions for different if. changes in one rule is applied together with if by AND."
+      }
+    ]
+  },
+  {
+    "question": "A developer added `when: delayed` and `start_in: '1 hour'` to a rule. What happens?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The job runs immediately, start_in is ignored in rules",
+        "correct": false,
+        "explanation": "start_in is not ignored — it sets a delay before the delayed job launches."
+      },
+      {
+        "text": "The job runs automatically 1 hour after the pipeline is created",
+        "correct": true,
+        "explanation": "when: delayed with start_in: '1 hour' means the job waits for 1 hour in delayed status, then launches automatically. Used for example for blue-green deployments or notifications."
+      },
+      {
+        "text": "GitLab gives an error — delayed cannot be used in rules",
+        "correct": false,
+        "explanation": "delayed can be used in rules. It is a valid when value."
+      },
+      {
+        "text": "You need to press a button within 1 hour, otherwise the job will not run",
+        "correct": false,
+        "explanation": "delayed is not manual. The job launches automatically after the specified delay, without manual intervention."
+      }
+    ]
+  },
+  {
+    "question": "In which scenarios is using `rules:exists` preferable to `rules:changes`?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "When the project type is determined by the presence of a manifest (package.json, go.mod, pom.xml)",
+        "correct": true,
+        "explanation": "rules:exists is the right tool for determining project type by the presence of a manifest file."
+      },
+      {
+        "text": "When you need to react to changes in src/ since the last commit",
+        "correct": false,
+        "explanation": "This is a task for rules:changes, not exists. Changes compares against the previous commit."
+      },
+      {
+        "text": "When you need to launch a helm deployment only for projects with a chart",
+        "correct": true,
+        "explanation": "Checking for the existence of helm/Chart.yaml via exists is a classic pattern for conditional helm deployment."
+      },
+      {
+        "text": "When you need to launch a docker build only if the repo has a Dockerfile",
+        "correct": true,
+        "explanation": "exists is ideal for checking for a configuration file. If Dockerfile exists — the project supports Docker builds."
+      }
+    ]
+  }
+]

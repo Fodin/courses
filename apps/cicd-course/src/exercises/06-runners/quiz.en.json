@@ -1,0 +1,392 @@
+[
+  {
+    "question": "What is GitLab Runner?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An IDE plugin that runs tests locally",
+        "correct": false,
+        "explanation": "Runner runs on a server or VM, not in an IDE."
+      },
+      {
+        "text": "A web interface for viewing GitLab pipelines",
+        "correct": false,
+        "explanation": "The web interface is GitLab itself. Runner is a separate agent."
+      },
+      {
+        "text": "An agent that receives tasks from GitLab and executes them on the machine where it is installed",
+        "correct": true,
+        "explanation": "GitLab Runner is a separate program (agent) that polls GitLab, picks up jobs, and executes them."
+      },
+      {
+        "text": "A Docker image with pre-installed GitLab",
+        "correct": false,
+        "explanation": "GitLab and GitLab Runner are different programs. Runner is the execution agent."
+      }
+    ]
+  },
+  {
+    "question": "Your job has tags [docker, linux, arm64]. Which runner will take this job?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A runner with tags [docker, linux, arm64, ci]",
+        "correct": true,
+        "explanation": "The runner must have all job tags. Having an extra tag ci is not a problem."
+      },
+      {
+        "text": "A runner with tags [linux, windows, arm64]",
+        "correct": false,
+        "explanation": "This runner lacks the docker tag — it will skip the job."
+      },
+      {
+        "text": "A runner with tags [docker]",
+        "correct": false,
+        "explanation": "The runner must have ALL job tags. Tags linux and arm64 are missing — it will skip."
+      },
+      {
+        "text": "Any available runner with run_untagged = true",
+        "correct": false,
+        "explanation": "run_untagged only applies to jobs WITHOUT tags. This job has tags, so an exact match is required."
+      }
+    ]
+  },
+  {
+    "question": "What is the fundamental difference between Docker executor and Shell executor?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Shell executor does not require additional software on the host machine",
+        "correct": false,
+        "explanation": "Shell executor requires all dependencies (Node, Python, etc.) directly on the host machine."
+      },
+      {
+        "text": "Shell executor runs scripts directly on the host machine without isolation",
+        "correct": true,
+        "explanation": "Shell executor is the fastest, but jobs can affect each other and the system."
+      },
+      {
+        "text": "Docker executor runs each job in an isolated container",
+        "correct": true,
+        "explanation": "Yes, each job gets a fresh container — full isolation."
+      },
+      {
+        "text": "Docker executor only works with public Docker Hub images",
+        "correct": false,
+        "explanation": "Docker executor works with any images: public, private, or from your own registry."
+      }
+    ]
+  },
+  {
+    "question": "What happens if no runner matches the tags for a job?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The job remains in pending status and waits for a matching runner",
+        "correct": true,
+        "explanation": "The job stays in the pending queue. If no runner appears — it times out (default 1 hour)."
+      },
+      {
+        "text": "GitLab automatically creates a new runner",
+        "correct": false,
+        "explanation": "GitLab does not create runners automatically. An administrator must register runners in advance."
+      },
+      {
+        "text": "The job fails immediately with an error",
+        "correct": false,
+        "explanation": "The job does not fail immediately — it enters the queue and waits for a matching runner."
+      },
+      {
+        "text": "The job will be executed on any available runner",
+        "correct": false,
+        "explanation": "No, if tags don't match, the runner will not take the job — this protects against accidental execution."
+      }
+    ]
+  },
+  {
+    "question": "What is a Protected Runner and why is it needed?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A runner with SSL/TLS enabled for secure connection to GitLab",
+        "correct": false,
+        "explanation": "All runners use HTTPS. Protected is about branches, not encryption."
+      },
+      {
+        "text": "A runner that takes jobs only from protected branches (main, release/*)",
+        "correct": true,
+        "explanation": "A protected runner does not execute jobs from regular feature branches, which protects production from malicious code."
+      },
+      {
+        "text": "A runner with a password for access",
+        "correct": false,
+        "explanation": "Runner access is managed via tokens, not passwords. Protected is about branch restrictions."
+      },
+      {
+        "text": "A runner that automatically creates backup copies of artifacts",
+        "correct": false,
+        "explanation": "This is not related to Protected runners. Protected is exclusively about restriction to protected branches."
+      }
+    ]
+  },
+  {
+    "question": "Your team spends $500/month on GitLab CI minutes. You have 5 developers, pipelines run 50 times a day, each takes ~15 minutes. What's the best action?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Reduce the number of tests to make pipelines faster",
+        "correct": false,
+        "explanation": "Reducing tests is a bad trade-off. Savings should come from infrastructure, not quality."
+      },
+      {
+        "text": "Buy more CI minutes from GitLab",
+        "correct": false,
+        "explanation": "At this usage intensity, a self-hosted runner will pay for itself in 1-2 months."
+      },
+      {
+        "text": "Run pipelines only once a day on a schedule",
+        "correct": false,
+        "explanation": "This destroys the fast feedback loop — the main value of CI. Don't sacrifice practice for savings."
+      },
+      {
+        "text": "Set up a self-hosted runner on your own server or cloud",
+        "correct": true,
+        "explanation": "50 runs x 15 min x 30 days = 22,500 minutes/month. Even a small VPS (~$30-50/month) is cheaper than $500."
+      }
+    ]
+  },
+  {
+    "question": "Which parameters in config.toml are important for controlling parallelism?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "check_interval — how often the runner polls GitLab for new jobs",
+        "correct": true,
+        "explanation": "check_interval (in seconds) affects the delay before a job starts after appearing in the queue."
+      },
+      {
+        "text": "concurrent — maximum number of simultaneously executing jobs",
+        "correct": true,
+        "explanation": "concurrent at the top level of the config limits the total number of parallel jobs."
+      },
+      {
+        "text": "max_jobs — maximum jobs over the entire runner lifetime",
+        "correct": false,
+        "explanation": "There is no such parameter in config.toml. There is MaxBuilds in the context of autoscaling (docker+machine)."
+      },
+      {
+        "text": "timeout — wait time before taking the next job",
+        "correct": false,
+        "explanation": "timeout in job is the maximum execution time. There is no 'wait before taking' parameter."
+      }
+    ]
+  },
+  {
+    "question": "When should you use Kubernetes executor instead of Docker executor?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "When you need automatic scaling without additional configuration",
+        "correct": true,
+        "explanation": "Kubernetes creates new Pods under load and removes them afterward — autoscaling out of the box."
+      },
+      {
+        "text": "When you need precise control of CPU and Memory for each job",
+        "correct": true,
+        "explanation": "Kubernetes allows setting requests and limits on CPU/Memory for each Pod — a unique capability."
+      },
+      {
+        "text": "When you need maximum job start speed",
+        "correct": false,
+        "explanation": "Kubernetes Pods take longer to start than Docker containers. For start speed, Shell or Docker is better."
+      },
+      {
+        "text": "When the team already has a Kubernetes cluster and expertise",
+        "correct": true,
+        "explanation": "Kubernetes executor requires a configured cluster. If one already exists — it makes sense to use it for runners."
+      }
+    ]
+  },
+  {
+    "question": "What does the run_untagged = true parameter mean for a runner?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The runner creates Docker containers without image tags",
+        "correct": false,
+        "explanation": "run_untagged has nothing to do with Docker image tags. It's about GitLab CI job tags."
+      },
+      {
+        "text": "The runner ignores job tags and takes any assignment",
+        "correct": false,
+        "explanation": "No, run_untagged does not mean ignoring tags. If a job has tags, matching is still mandatory."
+      },
+      {
+        "text": "The runner executes jobs that have no tags section in .gitlab-ci.yml",
+        "correct": true,
+        "explanation": "Yes, a runner with run_untagged = true takes jobs that have no tags: section at all."
+      },
+      {
+        "text": "The runner does not register tags for new jobs",
+        "correct": false,
+        "explanation": "This is not about registration. run_untagged = true simply allows the runner to take jobs without tags."
+      }
+    ]
+  },
+  {
+    "question": "Why is it NOT recommended to use privileged = true for Docker executor without necessity?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "You cannot use runner cache in privileged mode",
+        "correct": false,
+        "explanation": "Cache works independently of privileged. These are unrelated settings."
+      },
+      {
+        "text": "A malicious job could gain full access to the host system",
+        "correct": true,
+        "explanation": "A privileged container has access to host devices. Container compromise = host compromise."
+      },
+      {
+        "text": "Isolation between containers is broken",
+        "correct": true,
+        "explanation": "A privileged container can interact with other containers and bypass namespace isolation."
+      },
+      {
+        "text": "Job execution is slowed down by additional checks",
+        "correct": false,
+        "explanation": "privileged = true does not slow down execution. It is purely a security concern."
+      }
+    ]
+  },
+  {
+    "question": "The team is setting up a runner for production deployment. Which settings are mandatory?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Assign unique tags that only this runner has",
+        "correct": true,
+        "explanation": "Unique tags (e.g., production-deploy) ensure that only the right jobs land on this runner."
+      },
+      {
+        "text": "Make the runner Protected (for protected branches only)",
+        "correct": true,
+        "explanation": "A protected runner guarantees that production deployment only happens from protected branches (main, release/*)."
+      },
+      {
+        "text": "Set run_untagged = true so the runner takes all jobs",
+        "correct": false,
+        "explanation": "This is dangerous for a production runner. It should only take specially marked jobs, not everything."
+      },
+      {
+        "text": "Set privileged = true for maximum performance",
+        "correct": false,
+        "explanation": "privileged affects security, not performance. For production, minimal privileges is a mandatory requirement."
+      }
+    ]
+  },
+  {
+    "question": "Where is the main GitLab Runner configuration file stored after installation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "/var/log/gitlab-runner.conf",
+        "correct": false,
+        "explanation": "/var/log is for logs, not configs. The runner config is in /etc/gitlab-runner/."
+      },
+      {
+        "text": "~/.gitlab-runner/config.yml",
+        "correct": false,
+        "explanation": "The file is called config.toml (TOML format), not YAML. And on Linux the path is system-level, not in the home directory."
+      },
+      {
+        "text": "/etc/gitlab-runner/config.toml",
+        "correct": true,
+        "explanation": "The standard path for a system installation on Linux — /etc/gitlab-runner/config.toml."
+      },
+      {
+        "text": "gitlab-runner.json in the current directory",
+        "correct": false,
+        "explanation": "The runner does not look for config in the current directory. Config is in the system location /etc/gitlab-runner/config.toml."
+      }
+    ]
+  },
+  {
+    "question": "How does a Group runner differ from a Project runner?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A Group runner is available to all projects in the group, a Project runner — only to one project",
+        "correct": true,
+        "explanation": "This is the key difference: scope. A Group runner is registered at the group level, a Project runner at the project level."
+      },
+      {
+        "text": "A Project runner automatically gets all project secrets",
+        "correct": false,
+        "explanation": "Access to secrets (CI/CD Variables) is configured separately and does not depend on runner type."
+      },
+      {
+        "text": "A Group runner cannot be used with Docker executor",
+        "correct": false,
+        "explanation": "Executor type does not depend on runner scope. Any runner type can use any executor."
+      },
+      {
+        "text": "A Group runner is faster because it uses a special protocol",
+        "correct": false,
+        "explanation": "Speed does not depend on type. The difference is only in scope: which projects the runner is available to."
+      }
+    ]
+  },
+  {
+    "question": "A developer sees that the 'deploy-prod' job picked a shared runner instead of the dedicated production runner. How to fix this?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Add unique tags to the deploy-prod job in .gitlab-ci.yml",
+        "correct": true,
+        "explanation": "Tags will restrict runner selection. Only a runner with those tags will take this job."
+      },
+      {
+        "text": "Remove shared runners from the project (disable in Settings > CI/CD)",
+        "correct": true,
+        "explanation": "You can disable shared runners for the project and use only your own — this completely solves the problem."
+      },
+      {
+        "text": "Make the production runner Protected and ensure deploy runs from a protected branch",
+        "correct": true,
+        "explanation": "A protected runner won't take jobs from unprotected branches, adding a protective barrier."
+      },
+      {
+        "text": "Set run_untagged = false on the shared runner",
+        "correct": false,
+        "explanation": "If the job has no tags, this would help. But if the job has tags that match the shared runner — it won't help."
+      }
+    ]
+  },
+  {
+    "question": "Which executor is best for building projects in different languages (Node.js, Python, Go) within a single runner?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Docker executor with different images for each job",
+        "correct": true,
+        "explanation": "Each job sets image: node:20, image: python:3.12, image: golang:1.22 — ideal isolation without conflicts."
+      },
+      {
+        "text": "Docker Machine executor — it creates a VM for each language",
+        "correct": false,
+        "explanation": "Docker Machine is overkill for this case. It's needed for autoscaling, not for different languages."
+      },
+      {
+        "text": "Shell executor — it's the fastest",
+        "correct": false,
+        "explanation": "Shell would require installing Node, Python, and Go on the host machine and managing versions. This is a maintenance nightmare."
+      },
+      {
+        "text": "You need to register a separate runner for each language",
+        "correct": false,
+        "explanation": "This is excessive. Docker executor allows one runner to work with any language through different images."
+      }
+    ]
+  }
+]

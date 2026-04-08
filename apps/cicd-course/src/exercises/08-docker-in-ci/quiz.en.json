@@ -1,0 +1,392 @@
+[
+  {
+    "question": "Why does Docker-in-Docker require privileged: true in GitLab Runner configuration?",
+    "type": "single",
+    "options": [
+      {
+        "text": "This is a GitLab security requirement — without it the Runner won't start a service",
+        "correct": false,
+        "explanation": "The requirement comes not from GitLab, but from Docker itself. The Runner needs to pass extended kernel privileges to the container."
+      },
+      {
+        "text": "Without privileged, Docker cannot read Dockerfiles from the repository",
+        "correct": false,
+        "explanation": "Reading files from the repository does not require privileged. This is normal file access."
+      },
+      {
+        "text": "Privileged mode is only needed for pushing to Docker Registry",
+        "correct": false,
+        "explanation": "Pushing to a Registry is a normal network operation, does not require privileged. Privileges are needed to run the Docker daemon."
+      },
+      {
+        "text": "The Docker daemon inside a container needs access to the host kernel to manage namespaces and cgroups",
+        "correct": true,
+        "explanation": "Exactly. The Docker daemon manages kernel primitives (namespaces, cgroups, overlay FS). Without privileged, the container lacks these rights and the daemon won't start."
+      }
+    ]
+  },
+  {
+    "question": "What is the main advantage of Kaniko over Docker-in-Docker?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kaniko supports a wider set of Dockerfile instructions",
+        "correct": false,
+        "explanation": "Kaniko supports most Dockerfile instructions, but that is not its main advantage over dind."
+      },
+      {
+        "text": "Kaniko does not require privileged mode — builds happen in userspace without a Docker daemon",
+        "correct": true,
+        "explanation": "The key advantage. Kaniko reads the Dockerfile and builds layers in userspace, without requiring privileged access to the host kernel. This is critical for secure production environments."
+      },
+      {
+        "text": "Kaniko builds images faster because it doesn't need to start a daemon",
+        "correct": false,
+        "explanation": "Speed is not the main advantage. On first run, Kaniko can even be slower. The main point is security."
+      },
+      {
+        "text": "Kaniko does not require Docker Registry — images are stored locally on the Runner",
+        "correct": false,
+        "explanation": "This is wrong. Kaniko pushes images to a Registry — local storage is not its feature."
+      }
+    ]
+  },
+  {
+    "question": "How does Kaniko cache layers between builds?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kaniko does not support caching — it rebuilds all layers every time",
+        "correct": false,
+        "explanation": "Kaniko supports caching via the --cache and --cache-repo flags."
+      },
+      {
+        "text": "Kaniko stores layer cache in Docker Registry via --cache=true and --cache-repo flags",
+        "correct": true,
+        "explanation": "Correct. Kaniko pushes cached layers to a separate Registry repository (e.g., registry.example.com/project/cache). On the next build it downloads them from there."
+      },
+      {
+        "text": "Kaniko uses the GitLab cache mechanism via cache: paths in .gitlab-ci.yml",
+        "correct": false,
+        "explanation": "GitLab cache is a mechanism for files on disk. Kaniko has its own caching mechanism via Registry."
+      },
+      {
+        "text": "Cache is stored locally on the Runner in /var/lib/kaniko/cache",
+        "correct": false,
+        "explanation": "Kaniko does not use local cache on the Runner disk — this contradicts its daemonless architecture."
+      }
+    ]
+  },
+  {
+    "question": "Your Dockerfile has this structure:\n\nFROM node:20 AS builder\nCOPY . .\nRUN npm ci\nRUN npm run build\n\nFROM nginx:alpine\nCOPY --from=builder /app/dist /usr/share/nginx/html\n\nWhy is this bad practice?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "node_modules, .git and .env can end up in the builder image and bloat it",
+        "correct": true,
+        "explanation": "Without .dockerignore, COPY . . copies node_modules (hundreds of MB), .git history, .env with secrets. The builder image becomes huge, and secrets can leak."
+      },
+      {
+        "text": "Any code change invalidates the npm ci layer cache, even if dependencies didn't change",
+        "correct": true,
+        "explanation": "COPY . . copies everything, including source code. If any .ts file changes — the COPY layer changes — the next RUN npm ci rebuilds from scratch, even though package.json was untouched."
+      },
+      {
+        "text": "Multi-stage build is not supported when using dind",
+        "correct": false,
+        "explanation": "Multi-stage build is a standard Docker feature, works with all build methods: dind, Kaniko, buildx."
+      },
+      {
+        "text": "FROM nginx:alpine cannot use --from=builder",
+        "correct": false,
+        "explanation": "COPY --from=builder is correct multi-stage build syntax. This is normal practice."
+      }
+    ]
+  },
+  {
+    "question": "What does --cache-from $CI_REGISTRY_IMAGE:latest mean in a docker build command?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Docker downloads the latest image and uses its layers as cache when building the new image",
+        "correct": true,
+        "explanation": "Exactly. Docker compares Dockerfile instructions with the downloaded image layers. Matching layers are not rebuilt — they are taken from cache. This saves 80%+ of build time."
+      },
+      {
+        "text": "Docker will not publish the latest image, only use it for cache",
+        "correct": false,
+        "explanation": "This is only about cache during build. Publishing is handled separately by docker push."
+      },
+      {
+        "text": "latest will be overwritten by the new image at the end of the build",
+        "correct": false,
+        "explanation": "This is not related to --cache-from. Overwriting latest happens on docker push, not on build."
+      },
+      {
+        "text": "The build will fail if the latest image does not exist in the Registry",
+        "correct": false,
+        "explanation": "No. If the image is not found (docker pull returns an error), the build continues without cache. That's why || true is used after docker pull."
+      }
+    ]
+  },
+  {
+    "question": "The DOCKER_TLS_CERTDIR variable is set to an empty string in a dind job. What risk does this create?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Docker won't start without TLS certificates",
+        "correct": false,
+        "explanation": "Docker will start, but will listen on the unsecured port 2375 instead of 2376."
+      },
+      {
+        "text": "Any process or service in the container network can connect to the Docker daemon and control it without authentication",
+        "correct": true,
+        "explanation": "Without TLS, Docker listens on port 2375 without encryption or authentication. In a multi-container environment, this means any process can launch containers, read host files, etc."
+      },
+      {
+        "text": "Builds will be slower — without TLS there is no traffic compression",
+        "correct": false,
+        "explanation": "TLS does not affect compression speed. The risk is about security, not performance."
+      },
+      {
+        "text": "Images will not be saved to Registry due to missing certificates",
+        "correct": false,
+        "explanation": "Registry authentication and TLS for dind are different mechanisms. Without TLS for dind, pushing to Registry will work."
+      }
+    ]
+  },
+  {
+    "question": "How to properly authenticate with GitLab Container Registry when using Kaniko?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add docker login in before_script before running Kaniko",
+        "correct": false,
+        "explanation": "docker login does not work in the Kaniko container — there is no Docker CLI there. You need /kaniko/.docker/config.json."
+      },
+      {
+        "text": "Kaniko automatically uses $CI_JOB_TOKEN to access GitLab Registry",
+        "correct": false,
+        "explanation": "Kaniko has no built-in GitLab integration. You must explicitly provide credentials via config.json."
+      },
+      {
+        "text": "Create /kaniko/.docker/config.json with base64-encoded Registry credentials",
+        "correct": true,
+        "explanation": "Correct. Kaniko uses the standard Docker config.json for authentication. It needs to be created manually: printf '%s:%s' user password | base64 and written to /kaniko/.docker/config.json."
+      },
+      {
+        "text": "Pass CI_REGISTRY_USER and CI_REGISTRY_PASSWORD as environment variables — Kaniko picks them up automatically",
+        "correct": false,
+        "explanation": "Kaniko does not read these variables automatically. You need to explicitly create config.json."
+      }
+    ]
+  },
+  {
+    "question": "In a pipeline there is a job that runs tests inside a Docker image. The test job itself runs in dind. How to correctly pass test results from the container to GitLab?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use docker run with host directory mount: -v $(pwd)/results:/app/results",
+        "correct": true,
+        "explanation": "Correct. Mount the CI job directory into the container. Tests write results to /app/results, which appear in $(pwd)/results on the job. Then this directory goes into artifacts."
+      },
+      {
+        "text": "Specify artifacts directly in docker run via the --artifact flag",
+        "correct": false,
+        "explanation": "There is no such flag in docker run. For file transfer, use volume mount or docker cp."
+      },
+      {
+        "text": "Tests inside docker run cannot transfer artifacts to GitLab",
+        "correct": false,
+        "explanation": "Results can be obtained — through volume mount or docker cp."
+      },
+      {
+        "text": "Use docker commit to save container changes",
+        "correct": false,
+        "explanation": "docker commit creates a new image from a container. This does not transfer files to GitLab artifacts."
+      }
+    ]
+  },
+  {
+    "question": "A project uses GitHub Actions. You need to build a Docker image. Which statement is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Docker is already installed on ubuntu-latest runner, dind is not needed. For optimization, use docker/setup-buildx-action",
+        "correct": true,
+        "explanation": "Exactly. GitHub-hosted runners (ubuntu-latest) already have Docker. setup-buildx-action enables BuildKit with extended caching capabilities (type=gha cache)."
+      },
+      {
+        "text": "You need to set up dind like in GitLab — add privileged: true to the workflow",
+        "correct": false,
+        "explanation": "In GitHub Actions, Docker is available on ubuntu-latest runner by default. No need to separately configure dind or privileged mode."
+      },
+      {
+        "text": "In GitHub Actions you can only use Kaniko, not Docker",
+        "correct": false,
+        "explanation": "You can use either. Docker is preferred on GitHub Actions because it is already available without setup."
+      },
+      {
+        "text": "GitHub Actions does not support Docker image builds",
+        "correct": false,
+        "explanation": "It does, and very well. There are official actions: docker/build-push-action, docker/setup-buildx-action."
+      }
+    ]
+  },
+  {
+    "question": "Why add || true after docker pull $IMAGE:latest in a build script?",
+    "type": "single",
+    "options": [
+      {
+        "text": "So the pipeline doesn't fail on the first build when the latest image doesn't exist in Registry yet",
+        "correct": true,
+        "explanation": "Correct. docker pull exits with code 1 if the image is not found. On the first pipeline run, the latest image doesn't exist — without || true the entire job would fail because of this single command."
+      },
+      {
+        "text": "So GitLab doesn't count pull as an error on slow Registry",
+        "correct": false,
+        "explanation": "A slow Registry would cause a timeout, not a non-zero exit code. || true is needed for a different reason."
+      },
+      {
+        "text": "Docker pull returns an error on bad connection, || true makes the build resilient",
+        "correct": false,
+        "explanation": "This is partially true, but not the main reason. The primary case is the absence of the image on the first build."
+      },
+      {
+        "text": "|| true is needed so subsequent commands can overwrite the pulled image",
+        "correct": false,
+        "explanation": "Subsequent docker build commands will create a new image regardless of the pull result. || true only ignores the error."
+      }
+    ]
+  },
+  {
+    "question": "You notice that building a Docker image takes 8 minutes, even though only one TypeScript file changed. In the Dockerfile, instructions are arranged as: COPY . . -> RUN npm ci -> RUN npm run build. What needs to be fixed?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Reorder instructions: first COPY package*.json ./, then RUN npm ci, then COPY . .",
+        "correct": true,
+        "explanation": "The key fix. npm ci will only run when package*.json changes. Changing .ts files won't touch this layer."
+      },
+      {
+        "text": "Add .dockerignore, excluding node_modules, .git, coverage, dist",
+        "correct": true,
+        "explanation": "Also important. Without .dockerignore, COPY . . copies node_modules (hundreds of MB), which slows context transfer to the Docker daemon and invalidates cache."
+      },
+      {
+        "text": "Replace RUN npm ci with RUN npm install for faster installation",
+        "correct": false,
+        "explanation": "npm install does not solve the caching problem. npm ci is even preferable in CI — it is deterministic and faster with a lock file."
+      },
+      {
+        "text": "Enable DOCKER_BUILDKIT=1 and use --cache-from the previous image",
+        "correct": true,
+        "explanation": "BuildKit and --cache-from complement Dockerfile optimization. BuildKit builds independent layers in parallel, --cache-from allows reusing layers between pipelines."
+      }
+    ]
+  },
+  {
+    "question": "The team uses Kaniko with the --snapshot-mode=redo flag. What does this change?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Kaniko rebuilds all layers from scratch on every run, ignoring cache",
+        "correct": false,
+        "explanation": "redo does not mean a full rebuild. It is a mode for computing diffs between layers."
+      },
+      {
+        "text": "--snapshot-mode=redo is only needed for multi-stage builds",
+        "correct": false,
+        "explanation": "redo is useful for any Dockerfile. Images with many RUN commands benefit the most."
+      },
+      {
+        "text": "Kaniko saves filesystem snapshots to /tmp to speed up the next run",
+        "correct": false,
+        "explanation": "Kaniko snapshots are used during the current build to create image layers, but are not saved between runs."
+      },
+      {
+        "text": "A faster filesystem comparison algorithm: Kaniko executes commands and compares only changed files, instead of a full tree traversal",
+        "correct": true,
+        "explanation": "Correct. The redo mode is faster than the time mode (default), because it only recalculates files changed by the RUN command, rather than the entire tree. Recommended for most Dockerfiles."
+      }
+    ]
+  },
+  {
+    "question": "You write a pipeline: a build image is assembled in dind, then a test job should run this image and execute smoke tests. How to pass the image between jobs?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Use cache: paths: [/var/lib/docker] to cache layers between jobs",
+        "correct": false,
+        "explanation": "Caching /var/lib/docker is not recommended — these are Docker daemon internal files that may be incorrect when restored. Use a Registry instead."
+      },
+      {
+        "text": "Use GitLab artifacts: save docker save output, load via docker load",
+        "correct": true,
+        "explanation": "A working approach for small images. docker save > image.tar -> artifacts -> docker load < image.tar. Downside: the tar file can be large."
+      },
+      {
+        "text": "Images are automatically shared between dind jobs on the same Runner",
+        "correct": false,
+        "explanation": "Each dind service is an isolated container with a separate daemon. Image layers are not automatically shared between jobs."
+      },
+      {
+        "text": "Push the image to GitLab Registry in the build job, pull it in the test job",
+        "correct": true,
+        "explanation": "The standard approach. Build pushes to Registry with a SHA tag, test does docker pull with the same tag. Reliable and scalable."
+      }
+    ]
+  },
+  {
+    "question": "Under what conditions should you tag an image as latest?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only when creating a git tag — latest should correspond to the last release",
+        "correct": false,
+        "explanation": "This is also a reasonable approach, but not the only one. Many teams use latest for main. For version tags they use separate image tags: v1.2.3."
+      },
+      {
+        "text": "Only when pushing to the main/master branch — latest should mean 'the last stable version'",
+        "correct": true,
+        "explanation": "The correct convention. latest is updated only for main, to mean 'what is currently in production'. Feature branches use their own tags (branch name or SHA)."
+      },
+      {
+        "text": "On every successful pipeline run — latest should always point to the last successful build",
+        "correct": false,
+        "explanation": "If latest is updated on every commit (including feature branches), it loses meaning — you can't tell what exactly is deployed to production."
+      },
+      {
+        "text": "Never — latest is not recommended in production pipelines",
+        "correct": false,
+        "explanation": "latest is convenient as a human-readable tag for the main branch. The problem is not latest itself, but its misuse (overwriting on every commit from any branch)."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between --target builder and a normal docker build without --target in a multi-stage Dockerfile?",
+    "type": "single",
+    "options": [
+      {
+        "text": "--target is only needed when using Kaniko — standard docker build ignores this flag",
+        "correct": false,
+        "explanation": "--target is a standard docker build flag, works with all tools: docker CLI, buildx, Kaniko, and others."
+      },
+      {
+        "text": "--target builder builds only the first stage and stops, ignoring the production stage",
+        "correct": true,
+        "explanation": "Correct. docker build --target builder stops after the stage named builder. This is useful for running tests in the build environment without assembling the full production image."
+      },
+      {
+        "text": "No difference — Docker always builds all stages",
+        "correct": false,
+        "explanation": "With --target, Docker stops at the specified stage and does not execute subsequent ones. This is the key difference."
+      },
+      {
+        "text": "--target builder is always faster because it builds fewer layers",
+        "correct": false,
+        "explanation": "This is true for this example, but not always. --target can point to a later stage that requires all previous ones."
+      }
+    ]
+  }
+]

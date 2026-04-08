@@ -103,15 +103,23 @@ export function Task6_3() {
       <h2>{t('task.6.3.title')}</h2>
 
       {/* TODO: Render progress indicator (step circles with numbers/checkmarks) */}
+      {/* Индикатор прогресса (кружки шагов с номерами/галочками) */}
 
       {/* TODO: Render current step content inside a bordered card */}
       {/* Step 'url': URL input with validation */}
       {/* Step 'token': token input with hint where to find it */}
+      {/* Шаг 'token': ввод токена с подсказкой где его найти */}
       {/* Step 'executor': 3 clickable cards (Docker / Shell / Kubernetes) */}
+      {/* Шаг 'executor': 3 кликабельные карточки (Docker / Shell / Kubernetes) */}
       {/* Step 'tags': tag input + suggestions + runUntagged checkbox */}
+      {/* Шаг 'tags': ввод тегов + подсказки + чекбокс runUntagged */}
       {/* Step 'settings': executor-specific settings */}
+      {/* Шаг 'settings': настройки для выбранного executor */}
       {/* Step 'result': command + config.toml with copy buttons */}
+      {/* Шаг 'result': команда + config.toml с кнопками копирования */}
 
+      {/* TODO: Render Back / Next navigation buttons */}
+      {/* "Next" disabled when !isStepValid() */}
       {/* TODO: Render Назад / Далее navigation buttons */}
       {/* "Далее" disabled when !isStepValid() */}
     </div>

@@ -45,10 +45,12 @@ import { useLanguage } from '@courses/platform'
 // interface Executor { ... }
 
 // TODO: Create EXECUTORS array with 4 items (Docker, Shell, Kubernetes, Docker Machine)
+// Создай данные для 4 executor-ов: Docker, Shell, Kubernetes, Docker Machine
 // const EXECUTORS: Executor[] = [...]
 
 // TODO: Define label/color maps for isolation, speed, complexity
-// const ISOLATION_LABELS = { full: 'Полная', ... }
+// Определи маппинги меток/цветов для isolation, speed, complexity
+// const ISOLATION_LABELS = { full: 'Full', ... }
 // const ISOLATION_COLORS = { full: '#2E7D32', ... }
 
 export function Task6_1() {
@@ -72,15 +74,20 @@ export function Task6_1() {
     <div style={{ padding: '1rem' }}>
       <h2>{t('task.6.1.title')}</h2>
 
+      {/* TODO: Render filter buttons (All / Isolation: Full / ...) */}
       {/* TODO: Render filter buttons (Все / Изоляция: Полная / ...) */}
 
       {/* TODO: Render executor cards in a 2-column grid */}
       {/* Each card: name, description, badges, pros, cons, expandable use cases */}
+      {/* Выведи карточки в 2-колоночной сетке */}
+      {/* Каждая карточка: название, описание, бейджи, pros, cons, раскрывающиеся use cases */}
 
       {/* TODO: Show config.toml block when a card is selected */}
+      {/* Покажи блок config.toml при выборе карточки */}
 
       {/* TODO: Render comparison table */}
-      {/* Columns: Executor | Изоляция | Скорость | Сложность | Нужен Docker */}
+      {/* Columns: Executor | Isolation | Speed | Complexity | Needs Docker */}
+      {/* Столбцы: Executor | Изоляция | Скорость | Сложность | Нужен Docker */}
     </div>
   )
 }

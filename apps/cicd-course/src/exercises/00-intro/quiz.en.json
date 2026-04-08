@@ -1,0 +1,412 @@
+[
+  {
+    "question": "What does the acronym CI stand for in the context of software development?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Container Infrastructure — container-based infrastructure",
+        "correct": false,
+        "explanation": "Container Infrastructure is not a standard DevOps term, and CI does not directly relate to containers"
+      },
+      {
+        "text": "Code Inspection — automated code quality checking",
+        "correct": false,
+        "explanation": "Code Inspection refers to static code analysis, which may be part of CI but is not its definition"
+      },
+      {
+        "text": "Continuous Improvement — ongoing process improvement",
+        "correct": false,
+        "explanation": "Continuous Improvement is a quality management concept (Kaizen), not from DevOps"
+      },
+      {
+        "text": "Continuous Integration — continuous code integration",
+        "correct": true,
+        "explanation": "CI is the practice of frequently integrating code from all developers with automated checks via tests and linters"
+      }
+    ]
+  },
+  {
+    "question": "What is the key difference between Continuous Delivery and Continuous Deployment?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In Continuous Delivery, production deployment is manually approved; in Continuous Deployment, it is automatic",
+        "correct": true,
+        "explanation": "Continuous Delivery — the code is always ready to deploy, but a human makes the final decision. Continuous Deployment — every green commit is automatically deployed to production"
+      },
+      {
+        "text": "Continuous Delivery works only with Docker, Continuous Deployment works with any infrastructure",
+        "correct": false,
+        "explanation": "Both approaches are independent of deployment technology and work with any infrastructure"
+      },
+      {
+        "text": "In Continuous Delivery, production deployment happens automatically; in Continuous Deployment, it is manual",
+        "correct": false,
+        "explanation": "It is the opposite: Continuous Deployment automates production deployment, while Delivery requires a manual button press"
+      },
+      {
+        "text": "Continuous Delivery is for small teams, Continuous Deployment is for large teams",
+        "correct": false,
+        "explanation": "The choice between them depends on testing maturity and business requirements, not team size"
+      }
+    ]
+  },
+  {
+    "question": "What is a feedback loop in the context of CI/CD?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The time between writing code and receiving information about whether it works correctly",
+        "correct": true,
+        "explanation": "The shorter the feedback loop, the faster a developer learns about a bug, and the cheaper it is to fix — context is still fresh"
+      },
+      {
+        "text": "A mechanism for re-running failed pipelines",
+        "correct": false,
+        "explanation": "Re-running is a retry mechanism, not a feedback loop"
+      },
+      {
+        "text": "The retrospective cycle in Agile teams",
+        "correct": false,
+        "explanation": "Retrospectives are an Agile practice, and while they are a form of feedback, in CI/CD the term is used differently"
+      },
+      {
+        "text": "A system for collecting user feedback about the product",
+        "correct": false,
+        "explanation": "Collecting user feedback is a UX practice, not a CI/CD concept"
+      }
+    ]
+  },
+  {
+    "question": "Which of the following problems are characteristic of manual deployment? Select all that apply.",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Losing the backup before deployment",
+        "correct": true,
+        "explanation": "With manual deployment it is easy to skip the backup step, especially under time pressure"
+      },
+      {
+        "text": "Difficulty reproducing the deployment process by another person",
+        "correct": true,
+        "explanation": "With manual deployment, knowledge of the process is often stored in one person's head or in outdated instructions"
+      },
+      {
+        "text": "Slow feedback on the deployment result",
+        "correct": true,
+        "explanation": "After manual deployment there are often no automated checks — you have to manually verify everything works"
+      },
+      {
+        "text": "Impossibility of automated testing",
+        "correct": false,
+        "explanation": "Tests can still be run with manual deployment; these are two independent processes"
+      },
+      {
+        "text": "High risk of human error",
+        "correct": true,
+        "explanation": "Manual processes are prone to typos, forgotten steps, and incorrect sequence of actions"
+      }
+    ]
+  },
+  {
+    "question": "A team is adopting CI/CD for the first time. They plan to set it up after releasing the main features. What is wrong with this approach?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CI/CD is harder to set up on a large project, and technical debt and the number of potential issues grow",
+        "correct": true,
+        "explanation": "Setting up CI/CD from the first commit takes 30 minutes. On a project with a year of history it can take days: you need to sort out dependencies, tests, and environment configuration"
+      },
+      {
+        "text": "GitHub Actions is only free for public repositories",
+        "correct": false,
+        "explanation": "While this is a true statement, it does not answer the question about the problem with the 'set it up later' approach"
+      },
+      {
+        "text": "CI/CD is not suitable for early-stage projects",
+        "correct": false,
+        "explanation": "On the contrary, CI/CD is especially valuable at the early stage — it establishes good practices from the very beginning"
+      },
+      {
+        "text": "Nothing, this is reasonable prioritization — business value first, infrastructure later",
+        "correct": false,
+        "explanation": "In practice, 'later' rarely comes. Moreover, setting up CI/CD on a large codebase with accumulated technical debt is significantly harder"
+      }
+    ]
+  },
+  {
+    "question": "What is an artifact in the context of a CI/CD pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An environment variable available across all jobs",
+        "correct": false,
+        "explanation": "Environment variables are configuration, not artifacts"
+      },
+      {
+        "text": "A pipeline execution log",
+        "correct": false,
+        "explanation": "Logs are stored separately and are not artifacts in the classical sense — they are not passed between stages as a result of work"
+      },
+      {
+        "text": "Documentation automatically generated from code",
+        "correct": false,
+        "explanation": "Documentation can be an artifact, but it is only one of many types of artifacts"
+      },
+      {
+        "text": "The result of one pipeline stage that is passed to the next stage",
+        "correct": true,
+        "explanation": "An artifact is any file or set of files created during the pipeline: a compiled binary, a Docker image, a test report"
+      }
+    ]
+  },
+  {
+    "question": "Which of the following CI/CD tools are SaaS solutions (do not require your own server)? Select all that apply.",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Jenkins",
+        "correct": false,
+        "explanation": "Jenkins is a self-hosted solution that requires its own server for installation and maintenance"
+      },
+      {
+        "text": "A special license is required for this",
+        "correct": false,
+        "explanation": "The listed technologies have open-source versions."
+      },
+      {
+        "text": "CircleCI",
+        "correct": true,
+        "explanation": "CircleCI is a cloud service provided by subscription, does not require your own infrastructure"
+      },
+      {
+        "text": "GitLab CI (GitLab.com)",
+        "correct": true,
+        "explanation": "GitLab.com is a SaaS variant of GitLab with built-in CI/CD. A self-hosted GitLab also exists"
+      },
+      {
+        "text": "GitHub Actions",
+        "correct": true,
+        "explanation": "GitHub Actions is a cloud service built into GitHub, does not require its own infrastructure (although self-hosted runners are possible)"
+      }
+    ]
+  },
+  {
+    "question": "In what order are pipeline stages typically executed?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Test → Source → Build → Deploy",
+        "correct": false,
+        "explanation": "Tests are run after the build, because many tests need a built artifact"
+      },
+      {
+        "text": "Source → Deploy → Test → Build",
+        "correct": false,
+        "explanation": "Deploying before testing is a dangerous practice that should be avoided"
+      },
+      {
+        "text": "Source → Build → Test → Deploy",
+        "correct": true,
+        "explanation": "First get the code (Source/Checkout), then build the artifact (Build), verify its correctness (Test), and only then deploy (Deploy)"
+      },
+      {
+        "text": "Deploy → Test → Build → Source",
+        "correct": false,
+        "explanation": "This is the reverse order: you cannot deploy what has not been built and tested"
+      }
+    ]
+  },
+  {
+    "question": "Why is a slow pipeline (40+ minutes) harmful to a team?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A slow pipeline always means bad code",
+        "correct": false,
+        "explanation": "Pipeline speed depends on its configuration, not code quality. Good code can have a slow pipeline due to suboptimal configuration"
+      },
+      {
+        "text": "The feedback loop slows down — bugs are found too late",
+        "correct": true,
+        "explanation": "If a developer switches to another task during 40 minutes, context is lost and fixing a bug takes significantly more time"
+      },
+      {
+        "text": "This is only possible in cloud solutions",
+        "correct": false,
+        "explanation": "This applies both in the cloud and on-premise."
+      },
+      {
+        "text": "The cost of using cloud CI/CD services increases",
+        "correct": true,
+        "explanation": "Most cloud CI/CD services charge by job execution time. Slow pipelines = more expenses"
+      },
+      {
+        "text": "Developers start ignoring the pipeline and looking for workarounds",
+        "correct": true,
+        "explanation": "When you have to wait 40 minutes for every commit, developers start merging without waiting for the result, which defeats the purpose of CI"
+      }
+    ]
+  },
+  {
+    "question": "What is the correct way to store secrets (API keys, passwords) in CI/CD configuration?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In commit comments, closed to external users",
+        "correct": false,
+        "explanation": "Secrets in commit comments are a critical security vulnerability. No access restriction makes this acceptable"
+      },
+      {
+        "text": "In CI/CD system environment variables or in specialized vault services",
+        "correct": true,
+        "explanation": "GitHub Secrets, GitLab CI Variables, HashiCorp Vault — these are the correct places for secrets. They are encrypted and do not end up in the repository"
+      },
+      {
+        "text": "Directly in the YAML pipeline configuration file, encrypted with base64",
+        "correct": false,
+        "explanation": "Base64 is encoding, not encryption. Anyone can decode the value. Secrets must not be stored in the repository"
+      },
+      {
+        "text": "In a separate private repository",
+        "correct": false,
+        "explanation": "A private repository is not sufficient protection: secrets will be visible to everyone with repo access and will end up in git history"
+      }
+    ]
+  },
+  {
+    "question": "What is a trigger in a CI/CD pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The first pipeline stage that downloads code",
+        "correct": false,
+        "explanation": "Code checkout is a step inside the pipeline, not the event that starts it"
+      },
+      {
+        "text": "A developer responsible for running the deployment",
+        "correct": false,
+        "explanation": "A trigger is an event, not a person"
+      },
+      {
+        "text": "An event that starts the pipeline execution",
+        "correct": true,
+        "explanation": "Triggers can be: a push to the repository, creating a pull request, a schedule (cron), a manual run, or completion of another pipeline"
+      },
+      {
+        "text": "A condition under which the pipeline stops with an error",
+        "correct": false,
+        "explanation": "A stop condition is a fail condition or exit code, not a trigger"
+      }
+    ]
+  },
+  {
+    "question": "A team is working on a banking application. Which deployment approach should they choose?",
+    "type": "single",
+    "options": [
+      {
+        "text": "No CI/CD at all — security requirements are too high",
+        "correct": false,
+        "explanation": "CI/CD improves security through automated checks, vulnerability scanning, and a predictable process. A manual process is more vulnerable"
+      },
+      {
+        "text": "Jenkins, because it is the oldest and most proven",
+        "correct": false,
+        "explanation": "The choice of tool does not determine the deployment approach. Jenkins can be configured for both Delivery and Deployment"
+      },
+      {
+        "text": "Continuous Delivery — code is always ready for deployment, but the deployment decision is made manually",
+        "correct": true,
+        "explanation": "Banking systems require controlled releases: compliance, auditing, manual approval. Continuous Delivery provides CI automation + control over final deployment"
+      },
+      {
+        "text": "Continuous Deployment — every commit is automatically deployed to production",
+        "correct": false,
+        "explanation": "For banking software, manual deployment approval is usually required for compliance and security reasons. Full automation without manual control is risky here"
+      }
+    ]
+  },
+  {
+    "question": "Which statements about jobs within a single pipeline stage are correct?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Jobs always run strictly sequentially",
+        "correct": false,
+        "explanation": "Jobs run in parallel unless explicit dependencies (needs/depends_on) are specified. This is one of the advantages of CI/CD systems"
+      },
+      {
+        "text": "Each job runs in an isolated environment",
+        "correct": true,
+        "explanation": "Each job runs in its own container or virtual machine. This ensures reproducibility and isolation"
+      },
+      {
+        "text": "Jobs within one stage can run in parallel",
+        "correct": true,
+        "explanation": "Parallel execution of jobs within one stage is standard practice to speed up the pipeline. For example, unit tests and e2e tests can be run simultaneously"
+      },
+      {
+        "text": "A special license is required for this",
+        "correct": false,
+        "explanation": "The listed technologies have open-source versions."
+      },
+      {
+        "text": "The next stage starts only after all jobs in the current stage are complete",
+        "correct": true,
+        "explanation": "Stages run sequentially — this ensures that deployment does not start until all tests pass"
+      }
+    ]
+  },
+  {
+    "question": "A startup wants to quickly start using CI/CD. Which tool is the simplest option for a team already using GitHub?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Travis CI — the first open source tool",
+        "correct": false,
+        "explanation": "Travis CI no longer offers a free plan and has lost market share to GitHub Actions and GitLab CI"
+      },
+      {
+        "text": "GitLab CI — the most powerful system",
+        "correct": false,
+        "explanation": "For a team on GitHub, switching to GitLab just for CI/CD is not practical. GitLab CI is a great tool, but not in this scenario"
+      },
+      {
+        "text": "GitHub Actions — built into GitHub, minimal entry barrier",
+        "correct": true,
+        "explanation": "GitHub Actions does not require additional registration, is integrated with the repository, has a huge marketplace of ready-made actions, and has a clear syntax"
+      },
+      {
+        "text": "Jenkins — the most proven and flexible tool",
+        "correct": false,
+        "explanation": "Jenkins requires its own server, complex setup, and maintenance. For a startup this is excessive complexity"
+      }
+    ]
+  },
+  {
+    "question": "What does 'a broken pipeline is priority #1' mean?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A broken pipeline automatically reverts the last commit",
+        "correct": false,
+        "explanation": "Rollback is an optional setting. Most CI/CD systems do not do automatic rollback by default"
+      },
+      {
+        "text": "You cannot merge new code until the pipeline is fixed",
+        "correct": true,
+        "explanation": "A broken pipeline means no one is getting feedback. Continuing to merge means multiplying problems and losing the signal about code state"
+      },
+      {
+        "text": "The entire team should know about the broken pipeline immediately",
+        "correct": true,
+        "explanation": "Notifications in Slack/email when the pipeline fails are standard practice. The problem must be visible to everyone so it is fixed quickly"
+      },
+      {
+        "text": "Fixing a broken pipeline is more important than working on new features",
+        "correct": true,
+        "explanation": "Analogy: if the conveyor belt stops — you need to fix it first, not keep throwing parts into a pile"
+      }
+    ]
+  }
+]

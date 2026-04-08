@@ -1,0 +1,397 @@
+[
+  {
+    "question": "You know GitLab CI. What is the equivalent of `.gitlab-ci.yml` in GitHub Actions?",
+    "type": "single",
+    "options": [
+      {
+        "text": "`.github/workflows/*.yml` — one or more files in the workflows directory",
+        "correct": true,
+        "explanation": "Correct. Unlike GitLab (a single `.gitlab-ci.yml`), GitHub Actions supports multiple workflow files. Each is an independent pipeline with its own triggers."
+      },
+      {
+        "text": "`.github/actions.yml` — standard filename",
+        "correct": false,
+        "explanation": "This standard does not exist. Files must be placed in `.github/workflows/` — the directory is mandatory."
+      },
+      {
+        "text": "`.github/ci.yml` — the single configuration file",
+        "correct": false,
+        "explanation": "In GitHub Actions, files go in `.github/workflows/` and there can be multiple, each being a separate workflow."
+      },
+      {
+        "text": "`Makefile` — GitHub Actions uses Make to describe CI",
+        "correct": false,
+        "explanation": "GitHub Actions uses YAML files, not Makefiles. Make can be invoked inside steps, but is not the CI configuration itself."
+      }
+    ]
+  },
+  {
+    "question": "A developer writes a workflow and is surprised that `npm run build` fails with `package.json not found`. What's the issue?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add `run: git clone` before the build",
+        "correct": false,
+        "explanation": "Cloning via git clone is unnecessary — there's a special action for that. Direct use of git clone would bypass built-in authentication."
+      },
+      {
+        "text": "Add `env: GITHUB_WORKSPACE` — the variable automatically clones the code",
+        "correct": false,
+        "explanation": "`GITHUB_WORKSPACE` is just a directory path. It does not trigger cloning. You need an explicit `uses: actions/checkout@v4`."
+      },
+      {
+        "text": "Add `working-directory: ${{ github.workspace }}`",
+        "correct": false,
+        "explanation": "working-directory changes the working directory but does not load code. Without `actions/checkout` the repository simply doesn't exist on disk."
+      },
+      {
+        "text": "The `uses: actions/checkout@v4` step is missing — in GitHub Actions, code is not cloned automatically",
+        "correct": true,
+        "explanation": "Exactly. Unlike GitLab CI where the repository is cloned automatically, in GitHub Actions you must explicitly add `actions/checkout` to every job that needs code."
+      }
+    ]
+  },
+  {
+    "question": "In GitLab CI you use `only: [main]` for deployment. How to do the same in GitHub Actions?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Configure `branches: [main]` in the `on:push:` section — this restricts the entire workflow to main only",
+        "correct": false,
+        "explanation": "This restricts the entire workflow's trigger, but all jobs will still run. You need `if:` specifically on the deploy job so other jobs run for all branches."
+      },
+      {
+        "text": "`when: manual` — this is the standard way to restrict deployment",
+        "correct": false,
+        "explanation": "`when: manual` is GitLab CI syntax. GitHub Actions has no direct equivalent; manual triggers use `workflow_dispatch`."
+      },
+      {
+        "text": "`only: refs: [main]` — the GitLab syntax also works in GitHub",
+        "correct": false,
+        "explanation": "GitHub Actions uses different syntax. The `only:` key does not exist here."
+      },
+      {
+        "text": "`if: github.ref == 'refs/heads/main'` in the job or step section",
+        "correct": true,
+        "explanation": "Correct. In GitHub Actions, conditions are set via `if:` with an expression. `github.ref` contains the full branch name in `refs/heads/main` format."
+      }
+    ]
+  },
+  {
+    "question": "How does `needs:` in GitHub Actions differ from `stages:` in GitLab CI?",
+    "type": "single",
+    "options": [
+      {
+        "text": "`stages:` gives more control because it allows grouping jobs",
+        "correct": false,
+        "explanation": "`needs:` gives more flexibility — you can build arbitrary DAG dependencies, not just linear chains through stages."
+      },
+      {
+        "text": "`needs:` works only for deploy jobs; something else is needed for tests and builds",
+        "correct": false,
+        "explanation": "`needs:` works for any jobs without restrictions on type."
+      },
+      {
+        "text": "`needs:` sets explicit dependencies between specific jobs; without `needs:`, jobs run in parallel",
+        "correct": true,
+        "explanation": "Exactly. GitHub Actions has no concept of a stage. Order is determined only via `needs:`. Without it, all jobs start simultaneously — this is a key difference."
+      },
+      {
+        "text": "No difference — these are just different names for the same mechanism",
+        "correct": false,
+        "explanation": "There is a fundamental difference. `stages` is implicit grouping — all jobs in a stage run in parallel. `needs` is explicit DAG dependencies, more flexible."
+      }
+    ]
+  },
+  {
+    "question": "You need to test a Node.js application on versions 18, 20, and 22. How to do this correctly in GitHub Actions?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add three `setup-node` steps with different versions in one job",
+        "correct": false,
+        "explanation": "This is not parallelism — versions run sequentially in one job. Also, the last `setup-node` will overwrite settings from previous ones."
+      },
+      {
+        "text": "GitHub Actions automatically tests on all LTS Node versions — no configuration needed",
+        "correct": false,
+        "explanation": "GitHub Actions has no idea that your project uses Node.js. Everything must be explicitly configured."
+      },
+      {
+        "text": "Create three separate workflow files: `test-node18.yml`, `test-node20.yml`, `test-node22.yml`",
+        "correct": false,
+        "explanation": "This is an anti-pattern — it duplicates code. Any change to testing steps would require updating three files."
+      },
+      {
+        "text": "Use `strategy.matrix` with `node-version: [18, 20, 22]`",
+        "correct": true,
+        "explanation": "Correct. Matrix strategy automatically creates jobs for each version. When steps change, you only need to update one code block."
+      }
+    ]
+  },
+  {
+    "question": "In GitLab CI you use `include:` to reuse configuration. What is its equivalent in GitHub Actions for reusing an **entire pipeline** (multiple jobs)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Reusable Workflow with `workflow_call` trigger",
+        "correct": true,
+        "explanation": "Correct. A Reusable Workflow is a separate `.yml` file with a `workflow_call` trigger. It can contain multiple jobs and be called from other workflows via `uses:`."
+      },
+      {
+        "text": "`include:` — the same syntax works in GitHub Actions",
+        "correct": false,
+        "explanation": "`include:` is GitLab CI syntax. In GitHub Actions, `uses:` is used to call reusable workflows."
+      },
+      {
+        "text": "Composite Action with `uses:` — for reusing large blocks",
+        "correct": false,
+        "explanation": "Composite Actions reuse steps within a single job, not entire pipelines with multiple jobs."
+      },
+      {
+        "text": "Template Repository — create a separate repository with templates",
+        "correct": false,
+        "explanation": "Template Repository is a tool for copying repository structure, not for reusing workflow logic at runtime."
+      }
+    ]
+  },
+  {
+    "question": "You need to reuse several steps (checkout + setup-node + npm ci) across different jobs in the **same** workflow. What to choose?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Reusable Workflow — it's more powerful and suitable for all cases",
+        "correct": false,
+        "explanation": "A Reusable Workflow is a separate pipeline with jobs. It cannot be called from within a job's steps. For reusing steps, you need a Composite Action."
+      },
+      {
+        "text": "Composite Action in `.github/actions/` with `runs.using: composite`",
+        "correct": true,
+        "explanation": "Correct. A Composite Action is a set of steps that can be called via `uses:` inside any job. Ideal for reusing setup logic."
+      },
+      {
+        "text": "Copy the steps into each job — this is more reliable than abstractions",
+        "correct": false,
+        "explanation": "Code duplication is an anti-pattern. When changing the Node.js version, you'd have to update every job. Composite Actions solve this elegantly."
+      },
+      {
+        "text": "YAML anchors (`&anchor` / `*anchor`) — standard YAML reuse mechanism",
+        "correct": false,
+        "explanation": "YAML anchors are not supported in GitHub Actions — this is a platform limitation. Use Composite Actions instead."
+      }
+    ]
+  },
+  {
+    "question": "You have a matrix of 3 OSes x 4 Python versions = 12 jobs. One job fails on Windows Python 3.8. What happens to the remaining 11 jobs with `fail-fast: true` (default behavior)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitHub Actions asks the user whether to continue the remaining jobs",
+        "correct": false,
+        "explanation": "GitHub Actions does not make interactive prompts during execution. Behavior is determined by `fail-fast` in the config."
+      },
+      {
+        "text": "The remaining jobs will be cancelled (cancelled)",
+        "correct": true,
+        "explanation": "With `fail-fast: true` (default), GitHub Actions immediately cancels all running and pending matrix jobs. This saves resources but hides information about other failures."
+      },
+      {
+        "text": "Only Windows jobs will be cancelled; Linux and macOS will continue",
+        "correct": false,
+        "explanation": "`fail-fast` cannot partially cancel the matrix by one parameter. On failure, the entire unfinished matrix is cancelled."
+      },
+      {
+        "text": "All 11 remaining jobs will continue running",
+        "correct": false,
+        "explanation": "This is the behavior of `fail-fast: false`. By default `fail-fast: true` — the first failure cancels the rest."
+      }
+    ]
+  },
+  {
+    "question": "How do you get the value of the `DATABASE_URL` secret inside a step in GitHub Actions?",
+    "type": "single",
+    "options": [
+      {
+        "text": "`$DATABASE_URL` — environment variables are available directly",
+        "correct": false,
+        "explanation": "The secret will not automatically land in the environment. It must be explicitly passed via `env:` at the step or job level."
+      },
+      {
+        "text": "`${{ secrets.DATABASE_URL }}` in the step's `env:` block, then `$DATABASE_URL` in the command",
+        "correct": true,
+        "explanation": "The correct pattern. First in the step's `env:`: `DATABASE_URL: ${{ secrets.DATABASE_URL }}`, then in `run:` use `$DATABASE_URL`. GitHub automatically masks the secret value in logs."
+      },
+      {
+        "text": "`${{ env.DATABASE_URL }}` — all secrets are available through the env context",
+        "correct": false,
+        "explanation": "The `env` context contains environment variables, but secrets are in a separate `secrets` context. Without explicit passing, the secret does not enter env."
+      },
+      {
+        "text": "Read the `$GITHUB_SECRETS` file — GitHub saves secrets to a special file",
+        "correct": false,
+        "explanation": "No `$GITHUB_SECRETS` file exists. Secrets are only accessible via `${{ secrets.NAME }}` and nothing else."
+      }
+    ]
+  },
+  {
+    "question": "You need to run a nightly build every day at 3:00 UTC. Which trigger should you use?",
+    "type": "single",
+    "options": [
+      {
+        "text": "`on: timer: interval: 24h` — an interval timer",
+        "correct": false,
+        "explanation": "This syntax does not exist. GitHub Actions only supports cron expressions for scheduled runs."
+      },
+      {
+        "text": "`on: schedule: - cron: '0 3 * * *'`",
+        "correct": true,
+        "explanation": "Correct. `schedule` with a cron expression is the standard way to schedule runs. `0 3 * * *` means: minute 0, hour 3, any day of month, any month, any day of week."
+      },
+      {
+        "text": "Create a GitHub App with a webhook and configure an external scheduler",
+        "correct": false,
+        "explanation": "This is overly complex. `on: schedule` with cron solves the task using built-in GitHub Actions features."
+      },
+      {
+        "text": "`on: nightly: true` — a special trigger for nightly builds",
+        "correct": false,
+        "explanation": "This trigger does not exist. GitHub Actions uses standard cron syntax."
+      }
+    ]
+  },
+  {
+    "question": "In a workflow, you need to pass the `dist/` directory from the `build` job to the `deploy` job. How to do this?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Files are automatically shared between jobs via `$GITHUB_WORKSPACE`",
+        "correct": false,
+        "explanation": "Each job runs in a separate environment. `$GITHUB_WORKSPACE` is not shared between jobs. You need artifact actions."
+      },
+      {
+        "text": "Use `cache:` with a key based on `github.sha` — then the build is cached for deploy",
+        "correct": false,
+        "explanation": "Cache is designed to speed up repeated runs, not to pass data between jobs. For passing data within a single workflow — use upload/download-artifact."
+      },
+      {
+        "text": "Use `artifacts:` — the GitLab syntax works in GitHub Actions",
+        "correct": false,
+        "explanation": "GitHub Actions has no `artifacts:` key. It uses special actions: `actions/upload-artifact` to save and `actions/download-artifact` to load."
+      },
+      {
+        "text": "`actions/upload-artifact` in the build job, `actions/download-artifact` in the deploy job",
+        "correct": true,
+        "explanation": "Correct. GitHub Actions uses separate actions for artifact handling. This is a more explicit approach compared to GitLab, where artifacts are a built-in feature."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following is the equivalent of GitLab CI `extends:` in GitHub Actions?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Composite Action — reuses a set of steps, similar to how `extends:` reuses job configuration",
+        "correct": true,
+        "explanation": "Correct. `extends:` in GitLab allowed inheriting steps from a base job. Composite Action solves the same problem — encapsulating repetitive steps into a reusable block."
+      },
+      {
+        "text": "YAML anchors — the built-in YAML mechanism works in both systems",
+        "correct": false,
+        "explanation": "GitHub Actions does not support YAML anchors. GitLab CI also didn't support them natively — `extends:` was specifically the replacement for anchors."
+      },
+      {
+        "text": "Reusable Workflow — called via `uses:` at the job level",
+        "correct": false,
+        "explanation": "Reusable Workflow is the equivalent of `include:` for entire pipelines. `extends:` in GitLab was used for job configuration inheritance, closer to Composite Action."
+      },
+      {
+        "text": "Matrix strategy — allows extending a job with multiple configurations",
+        "correct": false,
+        "explanation": "Matrix is for running with different parameters, not for configuration inheritance. This is a different concept."
+      }
+    ]
+  },
+  {
+    "question": "A project is tested on 4 OSes x 3 Python versions x 2 dependency versions = 24 matrix jobs. Several combinations are known to be incompatible (Python 3.8 + deps v2.0). How to exclude them?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitHub Actions automatically detects incompatible combinations based on package documentation",
+        "correct": false,
+        "explanation": "GitHub Actions knows nothing about package compatibility. Exclusion logic must be explicitly configured."
+      },
+      {
+        "text": "Add `if: matrix.python != '3.8' || matrix.deps != 'v2.0'` to each step",
+        "correct": false,
+        "explanation": "This would technically work, but the job would still be created and started — all steps would simply be skipped. This wastes resources and clutters the UI."
+      },
+      {
+        "text": "Use `matrix.exclude:` with a list of incompatible combinations",
+        "correct": true,
+        "explanation": "Correct. `exclude:` allows selectively removing specific combinations from the matrix. It supports partial matching — you don't need to specify all parameters."
+      },
+      {
+        "text": "Create a separate workflow for each compatible combination",
+        "correct": false,
+        "explanation": "This would be catastrophic code duplication. With 20 compatible combinations, you'd need 20 files."
+      }
+    ]
+  },
+  {
+    "question": "In GitLab CI you use `rules:` for complex run conditions. What can you control via `if:` in GitHub Actions?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "All of the above options are incorrect",
+        "correct": false,
+        "explanation": "Some of the listed options are indeed correct."
+      },
+      {
+        "text": "Skip a step based on the result of a previous one: `if: steps.tests.outcome == 'failure'`",
+        "correct": true,
+        "explanation": "True. The `steps` context allows accessing results of specific steps. This is more powerful than equivalents in GitLab CI."
+      },
+      {
+        "text": "Change the Runner based on a condition: `if: github.actor == 'bot'` changes `runs-on`",
+        "correct": false,
+        "explanation": "`if:` cannot dynamically change `runs-on`. For dynamic Runner selection you need matrix strategy or separate jobs."
+      },
+      {
+        "text": "Run a job only on manual trigger: `if: github.event_name == 'workflow_dispatch'`",
+        "correct": true,
+        "explanation": "Correct. `github.event_name` contains the event type that triggered the workflow. `workflow_dispatch` means a manual trigger via UI or API."
+      },
+      {
+        "text": "Skip a job based on branch: `if: github.ref == 'refs/heads/main'`",
+        "correct": true,
+        "explanation": "Correct. `if:` at the job level skips it entirely if the condition is false. Equivalent to `rules: - if: $CI_COMMIT_BRANCH == 'main'` in GitLab."
+      }
+    ]
+  },
+  {
+    "question": "A team wants to reuse deploy logic (3 jobs, 15 steps) across 5 different product workflows. Which solution is best and why?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitHub Packages — place the deploy logic as an npm package",
+        "correct": false,
+        "explanation": "GitHub Packages is for publishing artifacts (npm, Docker, etc), not for reusing CI/CD logic."
+      },
+      {
+        "text": "Copy the yaml blocks into each of the 5 workflows — this is reliable and transparent",
+        "correct": false,
+        "explanation": "Duplicating 5 times means that any deploy logic change requires synchronously updating 5 files. This is a source of bugs and technical debt."
+      },
+      {
+        "text": "Composite Action — package the steps in `.github/actions/`",
+        "correct": false,
+        "explanation": "Composite Actions reuse steps but not entire jobs. 3 jobs cannot be packaged into a Composite Action."
+      },
+      {
+        "text": "Reusable Workflow in `.github/workflows/deploy-shared.yml` with `workflow_call` trigger",
+        "correct": true,
+        "explanation": "Correct. A Reusable Workflow can contain multiple jobs and be called from other workflows via `uses:`. Changing deploy logic means updating one file."
+      }
+    ]
+  }
+]

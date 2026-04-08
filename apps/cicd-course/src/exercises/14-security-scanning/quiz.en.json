@@ -1,0 +1,392 @@
+[
+  {
+    "question": "What is the key difference between SAST and DAST?",
+    "type": "single",
+    "options": [
+      {
+        "text": "SAST is used in production, DAST — only in development",
+        "correct": false,
+        "explanation": "The opposite. SAST runs in CI on every MR. DAST requires a running application and is often used with staging/review environments."
+      },
+      {
+        "text": "SAST is faster, DAST — slower",
+        "correct": false,
+        "explanation": "Speed is a consequence, not the essence. SAST is faster precisely because it does not run the application, but this is not the main difference."
+      },
+      {
+        "text": "SAST analyzes source code without running it, DAST attacks a running application",
+        "correct": true,
+        "explanation": "Correct. SAST — static code analysis (like a proofreader reading a manuscript). DAST — dynamic testing of a live application (like a hacker trying attacks in real time)."
+      },
+      {
+        "text": "SAST only finds SQL injections, DAST — XSS vulnerabilities",
+        "correct": false,
+        "explanation": "Both tools can find both types of vulnerabilities. The difference is not in the vulnerability types but in the analysis method."
+      }
+    ]
+  },
+  {
+    "question": "You add SAST to the pipeline via the GitLab template. What happens if the repository has both Python and JavaScript code?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab will launch only one analyzer — for the language with the most files",
+        "correct": false,
+        "explanation": "GitLab launches analyzers for all detected languages, not just the predominant one."
+      },
+      {
+        "text": "The template will only launch semgrep — a universal analyzer for all languages",
+        "correct": false,
+        "explanation": "The template launches multiple specialized analyzers, not just semgrep. Semgrep is one option, but not the only one."
+      },
+      {
+        "text": "GitLab will automatically detect both languages and run bandit (Python) and eslint (JavaScript) in parallel",
+        "correct": true,
+        "explanation": "Exactly. GitLab scans the repository, detects languages, and launches the corresponding analyzers. This is one of the main conveniences of the template approach."
+      },
+      {
+        "text": "You need to explicitly specify the language in the SAST_ANALYZER variable — otherwise there will be an error",
+        "correct": false,
+        "explanation": "Explicit specification is not required. GitLab automatically detects languages."
+      }
+    ]
+  },
+  {
+    "question": "How does Dependency Scanning differ from Container Scanning?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Both tools do the same thing, Container Scanning just comes with a paid plan",
+        "correct": false,
+        "explanation": "The tools analyze fundamentally different components: code vs. image. This is not a pricing question."
+      },
+      {
+        "text": "Dependency Scanning is only for Python, Container Scanning — for Node.js",
+        "correct": false,
+        "explanation": "Dependency Scanning supports all major package managers. Container Scanning works with any Docker image regardless of the application language."
+      },
+      {
+        "text": "Dependency Scanning is faster and cheaper, Container Scanning is more accurate",
+        "correct": false,
+        "explanation": "Comparison by speed/accuracy does not capture the essence. The tools check different layers of the application."
+      },
+      {
+        "text": "Dependency Scanning checks code dependencies (npm, pip), Container Scanning — OS packages in the Docker image",
+        "correct": true,
+        "explanation": "Correct. Dependency Scanning works with lock files (package-lock.json, requirements.txt). Container Scanning analyzes installed operating system packages inside the image — OpenSSL, libc, etc."
+      }
+    ]
+  },
+  {
+    "question": "A developer committed an AWS key and immediately removed it in the next commit. Did Secret Detection find it?",
+    "type": "single",
+    "options": [
+      {
+        "text": "No — Secret Detection only checks the current state of files",
+        "correct": false,
+        "explanation": "This is a common misconception. Secret Detection (e.g., gitleaks) analyzes git history, not just current files."
+      },
+      {
+        "text": "Yes — Secret Detection analyzes git history and will find the key in the previous commit",
+        "correct": true,
+        "explanation": "Correct. Tools like gitleaks scan the entire git history. A secret removed in a subsequent commit remains in history forever unless git rebase/rewrite is performed."
+      },
+      {
+        "text": "Depends on configuration — by default only the current commit",
+        "correct": false,
+        "explanation": "By default, gitleaks checks changes in the commit, but full history scanning can be configured. The GitLab template is configured to analyze the MR delta."
+      },
+      {
+        "text": "Secret Detection cannot check git history — only the filesystem",
+        "correct": false,
+        "explanation": "gitleaks is specifically designed for git history analysis. This is its primary function."
+      }
+    ]
+  },
+  {
+    "question": "Why is the --ignore-unfixed flag important in Container Scanning?",
+    "type": "single",
+    "options": [
+      {
+        "text": "It disables OS package checks and leaves only application checks",
+        "correct": false,
+        "explanation": "The flag does not change the scanning scope. It only affects whether to show vulnerabilities for which no fix exists."
+      },
+      {
+        "text": "It skips vulnerabilities for which there is no patch — otherwise the report is flooded with unfixed issues",
+        "correct": true,
+        "explanation": "Correct. Without this flag, the report contains hundreds of vulnerabilities in the base image for which maintainers have not yet released a patch. The developer cannot do anything about them right now — this is noise."
+      },
+      {
+        "text": "It speeds up scanning by skipping fixed vulnerabilities",
+        "correct": false,
+        "explanation": "The flag affects result filtering, not speed. It skips vulnerabilities without a patch."
+      },
+      {
+        "text": "It ignores vulnerabilities rated below HIGH",
+        "correct": false,
+        "explanation": "Filtering by severity uses the --severity flag. --ignore-unfixed filters by patch status, not by criticality."
+      }
+    ]
+  },
+  {
+    "question": "A team is just starting to implement security scanning. Everything is configured with allow_failure: false. What happened the next day?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All MRs are blocked due to dependency vulnerabilities — development has stopped",
+        "correct": true,
+        "explanation": "This is exactly what happens. A typical project immediately has dozens of vulnerabilities, many of which are false positives or known acceptable risks. The correct approach: start with allow_failure: true, review results, gradually tighten."
+      },
+      {
+        "text": "The pipeline became much more secure — all vulnerabilities are blocked",
+        "correct": false,
+        "explanation": "Theoretically correct, but in practice without gradual implementation the team will start bypassing or disabling security jobs."
+      },
+      {
+        "text": "GitLab automatically created issues for each vulnerability",
+        "correct": false,
+        "explanation": "GitLab can create issues automatically, but this is configured separately. By default, vulnerabilities only appear in the Security Dashboard."
+      },
+      {
+        "text": "Nothing changed — allow_failure: false does not affect the result, only the UI appearance",
+        "correct": false,
+        "explanation": "allow_failure: false is exactly what blocks the MR when a job fails. This is a critically important setting."
+      }
+    ]
+  },
+  {
+    "question": "Which base Docker image creates the smallest attack surface?",
+    "type": "single",
+    "options": [
+      {
+        "text": "node:18 — the official image with proper security settings",
+        "correct": false,
+        "explanation": "node:18 is based on Debian and contains many unnecessary packages. node:18-alpine or distroless are significantly better from a security standpoint."
+      },
+      {
+        "text": "gcr.io/distroless/nodejs18 — runtime only, no shell or system utilities",
+        "correct": true,
+        "explanation": "Distroless contains a minimal set: only application runtime dependencies. No bash, no apt, no curl — nothing to attack. Container Scanning will find minimal vulnerabilities."
+      },
+      {
+        "text": "scratch — a completely empty image",
+        "correct": false,
+        "explanation": "scratch is indeed minimal, but requires a statically compiled binary. It does not work for Node.js/Python/Java — there is no runtime."
+      },
+      {
+        "text": "ubuntu:22.04 — stable, well maintained",
+        "correct": false,
+        "explanation": "Ubuntu contains hundreds of packages, most of which are not needed by the application. More packages — more potential vulnerabilities."
+      }
+    ]
+  },
+  {
+    "question": "Where in the pipeline should DAST be placed?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In parallel with SAST — both tools are independent",
+        "correct": false,
+        "explanation": "SAST does not require a running application and runs in parallel with tests. DAST requires one — therefore they cannot be parallel at the same stage."
+      },
+      {
+        "text": "In a separate scheduled pipeline — once a day on a schedule",
+        "correct": false,
+        "explanation": "A scheduled pipeline is possible but insufficient. DAST should run on every MR against a review app — otherwise the point of early vulnerability detection is lost."
+      },
+      {
+        "text": "After deployment to a staging/review environment — DAST needs a running service",
+        "correct": true,
+        "explanation": "Correct. DAST sends real HTTP requests to the application. Therefore, the application must be running — on a review app or staging. DAST always comes after the deploy stage."
+      },
+      {
+        "text": "At the very beginning — to check security before building",
+        "correct": false,
+        "explanation": "DAST requires a working application. It is impossible to run it without deployment."
+      }
+    ]
+  },
+  {
+    "question": "Scanning is configured in the pipeline, but developers ignore the results and continue pushing. What needs to change?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Send automatic emails for every found vulnerability",
+        "correct": false,
+        "explanation": "Email notifications with high noise will turn into spam and be ignored just like the results in the UI."
+      },
+      {
+        "text": "Configure Security Approvals in GitLab — the MR cannot be merged without approval from a Security Champion",
+        "correct": true,
+        "explanation": "Correct. Technical control: Project Settings -> Security -> Merge Request Approvals. Critical vulnerabilities block the merge until approval is obtained. Organizational control: assign a responsible Security Champion."
+      },
+      {
+        "text": "Add more tools — the more scanning, the better",
+        "correct": false,
+        "explanation": "The problem is not the number of tools but the processes. Adding more tools will only increase noise."
+      },
+      {
+        "text": "Switch all tools to allow_failure: false — let the pipeline fail",
+        "correct": false,
+        "explanation": "Without a configured vulnerability handling process, this will simply block development. The team will find a way to bypass it — for example, disabling scanning altogether."
+      }
+    ]
+  },
+  {
+    "question": "Why is it important to exclude vendor/, node_modules/, and test/ from SAST scanning?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Vulnerabilities in vendor/ and test fixtures are false positives or someone else's responsibility; noise hides real problems",
+        "correct": true,
+        "explanation": "Correct. Vulnerabilities in vendor/ are the responsibility of Dependency Scanning, not SAST. Test fixtures may contain intentionally insecure code for testing. Hundreds of false positives will hide real problems in your code."
+      },
+      {
+        "text": "GitLab requires explicit scanning paths — without exclusions the pipeline will fail with an error",
+        "correct": false,
+        "explanation": "GitLab does not require explicit exclusions. Without them, scanning will simply produce more results, many of which will be irrelevant."
+      },
+      {
+        "text": "Exclusion speeds up scanning — SAST does not waste time on extra files",
+        "correct": false,
+        "explanation": "Speed is a bonus, but not the main reason. The main reason is report quality."
+      },
+      {
+        "text": "These directories are access-protected and SAST cannot read them",
+        "correct": false,
+        "explanation": "There are no technical restrictions. The problem lies elsewhere — result quality."
+      }
+    ]
+  },
+  {
+    "question": "Your Node.js project uses a library with a critical CVE. Dependency Scanning found it. A patch has not yet been released. What to do?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Immediately write an issue in the library's repository and wait",
+        "correct": false,
+        "explanation": "Writing an issue is useful, but insufficient as an immediate action. You need to assess risk and decide on temporary measures right now."
+      },
+      {
+        "text": "Add the vulnerability to an allowlist and forget about it",
+        "correct": false,
+        "explanation": "Adding without analysis and documentation is bad practice. You need to regularly review accepted risks and monitor for patch availability."
+      },
+      {
+        "text": "Assess risk: is the vulnerable functionality vulnerable in your context? Document the accepted risk or find a fork/alternative",
+        "correct": true,
+        "explanation": "The correct process. Not all CVEs are critical in a specific context. For example, a vulnerability in an XML parser is not dangerous if you only parse internal data. GitLab allows marking a vulnerability as 'Accepted Risk' with an explanation."
+      },
+      {
+        "text": "Remove the library — better without functionality than with a vulnerability",
+        "correct": false,
+        "explanation": "This is an extreme measure. First, assess the real risk, find alternatives, or apply temporary measures."
+      }
+    ]
+  },
+  {
+    "question": "A developer accidentally committed a .env file with real passwords. Secret Detection triggered. What actions are needed URGENTLY?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Make the repository private — so no one can see the history",
+        "correct": false,
+        "explanation": "This is not a solution. First, someone with access may have already copied the secret. Second, it does not eliminate the problem — the secret is still in history."
+      },
+      {
+        "text": "Remove the .env file in the next commit and add it to .gitignore",
+        "correct": false,
+        "explanation": "Insufficient. The file will remain in git history. Secrets must be rotated immediately — they are compromised."
+      },
+      {
+        "text": "Ask the GitLab administrator to delete the specific commit",
+        "correct": false,
+        "explanation": "Deleting the commit helps but is not enough — secrets need to be rotated. Moreover, if the repository was mirrored or cloned by someone, the secret has already leaked."
+      },
+      {
+        "text": "Rotate (change) all compromised secrets immediately, then clean git history via rebase/filter-branch",
+        "correct": true,
+        "explanation": "The correct sequence. First rotate — an attacker may have already taken the secrets. Then clean history. If the repository is public, consider the secrets compromised from the moment of push."
+      }
+    ]
+  },
+  {
+    "question": "How does zap-baseline.py differ from zap-full-scan.py in the CI/CD context?",
+    "type": "single",
+    "options": [
+      {
+        "text": "baseline — for development, full-scan — for production environment",
+        "correct": false,
+        "explanation": "The difference is not in the environment but in the scanning type. Both can be used in CI, but with different consequences."
+      },
+      {
+        "text": "Both are identical in functionality, the difference is only in execution time",
+        "correct": false,
+        "explanation": "The functionality differs fundamentally: passive vs. active. This is not a speed question."
+      },
+      {
+        "text": "baseline only checks headers, full-scan — the entire application",
+        "correct": false,
+        "explanation": "baseline checks more than just headers. It analyzes the application structure, just without active attacks."
+      },
+      {
+        "text": "baseline — passive scanning (only observes), full-scan — active (tries attacks, can modify data)",
+        "correct": true,
+        "explanation": "Exactly. baseline does not attack — it analyzes traffic and configuration. full-scan actively tries SQL injections, XSS, and other attacks, which can corrupt database data. In CI, baseline is almost always used."
+      }
+    ]
+  },
+  {
+    "question": "GitLab provides the templates Security/SAST.gitlab-ci.yml and Security/Dependency-Scanning.gitlab-ci.yml. What do you need to write to use both?",
+    "type": "single",
+    "options": [
+      {
+        "text": "extends: [Security/SAST.gitlab-ci.yml, Security/Dependency-Scanning.gitlab-ci.yml]",
+        "correct": false,
+        "explanation": "extends is used for inheriting job configuration, not for including external files. For including templates — only include."
+      },
+      {
+        "text": "include with an array of two elements: - template: Security/SAST.gitlab-ci.yml and - template: Security/Dependency-Scanning.gitlab-ci.yml",
+        "correct": true,
+        "explanation": "Correct. include accepts a list, each element is a separate template. GitLab merges all included configs into one pipeline."
+      },
+      {
+        "text": "include: template: Security/SAST.gitlab-ci.yml — one include for all security templates",
+        "correct": false,
+        "explanation": "One include connects only one template. For multiple templates, you need a list."
+      },
+      {
+        "text": "Write two separate include: keys — one for each template",
+        "correct": false,
+        "explanation": "Two separate include: keys will overwrite each other — YAML does not allow duplicate keys."
+      }
+    ]
+  },
+  {
+    "question": "A team configured Dependency Scanning with DS_MAX_SEVERITY: high. A found vulnerability has severity MEDIUM. Will the pipeline fail?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab will ask the maintainer — whether to block MEDIUM",
+        "correct": false,
+        "explanation": "There is no interactive query. Behavior is fully determined by the DS_MAX_SEVERITY configuration."
+      },
+      {
+        "text": "Yes — high includes medium, since medium is lower in criticality",
+        "correct": false,
+        "explanation": "DS_MAX_SEVERITY: high means 'stop on HIGH and CRITICAL'. MEDIUM is not included in this threshold."
+      },
+      {
+        "text": "Depends on allow_failure — if true, the pipeline will not fail regardless of severity",
+        "correct": false,
+        "explanation": "allow_failure affects the behavior when a job fails in general, but DS_MAX_SEVERITY is the internal logic of the scanning tool itself."
+      },
+      {
+        "text": "No — DS_MAX_SEVERITY: high means 'block only HIGH and CRITICAL', MEDIUM is allowed through",
+        "correct": true,
+        "explanation": "Correct. The variable sets the minimum severity level for blocking. HIGH blocks HIGH and CRITICAL. MEDIUM will be displayed in the report but will not stop the pipeline."
+      }
+    ]
+  }
+]

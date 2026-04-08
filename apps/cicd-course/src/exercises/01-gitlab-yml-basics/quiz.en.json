@@ -1,0 +1,402 @@
+[
+  {
+    "question": "Where should the .gitlab-ci.yml file be located in the repository?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In the .gitlab/ folder",
+        "correct": false,
+        "explanation": "GitLab looks for the configuration file in the root of the repository, not in the .gitlab/ folder"
+      },
+      {
+        "text": "In the .ci/ folder",
+        "correct": false,
+        "explanation": "There is no standard .ci/ location — only the repository root"
+      },
+      {
+        "text": "Anywhere, GitLab will find it",
+        "correct": false,
+        "explanation": "GitLab looks for the file strictly in the repository root. You can change the path in project settings, but the default is the root"
+      },
+      {
+        "text": "In the repository root",
+        "correct": true,
+        "explanation": "GitLab automatically detects .gitlab-ci.yml only in the repository root"
+      }
+    ]
+  },
+  {
+    "question": "What happens if you create a job in .gitlab-ci.yml without specifying a stage?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The job is assigned to the first declared stage",
+        "correct": false,
+        "explanation": "The default stage is always test, regardless of which stages are declared in stages"
+      },
+      {
+        "text": "The job is assigned to the default test stage",
+        "correct": true,
+        "explanation": "GitLab CI has a default test stage. If stage is not specified, the job is automatically placed in it"
+      },
+      {
+        "text": "GitLab throws an error and the pipeline does not start",
+        "correct": false,
+        "explanation": "GitLab does not consider a missing stage to be an error — it simply uses the default value"
+      },
+      {
+        "text": "The job is skipped",
+        "correct": false,
+        "explanation": "The job is not skipped — it runs in the default test stage"
+      }
+    ]
+  },
+  {
+    "question": "In what order do jobs belonging to the same stage execute?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In parallel",
+        "correct": true,
+        "explanation": "All jobs in one stage launch in parallel. This is exactly why splitting into stages speeds up the pipeline"
+      },
+      {
+        "text": "Sequentially, in the order they are declared in the file",
+        "correct": false,
+        "explanation": "Jobs within a stage do not run sequentially in declaration order"
+      },
+      {
+        "text": "By priority, which can be set manually",
+        "correct": false,
+        "explanation": "GitLab CI has no keyword for setting priority within a stage — jobs are parallel"
+      },
+      {
+        "text": "In alphabetical order",
+        "correct": false,
+        "explanation": "The order within a stage is not alphabetical — jobs launch in parallel"
+      }
+    ]
+  },
+  {
+    "question": "What happens to the next stage if a job in the current stage fails?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The next stage runs but is marked as a warning",
+        "correct": false,
+        "explanation": "GitLab does not continue the pipeline automatically on error (unless allow_failure is configured)"
+      },
+      {
+        "text": "The next stage runs anyway",
+        "correct": false,
+        "explanation": "By default GitLab blocks subsequent stages when any job fails"
+      },
+      {
+        "text": "The failed job restarts 3 times, then the stage continues",
+        "correct": false,
+        "explanation": "There is no automatic retry by default. You must explicitly specify retry: in the job configuration"
+      },
+      {
+        "text": "The next stage does not run, the pipeline fails",
+        "correct": true,
+        "explanation": "Stages execute sequentially. A job failure in a stage blocks all subsequent stages"
+      }
+    ]
+  },
+  {
+    "question": "What is the image keyword used for in .gitlab-ci.yml?",
+    "type": "single",
+    "options": [
+      {
+        "text": "To specify the project logo in the GitLab UI",
+        "correct": false,
+        "explanation": "image has nothing to do with the UI — it is a keyword for Docker images"
+      },
+      {
+        "text": "To build the application Docker image",
+        "correct": false,
+        "explanation": "image specifies the image for running the job itself. To build Docker images, use docker build in script"
+      },
+      {
+        "text": "To upload build artifacts",
+        "correct": false,
+        "explanation": "The artifacts keyword is used for artifacts, not image"
+      },
+      {
+        "text": "To specify the Docker image in which the job will execute",
+        "correct": true,
+        "explanation": "image sets the Docker container image for job execution. This is where all tools will be available"
+      }
+    ]
+  },
+  {
+    "question": "When does after_script execute?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only if script completed successfully",
+        "correct": false,
+        "explanation": "after_script runs regardless of the script result — that is its main difference"
+      },
+      {
+        "text": "Always — on both success and script error",
+        "correct": true,
+        "explanation": "after_script is guaranteed to run always. This makes it ideal for resource cleanup and sending notifications"
+      },
+      {
+        "text": "Only if it is declared in the default section",
+        "correct": false,
+        "explanation": "after_script runs always — regardless of where it is declared (in default or in a specific job)"
+      },
+      {
+        "text": "Only if script completed with an error",
+        "correct": false,
+        "explanation": "after_script runs in both cases — on success and on error"
+      }
+    ]
+  },
+  {
+    "question": "Which of the following images is most suitable for running Node.js tests in CI if speed matters?",
+    "type": "single",
+    "options": [
+      {
+        "text": "debian:bookworm",
+        "correct": false,
+        "explanation": "Debian is heavier than Alpine and does not have Node.js out of the box — additional installation is needed"
+      },
+      {
+        "text": "node:20-alpine",
+        "correct": true,
+        "explanation": "Alpine images are significantly lighter (~5 MB base vs ~70 MB for Ubuntu). node:20-alpine contains everything needed for a Node.js project"
+      },
+      {
+        "text": "ubuntu:22.04",
+        "correct": false,
+        "explanation": "Ubuntu weighs ~70 MB and contains a lot of unnecessary stuff for Node.js tasks. Downloading will take more time"
+      },
+      {
+        "text": "alpine:3.18",
+        "correct": false,
+        "explanation": "Base alpine does not have Node.js — it needs to be installed. It is better to use the ready-made node:20-alpine"
+      }
+    ]
+  },
+  {
+    "question": "You are creating a .gitlab-ci.yml for a Python project. Requirements: install dependencies, run tests, check types (mypy). Which approach is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Three jobs: install in setup stage, tests and mypy in parallel in validate stage",
+        "correct": true,
+        "explanation": "Splitting into stages with parallel test and type checking runs is the optimal approach. Fast and informative"
+      },
+      {
+        "text": "Two jobs: install and 'tests + mypy together'",
+        "correct": false,
+        "explanation": "It is better to split tests and mypy into separate jobs — they can run in parallel and give separate results"
+      },
+      {
+        "text": "One job with three commands in script",
+        "correct": false,
+        "explanation": "One big job is worse: if tests fail, you won't know if type checking passed. Parallelism is impossible"
+      },
+      {
+        "text": "One job with before_script for install and script for tests and mypy",
+        "correct": false,
+        "explanation": "It is better to split into separate jobs for parallel execution and clearer results"
+      }
+    ]
+  },
+  {
+    "question": "Select all correct statements about the stages keyword:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "stages defines the order of stage execution",
+        "correct": true,
+        "explanation": "Stages run strictly in the order they are declared in stages"
+      },
+      {
+        "text": "One stage can contain multiple jobs",
+        "correct": true,
+        "explanation": "Yes, multiple jobs can have the same stage value and then they run in parallel"
+      },
+      {
+        "text": "Stages run in parallel with each other",
+        "correct": false,
+        "explanation": "Stages run sequentially. Only jobs within one stage run in parallel"
+      },
+      {
+        "text": "If stages are not declared, the default test stage is available",
+        "correct": true,
+        "explanation": "GitLab supports configs without explicit stages declaration — all jobs fall into the default test stage"
+      },
+      {
+        "text": "Jobs can use a stage without declaring it in stages",
+        "correct": false,
+        "explanation": "If you specify stage: build but don't declare build in stages — GitLab will give a validation error"
+      }
+    ]
+  },
+  {
+    "question": "How does before_script differ from the first commands in script?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "before_script can be set globally in the default section for all jobs",
+        "correct": true,
+        "explanation": "The default section can specify a before_script that runs before every job. This is convenient for common preparation"
+      },
+      {
+        "text": "If before_script fails, after_script still runs",
+        "correct": false,
+        "explanation": "If before_script exits with an error, after_script does not run. after_script only launches if at least script started"
+      },
+      {
+        "text": "before_script runs faster than script",
+        "correct": false,
+        "explanation": "before_script has no speed advantage. It is just a logical separation for readability"
+      },
+      {
+        "text": "before_script helps separate preparation and the main task logically",
+        "correct": true,
+        "explanation": "before_script is intended for preparatory steps (installing dependencies, authorization), script — for the main task"
+      }
+    ]
+  },
+  {
+    "question": "Your project has three stages: build, test, deploy. The 'build-app' job in the build stage completed successfully. The 'run-tests' job in the test stage failed. What happens?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The pipeline continues to deploy",
+        "correct": false,
+        "explanation": "By default, a job failure blocks subsequent stages"
+      },
+      {
+        "text": "GitLab automatically reverts the changes",
+        "correct": false,
+        "explanation": "GitLab CI does not automatically revert changes. This is a task for rollback logic in the jobs themselves"
+      },
+      {
+        "text": "The deploy stage does not run, the pipeline is marked as failed",
+        "correct": true,
+        "explanation": "A job failure in the test stage blocks the deploy stage. The pipeline finishes with status failed"
+      },
+      {
+        "text": "The 'run-tests' job restarts automatically",
+        "correct": false,
+        "explanation": "Automatic retry is not configured by default. You must explicitly specify retry: N in the job configuration"
+      }
+    ]
+  },
+  {
+    "question": "What is the minimum working .gitlab-ci.yml that is valid?",
+    "type": "single",
+    "options": [
+      {
+        "text": "hello:\\n  script:\\n    - echo 'ok'",
+        "correct": true,
+        "explanation": "The minimum valid config — one job with the script key. GitLab assigns it the default test stage"
+      },
+      {
+        "text": "stages:\\n  - test",
+        "correct": false,
+        "explanation": "This config contains no jobs — GitLab has nothing to run"
+      },
+      {
+        "text": "job:\\n  stage: test",
+        "correct": false,
+        "explanation": "A job without script is not valid — the script keyword is required"
+      },
+      {
+        "text": "image: node:20\\nscript:\\n  - npm test",
+        "correct": false,
+        "explanation": "You cannot specify script and image at the top level without a job name. They must be nested in a job"
+      }
+    ]
+  },
+  {
+    "question": "Your team notices the pipeline has become very slow — every job downloads a 500 MB image. How do you fix this?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add retry: 0 to every job",
+        "correct": false,
+        "explanation": "retry controls the number of attempts on error, not image download speed"
+      },
+      {
+        "text": "Remove the image section — GitLab will work without Docker",
+        "correct": false,
+        "explanation": "GitLab CI works in Docker by default. You cannot remove image without reconfiguring the runner"
+      },
+      {
+        "text": "Switch to Alpine versions of images and configure image caching on the runner",
+        "correct": true,
+        "explanation": "Alpine images are 10-15 times lighter. Image caching on the runner avoids downloading them every time"
+      },
+      {
+        "text": "Combine all jobs into one to download the image only once",
+        "correct": false,
+        "explanation": "Combining jobs worsens pipeline structure and removes parallelism. Better to solve the image problem"
+      }
+    ]
+  },
+  {
+    "question": "Select all correct statements about YAML in the context of .gitlab-ci.yml:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Lists are denoted by a dash -",
+        "correct": true,
+        "explanation": "List items in YAML start with '- ' (dash and space)"
+      },
+      {
+        "text": "Comments start with the # symbol",
+        "correct": true,
+        "explanation": "In YAML, comments start with # and work like in most languages"
+      },
+      {
+        "text": "Numbers in quotes become strings",
+        "correct": true,
+        "explanation": "In YAML, version: 1.0 is a number, while version: '1.0' is a string. This matters for variables in .gitlab-ci.yml"
+      },
+      {
+        "text": "The order of keys in a job matters",
+        "correct": false,
+        "explanation": "In YAML dictionaries, key order does not matter. GitLab processes image, script, stage in any order"
+      },
+      {
+        "text": "Indentation must use spaces, not tabs",
+        "correct": true,
+        "explanation": "YAML strictly prohibits tabs. Only spaces (usually 2 or 4, but consistently)"
+      }
+    ]
+  },
+  {
+    "question": "What is a GitLab Runner?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An agent that executes pipeline jobs",
+        "correct": true,
+        "explanation": "GitLab Runner is a separate process that connects to GitLab, receives tasks, and executes them (usually in Docker containers)"
+      },
+      {
+        "text": "A command for locally running .gitlab-ci.yml",
+        "correct": false,
+        "explanation": "While there is gitlab-runner exec for local running, a runner is primarily a CI task execution agent"
+      },
+      {
+        "text": "The GitLab web interface for viewing pipelines",
+        "correct": false,
+        "explanation": "The web interface is GitLab itself. A Runner is a separate execution agent"
+      },
+      {
+        "text": "A special GitLab user with pipeline launch permissions",
+        "correct": false,
+        "explanation": "A Runner is not a user, but a software agent installed on a server"
+      }
+    ]
+  }
+]

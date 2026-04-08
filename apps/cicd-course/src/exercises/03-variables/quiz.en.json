@@ -1,0 +1,522 @@
+[
+  {
+    "question": "Which predefined variable contains the short commit SHA (8 characters)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CI_COMMIT_SHORT_SHA",
+        "correct": true,
+        "explanation": "CI_COMMIT_SHORT_SHA contains the first 8 characters of the SHA — convenient for tagging Docker images"
+      },
+      {
+        "text": "CI_COMMIT_SHA",
+        "correct": false,
+        "explanation": "CI_COMMIT_SHA contains the full 40-character SHA"
+      },
+      {
+        "text": "CI_SHORT_SHA",
+        "correct": false,
+        "explanation": "This variable does not exist in GitLab CI"
+      },
+      {
+        "text": "CI_COMMIT_ID",
+        "correct": false,
+        "explanation": "This variable does not exist in GitLab CI"
+      }
+    ]
+  },
+  {
+    "question": "In what order do variables have priority (from lowest to highest)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Project → Group → Instance → .gitlab-ci.yml → Pipeline → Job",
+        "correct": false,
+        "explanation": "Incorrect order: instance has the lowest priority, not the middle"
+      },
+      {
+        "text": "Job → Pipeline → .gitlab-ci.yml → Project → Group → Instance",
+        "correct": false,
+        "explanation": "This is the reverse order — job has the highest priority, not the lowest"
+      },
+      {
+        "text": "Instance → Group → Project → .gitlab-ci.yml global → Pipeline → Job",
+        "correct": true,
+        "explanation": "Correct order: each subsequent level overwrites the previous one, job has the highest priority"
+      },
+      {
+        "text": "Pipeline → Job → .gitlab-ci.yml → Project → Group → Instance",
+        "correct": false,
+        "explanation": "Incorrect order: pipeline and job have the highest priority, not the lowest"
+      }
+    ]
+  },
+  {
+    "question": "What is a File-type variable in GitLab CI?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A variable whose value is read from a file in the repository",
+        "correct": false,
+        "explanation": "No, a File-type variable does not read a file from the repository"
+      },
+      {
+        "text": "A boolean-type variable that enables or disables reading .env files",
+        "correct": false,
+        "explanation": "File-type is a special variable type for file content, not a boolean"
+      },
+      {
+        "text": "A variable for storing binary files directly",
+        "correct": false,
+        "explanation": "File-type variables store text content (certificates, configs), not binary data"
+      },
+      {
+        "text": "A variable whose value is written to a temporary file, and the variable itself contains the path to that file",
+        "correct": true,
+        "explanation": "Correct: GitLab creates a temporary file with the variable content and passes the path to it in the job"
+      }
+    ]
+  },
+  {
+    "question": "Are CI_MERGE_REQUEST_* variables available in all pipelines?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only when using the merge_requests: keyword in the config",
+        "correct": false,
+        "explanation": "To access MR variables you need a merge_request_event pipeline type, not a keyword"
+      },
+      {
+        "text": "Only in protected branches",
+        "correct": false,
+        "explanation": "Protected branches are about variable protection, not MR variables"
+      },
+      {
+        "text": "Yes, they are available in any pipeline",
+        "correct": false,
+        "explanation": "No, these variables are only available in MR pipelines"
+      },
+      {
+        "text": "No, only when CI_PIPELINE_SOURCE == 'merge_request_event'",
+        "correct": true,
+        "explanation": "Correct: MR variables are only available in pipelines launched for merge requests"
+      }
+    ]
+  },
+  {
+    "question": "You add an API token to .gitlab-ci.yml in the variables: section. What is wrong with this approach?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The token is visible to everyone who has access to the repository",
+        "correct": true,
+        "explanation": ".gitlab-ci.yml is stored in the repository — anyone who can read the code sees the secret"
+      },
+      {
+        "text": "The token ends up in git history and stays there forever",
+        "correct": true,
+        "explanation": "Even if you remove the token in a later commit, it remains in git history"
+      },
+      {
+        "text": "GitLab automatically blocks such variables",
+        "correct": false,
+        "explanation": "GitLab does not check or block secrets in .gitlab-ci.yml"
+      },
+      {
+        "text": "The variable cannot be used in script commands",
+        "correct": false,
+        "explanation": "Technically the variable works, the problem is only in security"
+      }
+    ]
+  },
+  {
+    "question": "What value will the expression ${DEPLOY_ENV:-production} return if the variable DEPLOY_ENV is not set?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An empty string",
+        "correct": false,
+        "explanation": "An empty string is the result without a default value: just $DEPLOY_ENV"
+      },
+      {
+        "text": "A runtime error",
+        "correct": false,
+        "explanation": "The shell does not throw an error for unset variables — it simply returns the default"
+      },
+      {
+        "text": "DEPLOY_ENV",
+        "correct": false,
+        "explanation": "The variable name is not returned — this is value substitution syntax"
+      },
+      {
+        "text": "production",
+        "correct": true,
+        "explanation": "The syntax ${VAR:-default} returns the default if VAR is not set or is empty"
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between a Protected and a Masked variable?",
+    "type": "single",
+    "options": [
+      {
+        "text": "They are the same thing, just different names",
+        "correct": false,
+        "explanation": "These are different settings with different functions, they can be applied both together and separately"
+      },
+      {
+        "text": "Protected — available only in protected branches, Masked — hidden in job logs",
+        "correct": true,
+        "explanation": "Correct: Protected controls access (which branches), Masked controls visibility (in logs)"
+      },
+      {
+        "text": "Protected — hides in logs, Masked — only for protected branches",
+        "correct": false,
+        "explanation": "This is the reverse definition: Protected restricts access by branches, Masked hides in logs"
+      },
+      {
+        "text": "Protected is for file variables, Masked for string variables",
+        "correct": false,
+        "explanation": "Protected and Masked are independent of variable type (File or Variable)"
+      }
+    ]
+  },
+  {
+    "question": "The variable IMAGE is set as variables: IMAGE: '$CI_REGISTRY_IMAGE:latest' (single quotes). When will CI_REGISTRY_IMAGE be substituted?",
+    "type": "single",
+    "options": [
+      {
+        "text": "At runtime when the job executes",
+        "correct": true,
+        "explanation": "Single quotes in YAML prevent early expansion — substitution happens in the shell when the command is executed"
+      },
+      {
+        "text": "During YAML parsing before the pipeline starts",
+        "correct": false,
+        "explanation": "Double quotes cause substitution during YAML parsing, but single quotes do not"
+      },
+      {
+        "text": "Never — single quotes completely block substitution",
+        "correct": false,
+        "explanation": "Single quotes in YAML only affect parsing time, but the variable will still expand in the shell"
+      },
+      {
+        "text": "Depends on the runner's operating system",
+        "correct": false,
+        "explanation": "Substitution timing is determined by YAML syntax (single vs double quotes), not the OS"
+      }
+    ]
+  },
+  {
+    "question": "Which variable contains the branch name in a URL-safe format (without slashes and special characters)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CI_BRANCH_SLUG",
+        "correct": false,
+        "explanation": "This variable does not exist in GitLab CI"
+      },
+      {
+        "text": "CI_COMMIT_REF_NAME",
+        "correct": false,
+        "explanation": "CI_COMMIT_REF_NAME contains the original branch name, including slashes: feature/login"
+      },
+      {
+        "text": "CI_COMMIT_BRANCH",
+        "correct": false,
+        "explanation": "CI_COMMIT_BRANCH contains the original branch name without normalization"
+      },
+      {
+        "text": "CI_COMMIT_REF_SLUG",
+        "correct": true,
+        "explanation": "CI_COMMIT_REF_SLUG contains the slug version: feature/login → feature-login (slashes replaced with hyphens)"
+      }
+    ]
+  },
+  {
+    "question": "You run a pipeline via API and pass variables[DEPLOY_ENV]=staging. The job also has variables: DEPLOY_ENV: 'production'. Which value does the job receive?",
+    "type": "single",
+    "options": [
+      {
+        "text": "production — job-level variables have the highest priority",
+        "correct": false,
+        "explanation": "Job-level variables (variables: inside a job) have the highest priority, but the question is about global variables vs pipeline variables"
+      },
+      {
+        "text": "An error: variable conflict",
+        "correct": false,
+        "explanation": "GitLab does not throw an error on conflict — it simply applies the priority rule"
+      },
+      {
+        "text": "production — the variable is set at the job level, job-level is higher than pipeline",
+        "correct": true,
+        "explanation": "Job-level variables (variables: inside a job) have the highest priority — higher than pipeline and global variables"
+      },
+      {
+        "text": "staging — pipeline variables overwrite global variables in .gitlab-ci.yml",
+        "correct": false,
+        "explanation": "If DEPLOY_ENV is set at the job level (not global), then the job-level variable wins over the pipeline variable"
+      }
+    ]
+  },
+  {
+    "question": "What is the CI_JOB_TOKEN variable used for?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Authentication in third-party services (AWS, GCP)",
+        "correct": false,
+        "explanation": "CI_JOB_TOKEN works only with GitLab API and GitLab services, not with external providers"
+      },
+      {
+        "text": "It is a permanent token that can be saved for future use",
+        "correct": false,
+        "explanation": "CI_JOB_TOKEN is temporary — it is valid only during job execution and expires afterwards"
+      },
+      {
+        "text": "Authentication in GitLab Container Registry",
+        "correct": true,
+        "explanation": "CI_JOB_TOKEN can be used for docker login to gitlab registry without a separate token"
+      },
+      {
+        "text": "Authentication in GitLab Package Registry",
+        "correct": true,
+        "explanation": "CI_JOB_TOKEN gives access to the project's Package Registry"
+      }
+    ]
+  },
+  {
+    "question": "How do you output only GitLab CI variables (starting with CI_) to the log?",
+    "type": "single",
+    "options": [
+      {
+        "text": "- echo $CI_*",
+        "correct": false,
+        "explanation": "The shell does not expand $CI_* as a glob pattern for environment variables"
+      },
+      {
+        "text": "- gitlab ci vars",
+        "correct": false,
+        "explanation": "This command does not exist"
+      },
+      {
+        "text": "- env | grep CI_",
+        "correct": true,
+        "explanation": "env outputs all environment variables, grep CI_ filters only the needed ones"
+      },
+      {
+        "text": "- printenv --gitlab",
+        "correct": false,
+        "explanation": "The --gitlab flag does not exist for printenv"
+      }
+    ]
+  },
+  {
+    "question": "A global variable APP_ENV: 'production' is set in .gitlab-ci.yml. The test-job does not have its own APP_ENV variable. What value will test-job receive?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The value from Project Settings",
+        "correct": false,
+        "explanation": "Global variables: have higher priority than Project Settings"
+      },
+      {
+        "text": "production",
+        "correct": true,
+        "explanation": "Global variables from the variables: section are automatically available in all jobs"
+      },
+      {
+        "text": "A runtime error — the variable is not declared in the job",
+        "correct": false,
+        "explanation": "GitLab does not require declaring variables in every job — they are inherited automatically"
+      },
+      {
+        "text": "An empty string",
+        "correct": false,
+        "explanation": "Global variables: are inherited by all jobs unless overridden"
+      }
+    ]
+  },
+  {
+    "question": "Why is using CI_COMMIT_SHORT_SHA for tagging Docker images considered a best practice?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The latest tag is overwritten and does not allow rollback",
+        "correct": true,
+        "explanation": "The latest tag always points to the last image — previous versions are unreachable by tag"
+      },
+      {
+        "text": "You can easily rollback to any previous image",
+        "correct": true,
+        "explanation": "Knowing the commit SHA, you can find the corresponding image and deploy it"
+      },
+      {
+        "text": "Docker requires SHA format for tags",
+        "correct": false,
+        "explanation": "Docker accepts any string as a tag, SHA is a team choice, not a Docker requirement"
+      },
+      {
+        "text": "The tag is unique for each commit — you can know exactly which code is in the image",
+        "correct": false,
+        "explanation": "The commit SHA guarantees uniqueness and full traceability: tag → commit → code"
+      }
+    ]
+  },
+  {
+    "question": "The CI_PIPELINE_SOURCE variable has the value 'merge_request_event'. What does this mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The pipeline was launched for an active Merge Request (when creating or updating an MR)",
+        "correct": true,
+        "explanation": "merge_request_event means the pipeline was launched in the context of a live MR — this is a key source for conditional logic"
+      },
+      {
+        "text": "The pipeline was launched on a schedule in a branch with an open MR",
+        "correct": false,
+        "explanation": "A schedule gives CI_PIPELINE_SOURCE = 'schedule' regardless of whether there is an MR"
+      },
+      {
+        "text": "The pipeline was launched after merging an MR into main",
+        "correct": false,
+        "explanation": "After merging, a regular push pipeline is launched, not merge_request_event"
+      },
+      {
+        "text": "The pipeline was launched manually via the 'Run Pipeline' button",
+        "correct": false,
+        "explanation": "A manual launch gives CI_PIPELINE_SOURCE = 'web'"
+      }
+    ]
+  },
+  {
+    "question": "The DB_PASSWORD variable contains the value 'p@ss'. Can it be masked?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only if the variable is also Protected",
+        "correct": false,
+        "explanation": "Masked and Protected are independent settings, they can be applied separately"
+      },
+      {
+        "text": "No, the @ symbol is forbidden in masked variables",
+        "correct": false,
+        "explanation": "The main restriction is length (8+ characters) and no line breaks, @ is usually acceptable"
+      },
+      {
+        "text": "No, the value is too short — masked requires a minimum of 8 characters",
+        "correct": true,
+        "explanation": "GitLab requires a minimum of 8 characters for masked variables. 'p@ss' is only 4 characters"
+      },
+      {
+        "text": "Yes, without restrictions",
+        "correct": false,
+        "explanation": "Masked variables have restrictions: the value must be at least 8 characters"
+      }
+    ]
+  },
+  {
+    "question": "How do you set a variable for a specific job and override a global one?",
+    "type": "single",
+    "options": [
+      {
+        "text": "override: APP_ENV: 'test' inside the job",
+        "correct": false,
+        "explanation": "The override: keyword does not exist in GitLab CI"
+      },
+      {
+        "text": "env: APP_ENV=test in the script section",
+        "correct": false,
+        "explanation": "env: is not a GitLab CI keyword. You can set a variable via export in script, but that is a different approach"
+      },
+      {
+        "text": "set APP_ENV=test in the before_script section",
+        "correct": false,
+        "explanation": "set is a Windows CMD command. In Linux, export is used, but that sets a shell variable, not at the GitLab CI level"
+      },
+      {
+        "text": "variables: APP_ENV: 'test' inside the job section",
+        "correct": true,
+        "explanation": "The variables: section inside a job overrides the global variable only for that job"
+      }
+    ]
+  },
+  {
+    "question": "A command in a job contains echo $API_SECRET. The API_SECRET variable is marked as Masked. What will appear in the logs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "[MASKED]",
+        "correct": true,
+        "explanation": "GitLab replaces occurrences of masked values with [MASKED] in job logs"
+      },
+      {
+        "text": "An error: masked variable cannot be printed",
+        "correct": false,
+        "explanation": "GitLab does not block the command — it simply replaces the output with [MASKED]"
+      },
+      {
+        "text": "The actual value of the variable",
+        "correct": false,
+        "explanation": "Masked variables are hidden in logs precisely to prevent leakage"
+      },
+      {
+        "text": "An empty string",
+        "correct": false,
+        "explanation": "An empty string is the result of an unset variable, not a masked one"
+      }
+    ]
+  },
+  {
+    "question": "Which option correctly uses variable expansion to create the full Docker image name?",
+    "type": "single",
+    "options": [
+      {
+        "text": "- docker build -t %CI_REGISTRY_IMAGE%:%CI_COMMIT_SHORT_SHA% .",
+        "correct": false,
+        "explanation": "%VAR% is Windows CMD syntax, not bash"
+      },
+      {
+        "text": "- docker build -t CI_REGISTRY_IMAGE:CI_COMMIT_SHORT_SHA .",
+        "correct": false,
+        "explanation": "Without the $ sign the variable is not expanded — it is just a string"
+      },
+      {
+        "text": "- docker build -t $(CI_REGISTRY_IMAGE):$(CI_COMMIT_SHORT_SHA) .",
+        "correct": false,
+        "explanation": "$(VAR) in bash means command substitution, not variable value. For variables, ${VAR} is used"
+      },
+      {
+        "text": "- docker build -t ${CI_REGISTRY_IMAGE}:${CI_COMMIT_SHORT_SHA} .",
+        "correct": true,
+        "explanation": "The ${VAR} syntax explicitly marks the variable name boundaries — more reliable than $VAR when followed by : or another character"
+      }
+    ]
+  },
+  {
+    "question": "What is the CI_PROJECT_DIR variable used for?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A variable for specifying the job working directory in the config",
+        "correct": false,
+        "explanation": "The working directory is set by the working_dir: keyword, and CI_PROJECT_DIR is a predefined variable"
+      },
+      {
+        "text": "It is the URL of the project directory in the GitLab UI",
+        "correct": false,
+        "explanation": "The project URL is stored in CI_PROJECT_URL, not CI_PROJECT_DIR"
+      },
+      {
+        "text": "The path to the directory where the runner cloned the repository on the host",
+        "correct": true,
+        "explanation": "CI_PROJECT_DIR contains the absolute path on the runner's file system — useful for copying artifacts and working with files"
+      },
+      {
+        "text": "The path to the default directory inside the Docker container",
+        "correct": false,
+        "explanation": "CI_PROJECT_DIR is the real path on the runner, not a path inside the container"
+      }
+    ]
+  }
+]

@@ -6,6 +6,7 @@ export function Task7_2() {
     <div style={{ padding: '1rem' }}>
       <h2>{t('task.7.2.title')}</h2>
       <p>{t('task.7.2.todo')}</p>
+      {/* TODO: Complete the exercise / TODO: Выполните задание */}
     </div>
   )
 }

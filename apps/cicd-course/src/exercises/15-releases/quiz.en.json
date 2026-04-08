@@ -1,0 +1,397 @@
+[
+  {
+    "question": "What does incrementing the MAJOR version in Semantic Versioning indicate?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The project transitioned from alpha to stable",
+        "correct": false,
+        "explanation": "Transitioning from alpha/beta to stable is a specific point in history, not the rule for MAJOR. MAJOR is determined by the presence of breaking changes."
+      },
+      {
+        "text": "New functionality was added that is backward compatible with the previous version",
+        "correct": false,
+        "explanation": "This describes a MINOR version. New features without breaking the existing API only bump MINOR."
+      },
+      {
+        "text": "Changes were introduced that are incompatible with the previous API (breaking changes)",
+        "correct": true,
+        "explanation": "Correct. MAJOR is incremented only for breaking changes — when existing users' code stops working without modifications on their part."
+      },
+      {
+        "text": "Bugs were fixed without changing the public API",
+        "correct": false,
+        "explanation": "This describes a PATCH version. Fixing a bug without changing the interface only bumps PATCH."
+      }
+    ]
+  },
+  {
+    "question": "In GitLab CI you want to run a release job only when tags like v1.2.3, v2.0.0, v10.5.2 appear. Which rule should you use?",
+    "type": "single",
+    "options": [
+      {
+        "text": "only: [tags]",
+        "correct": false,
+        "explanation": "only: [tags] will run the job for ANY tag, including dev-tag, hotfix-test, my-tag. For filtering by semver format, a regex is needed."
+      },
+      {
+        "text": "only: [/^v.*/]",
+        "correct": false,
+        "explanation": "only: [/^v.*/] will match any tag starting with v, including v-test, v-broken, v, or vXXX. This is too broad."
+      },
+      {
+        "text": "rules: - if: '$CI_COMMIT_TAG =~ /^v\\d+\\.\\d+\\.\\d+$/'",
+        "correct": true,
+        "explanation": "Correct. The regex /^v\\d+\\.\\d+\\.\\d+$/ precisely matches the vMAJOR.MINOR.PATCH format. Only tags in this format will trigger the job."
+      },
+      {
+        "text": "rules: - if: '$CI_COMMIT_BRANCH == \"main\"'",
+        "correct": false,
+        "explanation": "This will run the job on every commit to main, but not on tags. CI_COMMIT_BRANCH and CI_COMMIT_TAG are different variables."
+      }
+    ]
+  },
+  {
+    "question": "Which GitLab CI variable contains the tag name that triggered the pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GIT_TAG",
+        "correct": false,
+        "explanation": "GIT_TAG is not a standard GitLab CI variable. It does not exist in the list of predefined variables."
+      },
+      {
+        "text": "CI_RELEASE_VERSION",
+        "correct": false,
+        "explanation": "CI_RELEASE_VERSION is not a standard GitLab CI variable. This is a nonexistent name."
+      },
+      {
+        "text": "CI_COMMIT_TAG",
+        "correct": true,
+        "explanation": "Correct. CI_COMMIT_TAG is a predefined GitLab variable. It contains the tag name (e.g., v1.2.3) and is only available in pipelines triggered by a tag."
+      },
+      {
+        "text": "CI_TAG_NAME",
+        "correct": false,
+        "explanation": "This variable does not exist in GitLab CI. You need to know the exact name of predefined variables."
+      }
+    ]
+  },
+  {
+    "question": "A git tag has the value v1.2.3. How do you correctly strip the 'v' prefix when publishing an npm package?",
+    "type": "single",
+    "options": [
+      {
+        "text": "export VERSION=$(semver $CI_COMMIT_TAG)",
+        "correct": false,
+        "explanation": "semver is a separate tool not installed by default. For simply removing 'v', this is overkill."
+      },
+      {
+        "text": "npm version $CI_COMMIT_TAG — npm will strip 'v' automatically",
+        "correct": false,
+        "explanation": "npm does not strip 'v' automatically. npm version v1.2.3 will return an error because v1.2.3 is not a valid semver string for npm."
+      },
+      {
+        "text": "export VERSION=${CI_COMMIT_TAG#v}",
+        "correct": true,
+        "explanation": "Correct. Bash parameter expansion ${var#prefix} removes the prefix. ${CI_COMMIT_TAG#v} turns v1.2.3 into 1.2.3. This is the cleanest and most idiomatic approach."
+      },
+      {
+        "text": "echo $CI_COMMIT_TAG | cut -c2-",
+        "correct": false,
+        "explanation": "This technically works, but it is non-idiomatic for shell. The standard approach is parameter expansion in bash."
+      }
+    ]
+  },
+  {
+    "question": "Which type of git tag is recommended for releases and why?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Lightweight tag — it is created faster and takes less space",
+        "correct": false,
+        "explanation": "A lightweight tag is just a reference to a commit without metadata. For releases this is insufficient: no author, tag date, or message."
+      },
+      {
+        "text": "Signed tag — only GPG-signed tags are accepted in production",
+        "correct": false,
+        "explanation": "GPG-signed tags are an additional security layer, but not a mandatory requirement. Annotated tags are suitable for most teams."
+      },
+      {
+        "text": "Annotated tag — it contains author, date, message and is a full-fledged git object",
+        "correct": true,
+        "explanation": "Correct. An annotated tag is a full-fledged git object with metadata. It appears in git log, is supported by GitLab Releases, and works well with git describe."
+      },
+      {
+        "text": "Any tag type — it doesn't matter for CI/CD",
+        "correct": false,
+        "explanation": "Tag type matters: annotated tags contain metadata, appear as full-fledged objects in CI/CD systems, and are used in git describe."
+      }
+    ]
+  },
+  {
+    "question": "What are Conventional Commits and why are they needed in the context of automated releases?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An IDE plugin that checks spelling in commits",
+        "correct": false,
+        "explanation": "Conventional Commits is a commit message format specification, not a spell-checking tool."
+      },
+      {
+        "text": "A standard required for GitLab CI to work",
+        "correct": false,
+        "explanation": "GitLab CI does not require Conventional Commits. It is a team convention that enables access to automated versioning."
+      },
+      {
+        "text": "A formatting standard that speeds up code review",
+        "correct": false,
+        "explanation": "Conventional Commits are primarily for machine parsing: tools like semantic-release and git-cliff read commits and determine the version type."
+      },
+      {
+        "text": "A commit format like 'type(scope): desc' that allows tools to automatically determine the version type and generate a changelog",
+        "correct": true,
+        "explanation": "Correct. feat: -> MINOR bump, fix: -> PATCH bump, feat!: -> MAJOR bump. Tools parse these prefixes and decide automatically whether a new release is needed and what kind."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between a GitLab Release and a git tag?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab Release is the same as a git tag, just with a different name in the UI",
+        "correct": false,
+        "explanation": "These are different entities. A git tag is a label on a commit. A GitLab Release is a page with description, changelog, artifact links, tied to a tag."
+      },
+      {
+        "text": "GitLab Release creates a tag automatically, git tag is manual",
+        "correct": false,
+        "explanation": "GitLab Release requires an existing tag. release-cli ties to a tag, but the tag must exist before the release is created."
+      },
+      {
+        "text": "You cannot create a git tag via CI, only GitLab Release",
+        "correct": false,
+        "explanation": "Git tags can be created from CI via git tag and git push. GitLab Release is created via release-cli."
+      },
+      {
+        "text": "Git tag is a label on a commit in the repository. GitLab Release is a page in GitLab with changelog, assets, and description, tied to a tag",
+        "correct": true,
+        "explanation": "Correct. A tag exists in git history. A Release is a UI layer on top of the tag: human-readable description, links to binaries, changelog for users."
+      }
+    ]
+  },
+  {
+    "question": "You publish a Docker image with each release. Which tags should you apply to the image?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "myapp:$CI_COMMIT_TAG — version tag (e.g., myapp:v1.2.3)",
+        "correct": true,
+        "explanation": "Correct. A version tag allows rolling back to an exact version: docker pull myapp:v1.2.3. Without it, reproducing a previous state is impossible."
+      },
+      {
+        "text": "myapp:$CI_COMMIT_SHA — commit SHA",
+        "correct": false,
+        "explanation": "A commit SHA for release images is redundant — a version tag already exists. SHA is useful for dev/staging images when debugging a specific commit."
+      },
+      {
+        "text": "myapp:latest — always points to the latest version",
+        "correct": true,
+        "explanation": "Correct. latest is a convenient alias for the latest stable release. New users get the current version without needing to know the number."
+      },
+      {
+        "text": "myapp:stable — a stable tag is needed for production",
+        "correct": false,
+        "explanation": "The stable tag is not a standard convention. latest typically implies a stable release. Adding non-standard tags without a clear need is not recommended."
+      }
+    ]
+  },
+  {
+    "question": "A team uses semantic-release for automated releases. Which commit would trigger a MAJOR version creation (e.g., 1.x.x -> 2.0.0)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "major: remove deprecated API",
+        "correct": false,
+        "explanation": "The type major: is not defined in the Conventional Commits specification. semantic-release will not recognize this type."
+      },
+      {
+        "text": "feat!: remove deprecated method getUserById()",
+        "correct": true,
+        "explanation": "Correct. The exclamation mark after the type (feat!) indicates a breaking change. BREAKING CHANGE: in the commit body also works. semantic-release will bump MAJOR."
+      },
+      {
+        "text": "fix: remove deprecated method getUserById()",
+        "correct": false,
+        "explanation": "fix: without an exclamation mark will only trigger a PATCH bump. The commit type and the nature of the change must match: removing an API is a breaking change."
+      },
+      {
+        "text": "chore!: large refactoring of the codebase",
+        "correct": false,
+        "explanation": "chore! is technically a breaking change by format, but semantically chore is for auxiliary tasks without functional changes. semantic-release typically ignores chore for versioning."
+      }
+    ]
+  },
+  {
+    "question": "When generating a changelog via git-cliff or conventional-changelog in a GitLab CI pipeline, the pipeline cannot see tag history. Why?",
+    "type": "single",
+    "options": [
+      {
+        "text": "You need to install an additional gitlab-changelog plugin in the Runner",
+        "correct": false,
+        "explanation": "No such special plugin exists. The solution is to change the clone depth via the GIT_DEPTH variable."
+      },
+      {
+        "text": "Changelog tools don't support GitLab CI",
+        "correct": false,
+        "explanation": "Changelog tools work with git history, not the platform. The issue is not about compatibility."
+      },
+      {
+        "text": "Tags are not passed to CI — they must be created directly in the pipeline",
+        "correct": false,
+        "explanation": "Tags are passed to CI along with the repository. The only issue is clone depth."
+      },
+      {
+        "text": "By default GitLab CI does a shallow clone (GIT_DEPTH: 20), but changelog generation needs full history",
+        "correct": true,
+        "explanation": "Correct. A shallow clone contains only the last N commits without tags. For changelog generation, full history is needed: GIT_DEPTH: 0 or an explicit tag fetch."
+      }
+    ]
+  },
+  {
+    "question": "You are setting up a release pipeline. What is the problem with this configuration?\n\n```yaml\npublish:\n  script:\n    - npm publish\n```",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "npm publish doesn't work in GitLab CI — you need to use yarn publish",
+        "correct": false,
+        "explanation": "npm publish works perfectly fine in GitLab CI. This is not the issue."
+      },
+      {
+        "text": "No version is specified for publishing — npm will take the version from package.json, which may not match the tag",
+        "correct": true,
+        "explanation": "Correct. The version in package.json must match the tag. If you don't update it via npm version ${CI_COMMIT_TAG#v}, the old version will be published."
+      },
+      {
+        "text": "npm publish will fail without NPM_TOKEN in the variables",
+        "correct": true,
+        "explanation": "True. Publishing to npm registry requires authentication via a token. Without NPM_TOKEN in CI variables, the command will return a 403 error."
+      },
+      {
+        "text": "The job will run on every commit to any branch, not just release tags",
+        "correct": true,
+        "explanation": "Correct. Without rules or only, the job runs on every push. Every commit to main would publish a new npm version, breaking versioning semantics."
+      },
+      {
+        "text": "All of the above options are incorrect",
+        "correct": false,
+        "explanation": "Some of the listed options are indeed correct."
+      }
+    ]
+  },
+  {
+    "question": "How do you correctly link a GitLab Release to a CHANGELOG.md generated in a previous job?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Pass the content via the CI_RELEASE_DESCRIPTION variable",
+        "correct": false,
+        "explanation": "CI_RELEASE_DESCRIPTION is not a standard GitLab CI variable. No such mechanism exists."
+      },
+      {
+        "text": "GitLab automatically finds CHANGELOG.md in the repo root — no configuration needed",
+        "correct": false,
+        "explanation": "GitLab does not search for CHANGELOG.md automatically. You must explicitly specify description: './CHANGELOG.md' in the release block."
+      },
+      {
+        "text": "Specify the file path in the release:description field and obtain CHANGELOG.md via dependencies from the previous job",
+        "correct": true,
+        "explanation": "Correct. dependencies: [generate-changelog] loads the CHANGELOG.md artifact, and description: './CHANGELOG.md' passes its contents to GitLab Release."
+      },
+      {
+        "text": "Copy the contents of CHANGELOG.md directly into the description field via cat",
+        "correct": false,
+        "explanation": "Technically possible via script, but non-idiomatic. The correct approach is to pass the file path in the description field of the release block."
+      }
+    ]
+  },
+  {
+    "question": "You notice that on every push to main, CI creates a new tag and publishes an npm package. Versions look like: 1.0.1, 1.0.2, 1.0.3... What is most likely configured?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A random configuration error — tags are creating themselves",
+        "correct": false,
+        "explanation": "Tags don't create themselves. This is explicitly configured behavior — most likely semantic-release or a similar tool."
+      },
+      {
+        "text": "semantic-release on the main branch with conventional commits analysis",
+        "correct": true,
+        "explanation": "Correct. semantic-release automatically creates tags on every merge to main. If commits are fix: type, it creates a PATCH release. This is standard trunk-based development behavior."
+      },
+      {
+        "text": "Developers manually create tags before each commit",
+        "correct": false,
+        "explanation": "If tags were created manually, they wouldn't be so regular and frequent."
+      },
+      {
+        "text": "GitLab automatically creates tags on merge into a protected branch",
+        "correct": false,
+        "explanation": "GitLab does not create tags automatically on merge. This must be explicitly configured in the pipeline."
+      }
+    ]
+  },
+  {
+    "question": "What happens if you run 'git tag -a v1.2.3 -m \"Release\"' but don't run 'git push origin v1.2.3'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The tag will be pushed to remote automatically via git hooks",
+        "correct": false,
+        "explanation": "Standard git hooks don't push tags automatically. A pre-push hook could do this, but that's a custom configuration."
+      },
+      {
+        "text": "The tag exists only locally, the CI/CD pipeline won't trigger, the release won't happen",
+        "correct": true,
+        "explanation": "Correct. A local tag is invisible to GitLab. CI/CD only reacts to events in the remote repository. Without git push origin v1.2.3, the tag remains only on the developer's machine."
+      },
+      {
+        "text": "GitLab will automatically pick up new tags on the next commit push",
+        "correct": false,
+        "explanation": "Tags are not pushed automatically along with commits. git push origin main will not send tags — an explicit tag push is needed."
+      },
+      {
+        "text": "GitLab will fetch the tag via fetch on the next MR open",
+        "correct": false,
+        "explanation": "GitLab doesn't fetch from a developer's local repository. The connection is one-way: the developer pushes to GitLab, not the other way around."
+      }
+    ]
+  },
+  {
+    "question": "What is the role of the 'registry.gitlab.com/gitlab-org/release-cli:latest' image in a GitLab CI pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "It is the default base image for all GitLab CI jobs",
+        "correct": false,
+        "explanation": "By default GitLab CI uses the ruby image, not release-cli. release-cli must be explicitly specified for release creation jobs."
+      },
+      {
+        "text": "The image automatically publishes all artifacts to npm and Docker Hub",
+        "correct": false,
+        "explanation": "release-cli only creates the GitLab Release page. Publishing to npm and Docker Hub are separate steps with separate tools."
+      },
+      {
+        "text": "This image is only for signing releases with GPG keys",
+        "correct": false,
+        "explanation": "release-cli does not handle GPG signing. Its purpose is to create GitLab Releases via the API with changelog, assets, and metadata."
+      },
+      {
+        "text": "The image contains the release-cli tool, which can create GitLab Releases via the API — enabling the 'release:' block in a job",
+        "correct": true,
+        "explanation": "Correct. release-cli is GitLab's official CLI tool for creating releases. Without this image (or manually installing release-cli), the release: block in a job won't work."
+      }
+    ]
+  }
+]

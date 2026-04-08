@@ -1,0 +1,397 @@
+[
+  {
+    "question": "Which type of `include` is used to connect a file from another GitLab project?",
+    "type": "single",
+    "options": [
+      {
+        "text": "include: template",
+        "correct": false,
+        "explanation": "template only connects built-in GitLab templates, not user repositories."
+      },
+      {
+        "text": "include: remote with a GitLab repository URL",
+        "correct": false,
+        "explanation": "remote is used for HTTP/HTTPS URLs, but it's a less reliable method — better to use file for GitLab repositories."
+      },
+      {
+        "text": "include: local",
+        "correct": false,
+        "explanation": "local connects a file from the current repository, not from another project."
+      },
+      {
+        "text": "include: file with project and ref specified",
+        "correct": true,
+        "explanation": "Correct. include: file accepts project (path to repository), ref (branch/tag/SHA), and file (path to file). This is the foundation of corporate templates."
+      }
+    ]
+  },
+  {
+    "question": "What happens if a job without a leading dot in its name is used as a template for `extends`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The template job will be ignored during extends",
+        "correct": false,
+        "explanation": "No, extends will work. The problem is that such a job will also run as a real job."
+      },
+      {
+        "text": "The template job will run as a full job in the pipeline, likely causing an error due to missing script",
+        "correct": true,
+        "explanation": "Exactly. GitLab will run it as a regular job. If it has no script — the pipeline will fail with an error."
+      },
+      {
+        "text": "Everything will work correctly — the dot only affects readability",
+        "correct": false,
+        "explanation": "No. A leading dot in the name has functional meaning, not just cosmetic."
+      },
+      {
+        "text": "GitLab will throw an error — templates must start with a dot",
+        "correct": false,
+        "explanation": "GitLab will not throw a syntax error — extends will work. The problem is elsewhere."
+      }
+    ]
+  },
+  {
+    "question": "How does `extends` handle the `script` field during inheritance?",
+    "type": "single",
+    "options": [
+      {
+        "text": "If the child has no script, the parent's is used; if it does — both are executed",
+        "correct": false,
+        "explanation": "If the child has a script — it completely replaces the parent's. There is no 'both are executed'."
+      },
+      {
+        "text": "script is merged — duplicate commands are removed",
+        "correct": false,
+        "explanation": "GitLab does not analyze command contents. The child's script simply replaces the parent's."
+      },
+      {
+        "text": "The child's script is appended to the end of the parent's script",
+        "correct": false,
+        "explanation": "That would be convenient, but GitLab does not do this. script is a list, and lists are not appended during extends."
+      },
+      {
+        "text": "The child job's script completely replaces the parent job's script",
+        "correct": true,
+        "explanation": "Correct. In GitLab CI, extends does a deep merge for dictionaries (variables, cache, artifacts), but lists (script, before_script, after_script) are replaced entirely."
+      }
+    ]
+  },
+  {
+    "question": "A team wants to connect corporate templates. Which `ref` should they specify?",
+    "type": "single",
+    "options": [
+      {
+        "text": "ref can be omitted entirely — GitLab will take the latest version",
+        "correct": false,
+        "explanation": "If ref is not specified, GitLab uses the default branch (main/master). This is an unstable reference — better to always specify an explicit tag."
+      },
+      {
+        "text": "ref: 'HEAD' — the latest commit",
+        "correct": false,
+        "explanation": "HEAD is not a valid value for ref in include. Moreover, it's the same anti-pattern as main."
+      },
+      {
+        "text": "ref: 'main' — always the current version",
+        "correct": false,
+        "explanation": "Bad practice. With ref: 'main', any push to the templates repository immediately changes the behavior of all pipelines, which can lead to unexpected breakages."
+      },
+      {
+        "text": "ref: 'v2.1.0' — a specific version tag",
+        "correct": true,
+        "explanation": "Correct. Pinning to a tag guarantees stability. Projects update template versions deliberately, not because of an accidental push to main."
+      }
+    ]
+  },
+  {
+    "question": "What is the key difference between `!reference` and `extends`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "!reference executes faster in the pipeline",
+        "correct": false,
+        "explanation": "These are configuration directives, processed during parsing, not execution. They do not affect pipeline speed."
+      },
+      {
+        "text": "extends inherits the entire job, !reference allows taking a specific key from any template — you can combine from multiple sources",
+        "correct": true,
+        "explanation": "Exactly. extends works with one parent and takes everything. !reference — surgically takes one key (e.g., before_script) from any template, allowing you to build a job from multiple sources."
+      },
+      {
+        "text": "!reference only works with variables, extends — with the entire job",
+        "correct": false,
+        "explanation": "!reference works with any job key: before_script, script, variables, rules, etc."
+      },
+      {
+        "text": "extends is only available in the main file, !reference — in files connected via include",
+        "correct": false,
+        "explanation": "Both mechanisms work everywhere — in the main file and in files connected via include."
+      }
+    ]
+  },
+  {
+    "question": "You have a `.gitlab-ci.yml` of 500 lines. You split it into `ci/lint.yml`, `ci/test.yml`, `ci/deploy.yml` and connect them via `include: local`. The `build` job is defined both in `ci/test.yml` and the main file. Which version will run?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The version from ci/test.yml will run — include has priority",
+        "correct": false,
+        "explanation": "Priority goes to the last definition, not to include."
+      },
+      {
+        "text": "The first definition will run — ci/test.yml, because include comes first",
+        "correct": false,
+        "explanation": "No, in GitLab the last definition wins. The main .gitlab-ci.yml always has the highest priority."
+      },
+      {
+        "text": "A merged version will run: fields from the main file override fields from ci/test.yml",
+        "correct": true,
+        "explanation": "Correct. GitLab merges configs in order — the main file is read last. Its fields override included files."
+      },
+      {
+        "text": "The pipeline will fail with a job duplication error",
+        "correct": false,
+        "explanation": "GitLab does not consider this an error. On duplication, a merge occurs, not an error."
+      }
+    ]
+  },
+  {
+    "question": "What will the following config produce? `.base: { variables: { A: '1', B: '2' } }` and `my-job: { extends: .base, variables: { B: '99', C: '3' } }`",
+    "type": "single",
+    "options": [
+      {
+        "text": "B=99, C=3 — parent variables are completely replaced",
+        "correct": false,
+        "explanation": "No. Dictionaries are merged key by key. A=1 from .base is not lost."
+      },
+      {
+        "text": "A=1, B=99, C=3 — deep merge of dictionaries, B is overridden",
+        "correct": true,
+        "explanation": "Correct. variables is a dictionary. extends does a deep merge: A=1 is inherited, B is overridden to 99, C=3 is added."
+      },
+      {
+        "text": "A=1, B=2, B=99, C=3 — variables are combined without removing duplicates",
+        "correct": false,
+        "explanation": "Dictionaries cannot have two values for the same key. The child value B=99 replaces the parent value B=2."
+      },
+      {
+        "text": "A=1, B=2 — parent variables take priority",
+        "correct": false,
+        "explanation": "No. Child values take priority in key conflicts. B becomes 99, not 2."
+      }
+    ]
+  },
+  {
+    "question": "When should you use `include: template` instead of `include: file`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "For any internal company templates",
+        "correct": false,
+        "explanation": "For internal company templates, use include: file with the corporate repository specified. template — only for built-in GitLab templates."
+      },
+      {
+        "text": "For standard tasks supported by GitLab: SAST, DAST, Code Quality, Dependency Scanning",
+        "correct": true,
+        "explanation": "Correct. Built-in GitLab templates are updated by the GitLab team, are compatible with the current version, and cover standard DevSecOps tasks."
+      },
+      {
+        "text": "include: template is deprecated, you should always use include: file",
+        "correct": false,
+        "explanation": "No, template is not deprecated. It's a convenient way to include official GitLab templates without specifying a path."
+      },
+      {
+        "text": "When you want to connect a public GitHub repository",
+        "correct": false,
+        "explanation": "For external URLs, use include: remote. template — only for built-in GitLab templates."
+      }
+    ]
+  },
+  {
+    "question": "The `integration-test` job must: install Python dependencies (from `.python-setup`), start Docker (from `.docker-setup`), and execute its script. What is the best way to implement this?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Copy the contents of both templates directly into integration-test",
+        "correct": false,
+        "explanation": "This is an anti-pattern — you lose a single source of truth, and when templates are updated, copies must be updated too."
+      },
+      {
+        "text": "extends: [.python-setup, .docker-setup] — extends supports a list of parents",
+        "correct": false,
+        "explanation": "extends does not support a list of parents — only a single parent. Passing a list will cause an error."
+      },
+      {
+        "text": "Use !reference to take before_script from each template separately",
+        "correct": true,
+        "explanation": "Correct. !reference allows composing before_script from pieces of different templates: !reference [.python-setup, before_script] and !reference [.docker-setup, before_script] in the same list."
+      },
+      {
+        "text": "Create a third template .integration-base that extends both templates",
+        "correct": false,
+        "explanation": "extends does not support a list of parents, so .integration-base also cannot inherit from two parents at once."
+      }
+    ]
+  },
+  {
+    "question": "A company updates the `nodejs.yml` template from v2.0.0 to v2.1.0, adding a new required environment variable `REGISTRY_URL`. What happens to projects using `ref: 'v2.0.0'`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Projects with ref: 'v2.0.0' continue to work unchanged — they are isolated from new versions",
+        "correct": true,
+        "explanation": "Correct. This is the main advantage of versioning via tags. Projects update when they are ready, not forcibly."
+      },
+      {
+        "text": "GitLab will automatically notify projects about the new version",
+        "correct": false,
+        "explanation": "GitLab does not send notifications about template updates. Teams are responsible for tracking updates."
+      },
+      {
+        "text": "All projects will immediately receive the change and start failing",
+        "correct": false,
+        "explanation": "No. Projects with ref: 'v2.0.0' point to a specific tag — they are isolated from changes in new versions."
+      },
+      {
+        "text": "Projects will stop loading the template because tag v2.0.0 is outdated",
+        "correct": false,
+        "explanation": "Git tags do not become outdated automatically. v2.0.0 will be available as long as the repository exists (unless deliberately deleted)."
+      }
+    ]
+  },
+  {
+    "question": "What is the correct way to add commands to `before_script` from a template without replacing it?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "This is only possible in cloud solutions",
+        "correct": false,
+        "explanation": "This works both in cloud and on-premise."
+      },
+      {
+        "text": "Create an intermediate template that extends the base and adds its commands via !reference",
+        "correct": true,
+        "explanation": "Correct. This is the template composition pattern — you create a chain where each link adds the needed functionality."
+      },
+      {
+        "text": "Use !reference and add your commands to the same list",
+        "correct": true,
+        "explanation": "Correct. before_script: [!reference [.tmpl, before_script], - 'my command'] — this is a valid way to extend a list via !reference."
+      },
+      {
+        "text": "Use extends and override before_script — parent commands will still run",
+        "correct": false,
+        "explanation": "No. When overriding before_script via extends, the parent before_script is completely replaced by the new one."
+      },
+      {
+        "text": "Put common commands in the template as before_script, add your commands in the current job's script",
+        "correct": true,
+        "explanation": "Correct. before_script always runs before script. This is a convenient way to separate preparation steps from main steps."
+      }
+    ]
+  },
+  {
+    "question": "You need to connect Security/SAST.gitlab-ci.yml to a project. Which configuration is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "include: local: 'Security/SAST.gitlab-ci.yml'",
+        "correct": false,
+        "explanation": "local looks for a file in the current repository. Built-in templates are not copied to each project."
+      },
+      {
+        "text": "include: remote: 'https://gitlab.com/gitlab-org/gitlab/-/raw/master/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml'",
+        "correct": false,
+        "explanation": "May technically work, but it's bad practice. With this approach you depend on an external URL and lose version control."
+      },
+      {
+        "text": "include: file: '/Security/SAST.gitlab-ci.yml'",
+        "correct": false,
+        "explanation": "include: file without specifying project looks for a file in the current repository. Built-in GitLab templates are not connected this way."
+      },
+      {
+        "text": "include: template: 'Security/SAST.gitlab-ci.yml'",
+        "correct": true,
+        "explanation": "Correct. template is used specifically for built-in GitLab templates. GitLab automatically finds the right file."
+      }
+    ]
+  },
+  {
+    "question": "In the `ci-templates` repository there is a `.docker-build` job with fields `image`, `services`, `variables`, and `script`. You want to use its `variables` and `services`, but write your own `script`. Which approach is correct?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "extends: .docker-build and override only script",
+        "correct": true,
+        "explanation": "Correct. With extends, variables and services are inherited via deep merge. By overriding only script, you get the parent's variables and services."
+      },
+      {
+        "text": "variables: !reference [.docker-build, variables] and services: !reference [.docker-build, services] with your own script written",
+        "correct": true,
+        "explanation": "Correct. This is a more explicit approach via !reference — you precisely specify which keys you take from the template."
+      },
+      {
+        "text": "Copy variables and services from the template into your job manually",
+        "correct": false,
+        "explanation": "Anti-pattern. When the template is updated, copies must be updated manually. This defeats the purpose of templates."
+      },
+      {
+        "text": "include: file of the template is enough — keys are automatically applied to the current job",
+        "correct": false,
+        "explanation": "include does not automatically apply keys to other jobs. You need to explicitly use extends or !reference."
+      }
+    ]
+  },
+  {
+    "question": "You are creating a corporate template for Kubernetes deployment. The template must work for dev and prod environments with different configs. How to properly parameterize the template?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use variables in the template with default values, projects override needed variables via extends or directly",
+        "correct": true,
+        "explanation": "Correct. The template defines the interface via variables (KUBE_NAMESPACE, DEPLOY_ENV, etc.). Projects override needed values. One template — many configurations."
+      },
+      {
+        "text": "Use include: local for each environment in the project",
+        "correct": false,
+        "explanation": "This does not solve the template parameterization problem. Deployment logic is still duplicated."
+      },
+      {
+        "text": "Store environment configs as YAML anchors inside the template",
+        "correct": false,
+        "explanation": "YAML anchors do not work across file boundaries (include). Moreover, this makes the template rigidly tied to specific environments."
+      },
+      {
+        "text": "Create two templates: .deploy-dev and .deploy-prod with duplicated code",
+        "correct": false,
+        "explanation": "Code duplication is an anti-pattern. When deployment logic changes, both templates must be updated."
+      }
+    ]
+  },
+  {
+    "question": "You use `include: remote` with a GitHub URL. What risks does this carry compared to `include: file`?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The external URL may become unavailable — the pipeline will fail at the config parsing stage",
+        "correct": true,
+        "explanation": "Correct. If GitHub is unavailable or the URL has changed, GitLab cannot load the config and the pipeline will not start at all."
+      },
+      {
+        "text": "The URL contents may change without your knowledge — you don't control the version",
+        "correct": true,
+        "explanation": "Correct. If the URL points to the main branch, any push to the foreign repository may change your pipeline's behavior."
+      },
+      {
+        "text": "include: remote runs slower than include: file",
+        "correct": false,
+        "explanation": "Loading speed is negligible in the context of risks. The main problem is reliability and version control."
+      },
+      {
+        "text": "Supply chain vulnerability: an attacker could modify the external file and execute arbitrary commands in your CI",
+        "correct": true,
+        "explanation": "A critically important risk. With include: remote from an uncontrolled source, you effectively allow third parties to run code in your CI/CD."
+      }
+    ]
+  }
+]

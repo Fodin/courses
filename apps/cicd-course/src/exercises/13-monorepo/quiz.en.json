@@ -1,0 +1,392 @@
+[
+  {
+    "question": "A job with rules:changes is running in an MR pipeline. The file services/auth/index.ts has been changed. Which rules:changes pattern will NOT work for this file?",
+    "type": "single",
+    "options": [
+      {
+        "text": "services/auth/**/*",
+        "correct": false,
+        "explanation": "This pattern will recursively match services/auth/index.ts — the job will run."
+      },
+      {
+        "text": "services/*",
+        "correct": true,
+        "explanation": "The pattern services/* only matches names directly in the services/ directory (e.g., services/README.md), but not nested files. For recursive search you need services/**/*."
+      },
+      {
+        "text": "**/*.ts",
+        "correct": false,
+        "explanation": "This pattern will match any .ts file anywhere in the repository, including services/auth/index.ts."
+      },
+      {
+        "text": "services/auth/*",
+        "correct": false,
+        "explanation": "This pattern will match files in the root of services/auth/, including index.ts — the job will run."
+      }
+    ]
+  },
+  {
+    "question": "rules:changes on the main branch on the first push (no previous commit to compare against). What happens to jobs using rules:changes?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All jobs with rules:changes will run because all files are considered changed when compared to an empty tree",
+        "correct": true,
+        "explanation": "On the default branch, on the first commit, GitLab compares against an empty tree — all files are considered new, so all changes patterns match. This is a common trap."
+      },
+      {
+        "text": "All jobs will be skipped — there is no base for comparison",
+        "correct": false,
+        "explanation": "Not exactly. Behavior depends on context: on the first commit, GitLab compares against an empty tree."
+      },
+      {
+        "text": "GitLab will throw a configuration error and refuse to run the pipeline",
+        "correct": false,
+        "explanation": "The pipeline will run. GitLab does not throw an error — it simply uses an empty tree for comparison."
+      },
+      {
+        "text": "GitLab will only run jobs without rules:changes",
+        "correct": false,
+        "explanation": "GitLab does not make such a distinction. All jobs whose rules evaluate to true are run — and on the first commit, changes match everything."
+      }
+    ]
+  },
+  {
+    "question": "You have a monorepo with auth and payments services. packages/shared-utils has changed. Both services depend on shared-utils. How to correctly configure rules:changes for auth?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Don't use rules:changes for auth — always run it",
+        "correct": false,
+        "explanation": "This solves the problem but destroys all monorepo optimization — auth will build on every push, even if an unrelated service changed."
+      },
+      {
+        "text": "Specify only services/auth/**/* — auth is only responsible for its own files",
+        "correct": false,
+        "explanation": "If shared-utils changed, auth may break but won't rebuild. Dependencies must be included in changes."
+      },
+      {
+        "text": "Create a separate check:dependencies job that decides if a rebuild is needed",
+        "correct": false,
+        "explanation": "This is overly complex for a task that rules:changes solves. GitLab can check multiple paths in one rule."
+      },
+      {
+        "text": "Specify services/auth/**/* and packages/shared-utils/**/* in the changes array",
+        "correct": true,
+        "explanation": "Correct: rules:changes triggers if at least one of the specified paths has changed. This way auth rebuilds both when its own files change and when its dependencies change."
+      }
+    ]
+  },
+  {
+    "question": "What is the fundamental difference between a dynamic child pipeline and a static configuration with rules:changes?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Child pipelines allow generating the pipeline structure itself dynamically based on script logic, not just launch conditions",
+        "correct": true,
+        "explanation": "Correct: static rules:changes decides WHEN to run existing jobs. Dynamic child pipelines decide WHAT to run — the pipeline structure is created at runtime. This allows adding new services without editing .gitlab-ci.yml."
+      },
+      {
+        "text": "Child pipelines run faster due to parallelization",
+        "correct": false,
+        "explanation": "Execution speed is not the key difference. Child pipelines may be slower due to launch overhead."
+      },
+      {
+        "text": "Child pipelines are the only way to implement parallel job execution",
+        "correct": false,
+        "explanation": "Parallel execution in GitLab CI is implemented through stages and needs, child pipelines are not required."
+      },
+      {
+        "text": "Child pipelines only work with Docker images, rules:changes — with any scripts",
+        "correct": false,
+        "explanation": "Child pipelines have no executor type restrictions. They work with any runner configuration."
+      }
+    ]
+  },
+  {
+    "question": "You are configuring a trigger job with a child pipeline. You need to prevent a Merge Request from being merged until the child pipeline completes successfully. Which parameter is critical?",
+    "type": "single",
+    "options": [
+      {
+        "text": "needs: [generate] — explicit dependency on the generation job",
+        "correct": false,
+        "explanation": "needs determines job execution order but does not affect whether the parent pipeline waits for the child pipeline to complete."
+      },
+      {
+        "text": "when: on_success — run the child only on success of previous jobs",
+        "correct": false,
+        "explanation": "when: on_success determines the trigger job's launch condition, not the parent pipeline's behavior after launching."
+      },
+      {
+        "text": "allow_failure: false — disallows ignoring failures",
+        "correct": false,
+        "explanation": "allow_failure: false is the default. It does not solve the child pipeline waiting problem."
+      },
+      {
+        "text": "trigger:strategy: depend — the parent pipeline waits and inherits the child pipeline's status",
+        "correct": true,
+        "explanation": "Exactly strategy: depend guarantees that the parent pipeline will remain in 'running' status until the child pipeline completes. Without this parameter, the parent pipeline completes immediately after launching the child, and the MR check status will not be correct."
+      }
+    ]
+  },
+  {
+    "question": "You have a monorepo with 5 services. A developer added a new `billing/` service. Which CI/CD approach requires the minimum configuration changes?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Static rules:changes for each service in .gitlab-ci.yml",
+        "correct": false,
+        "explanation": "Requires adding new jobs for billing in .gitlab-ci.yml. With 10+ services this becomes inconvenient."
+      },
+      {
+        "text": "include: with a template for each service",
+        "correct": false,
+        "explanation": "Static include: also requires adding a new include for the billing service."
+      },
+      {
+        "text": "parallel:matrix with all services listed",
+        "correct": false,
+        "explanation": "parallel:matrix requires adding billing to the service list in the matrix. This is better than job duplication, but still requires config editing."
+      },
+      {
+        "text": "Dynamic child pipelines: the script automatically detects the new billing/ directory and generates a pipeline for it",
+        "correct": true,
+        "explanation": "Correct: if the pipeline generation script discovers services by directory structure (e.g., any folder in services/), then the new service is picked up automatically. No changes to .gitlab-ci.yml are needed."
+      }
+    ]
+  },
+  {
+    "question": "In a monorepo, several services use Node.js. A developer uses a single cache key 'node-modules' for all of them. What problem will arise?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The cache will not work at all — multiple jobs cannot use the same key",
+        "correct": false,
+        "explanation": "Multiple jobs can certainly read from the same cache. The problem is different: they use different node_modules, and one cache cannot hold them all correctly."
+      },
+      {
+        "text": "GitLab will block concurrent cache writes and one of the jobs will fail",
+        "correct": false,
+        "explanation": "GitLab does not block cache writes. Jobs will write cache independently, overwriting each other sequentially."
+      },
+      {
+        "text": "The cache will take up more space due to duplication",
+        "correct": false,
+        "explanation": "With a single key, the cache is not duplicated — rather, the last job overwrites the previous one. Space is not duplicated, but the data becomes incorrect."
+      },
+      {
+        "text": "Jobs will conflict when writing cache: the last job will overwrite node_modules of other services, and subsequent runs will get incorrect cache",
+        "correct": true,
+        "explanation": "Exactly: if auth and payments have different node_modules, whichever job writes the cache last will overwrite the other service's node_modules. Subsequent runs will get 'foreign' dependencies, leading to errors."
+      }
+    ]
+  },
+  {
+    "question": "What does cache:policy: pull do in the context of a monorepo with multiple stages?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The job deletes the cache upon completion to free up space",
+        "correct": false,
+        "explanation": "There is no such behavior for policy. Cache lifetime is managed by other mechanisms."
+      },
+      {
+        "text": "The job downloads the cache before running but does not update it after completion",
+        "correct": true,
+        "explanation": "policy: pull means read-only: the cache will be downloaded at the start of the job (if available), but at the end the job will not attempt to upload an updated cache. This speeds up the pipeline: the cache is updated once (in the build job with pull-push), and test/deploy jobs only read."
+      },
+      {
+        "text": "The job does not use the cache at all but saves it for subsequent runs",
+        "correct": false,
+        "explanation": "This describes policy: push — the opposite of pull. With policy: pull the job downloads but does not upload."
+      },
+      {
+        "text": "The job only uses cache if it was created on the same branch",
+        "correct": false,
+        "explanation": "This default behavior is determined by the cache key, not by the policy. policy: pull does not add branch restrictions."
+      }
+    ]
+  },
+  {
+    "question": "The cache key for the auth service is set as: files: [services/auth/package-lock.json], prefix: auth. When will the cache be invalidated?",
+    "type": "single",
+    "options": [
+      {
+        "text": "On every new commit to the repository",
+        "correct": false,
+        "explanation": "No, the key is based on the contents of package-lock.json, not on the commit. The cache is only invalidated when the file itself changes."
+      },
+      {
+        "text": "After 24 hours — GitLab automatically expires caches",
+        "correct": false,
+        "explanation": "GitLab does not automatically expire caches after a fixed time. Cache lifetime is configured by the instance administrator and is usually several days or weeks."
+      },
+      {
+        "text": "Only if the file services/auth/package-lock.json has changed",
+        "correct": true,
+        "explanation": "Correct: GitLab computes a hash from the contents of the specified files. If package-lock.json has not changed — the cache key is the same, the cache is reused. When package-lock.json changes (adding/updating dependencies) — the key changes, the cache is recreated."
+      },
+      {
+        "text": "On branch change — prefix: auth does not include the branch name",
+        "correct": false,
+        "explanation": "prefix: auth is a static string, it does not change. But this means the cache is shared across all branches. For branch-isolated cache, you need to add $CI_COMMIT_REF_SLUG to the prefix."
+      }
+    ]
+  },
+  {
+    "question": "In a monorepo, test:auth and test:payments both specify needs: [build:auth, build:payments]. What happens with artifacts?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Each job will download only its own build job's artifacts — GitLab is smart",
+        "correct": false,
+        "explanation": "GitLab does not guess which artifacts are needed. By default, needs downloads artifacts from ALL listed jobs."
+      },
+      {
+        "text": "test:auth and test:payments will both download artifacts from BOTH build:auth AND build:payments — this is unnecessary overhead",
+        "correct": true,
+        "explanation": "By default, each job in needs downloads all artifacts. test:auth will download dist from both the auth and payments services, even though it only needs auth. For optimization, use artifacts: false in needs for unnecessary jobs."
+      },
+      {
+        "text": "GitLab will throw an error — you cannot specify multiple needs with artifacts",
+        "correct": false,
+        "explanation": "Multiple needs is an absolutely valid configuration. GitLab does not limit the number of dependencies."
+      },
+      {
+        "text": "Artifacts will be mixed into one directory and overwrite each other",
+        "correct": false,
+        "explanation": "Artifacts are not mixed into one directory — they are extracted into the job's working directory. But this does not mean 'smart' separation."
+      }
+    ]
+  },
+  {
+    "question": "The generate-pipelines.py script determines changed services via git diff HEAD~1 HEAD. What problem will occur on the main branch after a squash merge from an MR with 20 commits?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The script will crash — git diff does not work with squash commits",
+        "correct": false,
+        "explanation": "git diff works fine with squash commits. The problem is elsewhere: HEAD~1 is only the previous commit."
+      },
+      {
+        "text": "The script will analyze only the latest of the 20 commits",
+        "correct": false,
+        "explanation": "After squash merge on main there is only one commit. HEAD~1 HEAD will show the entire diff of this single squash commit."
+      },
+      {
+        "text": "The script will correctly identify all changes — squash combines everything into one commit",
+        "correct": true,
+        "explanation": "Paradoxically, squash merge simplifies the task: all changes from 20 commits are combined into one. git diff HEAD~1 HEAD will show all MR changes at once. The problem would arise with a regular merge preserving history, where you would need to analyze the merge commit."
+      },
+      {
+        "text": "git diff HEAD~1 HEAD does not work for merge commits",
+        "correct": false,
+        "explanation": "git diff works for any commits, including merge commits. For a two-parent merge commit, diff shows changes relative to the first parent."
+      }
+    ]
+  },
+  {
+    "question": "You use parallel:matrix to build services in a monorepo. How to add rules:changes that work with the $SERVICE variable from the matrix?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use before_script to check for changes and exit with code 0 if there are none",
+        "correct": false,
+        "explanation": "This is an anti-pattern: the job will always run, consuming runner resources, just to exit immediately. The correct approach is to not run the job at all via rules."
+      },
+      {
+        "text": "Add a CI_SERVICE_PATH variable and use it in changes",
+        "correct": false,
+        "explanation": "Variables are not expanded in rules:changes — this is a GitLab limitation, independent of how the variable is set."
+      },
+      {
+        "text": "rules:changes does not support variables — you need to list all paths statically or use a different approach",
+        "correct": true,
+        "explanation": "Correct: this is a known GitLab CI limitation. rules:changes does not support variables from parallel:matrix. Alternatives: statically list all paths (services/auth/**/* OR services/payments/**/*), or use dynamic child pipelines instead of a matrix."
+      },
+      {
+        "text": "rules: - changes: - services/$SERVICE/**/* — the variable from the matrix is available in rules",
+        "correct": false,
+        "explanation": "Unfortunately, this does not work: rules:changes is computed BEFORE matrix variables are expanded. GitLab does not support dynamic paths in rules:changes via parallel:matrix variables."
+      }
+    ]
+  },
+  {
+    "question": "In a child pipeline, a separate .gitlab-ci.yml is generated for each service. The child pipeline needs to use the same environment variables (API keys) as the parent. How does this work?",
+    "type": "single",
+    "options": [
+      {
+        "text": "You need to explicitly pass variables through trigger:variables",
+        "correct": false,
+        "explanation": "trigger:variables allows passing variables, but this is not the only or primary method. GitLab CI Variables from Project/Group Settings are automatically available in all child pipelines."
+      },
+      {
+        "text": "GitLab CI/CD Variables from project settings are automatically inherited by child pipelines — no additional configuration needed",
+        "correct": true,
+        "explanation": "Correct: all CI/CD Variables (Secret Variables) from the project/group settings are automatically available in child pipelines. This is one of the advantages of child pipelines over external CI systems."
+      },
+      {
+        "text": "Child pipelines are fully isolated — variables cannot be passed at all",
+        "correct": false,
+        "explanation": "This is incorrect. CI Variables are inherited, and additional variables can be passed through trigger:variables."
+      },
+      {
+        "text": "You need to save variables in the parent pipeline's artifacts",
+        "correct": false,
+        "explanation": "This is a complex and insecure workaround for secrets. CI Variables are inherited automatically."
+      }
+    ]
+  },
+  {
+    "question": "The monorepo is growing: now 15 services. Each has build, test, deploy — totaling 45 jobs in .gitlab-ci.yml. Which refactoring would be most effective?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use extends: to inherit common job settings",
+        "correct": false,
+        "explanation": "extends: reduces config duplication but does not reduce the number of jobs. With 15 services x 3 jobs = 45 entries in .gitlab-ci.yml remain."
+      },
+      {
+        "text": "Dynamic child pipelines: a script automatically generates a pipeline for each changed service based on a template",
+        "correct": true,
+        "explanation": "The most scalable approach: one pipeline template, the script automatically applies it to the needed services. Adding a new service — no changes to CI config. 45 static jobs are replaced by one generate job + trigger jobs."
+      },
+      {
+        "text": "Split services into separate repositories (polyrepo)",
+        "correct": false,
+        "explanation": "This fundamentally changes the architecture and is not a CI refactoring. Moving to polyrepo brings many other problems: version synchronization, cross-repo MRs, etc."
+      },
+      {
+        "text": "Create a .gitlab-ci.yml for each service and use include: with rules to connect only the needed ones",
+        "correct": false,
+        "explanation": "This improves readability but does not solve the scaling problem: with 15 services you still need 15 include entries, and adding a new service requires config editing."
+      }
+    ]
+  },
+  {
+    "question": "In a monorepo, you need to cache node_modules for different services. You want the cache from main to be used as a fallback when switching branches. How to implement this?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use the cache:fallback_keys parameter",
+        "correct": false,
+        "explanation": "There is no cache:fallback_keys parameter in GitLab CI. Fallback is implemented via an array of cache blocks."
+      },
+      {
+        "text": "Define two cache: blocks with different keys — GitLab will check them in order",
+        "correct": true,
+        "explanation": "Correct: GitLab supports an array of cache: blocks. The first block — the exact key for the current branch (pull-push), the second — the main branch key (policy: pull only). GitLab tries the first key, and if the cache is not found — uses the second as a fallback."
+      },
+      {
+        "text": "Use cache:key: $CI_COMMIT_REF_NAME — it automatically falls back to main",
+        "correct": false,
+        "explanation": "Using $CI_COMMIT_REF_NAME in the key means each branch has its own isolated cache. There is no automatic fallback."
+      },
+      {
+        "text": "This is not possible in GitLab CI — you need to pre-warm the cache with a separate job",
+        "correct": false,
+        "explanation": "It is possible via an array of cache blocks. A separate cache warming job is one valid approach, but not the only one."
+      }
+    ]
+  }
+]

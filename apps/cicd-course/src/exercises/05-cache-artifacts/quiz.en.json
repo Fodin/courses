@@ -1,0 +1,423 @@
+[
+  {
+    "question": "What is the fundamental difference between artifacts and cache in GitLab CI?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Artifacts reliably pass data between jobs within a pipeline, cache speeds up runs between pipelines without guarantee of availability",
+        "correct": true,
+        "explanation": "Exactly: artifacts are a reliable channel within a pipeline, cache is an optimization without guarantees between runs."
+      },
+      {
+        "text": "Cache is stored forever, artifacts are automatically deleted",
+        "correct": false,
+        "explanation": "The opposite is true: artifacts have configurable expire_in. Cache can also expire or be evicted."
+      },
+      {
+        "text": "Artifacts load faster than cache",
+        "correct": false,
+        "explanation": "Speed is not the defining difference. The key distinction is the guarantee and direction of data transfer."
+      },
+      {
+        "text": "Artifacts work only between stages, cache works between jobs of the same stage",
+        "correct": false,
+        "explanation": "This is incorrect. Artifacts pass between any jobs, cache works between pipeline runs."
+      }
+    ]
+  },
+  {
+    "question": "Which type of artifact should you use so that JUnit test results appear directly in the Merge Request?",
+    "type": "single",
+    "options": [
+      {
+        "text": "artifacts:paths with the path to the XML file",
+        "correct": false,
+        "explanation": "paths just saves the file, but GitLab won't parse and display it in the MR."
+      },
+      {
+        "text": "artifacts:when: always",
+        "correct": false,
+        "explanation": "when: always defines when to save the artifact, but does not affect its display in the MR."
+      },
+      {
+        "text": "artifacts:reports:junit",
+        "correct": true,
+        "explanation": "Exactly artifacts:reports:junit signals GitLab to parse the file and show test results in the Merge Request UI."
+      },
+      {
+        "text": "artifacts:expose_as",
+        "correct": false,
+        "explanation": "expose_as adds links to files in the MR, but does not parse JUnit XML content."
+      }
+    ]
+  },
+  {
+    "question": "You are writing a pipeline for a Node.js project. The lint job does not need build artifacts. How to configure correctly?",
+    "type": "single",
+    "options": [
+      {
+        "text": "needs: [] — an empty dependency list",
+        "correct": false,
+        "explanation": "needs manages execution dependencies (DAG), but does not necessarily disable artifact downloads."
+      },
+      {
+        "text": "Specify nothing — by default artifacts are not downloaded",
+        "correct": false,
+        "explanation": "This is wrong. By default GitLab downloads ALL artifacts from previous stages. You must explicitly opt out."
+      },
+      {
+        "text": "cache: {} — disable cache for this job",
+        "correct": false,
+        "explanation": "Disabling cache does not affect artifact downloads. These are different mechanisms."
+      },
+      {
+        "text": "dependencies: [] — an empty list means 'do not download any artifacts'",
+        "correct": true,
+        "explanation": "Correct. dependencies: [] explicitly tells GitLab not to download artifacts, which speeds up job startup."
+      }
+    ]
+  },
+  {
+    "question": "What does cache:policy: pull mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Cache is downloaded from remote storage (pull = remote)",
+        "correct": false,
+        "explanation": "pull is not about storage type. It's about direction: download (pull) without subsequent save (push)."
+      },
+      {
+        "text": "The job only downloads cache, but does not save it after execution",
+        "correct": true,
+        "explanation": "pull is read-only mode. The job uses existing cache but does not update it. Useful for parallel jobs to avoid overwriting each other's cache."
+      },
+      {
+        "text": "Cache will be recreated on every run",
+        "correct": false,
+        "explanation": "This is not about recreation. pull means read-only."
+      },
+      {
+        "text": "The job only saves cache, but does not download it",
+        "correct": false,
+        "explanation": "That describes policy: push. policy: pull is the opposite — download only."
+      }
+    ]
+  },
+  {
+    "question": "Why is cache:key:files better than a static key like 'my-project-cache'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Cache is automatically invalidated when the lock file changes — new dependencies, new cache",
+        "correct": true,
+        "explanation": "Exactly. GitLab computes a hash of the file contents and changes the cache key. Added a package to package.json — package-lock.json changed — cache is recreated automatically."
+      },
+      {
+        "text": "files allows storing multiple cache versions simultaneously",
+        "correct": false,
+        "explanation": "This is not the main advantage. The key benefit is automatic invalidation."
+      },
+      {
+        "text": "Static keys are not supported in recent GitLab versions",
+        "correct": false,
+        "explanation": "Static keys are still supported, they just don't invalidate automatically."
+      },
+      {
+        "text": "files key downloads faster from the server",
+        "correct": false,
+        "explanation": "Download speed does not depend on key type. The advantage is in invalidation logic."
+      }
+    ]
+  },
+  {
+    "question": "You have two jobs: build-frontend and build-backend. The deploy job needs artifacts from both. How to configure?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Configure nothing — GitLab automatically downloads all artifacts from previous stages",
+        "correct": false,
+        "explanation": "Technically correct (all artifacts are downloaded by default), but this is bad practice — it's better to explicitly specify dependencies."
+      },
+      {
+        "text": "dependencies: [build-frontend, build-backend] in the deploy job",
+        "correct": true,
+        "explanation": "Correct. dependencies takes a list of jobs whose artifacts should be downloaded."
+      },
+      {
+        "text": "Specify needs: [build-frontend, build-backend] — needs automatically downloads artifacts",
+        "correct": false,
+        "explanation": "needs manages execution order (DAG), but for explicit artifact control it's better to use dependencies."
+      },
+      {
+        "text": "Combine both jobs into one — GitLab cannot download artifacts from multiple jobs",
+        "correct": false,
+        "explanation": "GitLab handles this fine. dependencies accepts a list of jobs."
+      }
+    ]
+  },
+  {
+    "question": "The team notices they have 5 parallel Runners, but node_modules cache almost never works (full install every time). What's the problem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Too frequent changes to package-lock.json invalidate the cache",
+        "correct": false,
+        "explanation": "This is a possible cause, but not the main one with 5 Runners. The problem runs deeper."
+      },
+      {
+        "text": "Parallel Runners do not support cache — only one Runner can use cache",
+        "correct": false,
+        "explanation": "This is wrong. Parallel Runners do support cache, the problem is where it is stored."
+      },
+      {
+        "text": "You need to increase expire_in for the cache",
+        "correct": false,
+        "explanation": "expire_in won't solve the problem of cache sharing between Runners. You need a distributed cache."
+      },
+      {
+        "text": "Cache is stored locally on each Runner, and jobs land on different Runners",
+        "correct": true,
+        "explanation": "Exactly. By default cache is local. Runner #1 saves cache, but the next run lands on Runner #3 — it doesn't have that cache. Solution: distributed cache (S3/GCS)."
+      }
+    ]
+  },
+  {
+    "question": "When should you use artifacts:when: always?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "To save test reports — you need to see details on both success and failure",
+        "correct": true,
+        "explanation": "Correct. If tests fail, the report is especially important for debugging. always guarantees its preservation."
+      },
+      {
+        "text": "To save error logs when a job fails",
+        "correct": true,
+        "explanation": "Correct. While there is when: on_failure for error-only, always also works if you need the log regardless."
+      },
+      {
+        "text": "For coverage reports that should be visible in the MR regardless of test results",
+        "correct": true,
+        "explanation": "Correct. Coverage should be visible even if some tests failed — it helps analyze the situation."
+      },
+      {
+        "text": "To pass a built binary to the next deployment job",
+        "correct": false,
+        "explanation": "For binaries it's better to use when: on_success (default) — there's no point deploying a broken build."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between cache:policy: pull and cache:policy: push?",
+    "type": "single",
+    "options": [
+      {
+        "text": "push creates a new cache, pull updates an existing one",
+        "correct": false,
+        "explanation": "This is an incorrect description. push saves cache (creates or updates), pull only reads."
+      },
+      {
+        "text": "pull: only download cache. push: only save cache. pull-push: download and save",
+        "correct": true,
+        "explanation": "Accurate description. pull-push is the default behavior. Separating into pull and push is useful for optimizing parallel jobs."
+      },
+      {
+        "text": "pull downloads from local storage, push — from S3",
+        "correct": false,
+        "explanation": "policy does not define storage type. It controls the operation direction."
+      },
+      {
+        "text": "pull — for master branch, push — for feature branches",
+        "correct": false,
+        "explanation": "policy is not related to branch type. It defines the direction of cache operations."
+      }
+    ]
+  },
+  {
+    "question": "You are setting up cache for a Python project. Which file should you specify in cache:key:files?",
+    "type": "single",
+    "options": [
+      {
+        "text": "setup.py — the main project configuration file",
+        "correct": false,
+        "explanation": "setup.py contains project metadata but does not pin exact dependency versions."
+      },
+      {
+        "text": "__init__.py — the package initialization file",
+        "correct": false,
+        "explanation": "__init__.py does not contain dependency information. Code changes should not reset the dependency cache."
+      },
+      {
+        "text": "requirements.txt — the dependency list",
+        "correct": true,
+        "explanation": "Correct. requirements.txt (or requirements.lock, Pipfile.lock) contains dependencies. When it changes, the cache should be invalidated."
+      },
+      {
+        "text": ".python-version — the Python version file",
+        "correct": false,
+        "explanation": ".python-version pins the interpreter version, not dependencies. The dependency cache should be invalidated when packages change."
+      }
+    ]
+  },
+  {
+    "question": "What happens if you save the built dist/ in cache instead of artifacts and use it in the next job?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Parallel jobs may overwrite each other's cache and get corrupted data",
+        "correct": true,
+        "explanation": "Correct. With policy: pull-push (default), multiple parallel jobs can overwrite cache, receiving inconsistent data."
+      },
+      {
+        "text": "Everything will work correctly — cache and artifacts are interchangeable",
+        "correct": false,
+        "explanation": "Wrong. Cache and artifacts solve different problems. Cache does not guarantee data freshness or availability."
+      },
+      {
+        "text": "The test job may get dist/ from a previous pipeline, not the current one",
+        "correct": true,
+        "explanation": "Exactly. Cache does not guarantee freshness. Tests may pass on an old build and mask an error in the new code."
+      },
+      {
+        "text": "Cache may be absent (cache miss) — then the test job will fail because dist/ is missing",
+        "correct": true,
+        "explanation": "Correct. Cache is only an optimization, its presence is not guaranteed. Artifacts always exist if the job ran successfully."
+      }
+    ]
+  },
+  {
+    "question": "How to properly organize cache when multiple parallel jobs read dependencies, and one special job installs them?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Disable cache for parallel jobs — they should install dependencies independently",
+        "correct": false,
+        "explanation": "This defeats the whole purpose of caching and slows down the pipeline."
+      },
+      {
+        "text": "One install-deps job with policy: push, the rest with policy: pull",
+        "correct": true,
+        "explanation": "The correct pattern. install-deps builds the cache, the rest only read. No race condition, cache is consistent."
+      },
+      {
+        "text": "Each job creates its own cache with a unique key",
+        "correct": false,
+        "explanation": "This is a waste of resources — each job would reinstall dependencies from scratch."
+      },
+      {
+        "text": "All jobs with policy: pull-push — this keeps the cache always up to date",
+        "correct": false,
+        "explanation": "With parallel jobs using pull-push, they will overwrite each other's cache, which can lead to a data race."
+      }
+    ]
+  },
+  {
+    "question": "Which artifacts:expire_in value is best suited for release version artifacts (v1.0.0, v2.3.1)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "never — release artifacts should be kept indefinitely",
+        "correct": true,
+        "explanation": "Correct. Release binaries are needed for reproducing old versions, auditing, and quick rollback. never is a reasonable choice, but only for release tags."
+      },
+      {
+        "text": "1 day — keep for the minimum necessary time",
+        "correct": false,
+        "explanation": "Release artifacts are often needed for rollback or auditing. 1 day is too short."
+      },
+      {
+        "text": "30 days — a standard compliance period",
+        "correct": false,
+        "explanation": "30 days may not be enough for long-term support versions. For releases, never is better."
+      },
+      {
+        "text": "1 week — the standard value for most cases",
+        "correct": false,
+        "explanation": "For feature branches and PRs this is fine, but for releases a longer period is needed."
+      }
+    ]
+  },
+  {
+    "question": "You are setting up a pipeline for a monorepo with frontend and backend. Each has its own package.json. How to configure cache correctly?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Add prefix: 'frontend' or prefix: 'backend' to cache:key for separation",
+        "correct": true,
+        "explanation": "Correct. prefix allows creating isolated namespaces for cache of different monorepo parts."
+      },
+      {
+        "text": "Separate cache for frontend keyed on frontend/package-lock.json",
+        "correct": true,
+        "explanation": "Correct. Each monorepo part has an independent cache that is invalidated only when its own dependencies change."
+      },
+      {
+        "text": "This is only possible in cloud solutions",
+        "correct": false,
+        "explanation": "This works both in cloud and on-premise."
+      },
+      {
+        "text": "One cache for the entire monorepo with a single key",
+        "correct": false,
+        "explanation": "Bad idea. Changing frontend dependencies would invalidate backend cache and vice versa."
+      },
+      {
+        "text": "Separate cache for backend keyed on backend/package-lock.json",
+        "correct": true,
+        "explanation": "Correct. Independent caches — independent invalidation. Working on backend — frontend cache is not reset."
+      }
+    ]
+  },
+  {
+    "question": "What happens to an artifact if the job fails and artifacts:when is not specified?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab will ask the user whether to save the artifact",
+        "correct": false,
+        "explanation": "There is no interactive prompt. Behavior is determined by config."
+      },
+      {
+        "text": "The artifact will be saved — GitLab always saves artifacts",
+        "correct": false,
+        "explanation": "Wrong. By default (when: on_success) artifacts are saved only on job success."
+      },
+      {
+        "text": "The artifact will not be saved — when: on_success is the default",
+        "correct": true,
+        "explanation": "Correct. The default value is on_success. On job failure, artifacts are not saved unless you explicitly specify when: on_failure or when: always."
+      },
+      {
+        "text": "The artifact will be saved but marked as 'failed'",
+        "correct": false,
+        "explanation": "GitLab has no concept of a 'failed artifact'. An artifact is either saved or not."
+      }
+    ]
+  },
+  {
+    "question": "The dev team noticed that the test job takes 3 minutes just downloading build artifacts (300MB), even though the test only needs 5MB from dist/. How to optimize?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Increase expire_in — this will speed up artifact downloads",
+        "correct": false,
+        "explanation": "expire_in does not affect download speed. It only determines how long artifacts are kept."
+      },
+      {
+        "text": "Split artifacts: create a separate artifact with only the needed files",
+        "correct": true,
+        "explanation": "Correct. Instead of artifacts: paths: [dist/], create artifacts: paths: [dist/assets/bundle.js] — only pass what you need."
+      },
+      {
+        "text": "Use dependencies to specify only the needed jobs",
+        "correct": true,
+        "explanation": "Correct. If the test only depends on build-js, there's no need to download artifacts from build-css and other jobs."
+      },
+      {
+        "text": "Move 300MB to cache instead of artifacts",
+        "correct": false,
+        "explanation": "This creates a guarantee problem — cache does not guarantee data availability. You need to reduce artifact size."
+      }
+    ]
+  }
+]

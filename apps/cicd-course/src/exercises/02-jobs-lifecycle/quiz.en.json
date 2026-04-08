@@ -1,0 +1,397 @@
+[
+  {
+    "question": "A job has been in `pending` state for 20 minutes. What is the most likely cause?",
+    "type": "single",
+    "options": [
+      {
+        "text": "There is a syntax error in the job script",
+        "correct": false,
+        "explanation": "A syntax error is detected during config validation and does not affect the pending state — the job would simply not be created or fail immediately on launch."
+      },
+      {
+        "text": "The job timeout has expired",
+        "correct": false,
+        "explanation": "The timeout counts from the moment the job transitions to running. If the job is still pending — the timeout has not even started."
+      },
+      {
+        "text": "No free runner with the required tags",
+        "correct": true,
+        "explanation": "Pending means the job is created and waiting for a runner. The most common cause of a long wait is no free runner matching the tags or executor type."
+      },
+      {
+        "text": "The pipeline was canceled by another developer",
+        "correct": false,
+        "explanation": "If the pipeline is canceled, the job would transition to the canceled state, not remain in pending."
+      }
+    ]
+  },
+  {
+    "question": "What happens to the pipeline if a job with `allow_failure: true` exits with exit code 1?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The job automatically restarts",
+        "correct": false,
+        "explanation": "Automatic restart is a retry feature, not allow_failure. allow_failure only changes how the error affects the pipeline."
+      },
+      {
+        "text": "The pipeline stops, subsequent jobs do not run",
+        "correct": false,
+        "explanation": "This is exactly what allow_failure: true prevents — the error does not stop the pipeline."
+      },
+      {
+        "text": "The job gets a warning status, the pipeline continues",
+        "correct": true,
+        "explanation": "With allow_failure: true the job displays a warning (yellow icon), but subsequent on_success jobs still run, and the final pipeline status will be success."
+      },
+      {
+        "text": "The pipeline finishes as failed, but other jobs continue",
+        "correct": false,
+        "explanation": "With allow_failure: true the final pipeline status remains success (not failed), and subsequent jobs run normally."
+      }
+    ]
+  },
+  {
+    "question": "You want to send a Slack notification when the pipeline fails. Which `when` should you use?",
+    "type": "single",
+    "options": [
+      {
+        "text": "when: on_success",
+        "correct": false,
+        "explanation": "when: on_success (the default value) runs the job only on success, but we need a notification specifically on failure."
+      },
+      {
+        "text": "when: manual",
+        "correct": false,
+        "explanation": "when: manual requires a manual button press — the notification will not be sent automatically on failure."
+      },
+      {
+        "text": "when: on_failure",
+        "correct": true,
+        "explanation": "when: on_failure runs the job only when at least one previous job completed with an error. Ideal for incident notifications."
+      },
+      {
+        "text": "when: always",
+        "correct": false,
+        "explanation": "when: always runs the notification on both success and failure. This can be noisy if you only want failure notifications."
+      }
+    ]
+  },
+  {
+    "question": "How many total attempts will execute if you specify `retry: 2`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "1 attempt",
+        "correct": false,
+        "explanation": "1 attempt is the default behavior without retry. retry: 2 adds 2 additional attempts."
+      },
+      {
+        "text": "3 attempts",
+        "correct": true,
+        "explanation": "retry: N means 'up to N reruns'. Total attempts = 1 (initial) + N (retries) = 3 for retry: 2."
+      },
+      {
+        "text": "Depends on the error type",
+        "correct": false,
+        "explanation": "The number of attempts (max) is determined by the number in retry or retry.max. The error type (retry.when) affects which errors trigger a retry, but not the maximum number of attempts."
+      },
+      {
+        "text": "2 attempts",
+        "correct": false,
+        "explanation": "retry: 2 means 'retry up to 2 more times on failure', meaning 1 initial + 2 retries = 3 attempts total."
+      }
+    ]
+  },
+  {
+    "question": "Which exit code signals successful script completion?",
+    "type": "single",
+    "options": [
+      {
+        "text": "null",
+        "correct": false,
+        "explanation": "Exit code is always a number. null is not a valid exit code. If a process is killed without an explicit code, the system usually returns 128+N (e.g., 137 for SIGKILL)."
+      },
+      {
+        "text": "0",
+        "correct": true,
+        "explanation": "Exit code 0 is the universal Unix convention for success. All CI/CD systems interpret exit code 0 as job success."
+      },
+      {
+        "text": "1",
+        "correct": false,
+        "explanation": "Exit code 1 is a general error. The CI/CD system will mark the job as failed."
+      },
+      {
+        "text": "200",
+        "correct": false,
+        "explanation": "200 is an HTTP status code, not a Unix exit code. Exit codes are numbers 0-255, where 0 means success."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between `allow_failure: true` and `when: on_failure`?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "`when: on_failure` can be combined with `allow_failure: true`",
+        "correct": true,
+        "explanation": "Correct. For example, a notification job (when: on_failure) with allow_failure: true — it runs on error in other jobs, and if it fails itself — it does not stop the pipeline."
+      },
+      {
+        "text": "`when: on_failure` is a condition for launching a job on error in previous jobs",
+        "correct": true,
+        "explanation": "Correct. when: on_failure defines WHEN the job launches — only if something has already failed. This is not permission to fail, but a trigger condition."
+      },
+      {
+        "text": "`allow_failure: true` allows a job to fail without stopping the pipeline",
+        "correct": true,
+        "explanation": "Correct. allow_failure: true is permission for a soft error: the job failed, but the pipeline is considered successful and continues."
+      },
+      {
+        "text": "`allow_failure` and `when: on_failure` are synonyms, they do the same thing",
+        "correct": false,
+        "explanation": "These are different mechanisms. allow_failure affects how a job error impacts the pipeline. when: on_failure is a condition for launching another job."
+      }
+    ]
+  },
+  {
+    "question": "Your tests sometimes fail due to an unstable external service. A colleague suggests adding `retry: 3`. What would you say?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Unstable (flaky) tests need to be fixed, not hidden behind retry",
+        "correct": true,
+        "explanation": "Correct. Retry is a temporary solution. Long-term you need to eliminate the cause of instability: add mocks for the external service, improve test isolation."
+      },
+      {
+        "text": "Retry does not affect pipeline execution time",
+        "correct": false,
+        "explanation": "Retry increases execution time in the worst case: if the job fails 3 times — it ran 4 times. This significantly slows down the pipeline."
+      },
+      {
+        "text": "retry: 3 on all jobs is a great idea, it makes the pipeline more stable",
+        "correct": false,
+        "explanation": "Retry on everything masks real problems. If a test fails due to a bug in the code — retry might 'fix' it by chance, and the problem will remain unnoticed."
+      },
+      {
+        "text": "Retry is a reasonable solution for infrastructure failures, but you should use `retry.when` with specific error types",
+        "correct": true,
+        "explanation": "Correct. It is better to specify specific types: runner_system_failure, api_failure — so retry only works for infrastructure problems, not logical code errors."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following timeout rules is correct for GitLab CI?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The final timeout is the minimum of project default, runner maximum, and job timeout",
+        "correct": true,
+        "explanation": "Exactly. You cannot set a timeout greater than what the runner allows. This protects infrastructure from hung jobs."
+      },
+      {
+        "text": "GitHub Actions does not support timeout configuration",
+        "correct": false,
+        "explanation": "GitHub Actions supports timeout-minutes at the job and step level. The default job timeout is 6 hours, step — no limit (bounded by job timeout)."
+      },
+      {
+        "text": "Without explicit timeout a job can run indefinitely",
+        "correct": false,
+        "explanation": "GitLab CI has a project-level default timeout (usually 1 hour), and the runner also has a maximum. A job will never run absolutely without a timeout."
+      },
+      {
+        "text": "Job timeout always takes priority over runner max timeout",
+        "correct": false,
+        "explanation": "No. GitLab CI takes the minimum of three values: project default, runner maximum, job timeout. The runner can limit the maximum."
+      }
+    ]
+  },
+  {
+    "question": "A job exited with exit code 137. What most likely happened?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Tests passed successfully",
+        "correct": false,
+        "explanation": "Exit code 0 means success. 137 is 128 + 9 (SIGKILL), which means the process was forcibly terminated."
+      },
+      {
+        "text": "The process was killed (Out of Memory or forced termination)",
+        "correct": true,
+        "explanation": "Exit code 137 = 128 + 9 (SIGKILL). This means the process was killed by a SIGKILL signal — most commonly due to OOM (Out of Memory) or a kill command. The job did not finish on its own — it was killed."
+      },
+      {
+        "text": "Command not found in the system",
+        "correct": false,
+        "explanation": "Command not found returns exit code 127. 137 is a specific code for a process killed by SIGKILL."
+      },
+      {
+        "text": "No permission to execute the file",
+        "correct": false,
+        "explanation": "No execution permission — exit code 126. 137 = SIGKILL, usually the OOM killer in a containerized environment."
+      }
+    ]
+  },
+  {
+    "question": "Select all correct uses of `when: always`:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Production deployment",
+        "correct": false,
+        "explanation": "Deploying to production when tests fail is a disaster. For deployment you need when: on_success (or when: manual for manual control)."
+      },
+      {
+        "text": "Stopping a test database launched before tests",
+        "correct": true,
+        "explanation": "Correct. If a database is running — it needs to be stopped in any case to not hold resources. when: always is the right choice for such operations."
+      },
+      {
+        "text": "Generating a test report (including a report on failure)",
+        "correct": true,
+        "explanation": "Correct. A test report is always needed — especially on failure, to understand what broke. when: always ensures it is generated in any case."
+      },
+      {
+        "text": "Cleaning up temporary files and resources after tests",
+        "correct": true,
+        "explanation": "Correct. Cleanup must happen always — both on success and on failure. when: always is ideal for this."
+      },
+      {
+        "text": "This approach is outdated and no longer used",
+        "correct": false,
+        "explanation": "This approach is actively used in modern systems."
+      }
+    ]
+  },
+  {
+    "question": "How does `retry.when` with type `script_failure` differ from `retry.when` with type `runner_system_failure`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "`script_failure` — the script exited with an error, `runner_system_failure` — a problem with the runner infrastructure",
+        "correct": true,
+        "explanation": "Correct. script_failure = your code failed. runner_system_failure = the runner itself broke (OOM, Docker daemon crashed, network unavailable). Usually retry is only needed for runner_system_failure."
+      },
+      {
+        "text": "`script_failure` only works with shell executor",
+        "correct": false,
+        "explanation": "script_failure does not depend on executor type. It is an error type (script returned non-zero exit code), applicable to any executor."
+      },
+      {
+        "text": "`runner_system_failure` — a script error, `script_failure` — a runner problem",
+        "correct": false,
+        "explanation": "The opposite. script_failure = script error. runner_system_failure = runner system error."
+      },
+      {
+        "text": "No difference, both retry on any error",
+        "correct": false,
+        "explanation": "There is a fundamental difference. script_failure — error in the script (exit code != 0). runner_system_failure — a system error of the runner itself, not related to code."
+      }
+    ]
+  },
+  {
+    "question": "A pipeline contains 4 jobs. Job B failed. Job C has `when: on_success`, job D has `when: always`, job E has `when: on_failure`. Which jobs will run?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Job D will run",
+        "correct": true,
+        "explanation": "Correct. when: always runs the job regardless of the state of previous jobs. D will run even if B failed."
+      },
+      {
+        "text": "Job C will be skipped",
+        "correct": true,
+        "explanation": "Correct. when: on_success with a failed job translates the job to skipped state — it does not launch it."
+      },
+      {
+        "text": "Job C will run",
+        "correct": false,
+        "explanation": "No. when: on_success — the job runs only if all previous jobs are successful. Since B failed — C will be skipped."
+      },
+      {
+        "text": "Job E will run",
+        "correct": true,
+        "explanation": "Correct. when: on_failure launches specifically when there is a failed job. Since B failed — E will run."
+      }
+    ]
+  },
+  {
+    "question": "What is a 'flaky test' and why is retry not the best long-term solution?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An unstable test that sometimes passes, sometimes fails; retry hides the problem instead of fixing it",
+        "correct": true,
+        "explanation": "Exactly. A flaky test gives false negatives — sometimes fails without a real cause. Retry allows it to 'pass' on the second attempt, but the source of instability remains and may lead to missing a real bug."
+      },
+      {
+        "text": "A test with a syntax error; retry does not help because of compilation",
+        "correct": false,
+        "explanation": "A test with a syntax error is not flaky — it will always fail consistently. A flaky test is unstable: sometimes passes, sometimes fails."
+      },
+      {
+        "text": "A slow test; retry speeds it up through parallelism",
+        "correct": false,
+        "explanation": "Retry does not add parallelism — it reruns the job sequentially. For slow tests you need parallelization (parallel keyword), not retry."
+      },
+      {
+        "text": "A test that always fails; retry can solve the problem through trial and error",
+        "correct": false,
+        "explanation": "If a test always fails — it is not flaky, it is a broken test. Retry 3 will not help — all 3 attempts will fail."
+      }
+    ]
+  },
+  {
+    "question": "In which cases should `when: manual` be used?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Running load testing (an expensive operation)",
+        "correct": true,
+        "explanation": "Correct. Load tests are expensive in resources and time. Running them manually when needed is the right decision."
+      },
+      {
+        "text": "Deploying to a production environment",
+        "correct": true,
+        "explanation": "Correct. Production deployment is a classic use case for when: manual. A human should consciously press the button, not automatically deploy every commit."
+      },
+      {
+        "text": "Rolling back to a previous version",
+        "correct": false,
+        "explanation": "Correct. Rollback is a rare but critically important operation. It should be under manual control to prevent it from happening accidentally."
+      },
+      {
+        "text": "Running unit tests on every commit",
+        "correct": false,
+        "explanation": "Unit tests should run automatically on every commit — this is the foundation of CI. Manual unit test execution destroys the purpose of continuous integration."
+      }
+    ]
+  },
+  {
+    "question": "A job exited with exit code 0, but the result in the pipeline is failed. How is this possible?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Exit code 0 from bash is always converted to exit code 1 for CI/CD",
+        "correct": false,
+        "explanation": "There is no automatic conversion. The CI/CD system reads the process exit code directly."
+      },
+      {
+        "text": "This is impossible: exit code 0 always means success",
+        "correct": false,
+        "explanation": "It is possible. For example, if an artifact failed to upload, or post-script returned a non-zero code, or a timeout occurred while uploading a report."
+      },
+      {
+        "text": "An error in after_script or during artifact upload can result in failed even with exit code 0 of the script",
+        "correct": true,
+        "explanation": "Correct. The CI/CD system looks not only at the exit code of the main script, but also at after_script, artifact uploads, reports. An error at any of these stages can give failed even with a successful script."
+      },
+      {
+        "text": "This is a bug in GitLab CI that was fixed in version 15",
+        "correct": false,
+        "explanation": "This is not a bug. This is correct behavior: a job includes not only script but also other phases (after_script, artifacts upload). An error in any of them gives failed."
+      }
+    ]
+  }
+]

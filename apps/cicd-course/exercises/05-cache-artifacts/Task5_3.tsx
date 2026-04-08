@@ -17,7 +17,10 @@ interface Scenario {
 // TODO: Fill in SCENARIOS array with 8 scenarios
 // Сценарии: передача dist/, ускорение npm install, JUnit-отчёт,
 // Maven-зависимости, Docker digest, логи падения, pip-пакеты, coverage-report
+// Scenarios: passing dist/, speeding up npm install, JUnit report,
+// Maven dependencies, Docker digest, crash logs, pip packages, coverage-report
 const SCENARIOS: Scenario[] = [
+  // TODO: fill in 8 scenarios
   // TODO: заполни 8 сценариев
 ]
 
@@ -37,6 +40,10 @@ export function Task5_3() {
   const [showResults, setShowResults] = useState(false)
 
   // TODO: Implement handleAnswer(choice: 'cache' | 'artifacts')
+  // 1. If already answered (lastAnswer !== null) — ignore
+  // 2. Create ScenarioAnswer with isCorrect = choice === scenario.correct
+  // 3. Save to lastAnswer and add to answers
+  // TODO: Implement handleAnswer(choice: 'cache' | 'artifacts')
   // 1. Если уже ответили (lastAnswer !== null) — игнорировать
   // 2. Создать ScenarioAnswer с isCorrect = choice === scenario.correct
   // 3. Сохранить в lastAnswer и добавить в answers
@@ -45,12 +52,17 @@ export function Task5_3() {
   }
 
   // TODO: Implement handleNext
+  // If currentIndex < SCENARIOS.length - 1 — go to next, reset lastAnswer
+  // Otherwise — show results (setShowResults(true))
+  // TODO: Implement handleNext
   // Если currentIndex < SCENARIOS.length - 1 — перейти к следующему, сбросить lastAnswer
   // Иначе — показать результаты (setShowResults(true))
   const handleNext = () => {
     // TODO
   }
 
+  // TODO: Implement handleReset
+  // Reset everything to initial state
   // TODO: Implement handleReset
   // Сбросить всё в начальное состояние
   const handleReset = () => {
@@ -70,6 +82,7 @@ export function Task5_3() {
     return (
       <div style={{ padding: '1rem', fontFamily: 'system-ui, sans-serif' }}>
         <h2>{t('task.5.3')}</h2>
+        <p style={{ color: '#aaa' }}>TODO: fill in SCENARIOS array (8 scenarios)</p>
         <p style={{ color: '#aaa' }}>TODO: заполни массив SCENARIOS (8 сценариев)</p>
         <button onClick={handleReset} style={{ display: 'none' }} />
         <button onClick={handleNext} style={{ display: 'none' }} />
@@ -79,11 +92,22 @@ export function Task5_3() {
   }
 
   // TODO: Results screen
+  // Show if showResults === true
+  // Score: correctCount out of SCENARIOS.length
+  // List of all scenarios with answer result
+  // "Start over" button
+  // TODO: Results screen
   // Показывать если showResults === true
   // Счёт: correctCount из SCENARIOS.length
   // Список всех сценариев с результатом ответа
   // Кнопка "Сначала"
 
+  // TODO: Quiz screen
+  // Title, progress bar (currentIndex + 1 / SCENARIOS.length)
+  // Block with current scenario description
+  // Two buttons: "Cache" and "Artifacts"
+  // When answered — color indication and explanation
+  // "Next" button appears after answer
   // TODO: Quiz screen
   // Заголовок, прогресс-бар (currentIndex + 1 / SCENARIOS.length)
   // Блок с описанием текущего сценария

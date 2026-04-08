@@ -1,0 +1,392 @@
+[
+  {
+    "question": "What happens when you specify `environment: name: staging` in a GitLab CI job?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab creates/updates a named environment with deployment history, current version, and rollback capability",
+        "correct": true,
+        "explanation": "Correct. Environment in GitLab is a living object: it stores the date, commit, and executor of each deployment and allows rollback to a previous version via the UI."
+      },
+      {
+        "text": "Variables from all environments become available in this job",
+        "correct": false,
+        "explanation": "The opposite: the job only receives variables tied to the specified environment in GitLab CI/CD Variables settings."
+      },
+      {
+        "text": "GitLab simply adds a label to the job for navigation convenience",
+        "correct": false,
+        "explanation": "This is not just a label. GitLab creates a full record in the Environments section with deployment history, rollback buttons, and a URL link."
+      },
+      {
+        "text": "GitLab automatically creates a corresponding branch in the repository",
+        "correct": false,
+        "explanation": "Branches and environments are independent entities. An environment is created in the Deployments section, not in the repository."
+      }
+    ]
+  },
+  {
+    "question": "Why is it mandatory to specify `GIT_STRATEGY: none` in a stop job (action: stop)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "This is a GitLab CI syntax requirement — otherwise `action: stop` does not work",
+        "correct": false,
+        "explanation": "Syntactically action: stop works without GIT_STRATEGY: none, but the job would fail in practice when trying to clone a deleted branch."
+      },
+      {
+        "text": "Because the stop job has no access to the codebase for security reasons",
+        "correct": false,
+        "explanation": "There is no such security restriction. The problem is purely technical — the branch is already deleted by the time the stop job runs."
+      },
+      {
+        "text": "Because the stop job runs after the branch is deleted, and GitLab cannot clone it",
+        "correct": true,
+        "explanation": "Exactly. When an MR is merged, the branch is deleted, and the stop job runs after that. Without GIT_STRATEGY: none, the Runner tries to clone the deleted branch and fails with an error."
+      },
+      {
+        "text": "To speed up job execution — cloning takes extra time",
+        "correct": false,
+        "explanation": "Performance is secondary here. The main reason is that the stop job often runs after the branch is deleted, and cloning is physically impossible."
+      }
+    ]
+  },
+  {
+    "question": "What is the main advantage of Blue-Green deployment over Rolling?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Blue-Green requires fewer resources since you don't need to keep two environments simultaneously",
+        "correct": false,
+        "explanation": "The opposite: Blue-Green requires twice the resources, as both environments (blue and green) must be fully deployed at the same time."
+      },
+      {
+        "text": "Blue-Green allows testing on real traffic before full switchover",
+        "correct": false,
+        "explanation": "This describes Canary deployment, not Blue-Green. In Blue-Green, traffic is switched entirely, not gradually."
+      },
+      {
+        "text": "Blue-Green guarantees that users don't see mixed API versions",
+        "correct": false,
+        "explanation": "This is a valid point, but it describes the difference from Rolling, not the main advantage. The key advantage is rollback speed — one switch vs. redeploying all instances."
+      },
+      {
+        "text": "Blue-Green allows instant rollback — just switch traffic back to the old environment",
+        "correct": true,
+        "explanation": "Correct. With Blue-Green, the old environment (blue) remains untouched during deployment to green. If something goes wrong — one call to update-lb.sh and traffic goes back to blue."
+      }
+    ]
+  },
+  {
+    "question": "The team deploys an application to Kubernetes. On every merge to main, the new version needs to be checked on 10% of traffic before a full rollout. Which strategy is suitable?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Feature flags — hide functionality behind a flag and enable for 10% of users",
+        "correct": false,
+        "explanation": "Feature flags solve a different problem — managing functionality at the code level. They don't replace the infrastructure deployment strategy for a new image version."
+      },
+      {
+        "text": "Blue-Green — first deploy to green, switch 10% through the load balancer",
+        "correct": false,
+        "explanation": "Blue-Green switches traffic entirely (0% -> 100%), not gradually. For fractional traffic distribution, a different approach is needed."
+      },
+      {
+        "text": "Canary deploy — a separate deployment with the new version receives 10% of traffic, after verification — full rollout",
+        "correct": true,
+        "explanation": "Canary exists exactly for this. A separate deployment with a minimal number of replicas (10%) handles part of the traffic. If metrics are OK — increase replicas to 100% and remove canary."
+      },
+      {
+        "text": "Rolling deploy — update pods one at a time, starting with 10%",
+        "correct": false,
+        "explanation": "Rolling updates all instances sequentially without control of traffic percentage. There is no way to fix at 10% and wait for metrics verification."
+      }
+    ]
+  },
+  {
+    "question": "What does `CI_COMMIT_REF_SLUG` mean in the context of Review Apps?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The first 8 characters of the commit SHA that triggered the pipeline",
+        "correct": false,
+        "explanation": "The commit SHA is CI_COMMIT_SHORT_SHA. CI_COMMIT_REF_SLUG is the branch/tag name in a URL/DNS-safe format."
+      },
+      {
+        "text": "A unique pipeline identifier for this branch",
+        "correct": false,
+        "explanation": "The pipeline identifier is CI_PIPELINE_ID. CI_COMMIT_REF_SLUG is derived from the branch/tag name."
+      },
+      {
+        "text": "URL-encoded branch name with / replaced by %2F",
+        "correct": false,
+        "explanation": "URL encoding with %2F is not suitable for DNS subdomain names. CI_COMMIT_REF_SLUG replaces all unsafe characters with hyphens, rather than URL-encoding them."
+      },
+      {
+        "text": "Branch name in lowercase with unsafe characters replaced by hyphens",
+        "correct": true,
+        "explanation": "Correct. CI_COMMIT_REF_SLUG transforms the branch name for use in DNS, URLs, namespace names. For example, feature/user-auth becomes feature-user-auth. Always lowercase, safe for subdomains."
+      }
+    ]
+  },
+  {
+    "question": "How does `auto_stop_in: 1 week` work in the environment configuration?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Environment variables and secrets become invalid after a week",
+        "correct": false,
+        "explanation": "auto_stop_in manages the lifecycle of the environment (deployment), not the expiration of secrets or variables."
+      },
+      {
+        "text": "One week after the last deployment, GitLab stops the environment and launches the on_stop job",
+        "correct": true,
+        "explanation": "Correct. The timer is updated on each deployment. This prevents accumulation of abandoned review apps — if a branch is forgotten, the environment deletes itself."
+      },
+      {
+        "text": "One week after the environment is created, GitLab automatically launches the stop job",
+        "correct": false,
+        "explanation": "Counting starts not from creation, but from the last deployment. Each new deployment resets the timer. If a review app was deployed today, deletion will be in a week, regardless of when the environment was created."
+      },
+      {
+        "text": "The pipeline automatically reruns after a week to update the environment",
+        "correct": false,
+        "explanation": "auto_stop_in is a deletion timer, not a rerun schedule. For periodic runs, use scheduled pipelines."
+      }
+    ]
+  },
+  {
+    "question": "In a pipeline there is a rollback job with `when: manual` and `needs: []`. What does `needs: []` mean in this context?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The job does not require any artifacts from previous jobs",
+        "correct": false,
+        "explanation": "needs: [] does indeed disable artifact downloads, but in the context of a rollback job the main effect is different — the job can be triggered manually at any time, independently, without waiting for other jobs."
+      },
+      {
+        "text": "The job runs only if all other jobs in the pipeline have failed",
+        "correct": false,
+        "explanation": "For running on failure, use when: on_failure. needs: [] means no dependencies, not reaction to errors."
+      },
+      {
+        "text": "The job can be triggered manually at any time, without waiting for other jobs in the pipeline to complete",
+        "correct": true,
+        "explanation": "Correct. needs: [] means no dependencies, so the rollback job is available for manual launch immediately, without waiting for deploy or other stages. This is critical — in an emergency you can't wait for the entire pipeline to complete."
+      },
+      {
+        "text": "The job does not inherit variables from previous stages",
+        "correct": false,
+        "explanation": "needs does not affect variable inheritance. Variables are available from CI/CD settings independently of needs."
+      }
+    ]
+  },
+  {
+    "question": "The team wants to deploy to production only from the main branch, only manually, and only for users with the Maintainer role. Which approach to use?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use `rules: if '$CI_COMMIT_BRANCH == main' when: manual` and configure Protected Environment in GitLab Settings",
+        "correct": true,
+        "explanation": "Correct. rules restricts the branch and requires manual launch, while Protected Environments in GitLab Settings allows specifying the minimum role for deploying to this environment — these are two independent levels of protection."
+      },
+      {
+        "text": "Add a user role check script at the start of the deploy job via CI_GITLAB_USER_LOGIN",
+        "correct": false,
+        "explanation": "This is a fragile and unreliable solution. The correct path is built-in GitLab mechanisms: Protected Environments, which check the role declaratively, without custom scripts."
+      },
+      {
+        "text": "Specify `only: - main` and `when: manual` in the job — that is enough",
+        "correct": false,
+        "explanation": "only: main and when: manual restrict the branch and require manual launch, but do not restrict the user role. A Developer would also be able to launch the deploy."
+      },
+      {
+        "text": "Create a separate project in GitLab only for production deploys with restricted access",
+        "correct": false,
+        "explanation": "Creating a separate project is an excessive architectural complication. GitLab provides Protected Environments specifically to solve this task within a single project."
+      }
+    ]
+  },
+  {
+    "question": "What is wrong with the following configuration?\n\n```yaml\ndeploy:\n  script:\n    - docker build -t myapp:latest .\n    - docker push myapp:latest\n    - deploy myapp:latest\n```",
+    "type": "single",
+    "options": [
+      {
+        "text": "The image should be built in a separate build stage, not in deploy",
+        "correct": false,
+        "explanation": "Separating into stages is good practice, but not the main problem. The key issue is the inability to rollback."
+      },
+      {
+        "text": "docker build needs to be run with --no-cache for reproducibility",
+        "correct": false,
+        "explanation": "--no-cache slows the build and does not solve the rollback problem. This is not the error in this configuration."
+      },
+      {
+        "text": "There is no environment: name — GitLab will not track deployments",
+        "correct": false,
+        "explanation": "The absence of environment: name is a shortcoming, but not a critical problem in terms of deployment reliability. More critical is the lost ability to rollback."
+      },
+      {
+        "text": "The latest tag is overwritten on every deployment — there is no way to rollback to a previous version",
+        "correct": true,
+        "explanation": "Correct. After each deployment, the old latest is lost forever. The correct pattern: SHA tag for each commit, previous tag for the previous version, stable for the current production."
+      }
+    ]
+  },
+  {
+    "question": "A developer set up Review Apps. After merging the MR, the environment is not deleted. What is the most likely cause?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Forgot to specify `GIT_STRATEGY: none` in the stop job, so the job fails when trying to clone the deleted branch",
+        "correct": true,
+        "explanation": "A classic mistake. After merge, the branch is deleted. The stop job launches and tries to clone a nonexistent branch — fails with an error, the environment remains in a stopped state without executing the cleanup script."
+      },
+      {
+        "text": "Kubernetes namespace cannot be deleted via GitLab CI — a separate webhook is needed",
+        "correct": false,
+        "explanation": "Kubernetes namespace is perfectly deletable via kubectl in GitLab CI. The problem is that the stop job fails before executing this command."
+      },
+      {
+        "text": "auto_stop_in is not specified — GitLab does not know when to delete the environment",
+        "correct": false,
+        "explanation": "auto_stop_in is an optional setting for automatic deletion by timer. For deletion on MR close, on_stop is used, and its successful execution depends on GIT_STRATEGY."
+      },
+      {
+        "text": "rules instead of only/except — GitLab does not launch the stop job on merge",
+        "correct": false,
+        "explanation": "rules works correctly with Review Apps and on_stop. This is not the cause of the cleanup non-execution problem."
+      }
+    ]
+  },
+  {
+    "question": "How do CI/CD variables tied to a specific environment in GitLab Settings behave in the pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Available only in jobs where `environment: name` matches the variable's binding name",
+        "correct": true,
+        "explanation": "Correct. This is a key feature of Environment Variables in GitLab — secret isolation. The DATABASE_URL variable for production is only available in the deploy-production job, not in deploy-staging or test."
+      },
+      {
+        "text": "Variables with environment binding have priority over regular variables only in the deploy stage",
+        "correct": false,
+        "explanation": "Priority is determined by level (instance -> group -> project), not by stage. Environment variables are only available in matching jobs — this is about scope, not priority."
+      },
+      {
+        "text": "Available in all jobs of the pipeline, regardless of environment: name in the job",
+        "correct": false,
+        "explanation": "If production secrets were available everywhere, this would violate the principle of least privilege. GitLab specifically limits their visibility."
+      },
+      {
+        "text": "You must explicitly specify the variable name in `environment: variables:` to use it",
+        "correct": false,
+        "explanation": "Variables bound to an environment in the GitLab UI are automatically injected into the job — no additional configuration is needed in .gitlab-ci.yml."
+      }
+    ]
+  },
+  {
+    "question": "The team uses Rolling deploy to update 4 application instances. After updating the 2nd instance, a critical error is discovered. What is the fastest way to return the service to a stable state?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Wait for the rolling update to finish and then deploy the previous version",
+        "correct": false,
+        "explanation": "Waiting means updating 2 more instances with the broken version. The right thing is to stop the rolling update as early as possible."
+      },
+      {
+        "text": "Stop the pipeline and manually launch the previous image on the 2 updated instances",
+        "correct": false,
+        "explanation": "Manual work on instances is slow and non-reproducible. Better to use automated rollback via CI/CD."
+      },
+      {
+        "text": "Stop the current pipeline and launch the rollback job with the previous image SHA for all instances",
+        "correct": true,
+        "explanation": "Correct. A rollback job with when: manual and needs: [] can be launched immediately. It applies the previous stable image to all 4 instances — faster and more reliable than manual actions."
+      },
+      {
+        "text": "Press the Re-deploy button in GitLab UI for the previous deployment in the Environments section",
+        "correct": false,
+        "explanation": "Re-deploy via GitLab UI is a working option, but it launches the entire pipeline with the previous commit, which may take time. A dedicated rollback job without extra stages is faster."
+      }
+    ]
+  },
+  {
+    "question": "What is the \"mixed versions problem\" in Rolling deploy and when is it critical?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Different application instances run different versions simultaneously — critical when there are incompatible changes to the API or database schema",
+        "correct": true,
+        "explanation": "Exactly. If v2 changes a table format in the DB, and v1 writes in the old format — there will be corruption. Or if v2 changes the REST API contract — clients served by v1 will get an unexpected response. Solution: backward-compatible migrations and API versioning."
+      },
+      {
+        "text": "The problem only occurs with horizontal scaling of more than 10 instances",
+        "correct": false,
+        "explanation": "The mixed versions problem occurs with any number of instances (even 2). The 10-instance threshold is a made-up restriction."
+      },
+      {
+        "text": "Different versions of configuration files on different servers — easily solved through centralized config management",
+        "correct": false,
+        "explanation": "Configuration files are not the main problem. Critical is the simultaneous operation of incompatible code and data schema versions."
+      },
+      {
+        "text": "Different Docker image versions in the Registry — old images take up space",
+        "correct": false,
+        "explanation": "Storing multiple image versions is normal and needed for rollback. The mixed versions problem is about runtime behavior, not storage."
+      }
+    ]
+  },
+  {
+    "question": "In GitLab CI you need to set up deployment so that the `deploy-production` job runs only after a successful `deploy-staging`, only from the main branch, and only manually. Which configuration is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "`when: manual` + `needs: [deploy-staging]` without rules — needs already guarantees running after staging",
+        "correct": false,
+        "explanation": "needs guarantees execution order, but does not restrict the branch. Without rules, the job will run when deploying from any branch."
+      },
+      {
+        "text": "`when: manual` + `only: [main]` + `needs: [deploy-staging]`",
+        "correct": false,
+        "explanation": "only/except and rules cannot be used together with needs in modern pipelines. You need to use rules instead of only."
+      },
+      {
+        "text": "`stage: deploy-production` + `only: [main]` — stage guarantees order after deploy-staging",
+        "correct": false,
+        "explanation": "stages only provide sequential order. The job in stage deploy-production will run after the deploy-staging stage, but without when: manual — automatically."
+      },
+      {
+        "text": "`rules: [{if: '$CI_COMMIT_BRANCH == \"main\"', when: manual}]` + `needs: [deploy-staging]`",
+        "correct": true,
+        "explanation": "Correct. rules with the branch condition and when: manual set the launch condition. needs: [deploy-staging] guarantees that the job will be available only after a successful deploy-staging."
+      }
+    ]
+  },
+  {
+    "question": "A Review App is configured with `on_stop: stop-review`. In which cases will GitLab automatically launch the stop-review job?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only when manually pressing the Stop button in the Environments section",
+        "correct": false,
+        "explanation": "Manual stop is one way, but not the only one. GitLab can launch stop automatically in certain events."
+      },
+      {
+        "text": "Only when auto_stop_in expires — on merge you need to manually launch stop",
+        "correct": false,
+        "explanation": "GitLab automatically launches stop-review on branch deletion, which usually happens immediately after merging an MR. This is a key Review Apps feature."
+      },
+      {
+        "text": "On branch deletion (merge or delete) and on auto_stop_in timer expiration",
+        "correct": true,
+        "explanation": "Correct. GitLab automatically launches the on_stop job: on branch deletion (after MR merge), on auto_stop_in timer expiration, and on manual stop via the UI. This ensures automatic resource cleanup."
+      },
+      {
+        "text": "On every new deployment to the same environment — the old one automatically stops",
+        "correct": false,
+        "explanation": "A new deployment updates the environment, but does not stop it. stop-review is a separate action for resource deletion, it is not triggered on update."
+      }
+    ]
+  }
+]

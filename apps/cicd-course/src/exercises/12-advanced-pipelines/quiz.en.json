@@ -1,0 +1,392 @@
+[
+  {
+    "question": "What does the `strategy: depend` parameter do in a GitLab CI trigger job?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Passes variables from the parent pipeline to the child",
+        "correct": false,
+        "explanation": "Variable passing is handled by the variables: key inside the trigger job, not by strategy."
+      },
+      {
+        "text": "Limits the number of simultaneously running child pipelines",
+        "correct": false,
+        "explanation": "Child pipeline concurrency is not controlled by the strategy parameter. It only controls waiting behavior."
+      },
+      {
+        "text": "Allows the child pipeline to use variables from the parent",
+        "correct": false,
+        "explanation": "Child pipelines receive variables automatically via variables:, regardless of strategy."
+      },
+      {
+        "text": "Makes the parent pipeline wait for the child pipeline to complete before continuing",
+        "correct": true,
+        "explanation": "Exactly: without strategy: depend, the parent considers the trigger job done immediately after launching the child, without waiting for its result. With depend — it waits."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between a parent-child pipeline and a multi-project pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Multi-project is faster because it doesn't wait for the parent",
+        "correct": false,
+        "explanation": "Speed is determined not by the pipeline type, but by the strategy: depend parameter. Both types can wait or not wait."
+      },
+      {
+        "text": "Parent-child does not support variable passing, multi-project does",
+        "correct": false,
+        "explanation": "Both types support variable passing via variables: in the trigger job."
+      },
+      {
+        "text": "Parent-child only works with monorepo, multi-project — only with a single file",
+        "correct": false,
+        "explanation": "Parent-child actually splits one config into multiple files in the same repo. Multi-project is an entirely different mechanism."
+      },
+      {
+        "text": "Parent-child launches pipelines from files in the same repository, multi-project — from other GitLab repositories",
+        "correct": true,
+        "explanation": "The key difference: parent-child uses trigger: include: with a path to a file in the same repo. Multi-project uses trigger: project: with the namespace of another project."
+      }
+    ]
+  },
+  {
+    "question": "You have a monorepo with directories frontend/, backend/, mobile/. You need to run CI only for changed components. Which combination is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "include: artifact + generate",
+        "correct": false,
+        "explanation": "This is the dynamic child pipeline pattern — for generating config on the fly. Not optimal for conditional launching based on changes."
+      },
+      {
+        "text": "trigger: project + only: changes",
+        "correct": false,
+        "explanation": "trigger:project is used for cross-repo triggers. only: is outdated syntax, replace with rules:. But the main point: for monorepo you need trigger:include, not trigger:project."
+      },
+      {
+        "text": "trigger: include + rules: changes",
+        "correct": true,
+        "explanation": "The combination of trigger:include (for launching child pipelines) and rules:changes (for conditional launching based on directory changes) — the standard pattern for smart CI in monorepos."
+      },
+      {
+        "text": "needs + artifacts",
+        "correct": false,
+        "explanation": "needs controls job execution order (DAG), but not conditional launching based on changed files."
+      }
+    ]
+  },
+  {
+    "question": "How do you pass generated YAML to a trigger job in a dynamic child pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Via an environment variable with the file contents",
+        "correct": false,
+        "explanation": "GitLab CI does not support passing YAML config via variables. The artifacts mechanism is used."
+      },
+      {
+        "text": "Via cache with a fixed key",
+        "correct": false,
+        "explanation": "Cache does not guarantee file availability and is not the right mechanism for passing generated config. Artifacts are the correct choice."
+      },
+      {
+        "text": "Via artifacts:paths in the generate job and include:artifact in the trigger job",
+        "correct": true,
+        "explanation": "Exactly: the generate job saves the YAML as an artifact, and the trigger job references it via include: - artifact: generated.yml, job: generate-pipeline."
+      },
+      {
+        "text": "Via the GitLab API — save to a registry and read in the next job",
+        "correct": false,
+        "explanation": "The GitLab API is not needed for this. The artifacts:paths + include:artifact mechanism was designed precisely for this."
+      }
+    ]
+  },
+  {
+    "question": "The test-frontend job specifies needs: [{job: build-frontend, artifacts: true}]. What does this mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "test-frontend will run only after build-frontend AND load its artifacts, without waiting for other jobs in its stage",
+        "correct": true,
+        "explanation": "needs establishes an explicit dependency: the job starts immediately after build-frontend completes, without waiting for the stage barrier. artifacts:true indicates to download artifacts from that job."
+      },
+      {
+        "text": "test-frontend will run in parallel with build-frontend",
+        "correct": false,
+        "explanation": "needs is a dependency, not parallelism. test-frontend waits for build-frontend to complete."
+      },
+      {
+        "text": "test-frontend will download artifacts from all jobs named build-*",
+        "correct": false,
+        "explanation": "needs specifies a concrete job by name. Glob patterns are not supported in needs."
+      },
+      {
+        "text": "build-frontend will wait for test-frontend before deploying",
+        "correct": false,
+        "explanation": "The dependency is reversed: test-frontend waits for build-frontend. build-frontend does not wait for anything from test-frontend."
+      }
+    ]
+  },
+  {
+    "question": "Why can't generated YAML for a dynamic child pipeline use extends from parent pipeline templates?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The child pipeline is a separate isolated pipeline — it has no access to the parent's config and its templates",
+        "correct": true,
+        "explanation": "The dynamic child pipeline is created from generated YAML and is fully independent. Parent templates (.base-job etc.) are not available to it — it simply cannot see them."
+      },
+      {
+        "text": "extends only works with include:, not with artifact:",
+        "correct": false,
+        "explanation": "The restriction is not in the include type, but in the child pipeline's isolation from the parent. Parent templates are unavailable in any child pipeline."
+      },
+      {
+        "text": "GitLab prohibits extends in child pipelines for security reasons",
+        "correct": false,
+        "explanation": "The issue is not security, but architecture. A child pipeline is a separate entity."
+      },
+      {
+        "text": "Dynamic child can use extends, but only via include: remote:",
+        "correct": false,
+        "explanation": "This is not the case. Parent pipeline templates are unavailable in the child regardless of the connection method."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between `dependencies:` and `needs:` when working with artifacts?",
+    "type": "single",
+    "options": [
+      {
+        "text": "dependencies is faster because it does not block execution",
+        "correct": false,
+        "explanation": "dependencies does not control launch order, only artifact loading. needs controls both aspects."
+      },
+      {
+        "text": "dependencies controls artifact loading from jobs in previous stages; needs establishes execution dependency and can load artifacts from any jobs",
+        "correct": true,
+        "explanation": "dependencies — only artifact loading control, the job must be in a previous stage. needs — establishes dependency and can reference jobs from any stage, and artifacts:true in needs replaces dependencies."
+      },
+      {
+        "text": "needs only works within the same stage, dependencies — between stages",
+        "correct": false,
+        "explanation": "The opposite is true: needs can reference jobs from any stage (or even other projects), dependencies is limited to previous stages."
+      },
+      {
+        "text": "They are interchangeable and do the same thing",
+        "correct": false,
+        "explanation": "They are fundamentally different: dependencies — artifacts only, needs — execution order + optionally artifacts."
+      }
+    ]
+  },
+  {
+    "question": "How do you correctly specify a project in a multi-project trigger?",
+    "type": "single",
+    "options": [
+      {
+        "text": "trigger: project: $CI_PROJECT_NAMESPACE/myproject",
+        "correct": false,
+        "explanation": "Variables are technically supported, but $CI_PROJECT_NAMESPACE only contains the current group, which may not match the target project. Explicitly specifying the full path is recommended."
+      },
+      {
+        "text": "trigger: project: git@gitlab.com:mygroup/myproject.git",
+        "correct": false,
+        "explanation": "SSH URLs are not supported in trigger:project. Only the namespace path."
+      },
+      {
+        "text": "trigger: project: https://gitlab.com/mygroup/myproject",
+        "correct": false,
+        "explanation": "project: accepts a path (namespace), not a URL. A URL will cause an error."
+      },
+      {
+        "text": "trigger: project: mygroup/myproject",
+        "correct": true,
+        "explanation": "The correct format is the full namespace: group/project or group/subgroup/project. No scheme, no domain."
+      }
+    ]
+  },
+  {
+    "question": "A pipeline contains 5 jobs in the build stage and 5 jobs in the test stage. Each test job depends on only one build job. What happens without needs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All 5 test jobs will wait for all 5 build jobs to complete, even if their specific build is already ready",
+        "correct": true,
+        "explanation": "Stage is a synchronization barrier. The slowest build job blocks all test jobs. With needs, each test job starts right after its own build job."
+      },
+      {
+        "text": "All test jobs will start simultaneously with build jobs",
+        "correct": false,
+        "explanation": "Without needs, the stage barrier is mandatory: the test stage will not start until all build stage jobs are complete."
+      },
+      {
+        "text": "GitLab will automatically determine dependencies by job names",
+        "correct": false,
+        "explanation": "GitLab does not analyze job names to determine dependencies. Only explicit needs or stage order."
+      },
+      {
+        "text": "Test jobs will start after the first completed build job",
+        "correct": false,
+        "explanation": "No, the test stage waits for ALL jobs in the previous stage. There is no 'any ready — start' mechanism without needs."
+      }
+    ]
+  },
+  {
+    "question": "You generate a child pipeline in Python. The script exits with code 0, but the trigger job fails. What is the most likely reason?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Python is not supported for generating GitLab CI configs",
+        "correct": false,
+        "explanation": "GitLab CI does not restrict the generator language. You can use Python, bash, JavaScript — any tool available in the image."
+      },
+      {
+        "text": "The generated YAML is invalid — a syntax error or missing required key",
+        "correct": true,
+        "explanation": "A typical reason: the script runs successfully but generates incorrect YAML. GitLab validates the config when launching the trigger job and fails on a parsing error."
+      },
+      {
+        "text": "The trigger job must be in the same stage as the generate job",
+        "correct": false,
+        "explanation": "The trigger job must be in the stage AFTER the generate job, so the artifact is already created. The same stage won't work."
+      },
+      {
+        "text": "The YAML artifact was not saved due to incorrect expire_in",
+        "correct": false,
+        "explanation": "expire_in controls retention period, not artifact creation. If the script ran and artifacts:paths is correct, the file will be saved."
+      }
+    ]
+  },
+  {
+    "question": "What happens if in the parent pipeline the trigger job does not specify strategy: depend and the child pipeline fails?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The child pipeline will automatically restart",
+        "correct": false,
+        "explanation": "Automatic retry of a child pipeline on failure is not default behavior. You need to explicitly configure retry: in the jobs."
+      },
+      {
+        "text": "The parent pipeline will continue and complete successfully, even if the child failed",
+        "correct": true,
+        "explanation": "Without strategy:depend, the trigger job is considered done immediately after launching the child. The child's status does not affect the parent — this is a deployment trap."
+      },
+      {
+        "text": "The parent pipeline will also fail immediately",
+        "correct": false,
+        "explanation": "Without strategy:depend, the parent does not track the child's status. It will not learn about the failure."
+      },
+      {
+        "text": "The parent pipeline will pause and wait for manual intervention",
+        "correct": false,
+        "explanation": "Manual pausing is the behavior of when:manual. Without strategy:depend, the parent simply continues execution."
+      }
+    ]
+  },
+  {
+    "question": "When do you need Dynamic child pipelines instead of regular parent-child?",
+    "type": "single",
+    "options": [
+      {
+        "text": "When you need to speed up the pipeline by removing barriers between stages",
+        "correct": false,
+        "explanation": "For speeding up by eliminating stage barriers, use DAG (needs). Dynamic child is about dynamic config generation."
+      },
+      {
+        "text": "When the number or composition of components/jobs is unknown in advance and is determined during execution",
+        "correct": true,
+        "explanation": "Exactly: if you need to test N services, where N is not statically known (depends on file structure, config, API), the dynamic child pipeline generates the required YAML on the fly."
+      },
+      {
+        "text": "When you need to launch a pipeline in another repository",
+        "correct": false,
+        "explanation": "For another repository, use multi-project pipeline (trigger:project:). Dynamic child is for dynamically generated config in the same repo."
+      },
+      {
+        "text": "When the child pipeline needs access to parent variables",
+        "correct": false,
+        "explanation": "Variable access is implemented via variables: in any type of trigger job. Dynamic child does not provide additional capabilities in this regard."
+      }
+    ]
+  },
+  {
+    "question": "The deploy job specifies needs without artifacts:true. What does this mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "deploy will download artifacts from all jobs in previous stages",
+        "correct": false,
+        "explanation": "This is the default behavior without needs. With needs, only artifacts from the specified jobs are downloaded — and only if artifacts:true is explicitly set."
+      },
+      {
+        "text": "deploy will run after the listed jobs but will not download their artifacts",
+        "correct": true,
+        "explanation": "needs establishes execution order, artifacts:true is an optional parameter for loading artifacts. Without it, there is an execution dependency but no artifact loading."
+      },
+      {
+        "text": "deploy will fail with an error — artifacts:true is required when using needs",
+        "correct": false,
+        "explanation": "artifacts:true is optional. needs without it simply sets the launch order without artifact loading."
+      },
+      {
+        "text": "This syntax is invalid — needs requires explicit artifact specification",
+        "correct": false,
+        "explanation": "The syntax is valid. needs:[{job:some-job}] without artifacts is equivalent to needs:[{job:some-job, artifacts:false}]."
+      }
+    ]
+  },
+  {
+    "question": "A team wants to automatically run integration tests in the e2e-tests repository every time a new tag is released in the api repository. Which mechanism to use?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Parent-child pipeline with include:local",
+        "correct": false,
+        "explanation": "include:local references a file in the same repository. For cross-repo integration, multi-project pipeline is needed."
+      },
+      {
+        "text": "Dynamic child pipeline with YAML generation based on git tags",
+        "correct": false,
+        "explanation": "Dynamic child pipeline cannot launch a pipeline in another repository. For cross-repo, trigger:project is needed."
+      },
+      {
+        "text": "needs: with a link to the e2e-tests project",
+        "correct": false,
+        "explanation": "needs:project allows downloading artifacts from another repo, but does not launch a pipeline there. For launching, trigger:project is needed."
+      },
+      {
+        "text": "Multi-project pipeline: trigger:project: e2e-tests/repo with rules:if '$CI_COMMIT_TAG'",
+        "correct": true,
+        "explanation": "Exactly: trigger:project specifies the target repository, rules:if '$CI_COMMIT_TAG' restricts launching to tags only. The tag can be passed via variables: for use in e2e-tests."
+      }
+    ]
+  },
+  {
+    "question": "You see a pipeline: build takes 15 min, unit-tests — 5 min, integration-tests — 10 min, deploy — 2 min. All in different stages. How to optimize with needs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add needs only to deploy, leave the rest as is",
+        "correct": false,
+        "explanation": "This is a partial optimizationation: deploy starts faster, but unit-tests and integration-tests will still wait for the entire build stage to complete before starting."
+      },
+      {
+        "text": "Put all jobs in one stage and add needs between them",
+        "correct": false,
+        "explanation": "Technically this works, but it breaks the logical organization of the pipeline. Better to keep stages for semantics and add needs to eliminate unnecessary barriers."
+      },
+      {
+        "text": "Remove stages entirely and use only needs",
+        "correct": false,
+        "explanation": "Removing stages is not necessary. stages provide semantics and display in the GitLab UI. needs complements stages, it doesn't replace them."
+      },
+      {
+        "text": "Add needs to unit-tests and integration-tests pointing to build, and to deploy pointing to both tests. Then unit-tests and integration-tests will start immediately after build in parallel",
+        "correct": true,
+        "explanation": "This is the optimal approach: unit-tests and integration-tests only need build (not each other), so they can go in parallel. deploy needs both tests. Total time: 15 + max(5,10) + 2 = 27 min instead of 32."
+      }
+    ]
+  }
+]

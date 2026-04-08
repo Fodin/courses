@@ -1,0 +1,397 @@
+[
+  {
+    "question": "The team notices that the pipeline takes 25 minutes. All jobs are chained sequentially through stages. What is the first optimization step?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Reduce expire_in for artifacts",
+        "correct": false,
+        "explanation": "Artifact retention time does not affect pipeline execution speed."
+      },
+      {
+        "text": "Move all jobs into a single stage",
+        "correct": false,
+        "explanation": "This would make all jobs parallel without considering dependencies. Tests would run before the build, causing errors."
+      },
+      {
+        "text": "Add more Runners",
+        "correct": false,
+        "explanation": "More Runners won't help if jobs run sequentially — they'll just wait in the queue."
+      },
+      {
+        "text": "Use needs to create a DAG — jobs will start immediately after their dependencies, not wait for the entire stage",
+        "correct": true,
+        "explanation": "needs breaks the rigid tie to stages. A job starts as soon as its direct dependencies are ready, not when the entire stage finishes. This is the main lever for speedup."
+      }
+    ]
+  },
+  {
+    "question": "What is GIT_DEPTH: '1' in the context of CI/CD and why use it?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Limit the number of parallel jobs in the pipeline",
+        "correct": false,
+        "explanation": "GIT_DEPTH controls git clone depth, not the number of jobs."
+      },
+      {
+        "text": "Set the pipeline priority — 1 means the highest priority",
+        "correct": false,
+        "explanation": "GIT_DEPTH is not related to priority. It controls git clone depth."
+      },
+      {
+        "text": "Allow only one nesting level in .gitlab-ci.yml",
+        "correct": false,
+        "explanation": "This is not an existing GitLab CI configuration parameter."
+      },
+      {
+        "text": "Download only the last commit without history — speeds up clone in projects with long history",
+        "correct": true,
+        "explanation": "A shallow clone with depth=1 downloads only the current code state. For most CI jobs, full history is not needed, and its absence saves minutes on clone."
+      }
+    ]
+  },
+  {
+    "question": "In a monorepo there are frontend and backend. When only README.md changes, all tests run — frontend, backend, e2e. How to fix this?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use rules:changes with paths to the corresponding directories — the job runs only when files in those paths change",
+        "correct": true,
+        "explanation": "rules:changes allows running a job only when files at specified paths change. test:frontend — when src/frontend/** changes, test:backend — when src/backend/** changes."
+      },
+      {
+        "text": "Use only: changes instead of rules:changes",
+        "correct": false,
+        "explanation": "only/except is deprecated syntax. GitLab recommends using rules, which is more flexible."
+      },
+      {
+        "text": "Create separate repositories for each component",
+        "correct": false,
+        "explanation": "Splitting into repositories would solve the symptom but create new coordination problems. GitLab CI has tools for monorepos."
+      },
+      {
+        "text": "Add when: manual for all tests",
+        "correct": false,
+        "explanation": "Manual triggering is not automation. Developers will forget to run tests."
+      }
+    ]
+  },
+  {
+    "question": "How does extends differ from YAML anchors (&/*) when organizing .gitlab-ci.yml?",
+    "type": "single",
+    "options": [
+      {
+        "text": "extends supports includes from other files, works with multiple parents, and is more readable; YAML anchors don't work with includes",
+        "correct": true,
+        "explanation": "The key difference: YAML anchors are processed by the YAML parser before GitLab, so they don't work with include. extends is a GitLab CI feature processed after all includes are assembled."
+      },
+      {
+        "text": "extends works slower — GitLab must process inheritance before running",
+        "correct": false,
+        "explanation": "Config processing speed is negligible and not a valid argument for choosing an approach."
+      },
+      {
+        "text": "extends only works with jobs in the same file, anchors work across all includes",
+        "correct": false,
+        "explanation": "The opposite is true. extends works with jobs from any files connected via include. Anchors are limited to a single file."
+      },
+      {
+        "text": "YAML anchors support conditional inheritance through rules, extends does not",
+        "correct": false,
+        "explanation": "Both approaches work equally with rules. That is not the difference."
+      }
+    ]
+  },
+  {
+    "question": "A team wants to switch to trunk-based development. What does this mean for the development process?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Every commit is automatically deployed to production",
+        "correct": false,
+        "explanation": "Not necessarily. Trunk-based development is about code integration, not auto-deploy to prod. Feature flags allow deploying without enabling functionality."
+      },
+      {
+        "text": "Incomplete code is hidden behind feature flags rather than waiting in a separate branch",
+        "correct": true,
+        "explanation": "Feature flags are a key tool of trunk-based development. Code is deployed but functionality is enabled separately."
+      },
+      {
+        "text": "Feature branches live no more than 1-2 days",
+        "correct": true,
+        "explanation": "Short-lived branches reduce the risk of conflicts and allow faster feedback from CI."
+      },
+      {
+        "text": "All developers commit to main at least once a day",
+        "correct": true,
+        "explanation": "Trunk-based development assumes frequent small integrations into the main branch instead of long-lived feature branches."
+      }
+    ]
+  },
+  {
+    "question": "What is DORA Lead Time for Changes and why is this metric important?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Time to restore service after an incident",
+        "correct": false,
+        "explanation": "This is the Time to Restore Service (MTTR) metric, not Lead Time for Changes."
+      },
+      {
+        "text": "Execution time of the longest job in the pipeline",
+        "correct": false,
+        "explanation": "This is the time of a specific job, not the end-to-end delivery metric."
+      },
+      {
+        "text": "Time for Merge Request code review — how long an MR waits for approval",
+        "correct": false,
+        "explanation": "Review time is part of Lead Time, but the metric is broader — from commit to production."
+      },
+      {
+        "text": "Time from commit in main to deployment in production — shows the speed of value delivery",
+        "correct": true,
+        "explanation": "Lead Time measures the entire journey: code written -> running in production. Elite teams achieve < 1 hour. This directly impacts product competitiveness."
+      }
+    ]
+  },
+  {
+    "question": "You have a pipeline with 8 jobs. After optimization via needs it's faster, but the 'build:docker' job still takes 12 minutes. Which approaches would help speed it up specifically?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "This requires a special license",
+        "correct": false,
+        "explanation": "The listed technologies have open-source versions."
+      },
+      {
+        "text": "Use BuildKit with Docker image layer caching between runs",
+        "correct": true,
+        "explanation": "Docker layer cache is the main tool for speeding up image builds. BuildKit can cache layers in a registry or locally on the Runner."
+      },
+      {
+        "text": "Reduce GIT_DEPTH to 1 specifically for this job",
+        "correct": true,
+        "explanation": "If build:docker doesn't need git history (only files), a shallow clone saves time on git operations."
+      },
+      {
+        "text": "Add parallel: 4 to the build:docker job",
+        "correct": false,
+        "explanation": "parallel runs N copies of the same job with different $CI_NODE_INDEX values. For building a single Docker image this won't help — you can't build one image in parallel."
+      },
+      {
+        "text": "Optimize the Dockerfile: combine RUN commands, properly order layers (frequently changing ones at the end)",
+        "correct": true,
+        "explanation": "Layer order in the Dockerfile is critical for caching. COPY package.json and npm install should come before COPY src/ — otherwise cache is invalidated on every code change."
+      }
+    ]
+  },
+  {
+    "question": "How to properly structure .gitlab-ci.yml for a large project with build, test, security scan, and deploy?",
+    "type": "single",
+    "options": [
+      {
+        "text": "One .gitlab-ci.yml file with comment separators",
+        "correct": false,
+        "explanation": "Comments help readability but don't solve the scaling problem. 1000 lines with comments are still hard to maintain."
+      },
+      {
+        "text": "Use only YAML anchors for DRY — this is the most compact approach",
+        "correct": false,
+        "explanation": "YAML anchors don't work across include files. When splitting into files, you'll have to use extends."
+      },
+      {
+        "text": "Split logic into .gitlab/ci/*.yml files and connect via include; the main file contains only stages and global variables",
+        "correct": true,
+        "explanation": "Separation by responsibility through include makes each file understandable, reduces conflicts during parallel team work, and simplifies navigation."
+      },
+      {
+        "text": "Create a separate repository for CI/CD configs",
+        "correct": false,
+        "explanation": "A separate repository creates a version synchronization problem between code and CI config. Config should live alongside code."
+      }
+    ]
+  },
+  {
+    "question": "What is GitOps and how does it differ from classical CI/CD deployment?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitOps is storing .gitlab-ci.yml in a separate repository",
+        "correct": false,
+        "explanation": "This is not GitOps. Storing CI config separately is more of an anti-pattern."
+      },
+      {
+        "text": "In GitOps the pipeline updates git manifests, and the cluster itself (via ArgoCD/Flux) applies changes; in the classical approach the pipeline deploys directly",
+        "correct": true,
+        "explanation": "GitOps inverts the direction: instead of CI pushing to the cluster, the cluster pulls from git. Git becomes the single source of truth for the desired state."
+      },
+      {
+        "text": "GitOps requires using only git tags for deployment, no branches",
+        "correct": false,
+        "explanation": "GitOps does not restrict the source of changes. Typically the image tag in Helm values.yaml is changed — this can happen from any branch."
+      },
+      {
+        "text": "GitOps is a marketing term for deployment via git push",
+        "correct": false,
+        "explanation": "GitOps is an architectural pattern with concrete principles: declarativeness, versioning, automatic synchronization, a control loop closure system."
+      }
+    ]
+  },
+  {
+    "question": "You write a .deploy-template with variables $APP_NAME and $K8S_NAMESPACE. The deploy:staging and deploy:production jobs inherit it, but with different variables. Which approach is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Create a separate .yml file for each environment — staging.yml, production.yml",
+        "correct": false,
+        "explanation": "This reduces readability and creates duplication. One template with parameters is better than several similar files."
+      },
+      {
+        "text": "Duplicate the entire script in each job, changing only the variables",
+        "correct": false,
+        "explanation": "This violates DRY. Changing deploy logic requires updating all places — high risk of errors."
+      },
+      {
+        "text": "Pass variables via trigger: — this mechanism is designed for passing parameters",
+        "correct": false,
+        "explanation": "trigger launches a child pipeline. For parameterizing jobs within the same pipeline, use extends with variables."
+      },
+      {
+        "text": "Use extends: .deploy-template and override variables through variables in each job",
+        "correct": true,
+        "explanation": "The correct pattern. The script is in one template, environment variables are in child jobs. Change deploy logic in one place — it changes everywhere."
+      }
+    ]
+  },
+  {
+    "question": "The DORA Change Failure Rate metric for the team is 30%. What does this mean and what should be done?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Reduce deployment frequency — deploy less often, fewer problems",
+        "correct": false,
+        "explanation": "This is counterintuitive but wrong. Deploy less often -> larger batches of changes -> harder to roll back -> higher risk. Better to deploy more often, but in smaller increments."
+      },
+      {
+        "text": "30% of deployments lead to incidents or require a hotfix — this is 'medium' level by DORA",
+        "correct": true,
+        "explanation": "Change Failure Rate of 30% means: every third deployment causes problems. By DORA benchmark: elite < 5%, high < 10%, medium 15-45%."
+      },
+      {
+        "text": "Implement canary deployments or blue-green deployment to reduce risk",
+        "correct": true,
+        "explanation": "Gradual rollout catches the problem at a small traffic percentage and rolls back before the incident affects all users."
+      },
+      {
+        "text": "Strengthen automated testing before deployment, especially integration tests",
+        "correct": true,
+        "explanation": "High CFR often means insufficient test coverage. Tests should catch problems before prod, not after."
+      }
+    ]
+  },
+  {
+    "question": "What does the 'Fail Fast' principle mean in the context of a pipeline and how to implement it correctly?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The pipeline should fail as often as possible to detect more errors",
+        "correct": false,
+        "explanation": "The goal is not the number of failures but the speed of problem detection. The pipeline should be reliable, not unstable."
+      },
+      {
+        "text": "Use allow_failure: true for all jobs — the pipeline never blocks work",
+        "correct": false,
+        "explanation": "allow_failure: true for all jobs means checks verify nothing. This is the complete opposite of Fail Fast."
+      },
+      {
+        "text": "The fastest and cheapest checks (linter, static analysis) should come first — if they fail, expensive tests won't run",
+        "correct": true,
+        "explanation": "A 30-second linter should come before 15-minute e2e tests. If the code doesn't compile, there's no point running tests. The developer gets feedback faster."
+      },
+      {
+        "text": "Run all jobs in parallel without dependencies — this way the first error will be found faster",
+        "correct": false,
+        "explanation": "Running tests in parallel with the build will cause a 'no artifacts' error. Dependencies are needed, they just need to be optimized."
+      }
+    ]
+  },
+  {
+    "question": "A team has set up feature flags for new functionality. Code is deployed to prod, flag is off. What advantages does this approach have over a feature branch?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "No need to write tests — the flag can just be turned off if there are problems",
+        "correct": false,
+        "explanation": "Feature flags don't replace tests. Code with a flag must still be covered by tests — otherwise unexpected bugs will appear when the flag is enabled."
+      },
+      {
+        "text": "You can test on real traffic with gradual enablement (1% -> 10% -> 100%)",
+        "correct": true,
+        "explanation": "Canary release via feature flags is a powerful technique. You can enable a feature for 1% of users, look at metrics, and only then expand."
+      },
+      {
+        "text": "Code in main goes through real CI/CD and integrates with the rest of the code continuously",
+        "correct": true,
+        "explanation": "A feature branch accumulates divergence from main. Flagged code is always in main — no merge conflicts."
+      },
+      {
+        "text": "Instant rollback: turn off the flag — rolled back, without a new deployment",
+        "correct": true,
+        "explanation": "This is one of the main advantages. Time to Restore for a flag problem is seconds, not minutes for a new deployment."
+      }
+    ]
+  },
+  {
+    "question": "You are setting up pipeline monitoring. You need to receive Slack notifications only when the pipeline fails on the main branch. Which configuration is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "when: on_failure without rules — notification on any failure in any branch",
+        "correct": false,
+        "explanation": "Notifications about every feature branch failure create noise. It's critical to monitor main specifically."
+      },
+      {
+        "text": "only: [master] — old syntax, but works for branch restriction",
+        "correct": false,
+        "explanation": "only/except are deprecated. Additionally, you still need to specify when: on_failure — only doesn't control success/failure conditions."
+      },
+      {
+        "text": "stage: .post without additional conditions — the .post stage always runs on errors",
+        "correct": false,
+        "explanation": ".post runs after other stages, but not automatically on errors. Without when: on_failure the job only runs when the pipeline succeeds."
+      },
+      {
+        "text": "rules: [{if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH', when: on_failure}] — notification only on main branch failure",
+        "correct": true,
+        "explanation": "The combination of if (branch condition) and when: on_failure precisely configures the trigger. Noise from feature branches doesn't interfere."
+      }
+    ]
+  },
+  {
+    "question": "The project is growing: 15 developers, 3 teams, monorepo. The pipeline takes 45 minutes. Which changes will have the biggest effect?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "rules:changes — run tests only for changed components",
+        "correct": true,
+        "explanation": "With 3 teams, developers often change only their own component. rules:changes will let the backend team avoid waiting for frontend tests."
+      },
+      {
+        "text": "GIT_DEPTH: '1' globally — speed up clone on all jobs",
+        "correct": true,
+        "explanation": "In a large project, git history can take significant time. Shallow clone speeds up every job."
+      },
+      {
+        "text": "Split the monorepo into separate repositories — this is the only scalable solution",
+        "correct": false,
+        "explanation": "Splitting solves the pipeline problem but creates coordination problems between teams. Optimizing the monorepo via rules:changes is more effective."
+      },
+      {
+        "text": "Distributed cache (S3/GCS) for sharing cache between Runners",
+        "correct": true,
+        "explanation": "15 developers = many parallel pipelines = many Runners. Without distributed cache, each Runner installs dependencies from scratch."
+      }
+    ]
+  }
+]

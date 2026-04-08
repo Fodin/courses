@@ -9,7 +9,8 @@ import { useLanguage } from '@courses/platform'
 // { id: string, label: string, desc: string }[]
 // Минимум 4 варианта: dist/, reports/, public/, coverage/
 const ARTIFACT_PATHS: { id: string; label: string; desc: string }[] = [
-  // TODO: заполни массив
+  // TODO: fill in the array
+  // Заполни массив
 ]
 
 // TODO: Define expire_in options
@@ -24,7 +25,10 @@ const WHEN_OPTIONS: { value: string; label: string; desc: string }[] = []
 // TODO: Implement buildArtifactsYaml
 // Принимает: paths (string[]), expireIn (string), when (string)
 // Возвращает: строку YAML конфига для секции artifacts
+// Accepts: paths (string[]), expireIn (string), when (string)
+// Returns: YAML config string for the artifacts section
 function buildArtifactsYaml(_paths: string[], _expireIn: string, _when: string): string {
+  // TODO: build YAML string with paths, expire_in and when
   // TODO: собери YAML-строку с paths, expire_in и when
   return ''
 }
@@ -36,6 +40,7 @@ export function Task5_1() {
   const [expireIn, setExpireIn] = useState('1 week')
   const [when, setWhen] = useState('on_success')
 
+  // TODO: Implement togglePath — adds/removes path from selectedPaths
   // TODO: Implement togglePath — добавляет/удаляет путь из selectedPaths
   const togglePath = (_label: string) => {
     // TODO
@@ -52,27 +57,43 @@ export function Task5_1() {
       {/* Отобрази три блока: Build → Test → Deploy */}
       {/* Между блоками — стрелки с названием артефакта */}
       {/* При when === 'on_failure' — подсвети build-блок красным */}
+      {/* Display three blocks: Build → Test → Deploy */}
+      {/* Between blocks — arrows with artifact name */}
+      {/* When when === 'on_failure' — highlight build block in red */}
 
       {/* TODO: Warning banner for on_failure */}
       {/* Если when === 'on_failure', показать информационную плашку */}
+      {/* If when === 'on_failure', show an info banner */}
 
       <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
         {/* Settings panel */}
         <div style={{ flex: '1 1 280px' }}>
+          {/* TODO: artifacts:paths — checkboxes */}
           {/* TODO: artifacts:paths — чекбоксы */}
+          {/* For each path in ARTIFACT_PATHS — a checkbox */}
           {/* Для каждого пути из ARTIFACT_PATHS — чекбокс */}
+          {/* On change — call togglePath */}
           {/* При изменении — вызывать togglePath */}
 
+          {/* TODO: artifacts:expire_in — buttons */}
           {/* TODO: artifacts:expire_in — кнопки */}
+          {/* For each option in EXPIRE_OPTIONS — a button */}
           {/* Для каждого варианта из EXPIRE_OPTIONS — кнопка */}
+          {/* Active button is highlighted with color */}
           {/* Активная кнопка выделяется цветом */}
+          {/* On click — setExpireIn(opt) */}
           {/* При клике — setExpireIn(opt) */}
 
+          {/* TODO: artifacts:when — buttons */}
           {/* TODO: artifacts:when — кнопки */}
+          {/* For each option in WHEN_OPTIONS — a button with description */}
           {/* Для каждого варианта из WHEN_OPTIONS — кнопка с описанием */}
+          {/* Active button is highlighted */}
           {/* Активная кнопка выделяется */}
+          {/* On click — setWhen(opt.value) */}
           {/* При клике — setWhen(opt.value) */}
 
+          {/* Placeholder so the component compiles */}
           {/* Placeholder чтобы компонент компилировался */}
           <div style={{ color: '#aaa' }}>
             selectedPaths: {selectedPaths.join(', ')} | expireIn: {expireIn} | when: {when}
@@ -80,8 +101,12 @@ export function Task5_1() {
         </div>
 
         {/* TODO: YAML output */}
+        {/* YAML output */}
+        {/* <pre> with dark background */}
         {/* <pre> с тёмным фоном */}
+        {/* Content: buildArtifactsYaml(selectedPaths, expireIn, when) */}
         {/* Содержимое: buildArtifactsYaml(selectedPaths, expireIn, when) */}
+        {/* Updates on every settings change */}
         {/* Обновляется при каждом изменении настроек */}
         <div style={{ flex: '1 1 280px', color: '#aaa' }}>
           YAML будет здесь

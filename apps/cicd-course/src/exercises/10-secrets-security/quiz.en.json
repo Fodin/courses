@@ -1,0 +1,397 @@
+[
+  {
+    "question": "What is the fundamental difference between Variable and File variable types in GitLab CI?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Variable is stored encrypted, File is stored in plaintext",
+        "correct": false,
+        "explanation": "Both types are stored encrypted. The difference is how the value is passed to the job: as a string or via a file."
+      },
+      {
+        "text": "File can only be used in deploy jobs",
+        "correct": false,
+        "explanation": "File type is available for any job. There are no stage restrictions."
+      },
+      {
+        "text": "File supports masking in logs, Variable does not",
+        "correct": false,
+        "explanation": "The opposite is true: the Masked flag only works for Variable (single-line values). File does not support masked."
+      },
+      {
+        "text": "Variable is passed as an environment variable string, File is saved to a temporary file and the path to it is passed",
+        "correct": true,
+        "explanation": "Exactly. $MY_VAR for Variable contains the value itself (a string), while for File it contains a path like /tmp/gitlab-runner-file123. This is important for multi-line secrets: PEM certificates, kubeconfig, SSH keys."
+      }
+    ]
+  },
+  {
+    "question": "A developer added a variable with the Masked flag, but GitLab refuses: 'Value cannot be masked'. What is the most likely reason?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The value contains spaces, special characters, or line breaks — masked only works for simple single-line values",
+        "correct": true,
+        "explanation": "Correct. GitLab can only mask values without spaces, line breaks, and certain special characters. A PEM certificate or JSON key won't work — use the File type instead."
+      },
+      {
+        "text": "Owner role is required to create masked variables",
+        "correct": false,
+        "explanation": "Creating variables requires the Maintainer role (for a project) or Owner (for a group), but this is not the cause of the 'Value cannot be masked' error."
+      },
+      {
+        "text": "The value exceeds 255 characters in length",
+        "correct": false,
+        "explanation": "GitLab does limit masked value lengths, but the message would be different. The main reason is forbidden characters."
+      },
+      {
+        "text": "The variable was already used in a pipeline — you cannot change the type after the first run",
+        "correct": false,
+        "explanation": "No such restriction exists. GitLab allows modifying variables at any time."
+      }
+    ]
+  },
+  {
+    "question": "A protected variable `PROD_DB_PASSWORD` is configured at the project level. Under what condition will a job have access to it?",
+    "type": "single",
+    "options": [
+      {
+        "text": "If the job is in the deploy stage",
+        "correct": false,
+        "explanation": "The stage does not affect access to protected variables. What matters is whether the branch/tag is protected."
+      },
+      {
+        "text": "Protected variables are available in all jobs always",
+        "correct": false,
+        "explanation": "This describes a regular (non-protected) variable. A protected variable is intentionally limited to protected branches only."
+      },
+      {
+        "text": "If the job is run by any user with the Developer role",
+        "correct": false,
+        "explanation": "The user's role does not determine access to Protected variables. What matters is the protected status of the branch or tag the pipeline is running on."
+      },
+      {
+        "text": "If the pipeline is run on a branch or tag marked as Protected",
+        "correct": true,
+        "explanation": "Exactly. A protected variable is only available if the source branch/tag is marked as protected in Settings -> Repository. This prevents production secret leakage into feature branches."
+      }
+    ]
+  },
+  {
+    "question": "What is the advantage of JWT/OIDC authentication in Vault over storing VAULT_TOKEN in GitLab variables?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "No secrets need to be stored in GitLab for Vault access — solves the 'chicken and egg' problem",
+        "correct": true,
+        "explanation": "Correct. GitLab signs the JWT with its private key, Vault trusts the GitLab OIDC endpoint. No pre-distributed secrets are needed."
+      },
+      {
+        "text": "The token is issued dynamically for the job duration and automatically revoked — no manual rotation needed",
+        "correct": true,
+        "explanation": "Correct. The GitLab JWT token only lives during job execution. There are no long-lived secrets that need regular rotation."
+      },
+      {
+        "text": "JWT authentication is faster than Token authentication",
+        "correct": false,
+        "explanation": "Speed is not the main advantage. OIDC adds an additional round-trip for token exchange. The key benefit is security."
+      },
+      {
+        "text": "Vault policies can be tied to a specific project, branch, and even environment",
+        "correct": true,
+        "explanation": "Correct. JWT claims contain information about the project, branch, and environment. Vault can issue different permissions based on these attributes."
+      }
+    ]
+  },
+  {
+    "question": "A team is setting up production deployment. Requirement: minimum 2 approvals from senior engineers, and a developer cannot approve their own deployment. Where is this configured in GitLab?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In Settings -> CI/CD -> Environments -> deployment approvals",
+        "correct": true,
+        "explanation": "Correct. In Environment settings you configure: required approvals count, list of approvers, prevent self-approval. This is independent from repository code."
+      },
+      {
+        "text": "In Settings -> Repository -> Approval rules",
+        "correct": false,
+        "explanation": "Approval rules in Repository settings relate to Merge Request approvals, not deployment approvals. For deployments, use Environments."
+      },
+      {
+        "text": "In .gitlab-ci.yml via the approvals: required: 2 key",
+        "correct": false,
+        "explanation": "No such key exists in .gitlab-ci.yml. Deployment approval rules are configured in the GitLab UI, not in YAML."
+      },
+      {
+        "text": "Via the GitLab API — approval rules cannot be configured through the UI",
+        "correct": false,
+        "explanation": "Deployment approvals are fully configurable through the UI in Settings -> CI/CD -> Environments."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following statements about HashiCorp Vault dynamic secrets are correct?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Vault creates temporary credentials (e.g., AWS IAM user) specifically for the current job and removes them after TTL",
+        "correct": true,
+        "explanation": "That's exactly how dynamic secrets work. Vault requests a temporary user from AWS, issues credentials to the job, and revokes them after N minutes/hours."
+      },
+      {
+        "text": "Dynamic secrets do not support auditing — you cannot know who accessed what and when",
+        "correct": false,
+        "explanation": "On the contrary. Vault maintains a detailed audit log: when a secret was created, for which role, when it was revoked. This is one of Vault's main advantages."
+      },
+      {
+        "text": "Vault can generate temporary credentials for PostgreSQL, MySQL, AWS, GCP, and other systems",
+        "correct": true,
+        "explanation": "Correct. Vault supports numerous secrets engines: database (PostgreSQL, MySQL), AWS, GCP, Azure, SSH, and others."
+      },
+      {
+        "text": "A leaked dynamic secret is useless after TTL expires — a fundamental advantage over static secrets",
+        "correct": true,
+        "explanation": "Correct. A static AWS key is valid forever after a leak. A dynamic one lives at most the TTL (e.g., 1 hour) and is automatically invalidated."
+      },
+      {
+        "text": "This requires a special license",
+        "correct": false,
+        "explanation": "The listed technologies have open-source versions."
+      }
+    ]
+  },
+  {
+    "question": "In .gitlab-ci.yml, a variable named `REGISTRY_URL` is declared at the group level. In a project, a variable with the same name is declared. What will the job receive?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The pipeline will fail with an error — variables with the same name are not allowed at different levels",
+        "correct": false,
+        "explanation": "This is a legal and useful construct. Name conflicts are not an error — the variable with higher priority is applied."
+      },
+      {
+        "text": "The group value — project variables cannot override group variables",
+        "correct": false,
+        "explanation": "GitLab allows overriding variables at lower levels. A project variable takes priority over a group variable with the same name."
+      },
+      {
+        "text": "Values combined with a comma: 'group_value,project_value'",
+        "correct": false,
+        "explanation": "Values are not merged. A single value is applied according to level priority."
+      },
+      {
+        "text": "The project value — project variables have higher priority than group variables",
+        "correct": true,
+        "explanation": "Correct. Priority hierarchy: project > subgroup > group > instance. This allows setting defaults at the group level and overriding them in specific projects."
+      }
+    ]
+  },
+  {
+    "question": "Why is it dangerous to do `echo $SECRET_TOKEN` in a job script, even if the variable is marked as Masked?",
+    "type": "single",
+    "options": [
+      {
+        "text": "If the value is split into parts (substring, base64, character-by-character loop) — masked won't protect it, the secret will appear in logs",
+        "correct": true,
+        "explanation": "Correct. Masked searches for the exact variable value in output. If you output echo ${SECRET_TOKEN:0:10} or base64-decode and print — masked won't find the pattern to replace."
+      },
+      {
+        "text": "echo is slower than printf — you should use printf to output variables",
+        "correct": false,
+        "explanation": "The speed of echo vs printf has nothing to do with secret security."
+      },
+      {
+        "text": "echo is not dangerous — masked variables are never output anyway",
+        "correct": false,
+        "explanation": "A masked variable is only masked when the GitLab runner writes command output. But if the value is processed (e.g., base64-decoded or split character by character), masking may not trigger."
+      },
+      {
+        "text": "Masked variables cannot be used in scripts — only in before_script",
+        "correct": false,
+        "explanation": "Masked variables are available in script, before_script, after_script — everywhere. The issue is not where they are used."
+      }
+    ]
+  },
+  {
+    "question": "A developer created a feature branch and noticed that the deploy-prod job is not running, while it works in another project on the same branch. What could be the reason?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The 'production' Environment is configured with 'Deployment branch: main only' restriction",
+        "correct": true,
+        "explanation": "Correct. In Settings -> CI/CD -> Environments, you can restrict deployment to a specific environment only from certain branches. This is an additional security layer."
+      },
+      {
+        "text": "Protected variables are not available in feature branches — the job fails without prod secrets",
+        "correct": true,
+        "explanation": "Correct. If deploy-prod uses protected variables and the feature branch is not protected — the variables will be empty, which can cause a job error or skip."
+      },
+      {
+        "text": "GitLab automatically blocks deploy jobs in feature branches without additional configuration",
+        "correct": false,
+        "explanation": "GitLab does not do this automatically. You need to explicitly configure restrictions: rules, only, protected variables, environment approvals."
+      },
+      {
+        "text": "The deploy-prod job has `only: - main` or `rules: if: $CI_COMMIT_BRANCH == 'main'` — it only runs on main",
+        "correct": true,
+        "explanation": "Correct. Branch restriction is the most common reason. Production deploys should only run from protected branches."
+      }
+    ]
+  },
+  {
+    "question": "A team integrates GitLab CI with AWS without storing AWS_ACCESS_KEY_ID in variables. Which approach is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Store credentials in an encrypted file in the repository and decrypt in the pipeline",
+        "correct": false,
+        "explanation": "Bad approach: the encryption key itself becomes a secret. This shifts the problem rather than solving it."
+      },
+      {
+        "text": "Use OIDC: GitLab issues a JWT token, AWS STS accepts it and issues temporary credentials via assume-role-with-web-identity",
+        "correct": true,
+        "explanation": "Correct. AWS supports OIDC federation: you configure an IAM Identity Provider (GitLab), create an IAM Role with a trust policy, and AWS trusts JWT tokens from GitLab. No long-lived keys needed."
+      },
+      {
+        "text": "Generate AWS credentials in a script via openssl rand and pass them to the next job via artifacts",
+        "correct": false,
+        "explanation": "Random strings are not AWS credentials. This is not a working approach."
+      },
+      {
+        "text": "Use AWS_ACCESS_KEY_ID as a protected variable — this is secure",
+        "correct": false,
+        "explanation": "A protected variable is safer than plaintext YAML, but it's still a long-lived key. The OIDC approach is fundamentally better: the key simply doesn't exist."
+      }
+    ]
+  },
+  {
+    "question": "What does `environment:name` mean in a GitLab CI job in terms of variables?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GitLab will provide variables configured for that environment (e.g., DATABASE_URL with a value for staging or production)",
+        "correct": true,
+        "explanation": "Correct. A variable with Environment scope 'staging' will only be available in jobs with environment:name: staging. One DATABASE_URL variable can have different values for different environments."
+      },
+      {
+        "text": "environment:name is only used for deployments, other jobs ignore it",
+        "correct": false,
+        "explanation": "environment:name can be used in any job, most commonly in deploy jobs. The effect on variables is the same regardless of job type."
+      },
+      {
+        "text": "The job will receive all variables from all environments simultaneously",
+        "correct": false,
+        "explanation": "No. A job only gets variables for its own environment plus variables without scope (All environments)."
+      },
+      {
+        "text": "Only a visual label in the UI — does not affect variables",
+        "correct": false,
+        "explanation": "environment:name affects which environment-scoped variables the job receives. It's not just a label."
+      }
+    ]
+  },
+  {
+    "question": "A developer accidentally committed an AWS key. They removed it in the next commit. Why is this not enough?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The only correct response is to immediately revoke the compromised key in AWS IAM",
+        "correct": true,
+        "explanation": "Correct. Consider the key compromised from the moment of commit. Delete it in AWS IAM immediately, create a new one, and store it through proper secrets management."
+      },
+      {
+        "text": "Repository forks may have already copied the key — their history cannot be controlled",
+        "correct": true,
+        "explanation": "Correct. If the repository is public or has forks — the key could have been copied automatically during fork synchronization."
+      },
+      {
+        "text": "The key remains in git history — git log shows all commits, including removed changes",
+        "correct": true,
+        "explanation": "Correct. `git show <old-commit>` will reveal the key. History is immutable without force-push with rebase. Even after removal in a new commit, the key is accessible in history."
+      },
+      {
+        "text": "Bots scan public repositories in real time and may have used the key within seconds of it being pushed",
+        "correct": true,
+        "explanation": "Correct. Automated scanners exist that monitor GitHub/GitLab and immediately exploit found keys. Minutes or hours may be enough for abuse."
+      }
+    ]
+  },
+  {
+    "question": "How does GitLab Secret Detection work in a pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Blocks merge requests if a secret is found — cannot merge until fixed",
+        "correct": false,
+        "explanation": "By default, Secret Detection does not block MRs — it only creates a warning. Blocking must be configured separately via Security Approvals."
+      },
+      {
+        "text": "Only works for public repositories — private ones are not scanned",
+        "correct": false,
+        "explanation": "Secret Detection works for any repository. For private ones it's even more important — internal tokens and keys are no less dangerous."
+      },
+      {
+        "text": "Scans the entire codebase on every pipeline run — this takes a lot of time",
+        "correct": false,
+        "explanation": "By default, only the diff of the current commit is scanned (incrementally), which is much faster. Full history scanning is a separate task."
+      },
+      {
+        "text": "Adds an automatic job that analyzes commit changes for known secret patterns and produces a report",
+        "correct": true,
+        "explanation": "Correct. After `include: Security/Secret-Detection.gitlab-ci.yml`, GitLab adds a secret_detection job. It scans the diff, looks for patterns (AWS keys, tokens, passwords), and outputs a report as artifacts:reports."
+      }
+    ]
+  },
+  {
+    "question": "A project has lint, test, and deploy jobs. Deploy needs PROD_TOKEN. What is the minimal configuration that correctly restricts access to the secret?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add a check `if [ \"$CI_JOB_NAME\" = \"deploy\" ]` before using the secret",
+        "correct": false,
+        "explanation": "Checking the job name in the script does not prevent other jobs from accessing the variable value. The variable will still be available in the environment of all jobs."
+      },
+      {
+        "text": "Add PROD_TOKEN only in the variables section of the deploy job in .gitlab-ci.yml",
+        "correct": false,
+        "explanation": "Variables in .gitlab-ci.yml are visible to everyone in the repository — this is not secure storage. Secrets must be in GitLab Settings -> Variables."
+      },
+      {
+        "text": "Use an encrypted secrets file — store an encrypted .env.prod in the repository",
+        "correct": false,
+        "explanation": "An encrypted file in the repository shifts the problem: the encryption key itself becomes a secret that must be stored somewhere. GitLab Variables solve this properly."
+      },
+      {
+        "text": "Create PROD_TOKEN in Settings -> Variables with the Protected flag, configure main as a protected branch, use `only: - main` in the deploy job",
+        "correct": true,
+        "explanation": "Correct combination: Protected variable (only available on protected branches) + protected branch (only maintainers can push) + only: [main] (job only runs on main). Three independent layers of protection."
+      }
+    ]
+  },
+  {
+    "question": "You are setting up HashiCorp Vault integration via JWT. In the Vault policy: `path \"secret/data/myapp/*\" { capabilities = [\"read\"] }`. A job tries to read `secret/data/other-app/config` and gets permission denied. Why?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The policy only allows paths `secret/data/myapp/*`, and `secret/data/other-app/config` does not match this pattern",
+        "correct": true,
+        "explanation": "Correct. The Vault wildcard `*` does not cross slashes. `myapp/*` covers `myapp/config`, `myapp/db`, but not `other-app/config`. Principle of least privilege: each job gets access only to the paths it needs."
+      },
+      {
+        "text": "You need to use capabilities = [\"read\", \"list\"] to access other paths",
+        "correct": false,
+        "explanation": "list is for listing directories, not for accessing other paths. The problem is in the path pattern in the policy."
+      },
+      {
+        "text": "JWT authentication does not support access to multiple paths simultaneously",
+        "correct": false,
+        "explanation": "JWT authentication does not impose such restrictions. A policy can contain as many path blocks as needed."
+      },
+      {
+        "text": "The JWT token expired — you need to refresh VAULT_ID_TOKEN",
+        "correct": false,
+        "explanation": "The error is permission denied, not token expired. The problem is in the policy, not the token lifetime."
+      }
+    ]
+  }
+]

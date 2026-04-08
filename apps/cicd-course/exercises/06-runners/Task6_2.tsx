@@ -59,9 +59,11 @@ import { useLanguage } from '@courses/platform'
 // interface CiJob { id: string; name: string; tags: string[]; assignedRunnerId: string|null; status: ...; missingTags?: string[] }
 
 // TODO: Create INITIAL_RUNNERS array with 3 runners
+// Создай начальные данные: docker-runner [docker,linux], shell-runner [shell,windows,legacy], prod-runner [production,docker]
 // const INITIAL_RUNNERS: Runner[] = [...]
 
 // TODO: Create INITIAL_JOBS array with 4 jobs
+// Создай начальные данные: build (без тегов), test [docker], deploy-staging [docker,linux], deploy-prod [production,docker]
 // const INITIAL_JOBS: CiJob[] = [...]
 
 // TODO: Implement matchRunner function
@@ -82,25 +84,31 @@ export function Task6_2() {
   // const [newTagInputs, setNewTagInputs] = useState<Record<string, string>>({})
 
   // TODO: Implement runRouting — for each job, find first matching runner
+  // Реализуй runRouting — для каждого джоба найди первый подходящий раннер
   // const runRouting = () => { ... }
 
   // TODO: Implement addTag — add tag to runner, reset routing
+  // Реализуй addTag — добавь тег к раннеру, сбрось маршрутизацию
   // const addTag = (runnerId: string) => { ... }
 
   return (
     <div style={{ padding: '1rem' }}>
       <h2>{t('task.6.2.title')}</h2>
 
+      {/* TODO: Render "Run routing" and "Reset" buttons */}
       {/* TODO: Render "Запустить маршрутизацию" and "Сбросить" buttons */}
 
       {/* TODO: Render two-column grid */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
         {/* Left column: Runners with tags, runUntagged checkbox, add tag input */}
+        {/* Левая колонка: Раннеры с тегами, чекбокс runUntagged, ввод тега */}
 
         {/* Right column: Jobs with tags, assignment status after routing */}
+        {/* Правая колонка: Джобы с тегами, статус назначения после маршрутизации */}
       </div>
 
       {/* TODO: Render routing rule reminder */}
+      {/* "Runner takes a job if it has ALL of its tags..." */}
       {/* "Раннер берёт job если имеет ВСЕ его теги..." */}
     </div>
   )

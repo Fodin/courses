@@ -1,22 +1,30 @@
 # Courses — монорепозиторий учебных курсов
 
-Монорепозиторий на npm workspaces. Содержит общую платформу и 11 интерактивных курсов с теорией, заданиями, решениями и квизами на русском и английском языках.
+Монорепозиторий на npm workspaces. Содержит общую платформу и 19 интерактивных курсов с краткой теорией и подробным ее вариантом, заданиями, решениями и квизами на русском и английском языках.
 
 ## Курсы
 
-| Курс | Описание | Уровни | Задания |
-|------|----------|--------|---------|
-| **rhf-course** | React Hook Form — формы, валидация, Zod-схемы, сложные сценарии | 15 | 48 |
-| **yup-course** | Yup — валидация данных, схемы, кастомные правила, интеграция с формами | 9 | 36 |
-| **mobx-course** | MobX — реактивное управление состоянием, observable, reactions, stores | 10 | 40 |
-| **react19-course** | Миграция React 18 → 19 — новые хуки, Server Components, Actions | 9 | 28 |
-| **error-handling-course** | Обработка ошибок в JS/TS/React — try/catch, Result, Error Boundaries | 10 | 32 |
-| **docker-course** | Docker — контейнеры, образы, Compose, сети, volumes, multi-stage builds | 13 | 41 |
-| **ts-patterns-course** | Архитектурные паттерны в TypeScript — GoF, Result/Either, DI, Clean Arch | 9 | 31 |
-| **ts-types-course** | Продвинутая система типов TS — generics, conditional/mapped/recursive types, type-level programming | 13 | 49 |
-| **ts-arch-course** | Паттерны и архитектура TS — API contracts, events, builders, DI, state machines, domain modeling | 14 | 56 |
-| **node-core-course** | Ядро Node.js — event loop, streams, buffers, networking, child processes, worker threads, crypto | 14 | 50 |
-| **node-api-course** | API на Node.js — Express, Fastify, REST, auth, databases, WebSockets, testing, security, production | 15 | 53 |
+| Курс | Описание | Уровни | Задания | Расширенная теория |
+|------|----------|--------|---------|:------------------:|
+| **rhf-course** | React Hook Form — формы, валидация, Zod-схемы, сложные сценарии | 15 | 48 | ✅ |
+| **yup-course** | Yup — валидация данных, схемы, кастомные правила, интеграция с формами | 9 | 36 | — |
+| **mobx-course** | MobX — реактивное управление состоянием, observable, reactions, stores | 10 | 40 | — |
+| **react19-course** | Миграция React 18 → 19 — новые хуки, Server Components, Actions | 9 | 28 | — |
+| **react-components-course** | React Components — композиция, паттерны, хуки, производительность | 13 | 40 | ✅ |
+| **error-handling-course** | Обработка ошибок в JS/TS/React — try/catch, Result, Error Boundaries | 10 | 32 | — |
+| **docker-course** | Docker — контейнеры, образы, Compose, сети, volumes, multi-stage builds | 13 | 41 | ✅ |
+| **ts-patterns-course** | Архитектурные паттерны в TypeScript — GoF, Result/Either, DI, Clean Arch | 9 | 31 | — |
+| **ts-types-course** | Продвинутая система типов TS — generics, conditional/mapped/recursive types, type-level programming | 13 | 49 | — |
+| **ts-arch-course** | Паттерны и архитектура TS — API contracts, events, builders, DI, state machines, domain modeling | 14 | 56 | — |
+| **node-core-course** | Ядро Node.js — event loop, streams, buffers, networking, child processes, worker threads, crypto | 14 | 50 | — |
+| **node-api-course** | API на Node.js — Express, Fastify, REST, auth, databases, WebSockets, testing, security, production | 15 | 53 | — |
+| **system-design-course** | System Design — масштабирование, кэширование, очереди, проектирование систем | 17 | 58 | ✅ |
+| **api-design-course** | Проектирование API — REST, OpenAPI, версионирование, документация, rate limiting | 13 | 39 | ✅ |
+| **cicd-course** | CI/CD — GitHub Actions, Docker, тестирование, деплой, мониторинг | 18 | 57 | — |
+| **kafka-rabbitmq-course** | Kafka и RabbitMQ — очереди сообщений, pub/sub, streaming, паттерны интеграции | 18 | 55 | ✅ |
+| **mqtt-course** | MQTT и Mosquitto — IoT-протокол, брокер, QoS, топики, безопасность | 13 | 39 | ✅ |
+| **claude-code-course** | Claude Code — AI-ассистент для разработки, промпты, автоматизация | 13 | 39 | ✅ |
+| **micro-frontends-course** | Микрофронтенды — Module Federation, Single-SPA, Web Components, деплой, миграция | 16 | 36 | ✅ |
 
 ## Структура
 
@@ -29,13 +37,21 @@ courses/
 │   ├── yup-course/
 │   ├── mobx-course/
 │   ├── react19-course/
+│   ├── react-components-course/
 │   ├── error-handling-course/
 │   ├── docker-course/
 │   ├── ts-patterns-course/
 │   ├── ts-types-course/
 │   ├── ts-arch-course/
 │   ├── node-core-course/
-│   └── node-api-course/
+│   ├── node-api-course/
+│   ├── system-design-course/
+│   ├── api-design-course/
+│   ├── cicd-course/
+│   ├── kafka-rabbitmq-course/
+│   ├── mqtt-course/
+│   ├── claude-code-course/
+│   └── micro-frontends-course/
 │       ├── src/
 │       │   ├── main.tsx              # Точка входа
 │       │   ├── courseConfig.ts       # Конфигурация курса

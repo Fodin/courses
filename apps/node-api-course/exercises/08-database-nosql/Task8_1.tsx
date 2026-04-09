@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 8.1: MongoDB Native
+// Task 8.1: MongoDB Native
 // ============================================
 
 // TODO: Подключитесь к MongoDB через официальный драйвер (mongodb)
+// TODO: Connect to MongoDB via official driver (mongodb)
 // TODO: Создайте MongoClient и получите доступ к коллекции
+// TODO: Create MongoClient and access collection
 // TODO: Реализуйте CRUD: insertOne, find, updateOne, deleteOne
+// TODO: Implement CRUD: insertOne, find, updateOne, deleteOne
 // TODO: Используйте фильтры, проекции и сортировку
+// TODO: Use filters, projections and sorting
 
 export function Task8_1() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task8_1() {
     log.push('')
 
     // TODO: Создайте MongoClient(MONGO_URI) и подключитесь
+    // TODO: Create MongoClient(MONGO_URI) and connect
+    // TODO: const db = client.db("myapp"), const users = db.collection("users")
     // TODO: const db = client.db("myapp"), const users = db.collection("users")
     // TODO: Выполните users.find({ age: { $gte: 18 } }).sort({ name: 1 })
+    // TODO: Execute users.find({ age: { $gte: 18 } }).sort({ name: 1 })
     // TODO: Покажите индексы: createIndex({ email: 1 }, { unique: true })
+    // TODO: Show indexes: createIndex({ email: 1 }, { unique: true })
     log.push('MongoDB Native')
     log.push('  ... const client = new MongoClient(MONGO_URI)')
     log.push('  ... const users = client.db("myapp").collection("users")')

@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 11.3: Test Database
+// Task 11.3: Test Database
 // ============================================
 
-// TODO: Настройте тестовую БД для интеграционных тестов
-// TODO: Используйте отдельную DATABASE_URL для тестов (или testcontainers)
-// TODO: Реализуйте setup/teardown: миграции перед тестами, очистка после
-// TODO: Покажите изоляцию тестов через транзакции с ROLLBACK
+// TODO: Настройте тестовую БД для интеграционных тестов / Set up a test database for integration tests
+// TODO: Используйте отдельную DATABASE_URL для тестов (или testcontainers) / Use a separate DATABASE_URL for tests (or testcontainers)
+// TODO: Реализуйте setup/teardown: миграции перед тестами, очистка после / Implement setup/teardown: migrations before tests, cleanup after
+// TODO: Покажите изоляцию тестов через транзакции с ROLLBACK / Show test isolation via transactions with ROLLBACK
 
 export function Task11_3() {
   const [results, setResults] = useState<string[]>([])
@@ -18,10 +19,10 @@ export function Task11_3() {
     log.push('=== Test Database ===')
     log.push('')
 
-    // TODO: Настройте beforeAll: миграция тестовой БД
-    // TODO: Реализуйте beforeEach: BEGIN transaction
-    // TODO: Реализуйте afterEach: ROLLBACK (изоляция тестов)
-    // TODO: Покажите testcontainers для запуска PostgreSQL в Docker
+    // TODO: Настройте beforeAll: миграция тестовой БД / Set up beforeAll: migrate test database
+    // TODO: Реализуйте beforeEach: BEGIN transaction / Implement beforeEach: BEGIN transaction
+    // TODO: Реализуйте afterEach: ROLLBACK (изоляция тестов) / Implement afterEach: ROLLBACK (test isolation)
+    // TODO: Покажите testcontainers для запуска PostgreSQL в Docker / Show testcontainers for running PostgreSQL in Docker
     log.push('Test Database')
     log.push('  ... beforeAll: await runMigrations(testDbUrl)')
     log.push('  ... beforeEach: await db.query("BEGIN")')

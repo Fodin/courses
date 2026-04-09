@@ -8,22 +8,22 @@ import { useState } from 'react'
 // TODO: Define CRITERIA_KEYS array — 10 criteria objects: { id: string, label: string }
 //   ids: 'getting-started', 'auth', 'reference', 'examples', 'errors',
 //        'interactive', 'sdk', 'sandbox', 'changelog', 'search'
-//   labels in Russian (e.g. 'Getting Started', 'Аутентификация', ...)
+//   labels in Russian (e.g. 'Getting Started', 'Аутентификация / Authentication', ...)
 
 // TODO: Create EVALUATIONS array with 3 entries:
 //
 //   1. api: 'Stripe', color: '#635bff'
-//      tagline: 'Золотой стандарт документации API'
+//      tagline: 'Золотой стандарт документации API / Gold Standard of API Documentation'
 //      scores: mostly 9-10 across all criteria
 //      comments: specific observations about Stripe docs quality
 //
 //   2. api: 'GitHub', color: '#24292f'
-//      tagline: 'Подробно, но немного перегружено'
+//      tagline: 'Подробно, но немного перегружено / Detailed but slightly overloaded'
 //      scores: mix of 6-9
 //      comments: specific observations about GitHub docs
 //
 //   3. api: 'Twitter/X', color: '#1da1f2'
-//      tagline: 'Хорошая документация с нюансами'
+//      tagline: 'Хорошая документация с нюансами / Good documentation with nuances'
 //      scores: mix of 4-8
 //      comments: specific observations about Twitter/X docs
 
@@ -43,21 +43,21 @@ export function Task10_3() {
 
   return (
     <div className="exercise-container" style={{ padding: '1.5rem', maxWidth: '1000px' }}>
-      <h2 style={{ marginBottom: '0.25rem' }}>Оценка реальных API</h2>
+      <h2 style={{ marginBottom: '0.25rem' }}>Оценка реальных API / Real API Evaluation</h2>
       <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-        Применяем критерии из задания 10.1 к реальным публичным API — Stripe, GitHub, Twitter/X
+        Применяем критерии из задания 10.1 к реальным публичным API — Stripe, GitHub, Twitter/X / Applying criteria from task 10.1 to real public APIs — Stripe, GitHub, Twitter/X
       </p>
 
-      {/* TODO: API selector — 3 buttons with evaluation.color border/bg when active
+      {/* TODO: API selector — 3 buttons with evaluation.color border/bg when active / Селектор API
            On click: setActiveApi + setExpandedCriterion(null) */}
 
-      {/* TODO: Summary card
+      {/* TODO: Summary card / Итоговая карточка
            Border: 2px solid evaluation.color, bg #f8fafc
            Left: large totalScore number with SCORE_COLOR, "/10" subtitle
            Right: API name (bold), tagline (gray), link to url
            Layout: flexbox with gap */}
 
-      {/* TODO: Scores grid — auto-fill columns, min 180px
+      {/* TODO: Scores grid — auto-fill columns, min 180px / Сетка оценок
            For each criterion in CRITERIA_KEYS:
              Card: white bg, border, rounded, cursor pointer
              Header row: criterion label | score (SCORE_COLOR)
@@ -65,7 +65,7 @@ export function Task10_3() {
              When expanded (expandedCriterion === criterion.id):
                Show evaluation.comments[criterion.id] in gray text */}
 
-      {/* TODO: "Показать сравнение" toggle button
+      {/* TODO: "Показать сравнение / Show Comparison" toggle button / Кнопка переключения сравнения
            When showAll: render comparison table
            Table: criteria as rows, 3 APIs as columns
            Tool headers: colored with evaluation.color + white text

@@ -1,4 +1,4 @@
-// Full reference solution for level 1 — REST: ресурсы и URL-дизайн
+// Full reference solution for level 1 — REST: ресурсы и URL-дизайн / REST: Resources and URL Design
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

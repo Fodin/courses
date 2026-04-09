@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 2.2: Plugins & Decorators
+// Task 2.2: Plugins & Decorators
 // ============================================
 
 // TODO: Создайте Fastify-плагин с помощью fastify-plugin
+// TODO: Create a Fastify plugin using fastify-plugin
 // TODO: Используйте decorate() для добавления утилит к instance
+// TODO: Use decorate() to add utilities to the instance
 // TODO: Реализуйте инкапсуляцию: плагин видим только внутри scope
+// TODO: Implement encapsulation: plugin visible only within scope
 // TODO: Покажите register() с prefix и opts
+// TODO: Show register() with prefix and opts
 
 export function Task2_2() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task2_2() {
     log.push('')
 
     // TODO: Создайте dbPlugin с fastify.decorate('db', connection)
+    // TODO: Create dbPlugin with fastify.decorate('db', connection)
     // TODO: Покажите encapsulation vs fastify-plugin (skip encapsulation)
+    // TODO: Show encapsulation vs fastify-plugin (skip encapsulation)
     // TODO: Реализуйте authPlugin с decorateRequest('user', null)
+    // TODO: Implement authPlugin with decorateRequest('user', null)
     // TODO: Продемонстрируйте порядок загрузки плагинов (after/ready)
+    // TODO: Demonstrate plugin loading order (after/ready)
     log.push('Plugins & Decorators')
     log.push('  ... fastify.register(dbPlugin, { connectionString })')
     log.push('  ... fastify.decorate("db", pgPool)')

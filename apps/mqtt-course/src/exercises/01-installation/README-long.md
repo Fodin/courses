@@ -8,9 +8,9 @@ OpenWRT — это полноценный Linux на маршрутизатор�
 
 ```mermaid
 graph LR
-    A[SquashFS\nread-only] --> B[OverlayFS]
-    C[JFFS2/F2FS\nread-write] --> B
-    B --> D[/ корневая\nфС]
+    A["SquashFS\nread-only"] --> B[OverlayFS]
+    C["JFFS2/F2FS\nread-write"] --> B
+    B --> D["/ корневая\nФС"]
 ```
 
 OpenWRT использует **overlay filesystem**: базовая система хранится в read-only SquashFS (сжатая, не изнашивает flash). Все изменения записываются в JFFS2/F2FS раздел (read-write). Вместе они монтируются как обычная ФС.

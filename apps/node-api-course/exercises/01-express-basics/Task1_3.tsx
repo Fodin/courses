@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 1.3: Error Handling
+// Task 1.3: Error Handling
 // ============================================
 
 // TODO: Реализуйте централизованную обработку ошибок в Express
+// TODO: Implement centralized error handling in Express
 // TODO: Создайте кастомные классы ошибок: AppError, NotFoundError, ValidationError
+// TODO: Create custom error classes: AppError, NotFoundError, ValidationError
 // TODO: Реализуйте error middleware (err, req, res, next) с 4 параметрами
+// TODO: Implement error middleware (err, req, res, next) with 4 parameters
 // TODO: Покажите async error handling с express-async-errors или try/catch
+// TODO: Show async error handling with express-async-errors or try/catch
 
 export function Task1_3() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task1_3() {
     log.push('')
 
     // TODO: Создайте class AppError extends Error { statusCode, isOperational }
+    // TODO: Create class AppError extends Error { statusCode, isOperational }
     // TODO: Реализуйте errorHandler middleware
+    // TODO: Implement errorHandler middleware
     // TODO: Покажите проброс ошибок из async-хэндлеров
+    // TODO: Show error propagation from async handlers
     // TODO: Различите operational vs programming errors
+    // TODO: Distinguish operational vs programming errors
     log.push('Error Handling')
     log.push('  ... class AppError extends Error { statusCode: number }')
     log.push('  ... app.use((err, req, res, next) => { ... })')

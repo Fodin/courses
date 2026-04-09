@@ -1,4 +1,4 @@
-// Full reference solution for level 4 — Тело запроса и ответа
+// Full reference solution for level 4 — Тело запроса и ответа / Request and Response Body
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

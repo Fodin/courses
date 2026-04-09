@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Which HTTP status should a server return when the request rate limit is exceeded?",
+    "type": "single",
+    "options": [
+      {
+        "text": "503 Service Unavailable",
+        "correct": false,
+        "explanation": "503 means the server is unavailable — the client will think there's an outage and will retry aggressively without pausing."
+      },
+      {
+        "text": "429 Too Many Requests",
+        "correct": true,
+        "explanation": "429 is the standard code for rate limiting. The client understands: wait, don't panic. Together with Retry-After, it gives a precise instruction."
+      },
+      {
+        "text": "400 Bad Request",
+        "correct": false,
+        "explanation": "400 indicates a client request error. Rate limiting is not a request error — it's a temporary frequency restriction."
+      },
+      {
+        "text": "403 Forbidden",
+        "correct": false,
+        "explanation": "403 means lack of access rights. Rate limiting is a temporary restriction, not a permanent access denial."
+      }
+    ]
+  },
+  {
+    "question": "What is the main advantage of the Token Bucket algorithm over Fixed Window?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Tokens are cheaper to store in memory",
+        "correct": false,
+        "explanation": "Memory cost is not the key difference — both algorithms require O(1) memory per user."
+      },
+      {
+        "text": "It allows short-term request bursts",
+        "correct": true,
+        "explanation": "Token Bucket allows spending accumulated tokens all at once. A client can make 10 requests in a row if the bucket is full — natural for real-world usage."
+      },
+      {
+        "text": "It doesn't have the boundary spike problem at window edges",
+        "correct": false,
+        "explanation": "That's the advantage of Sliding Window, not Token Bucket. Fixed Window does suffer from the boundary effect, but Token Bucket solves a different problem."
+      },
+      {
+        "text": "It counts requests more accurately",
+        "correct": false,
+        "explanation": "Token Bucket is not more accurate — it just works on a different model. The most accurate algorithm is Sliding Window Log."
+      }
+    ]
+  },
+  {
+    "question": "What is a \"thundering herd\" in the context of retry strategies?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A situation where the server sends 429 to all clients simultaneously",
+        "correct": false,
+        "explanation": "The server doesn't control when clients retry — that's a client-side decision."
+      },
+      {
+        "text": "All clients get 429, wait the same amount, and attack the server again simultaneously",
+        "correct": true,
+        "explanation": "Without jitter: everyone waits exactly 1000ms and bombs the server synchronously → 429 again. The cycle repeats. Jitter scatters clients over time."
+      },
+      {
+        "text": "The server gets overloaded due to too large a bucket capacity",
+        "correct": false,
+        "explanation": "That's a limit configuration problem, not thundering herd. Thundering herd is specifically about synchronized retries."
+      },
+      {
+        "text": "A client makes too many parallel requests simultaneously",
+        "correct": false,
+        "explanation": "Parallelism is a separate issue. Thundering herd occurs during retries after 429 when there's no jitter."
+      }
+    ]
+  },
+  {
+    "question": "Which header tells the client how many seconds to wait before retrying?",
+    "type": "single",
+    "options": [
+      {
+        "text": "X-RateLimit-Reset",
+        "correct": false,
+        "explanation": "X-RateLimit-Reset contains a Unix timestamp of window reset, not the number of seconds to wait. The client needs to subtract the current time."
+      },
+      {
+        "text": "X-RateLimit-Remaining",
+        "correct": false,
+        "explanation": "X-RateLimit-Remaining shows how many requests are left in the current window — not the wait time."
+      },
+      {
+        "text": "Retry-After",
+        "correct": true,
+        "explanation": "Retry-After is the standard RFC 7231 header. The value is in seconds (or HTTP-date). On 429, the client must wait exactly this long."
+      },
+      {
+        "text": "X-Backoff-Seconds",
+        "correct": false,
+        "explanation": "No such standard header exists. The standard is Retry-After."
+      }
+    ]
+  },
+  {
+    "question": "Why shouldn't rate limiting counters be stored in the memory of a single server during horizontal scaling?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Server memory is too small for counters",
+        "correct": false,
+        "explanation": "Counters take just a few bytes per user — memory is sufficient. The problem isn't size, it's isolation between instances."
+      },
+      {
+        "text": "Each instance only sees its own counter, the real limit multiplies by the number of replicas",
+        "correct": true,
+        "explanation": "With 3 replicas, each allows 100 requests — a client can make 300. A shared Redis is needed for atomic INCR/TTL operations."
+      },
+      {
+        "text": "Counters are lost on server restart",
+        "correct": false,
+        "explanation": "That's also a problem, but secondary. The main issue is that with live replicas, each counts independently, breaking the limit logic right now."
+      },
+      {
+        "text": "You can't do atomic operations in memory",
+        "correct": false,
+        "explanation": "In a single process's memory, atomicity is not a problem. The problem arises specifically with multiple processes/servers."
+      }
+    ]
+  },
+  {
+    "question": "You are designing the POST /auth/login endpoint. Which identification key is best to use for rate limiting?",
+    "type": "single",
+    "options": [
+      {
+        "text": "User ID from the authorization token",
+        "correct": false,
+        "explanation": "During brute force there is no token — the user is not yet authenticated. User ID is unavailable before successful login."
+      },
+      {
+        "text": "Client IP address",
+        "correct": true,
+        "explanation": "Brute force happens before authorization — the only thing known is the IP. Limiting to 5-10 attempts per minute per IP is standard protection."
+      },
+      {
+        "text": "Request body (user's email)",
+        "correct": false,
+        "explanation": "Limiting by email also makes sense (protection against attacks on a specific user), but IP is a more universal first level of defense."
+      },
+      {
+        "text": "API Key from the header",
+        "correct": false,
+        "explanation": "A public login endpoint typically doesn't require an API Key. An attacker without a key would bypass this protection."
+      }
+    ]
+  },
+  {
+    "question": "What happens to clients if jitter is not added to exponential backoff?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "All clients will retry simultaneously after the same wait time",
+        "correct": true,
+        "explanation": "Without jitter, delay is strictly deterministic: everyone waits 1000ms, then 2000ms. Synchronized attack."
+      },
+      {
+        "text": "The server will receive another spike of load — thundering herd",
+        "correct": true,
+        "explanation": "Synchronous retries reproduce the original overload problem, just with a delay. The server returns 429 again."
+      },
+      {
+        "text": "Clients won't be able to connect to the server",
+        "correct": false,
+        "explanation": "Connection is possible — the problem is that they connect simultaneously and exceed the limit again."
+      },
+      {
+        "text": "The load is distributed evenly over time",
+        "correct": false,
+        "explanation": "Even distribution is precisely the effect of jitter. Without jitter, the load concentrates in a single moment."
+      }
+    ]
+  },
+  {
+    "question": "The Fixed Window algorithm has a known \"boundary spike\" problem. What is it?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The counter doesn't reset on time due to Redis delays",
+        "correct": false,
+        "explanation": "That's a possible implementation issue, but not a fundamental flaw of the Fixed Window algorithm."
+      },
+      {
+        "text": "At the end of one window and the start of the next, a client can make 2×limit requests in a short period",
+        "correct": true,
+        "explanation": "Limit 100/min: 100 requests at 11:59:55 + 100 requests at 12:00:05 = 200 requests in 10 seconds. Sliding Window solves this problem."
+      },
+      {
+        "text": "First requests in the window are processed more slowly",
+        "correct": false,
+        "explanation": "Processing speed doesn't depend on position in the window — that's not a Fixed Window problem."
+      },
+      {
+        "text": "The window isn't synchronized between different servers",
+        "correct": false,
+        "explanation": "That's a distributed systems problem in general, not specific to Fixed Window. It's solved via Redis with atomic operations."
+      }
+    ]
+  },
+  {
+    "question": "You are developing a BFF for a mobile app. The user is not authenticated and calls POST /auth/login. What is the best rate limiting strategy?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Limit by IP: 5 attempts/min",
+        "correct": true,
+        "explanation": "IP is the only identifier without authentication. 5 attempts is enough for legitimate users."
+      },
+      {
+        "text": "Use Sliding Window Log for accuracy",
+        "correct": true,
+        "explanation": "For the sensitive /auth endpoint, accuracy is more important than memory savings — Sliding Window Log won't allow boundary spikes."
+      },
+      {
+        "text": "Don't limit /auth — it will slow down UX",
+        "correct": false,
+        "explanation": "This is catastrophically dangerous. Without limits, an attacker can brute-force millions of passwords."
+      },
+      {
+        "text": "Block the IP after N consecutive failed attempts",
+        "correct": true,
+        "explanation": "Additional mechanism: after 10 consecutive failures — temporary IP ban for 15 minutes. Protection against dictionary attacks."
+      }
+    ]
+  },
+  {
+    "question": "A client received 429 with the header Retry-After: 30. What is the correct retry approach?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Immediately retry — maybe the limit has already reset",
+        "correct": false,
+        "explanation": "An immediate retry is pointless and creates extra load. The limit won't reset before the specified time."
+      },
+      {
+        "text": "Wait 30 seconds, then retry with exponential backoff if 429 again",
+        "correct": true,
+        "explanation": "Correct strategy: respect Retry-After, then apply exponential backoff with jitter for subsequent attempts."
+      },
+      {
+        "text": "Wait 30 seconds, then immediately send all accumulated requests",
+        "correct": false,
+        "explanation": "A burst of accumulated requests will exceed the limit again. Requests should be sent at a reasonable rate."
+      },
+      {
+        "text": "Show the error to the user and don't retry",
+        "correct": false,
+        "explanation": "429 is a temporary error, not permanent. The correct approach is to wait and retry transparently for the user."
+      }
+    ]
+  }
+]

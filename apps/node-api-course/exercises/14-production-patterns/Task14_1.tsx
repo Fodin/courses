@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 14.1: BullMQ
+// Task 14.1: BullMQ
 // ============================================
 
-// TODO: Настройте очереди задач через BullMQ (Redis-based)
-// TODO: Создайте Queue, Worker и QueueEvents
-// TODO: Реализуйте отложенные задачи: email отправка, обработка изображений
-// TODO: Покажите повторные попытки (retry), backoff и dead letter queue
+// TODO: Настройте очереди задач через BullMQ (Redis-based) / Set up job queues via BullMQ (Redis-based)
+// TODO: Создайте Queue, Worker и QueueEvents / Create Queue, Worker and QueueEvents
+// TODO: Реализуйте отложенные задачи: email отправка, обработка изображений / Implement delayed jobs: email sending, image processing
+// TODO: Покажите повторные попытки (retry), backoff и dead letter queue / Show retries, backoff and dead letter queue
 
 export function Task14_1() {
   const [results, setResults] = useState<string[]>([])
@@ -18,10 +19,10 @@ export function Task14_1() {
     log.push('=== BullMQ Job Queue ===')
     log.push('')
 
-    // TODO: Создайте const queue = new Queue("emails", { connection: redis })
-    // TODO: Добавьте задачу: queue.add("send-welcome", { userId, email })
-    // TODO: Создайте Worker для обработки задач
-    // TODO: Настройте attempts: 3, backoff: { type: "exponential", delay: 1000 }
+    // TODO: Создайте const queue = new Queue("emails", { connection: redis }) / Create const queue = new Queue("emails", { connection: redis })
+    // TODO: Добавьте задачу: queue.add("send-welcome", { userId, email }) / Add a job: queue.add("send-welcome", { userId, email })
+    // TODO: Создайте Worker для обработки задач / Create a Worker for job processing
+    // TODO: Настройте attempts: 3, backoff: { type: "exponential", delay: 1000 } / Configure attempts: 3, backoff: { type: "exponential", delay: 1000 }
     log.push('BullMQ')
     log.push('  ... const queue = new Queue("emails", { connection })')
     log.push('  ... queue.add("send-welcome", { to, subject, body }, { attempts: 3 })')

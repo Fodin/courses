@@ -1,0 +1,132 @@
+[
+  {
+    "question": "Which change in an API is a breaking change?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Adding a new optional field to the response",
+        "correct": false,
+        "explanation": "Adding a field is a non-breaking change. Clients that don't know about the new field will simply ignore it."
+      },
+      {
+        "text": "Renaming an existing field",
+        "correct": true,
+        "explanation": "Renaming is a classic breaking change. All clients accessing the old field name will receive undefined instead of the value."
+      },
+      {
+        "text": "Adding a new optional query parameter",
+        "correct": false,
+        "explanation": "A new optional parameter does not break old clients: they simply won't use it."
+      },
+      {
+        "text": "Adding a new endpoint",
+        "correct": false,
+        "explanation": "A new endpoint is a non-breaking change. Existing clients don't call it and don't know about its existence."
+      }
+    ]
+  },
+  {
+    "question": "A company releases a public API with 10,000 registered developers. Clients are written in various languages. Which versioning strategy is preferred?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Header versioning (Accept: vnd.api.v2+json)",
+        "correct": false,
+        "explanation": "Header versioning requires HTTP client configuration in every SDK. With 10,000 developers across different languages, this creates many failure points."
+      },
+      {
+        "text": "URL versioning (/v2/users)",
+        "correct": true,
+        "explanation": "URL versioning is the best choice for a large public audience. The version is visible without knowledge of the protocol, easy to test from a browser or curl, and requires no special client configuration."
+      },
+      {
+        "text": "Query param versioning (?version=2)",
+        "correct": false,
+        "explanation": "Query versioning is less obvious. Developers may forget to pass the parameter and get an unexpected default version."
+      },
+      {
+        "text": "Don't version — only make additive changes",
+        "correct": false,
+        "explanation": "Additive changes are good practice, but breaking changes are sometimes inevitable. Without a versioning strategy, you cannot make architectural changes."
+      }
+    ]
+  },
+  {
+    "question": "What does the HTTP Sunset header in an API response mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The API only works during certain hours",
+        "correct": false,
+        "explanation": "The Sunset header has nothing to do with API scheduling. It is not about time-based availability."
+      },
+      {
+        "text": "The date and time when this endpoint or API version will be shut down",
+        "correct": true,
+        "explanation": "Sunset (RFC 8594) is a standard header indicating a specific shutdown date. Clients must migrate before this date."
+      },
+      {
+        "text": "The API is deprecated but the shutdown date is not defined",
+        "correct": false,
+        "explanation": "The Deprecation header is used to indicate deprecation without a specific date. Sunset always contains a concrete date."
+      },
+      {
+        "text": "The header points to the previous API version",
+        "correct": false,
+        "explanation": "The Link header with a rel attribute is used to point to another version. Sunset is only about the shutdown date."
+      }
+    ]
+  },
+  {
+    "question": "Select all advantages of Header versioning:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The resource URL remains unchanged across all versions",
+        "correct": true,
+        "explanation": "Exactly. /api/users — one URL for all versions. The version is passed in request metadata, not in the resource address."
+      },
+      {
+        "text": "Easy to test from a browser address bar",
+        "correct": false,
+        "explanation": "This is a drawback of Header versioning. Browsers don't easily allow setting the Accept header. You need tools like Postman or curl."
+      },
+      {
+        "text": "Conforms to HTTP Content Negotiation principle",
+        "correct": true,
+        "explanation": "Header versioning uses the Content Negotiation mechanism from RFC 7231: the client specifies a preferred format via Accept, and the server responds accordingly."
+      },
+      {
+        "text": "Versions are easy to cache without additional configuration",
+        "correct": false,
+        "explanation": "This is a problem. CDNs and proxies cache by URL. Without a Vary: Accept header, the cache may return v1 to a client that requested v2."
+      }
+    ]
+  },
+  {
+    "question": "API v1 was released 2 years ago. You want to shut it down. What is the minimum recommended period between deprecation notice and shutdown for a public API?",
+    "type": "single",
+    "options": [
+      {
+        "text": "1 week",
+        "correct": false,
+        "explanation": "One week is not enough. Development teams may be busy with other tasks, and release cycles can take months."
+      },
+      {
+        "text": "1 month",
+        "correct": false,
+        "explanation": "One month is too short for a public API. Not all clients follow notifications and will have time to migrate."
+      },
+      {
+        "text": "6 months or more",
+        "correct": true,
+        "explanation": "Industry practice — at least 6 months for public APIs. Major companies (Stripe, GitHub) give a year or more. This allows teams to schedule migration in their sprints."
+      },
+      {
+        "text": "The timeframe doesn't matter as long as you warn",
+        "correct": false,
+        "explanation": "The timeframe is critical. A simple warning without sufficient time creates problems for clients and damages the API's reputation."
+      }
+    ]
+  }
+]

@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 13.1: Pino
+// Task 13.1: Pino
 // ============================================
 
-// TODO: Настройте Pino как основной логгер для Node.js API
-// TODO: Создайте child loggers с контекстом: requestId, userId
-// TODO: Настройте уровни логирования: trace, debug, info, warn, error, fatal
-// TODO: Покажите pino-pretty для dev и JSON для production
+// TODO: Настройте Pino как основной логгер для Node.js API / Set up Pino as the primary logger for Node.js API
+// TODO: Создайте child loggers с контекстом: requestId, userId / Create child loggers with context: requestId, userId
+// TODO: Настройте уровни логирования: trace, debug, info, warn, error, fatal / Configure log levels: trace, debug, info, warn, error, fatal
+// TODO: Покажите pino-pretty для dev и JSON для production / Show pino-pretty for dev and JSON for production
 
 export function Task13_1() {
   const [results, setResults] = useState<string[]>([])
@@ -18,10 +19,10 @@ export function Task13_1() {
     log.push('=== Pino Logger ===')
     log.push('')
 
-    // TODO: Создайте const logger = pino({ level: "info" })
-    // TODO: Реализуйте request logger через logger.child({ requestId })
-    // TODO: Покажите serializers для безопасного логирования (исключение паролей)
-    // TODO: Настройте pino-http для автоматического логирования запросов
+    // TODO: Создайте const logger = pino({ level: "info" }) / Create const logger = pino({ level: "info" })
+    // TODO: Реализуйте request logger через logger.child({ requestId }) / Implement request logger via logger.child({ requestId })
+    // TODO: Покажите serializers для безопасного логирования (исключение паролей) / Show serializers for safe logging (excluding passwords)
+    // TODO: Настройте pino-http для автоматического логирования запросов / Configure pino-http for automatic request logging
     log.push('Pino')
     log.push('  ... const logger = pino({ level: "info", transport: { target: "pino-pretty" } })')
     log.push('  ... const reqLogger = logger.child({ requestId, userId })')

@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 1.4: Template Engines
+// Task 1.4: Template Engines
 // ============================================
 
 // TODO: Подключите шаблонизатор к Express (EJS или Handlebars)
+// TODO: Connect a template engine to Express (EJS or Handlebars)
 // TODO: Настройте app.set('view engine') и app.set('views')
+// TODO: Configure app.set('view engine') and app.set('views')
 // TODO: Реализуйте res.render() с передачей данных в шаблон
+// TODO: Implement res.render() with passing data to the template
 // TODO: Покажите layouts, partials и передачу динамических данных
+// TODO: Show layouts, partials, and passing dynamic data
 
 export function Task1_4() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task1_4() {
     log.push('')
 
     // TODO: Настройте EJS как view engine
+    // TODO: Set up EJS as the view engine
     // TODO: Создайте шаблон с циклом и условиями
+    // TODO: Create a template with loops and conditionals
     // TODO: Покажите передачу массива объектов в шаблон
+    // TODO: Show passing an array of objects to the template
     // TODO: Продемонстрируйте экранирование HTML (XSS-защита)
+    // TODO: Demonstrate HTML escaping (XSS protection)
     log.push('Template Engine')
     log.push('  ... app.set("view engine", "ejs")')
     log.push('  ... res.render("users", { users, title: "User List" })')

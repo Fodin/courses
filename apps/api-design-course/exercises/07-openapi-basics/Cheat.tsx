@@ -1,4 +1,4 @@
-// Full reference solution for level 7 — OpenAPI: основы спецификации
+// Full reference solution for level 7 — OpenAPI: основы спецификации / OpenAPI: Specification Basics
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

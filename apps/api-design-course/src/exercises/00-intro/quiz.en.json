@@ -1,0 +1,142 @@
+[
+  {
+    "question": "What is an API-first approach?",
+    "type": "single",
+    "options": [
+      {
+        "text": "First write backend code, then document the API",
+        "correct": false,
+        "explanation": "This is the opposite of API-first. With this approach, the frontend waits for a finished backend and teams cannot work in parallel."
+      },
+      {
+        "text": "First design and agree on the API specification, then implement",
+        "correct": true,
+        "explanation": "Exactly right: the OpenAPI spec is created before writing code, agreed upon with all consumers (frontend, mobile), after which teams can work in parallel — frontend with a mock server, backend with the implementation."
+      },
+      {
+        "text": "The API must be ready before the UI",
+        "correct": false,
+        "explanation": "This is not the definition of API-first. API-first is about the design process, not the order of artifact readiness."
+      },
+      {
+        "text": "Use only REST, not GraphQL",
+        "correct": false,
+        "explanation": "API-first is a development process methodology; it does not depend on the choice of technology (REST, GraphQL, gRPC)."
+      }
+    ]
+  },
+  {
+    "question": "Which level of the Richardson Maturity Model is considered the de facto standard for most REST APIs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Level 0 — a single endpoint for everything",
+        "correct": false,
+        "explanation": "Level 0 is an anti-pattern: one endpoint, everything through POST, no HTTP semantics. Most 'REST APIs' don't work this way."
+      },
+      {
+        "text": "Level 1 — separate URLs for resources",
+        "correct": false,
+        "explanation": "Level 1 is better than zero, but still doesn't use HTTP methods as intended. This is not enough for full-fledged REST."
+      },
+      {
+        "text": "Level 2 — resources + HTTP methods + status codes",
+        "correct": true,
+        "explanation": "Level 2 — the gold standard: correct HTTP methods (GET/POST/PATCH/DELETE), correct status codes, cacheability. This is the level people mean when they say 'REST API'."
+      },
+      {
+        "text": "Level 3 — HATEOAS (links in responses)",
+        "correct": false,
+        "explanation": "Level 3 is theoretically the peak of the model, but in practice it is rarely used. It complicates client code, and most successful APIs (GitHub, Stripe) operate at Level 2."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following characteristics belong to a good API? (select multiple)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Consistency: a single field naming style across the entire API",
+        "correct": true,
+        "explanation": "Consistency is a key indicator of a quality API. If one place uses snake_case and another uses camelCase — the developer wastes time studying exceptions instead of working."
+      },
+      {
+        "text": "Return HTTP 200 for all responses, including errors",
+        "correct": false,
+        "explanation": "This is an anti-pattern. HTTP status codes carry important semantics: 404 means 'not found', 400 — 'bad request'. Returning 200 on error breaks monitoring and CDN caching."
+      },
+      {
+        "text": "Predictability: knowing one part of the API lets you guess the structure of another",
+        "correct": true,
+        "explanation": "Predictability saves developer time. If GET /users/{id}/posts works, the developer reasonably expects GET /orders/{id}/items — and is right."
+      },
+      {
+        "text": "Use different error formats for different endpoints for flexibility",
+        "correct": false,
+        "explanation": "Different error formats violate consistency, not provide flexibility. The client must know the specifics of each endpoint and write separate error handling code."
+      },
+      {
+        "text": "Documentation: up-to-date examples, description of each field",
+        "correct": true,
+        "explanation": "An API without documentation is a puzzle for other developers. Good documentation with request/response examples significantly lowers the barrier to entry and the number of questions."
+      }
+    ]
+  },
+  {
+    "question": "A frontend developer sees in the code: POST /api?action=getUsers. Which RMM level is this?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Level 0 — HTTP as transport",
+        "correct": true,
+        "explanation": "Single endpoint (/api), action in query parameter (action=getUsers), POST method instead of GET — classic Level 0. HTTP is used only as a pipe; its semantics are ignored."
+      },
+      {
+        "text": "Level 1 — separate resources",
+        "correct": false,
+        "explanation": "Level 1 assumes separate URLs for resources (/users, /orders). Here a single /api endpoint for everything — this is Level 0."
+      },
+      {
+        "text": "Level 2 — HTTP verbs",
+        "correct": false,
+        "explanation": "Level 2 means correct use of HTTP methods: GET for data retrieval, POST for creation. Using POST to get data (getUsers) violates HTTP semantics."
+      },
+      {
+        "text": "Level 3 — HATEOAS",
+        "correct": false,
+        "explanation": "HATEOAS (Level 3) is when responses include links to related resources and actions. This example has nothing to do with that."
+      }
+    ]
+  },
+  {
+    "question": "Why are verbs in URLs (e.g., POST /createUser) considered a bad practice?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "They duplicate information: the HTTP method is already a verb",
+        "correct": true,
+        "explanation": "POST /createUser is redundant. POST already means 'create'. POST /users is concise and sufficient. A verb in the URL repeats the same information twice."
+      },
+      {
+        "text": "They violate the REST principle: URL should describe a resource, not an action",
+        "correct": true,
+        "explanation": "In REST, the URL is the address of a resource (a noun): /users, /orders/5. The action is expressed by the HTTP method. A verb in the URL mixes two different layers of abstraction."
+      },
+      {
+        "text": "Such URLs cannot be used in browsers",
+        "correct": false,
+        "explanation": "This is technically incorrect. Browsers can access any URL, including /createUser. The problem is not technical impossibility but violation of REST conventions."
+      },
+      {
+        "text": "They make the API unpredictable: different teams invent different verbs",
+        "correct": true,
+        "explanation": "Without a standard set of verbs, each developer invents their own: /createUser, /addUser, /newUser, /registerUser. With HTTP methods, there is one standard for everyone."
+      },
+      {
+        "text": "Such endpoints are harder to cache via CDN",
+        "correct": true,
+        "explanation": "CDNs and browser caches work with HTTP methods, not URL patterns. GET /users/{id} is cached automatically. GET /getUser?id=5 is also cached, but this violates convention. POST /createUser is not cached, and that is correct. Confusion of methods breaks cache strategies."
+      }
+    ]
+  }
+]

@@ -1,26 +1,26 @@
 [
   {
-    "question": "Why do you need a correlation ID (request ID) in logs?",
+    "question": "Why is a correlation ID (request ID) needed in logs?",
     "type": "single",
     "options": [
       {
-        "text": "To link all logs of one HTTP request -- with parallel requests from different users, logs get interleaved, making it impossible to trace the chain without an ID",
+        "text": "To link all logs of a single HTTP request -- with parallel requests from different users, logs get interleaved, and without an ID it's impossible to trace the chain",
         "correct": true
       },
       {
-        "text": "To count requests per second",
+        "text": "For request authentication -- the request ID confirms authenticity",
         "correct": false,
-        "explanation": "RPS is measured with metrics (Prometheus), not logs. Correlation ID links logs of one request. A single request can generate 10-50 log lines"
-      },
-      {
-        "text": "For request authentication -- request ID confirms authenticity",
-        "correct": false,
-        "explanation": "Request ID isn't related to authentication. It's a unique identifier for tracking: all logs of one request (middleware, service, DB) contain the same requestId"
+        "explanation": "Request ID is not related to authentication. It's a unique identifier for tracking: all logs of a single request (middleware, service, DB) share the same requestId"
       },
       {
         "text": "It's a GDPR requirement for tracking user data",
         "correct": false,
         "explanation": "GDPR doesn't require request IDs. Correlation ID is an engineering practice for debugging. Without it, finding all logs of a specific failed request is impossible"
+      },
+      {
+        "text": "For counting the number of requests per second",
+        "correct": false,
+        "explanation": "For RPS, use metrics (Prometheus), not logs. Correlation ID links logs of a single request. One request can generate 10-50 log lines"
       }
     ]
   },
@@ -29,23 +29,23 @@
     "type": "single",
     "options": [
       {
-        "text": "Liveness runs once per minute, readiness continuously",
+        "text": "Liveness runs once per minute, readiness runs continuously",
         "correct": false,
-        "explanation": "Interval is configurable (periodSeconds). Typically both check every 10-30 seconds. The difference isn't frequency but consequences of failure"
+        "explanation": "The interval is configurable (periodSeconds). Typically both run every 10-30 seconds. The difference is not in frequency but in the consequences of failure"
+      },
+      {
+        "text": "Liveness is for Kubernetes, readiness is for Docker",
+        "correct": false,
+        "explanation": "Both are used in Kubernetes (and Docker health checks). The difference is in the action: failed liveness -> restart pod, failed readiness -> remove from Service (stops receiving traffic)"
+      },
+      {
+        "text": "Liveness -- 'is the process alive?' (restart on deadlock), Readiness -- 'can it accept traffic?' (remove from LB if DB is unavailable)",
+        "correct": true
       },
       {
         "text": "Liveness checks CPU, readiness checks RAM",
         "correct": false,
-        "explanation": "Neither is directly related to system resources. Liveness answers 'is the process stuck', readiness -- 'are dependencies working (DB, Redis, etc.)'"
-      },
-      {
-        "text": "Liveness for Kubernetes, readiness for Docker",
-        "correct": false,
-        "explanation": "Both are used in Kubernetes (and Docker health checks). The difference is in action: failed liveness → restart pod, failed readiness → remove from Service (no traffic)"
-      },
-      {
-        "text": "Liveness -- 'is the process alive?' (restart on deadlock), Readiness -- 'can it serve traffic?' (remove from LB when DB is down)",
-        "correct": true
+        "explanation": "Neither is directly related to system resources. Liveness answers 'is the process stuck', readiness answers 'are dependencies working (DB, Redis, etc.)'"
       }
     ]
   },
@@ -54,22 +54,22 @@
     "type": "single",
     "options": [
       {
-        "text": "Pino is written in C++, Winston in JavaScript",
+        "text": "Pino is written in C++, and Winston is written in JavaScript",
         "correct": false,
-        "explanation": "Both are written in JavaScript. Pino is faster due to architecture: minimal overhead, no transform chains, uses fast JSON.stringify"
-      },
-      {
-        "text": "Winston logs more data, so it's slower",
-        "correct": false,
-        "explanation": "Data volume depends on configuration, not the library. Pino is faster due to internal architecture: direct JSON write vs transform chain in Winston"
+        "explanation": "Both are written in JavaScript. Pino is faster due to its architecture: minimal overhead, no transform chain, uses a fast JSON.stringify"
       },
       {
         "text": "Pino doesn't support multiple transports, so it's faster",
         "correct": false,
-        "explanation": "Pino supports transports via pino-transport (streams). But the main approach is one stdout stream with external routing (pino-pretty, pino-file)"
+        "explanation": "Pino supports transports via pino-transport (streams). But the main approach is a single stdout stream, with routing done externally (pino-pretty, pino-file)"
       },
       {
-        "text": "Pino uses a minimal JSON serializer and async writing -- up to 5x faster than Winston due to no synchronous transforms",
+        "text": "Winston logs more data, so it's slower",
+        "correct": false,
+        "explanation": "Data volume depends on configuration, not the library. Pino is faster due to its internal architecture: direct JSON writing vs. the transform chain in Winston"
+      },
+      {
+        "text": "Pino uses a minimal JSON serializer and asynchronous writes -- up to 5x faster than Winston due to the absence of synchronous transforms",
         "correct": true
       }
     ]
@@ -79,48 +79,48 @@
     "type": "single",
     "options": [
       {
-        "text": "To automatically hide sensitive data (passwords, tokens, card numbers) -- they're replaced with [Redacted] and don't end up in log files",
-        "correct": true
-      },
-      {
         "text": "Redaction speeds up logging by skipping long values",
         "correct": false,
-        "explanation": "Redaction adds overhead (needs to check paths). It doesn't speed up logging. The goal is preventing sensitive data leaks through logs"
+        "explanation": "Redaction adds overhead (paths need to be checked). It doesn't speed up logging. The goal is to prevent sensitive data leakage through logs"
       },
       {
         "text": "For log compression -- redaction reduces file size",
         "correct": false,
-        "explanation": "Redaction doesn't compress data. It replaces values with '[Redacted]', which might even be longer than the original. The goal is security, not size"
+        "explanation": "Redaction doesn't compress data. It replaces values with '[Redacted]', which can even be longer than the original. The goal is security, not size"
       },
       {
-        "text": "For JSON format compliance -- some values can't be serialized",
+        "text": "For JSON compliance -- some values can't be serialized",
         "correct": false,
-        "explanation": "JSON serialization works for any strings. Redaction is about security: if log files leak, passwords and tokens won't be compromised"
+        "explanation": "JSON serialization works for any strings. Redaction is about security: if a log file leaks, passwords and tokens won't be compromised"
+      },
+      {
+        "text": "To automatically hide sensitive data (passwords, tokens, card numbers) -- they are replaced with [Redacted] and don't end up in log files",
+        "correct": true
       }
     ]
   },
   {
-    "question": "What should the readiness endpoint return when the DB is unavailable?",
+    "question": "What should a readiness endpoint return when the DB is unavailable?",
     "type": "single",
     "options": [
       {
         "text": "404 -- endpoint not found, disable the check",
         "correct": false,
-        "explanation": "404 is the wrong status. Readiness endpoint should always respond: 200 = healthy, 503 = not ready. Kubernetes interprets non-200 as unhealthy"
-      },
-      {
-        "text": "200 -- service is running, DB is just temporarily unavailable",
-        "correct": false,
-        "explanation": "200 from readiness tells LB: 'send traffic'. But without DB, requests will fail with 500. Readiness should return 503 so LB stops sending traffic"
-      },
-      {
-        "text": "503 with details: which dependency failed, check responseTime, current uptime",
-        "correct": true
+        "explanation": "404 is the wrong status. The readiness endpoint should always respond: 200 = healthy, 503 = not ready. Kubernetes interprets non-200 as unhealthy"
       },
       {
         "text": "500 -- Internal Server Error",
         "correct": false,
-        "explanation": "500 means server error. Readiness probe expects 200 (healthy) or non-200 (unhealthy). 503 Service Unavailable is the semantically correct status for 'not ready'"
+        "explanation": "500 means a server error. A readiness probe expects 200 (healthy) or non-200 (unhealthy). 503 Service Unavailable is the semantically correct status for 'not ready'"
+      },
+      {
+        "text": "503 with details: which specific dependency is down, responseTime of the check, current uptime",
+        "correct": true
+      },
+      {
+        "text": "200 -- the service is running, just the DB is temporarily unavailable",
+        "correct": false,
+        "explanation": "A 200 from readiness tells the LB: 'send traffic here'. But without the DB, requests will fail with 500. Readiness should return 503 so the LB stops sending traffic"
       }
     ]
   }

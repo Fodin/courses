@@ -1,4 +1,4 @@
-// Full reference solution for level 8 — OpenAPI: схемы и переиспользование
+// Full reference solution for level 8 — OpenAPI: схемы и переиспользование / OpenAPI: Schemas and Reuse
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

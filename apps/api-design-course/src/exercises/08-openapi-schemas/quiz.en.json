@@ -1,0 +1,132 @@
+[
+  {
+    "question": "What is $ref in an OpenAPI specification?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A reference to an external REST endpoint for schema validation",
+        "correct": false,
+        "explanation": "No, $ref does not make HTTP requests. It is a reference within or between YAML/JSON specification files."
+      },
+      {
+        "text": "A JSON Pointer pointing to a reusable object in the specification",
+        "correct": true,
+        "explanation": "Correct. $ref is a JSON Pointer (e.g., #/components/schemas/User) that allows referencing an object instead of copying it."
+      },
+      {
+        "text": "A field type for storing unique identifiers",
+        "correct": false,
+        "explanation": "No, for UUID you use type: string, format: uuid. $ref is a reuse mechanism, not a data type."
+      },
+      {
+        "text": "A mandatory attribute of every schema in OpenAPI",
+        "correct": false,
+        "explanation": "No, $ref is not mandatory. It is only used when you need to reference another object instead of copying it."
+      }
+    ]
+  },
+  {
+    "question": "Which composition operator should be used for 'inheritance' — adding new fields to an existing schema?",
+    "type": "single",
+    "options": [
+      {
+        "text": "oneOf",
+        "correct": false,
+        "explanation": "oneOf means 'exactly one of the schemas matches'. It is used for polymorphism, not inheritance."
+      },
+      {
+        "text": "anyOf",
+        "correct": false,
+        "explanation": "anyOf means 'at least one of the schemas matches'. It is used for flexible matching, not schema extension."
+      },
+      {
+        "text": "allOf",
+        "correct": true,
+        "explanation": "Correct. allOf combines all listed schemas — the object must conform to all of them. This is the analog of intersection types A & B in TypeScript."
+      },
+      {
+        "text": "mergeOf",
+        "correct": false,
+        "explanation": "No such operator exists in OpenAPI. Use allOf to combine schemas."
+      }
+    ]
+  },
+  {
+    "question": "What happens if you write $ref alongside other keys at the same level?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The other keys will be merged with the schema from $ref",
+        "correct": false,
+        "explanation": "In OpenAPI 3.0 this is not the case. Additional keys next to $ref are ignored. In 3.1 the behavior changed slightly, but it's better to use allOf."
+      },
+      {
+        "text": "It causes a specification validation error",
+        "correct": false,
+        "explanation": "Technically there won't be a validation error, but the other keys will be silently ignored, creating a hidden problem."
+      },
+      {
+        "text": "Additional keys will be silently ignored (in OpenAPI 3.0)",
+        "correct": true,
+        "explanation": "Correct. In OpenAPI 3.0, when $ref is present, all sibling keys are ignored. To add additional properties, use allOf."
+      },
+      {
+        "text": "$ref will be ignored and the other keys will be applied",
+        "correct": false,
+        "explanation": "No, it's the opposite. When $ref is present, it takes priority and the other keys are ignored."
+      }
+    ]
+  },
+  {
+    "question": "You are designing an API for an online store. An error schema is repeated across 15 endpoints. How should you correctly reuse it?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Copy the schema into each endpoint — this explicitly shows the response structure",
+        "correct": false,
+        "explanation": "This violates the DRY principle. Changing the error schema would require updating all 15 locations. Any mistake would create a documentation mismatch."
+      },
+      {
+        "text": "Extract to components/schemas/Error and reference via $ref",
+        "correct": true,
+        "explanation": "Correct. This is the standard approach: a single source of truth in components/schemas, all endpoints reference it via $ref: \"#/components/schemas/Error\"."
+      },
+      {
+        "text": "Create a separate errors.yaml file and import it",
+        "correct": false,
+        "explanation": "External files are a viable approach for very large APIs, but for a single error schema this is excessive. It's better to use components/schemas in the same file."
+      },
+      {
+        "text": "Use anyOf with all possible error formats",
+        "correct": false,
+        "explanation": "anyOf is not suitable here. We need one reusable schema, not a choice among several. anyOf is used when an object can match different schemas."
+      }
+    ]
+  },
+  {
+    "question": "For which scenario is discriminator best suited?",
+    "type": "single",
+    "options": [
+      {
+        "text": "For specifying required fields of a schema",
+        "correct": false,
+        "explanation": "Required fields are specified via the required key: [field1, field2]. discriminator is about polymorphism and schema selection."
+      },
+      {
+        "text": "For polymorphism with oneOf: explicitly specifies which field determines the object type",
+        "correct": true,
+        "explanation": "Correct. discriminator works with oneOf/anyOf and specifies a marker field (e.g., type: 'email' | 'sms'). This allows code generators to create properly discriminated union types."
+      },
+      {
+        "text": "For sorting schemas in Swagger UI",
+        "correct": false,
+        "explanation": "discriminator does not affect UI display order. It is a technical mechanism for polymorphism resolution."
+      },
+      {
+        "text": "For validating string field formats",
+        "correct": false,
+        "explanation": "String formats are set via format (uuid, email, date-time) or pattern (regex). discriminator is a different mechanism."
+      }
+    ]
+  }
+]

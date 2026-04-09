@@ -1,0 +1,392 @@
+[
+  {
+    "question": "You are designing a URL for a product search operation by name. Which approach is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "POST /search with body { \"query\": \"coffee\" }",
+        "correct": false,
+        "explanation": "POST /search is not cached by browsers and proxies, and the URL can't be saved or shared. Search is a read operation, not a creation."
+      },
+      {
+        "text": "GET /products/search?q=coffee",
+        "correct": false,
+        "explanation": "Technically works, but /search in the path is redundant — filtering via query parameters already describes search. /products?q=coffee is simpler and more consistent."
+      },
+      {
+        "text": "GET /products?q=coffee",
+        "correct": true,
+        "explanation": "Correct: GET for reading, query parameter for filtering. Cacheable, URL can be shared, consistent with other filters (?category=coffee&q=arabica)."
+      },
+      {
+        "text": "GET /findProducts?name=coffee",
+        "correct": false,
+        "explanation": "A verb (find) in the URL violates REST conventions. The URL should name the resource, not the action."
+      }
+    ]
+  },
+  {
+    "question": "A user tries to place an order, but one of the items in the cart just went out of stock. What status should be returned?",
+    "type": "single",
+    "options": [
+      {
+        "text": "400 Bad Request — the user sent invalid data",
+        "correct": false,
+        "explanation": "400 means the request is malformed (invalid JSON, missing fields). The cart data is valid — the server-side state changed."
+      },
+      {
+        "text": "404 Not Found — product not found",
+        "correct": false,
+        "explanation": "404 means the resource doesn't exist. The product exists — it's just out of stock. This is a state conflict, not a missing resource."
+      },
+      {
+        "text": "409 Conflict — state conflict (out of stock)",
+        "correct": true,
+        "explanation": "409 is the correct code for state conflicts. The request is valid, but the current system state doesn't allow it to be executed. The body should contain code: INSUFFICIENT_STOCK and details."
+      },
+      {
+        "text": "422 Unprocessable Entity — the server understood the request but can't process it",
+        "correct": false,
+        "explanation": "422 is used for semantic validation errors (field exists but value is wrong). Insufficient stock is a business conflict, not a semantic error."
+      }
+    ]
+  },
+  {
+    "question": "Your colleague wrote an endpoint: GET /users/deleteInactive. What's wrong here?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A verb (delete) in the URL violates REST conventions",
+        "correct": true,
+        "explanation": "URLs describe resources, not actions. The action is specified by the HTTP method. Correct: DELETE /users?status=inactive or POST /users/archive."
+      },
+      {
+        "text": "GET modifies data — a violation of safety and idempotency",
+        "correct": true,
+        "explanation": "GET must be safe (no side effects). Browsers, crawlers, proxies can call GET automatically — and you'll accidentally delete data."
+      },
+      {
+        "text": "Wrong URL case — should be camelCase",
+        "correct": false,
+        "explanation": "URLs should be lowercase with hyphens: /users/delete-inactive. But the main problems are the verb in the URL and GET for a mutating operation."
+      },
+      {
+        "text": "No pagination for a list operation",
+        "correct": false,
+        "explanation": "For bulk operations (mass deletion), pagination is needed — through request body or filter parameters. But that's not the main problem of this endpoint."
+      }
+    ]
+  },
+  {
+    "question": "You are designing an API for an online store. Which URL is correct for getting reviews of a specific product?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GET /reviews?productId=prod_01HX",
+        "correct": false,
+        "explanation": "Works, but is less expressive. If a review can't exist without a product — the nested URL /products/{id}/reviews explicitly shows ownership."
+      },
+      {
+        "text": "GET /products/{id}/reviews",
+        "correct": true,
+        "explanation": "Correct: the nested URL shows the hierarchical relationship. Reviews belong to a specific product. Consistent with /products/{id}/images, /products/{id}/specs."
+      },
+      {
+        "text": "GET /getProductReviews?id=prod_01HX",
+        "correct": false,
+        "explanation": "The verb getProductReviews in the URL violates REST conventions. The action (get) is determined by the GET method, and the URL describes the resource."
+      },
+      {
+        "text": "POST /products/{id}/reviews/list",
+        "correct": false,
+        "explanation": "POST is for creation, not reading. The /list suffix is redundant — GET /reviews already means list. POST /list is a double violation."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following is a breaking change in a public API?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Renaming field `user_name` to `userName` (camelCase)",
+        "correct": true,
+        "explanation": "Renaming a field is a breaking change: all clients reading user_name will get undefined. You need to support both fields during a transition period, or release /v2/."
+      },
+      {
+        "text": "Adding a new optional field `middleName` to the response",
+        "correct": false,
+        "explanation": "Adding a new field is a non-breaking change. Clients that don't expect the field will simply ignore it. This is the tolerant reader principle."
+      },
+      {
+        "text": "Changing the type of field `price` from number (850.00) to string (\"850.00\")",
+        "correct": true,
+        "explanation": "Changing a type is a breaking change: client code price * quantity will break if price becomes a string. Even seemingly harmless type changes require a new version."
+      },
+      {
+        "text": "Adding a new endpoint GET /products/{id}/recommendations",
+        "correct": false,
+        "explanation": "Adding a new endpoint is a non-breaking change. Existing clients won't call it, so nothing will break."
+      }
+    ]
+  },
+  {
+    "question": "Which identifier format is best to use in a public API?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Numeric auto-increment: \"id\": 42",
+        "correct": false,
+        "explanation": "Numeric IDs leak internal information (record count, growth rate) and allow resource enumeration. When changing the database — all IDs will change."
+      },
+      {
+        "text": "ULID string: \"id\": \"01HX4K2M9P\"",
+        "correct": true,
+        "explanation": "ULID (Universally Unique Lexicographically Sortable Identifier) — a time-sortable string that doesn't leak internal structure. Doesn't change when the database changes."
+      },
+      {
+        "text": "MD5 hash: \"id\": \"5d41402abc4b2a76b9719d911017c592\"",
+        "correct": false,
+        "explanation": "MD5 is not unique (collisions), not sortable, not readable. Not used as a primary key in APIs."
+      },
+      {
+        "text": "Composite key: \"id\": \"user_42_product_17\"",
+        "correct": false,
+        "explanation": "Composite keys encode structure within the ID — a violation of encapsulation. When data structure changes, all IDs will break."
+      }
+    ]
+  },
+  {
+    "question": "You are developing an API for order cancellation. POST /orders/{id}/cancel returns 200 with { \"status\": \"cancelled\" }. The client calls this endpoint again. What should happen?",
+    "type": "single",
+    "options": [
+      {
+        "text": "200 OK — the order is already cancelled, the repeated call is safe",
+        "correct": false,
+        "explanation": "Technically acceptable, but inconsistent. If the first call changed state — the response should reflect the actual state. Returning 200 hides information from the client."
+      },
+      {
+        "text": "409 Conflict — the order is already cancelled, the action is impossible",
+        "correct": true,
+        "explanation": "409 correctly describes the situation: the request is valid, but the system state (already cancelled) conflicts with the action. The client understands: nothing to do."
+      },
+      {
+        "text": "500 Internal Server Error — unexpected state",
+        "correct": false,
+        "explanation": "500 is a server error. A repeated attempt to cancel a cancelled order is an expected scenario (the client might not have received the first response). 5xx scares the client and hides the real cause."
+      },
+      {
+        "text": "204 No Content — the operation was \"applied\" (nothing changed)",
+        "correct": false,
+        "explanation": "204 means success with no body. But if the order is already cancelled — the operation wasn't applied. 204 misleads the client about what happened."
+      }
+    ]
+  },
+  {
+    "question": "How should filtering by multiple statuses be passed in query parameters?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GET /orders?status=active,shipped",
+        "correct": false,
+        "explanation": "The string 'active,shipped' requires parsing on the server and can be ambiguous. Not all frameworks automatically parse CSV into an array."
+      },
+      {
+        "text": "GET /orders?statuses=[\"active\",\"shipped\"]",
+        "correct": false,
+        "explanation": "JSON in a query parameter requires URL encoding and is inconvenient for manual use. This is a non-standard approach that confuses developers."
+      },
+      {
+        "text": "GET /orders?status=active&status=shipped",
+        "correct": true,
+        "explanation": "The standard way: repeated parameter. Most HTTP libraries automatically collect repeated keys into an array. URLSearchParams.append('status', ...) in the browser."
+      },
+      {
+        "text": "POST /orders/filter with body { \"status\": [\"active\", \"shipped\"] }",
+        "correct": false,
+        "explanation": "POST for filtering is a violation: GET should be for reading. POST /filter is not cacheable, the URL can't be saved. Exception: very complex search queries."
+      }
+    ]
+  },
+  {
+    "question": "You discovered that the current endpoint GET /products returns the `description` field in every list item — 50,000 characters per product. This causes performance issues. What should you do?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Remove description from the list endpoint, keep it only in the detail GET /products/{id}",
+        "correct": true,
+        "explanation": "Different representations for different contexts — standard practice. List — short card (id, name, price, thumbnail), detail page — full data."
+      },
+      {
+        "text": "Add a fields parameter: GET /products?fields=id,name,price",
+        "correct": true,
+        "explanation": "Sparse fieldsets allow the client to request only the fields it needs. Especially useful for mobile clients with slow internet."
+      },
+      {
+        "text": "Increase the server timeout — this will speed up data transfer",
+        "correct": false,
+        "explanation": "Timeout is not a performance optimization. The problem is data volume, not wait time. Less data needs to be transferred."
+      },
+      {
+        "text": "Make a breaking change and remove the field from the response",
+        "correct": false,
+        "explanation": "Removing an existing field is a breaking change for all clients that read it. Versioning (/v2/) or a deprecation period with headers warning is needed."
+      }
+    ]
+  },
+  {
+    "question": "What should a successful POST /orders response (order creation) look like?",
+    "type": "single",
+    "options": [
+      {
+        "text": "HTTP 200 OK with body { \"data\": { \"id\": \"ord_01HX\", ... } }",
+        "correct": false,
+        "explanation": "200 OK is used for successful read and update operations. For creating a new resource, the correct code is 201 Created."
+      },
+      {
+        "text": "HTTP 201 Created with body { \"data\": { \"id\": \"ord_01HX\", ... } } and header Location: /v1/orders/ord_01HX",
+        "correct": true,
+        "explanation": "201 Created — the standard code for successful resource creation. Location tells the client where to find the created resource — without re-parsing the ID from the body."
+      },
+      {
+        "text": "HTTP 204 No Content without a body",
+        "correct": false,
+        "explanation": "204 is used when there's no body to return (DELETE, PATCH without response). On creation, the client should receive the ID and data of the created resource."
+      },
+      {
+        "text": "HTTP 201 Created with empty body and Location header",
+        "correct": false,
+        "explanation": "Location is enough to find the resource, but a body with data is good practice: the client doesn't need to make an extra GET request to get the created order data."
+      }
+    ]
+  },
+  {
+    "question": "You are designing an API for a system with multiple user types: client, manager, administrator. A manager requests data of a client who doesn't exist in the system. What to return?",
+    "type": "single",
+    "options": [
+      {
+        "text": "403 Forbidden — the manager has no right to see someone else's data",
+        "correct": false,
+        "explanation": "403 means the user is authenticated but lacks permissions. If the manager has rights to view client data — 403 is wrong. The problem is that the client doesn't exist."
+      },
+      {
+        "text": "404 Not Found — the client with that ID doesn't exist",
+        "correct": true,
+        "explanation": "404 correctly describes the situation: resource not found. This is not a permissions error — the manager has the right to view client data, this specific client just doesn't exist."
+      },
+      {
+        "text": "200 OK with empty object { \"data\": null }",
+        "correct": false,
+        "explanation": "200 OK with empty data is misleading: the HTTP status says 'everything is fine', but the resource wasn't found. The client won't understand whether to retry or not."
+      },
+      {
+        "text": "400 Bad Request — invalid ID in the request",
+        "correct": false,
+        "explanation": "400 means an error in the request itself (invalid format, missing parameters). If the ID is properly formatted but no resource exists with it — that's 404."
+      }
+    ]
+  },
+  {
+    "question": "You are adding pagination to the endpoint GET /products, which previously returned all products. How to do it correctly?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Add page and limit parameters with sensible defaults (page=1, limit=20)",
+        "correct": true,
+        "explanation": "Defaults are mandatory: existing clients that don't pass parameters will get the first page of 20 items — instead of a service crash."
+      },
+      {
+        "text": "Return a structure { data: [], meta: { total, page, perPage, hasNext } }",
+        "correct": true,
+        "explanation": "Pagination metadata allows the client to render UI: number of pages, forward/back buttons. Without meta, the client doesn't know if there's more data."
+      },
+      {
+        "text": "Immediately remove the ability to get all products without pagination",
+        "correct": false,
+        "explanation": "If the endpoint was public — this is a breaking change. A deprecation period is needed: first add pagination with defaults, warn clients, then remove the ability to skip pagination."
+      },
+      {
+        "text": "Set a maximum limit (e.g., 100) and return 400 when exceeded",
+        "correct": true,
+        "explanation": "A maximum limit protects the server from abuse: a request limit=50000 would kill the database. 400 Bad Request with message 'maximum limit is 100' is the correct response."
+      }
+    ]
+  },
+  {
+    "question": "What is the \"design-first\" approach to API development?",
+    "type": "single",
+    "options": [
+      {
+        "text": "First write a beautiful UI, then the API for it",
+        "correct": false,
+        "explanation": "Design-first in the API context means API-first, not UI-first. The UI might not exist at all — the API might be only for a mobile app or partners."
+      },
+      {
+        "text": "First write an OpenAPI specification, get feedback, then implement",
+        "correct": true,
+        "explanation": "Design-first: specification → review with team → mock server for frontend → backend implementation. Design errors are cheaper to fix in YAML than in code."
+      },
+      {
+        "text": "Write the code, then automatically generate OpenAPI from it (code-first)",
+        "correct": false,
+        "explanation": "This is the code-first approach. It's faster to start but leads to a suboptimal API: the API structure is dictated by implementation details, not client needs."
+      },
+      {
+        "text": "Develop the API without documentation, add it after release",
+        "correct": false,
+        "explanation": "An API without documentation is an anti-pattern. Consumers don't know how to use the API. After release, changing the design is nearly impossible."
+      }
+    ]
+  },
+  {
+    "question": "You see in someone's PR: DELETE /users/{id} returns 200 OK with { \"deleted\": true }. What would you say on review?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The status should be 204 No Content for a successful DELETE",
+        "correct": true,
+        "explanation": "204 is the standard code for a successful DELETE: resource deleted, no response body. 200 with body works, but violates convention and adds unnecessary payload."
+      },
+      {
+        "text": "The field deleted: true is redundant — the deletion is confirmed by code 204",
+        "correct": true,
+        "explanation": "If 204 is returned — there's no body at all. If 200 — then deleted: true duplicates the HTTP status information. Better to return either 204 (nothing) or 200 with the deleted resource data."
+      },
+      {
+        "text": "The DELETE method is wrong — should use POST /users/{id}/delete",
+        "correct": false,
+        "explanation": "DELETE is the semantically correct method for deletion. POST /delete violates REST conventions. DELETE is idempotent (repeated call also returns 2xx) — that's a useful property."
+      },
+      {
+        "text": "Should check that a second DELETE call returns 404 (resource already deleted)",
+        "correct": false,
+        "explanation": "This is debatable: DELETE is idempotent, meaning the second call should also be '2xx'. 404 is technically acceptable but not required. More important to ask about this than to demand specific behavior."
+      }
+    ]
+  },
+  {
+    "question": "Which set of headers is required for proper API rate limiting?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "X-RateLimit-Limit — maximum number of requests in a window",
+        "correct": true,
+        "explanation": "The client must know its limit to plan requests. Without Limit, the client doesn't understand how aggressively it can use the API."
+      },
+      {
+        "text": "X-RateLimit-Remaining — how many requests are left",
+        "correct": true,
+        "explanation": "Remaining allows the client to throttle itself in advance, without waiting for 429. Good SDKs check Remaining and slow down when the value is low."
+      },
+      {
+        "text": "Retry-After on 429 response — how many seconds to wait before retrying",
+        "correct": true,
+        "explanation": "Retry-After is an RFC 7231 standard. Without it, the client doesn't know how long to wait. Using exponential backoff without Retry-After can lead to waiting too long or too short."
+      },
+      {
+        "text": "X-Request-Latency — server request processing time",
+        "correct": false,
+        "explanation": "X-Request-Latency is useful for debugging, but is not related to rate limiting. It's a diagnostic header, not required for correct client behavior under rate limiting."
+      }
+    ]
+  }
+]

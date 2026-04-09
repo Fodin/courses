@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 6.1: Cookie Sessions
+// Task 6.1: Cookie Sessions
 // ============================================
 
 // TODO: Реализуйте аутентификацию через cookie-сессии
+// TODO: Implement authentication via cookie sessions
 // TODO: Создайте login endpoint с установкой Set-Cookie
+// TODO: Create login endpoint with Set-Cookie
 // TODO: Настройте httpOnly, secure, sameSite, maxAge
+// TODO: Configure httpOnly, secure, sameSite, maxAge
 // TODO: Реализуйте session store (в памяти) с генерацией session ID
+// TODO: Implement session store (in-memory) with session ID generation
 
 export function Task6_1() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task6_1() {
     log.push('')
 
     // TODO: Генерируйте sessionId через crypto.randomBytes(32)
+    // TODO: Generate sessionId via crypto.randomBytes(32)
     // TODO: Храните сессии в Map<sessionId, { userId, createdAt, data }>
+    // TODO: Store sessions in Map<sessionId, { userId, createdAt, data }>
     // TODO: Реализуйте sessionMiddleware для парсинга cookie
+    // TODO: Implement sessionMiddleware for cookie parsing
     // TODO: Покажите logout с удалением cookie и сессии
+    // TODO: Show logout with cookie and session deletion
     log.push('Cookie Sessions')
     log.push('  ... Set-Cookie: sid=abc123; HttpOnly; Secure; SameSite=Strict')
     log.push('  ... sessionStore.set(sid, { userId: 42, role: "user" })')

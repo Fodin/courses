@@ -1,74 +1,79 @@
 [
   {
-    "question": "Why should heavy tasks (email, PDF, resize) be moved to a queue instead of running in the request handler?",
+    "question": "Why should heavy tasks (email, PDF, resize) be offloaded to a queue instead of running in the request handler?",
     "type": "multiple",
     "options": [
       {
-        "text": "Users get an instant response without waiting for the long operation to complete",
+        "text": "The queue limits load on external services (SMTP, S3) through rate limiting",
         "correct": true
       },
       {
-        "text": "The queue makes the task execute 10x faster",
+        "text": "A special license is required for this",
         "correct": false,
-        "explanation": "A queue doesn't speed up the task itself. It removes the task from the request's critical path. The task runs at the same speed but asynchronously, not blocking the user"
+        "explanation": "The listed technologies have open-source versions."
       },
       {
-        "text": "The queue limits load on external services (SMTP, S3) via rate limiter",
-        "correct": true
+        "text": "The queue speeds up task execution by 10x",
+        "correct": false,
+        "explanation": "The queue doesn't speed up the task itself. It removes the task from the critical path of the request. The task runs at the same speed, but asynchronously, not blocking the user"
       },
       {
         "text": "On failure, the task retries with exponential backoff instead of being lost",
         "correct": true
+      },
+      {
+        "text": "The user gets an instant response, without waiting for the long operation to complete",
+        "correct": true
       }
     ]
   },
   {
-    "question": "What happens if you don't implement graceful shutdown during deployment?",
+    "question": "What happens if graceful shutdown is not implemented during deployment?",
     "type": "single",
     "options": [
       {
-        "text": "Kubernetes automatically waits for all requests to finish",
+        "text": "Kubernetes automatically waits for all requests to complete",
         "correct": false,
-        "explanation": "K8s sends SIGTERM and waits terminationGracePeriodSeconds (30s default). But if the app doesn't handle SIGTERM, it gets SIGKILL and exits immediately"
-      },
-      {
-        "text": "In-flight requests abort (clients get errors), DB connections don't close (leak), worker tasks are lost",
-        "correct": true
+        "explanation": "K8s sends SIGTERM and waits for terminationGracePeriodSeconds (30s by default). But if the app doesn't handle SIGTERM, it gets SIGKILL and terminates immediately"
       },
       {
         "text": "Requests are automatically redirected to another pod",
         "correct": false,
-        "explanation": "New requests redirect (if readiness returned 503), but in-flight requests on the current pod abort. Graceful shutdown lets them complete before exit"
+        "explanation": "New requests will be redirected (if readiness returns 503), but in-flight requests on the current pod will be aborted. Graceful shutdown allows them to complete before exit"
       },
       {
-        "text": "Nothing -- Node.js automatically finishes all operations",
+        "text": "Nothing -- Node.js automatically completes all operations",
         "correct": false,
-        "explanation": "Node.js does NOT automatically finish in-flight requests. On SIGTERM, the process exits immediately. All open connections are severed, data is lost"
+        "explanation": "Node.js does NOT complete in-flight requests automatically. On SIGTERM, the process terminates immediately. All open connections are dropped, data is lost"
+      },
+      {
+        "text": "In-flight requests are aborted (clients get errors), DB connections are not closed (leak), worker tasks are lost",
+        "correct": true
       }
     ]
   },
   {
-    "question": "Why must you set maxRetriesPerRequest: null in IORedis for BullMQ?",
+    "question": "Why specify maxRetriesPerRequest: null in IORedis for BullMQ?",
     "type": "single",
     "options": [
       {
-        "text": "BullMQ uses blocking commands (BRPOPLPUSH) that can wait indefinitely -- without null, IORedis erroneously treats them as timeouts",
-        "correct": true
-      },
-      {
-        "text": "It's an optional setting for production environments",
+        "text": "To disable retry so tasks don't run again",
         "correct": false,
-        "explanation": "It's a REQUIRED setting for BullMQ. Without it, IORedis treats blocking commands as stuck and throws MaxRetriesPerRequestError. BullMQ docs require this setting"
+        "explanation": "null does NOT disable retry. Instead, it allows unlimited waiting for blocking commands. Task retries are configured via attempts when adding a job to the queue"
       },
       {
         "text": "To increase the number of retries on Redis errors",
         "correct": false,
-        "explanation": "maxRetriesPerRequest isn't about job retries (that's attempts in job options). It's an IORedis client setting for blocking commands that BullMQ uses to wait for new jobs"
+        "explanation": "maxRetriesPerRequest is not the number of task retries (that's attempts in job options). It's an IORedis client setting for blocking commands that BullMQ uses to wait for new tasks"
       },
       {
-        "text": "To disable retries so tasks aren't re-executed",
+        "text": "BullMQ uses blocking commands (BRPOPLPUSH) that can wait indefinitely -- without null, IORedis mistakenly treats them as timeouts",
+        "correct": true
+      },
+      {
+        "text": "This is an optional setting for production",
         "correct": false,
-        "explanation": "null does NOT disable retries. It allows infinite waiting for blocking commands. Job retries are configured via attempts when adding jobs to the queue"
+        "explanation": "This is a REQUIRED setting for BullMQ. Without it, IORedis considers blocking commands as stuck and throws MaxRetriesPerRequestError. BullMQ documentation requires this setting"
       }
     ]
   },
@@ -77,23 +82,23 @@
     "type": "single",
     "options": [
       {
-        "text": "GraphQL uses WebSocket for streaming data",
-        "correct": false,
-        "explanation": "GraphQL defaults to HTTP POST. WebSocket is only used for Subscriptions. The main advantage is query flexibility, not transport"
-      },
-      {
-        "text": "GraphQL is faster than REST, so it can load more data in the same time",
-        "correct": false,
-        "explanation": "GraphQL isn't necessarily faster than REST. Its advantage is that one request replaces multiple REST requests, and the client gets only needed fields"
-      },
-      {
-        "text": "The client requests only needed fields in the query -- the server returns exactly what's requested, no more and no less",
+        "text": "The client requests only the needed fields in the query -- the server returns exactly what was requested, no more, no less",
         "correct": true
       },
       {
         "text": "GraphQL automatically caches data and serves from cache",
         "correct": false,
-        "explanation": "Caching is a separate concern (Apollo Client caches on client, Redis on server). GraphQL solves query flexibility, not caching"
+        "explanation": "Caching is a separate concern (Apollo Client caches on the client, Redis on the server). GraphQL solves the request flexibility problem, not caching"
+      },
+      {
+        "text": "GraphQL is faster than REST, so it can load more data in the same time",
+        "correct": false,
+        "explanation": "GraphQL is not necessarily faster than REST. Its advantage is that one request replaces multiple REST requests, and the client receives only the fields it needs"
+      },
+      {
+        "text": "GraphQL uses WebSocket for streaming data",
+        "correct": false,
+        "explanation": "GraphQL works via HTTP POST by default. WebSocket is only used for Subscriptions. The main advantage is request flexibility, not transport"
       }
     ]
   },
@@ -102,23 +107,23 @@
     "type": "single",
     "options": [
       {
-        "text": "To ensure task execution order",
+        "text": "To save CPU -- one task consumes fewer resources",
         "correct": false,
-        "explanation": "Overlap prevention isn't about ordering but preventing parallel execution. Without it, yesterday's report might generate simultaneously in two processes, creating duplicates"
+        "explanation": "CPU savings are a side effect. The main problem is duplication: if a report takes 7 minutes to generate, and cron fires every 5 minutes, two reports will be generated in parallel"
       },
       {
-        "text": "If a task runs longer than the cron interval, without checking, a second instance starts -- leading to data duplication or conflicts",
+        "text": "node-cron requires this as a mandatory setting",
+        "correct": false,
+        "explanation": "node-cron does NOT require overlap prevention. It's the developer's responsibility. Without an isRunning check, cron will simply run the callback again on schedule"
+      },
+      {
+        "text": "If a task runs longer than the cron interval, without a check a second copy will start -- this leads to data duplication or conflicts",
         "correct": true
       },
       {
-        "text": "node-cron requires it as a mandatory setting",
+        "text": "To ensure task execution order",
         "correct": false,
-        "explanation": "node-cron does NOT require overlap prevention. It's the developer's responsibility. Without isRunning check, cron simply fires the callback again on schedule"
-      },
-      {
-        "text": "To save CPU -- one task consumes fewer resources",
-        "correct": false,
-        "explanation": "CPU savings are a side effect. The main problem is duplication: if a report takes 7 minutes to generate and cron fires every 5, two reports generate in parallel"
+        "explanation": "Overlap prevention is not about order, but about preventing parallel execution. Without it, yesterday's report could be generated simultaneously in two processes, creating duplicates"
       }
     ]
   }

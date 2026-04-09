@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-// TODO: Implement Library API Design Wizard
+// TODO: Implement Library API Design Wizard / Мастер проектирования API библиотеки
 //
 // A 7-step interactive wizard for designing a REST API for a library system
 // (Books, Authors, Readers, Reservations).
@@ -15,7 +15,7 @@ import { useState } from 'react'
 //   - checklist: string[] — items to check off
 //   - solution: object with step-specific content (items, endpoints, matrix, examples, models, code)
 //
-// Steps:
+// Steps: / Шаги:
 //   1. Define resources — 6 resources for a library (books, authors, readers, reservations + nested)
 //   2. Design URL structure — RESTful URLs with proper naming, hierarchy, query params
 //   3. Choose HTTP methods — matrix: resource × method (GET/POST/PUT/PATCH/DELETE)
@@ -24,7 +24,7 @@ import { useState } from 'react'
 //   6. Add pagination/filtering — page/limit params, meta in response
 //   7. Final summary — checklist of 10 best practices + stats card
 //
-// UI layout:
+// UI layout: / Макет интерфейса:
 //   - Progress bar: step buttons at top + filled line below
 //   - Two-column grid: left = checklist, right = solution panel (locked/unlocked)
 //   - Navigation: Prev / "Step X of 7" / Next
@@ -41,18 +41,18 @@ export function Task12_1() {
 
   return (
     <div className="exercise-container" style={{ padding: '1.5rem', maxWidth: '960px' }}>
-      <h2 style={{ marginBottom: '0.25rem' }}>Конструктор API: Библиотека</h2>
+      <h2 style={{ marginBottom: '0.25rem' }}>Конструктор API: Библиотека / API Builder: Library</h2>
       <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-        Пошаговый процесс проектирования REST API от ресурсов до пагинации
+        Пошаговый процесс проектирования REST API от ресурсов до пагинации / Step-by-step REST API design process from resources to pagination
       </p>
 
-      {/* TODO: Progress bar (step buttons + fill line) */}
+      {/* TODO: Progress bar (step buttons + fill line) / Прогресс-бар (кнопки шагов + линия заполнения) */}
 
-      {/* TODO: Two-column grid: checklist (left) + solution panel (right) */}
+      {/* TODO: Two-column grid: checklist (left) + solution panel (right) / Двухколоночный макет: чеклист слева + панель решения справа */}
       {/* Left: step title, description, checklist items with checkboxes */}
       {/* Right: show/hide solution button, solution content based on step type */}
 
-      {/* TODO: Navigation (Prev / Step X of 7 / Next) */}
+      {/* TODO: Navigation (Prev / Step X of 7 / Next) / Навигация (Назад / Шаг X из 7 / Вперёд) */}
     </div>
   )
 }

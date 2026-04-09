@@ -1,4 +1,4 @@
-// Full reference solution for level 2 — HTTP-методы и идемпотентность
+// Full reference solution for level 2 — HTTP-методы и идемпотентность / HTTP Methods and Idempotency
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

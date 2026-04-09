@@ -1,4 +1,4 @@
-// Full reference solution for level 12 — Проектирование реального API
+// Full reference solution for level 12 — Проектирование реального API / Real API Design
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

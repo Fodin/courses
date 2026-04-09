@@ -4,19 +4,19 @@
     "type": "single",
     "options": [
       {
-        "text": "Duplex Stream -- reads and writes data simultaneously",
-        "correct": false,
-        "explanation": "req is only a Readable Stream. Duplex Streams are used in WebSocket and TCP connections, not in HTTP requests"
-      },
-      {
-        "text": "Writable Stream -- the server response is written to it",
-        "correct": false,
-        "explanation": "Writable Stream is the res (ServerResponse) object. The req object is a Readable Stream from which the request body is read"
-      },
-      {
         "text": "Transform Stream -- transforms data on the fly",
         "correct": false,
-        "explanation": "Transform Streams are used for data transformation (e.g., compression). req is a Readable Stream for reading incoming data"
+        "explanation": "Transform Stream is used for transforming data (e.g., compression). req is a Readable Stream for reading incoming data"
+      },
+      {
+        "text": "Duplex Stream -- reads and writes data simultaneously",
+        "correct": false,
+        "explanation": "req is only a Readable Stream. Duplex Stream is used in WebSocket and TCP connections, but not in HTTP requests"
+      },
+      {
+        "text": "Writable Stream -- the server response is written into it",
+        "correct": false,
+        "explanation": "Writable Stream is the res (ServerResponse) object. The req object is a Readable Stream from which the request body is read"
       },
       {
         "text": "Readable Stream -- request body data arrives in chunks via data/end events",
@@ -25,27 +25,27 @@
     ]
   },
   {
-    "question": "Why should you use fs.createReadStream().pipe(res) instead of fs.readFileSync() for serving large files?",
+    "question": "Why should fs.createReadStream().pipe(res) be used instead of fs.readFileSync() for serving large files?",
     "type": "single",
     "options": [
+      {
+        "text": "readFileSync blocks the event loop, but pipe also blocks -- there is no difference",
+        "correct": false,
+        "explanation": "readFileSync does block the event loop. However, pipe works asynchronously without blocking the event loop, and saves memory through chunked transfer"
+      },
+      {
+        "text": "readFileSync does not support binary files",
+        "correct": false,
+        "explanation": "readFileSync works fine with binary files. The problem is that for a 500 MB file, readFileSync loads all 500 MB into RAM at once"
+      },
       {
         "text": "readFileSync loads the entire file into RAM, while pipe transfers data in chunks (~64 KB), saving memory",
         "correct": true
       },
       {
-        "text": "readFileSync blocks the event loop, but pipe also blocks -- there's no difference",
-        "correct": false,
-        "explanation": "readFileSync does block the event loop. But pipe works asynchronously without blocking the event loop, plus saves memory through chunked transfer"
-      },
-      {
         "text": "pipe is faster because it skips access permission checks",
         "correct": false,
-        "explanation": "pipe doesn't skip any checks. Its advantage is streaming data in chunks with backpressure management, which is critical under high load"
-      },
-      {
-        "text": "readFileSync doesn't support binary files",
-        "correct": false,
-        "explanation": "readFileSync works perfectly with binary files. The problem is that for a 500 MB file, readFileSync loads all 500 MB into RAM simultaneously"
+        "explanation": "pipe does not skip permission checks. Its advantage is streaming data in chunks with backpressure management, which is critical under high load"
       }
     ]
   },
@@ -56,70 +56,69 @@
       {
         "text": "Use encodeURIComponent for the URL",
         "correct": false,
-        "explanation": "encodeURIComponent encodes URLs for sending but doesn't protect against path traversal. You need path.resolve() + checking the path is within the allowed directory"
+        "explanation": "encodeURIComponent encodes URLs for transmission but does not protect against path traversal. You need path.resolve() plus verification that the path is within the allowed directory"
+      },
+      {
+        "text": "Check that the URL does not contain '..' characters",
+        "correct": false,
+        "explanation": "A simple check for '..' is insufficient -- an attacker can use URL encoding (%2e%2e), double encoding, or other bypasses. path.resolve() normalizes the path, and a startsWith check guarantees safety"
+      },
+      {
+        "text": "Use path.resolve() and verify that the resulting path starts with publicDir",
+        "correct": true
       },
       {
         "text": "Reject requests longer than 100 characters",
         "correct": false,
-        "explanation": "URL length limits don't protect against path traversal -- the attack ../../etc/passwd fits within 100 characters. You need path.resolve() + startsWith(publicDir)"
-      },
-      {
-        "text": "Use path.resolve() and verify the resulting path starts with publicDir",
-        "correct": true
-      },
-      {
-        "text": "Check that the URL doesn't contain '..' characters",
-        "correct": false,
-        "explanation": "A simple '..' check is insufficient -- attackers can use URL encoding (%2e%2e), double encoding, or other bypasses. path.resolve() normalizes the path, and a startsWith check guarantees safety"
+        "explanation": "Limiting URL length does not protect against path traversal -- the attack ../../etc/passwd fits within 100 characters. You need verification via path.resolve() + startsWith(publicDir)"
       }
     ]
   },
   {
-    "question": "What happens if you don't call res.end() in the http.createServer handler?",
+    "question": "What happens if you do not call res.end() in an http.createServer handler?",
     "type": "single",
     "options": [
       {
-        "text": "The client will receive an empty response with code 200",
+        "text": "The client receives an empty response with status 200",
         "correct": false,
-        "explanation": "Without res.end(), the client receives nothing -- the connection stays open waiting for data. An empty response is only sent with an explicit res.end() call"
+        "explanation": "Without res.end() the client receives nothing -- the connection remains open waiting for data. An empty response is only sent when res.end() is explicitly called"
       },
       {
-        "text": "The connection will hang until the client disconnects by timeout -- the browser will wait indefinitely",
+        "text": "The connection hangs until the client times out -- the browser waits indefinitely for a response",
         "correct": true
       },
       {
-        "text": "Node.js will automatically end the response after 30 seconds",
+        "text": "Node.js automatically closes the response after 30 seconds",
         "correct": false,
-        "explanation": "Node.js doesn't auto-end responses. Without res.end(), the connection stays open until the client closes it by timeout or the user cancels the request"
+        "explanation": "Node.js does not automatically close the response. Without res.end() the connection hangs until the client closes it due to a timeout or the user cancels the request"
       },
       {
-        "text": "The server will crash with ERR_RESPONSE_NOT_ENDED",
+        "text": "The server crashes with ERR_RESPONSE_NOT_ENDED",
         "correct": false,
-        "explanation": "No such error exists. Without res.end(), the connection simply remains open -- it's a resource leak, not a server crash"
+        "explanation": "No such error exists. Without res.end() the connection simply stays open -- this is a resource leak, not a server crash"
       }
     ]
   },
   {
-    "question": "Which Content-Type headers should be specified for different request body types?",
+    "question": "Which Content-Type headers should be specified for different types of request bodies?",
     "type": "multiple",
     "options": [
+      {
+        "text": "text/html for all POST requests",
+        "correct": false,
+        "explanation": "text/html is the Content-Type for HTML pages in server responses. For POST requests, use application/json, application/x-www-form-urlencoded, or multipart/form-data depending on the data"
+      },
       {
         "text": "multipart/form-data for file uploads",
         "correct": true
       },
       {
-        "text": "application/json for JSON data",
+        "text": "application/x-www-form-urlencoded for HTML forms",
         "correct": true
       },
       {
-        "text": "text/html for all POST requests",
-        "correct": false,
-        "explanation": "text/html is a Content-Type for HTML pages in server responses. For POST requests, use application/json, application/x-www-form-urlencoded, or multipart/form-data depending on the data"
-      },
-      {
-        "text": "application/x-www-form-urlencoded for HTML forms",
-        "correct": false,
-        "explanation": "Close but not fully correct in this context."
+        "text": "application/json for JSON data",
+        "correct": true
       }
     ]
   }

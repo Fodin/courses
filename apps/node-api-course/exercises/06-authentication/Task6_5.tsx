@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 6.5: RBAC
+// Task 6.5: RBAC
 // ============================================
 
 // TODO: Реализуйте Role-Based Access Control (RBAC)
+// TODO: Implement Role-Based Access Control (RBAC)
 // TODO: Определите роли: admin, editor, viewer
+// TODO: Define roles: admin, editor, viewer
 // TODO: Создайте permissions map: { admin: ["*"], editor: ["read", "write"] }
+// TODO: Create permissions map: { admin: ["*"], editor: ["read", "write"] }
 // TODO: Реализуйте authorize("articles:write") middleware
+// TODO: Implement authorize("articles:write") middleware
 
 export function Task6_5() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task6_5() {
     log.push('')
 
     // TODO: Определите иерархию ролей с наследованием разрешений
+    // TODO: Define role hierarchy with permission inheritance
     // TODO: Реализуйте checkPermission(userRole, requiredPermission)
+    // TODO: Implement checkPermission(userRole, requiredPermission)
     // TODO: Создайте authorize(...permissions) middleware
+    // TODO: Create authorize(...permissions) middleware
     // TODO: Покажите комбинацию: authMiddleware -> authorize("admin") -> handler
+    // TODO: Show combination: authMiddleware -> authorize("admin") -> handler
     log.push('RBAC')
     log.push('  ... roles: { admin: ["*"], editor: ["read", "write"], viewer: ["read"] }')
     log.push('  ... authorize("articles:write") middleware')

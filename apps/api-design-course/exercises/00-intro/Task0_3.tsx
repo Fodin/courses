@@ -5,10 +5,10 @@ import { useState } from 'react'
 //   score (1-10), comment, goodExample (code string), badExample? (code string)
 
 // TODO: Create data for at least 5 criteria covering:
-// - Consistency (единый стиль)
-// - Predictability (предсказуемость)
-// - HTTP semantics (правильные методы и статус-коды)
-// - Documentation (документация)
+// - Consistency (единый стиль / unified naming style)
+// - Predictability (предсказуемость / predictability)
+// - HTTP semantics (правильные методы и статус-коды / correct methods and status codes)
+// - Documentation (документация / documentation)
 // - One more: versioning / pagination / rate limiting
 // Use a REAL public API for scores and examples (GitHub, Stripe, etc.)
 // Make sure weights sum to 100

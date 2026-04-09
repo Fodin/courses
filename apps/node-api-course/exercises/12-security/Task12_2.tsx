@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 12.2: Input Sanitization
+// Task 12.2: Input Sanitization
 // ============================================
 
-// TODO: Реализуйте санитизацию пользовательского ввода
-// TODO: Защитите от XSS: экранирование HTML в строковых полях
-// TODO: Защитите от NoSQL injection: запрет $-операторов в input
-// TODO: Защитите от SQL injection: параметризованные запросы + whitelist
+// TODO: Реализуйте санитизацию пользовательского ввода / Implement user input sanitization
+// TODO: Защитите от XSS: экранирование HTML в строковых полях / Protect against XSS: HTML escaping in string fields
+// TODO: Защитите от NoSQL injection: запрет $-операторов в input / Protect against NoSQL injection: disallow $-operators in input
+// TODO: Защитите от SQL injection: параметризованные запросы + whitelist / Protect against SQL injection: parameterized queries + whitelist
 
 export function Task12_2() {
   const [results, setResults] = useState<string[]>([])
@@ -18,15 +19,15 @@ export function Task12_2() {
     log.push('=== Input Sanitization ===')
     log.push('')
 
-    // TODO: Реализуйте sanitizeHtml(input) для удаления тегов
-    // TODO: Покажите express-mongo-sanitize для NoSQL injection
-    // TODO: Реализуйте middleware для рекурсивной санитизации req.body
-    // TODO: Продемонстрируйте prototype pollution защиту
+    // TODO: Реализуйте sanitizeHtml(input) для удаления тегов / Implement sanitizeHtml(input) to remove tags
+    // TODO: Покажите express-mongo-sanitize для NoSQL injection / Show express-mongo-sanitize for NoSQL injection
+    // TODO: Реализуйте middleware для рекурсивной санитизации req.body / Implement middleware for recursive req.body sanitization
+    // TODO: Продемонстрируйте prototype pollution защиту / Demonstrate prototype pollution protection
     log.push('Input Sanitization')
     log.push('  ... sanitize("<script>alert(1)</script>") -> "&lt;script&gt;..."')
     log.push('  ... reject body: { "$gt": "" } -> NoSQL injection')
-    log.push('  ... parameterized query: WHERE id = $1 (не конкатенация)')
-    log.push('  ... Object.create(null) для безопасных объектов')
+    log.push('  ... parameterized query: WHERE id = $1 (не конкатенация / not concatenation)')
+    log.push('  ... Object.create(null) для безопасных объектов / for safe objects')
 
     setResults(log)
   }

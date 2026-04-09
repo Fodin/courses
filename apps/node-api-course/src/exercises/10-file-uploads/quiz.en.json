@@ -1,31 +1,31 @@
 [
   {
-    "question": "Why is multer.memoryStorage() dangerous for large file uploads?",
+    "question": "Why is multer.memoryStorage() dangerous for uploading large files?",
     "type": "single",
     "options": [
       {
-        "text": "Files are lost on server restart",
+        "text": "Memory storage is slower than disk storage",
         "correct": false,
-        "explanation": "True, but not the danger. Files in memory storage are always processed immediately (saved to disk/S3). The problem is RAM consumption during upload"
+        "explanation": "Actually, memory storage is faster (RAM is faster than disk). The problem is not speed but memory consumption. For 100 users uploading 100 MB each = 10 GB RAM"
       },
       {
-        "text": "The entire file is stored in RAM as a Buffer -- uploading a 500MB video causes OOM (Out of Memory)",
+        "text": "Files are lost on server restart",
+        "correct": false,
+        "explanation": "This is true, but not the reason it's dangerous. Files in memory storage are always processed immediately (saved to disk/S3). The problem is RAM consumption during upload"
+      },
+      {
+        "text": "The entire file is stored in RAM as a Buffer -- uploading a 500 MB video will cause OOM (Out of Memory)",
         "correct": true
       },
       {
         "text": "Memory storage doesn't support multiple files",
         "correct": false,
-        "explanation": "Memory storage supports single, array, and fields. The problem is each file is fully loaded into RAM. For small files (<5MB), this is fine"
-      },
-      {
-        "text": "Memory storage is slower than disk storage",
-        "correct": false,
-        "explanation": "Actually, memory storage is faster (RAM is faster than disk). The problem isn't speed but memory consumption. For 100 users uploading 100MB each = 10GB RAM"
+        "explanation": "Memory storage supports single, array, and fields. The problem is that each file is fully loaded into RAM. For small files (<5 MB) this is fine"
       }
     ]
   },
   {
-    "question": "Why can't you trust file.originalname when saving a file?",
+    "question": "Why shouldn't you trust file.originalname when saving a file?",
     "type": "single",
     "options": [
       {
@@ -33,44 +33,44 @@
         "correct": true
       },
       {
-        "text": "Two users might upload files with the same name",
+        "text": "Cyrillic characters in filenames can cause encoding errors",
+        "correct": false,
+        "explanation": "Encoding is a minor issue. The main concern is security. Always generate UUIDs for filenames and save the original name in database metadata"
+      },
+      {
+        "text": "The filename might be too long for the file system",
+        "correct": false,
+        "explanation": "Length is a secondary concern. The main threat is path traversal. A name like '../../etc/passwd' allows writing a file outside the uploads/ directory"
+      },
+      {
+        "text": "Two users can upload a file with the same name",
         "correct": false,
         "explanation": "Name collision is a problem, but not the main one. Path traversal allows an attacker to overwrite any file on the server, including configuration files"
-      },
-      {
-        "text": "The filename might be too long for the filesystem",
-        "correct": false,
-        "explanation": "Length is a secondary concern. The main threat is path traversal. The name '../../etc/passwd' allows writing files outside the uploads/ directory"
-      },
-      {
-        "text": "Non-ASCII characters in the filename can cause encoding errors",
-        "correct": false,
-        "explanation": "Encoding is a minor issue. The main concern is security. Always generate UUIDs for filenames and store the original name in DB metadata"
       }
     ]
   },
   {
-    "question": "Why is magic byte checking better than file extension checking?",
+    "question": "Why is checking magic bytes better than checking file extensions?",
     "type": "single",
     "options": [
       {
-        "text": "Magic bytes only work for images",
+        "text": "File extensions are not supported in Linux",
         "correct": false,
-        "explanation": "Magic bytes exist for most formats: PDF (%PDF), ZIP (PK), JPEG (FF D8 FF), PNG (89 50 4E 47). The file-type library recognizes hundreds of formats"
-      },
-      {
-        "text": "Magic bytes are signatures at the start of a file that can't be spoofed by simple renaming (.exe -> .jpg)",
-        "correct": true
+        "explanation": "Linux does support extensions, though it doesn't use them for type detection. The problem is that an extension is just part of a filename that a user can change"
       },
       {
         "text": "Magic bytes check files faster than extension checking",
         "correct": false,
-        "explanation": "Extension checking is faster (simple string comparison). Magic bytes require reading the first bytes. The advantage is reliability, not speed"
+        "explanation": "Extension checking is faster (just a string comparison). Magic bytes require reading the first bytes of a file. The advantage is reliability, not speed"
       },
       {
-        "text": "File extensions aren't supported in Linux",
+        "text": "Magic bytes are a signature at the start of a file that cannot be faked by simple renaming (.exe -> .jpg)",
+        "correct": true
+      },
+      {
+        "text": "Magic bytes only work for images",
         "correct": false,
-        "explanation": "Linux supports extensions, though it doesn't use them to determine type. The issue is that extensions are just part of the name that users can change"
+        "explanation": "Magic bytes exist for most formats: PDF (%PDF), ZIP (PK), JPEG (FF D8 FF), PNG (89 50 4E 47). The file-type library recognizes hundreds of formats"
       }
     ]
   },
@@ -79,23 +79,23 @@
     "type": "single",
     "options": [
       {
-        "text": "Busboy is faster than Multer, so the file passes through RAM in less time",
+        "text": "Busboy compresses the file before saving",
         "correct": false,
-        "explanation": "Speed doesn't affect RAM consumption. Multer memoryStorage holds the entire Buffer until processing. Busboy passes chunks as received -- only the current chunk is in RAM"
+        "explanation": "Busboy doesn't compress files. It parses the multipart stream and passes chunks through the Node.js Stream API. RAM savings come from not fully buffering the file"
+      },
+      {
+        "text": "Busboy processes the file in streams (chunks of ~64 KB), without loading the entire file into memory",
+        "correct": true
       },
       {
         "text": "Busboy uses a swap file instead of RAM",
         "correct": false,
-        "explanation": "Busboy doesn't use swap. It pipes data from the request stream to the write stream. Only the current chunk (~64KB) is in memory"
+        "explanation": "Busboy doesn't use swap. It pipes data from the request stream to a write stream. Only the current chunk (~64 KB) is in memory"
       },
       {
-        "text": "Busboy compresses files before saving",
+        "text": "Busboy is faster than Multer, so the file passes through RAM faster",
         "correct": false,
-        "explanation": "Busboy doesn't compress files. It parses the multipart stream and passes chunks via Node.js Stream API. RAM savings come from not buffering the entire file"
-      },
-      {
-        "text": "Busboy processes files in a streaming fashion (chunks of ~64KB), not loading the entire file into memory",
-        "correct": true
+        "explanation": "Speed doesn't affect RAM consumption. Multer memoryStorage keeps the entire Buffer until processing. Busboy passes chunks as they arrive -- only the current chunk is in RAM"
       }
     ]
   }

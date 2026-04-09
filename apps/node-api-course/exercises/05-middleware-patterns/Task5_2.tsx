@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 5.2: CORS
+// Task 5.2: CORS
 // ============================================
 
 // TODO: Реализуйте CORS middleware вручную (без библиотек)
+// TODO: Implement CORS middleware manually (without libraries)
 // TODO: Обработайте preflight OPTIONS-запросы
+// TODO: Handle preflight OPTIONS requests
 // TODO: Настройте Access-Control-Allow-Origin, Methods, Headers
+// TODO: Configure Access-Control-Allow-Origin, Methods, Headers
 // TODO: Покажите разницу между simple и preflight запросами
+// TODO: Show the difference between simple and preflight requests
 
 export function Task5_2() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task5_2() {
     log.push('')
 
     // TODO: Реализуйте corsMiddleware с настраиваемым whitelist origins
+    // TODO: Implement corsMiddleware with configurable whitelist origins
     // TODO: Обработайте OPTIONS запрос -> 204 с CORS-заголовками
+    // TODO: Handle OPTIONS request -> 204 with CORS headers
     // TODO: Покажите credentials: true и его влияние на wildcard origin
+    // TODO: Show credentials: true and its effect on wildcard origin
     // TODO: Настройте Access-Control-Max-Age для кэширования preflight
+    // TODO: Configure Access-Control-Max-Age for preflight caching
     log.push('CORS Middleware')
     log.push('  ... Access-Control-Allow-Origin: https://example.com')
     log.push('  ... Access-Control-Allow-Methods: GET, POST, PUT, DELETE')

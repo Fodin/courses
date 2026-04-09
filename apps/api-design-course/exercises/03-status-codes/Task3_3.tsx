@@ -6,16 +6,16 @@ import { useState } from 'react'
 // wrongCodes: Array<{ code: number, name: string, why: string }>
 
 // TODO: Create an array of 10 scenarios. Cover these situations:
-// 1. POST успешно создал ресурс (201)
-// 2. DELETE успешно удалил ресурс, тело не нужно (204)
-// 3. GET без токена к защищённому ресурсу (401)
-// 4. Авторизованный пользователь без нужных прав (403)
-// 5. GET /resources/99999 — ресурс не существует (404)
-// 6. POST с email, который уже занят (409)
-// 7. POST с невалидными полями email/password (422)
-// 8. Неожиданное исключение в коде сервера (500)
-// 9. Клиент превысил rate limit (429)
-// 10. API Gateway не дождался ответа от backend (504)
+// 1. POST успешно создал ресурс (201) / POST successfully created a resource (201)
+// 2. DELETE успешно удалил ресурс, тело не нужно (204) / DELETE successfully removed a resource, no body needed (204)
+// 3. GET без токена к защищённому ресурсу (401) / GET without token to a protected resource (401)
+// 4. Авторизованный пользователь без нужных прав (403) / Authorized user without required permissions (403)
+// 5. GET /resources/99999 — ресурс не существует (404) / GET /resources/99999 — resource doesn't exist (404)
+// 6. POST с email, который уже занят (409) / POST with email that's already taken (409)
+// 7. POST с невалидными полями email/password (422) / POST with invalid email/password fields (422)
+// 8. Неожиданное исключение в коде сервера (500) / Unexpected exception in server code (500)
+// 9. Клиент превысил rate limit (429) / Client exceeded rate limit (429)
+// 10. API Gateway не дождался ответа от backend (504) / API Gateway timed out waiting for backend (504)
 // For each scenario, include 2 wrong codes with explanation why they're wrong
 
 // TODO: Define a UserAnswer type:

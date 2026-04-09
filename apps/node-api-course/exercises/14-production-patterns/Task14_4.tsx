@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 14.4: GraphQL Basics
+// Task 14.4: GraphQL Basics
 // ============================================
 
-// TODO: Создайте GraphQL API с Apollo Server или graphql-yoga
-// TODO: Определите Type Definitions (SDL): Query, Mutation, types
-// TODO: Реализуйте resolvers для каждого поля
-// TODO: Покажите relationships, arguments и input types
+// TODO: Создайте GraphQL API с Apollo Server или graphql-yoga / Create a GraphQL API with Apollo Server or graphql-yoga
+// TODO: Определите Type Definitions (SDL): Query, Mutation, types / Define Type Definitions (SDL): Query, Mutation, types
+// TODO: Реализуйте resolvers для каждого поля / Implement resolvers for each field
+// TODO: Покажите relationships, arguments и input types / Show relationships, arguments and input types
 
 export function Task14_4() {
   const [results, setResults] = useState<string[]>([])
@@ -18,15 +19,15 @@ export function Task14_4() {
     log.push('=== GraphQL Basics ===')
     log.push('')
 
-    // TODO: Определите SDL: type User { id, name, posts: [Post] }
-    // TODO: Реализуйте Query resolvers: users, user(id)
-    // TODO: Реализуйте Mutation resolvers: createUser(input)
-    // TODO: Покажите N+1 проблему и DataLoader для batch loading
+    // TODO: Определите SDL: type User { id, name, posts: [Post] } / Define SDL: type User { id, name, posts: [Post] }
+    // TODO: Реализуйте Query resolvers: users, user(id) / Implement Query resolvers: users, user(id)
+    // TODO: Реализуйте Mutation resolvers: createUser(input) / Implement Mutation resolvers: createUser(input)
+    // TODO: Покажите N+1 проблему и DataLoader для batch loading / Show N+1 problem and DataLoader for batch loading
     log.push('GraphQL')
     log.push('  ... type Query { users: [User!]!, user(id: ID!): User }')
     log.push('  ... type Mutation { createUser(input: CreateUserInput!): User! }')
     log.push('  ... resolvers: { Query: { users: () => db.users.findAll() } }')
-    log.push('  ... DataLoader: batch loading для предотвращения N+1')
+    log.push('  ... DataLoader: batch loading для предотвращения N+1 / for preventing N+1')
 
     setResults(log)
   }

@@ -1,0 +1,132 @@
+[
+  {
+    "question": "What is TTFHW (Time to First Hello World) in the context of API documentation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The time it takes to load the documentation page",
+        "correct": false,
+        "explanation": "No — that's a website performance metric, not DX"
+      },
+      {
+        "text": "The time from first encountering the API to making a successful request",
+        "correct": true,
+        "explanation": "Exactly. This is a key DX metric: the lower the TTFHW, the better the documentation"
+      },
+      {
+        "text": "The server's response time for the first request",
+        "correct": false,
+        "explanation": "That's latency — an API performance metric, not a documentation metric"
+      },
+      {
+        "text": "The time it takes to write the first API client in TypeScript",
+        "correct": false,
+        "explanation": "Writing a client is already deep integration, not the first step"
+      }
+    ]
+  },
+  {
+    "question": "How does Redoc fundamentally differ from Swagger UI?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Redoc has a three-column layout with code on the right",
+        "correct": true,
+        "explanation": "Yes — this is Redoc's key design feature: navigation / description / examples"
+      },
+      {
+        "text": "Redoc supports Try it out for free",
+        "correct": false,
+        "explanation": "No — Try it out in Redoc is only available in the paid Redocly version"
+      },
+      {
+        "text": "Redoc is better suited for a public developer portal",
+        "correct": true,
+        "explanation": "Correct — professional design and readability make Redoc the preferred choice for external developers"
+      },
+      {
+        "text": "Redoc does not support OpenAPI",
+        "correct": false,
+        "explanation": "No — Redoc works specifically with OpenAPI specifications"
+      }
+    ]
+  },
+  {
+    "question": "Your frontend team received an OpenAPI specification from the backend team, but the backend itself is not ready yet. Which tool allows you to continue development?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Swagger UI",
+        "correct": false,
+        "explanation": "Swagger UI is just a documentation UI, not a mock server"
+      },
+      {
+        "text": "Redoc",
+        "correct": false,
+        "explanation": "Redoc generates documentation but does not spin up a mock server"
+      },
+      {
+        "text": "Stoplight Prism",
+        "correct": true,
+        "explanation": "Exactly! Prism reads OpenAPI and automatically responds to requests with generated data — the frontend can work without a real backend"
+      },
+      {
+        "text": "Spectral",
+        "correct": false,
+        "explanation": "Spectral is a linter for OpenAPI specifications, not a mock server"
+      }
+    ]
+  },
+  {
+    "question": "Which elements must be included in an error code description in API documentation?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "HTTP status and a machine-readable code (e.g., 'validation_error')",
+        "correct": true,
+        "explanation": "Yes — developers should handle errors programmatically by code, not by message text"
+      },
+      {
+        "text": "A human-readable description of the error cause",
+        "correct": true,
+        "explanation": "Correct — the description helps understand the context during debugging"
+      },
+      {
+        "text": "How to fix it / what to do next",
+        "correct": true,
+        "explanation": "Essential! The developer should know the next step, not only what went wrong"
+      },
+      {
+        "text": "The server's stack trace",
+        "correct": false,
+        "explanation": "No — a stack trace is an internal implementation detail and must never be exposed in a public API for security reasons"
+      }
+    ]
+  },
+  {
+    "question": "A team is releasing API v3 with breaking changes. What should be done with the v2 documentation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Remove the v2 documentation since the version is deprecated",
+        "correct": false,
+        "explanation": "Never! Users who haven't migrated yet will be left without a reference"
+      },
+      {
+        "text": "Keep the v2 documentation, add a v2 to v3 migration guide and the end-of-support date",
+        "correct": true,
+        "explanation": "Correct — existing integrations must continue to work and have documentation, and the migration guide helps transition to the new version"
+      },
+      {
+        "text": "Replace the v2 documentation with a redirect to v3",
+        "correct": false,
+        "explanation": "A redirect without a migration guide is a trap: developers will lose the reference for their version"
+      },
+      {
+        "text": "Leave the v2 documentation unchanged without mentioning v3",
+        "correct": false,
+        "explanation": "v2 users should know about v3 and when v2 will stop being supported"
+      }
+    ]
+  }
+]

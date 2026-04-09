@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 9.4: Redis Pub/Sub
+// Task 9.4: Redis Pub/Sub
 // ============================================
 
 // TODO: Реализуйте Pub/Sub через Redis для масштабирования WebSocket
+// TODO: Implement Pub/Sub via Redis for WebSocket scaling
 // TODO: Создайте publisher и subscriber Redis клиенты
+// TODO: Create publisher and subscriber Redis clients
 // TODO: Покажите паттерн: HTTP endpoint публикует -> WebSocket рассылает
+// TODO: Show pattern: HTTP endpoint publishes -> WebSocket broadcasts
 // TODO: Продемонстрируйте работу с несколькими инстансами сервера
+// TODO: Demonstrate operation with multiple server instances
 
 export function Task9_4() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task9_4() {
     log.push('')
 
     // TODO: Создайте pub = new Redis(), sub = new Redis() (отдельные клиенты!)
+    // TODO: Create pub = new Redis(), sub = new Redis() (separate clients!)
     // TODO: sub.subscribe("notifications") и sub.on("message", handler)
+    // TODO: sub.subscribe("notifications") and sub.on("message", handler)
+    // TODO: pub.publish("notifications", JSON.stringify(event))
     // TODO: pub.publish("notifications", JSON.stringify(event))
     // TODO: Покажите масштабирование: 3 сервера подписаны на один канал
+    // TODO: Show scaling: 3 servers subscribed to one channel
     log.push('Redis Pub/Sub')
     log.push('  ... const pub = new Redis(), sub = new Redis()')
     log.push('  ... sub.subscribe("notifications")')

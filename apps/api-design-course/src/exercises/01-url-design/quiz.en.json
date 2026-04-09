@@ -1,0 +1,137 @@
+[
+  {
+    "question": "Which of these URLs follows REST principles?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GET /api/getUsers",
+        "correct": false,
+        "explanation": "The verb 'get' in the URL is redundant — the HTTP method GET already carries that meaning. The URL should describe a resource, not an action."
+      },
+      {
+        "text": "GET /api/users",
+        "correct": true,
+        "explanation": "Correct: plural noun, lowercase. The GET method determines the operation — 'get a list of users'."
+      },
+      {
+        "text": "GET /api/user",
+        "correct": false,
+        "explanation": "Singular for a collection is ambiguous. Standard: collections in plural (/users), a single object — /users/:id."
+      },
+      {
+        "text": "GET /api/Users",
+        "correct": false,
+        "explanation": "URLs should be lowercase. PascalCase violates conventions and can cause issues with case-sensitive servers."
+      }
+    ]
+  },
+  {
+    "question": "How do you correctly delete a user with ID = 5?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GET /api/users/deleteUser/5",
+        "correct": false,
+        "explanation": "Double error: using GET instead of DELETE, and 'deleteUser' is a verb in the path. The operation is expressed by the HTTP method."
+      },
+      {
+        "text": "POST /api/users?action=delete&id=5",
+        "correct": false,
+        "explanation": "Action in query params is RPC style, not REST. The HTTP DELETE method was created precisely for deletion."
+      },
+      {
+        "text": "DELETE /api/users/5",
+        "correct": true,
+        "explanation": "Correct: DELETE method + address of the specific resource (/users/5). Semantically clean and idiomatic for REST."
+      },
+      {
+        "text": "DELETE /api/deleteUser/5",
+        "correct": false,
+        "explanation": "The method is correct, but the URL contains the verb 'deleteUser'. /users/5 is sufficient — the DELETE method already carries the meaning of deletion."
+      }
+    ]
+  },
+  {
+    "question": "You are designing an API to get all comments for a post with ID = 10. Which URL should you choose?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GET /api/comments?postId=10",
+        "correct": false,
+        "explanation": "Technically works, but loses the hierarchy: it is unclear that comments are a dependent resource of the post. Nesting expresses ownership."
+      },
+      {
+        "text": "GET /api/posts/10/comments",
+        "correct": true,
+        "explanation": "Correct: nested resource. The URL clearly shows that comments belong to post 10. Readable and semantically precise."
+      },
+      {
+        "text": "GET /api/getCommentsByPost/10",
+        "correct": false,
+        "explanation": "The verb 'getCommentsByPost' in the URL violates REST. The action is determined by the method, not the path."
+      },
+      {
+        "text": "POST /api/posts/10/comments",
+        "correct": false,
+        "explanation": "The URL is correct, but the POST method means creation, not retrieval. Use GET for reading."
+      }
+    ]
+  },
+  {
+    "question": "Which URL naming rules are correct? (select all that apply)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Plural nouns for collections: /products",
+        "correct": true,
+        "explanation": "Correct. Collections are named in plural, making the URL unambiguous: /products is a list of products."
+      },
+      {
+        "text": "Kebab-case for compound words: /blog-posts",
+        "correct": true,
+        "explanation": "Correct. Kebab-case is the standard for URLs. camelCase (/blogPosts) and snake_case (/blog_posts) are not recommended."
+      },
+      {
+        "text": "camelCase for readability: /blogPosts",
+        "correct": false,
+        "explanation": "Incorrect. URLs are not JavaScript variables. The web development standard is kebab-case: /blog-posts."
+      },
+      {
+        "text": "Lowercase for all segments: /user-profiles",
+        "correct": true,
+        "explanation": "Correct. URLs should be lowercase, which prevents issues with case-sensitive servers and confusion."
+      },
+      {
+        "text": "Verbs for clarity: /getUserById",
+        "correct": false,
+        "explanation": "Incorrect. Verbs in URLs are a REST anti-pattern. The operation is determined by the HTTP method; the URL describes the resource."
+      }
+    ]
+  },
+  {
+    "question": "You have a 'blog posts' resource. You need to add an endpoint for publishing a draft (this is a complex operation: notifications, checks, status change). What is the best approach?",
+    "type": "single",
+    "options": [
+      {
+        "text": "PUT /api/posts/42 with body { \"status\": \"published\" }",
+        "correct": false,
+        "explanation": "It works, but hides the intent. PUT replaces the resource entirely, while publishing is a specific action with side effects."
+      },
+      {
+        "text": "GET /api/posts/42/publish",
+        "correct": false,
+        "explanation": "GET must not change state — this violates idempotency. Publishing is a mutation; use POST."
+      },
+      {
+        "text": "POST /api/posts/42/publish",
+        "correct": true,
+        "explanation": "Correct. For non-trivial actions, an RPC-style endpoint is acceptable. POST /resource/:id/action is a recognized exception in REST."
+      },
+      {
+        "text": "POST /api/publishPost?id=42",
+        "correct": false,
+        "explanation": "The resource ID should be in the path, not in query params. Query params are for filtering, not for identifying a specific object."
+      }
+    ]
+  }
+]

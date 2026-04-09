@@ -5,18 +5,28 @@ import { useState } from 'react'
 //   - Inline Order schema (id: uuid, total: number, status: enum [pending, paid, shipped])
 //   - Inline Error schema (code: string, message: string) in 401 and 500 responses
 //   GET /orders/{id} also has 404 with inline Error schema
+// TODO: Определить SPEC_BEFORE — YAML-строка с 2 эндпоинтами (GET /orders, GET /orders/{id})
+//   Оба эндпоинта имеют:
+//   - Inline Order схема (id: uuid, total: number, status: enum [pending, paid, shipped])
+//   - Inline Error схема (code: string, message: string) в ответах 401 и 500
+//   GET /orders/{id} также имеет 404 с inline Error схемой
 
 // TODO: Define SPEC_AFTER — refactored YAML with:
 //   - components/schemas: Order and Error
 //   - components/responses: Unauthorized, NotFound, ServerError
 //   - paths using $ref instead of inline definitions
+// TODO: Определить SPEC_AFTER — рефакторенный YAML с:
+//   - components/schemas: Order и Error
+//   - components/responses: Unauthorized, NotFound, ServerError
+//   - paths использующие $ref вместо inline определений
 
 // TODO: Compute BEFORE_LINES, AFTER_LINES, SAVED using .split('\n').length
+// TODO: Вычислить BEFORE_LINES, AFTER_LINES, SAVED через .split('\n').length
 
-// TODO: Define interface DuplicateBlock:
+// TODO: Define interface DuplicateBlock: / TODO: Определить интерфейс DuplicateBlock:
 //   id: string, label: string, description: string, occurrences: number, refactored: string
 
-// TODO: Define DUPLICATES array with 4 entries:
+// TODO: Define DUPLICATES array with 4 entries: / TODO: Определить массив DUPLICATES с 4 записями:
 //   1. id: 'order-schema', label: 'Order schema'
 //      description: 'Схема заказа повторяется в GET /orders и GET /orders/{id}'
 //      occurrences: 2, refactored: '$ref: "#/components/schemas/Order"'
@@ -31,10 +41,11 @@ import { useState } from 'react'
 //      occurrences: 2, refactored: '$ref: "#/components/responses/ServerError"'
 
 export function Task8_2() {
-  // TODO: refactored state: string[] (default [])
-  // TODO: view state: 'before' | 'after' (default 'before')
+  // TODO: refactored state: string[] (default []) / TODO: Состояние refactored: string[] (по умолчанию [])
+  // TODO: view state: 'before' | 'after' (default 'before') / TODO: Состояние view: 'before' | 'after' (по умолчанию 'before')
 
   // TODO: Compute allDone — all duplicate IDs are in refactored array
+  // TODO: Вычислить allDone — все ID дубликатов есть в массиве refactored
 
   return (
     <div className="exercise-container" style={{ padding: '1.5rem', maxWidth: '1000px' }}>
@@ -49,6 +60,8 @@ export function Task8_2() {
 
       {/* TODO: Stats bar: "До: N строк" (red) → "После: N строк" (green) → "Экономия: -N строк" (blue)
            Plus "До" / "После" toggle buttons on the right */}
+      {/* TODO: Панель статистики: "До: N строк" (красный) → "После: N строк" (зелёный) → "Экономия: -N строк" (синий)
+           Плюс кнопки переключения "До" / "После" справа */}
 
       <div style={{ display: 'grid', gridTemplateColumns: '280px 1fr', gap: '1rem' }}>
         {/* TODO: Left column — duplicates checklist
@@ -59,9 +72,20 @@ export function Task8_2() {
              - Show occurrences badge: "×N" in red
              - When checked: show refactored $ref string below
              After all checked: success message "Отличная работа! Все дубликаты устранены." */}
+        {/* TODO: Левая колонка — чеклист дубликатов
+             Метка: "НАЙТИ И ВЫНЕСТИ В COMPONENTS"
+             Для каждого дубликата: кликабельная карточка с переключением
+             - Не отмечен: ⬜ иконка, белый фон, серая рамка
+             - Отмечен: ✅ иконка, зелёный оттеночный фон
+             - Показать бейдж повторений: "×N" красным
+             - При отметке: показать строку refactored $ref ниже
+             После отметки всех: сообщение об успехе "Отличная работа! Все дубликаты устранены." */}
 
         {/* TODO: Right column — dark YAML viewer
              Show SPEC_BEFORE or SPEC_AFTER based on view state
+             maxHeight: 500px, overflowY: auto */}
+        {/* TODO: Правая колонка — тёмный просмотр YAML
+             Показывает SPEC_BEFORE или SPEC_AFTER в зависимости от состояния view
              maxHeight: 500px, overflowY: auto */}
       </div>
     </div>

@@ -1,0 +1,267 @@
+[
+  {
+    "question": "An API returns HTTP 200 with body { \"success\": false, \"error\": \"User not found\" }. What is wrong here?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Monitoring will not detect an error — it sees 200",
+        "correct": true,
+        "explanation": "Correct. Monitoring systems rely on HTTP status codes, not the response body. 200 means 'everything is fine'."
+      },
+      {
+        "text": "CDN may cache the error response",
+        "correct": true,
+        "explanation": "Correct. Caches cache 200 responses by default. Clients will keep receiving the error from cache repeatedly."
+      },
+      {
+        "text": "Client-side retry logic will not trigger",
+        "correct": true,
+        "explanation": "Correct. Libraries automatically retry 5xx requests, but not 200. The error will be silently ignored."
+      },
+      {
+        "text": "The 'success' field cannot be used in API responses",
+        "correct": false,
+        "explanation": "Incorrect. The 'success' field itself is not prohibited. The problem is the mismatch between the HTTP status code and the response content."
+      }
+    ]
+  },
+  {
+    "question": "A user is authenticated (token is valid) but tries to delete someone else's resource. Which code should be returned?",
+    "type": "single",
+    "options": [
+      {
+        "text": "401 Unauthorized",
+        "correct": false,
+        "explanation": "Incorrect. 401 means 'we don't know who you are.' But the user is already authenticated — the problem is permissions, not identification. The client would enter an infinite redirect loop to the login page."
+      },
+      {
+        "text": "403 Forbidden",
+        "correct": true,
+        "explanation": "Correct. 403 — the user is known but access is denied. Re-authentication will not help — different permissions are needed."
+      },
+      {
+        "text": "404 Not Found",
+        "correct": false,
+        "explanation": "Sometimes used to hide the existence of a resource (security through obscurity), but 403 is more honest and standard."
+      },
+      {
+        "text": "400 Bad Request",
+        "correct": false,
+        "explanation": "Incorrect. 400 means the client sent a malformed request. The request is technically correct; the problem is authorization."
+      }
+    ]
+  },
+  {
+    "question": "POST /orders successfully created a new order. Which status should the response contain?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Status 201 Created",
+        "correct": true,
+        "explanation": "Correct. 201 signals that a resource was created. This is semantically more precise than 200."
+      },
+      {
+        "text": "Location header: /orders/42",
+        "correct": true,
+        "explanation": "Correct. Location with the URL of the new resource is a mandatory part of the 201 response per the HTTP standard."
+      },
+      {
+        "text": "Response body with the created object",
+        "correct": true,
+        "explanation": "Correct. The client needs to know the ID and data of the created resource to avoid making an additional GET request."
+      },
+      {
+        "text": "Status 200 OK is also acceptable and preferred",
+        "correct": false,
+        "explanation": "Incorrect. 200 works technically, but 201 is semantically more precise. It clearly says 'resource created', not just 'successful'."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between 400 Bad Request and 422 Unprocessable Entity?",
+    "type": "single",
+    "options": [
+      {
+        "text": "400 — for GET requests, 422 — for POST/PUT",
+        "correct": false,
+        "explanation": "Incorrect. The choice of code does not depend on the HTTP method, but on the nature of the error."
+      },
+      {
+        "text": "400 — technically malformed request (invalid JSON, wrong type), 422 — syntactically correct request with invalid values",
+        "correct": true,
+        "explanation": "Correct. 400 — 'the request is technically broken.' 422 — 'the JSON is correct, but the email is not an email, the password is too short'."
+      },
+      {
+        "text": "400 and 422 are interchangeable; the difference is only stylistic",
+        "correct": false,
+        "explanation": "Incorrect. The semantic difference is important. With 422 the client understands: the data needs to be corrected. With 400 — the request is technically invalid."
+      },
+      {
+        "text": "422 is deprecated; everyone uses 400 now",
+        "correct": false,
+        "explanation": "Incorrect. 422 is actively used in modern APIs, especially for form validation errors. It is a WebDAV standard adopted by the REST community."
+      }
+    ]
+  },
+  {
+    "question": "Which fields are mandatory in an RFC 7807 Problem Details response?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "type — URI identifying the error type",
+        "correct": true,
+        "explanation": "Correct. type is a machine-readable identifier. Documentation for the error should be available at this URI."
+      },
+      {
+        "text": "title — brief description of the error type",
+        "correct": true,
+        "explanation": "Correct. title is a stable, human-readable name. It should not change between requests of the same type."
+      },
+      {
+        "text": "status — HTTP code",
+        "correct": false,
+        "explanation": "Partially correct, but status is technically optional per RFC 7807 — it is convenient but not strictly required."
+      },
+      {
+        "text": "errorCode — internal system error code",
+        "correct": false,
+        "explanation": "Incorrect. errorCode is not part of RFC 7807. Internal codes can be added as an extension but are not standardized."
+      },
+      {
+        "text": "detail — specific description of this error occurrence",
+        "correct": false,
+        "explanation": "detail is a recommended field but not strictly required. However, its presence greatly improves debugging."
+      }
+    ]
+  },
+  {
+    "question": "An API Gateway did not receive a response from a backend service within 30 seconds. Which code should the gateway return to the client?",
+    "type": "single",
+    "options": [
+      {
+        "text": "500 Internal Server Error",
+        "correct": false,
+        "explanation": "Incorrect. 500 is an error within the service itself. Here the gateway is working fine; the problem is with the upstream service."
+      },
+      {
+        "text": "502 Bad Gateway",
+        "correct": false,
+        "explanation": "Incorrect. 502 — the gateway received an invalid (unparseable) response from upstream. 504 — the gateway did not receive a response at all (timeout)."
+      },
+      {
+        "text": "503 Service Unavailable",
+        "correct": false,
+        "explanation": "Incorrect. 503 — the service is temporarily unavailable (overload or maintenance). Here the service may be working but responding slowly."
+      },
+      {
+        "text": "504 Gateway Timeout",
+        "correct": true,
+        "explanation": "Correct. 504 — the gateway did not receive a response from the upstream within the allotted time. That is exactly what happened."
+      }
+    ]
+  },
+  {
+    "question": "You are developing an API. DELETE /users/42 successfully deletes a user. What should be returned?",
+    "type": "single",
+    "options": [
+      {
+        "text": "200 OK with body { \"deleted\": true }",
+        "correct": false,
+        "explanation": "Technically works but redundant. The client already knows it deleted — it sent the DELETE itself. 204 is semantically cleaner."
+      },
+      {
+        "text": "204 No Content without a body",
+        "correct": true,
+        "explanation": "Correct. 204 explicitly signals 'successful, no content.' A response body for DELETE is pointless — the resource is gone."
+      },
+      {
+        "text": "200 OK with empty body {}",
+        "correct": false,
+        "explanation": "Incorrect. An empty object is not 'no content.' Use 204 to explicitly signal the absence of a body."
+      },
+      {
+        "text": "202 Accepted",
+        "correct": false,
+        "explanation": "Incorrect. 202 means 'accepted for asynchronous processing.' If the deletion is synchronous and already completed — use 204."
+      }
+    ]
+  },
+  {
+    "question": "A client makes 150 requests per minute with a limit of 100/min. Which code should be returned and what should be added to the response?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Status 429 Too Many Requests",
+        "correct": true,
+        "explanation": "Correct. 429 is the standard code for rate limit exceeded. This is what clients and libraries expect."
+      },
+      {
+        "text": "Retry-After: 60 header",
+        "correct": true,
+        "explanation": "Correct. The client must know when to retry. Without Retry-After, it will guess or keep hammering the server."
+      },
+      {
+        "text": "Status 403 Forbidden",
+        "correct": false,
+        "explanation": "Incorrect. 403 is a permanent restriction by permissions. 429 is a temporary limit. The difference is fundamental: with 403 the client will not try again."
+      },
+      {
+        "text": "X-RateLimit-Limit and X-RateLimit-Remaining headers",
+        "correct": true,
+        "explanation": "Correct. These headers are the de facto standard. The client can see in advance how many requests remain and manage its load."
+      }
+    ]
+  },
+  {
+    "question": "A user tries to register with email 'john@example.com', which already exists in the database. Which code should be returned?",
+    "type": "single",
+    "options": [
+      {
+        "text": "400 Bad Request",
+        "correct": false,
+        "explanation": "Incorrect. The email is syntactically correct. The request is technically valid. The problem is a conflict with existing data."
+      },
+      {
+        "text": "422 Unprocessable Entity",
+        "correct": false,
+        "explanation": "Debatable. 422 is for invalid field values. A duplicate email is not an 'invalid email' but a conflict with the database state."
+      },
+      {
+        "text": "409 Conflict",
+        "correct": true,
+        "explanation": "Correct. 409 — conflict with the current state of the resource. The data is valid, but the creation violates a business uniqueness constraint."
+      },
+      {
+        "text": "500 Internal Server Error",
+        "correct": false,
+        "explanation": "Incorrect. This is an expected business logic scenario, not an unexpected error. 5xx is for unforeseen situations."
+      }
+    ]
+  },
+  {
+    "question": "You want to explicitly inform clients: 'This resource existed but has been permanently removed.' Which code to use?",
+    "type": "single",
+    "options": [
+      {
+        "text": "404 Not Found",
+        "correct": false,
+        "explanation": "Technically fits, but gives no information about whether the resource existed before. The client doesn't know: it never existed or was removed?"
+      },
+      {
+        "text": "410 Gone",
+        "correct": true,
+        "explanation": "Correct. 410 Gone explicitly signals: the resource existed but has been permanently removed and will not be restored. Search engines remove such URLs from their index."
+      },
+      {
+        "text": "204 No Content",
+        "correct": false,
+        "explanation": "Incorrect. 204 means 'successfully executed but nothing to return.' This is not the same as 'resource has been removed'."
+      },
+      {
+        "text": "400 Bad Request",
+        "correct": false,
+        "explanation": "Incorrect. 400 means the client sent a malformed request. The request is correct; the resource is simply removed."
+      }
+    ]
+  }
+]

@@ -13,7 +13,7 @@ import { useState } from 'react'
 
 // TODO: Create queryExamples array with 4-5 query param examples for GET /api/tasks
 // Each: { param: string, description: string }
-// Example: { param: '?status=active', description: 'Только активные задачи' }
+// Example: { param: '?status=active', description: 'Только активные задачи / Only active tasks' }
 
 // TODO: Define methodColors record: method name → { bg, color }
 

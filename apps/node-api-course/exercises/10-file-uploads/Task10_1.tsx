@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 10.1: Multer
+// Task 10.1: Multer
 // ============================================
 
-// TODO: Настройте загрузку файлов через Multer
-// TODO: Используйте diskStorage с destination и filename
-// TODO: Реализуйте fileFilter для проверки типа файла (только изображения)
-// TODO: Ограничьте размер файла через limits: { fileSize: 5 * 1024 * 1024 }
+// TODO: Настройте загрузку файлов через Multer / Set up file upload via Multer
+// TODO: Используйте diskStorage с destination и filename / Use diskStorage with destination and filename
+// TODO: Реализуйте fileFilter для проверки типа файла (только изображения) / Implement fileFilter for file type validation (images only)
+// TODO: Ограничьте размер файла через limits: { fileSize: 5 * 1024 * 1024 } / Limit file size via limits: { fileSize: 5 * 1024 * 1024 }
 
 export function Task10_1() {
   const [results, setResults] = useState<string[]>([])
@@ -18,10 +19,10 @@ export function Task10_1() {
     log.push('=== Multer File Upload ===')
     log.push('')
 
-    // TODO: Настройте multer({ storage: diskStorage, fileFilter, limits })
-    // TODO: Реализуйте upload.single("avatar") для одного файла
-    // TODO: Покажите upload.array("photos", 5) для нескольких файлов
-    // TODO: Обработайте ошибки: LIMIT_FILE_SIZE, LIMIT_UNEXPECTED_FILE
+    // TODO: Настройте multer({ storage: diskStorage, fileFilter, limits }) / Configure multer({ storage: diskStorage, fileFilter, limits })
+    // TODO: Реализуйте upload.single("avatar") для одного файла / Implement upload.single("avatar") for a single file
+    // TODO: Покажите upload.array("photos", 5) для нескольких файлов / Show upload.array("photos", 5) for multiple files
+    // TODO: Обработайте ошибки: LIMIT_FILE_SIZE, LIMIT_UNEXPECTED_FILE / Handle errors: LIMIT_FILE_SIZE, LIMIT_UNEXPECTED_FILE
     log.push('Multer')
     log.push('  ... const upload = multer({ storage, fileFilter, limits })')
     log.push('  ... router.post("/avatar", upload.single("avatar"), handler)')

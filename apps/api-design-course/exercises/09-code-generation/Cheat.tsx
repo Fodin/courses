@@ -1,4 +1,4 @@
-// Full reference solution for level 9 — Генерация кода и SDK
+// Full reference solution for level 9 — Генерация кода и SDK / Code Generation and SDK
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

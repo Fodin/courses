@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 9.2: Socket.io
+// Task 9.2: Socket.io
 // ============================================
 
 // TODO: Создайте Socket.io сервер с rooms и namespaces
+// TODO: Create Socket.io server with rooms and namespaces
 // TODO: Реализуйте emit, on, broadcast с типизированными событиями
+// TODO: Implement emit, on, broadcast with typed events
 // TODO: Используйте rooms для группировки: socket.join("room:123")
+// TODO: Use rooms for grouping: socket.join("room:123")
 // TODO: Покажите namespaces: io.of("/chat"), io.of("/notifications")
+// TODO: Show namespaces: io.of("/chat"), io.of("/notifications")
 
 export function Task9_2() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task9_2() {
     log.push('')
 
     // TODO: Создайте io = new Server(httpServer, { cors: { origin: "*" } })
+    // TODO: Create io = new Server(httpServer, { cors: { origin: "*" } })
     // TODO: Реализуйте chat namespace с join/leave room
+    // TODO: Implement chat namespace with join/leave room
     // TODO: Покажите io.to("room:123").emit("message", data)
+    // TODO: Show io.to("room:123").emit("message", data)
     // TODO: Добавьте middleware для аутентификации сокетов
+    // TODO: Add middleware for socket authentication
     log.push('Socket.io')
     log.push('  ... const io = new Server(httpServer)')
     log.push('  ... io.on("connection", (socket) => { ... })')

@@ -1,0 +1,132 @@
+[
+  {
+    "question": "The API returns a social media feed with infinite scrolling. Posts are added every few seconds. Which pagination type should you choose?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Offset (page/limit)",
+        "correct": false,
+        "explanation": "Incorrect. With active addition of new posts, offset is unstable: a new post at the beginning of the list shifts all positions, and page 2 will start with the same post that page 1 ended with — the user will see a duplicate."
+      },
+      {
+        "text": "Cursor (after/first)",
+        "correct": true,
+        "explanation": "Correct. The cursor is tied to a specific post (by ID or date), not its position in the list. Even if new posts are added, the user continues from the same point without duplicates or gaps."
+      },
+      {
+        "text": "Both approaches give the same result for feeds",
+        "correct": false,
+        "explanation": "Incorrect. With changing data, offset creates duplicates and gaps. Cursor is stable precisely because it does not depend on the element's position in the overall list."
+      },
+      {
+        "text": "Link header (RFC 8288) — best choice for feeds",
+        "correct": false,
+        "explanation": "Link header is a way to pass links to the next/previous page in the HTTP header. It is not a pagination type, but a method of delivering metadata. Cursor vs Offset is an algorithm choice, independent of the Link header."
+      }
+    ]
+  },
+  {
+    "question": "The client requests GET /api/products?page=5&limit=20. What is the SQL OFFSET?",
+    "type": "single",
+    "options": [
+      {
+        "text": "80",
+        "correct": true,
+        "explanation": "Correct. OFFSET = (page - 1) * limit = (5 - 1) * 20 = 80. The database will skip the first 80 rows and return the next 20."
+      },
+      {
+        "text": "100",
+        "correct": false,
+        "explanation": "Incorrect. 100 = page * limit = 5 * 20. The correct formula is: OFFSET = (page - 1) * limit = 4 * 20 = 80."
+      },
+      {
+        "text": "5",
+        "correct": false,
+        "explanation": "Incorrect. The value 5 is the page number, not OFFSET. OFFSET is calculated as (page - 1) * limit = 80."
+      },
+      {
+        "text": "20",
+        "correct": false,
+        "explanation": "Incorrect. 20 is the LIMIT (page size). OFFSET = (5 - 1) * 20 = 80."
+      }
+    ]
+  },
+  {
+    "question": "What does the sort parameter sort=-createdAt,name mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "First by createdAt descending, then by name ascending",
+        "correct": true,
+        "explanation": "Correct. A minus before a field means DESC (descending). Without a minus — ASC (ascending). This is the GitHub API convention: sort=-createdAt,name = ORDER BY created_at DESC, name ASC."
+      },
+      {
+        "text": "First by name, then by createdAt — the minus sign indicates reverse field order",
+        "correct": false,
+        "explanation": "Incorrect. The minus affects the sort direction of the specific field (ASC/DESC), not the order of fields. Fields are applied left to right: first createdAt DESC, then name ASC."
+      },
+      {
+        "text": "This parameter is invalid — minus is not allowed in query parameters",
+        "correct": false,
+        "explanation": "Incorrect. Minus is a valid character in query parameters. This is a widely used convention (GitHub, Stripe, and many other APIs). URL encoding is not required for the '-' symbol."
+      },
+      {
+        "text": "Sort by descending createdAt and descending name",
+        "correct": false,
+        "explanation": "Incorrect. The minus sign only applies to the field it precedes. -createdAt = DESC, but name (without minus) = ASC."
+      }
+    ]
+  },
+  {
+    "question": "What problems arise when using OFFSET pagination on a table with 10 million rows?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The database is forced to physically read all rows up to OFFSET, even to discard them",
+        "correct": true,
+        "explanation": "Correct. SELECT ... LIMIT 20 OFFSET 9999980 — the database reads almost 10 million rows to return 20. Performance degrades linearly with increasing offset."
+      },
+      {
+        "text": "Queries become slower at large OFFSET values",
+        "correct": true,
+        "explanation": "Correct. Precisely because OFFSET n forces the DB server to skip n rows — the larger n, the slower the query. Cursor pagination does not have this problem."
+      },
+      {
+        "text": "JSON serialization takes longer at large offset",
+        "correct": false,
+        "explanation": "Incorrect. The number of rows returned is the same (LIMIT 20). Serialization does not depend on the OFFSET value. The problem is the database reading unnecessary rows."
+      },
+      {
+        "text": "With concurrent data changes, gaps or duplicates are possible",
+        "correct": true,
+        "explanation": "Correct. This is the consistency problem of offset pagination. If rows are inserted or deleted between page requests — the offsets shift, and the client receives an inconsistent slice of data."
+      }
+    ]
+  },
+  {
+    "question": "The API response contains: { \"products\": [...] } without any metadata. What problems does this create for the client?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "It is impossible to build a UI paginator with page buttons",
+        "correct": true,
+        "explanation": "Correct. A paginator needs totalCount and totalPages (for offset) or hasNextPage (for cursor). Without them, the client doesn't know how many buttons to display."
+      },
+      {
+        "text": "The client doesn't know if there is more data to load",
+        "correct": true,
+        "explanation": "Correct. Without hasNextPage the client cannot decide whether to show a \"Load more\" button or not. It doesn't know if the server returned all data or just a part."
+      },
+      {
+        "text": "The client won't be able to parse the products array",
+        "correct": false,
+        "explanation": "Incorrect. A JSON array parses perfectly fine regardless of metadata presence. The problem is the lack of information for UX logic, not a technical impossibility."
+      },
+      {
+        "text": "Total number of records cannot be determined without a separate request",
+        "correct": true,
+        "explanation": "Correct. Without totalCount the client cannot display \"Found 1247 products\". It would have to make a separate request like GET /api/products/count, which is inefficient."
+      }
+    ]
+  }
+]

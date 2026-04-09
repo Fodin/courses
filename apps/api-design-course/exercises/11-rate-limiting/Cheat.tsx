@@ -1,4 +1,4 @@
-// Full reference solution for level 11 — Rate Limiting и Throttling
+// Full reference solution for level 11 — Rate Limiting и Throttling / Rate Limiting & Throttling
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 9.1: WebSocket ws
+// Task 9.1: WebSocket ws
 // ============================================
 
 // TODO: Создайте WebSocket-сервер через библиотеку ws
+// TODO: Create WebSocket server via ws library
 // TODO: Обработайте connection, message, close, error события
+// TODO: Handle connection, message, close, error events
 // TODO: Реализуйте broadcast для отправки сообщений всем клиентам
+// TODO: Implement broadcast to send messages to all clients
 // TODO: Добавьте heartbeat (ping/pong) для обнаружения потерянных соединений
+// TODO: Add heartbeat (ping/pong) for detecting lost connections
 
 export function Task9_1() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task9_1() {
     log.push('')
 
     // TODO: Создайте new WebSocketServer({ server: httpServer })
+    // TODO: Create new WebSocketServer({ server: httpServer })
     // TODO: Обработайте wss.on("connection", (ws, req) => { ... })
+    // TODO: Handle wss.on("connection", (ws, req) => { ... })
     // TODO: Реализуйте ws.on("message") с JSON-парсингом
+    // TODO: Implement ws.on("message") with JSON parsing
     // TODO: Покажите broadcast: wss.clients.forEach(c => c.send(msg))
+    // TODO: Show broadcast: wss.clients.forEach(c => c.send(msg))
     log.push('WebSocket ws')
     log.push('  ... const wss = new WebSocketServer({ server })')
     log.push('  ... wss.on("connection", (ws) => { ws.on("message", ...) })')

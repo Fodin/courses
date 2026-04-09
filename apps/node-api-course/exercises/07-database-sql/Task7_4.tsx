@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 7.4: Transactions & Pooling
+// Task 7.4: Transactions & Pooling
 // ============================================
 
 // TODO: Реализуйте транзакции для атомарных операций
+// TODO: Implement transactions for atomic operations
 // TODO: Используйте BEGIN/COMMIT/ROLLBACK через pg client
+// TODO: Use BEGIN/COMMIT/ROLLBACK via pg client
 // TODO: Покажите Prisma $transaction для связанных операций
+// TODO: Show Prisma $transaction for related operations
 // TODO: Настройте connection pooling: min, max, idleTimeout
+// TODO: Configure connection pooling: min, max, idleTimeout
 
 export function Task7_4() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task7_4() {
     log.push('')
 
     // TODO: Реализуйте перевод средств: debit + credit в транзакции
+    // TODO: Implement fund transfer: debit + credit in a transaction
     // TODO: Покажите ROLLBACK при ошибке внутри транзакции
+    // TODO: Show ROLLBACK on error within transaction
     // TODO: Используйте prisma.$transaction([op1, op2]) или interactive tx
+    // TODO: Use prisma.$Transaction([op1, op2]) or interactive tx
     // TODO: Настройте Pool({ max: 20, idleTimeoutMillis: 30000 })
+    // TODO: Configure Pool({ max: 20, idleTimeoutMillis: 30000 })
     log.push('Transactions & Pooling')
     log.push('  ... BEGIN -> UPDATE accounts SET balance = balance - 100 WHERE id = 1')
     log.push('  ... -> UPDATE accounts SET balance = balance + 100 WHERE id = 2 -> COMMIT')

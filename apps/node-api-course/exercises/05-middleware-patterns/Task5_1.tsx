@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 5.1: Logging
+// Task 5.1: Logging
 // ============================================
 
 // TODO: Реализуйте logging middleware для HTTP-запросов
+// TODO: Implement logging middleware for HTTP requests
 // TODO: Логируйте: method, url, status, response time, content-length
+// TODO: Log: method, url, status, response time, content-length
 // TODO: Используйте формат Combined Log Format (как в Apache/Nginx)
+// TODO: Use Combined Log Format (like Apache/Nginx)
 // TODO: Добавьте request ID (X-Request-Id) для трассировки
+// TODO: Add request ID (X-Request-Id) for tracing
 
 export function Task5_1() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task5_1() {
     log.push('')
 
     // TODO: Реализуйте requestLogger middleware с замером времени
+    // TODO: Implement requestLogger middleware with timing
     // TODO: Используйте morgan-подобный формат логирования
+    // TODO: Use morgan-like logging format
     // TODO: Генерируйте уникальный requestId через crypto.randomUUID()
+    // TODO: Generate unique requestId via crypto.randomUUID()
     // TODO: Покажите structured logging (JSON) vs text format
+    // TODO: Show structured logging (JSON) vs text format
     log.push('Logging Middleware')
     log.push('  ... requestId: crypto.randomUUID()')
     log.push('  ... [2024-01-15T10:30:00Z] GET /api/users 200 45ms')

@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 3.4: API Versioning
+// Task 3.4: API Versioning
 // ============================================
 
 // TODO: Реализуйте версионирование API тремя способами
+// TODO: Implement API versioning in three ways
+// TODO: URL versioning: /api/v1/users, /api/v2/users
 // TODO: URL versioning: /api/v1/users, /api/v2/users
 // TODO: Header versioning: Accept: application/vnd.myapi.v2+json
+// TODO: Header versioning: Accept: application/vnd.myapi.v2+json
 // TODO: Покажите стратегию миграции между версиями
+// TODO: Show the migration strategy between versions
 
 export function Task3_4() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task3_4() {
     log.push('')
 
     // TODO: Реализуйте URL-based versioning через роутеры
+    // TODO: Implement URL-based versioning via routers
     // TODO: Реализуйте header-based versioning через middleware
+    // TODO: Implement header-based versioning via middleware
     // TODO: Покажите deprecation headers: Sunset, Deprecation
+    // TODO: Show deprecation headers: Sunset, Deprecation
     // TODO: Продемонстрируйте обратную совместимость при изменении схемы
+    // TODO: Demonstrate backward compatibility when changing the schema
     log.push('API Versioning')
     log.push('  ... app.use("/api/v1", v1Router)')
     log.push('  ... app.use("/api/v2", v2Router)')

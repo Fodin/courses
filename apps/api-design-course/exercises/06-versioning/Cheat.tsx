@@ -1,4 +1,4 @@
-// Full reference solution for level 6 — Версионирование API
+// Full reference solution for level 6 — Версионирование API / API Versioning
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

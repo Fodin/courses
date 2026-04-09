@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 13.2: Winston
+// Task 13.2: Winston
 // ============================================
 
-// TODO: Настройте Winston логгер с multiple transports
-// TODO: Создайте transports: Console, File, HTTP (для сервисов вроде Datadog)
-// TODO: Реализуйте кастомный format с timestamp и JSON
-// TODO: Покажите log rotation через winston-daily-rotate-file
+// TODO: Настройте Winston логгер с multiple transports / Set up Winston logger with multiple transports
+// TODO: Создайте transports: Console, File, HTTP (для сервисов вроде Datadog) / Create transports: Console, File, HTTP (for services like Datadog)
+// TODO: Реализуйте кастомный format с timestamp и JSON / Implement custom format with timestamp and JSON
+// TODO: Покажите log rotation через winston-daily-rotate-file / Show log rotation via winston-daily-rotate-file
 
 export function Task13_2() {
   const [results, setResults] = useState<string[]>([])
@@ -18,10 +19,10 @@ export function Task13_2() {
     log.push('=== Winston Logger ===')
     log.push('')
 
-    // TODO: Создайте winston.createLogger({ transports: [...] })
-    // TODO: Настройте Console transport с colorize для dev
-    // TODO: Настройте File transport с maxsize и maxFiles
-    // TODO: Реализуйте кастомный format: combine(timestamp, json)
+    // TODO: Создайте winston.createLogger({ transports: [...] }) / Create winston.createLogger({ transports: [...] })
+    // TODO: Настройте Console transport с colorize для dev / Configure Console transport with colorize for dev
+    // TODO: Настройте File transport с maxsize и maxFiles / Configure File transport with maxsize and maxFiles
+    // TODO: Реализуйте кастомный format: combine(timestamp, json) / Implement custom format: combine(timestamp, json)
     log.push('Winston')
     log.push('  ... winston.createLogger({ level: "info", transports: [...] })')
     log.push('  ... new winston.transports.File({ filename: "error.log", level: "error" })')

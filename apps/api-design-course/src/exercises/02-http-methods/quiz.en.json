@@ -1,0 +1,137 @@
+[
+  {
+    "question": "Which HTTP methods are considered safe?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "GET",
+        "correct": true,
+        "explanation": "Correct. GET only reads data and does not change server state. It can be cached by the browser and CDN."
+      },
+      {
+        "text": "POST",
+        "correct": false,
+        "explanation": "Incorrect. POST creates a resource — this is a mutation. Each call can create a new object on the server."
+      },
+      {
+        "text": "HEAD",
+        "correct": true,
+        "explanation": "Correct. HEAD is GET without the response body. It does not modify data and is used for checking metadata."
+      },
+      {
+        "text": "DELETE",
+        "correct": false,
+        "explanation": "Incorrect. DELETE removes a resource — an obvious mutation. It is idempotent, but not safe."
+      },
+      {
+        "text": "OPTIONS",
+        "correct": true,
+        "explanation": "Correct. OPTIONS only requests meta-information about allowed methods and does not change server state."
+      }
+    ]
+  },
+  {
+    "question": "You send PUT /tasks/42 with the same request body twice. What happens?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Two tasks with ID 42 will be created",
+        "correct": false,
+        "explanation": "Incorrect. PUT updates a specific resource by ID; it does not create collections. Two PUTs with the same data produce the same result."
+      },
+      {
+        "text": "The resource will be updated twice, possibly causing a version conflict",
+        "correct": false,
+        "explanation": "Incorrect. PUT is idempotent: the second call produces no additional changes compared to the first."
+      },
+      {
+        "text": "The result is the same as after the first request — this is idempotent behavior",
+        "correct": true,
+        "explanation": "Correct. PUT is idempotent: replacing a resource with the same data repeatedly does not change the final state."
+      },
+      {
+        "text": "The second request will return a 409 Conflict error",
+        "correct": false,
+        "explanation": "Incorrect. 409 occurs on data conflict (e.g., uniqueness violation), not on repeated PUT with the same data."
+      }
+    ]
+  },
+  {
+    "question": "A user updated only the email field in their profile settings. Which method is more appropriate?",
+    "type": "single",
+    "options": [
+      {
+        "text": "PUT /users/42 with the full user object",
+        "correct": false,
+        "explanation": "Technically works but inefficient: the entire object must be sent. Risk of losing fields the client is unaware of."
+      },
+      {
+        "text": "PATCH /users/42 with body { \"email\": \"new@example.com\" }",
+        "correct": true,
+        "explanation": "Correct. PATCH is designed for partial updates. Send only the changed fields — the rest remain untouched."
+      },
+      {
+        "text": "POST /users/42/update-email with the new email",
+        "correct": false,
+        "explanation": "Incorrect. This is RPC style with a verb in the URL. PATCH exists for resource updates — semantically cleaner and more standard."
+      },
+      {
+        "text": "GET /users/42?email=new@example.com",
+        "correct": false,
+        "explanation": "Incorrect. GET is a safe method and must not modify data. Parameters in GET URLs are for filtering, not for mutations."
+      }
+    ]
+  },
+  {
+    "question": "Why does a browser automatically send an OPTIONS request?",
+    "type": "single",
+    "options": [
+      {
+        "text": "To get a list of all API endpoints",
+        "correct": false,
+        "explanation": "Incorrect. Browsers do not use OPTIONS for API documentation. That is the function of specialized tools (Swagger, Postman)."
+      },
+      {
+        "text": "CORS preflight: to check if the server allows a cross-domain request",
+        "correct": true,
+        "explanation": "Correct. Before an 'unsafe' cross-origin request (POST, PUT with custom headers), the browser sends OPTIONS and checks the Access-Control-Allow-* headers."
+      },
+      {
+        "text": "To check if the server is healthy (health check)",
+        "correct": false,
+        "explanation": "Incorrect. Health checks typically use GET /health or HEAD /health — these are semantically more accurate for this purpose."
+      },
+      {
+        "text": "To authorize the user before the main request",
+        "correct": false,
+        "explanation": "Incorrect. Authorization uses the Authorization header or cookies in the main request. OPTIONS does not transmit credentials."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between PUT and POST when creating a resource?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "With POST, the server assigns the ID; with PUT, the client knows the ID in advance",
+        "correct": true,
+        "explanation": "Correct. POST /tasks creates a task, the server issues an ID. PUT /tasks/uuid creates or replaces a resource with a given ID — upsert behavior."
+      },
+      {
+        "text": "POST is idempotent, PUT is not",
+        "correct": false,
+        "explanation": "Incorrect. It is the other way around: PUT is idempotent (repeated request — same result), POST is not idempotent (repeated POST may create a second resource)."
+      },
+      {
+        "text": "PUT can be used for upsert (create or update)",
+        "correct": true,
+        "explanation": "Correct. PUT /resources/id — if the resource exists, replaces it; if not, creates it. This is standard PUT semantics."
+      },
+      {
+        "text": "POST always returns 201, PUT always returns 200",
+        "correct": false,
+        "explanation": "Incorrect. POST on creation returns 201, but this is not a strict rule. PUT may return 201 (creation) or 200 (update) depending on the implementation."
+      }
+    ]
+  }
+]

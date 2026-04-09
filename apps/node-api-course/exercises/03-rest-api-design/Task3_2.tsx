@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 3.2: Pagination
+// Task 3.2: Pagination
 // ============================================
 
 // TODO: Реализуйте пагинацию для списочных эндпоинтов
+// TODO: Implement pagination for list endpoints
 // TODO: Поддержите offset-based: ?page=2&limit=10
+// TODO: Support offset-based: ?page=2&limit=10
 // TODO: Реализуйте cursor-based пагинацию: ?cursor=abc&limit=10
+// TODO: Implement cursor-based pagination: ?cursor=abc&limit=10
 // TODO: Верните метаданные: total, page, limit, hasNext, nextCursor
+// TODO: Return metadata: total, page, limit, hasNext, nextCursor
 
 export function Task3_2() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task3_2() {
     log.push('')
 
     // TODO: Реализуйте offset pagination с вычислением skip/take
+    // TODO: Implement offset pagination with skip/take computation
     // TODO: Реализуйте cursor pagination с encode/decode курсора
+    // TODO: Implement cursor pagination with cursor encode/decode
     // TODO: Верните Link header с rel="next", rel="prev"
+    // TODO: Return Link header with rel="next", rel="prev"
     // TODO: Сравните производительность offset vs cursor на больших данных
+    // TODO: Compare offset vs cursor performance on large datasets
     log.push('Pagination')
     log.push('  ... GET /articles?page=2&limit=10')
     log.push('  ... response: { data: [...], meta: { total: 100, page: 2, hasNext: true } }')

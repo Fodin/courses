@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 5.4: Compression & Caching
+// Task 5.4: Compression & Caching
 // ============================================
 
 // TODO: Реализуйте gzip-сжатие ответов через middleware
+// TODO: Implement gzip response compression via middleware
 // TODO: Настройте HTTP-кэширование: Cache-Control, ETag, Last-Modified
+// TODO: Configure HTTP caching: Cache-Control, ETag, Last-Modified
 // TODO: Реализуйте conditional requests (304 Not Modified)
+// TODO: Implement conditional requests (304 Not Modified)
 // TODO: Покажите разницу между no-cache, no-store, max-age
+// TODO: Show the difference between no-cache, no-store, max-age
 
 export function Task5_4() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task5_4() {
     log.push('')
 
     // TODO: Реализуйте compression middleware с проверкой Accept-Encoding
+    // TODO: Implement compression middleware with Accept-Encoding check
     // TODO: Настройте Cache-Control для разных типов ресурсов
+    // TODO: Configure Cache-Control for different resource types
     // TODO: Генерируйте ETag через crypto.createHash('md5')
+    // TODO: Generate ETag via crypto.createHash('md5')
     // TODO: Обработайте If-None-Match -> 304 Not Modified
+    // TODO: Handle If-None-Match -> 304 Not Modified
     log.push('Compression & Caching')
     log.push('  ... Accept-Encoding: gzip -> zlib.createGzip().pipe(res)')
     log.push('  ... Cache-Control: public, max-age=3600')

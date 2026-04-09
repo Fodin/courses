@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 0.4: POST Body Parsing
+// Task 0.4: POST Body Parsing
 // ============================================
 
 // TODO: Реализуйте парсинг тела POST-запроса из chunks
+// TODO: Implement parsing of POST request body from chunks
 // TODO: Соберите данные через req.on('data') и req.on('end')
+// TODO: Collect data via req.on('data') and req.on('end')
 // TODO: Распарсите JSON-тело через JSON.parse с обработкой ошибок
+// TODO: Parse JSON body via JSON.parse with error handling
 // TODO: Обработайте Content-Type: application/x-www-form-urlencoded
+// TODO: Handle Content-Type: application/x-www-form-urlencoded
 
 export function Task0_4() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task0_4() {
     log.push('')
 
     // TODO: Реализуйте функцию parseBody(req): Promise<unknown>
+    // TODO: Implement a parseBody(req): Promise<unknown> function
     // TODO: Покажите сборку chunks в Buffer и декодирование в строку
+    // TODO: Show assembling chunks into a Buffer and decoding to string
     // TODO: Добавьте валидацию Content-Length (защита от слишком больших тел)
+    // TODO: Add Content-Length validation (protection against oversized bodies)
     // TODO: Обработайте JSON.parse SyntaxError -> 400 Bad Request
+    // TODO: Handle JSON.parse SyntaxError -> 400 Bad Request
     log.push('Body Parser')
     log.push('  ... req.on("data", chunk => chunks.push(chunk))')
     log.push('  ... req.on("end", () => Buffer.concat(chunks))')

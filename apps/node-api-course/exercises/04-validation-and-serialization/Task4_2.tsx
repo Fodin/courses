@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 4.2: Joi
+// Task 4.2: Joi
 // ============================================
 
 // TODO: Реализуйте валидацию с помощью Joi
+// TODO: Implement validation using Joi
 // TODO: Создайте Joi.object() схемы с цепочкой правил
+// TODO: Create Joi.object() schemas with chained rules
 // TODO: Используйте Joi.alternatives(), Joi.when() для условной валидации
+// TODO: Use Joi.alternatives(), Joi.when() for conditional validation
 // TODO: Сравните подход Joi с Zod: runtime-only vs type inference
+// TODO: Compare Joi approach with Zod: runtime-only vs type inference
 
 export function Task4_2() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task4_2() {
     log.push('')
 
     // TODO: Создайте schema = Joi.object({ email: Joi.string().email() })
+    // TODO: Create schema = Joi.object({ email: Joi.string().email() })
     // TODO: Реализуйте middleware с schema.validate(req.body)
+    // TODO: Implement middleware with schema.validate(req.body)
     // TODO: Покажите abortEarly: false для сбора всех ошибок
+    // TODO: Show abortEarly: false for collecting all errors
     // TODO: Продемонстрируйте Joi.ref() для cross-field валидации
+    // TODO: Demonstrate Joi.ref() for cross-field validation
     log.push('Joi Validation')
     log.push('  ... Joi.object({ email: Joi.string().email().required() })')
     log.push('  ... const { error, value } = schema.validate(body)')

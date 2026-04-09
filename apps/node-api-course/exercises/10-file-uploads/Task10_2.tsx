@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 10.2: Streaming Uploads
+// Task 10.2: Streaming Uploads
 // ============================================
 
-// TODO: Реализуйте потоковую загрузку файлов без сохранения на диск
-// TODO: Используйте Busboy или multer memoryStorage для обработки потока
-// TODO: Передайте поток напрямую в S3/MinIO через stream.pipe()
-// TODO: Покажите отслеживание прогресса загрузки
+// TODO: Реализуйте потоковую загрузку файлов без сохранения на диск / Implement streaming file upload without saving to disk
+// TODO: Используйте Busboy или multer memoryStorage для обработки потока / Use Busboy or multer memoryStorage for stream processing
+// TODO: Передайте поток напрямую в S3/MinIO через stream.pipe() / Pipe the stream directly to S3/MinIO via stream.pipe()
+// TODO: Покажите отслеживание прогресса загрузки / Show upload progress tracking
 
 export function Task10_2() {
   const [results, setResults] = useState<string[]>([])
@@ -18,10 +19,10 @@ export function Task10_2() {
     log.push('=== Streaming Uploads ===')
     log.push('')
 
-    // TODO: Используйте busboy для парсинга multipart/form-data потоком
-    // TODO: Реализуйте pipe напрямую в object storage (S3)
-    // TODO: Покажите отслеживание загруженных байт через stream events
-    // TODO: Обработайте ошибки потока и cleanup (удаление частичных файлов)
+    // TODO: Используйте busboy для парсинга multipart/form-data потоком / Use busboy for streaming multipart/form-data parsing
+    // TODO: Реализуйте pipe напрямую в object storage (S3) / Implement pipe directly to object storage (S3)
+    // TODO: Покажите отслеживание загруженных байт через stream events / Show tracking uploaded bytes via stream events
+    // TODO: Обработайте ошибки потока и cleanup (удаление частичных файлов) / Handle stream errors and cleanup (remove partial files)
     log.push('Streaming Upload')
     log.push('  ... const bb = busboy({ headers: req.headers })')
     log.push('  ... bb.on("file", (name, file, info) => file.pipe(s3Stream))')

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-// TODO: Implement E-commerce API Reference Design
+// TODO: Implement E-commerce API Reference Design / Эталонный дизайн E-commerce API
 //
 // An interactive reference for a complete e-commerce REST API.
 // 5 resources: Products, Cart, Orders, Users, Reviews.
@@ -24,7 +24,7 @@ import { useState } from 'react'
 //     }>
 //   }>
 //
-// UI layout:
+// UI layout: / Макет интерфейса:
 //   - Resource tabs (5 buttons with emoji + name)
 //   - Two-column grid: endpoint list (left, 240px) + endpoint detail (right)
 //   - Left: resource header + endpoint buttons (method badge + path)
@@ -35,6 +35,7 @@ import { useState } from 'react'
 //            3-column summary (Method / Success / Auth)
 //
 // Bottom: cross-cutting concerns grid (6 blocks: versioning, errors, auth, pagination, rate limiting, formats)
+//         Снизу: сетка сквозных вопросов (6 блоков: версионирование, ошибки, аутентификация, пагинация, rate limiting, форматы)
 //
 // Method colors: GET #3b82f6, POST #22c55e, PUT #f59e0b, PATCH #8b5cf6, DELETE #ef4444
 // Status colors: 2xx #22c55e, 4xx #f59e0b/#ef4444
@@ -48,19 +49,19 @@ export function Task12_3() {
 
   return (
     <div className="exercise-container" style={{ padding: '1.5rem', maxWidth: '960px' }}>
-      <h2 style={{ marginBottom: '0.25rem' }}>Эталонный E-commerce API</h2>
+      <h2 style={{ marginBottom: '0.25rem' }}>Эталонный E-commerce API / Reference E-commerce API</h2>
       <p style={{ color: '#64748b', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
         Полный дизайн REST API для интернет-магазина: Products, Cart, Orders, Users, Reviews.
-        Изучи каждый endpoint — это эталон для финального задания.
+        Изучи каждый endpoint — это эталон для финального задания. / Complete REST API design for an online store: Products, Cart, Orders, Users, Reviews. Study each endpoint — this is the reference for the final task.
       </p>
 
-      {/* TODO: Resource tabs (5 buttons) */}
+      {/* TODO: Resource tabs (5 buttons) / Вкладки ресурсов (5 кнопок) */}
 
-      {/* TODO: Two-column grid: endpoint list + endpoint detail */}
+      {/* TODO: Two-column grid: endpoint list + endpoint detail / Двухколоночный макет: список endpoint + детали */}
       {/* Left: endpoint list with method badges */}
       {/* Right: header + notes + request/response toggle + code block + summary */}
 
-      {/* TODO: Cross-cutting concerns grid (6 blocks) */}
+      {/* TODO: Cross-cutting concerns grid (6 blocks) / Сетка сквозных вопросов (6 блоков) */}
     </div>
   )
 }

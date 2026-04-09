@@ -1,11 +1,11 @@
 import { useState } from 'react'
 
-// TODO: Define interface Tool:
+// TODO: Define interface Tool: / TODO: Определить интерфейс Tool:
 //   id: string, name: string, tagline: string, color: string,
 //   generates: string[], pros: string[], cons: string[],
 //   command: string, output: string
 
-// TODO: Create TOOLS array with 3 entries:
+// TODO: Create TOOLS array with 3 entries: / TODO: Создать массив TOOLS с 3 записями:
 //
 //   1. id: 'openapi-generator', color: '#10b981'
 //      tagline: 'Универсальный генератор (50+ языков)'
@@ -32,14 +32,14 @@ import { useState } from 'react'
 //                  'MSW-моки для тестирования', 'Zod/Yup схемы валидации']
 //      pros: ready useQuery/useMutation hooks, MSW mocks generation, flexible config, multiple output formats
 //      cons: React-focused, more configuration, depends on chosen HTTP client
-//      command: orval.config.ts with defineConfig + npx orval
-//      output: generated useGetUser hook + getUserMock for MSW
 
 export function Task9_2() {
   // TODO: activeTool state: string (default 'openapi-typescript')
-  // TODO: showTable state: boolean (default false)
+  // TODO: Состояние activeTool: string (по умолчанию 'openapi-typescript')
+  // TODO: showTable state: boolean (default false) / TODO: Состояние showTable: boolean (по умолчанию false)
 
   // TODO: Find active tool from TOOLS
+  // TODO: Найти активный инструмент из TOOLS
 
   return (
     <div className="exercise-container" style={{ padding: '1.5rem', maxWidth: '1100px' }}>
@@ -55,10 +55,28 @@ export function Task9_2() {
                          inactive → bg white, border #e2e8f0
            Button text: showTable ? 'Скрыть таблицу' : 'Таблица сравнения'
            Position table button at right margin (marginLeft: 'auto') */}
+      {/* TODO: Кнопки выбора инструмента + кнопка переключения таблицы
+           Кнопки инструментов: активная → bg = tool.color, border = tool.color, цвет белый
+           Неактивная → bg белый, border #e2e8f0, цвет #374151
+           Кнопка таблицы: активная → bg #fef3c7, border #f59e0b, цвет #92400e
+                          неактивная → bg белый, border #e2e8f0
+           Текст кнопки: showTable ? 'Скрыть таблицу' : 'Таблица сравнения'
+           Позиционировать кнопку таблицы справа (marginLeft: 'auto') */}
 
       {/* TODO: Comparison table (show only when showTable is true)
            Headers: 'Критерий' | tool names (colored)
            Rows (8):
+           ['Runtime зависимость', 'Java / Docker', 'Node.js', 'Node.js'],
+           ['Генерирует хуки', '⚠️ опционально', '❌ нет', '✅ да'],
+           ['Генерирует моки', '❌ нет', '❌ нет', '✅ да'],
+           ['Скорость генерации', '🐢 медленно', '⚡ быстро', '⚡ быстро'],
+           ['Кастомизация', '✅ Mustache', '⚠️ ограничена', '✅ конфиг'],
+           ['Размер npm', '~10 MB', '~2 MB', '~5 MB'],
+           ['Поддержка языков', '50+', 'только TS', 'только JS/TS'],
+           ['Идеально для', 'multi-lang команды', 'типы + openapi-fetch', 'React Query/SWR'] */}
+      {/* TODO: Таблица сравнения (показывать только когда showTable true)
+           Заголовки: 'Критерий' | названия инструментов (цветные)
+           Строки (8):
            ['Runtime зависимость', 'Java / Docker', 'Node.js', 'Node.js'],
            ['Генерирует хуки', '⚠️ опционально', '❌ нет', '✅ да'],
            ['Генерирует моки', '❌ нет', '❌ нет', '✅ да'],
@@ -77,6 +95,15 @@ export function Task9_2() {
            Body (2 columns):
              Left: pros (green header '✅ Плюсы') and cons (red header '❌ Минусы') side by side
              Right: command code block (green text) + output code block (blue text) */}
+      {/* TODO: Карточка деталей инструмента — цвет рамки: tool.color + '20'
+
+           Секция заголовка (фон: tool.color + '15'):
+             - tool.name (цветной), tool.tagline (серый)
+             - Теги справа: каждый элемент из tool.generates как бейдж
+
+           Тело (2 колонки):
+             Левая: преимущества (зелёный заголовок '✅ Плюсы') и недостатки (красный заголовок '❌ Минусы') рядом
+             Правая: блок кода команды (зелёный текст) + блок кода вывода (синий текст) */}
     </div>
   )
 }

@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 7.3: Prisma
+// Task 7.3: Prisma
 // ============================================
 
 // TODO: Настройте Prisma ORM для работы с PostgreSQL
+// TODO: Set up Prisma ORM for PostgreSQL
 // TODO: Определите модели в schema.prisma (User, Post, Comment)
+// TODO: Define models in schema.prisma (User, Post, Comment)
 // TODO: Используйте prisma.user.findMany(), create(), update(), delete()
+// TODO: Use prisma.user.findMany(), create(), update(), delete()
 // TODO: Покажите relations (one-to-many), include и select
+// TODO: Show relations (one-to-many), include and select
 
 export function Task7_3() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task7_3() {
     log.push('')
 
     // TODO: Определите schema.prisma с моделями User, Post
+    // TODO: Define schema.prisma with User, Post models
     // TODO: Выполните prisma generate и prisma migrate dev
+    // TODO: Run prisma generate and prisma migrate dev
     // TODO: Реализуйте CRUD через PrismaClient
+    // TODO: Implement CRUD via PrismaClient
     // TODO: Покажите include для загрузки связей и select для проекции
+    // TODO: Show include for loading relations and select for projection
     log.push('Prisma')
     log.push('  ... model User { id Int @id @default(autoincrement()), posts Post[] }')
     log.push('  ... prisma.user.findMany({ include: { posts: true } })')

@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 6.2: JWT
+// Task 6.2: JWT
 // ============================================
 
 // TODO: Реализуйте JWT-аутентификацию (JSON Web Tokens)
+// TODO: Implement JWT authentication (JSON Web Tokens)
 // TODO: Создайте sign (выпуск) и verify (проверка) токена
+// TODO: Create sign (issuance) and verify (validation) of token
 // TODO: Включите payload: { sub, role, iat, exp }
+// TODO: Include payload: { sub, role, iat, exp }
 // TODO: Реализуйте authMiddleware для проверки Bearer token
+// TODO: Implement authMiddleware for Bearer token validation
 
 export function Task6_2() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task6_2() {
     log.push('')
 
     // TODO: Создайте jwt.sign(payload, secret, { expiresIn: "1h" })
+    // TODO: Create jwt.sign(payload, secret, { expiresIn: "1h" })
     // TODO: Реализуйте middleware: Authorization: Bearer <token> -> jwt.verify
+    // TODO: Implement middleware: Authorization: Bearer <token> -> jwt.verify
     // TODO: Покажите структуру JWT: header.payload.signature
+    // TODO: Show JWT structure: header.payload.signature
     // TODO: Обработайте ошибки: TokenExpiredError, JsonWebTokenError
+    // TODO: Handle errors: TokenExpiredError, JsonWebTokenError
     log.push('JWT Auth')
     log.push('  ... jwt.sign({ sub: userId, role }, SECRET, { expiresIn: "1h" })')
     log.push('  ... Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...')

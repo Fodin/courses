@@ -1,11 +1,11 @@
 import { useState } from 'react'
 
-// TODO: Define interface SchemaExample:
+// TODO: Define interface SchemaExample: / TODO: Определить интерфейс SchemaExample:
 //   id: string, title: string, description: string,
 //   color: string, category: 'base' | 'composition' | 'generic' | 'reusable', yaml: string
 
-// TODO: Define SCHEMA_EXAMPLES array with 8 entries:
-//   Base schemas (category: 'base'):
+// TODO: Define SCHEMA_EXAMPLES array with 8 entries: / TODO: Определить массив SCHEMA_EXAMPLES с 8 записями:
+//   Base schemas (category: 'base'): / Базовые схемы (category: 'base'):
 //   1. Product — color '#6366f1'
 //      yaml: required [id, name, price, category], includes $ref Category, inStock boolean, images array
 //   2. Category — color '#0ea5e9'
@@ -19,22 +19,26 @@ import { useState } from 'react'
 //   6. Address — color '#8b5cf6'
 //      yaml: required [street, city, country], region, postalCode, country ISO
 //
-//   Composition (category: 'composition'):
+//   Composition (category: 'composition'): / Композиция (category: 'composition'):
 //   7. allOf/oneOf/anyOf examples — color '#f97316'
 //      yaml: ProductWithReviews (allOf), PaymentMethod (oneOf + discriminator), SearchFilter (anyOf)
 //
-//   Generic pattern (category: 'generic'):
+//   Generic pattern (category: 'generic'): / Обобщённый паттерн (category: 'generic'):
 //   8. PaginatedResponse<T> — color '#14b8a6'
 //      yaml: PaginationMeta (base) + PaginatedProducts and PaginatedOrders (allOf + data array)
 
 // TODO: Define CATEGORY_LABELS and CATEGORY_COLORS maps
+// TODO: Определить маппинги CATEGORY_LABELS и CATEGORY_COLORS
 
 export function Task8_3() {
   // TODO: selectedId state: string (default first schema id = 'product')
+  // TODO: Состояние selectedId: string (по умолчанию первый id схемы = 'product')
 
   // TODO: Find selected schema from SCHEMA_EXAMPLES
+  // TODO: Найти выбранную схему из SCHEMA_EXAMPLES
 
   // TODO: Get unique categories from SCHEMA_EXAMPLES using Array.from(new Set(...))
+  // TODO: Получить уникальные категории из SCHEMA_EXAMPLES через Array.from(new Set(...))
 
   return (
     <div className="exercise-container" style={{ padding: '1.5rem', maxWidth: '1000px' }}>
@@ -50,6 +54,11 @@ export function Task8_3() {
              Then list schema buttons for that category
              Active schema: colored border and tinted background
              Each button: colored dot + schema title in monospace font */}
+        {/* TODO: Левая колонка — навигация
+             Для каждой категории: отрисовать метку категории (цветная, uppercase, мелкая)
+             Затем список кнопок схем для этой категории
+             Активная схема: цветная рамка и оттеночный фон
+             Каждая кнопка: цветная точка + название схемы моноширинным шрифтом */}
 
         {/* TODO: Right column — schema details
              Card with colored header showing schema title and category badge
@@ -57,6 +66,12 @@ export function Task8_3() {
              Dark code block with yaml content (maxHeight 420px, overflowY auto)
              For 'composition' category: explain allOf/oneOf/anyOf in amber info block
              For 'generic' category: explain allOf + PaginationMeta pattern in teal info block */}
+        {/* TODO: Правая колонка — детали схемы
+             Карточка с цветным заголовком, показывающим название схемы и бейдж категории
+             Полоса описания под заголовком
+             Тёмный блок кода с содержимым yaml (maxHeight 420px, overflowY auto)
+             Для категории 'composition': объяснить allOf/oneOf/anyOf в янтарном информационном блоке
+             Для категории 'generic': объяснить паттерн allOf + PaginationMeta в бирюзовом информационном блоке */}
       </div>
     </div>
   )

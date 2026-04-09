@@ -1,4 +1,4 @@
-// Full reference solution for level 3 — Статус-коды и обработка ошибок
+// Full reference solution for level 3 — Статус-коды и обработка ошибок / Status Codes and Error Handling
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

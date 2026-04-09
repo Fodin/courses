@@ -1,0 +1,137 @@
+[
+  {
+    "question": "Which sections of an OpenAPI document are required?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "openapi",
+        "correct": true,
+        "explanation": "Required field — specifies the OpenAPI specification version that the document conforms to"
+      },
+      {
+        "text": "info",
+        "correct": true,
+        "explanation": "Required section — contains metadata: the API title and version"
+      },
+      {
+        "text": "paths",
+        "correct": true,
+        "explanation": "Required section — describes all API endpoints"
+      },
+      {
+        "text": "servers",
+        "correct": false,
+        "explanation": "Optional section. If omitted, the API is assumed to be available on the document's host"
+      },
+      {
+        "text": "components",
+        "correct": false,
+        "explanation": "Optional section. Only needed if there are reusable schemas or responses"
+      }
+    ]
+  },
+  {
+    "question": "How should status codes be written in the responses section?",
+    "type": "single",
+    "options": [
+      {
+        "text": "As numbers: 200, 400, 404",
+        "correct": false,
+        "explanation": "Numbers are not valid YAML keys for status codes. OpenAPI requires strings"
+      },
+      {
+        "text": "As quoted strings: \"200\", \"400\", \"404\"",
+        "correct": true,
+        "explanation": "Status codes in OpenAPI are strings. This also allows using ranges: \"2XX\", \"4XX\""
+      },
+      {
+        "text": "As unquoted strings: HTTP_200, HTTP_404",
+        "correct": false,
+        "explanation": "This format is not supported by OpenAPI. Standard HTTP codes as strings are used"
+      },
+      {
+        "text": "In any format — numbers or strings are equally valid",
+        "correct": false,
+        "explanation": "No, the OpenAPI specification requires string keys for response codes"
+      }
+    ]
+  },
+  {
+    "question": "A parameter is passed in the URL as /users/550e8400-e29b. What value should the in field have?",
+    "type": "single",
+    "options": [
+      {
+        "text": "in: query",
+        "correct": false,
+        "explanation": "Query parameters come after ? in the URL: /users?id=550e8400. Here the ID is part of the path"
+      },
+      {
+        "text": "in: path",
+        "correct": true,
+        "explanation": "Path parameters are part of the path template: /users/{id}. They are always required (required: true)"
+      },
+      {
+        "text": "in: header",
+        "correct": false,
+        "explanation": "Header parameters are passed in HTTP headers, not in the URL"
+      },
+      {
+        "text": "in: body",
+        "correct": false,
+        "explanation": "In OpenAPI 3.x there is no in: body — the request body is described through requestBody"
+      }
+    ]
+  },
+  {
+    "question": "What does $ref: \"#/components/schemas/User\" mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A reference to an external User.yaml file",
+        "correct": false,
+        "explanation": "External references look different: $ref: \"./User.yaml\". The # symbol means the current document"
+      },
+      {
+        "text": "A reference to a User object in the current document at path /components/schemas/User",
+        "correct": true,
+        "explanation": "# means the root of the current document, followed by a JSON Pointer path to the User object in components/schemas"
+      },
+      {
+        "text": "A TypeScript User interface import",
+        "correct": false,
+        "explanation": "$ref is an OpenAPI/JSON Schema mechanism, not TypeScript. It references a schema definition in YAML/JSON"
+      },
+      {
+        "text": "Creating a new schema named User",
+        "correct": false,
+        "explanation": "$ref is a reference to an already existing object, not a declaration of a new one"
+      }
+    ]
+  },
+  {
+    "question": "Your API has a GET /products endpoint. You need to add filtering by category. How should this be correctly described in OpenAPI?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add a requestBody with a category field",
+        "correct": false,
+        "explanation": "GET requests should not have a body. This violates HTTP semantics and OpenAPI requirements"
+      },
+      {
+        "text": "Add a parameter with in: query and name: category",
+        "correct": true,
+        "explanation": "Filters in GET requests are passed as query parameters: /products?category=electronics"
+      },
+      {
+        "text": "Add a parameter with in: path and change the path to /products/{category}",
+        "correct": false,
+        "explanation": "Path parameters are for resource identification, not filtering. /products/{category} would mean a specific category, not a filter"
+      },
+      {
+        "text": "Create a separate endpoint POST /products/filter",
+        "correct": false,
+        "explanation": "Filtering via a separate POST is an anti-pattern. It unnecessarily complicates the API. Use query parameters"
+      }
+    ]
+  }
+]

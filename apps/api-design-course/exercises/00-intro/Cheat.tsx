@@ -1,4 +1,4 @@
-// Full reference solution for level 0 — Введение в проектирование API
+// Full reference solution for level 0 — Введение в проектирование API / Introduction to API Design
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

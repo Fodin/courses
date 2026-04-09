@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 11.1: Unit Testing
+// Task 11.1: Unit Testing
 // ============================================
 
-// TODO: Напишите unit-тесты для API-логики с помощью Vitest/Jest
-// TODO: Протестируйте чистые функции: валидация, трансформация, бизнес-логика
-// TODO: Используйте моки для внешних зависимостей (БД, HTTP-клиенты)
-// TODO: Покажите test doubles: mock, stub, spy
+// TODO: Напишите unit-тесты для API-логики с помощью Vitest/Jest / Write unit tests for API logic using Vitest/Jest
+// TODO: Протестируйте чистые функции: валидация, трансформация, бизнес-логика / Test pure functions: validation, transformation, business logic
+// TODO: Используйте моки для внешних зависимостей (БД, HTTP-клиенты) / Use mocks for external dependencies (DB, HTTP clients)
+// TODO: Покажите test doubles: mock, stub, spy / Show test doubles: mock, stub, spy
 
 export function Task11_1() {
   const [results, setResults] = useState<string[]>([])
@@ -18,10 +19,10 @@ export function Task11_1() {
     log.push('=== Unit Testing ===')
     log.push('')
 
-    // TODO: Протестируйте validateEmail(), calculateDiscount(), formatUser()
-    // TODO: Замокайте db.query через vi.mock/jest.mock
-    // TODO: Используйте vi.spyOn для проверки вызовов
-    // TODO: Покажите arrange-act-assert паттерн
+    // TODO: Протестируйте validateEmail(), calculateDiscount(), formatUser() / Test validateEmail(), calculateDiscount(), formatUser()
+    // TODO: Замокайте db.query через vi.mock/jest.mock / Mock db.query via vi.mock/jest.mock
+    // TODO: Используйте vi.spyOn для проверки вызовов / Use vi.spyOn to verify calls
+    // TODO: Покажите arrange-act-assert паттерн / Show arrange-act-assert pattern
     log.push('Unit Tests')
     log.push('  ... describe("validateEmail", () => { it("rejects invalid", ...) })')
     log.push('  ... vi.mock("./db", () => ({ query: vi.fn() }))')

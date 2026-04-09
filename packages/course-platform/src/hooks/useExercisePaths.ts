@@ -5,7 +5,7 @@ export function useExercisePaths() {
   const configMap = useExercisesConfigMap()
   const { language } = useLanguage()
 
-  const suffix = language === 'ru' ? '.ru' : '.en'
+  const suffix = language === 'ru' ? '' : '.en'
 
   return {
     getTaskPath(levelId: string, taskId: string): string {

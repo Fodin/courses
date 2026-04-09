@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 6.3: Refresh Tokens
+// Task 6.3: Refresh Tokens
 // ============================================
 
 // TODO: Реализуйте схему access + refresh tokens
+// TODO: Implement access + refresh tokens scheme
 // TODO: Access token: короткоживущий (15 мин), в Authorization header
+// TODO: Access token: short-lived (15 min), in Authorization header
 // TODO: Refresh token: долгоживущий (7 дней), в httpOnly cookie
+// TODO: Refresh token: long-lived (7 days), in httpOnly cookie
 // TODO: Создайте POST /auth/refresh для обновления пары токенов
+// TODO: Create POST /auth/refresh for token pair refresh
 
 export function Task6_3() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task6_3() {
     log.push('')
 
     // TODO: POST /auth/login -> { accessToken } + Set-Cookie: refreshToken
+    // TODO: POST /auth/login -> { accessToken } + Set-Cookie: refreshToken
     // TODO: POST /auth/refresh -> проверка refreshToken -> новая пара
+    // TODO: POST /auth/refresh -> validate refreshToken -> new pair
     // TODO: Реализуйте token rotation (старый refresh token инвалидируется)
+    // TODO: Implement token rotation (old refresh token is invalidated)
     // TODO: Храните refresh tokens в БД для возможности revoke
+    // TODO: Store refresh tokens in DB for revocation capability
     log.push('Refresh Tokens')
     log.push('  ... login -> accessToken (15m) + refreshToken (7d, httpOnly)')
     log.push('  ... POST /auth/refresh -> новый accessToken + ротация refresh')

@@ -8,9 +8,9 @@ OpenWRT is a full Linux distribution on a router. Understanding the architecture
 
 ```mermaid
 graph LR
-    A[SquashFS\nread-only] --> B[OverlayFS]
-    C[JFFS2/F2FS\nread-write] --> B
-    B --> D[/ root\nFS]
+    A["SquashFS\nread-only"] --> B[OverlayFS]
+    C["JFFS2/F2FS\nread-write"] --> B
+    B --> D["/ root\nFS"]
 ```
 
 OpenWRT uses an **overlay filesystem**: the base system is stored in read-only SquashFS (compressed, doesn't wear out flash). All changes are written to the JFFS2/F2FS partition (read-write). Together they mount as a normal filesystem.

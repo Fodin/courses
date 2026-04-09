@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 1.1: Routes & Router
+// Task 1.1: Routes & Router
 // ============================================
 
 // TODO: Создайте Express-приложение с модульной маршрутизацией
+// TODO: Create an Express app with modular routing
 // TODO: Используйте express.Router() для группировки маршрутов
+// TODO: Use express.Router() for grouping routes
 // TODO: Реализуйте CRUD-маршруты: GET, POST, PUT, DELETE
+// TODO: Implement CRUD routes: GET, POST, PUT, DELETE
 // TODO: Покажите вложенные роутеры и параметры маршрутов (:id)
+// TODO: Show nested routers and route parameters (:id)
 
 export function Task1_1() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task1_1() {
     log.push('')
 
     // TODO: Создайте app = express() и userRouter = express.Router()
+    // TODO: Create app = express() and userRouter = express.Router()
     // TODO: Определите маршруты GET /users, GET /users/:id, POST /users
+    // TODO: Define routes GET /users, GET /users/:id, POST /users
     // TODO: Подключите роутер через app.use('/api', userRouter)
+    // TODO: Mount the router via app.use('/api', userRouter)
     // TODO: Покажите req.params, req.query, req.body
+    // TODO: Show req.params, req.query, req.body
     log.push('Express Router')
     log.push('  ... const router = express.Router()')
     log.push('  ... router.get("/users", listUsers)')

@@ -1,4 +1,4 @@
-// Full reference solution for level 5 — Пагинация и фильтрация
+// Full reference solution for level 5 — Пагинация и фильтрация / Pagination and Filtering
 // This file mirrors Solution.tsx and is intended for self-study after completing the tasks
 
 export {

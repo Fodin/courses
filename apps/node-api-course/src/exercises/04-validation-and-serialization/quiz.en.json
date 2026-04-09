@@ -1,26 +1,26 @@
 [
   {
-    "question": "Why is safeParse() better than parse() in Zod for API validation?",
+    "question": "Why is it better to use safeParse() instead of parse() for API validation in Zod?",
     "type": "single",
     "options": [
       {
-        "text": "safeParse() returns { success, data/error } instead of throwing -- allowing error handling without try/catch and returning 422",
-        "correct": true
-      },
-      {
         "text": "safeParse() is faster because it skips some checks",
         "correct": false,
-        "explanation": "safeParse() performs the same checks. The difference is it returns a Result object instead of throwing, which is more convenient for middleware: no try/catch needed to form the response"
+        "explanation": "safeParse() performs the same checks. The difference is that it returns a Result object instead of throwing, which is more convenient for middleware: no try/catch needed to form the response"
       },
       {
-        "text": "parse() doesn't work with TypeScript types",
-        "correct": false,
-        "explanation": "parse() works perfectly with TypeScript and returns typed data. The issue is it throws an exception on invalid data, which is inconvenient in middleware"
+        "text": "safeParse() returns { success, data/error } instead of throwing -- this allows handling the error without try/catch and returning 422",
+        "correct": true
       },
       {
         "text": "safeParse() automatically sends a response to the client",
         "correct": false,
-        "explanation": "safeParse() doesn't send responses -- it returns an object with success/error. The middleware must check result.success itself and decide what to send"
+        "explanation": "safeParse() does not send a response -- it returns an object with success/error. The middleware must check result.success and decide what to send to the client"
+      },
+      {
+        "text": "parse() does not work with TypeScript types",
+        "correct": false,
+        "explanation": "parse() works fine with TypeScript and returns typed data. The problem is that it throws an exception on invalid data, which is inconvenient in middleware"
       }
     ]
   },
@@ -29,72 +29,72 @@
     "type": "single",
     "options": [
       {
-        "text": "Speeds up JSON serialization by having fewer fields",
+        "text": "Speeds up JSON serialization by reducing the number of fields",
         "correct": false,
-        "explanation": "Speed improvement is a side effect. DTO's main purpose is security: controlling which fields appear in the response, preventing internal data leaks"
-      },
-      {
-        "text": "Allows using different databases without changing the API",
-        "correct": false,
-        "explanation": "DB abstraction is the repository's job, not DTO's. DTO controls response format: which fields the client sees, in what format (camelCase vs snake_case)"
+        "explanation": "Speed is a side effect. The main purpose of DTO is security: controlling exactly which fields appear in the response, preventing leakage of internal data"
       },
       {
         "text": "Replaces incoming data validation",
         "correct": false,
-        "explanation": "DTO doesn't replace validation -- they're different patterns. Validation checks incoming data (request), while DTO controls outgoing data (response)"
+        "explanation": "DTO does not replace validation -- these are different patterns. Validation checks incoming data (request), while DTO controls outgoing data (response)"
       },
       {
-        "text": "Prevents leaking sensitive data (password_hash, internal_notes) when sending DB objects to the client",
+        "text": "Allows using different databases without changing the API",
+        "correct": false,
+        "explanation": "Database abstraction is the job of the repository, not DTO. DTO controls the response format: which fields the client sees, in what format (camelCase vs snake_case)"
+      },
+      {
+        "text": "Prevents leaking sensitive data (password_hash, internal_notes) when sending database objects to the client",
         "correct": true
       }
     ]
   },
   {
-    "question": "What is Zod's main advantage over Joi for TypeScript projects?",
+    "question": "What is the main advantage of Zod over Joi for TypeScript projects?",
     "type": "single",
     "options": [
       {
-        "text": "Joi doesn't work with TypeScript",
+        "text": "Joi does not work with TypeScript",
         "correct": false,
-        "explanation": "Joi has TypeScript types (@types/joi) but doesn't auto-derive types from schemas. In Zod, the schema IS the type definition -- z.infer eliminates duplication"
-      },
-      {
-        "text": "z.infer<typeof schema> automatically derives the TypeScript type from the schema -- no need to duplicate interfaces",
-        "correct": true
+        "explanation": "Joi has TypeScript types (@types/joi) but does not automatically infer types from the schema. In Zod the schema IS the type definition -- z.infer eliminates duplication"
       },
       {
         "text": "Zod validates data more accurately",
         "correct": false,
-        "explanation": "Validation accuracy is comparable. Zod's main advantage is TypeScript-first design: the type is automatically derived from the schema via z.infer, eliminating schema-type mismatch"
+        "explanation": "Validation accuracy is comparable. Zod's main advantage is the TypeScript-first approach: types are automatically inferred from the schema via z.infer, eliminating mismatches between schema and type"
       },
       {
-        "text": "Zod supports conditional validation while Joi doesn't",
+        "text": "Zod supports conditional validation while Joi does not",
         "correct": false,
-        "explanation": "Actually the opposite: Joi has more powerful conditional validation via when/alternatives. Zod's advantage is TypeScript type inference and TypeScript-first design"
+        "explanation": "The opposite is true: Joi has more powerful conditional validation via when/alternatives. Zod's advantage is TypeScript type inference and TypeScript-first design"
+      },
+      {
+        "text": "z.infer<typeof schema> automatically infers a TypeScript type from the schema -- no need to duplicate interfaces",
+        "correct": true
       }
     ]
   },
   {
-    "question": "Why do you need different DTOs for the same entity (UserListDTO, UserDetailDTO, AdminUserDTO)?",
+    "question": "Why are different DTOs needed for the same entity (UserListDTO, UserDetailDTO, AdminUserDTO)?",
     "type": "single",
     "options": [
       {
-        "text": "To optimize SQL queries for each endpoint",
-        "correct": false,
-        "explanation": "SQL optimization is the repository/query builder's job. DTO controls response format. But there's a benefit -- if the DTO requests fewer fields, SQL can be optimized too"
-      },
-      {
-        "text": "To reduce network load with smaller JSON",
-        "correct": false,
-        "explanation": "Bandwidth savings are a side effect. The main reason is the principle of least privilege: each endpoint returns only necessary data, nothing more"
-      },
-      {
         "text": "TypeScript requires a separate type for each endpoint",
         "correct": false,
-        "explanation": "TypeScript doesn't require different types -- you can return the same object. Different DTOs are for security and UX: the list doesn't need bio, but admin needs lastLogin"
+        "explanation": "TypeScript does not require different types -- you can return the same object. Different DTOs are needed for security and UX: a list does not need bio, and an admin needs lastLogin"
       },
       {
-        "text": "Different contexts need different data: list shows minimal fields, details show more, admin shows everything including service fields",
+        "text": "To optimize SQL queries for each endpoint",
+        "correct": false,
+        "explanation": "SQL optimization is the repository/query builder's job. DTO controls the response format: which fields the client sees. But there is a benefit -- if the DTO requests fewer fields, the SQL can also be optimized"
+      },
+      {
+        "text": "To reduce network load through smaller JSON",
+        "correct": false,
+        "explanation": "Traffic savings are a side effect. The main reason is the principle of least privilege: each endpoint returns only the necessary data, nothing more"
+      },
+      {
+        "text": "Different contexts require different data: a list shows minimal fields, details show more, admin shows everything including internal fields",
         "correct": true
       }
     ]

@@ -12,7 +12,7 @@ import { useState } from 'react'
 
 // TODO: Define groupConfig — a record mapping group number (1-5) to:
 // { label: string, color: string, bg: string, border: string }
-// Example: 2 -> { label: '2xx Успех', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' }
+// Example: 2 -> { label: '2xx Успех / Success', color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0' }
 
 export function Task3_1() {
   // TODO: Track selected group filter (number | null), default null (= all)

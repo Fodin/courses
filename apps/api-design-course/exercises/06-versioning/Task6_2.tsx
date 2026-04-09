@@ -1,11 +1,11 @@
 import { useState } from 'react'
 
-// TODO: Define interface TimelineEvent:
+// TODO: Define interface TimelineEvent: / TODO: Определить интерфейс TimelineEvent:
 //   id: string, label: string, description: string,
 //   header?: string, headerValue?: string,
 //   color: string, icon: string
 
-// TODO: Create TIMELINE_EVENTS array with 5 steps:
+// TODO: Create TIMELINE_EVENTS array with 5 steps: / TODO: Создать массив TIMELINE_EVENTS с 5 шагами:
 //   1. id 'v2-release', label 'Релиз v2', color '#10b981', icon '🚀'
 //      header 'X-API-Version', headerValue '2.0'
 //      description: "Выпускаем новую версию API. Обе версии работают параллельно."
@@ -23,10 +23,11 @@ import { useState } from 'react'
 //      description: v1 отключён, возвращает 410 Gone
 
 export function Task6_2() {
-  // TODO: activeStep state (default 0)
-  // TODO: showHeaders state (default true)
+  // TODO: activeStep state (default 0) / TODO: Состояние activeStep (по умолчанию 0)
+  // TODO: showHeaders state (default true) / TODO: Состояние showHeaders (по умолчанию true)
 
   // TODO: Derive current event from TIMELINE_EVENTS[activeStep]
+  // TODO: Получить текущее событие из TIMELINE_EVENTS[activeStep]
 
   return (
     <div className="exercise-container" style={{ padding: '1.5rem', maxWidth: '860px' }}>
@@ -42,6 +43,13 @@ export function Task6_2() {
              * Future steps: gray bg + '○'
              * Active step: colored border + glow shadow
            - Label under each dot (small text, bold when active) */}
+      {/* TODO: Отрисовать горизонтальный timeline:
+           - Абсолютная горизонтальная линия за точками (серая основа + цветной прогресс)
+           - 5 кликабельных точек (40x40, круглые)
+             * Завершённые шаги: цветной фон + emoji-иконка
+             * Будущие шаги: серый фон + '○'
+             * Активный шаг: цветная рамка + светящаяся тень
+           - Метка под каждой точкой (мелкий текст, жирный при активности) */}
 
       {/* TODO: Render info card with border of event.color:
            1. Colored header: icon + "Шаг N: label"
@@ -50,13 +58,25 @@ export function Task6_2() {
               - Sub-header row with "HTTP-заголовок ответа" + Show/Hide button
               - Dark code block: colored header name + colon + colored value
                 If no event.header (step 5): show value in red */}
+      {/* TODO: Отрисовать информационную карточку с рамкой цвета event.color:
+           1. Цветной заголовок: иконка + "Шаг N: label"
+           2. Абзац описания (светло-серый фон)
+           3. Если event.headerValue: показать блок HTTP-заголовка
+              - Строка подзаголовка с "HTTP-заголовок ответа" + кнопка Show/Hide
+              - Тёмный блок кода: цветное имя заголовка + двоеточие + цветное значение
+                Если нет event.header (шаг 5): показать значение красным */}
 
       {/* TODO: RFC 8594 info block (blue bg #eff6ff):
            Mention Deprecation, Sunset (RFC 8594), and Link headers */}
+      {/* TODO: Информационный блок RFC 8594 (синий фон #eff6ff):
+           Упомянуть заголовки Deprecation, Sunset (RFC 8594) и Link */}
 
       {/* TODO: Navigation buttons (centered):
            - "← Назад" disabled at step 0
            - "Вперёд →" colored bg (event.color), disabled at last step */}
+      {/* TODO: Кнопки навигации (по центру):
+           - "← Назад" неактивна на шаге 0
+           - "Вперёд →" цветной фон (event.color), неактивна на последнем шаге */}
     </div>
   )
 }

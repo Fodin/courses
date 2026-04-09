@@ -1,0 +1,132 @@
+[
+  {
+    "question": "An API returns fields in different styles: userId, user_name, UserEmail. What is the main problem?",
+    "type": "single",
+    "options": [
+      {
+        "text": "This is prohibited by the HTTP standard",
+        "correct": false,
+        "explanation": "Incorrect. HTTP does not regulate field names in JSON bodies. This is a convention, not a standard."
+      },
+      {
+        "text": "The client must know three different styles and write special handling for each field",
+        "correct": true,
+        "explanation": "Correct. Different styles within a single response break automatic serialization, TypeScript typing, and make the client code unpredictable. One style should be chosen for the entire API."
+      },
+      {
+        "text": "The JSON parser will not be able to read the response",
+        "correct": false,
+        "explanation": "Incorrect. JSON parsers successfully read any valid field names. The problem is in the inconsistency of conventions, not in parsing."
+      },
+      {
+        "text": "PascalCase fields cannot be used in JavaScript",
+        "correct": false,
+        "explanation": "Incorrect. JavaScript allows any field names in objects, including PascalCase. The problem is specifically the mixing of styles within a single API."
+      }
+    ]
+  },
+  {
+    "question": "Which Content-Type should be used for a PATCH request with partial update (JSON Merge Patch)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "application/json",
+        "correct": false,
+        "explanation": "Technically works but carries no semantics. The client and intermediate servers do not know this is a Merge Patch. A specific type is recommended."
+      },
+      {
+        "text": "application/merge-patch+json",
+        "correct": true,
+        "explanation": "Correct. RFC 7396 defines this Content-Type for JSON Merge Patch. It explicitly communicates that the body is a set of changes, not a complete object."
+      },
+      {
+        "text": "application/json-patch+json",
+        "correct": false,
+        "explanation": "Incorrect. This Content-Type is for JSON Patch (RFC 6902) — a different format with operations (add/replace/remove). Merge Patch is simpler: just the fields to change."
+      },
+      {
+        "text": "text/plain",
+        "correct": false,
+        "explanation": "Incorrect. text/plain does not describe the body structure. The server will not be able to properly process it as JSON."
+      }
+    ]
+  },
+  {
+    "question": "GET /api/orders returns an array of orders without any metadata. What does this mean for the client?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "The client does not know how many total orders exist",
+        "correct": true,
+        "explanation": "Correct. Without a total field, the client cannot display '150 orders' or build a paginator with the correct number of pages."
+      },
+      {
+        "text": "It is impossible to build a UI paginator",
+        "correct": true,
+        "explanation": "Correct. A paginator needs at least total and perPage. Without them, the client does not know if there is a next page."
+      },
+      {
+        "text": "The client will not be able to parse the response",
+        "correct": false,
+        "explanation": "Incorrect. The JSON array parses fine. The problem is the lack of information for building the UI, not a technical impossibility."
+      },
+      {
+        "text": "When data changes, the client does not know whether to reload the list",
+        "correct": true,
+        "explanation": "Correct. Without updatedAt or a version in the metadata, the client cannot determine if the data is current. ETag or a meta.lastModified field is useful."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between `\"deletedAt\": null` and the absence of the `deletedAt` field in an API response?",
+    "type": "single",
+    "options": [
+      {
+        "text": "No difference — both mean the resource is not deleted",
+        "correct": false,
+        "explanation": "Incorrect. There is a difference and it is fundamental. null means 'applicable but empty'; absence of the field means 'not applicable to this type of resource'."
+      },
+      {
+        "text": "null means 'field is applicable but value is empty'; absence of field means 'not applicable to this resource type'",
+        "correct": true,
+        "explanation": "Correct. deletedAt: null = 'deletability is tracked, but the object is not deleted.' Absence of field = 'this resource type does not support soft-delete at all.' In JSON Merge Patch, null means 'delete the field'."
+      },
+      {
+        "text": "Absence of the field is preferable because it saves bytes",
+        "correct": false,
+        "explanation": "Saving bytes is not the main criterion. Semantic clarity is more important. null explicitly communicates: 'the field exists, the value is absent.' Absence of the field has different semantics."
+      },
+      {
+        "text": "JSON Schema cannot express the difference between null and absence of a field",
+        "correct": false,
+        "explanation": "Incorrect. JSON Schema expresses this difference perfectly: required + nullable vs optional. TypeScript also distinguishes field: string | null from field?: string."
+      }
+    ]
+  },
+  {
+    "question": "An API stores dates as Unix timestamps: { \"createdAt\": 1712345678 }. What problems does this create?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "It is unclear: seconds or milliseconds?",
+        "correct": true,
+        "explanation": "Correct. Python uses seconds, JavaScript uses milliseconds. 1712345678 and 1712345678000 are different formats for the same moment. Bugs are guaranteed."
+      },
+      {
+        "text": "No time zone information",
+        "correct": true,
+        "explanation": "Correct. A Unix timestamp contains no time zone — it is always UTC. But a developer cannot know this without documentation. ISO 8601 with 'Z' explicitly indicates UTC."
+      },
+      {
+        "text": "JSON parser does not support numeric timestamps",
+        "correct": false,
+        "explanation": "Incorrect. JSON handles numbers perfectly. The problem is in readability and ambiguity, not in parsing."
+      },
+      {
+        "text": "The date cannot be read without a converter",
+        "correct": true,
+        "explanation": "Correct. 1712345678 -> 2024-04-05T14:34:38Z. A developer cannot read the date 'at a glance' during debugging. ISO 8601 is instantly readable."
+      }
+    ]
+  }
+]

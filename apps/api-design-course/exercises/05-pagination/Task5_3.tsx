@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-// TODO: Define interface Scenario with fields:
+// TODO: Define interface Scenario with fields: / TODO: Определить интерфейс Scenario с полями:
 //   id: number
 //   title: string
 //   description: string
@@ -14,7 +14,7 @@ import { useState } from 'react'
 //     responseExample: string
 //   }
 
-// TODO: Create SCENARIOS array with 3 scenarios:
+// TODO: Create SCENARIOS array with 3 scenarios: / TODO: Создать массив SCENARIOS с 3 сценариями:
 //   1. "Лента новостей" — correct: cursor
 //      (posts added constantly, infinite scroll, stability required)
 //   2. "Админ-панель заказов" — correct: offset
@@ -23,14 +23,27 @@ import { useState } from 'react'
 //      (products added/removed, no page buttons, no duplicates)
 //   For each scenario include wrongAnswer (the incorrect choice) with explanation
 //   and correctAnswer with justification (4+ reasons) and responseExample JSON string
+//   1. "Лента новостей" — правильно: cursor
+//      (посты добавляются постоянно, бесконечная прокрутка, требуется стабильность)
+//   2. "Админ-панель заказов" — правильно: offset
+//      (навигация по страницам, переход на страницу N, показ общего количества)
+//   3. "Бесконечный скролл товаров" — правильно: cursor
+//      (товары добавляются/удаляются, нет кнопок страниц, нет дубликатов)
+//   Для каждого сценария включить wrongAnswer (неверный выбор) с объяснением
+//   и correctAnswer с обоснованием (4+ причин) и responseExample в виде JSON-строки
 
 export function Task5_3() {
   // TODO: openScenario state: number | null (which scenario card is open)
+  // TODO: Состояние openScenario: number | null (какая карточка сценария открыта)
   // TODO: selectedAnswers state: Record<number, 'offset' | 'cursor' | null>
+  // TODO: Состояние selectedAnswers: Record<number, 'offset' | 'cursor' | null>
   // TODO: showResult state: Record<number, boolean>
+  // TODO: Состояние showResult: Record<number, boolean>
 
   // TODO: handleSelect(scenarioId, type) — sets selected answer if not yet revealed
+  // TODO: Реализовать handleSelect(scenarioId, type) — устанавливает выбранный ответ, если результат ещё не показан
   // TODO: handleCheck(scenarioId) — reveals result and opens the scenario card
+  // TODO: Реализовать handleCheck(scenarioId) — показывает результат и открывает карточку сценария
 
   return (
     <div className="exercise-container" style={{ padding: '1.5rem', maxWidth: '860px' }}>
@@ -56,6 +69,23 @@ export function Task5_3() {
                - example URL (dark monospace block)
                - justification list
              * Pre block with responseExample JSON */}
+      {/* TODO: Пройтись по SCENARIOS и отрисовать карточку для каждого:
+           Структура карточки:
+           - Рамка: зелёная если верно, красная если неверно, серая если ещё не показано
+           - Кликабельный заголовок: title + description + индикатор раскрытия
+             (показать ✅ или ❌ после раскрытия результата)
+
+           Когда карточка открыта (openScenario === scenario.id):
+           - Список требований
+           - Если результат не показан: две кнопки выбора (offset / cursor) + кнопка "Проверить"
+             ("Проверить" неактивна, пока не выбран вариант)
+           - Если результат показан:
+             * Если неверно: красный блок с wrongAnswer.label и wrongAnswer.reason
+             * Зелёный блок с:
+               - correctAnswer.label
+               - пример URL (тёмный моноширинный блок)
+               - список обоснований
+             * Блок pre с responseExample JSON */}
     </div>
   )
 }

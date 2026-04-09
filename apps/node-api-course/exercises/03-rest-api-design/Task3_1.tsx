@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 3.1: CRUD Endpoints
+// Task 3.1: CRUD Endpoints
 // ============================================
 
 // TODO: Спроектируйте полный CRUD API для ресурса (например, /articles)
+// TODO: Design a full CRUD API for a resource (e.g., /articles)
 // TODO: Используйте правильные HTTP-методы: GET, POST, PUT, PATCH, DELETE
+// TODO: Use proper HTTP methods: GET, POST, PUT, PATCH, DELETE
 // TODO: Верните корректные статус-коды: 200, 201, 204, 404, 409
+// TODO: Return correct status codes: 200, 201, 204, 404, 409
 // TODO: Реализуйте идемпотентность PUT и частичное обновление через PATCH
+// TODO: Implement PUT idempotency and partial update via PATCH
 
 export function Task3_1() {
   const [results, setResults] = useState<string[]>([])
@@ -19,8 +24,12 @@ export function Task3_1() {
     log.push('')
 
     // TODO: Реализуйте GET /articles (список), GET /articles/:id (один)
+    // TODO: Implement GET /articles (list), GET /articles/:id (single)
+    // TODO: POST /articles -> 201 Created + Location header
     // TODO: POST /articles -> 201 Created + Location header
     // TODO: PUT /articles/:id -> 200 (полная замена), PATCH -> частичное обновление
+    // TODO: PUT /articles/:id -> 200 (full replacement), PATCH -> partial update
+    // TODO: DELETE /articles/:id -> 204 No Content
     // TODO: DELETE /articles/:id -> 204 No Content
     log.push('CRUD API Design')
     log.push('  ... GET /articles -> 200 [{ id, title, body }]')

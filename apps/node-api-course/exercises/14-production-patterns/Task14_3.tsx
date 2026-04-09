@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 14.3: Graceful Shutdown
+// Task 14.3: Graceful Shutdown
 // ============================================
 
-// TODO: Реализуйте graceful shutdown для Node.js сервера
-// TODO: Обработайте SIGTERM и SIGINT сигналы
-// TODO: Остановите прием новых запросов, дождитесь завершения текущих
-// TODO: Закройте все соединения: DB pool, Redis, WebSocket
+// TODO: Реализуйте graceful shutdown для Node.js сервера / Implement graceful shutdown for Node.js server
+// TODO: Обработайте SIGTERM и SIGINT сигналы / Handle SIGTERM and SIGINT signals
+// TODO: Остановите прием новых запросов, дождитесь завершения текущих / Stop accepting new requests, wait for current ones to finish
+// TODO: Закройте все соединения: DB pool, Redis, WebSocket / Close all connections: DB pool, Redis, WebSocket
 
 export function Task14_3() {
   const [results, setResults] = useState<string[]>([])
@@ -18,10 +19,10 @@ export function Task14_3() {
     log.push('=== Graceful Shutdown ===')
     log.push('')
 
-    // TODO: Обработайте process.on("SIGTERM", gracefulShutdown)
-    // TODO: Вызовите server.close() для остановки приема новых соединений
-    // TODO: Дождитесь завершения in-flight запросов с таймаутом
-    // TODO: Закройте pool.end(), redis.quit(), wss.close()
+    // TODO: Обработайте process.on("SIGTERM", gracefulShutdown) / Handle process.on("SIGTERM", gracefulShutdown)
+    // TODO: Вызовите server.close() для остановки приема новых соединений / Call server.close() to stop accepting new connections
+    // TODO: Дождитесь завершения in-flight запросов с таймаутом / Wait for in-flight requests to complete with timeout
+    // TODO: Закройте pool.end(), redis.quit(), wss.close() / Close pool.end(), redis.quit(), wss.close()
     log.push('Graceful Shutdown')
     log.push('  ... process.on("SIGTERM", async () => { ... })')
     log.push('  ... server.close() -> stop accepting new connections')

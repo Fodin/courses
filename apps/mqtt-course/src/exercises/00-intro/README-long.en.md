@@ -194,38 +194,153 @@ This is a powerful mechanism for detecting emergency disconnects without periodi
 
 ## MQTT 5.0: What's New
 
-MQTT 5.0 added important mechanisms missing in v3.1.1:
+MQTT 3.1.1 was the IoT workhorse for over 10 years, but it lacked many features that developers implemented with workarounds. In 2019, MQTT 5.0 was released — backward-incompatible but significantly more powerful. Mosquitto supports v5 starting from version 2.0.
 
-### Properties (metadata)
+💡 Analogy: if MQTT 3.1.1 is SMS (text and that's it), then MQTT 5.0 is a messenger: delivery statuses, metadata, error reactions, groups.
+
+### Properties (Message Metadata)
+
+In v3.1.1, a message is just `topic + payload`. No metadata. Want to pass a content type? Put it in the payload. Want a TTL? Implement it yourself. In v5, standard **properties** can be attached to any packet:
 
 ```
 Message Properties:
-  Content-Type: "application/json"
-  Response-Topic: "response/request-id-123"
-  Correlation-Data: [binary]
-  User-Property: {"source": "sensor-42", "firmware": "1.2.3"}
-  Message-Expiry-Interval: 3600  # auto-delete after an hour
+  Content-Type: "application/json"          # MIME type of payload
+  Response-Topic: "response/request-id-123" # for request/reply pattern
+  Correlation-Data: [binary]                # link request to response
+  User-Property: {"source": "sensor-42"}    # arbitrary key-value pairs
+  Message-Expiry-Interval: 3600             # auto-delete after an hour
+  Payload-Format-Indicator: 1               # 0 = bytes, 1 = UTF-8 text
+  Topic-Alias: 7                            # numeric topic alias
 ```
 
-### Reason Codes
+#### Topic Alias — Traffic Savings
 
-In v5, every CONNACK, PUBACK, SUBACK contains a numeric reason code:
+When a device publishes to the same long topic thousands of times, the full string is transmitted every time. Topic Alias solves this:
 
 ```
-0x00 = Success
-0x87 = Not Authorized
-0x8F = Session Taken Over
-0x97 = Quota Exceeded
+# First PUBLISH — broker remembers that alias 7 = this topic
+PUBLISH topic="factory/line-3/machine-12/vibration/sensor-a" alias=7
+
+# All subsequent — only 2 bytes instead of 48
+PUBLISH topic="" alias=7
+PUBLISH topic="" alias=7
 ```
 
-### Shared Subscriptions
+On a device with thousands of messages per minute, this is significant savings.
 
-Allows load balancing between multiple consumers:
+#### Request/Response Pattern
+
+In v3.1.1, implementing request/response required inventing your own conventions. In v5 it's standardized:
+
+```mermaid
+graph LR
+    A[Client A] -->|"PUBLISH topic=cmd/reboot\nResponse-Topic=reply/abc-123\nCorrelation-Data=abc-123"| B[Broker]
+    B -->|DELIVER| C[Client B]
+    C -->|"PUBLISH topic=reply/abc-123\nCorrelation-Data=abc-123"| B
+    B -->|DELIVER| A
+```
+
+Client A sends a command and specifies where to expect the reply (`Response-Topic`). Client B executes the command and sends the result back. `Correlation-Data` allows matching a response to a specific request when multiple are in flight simultaneously.
+
+### Reason Codes — Clear Diagnostics
+
+In v3.1.1, when an error occurred, the broker simply dropped the connection. Why? Unknown. Figure it out from the logs. In v5, **every** response packet contains a numeric Reason Code:
+
+| Code | Name | When It Occurs |
+|------|------|----------------|
+| `0x00` | Success | Operation completed successfully |
+| `0x10` | No Matching Subscribers | Message published but nobody is subscribed |
+| `0x80` | Unspecified Error | General error without details |
+| `0x83` | Implementation Specific Error | Error specific to the broker implementation |
+| `0x87` | Not Authorized | No permission for this operation |
+| `0x8F` | Session Taken Over | Another client connected with the same clientId |
+| `0x90` | Topic Filter Invalid | Invalid subscription pattern |
+| `0x97` | Quota Exceeded | Quota exceeded (too many messages/subscriptions) |
+
+Additionally, the broker can send a **Reason String** — a textual error description for debugging:
+
+```
+CONNACK Reason Code: 0x87
+Reason String: "User 'sensor-42' not authorized for topic 'admin/#'"
+```
+
+### Shared Subscriptions — Load Balancing
+
+In v3.1.1, when multiple clients subscribe to the same topic, **each one** receives a copy of the message. Shared Subscriptions allow creating a consumer group where each message is delivered to **only one** member of the group:
+
+```mermaid
+graph LR
+    P[Publisher] -->|"PUBLISH jobs/process"| B[Broker]
+    B -->|"Round-robin"| W1[Worker 1]
+    B -.->|"doesn't receive"| W2[Worker 2]
+    B -.->|"doesn't receive"| W3[Worker 3]
+```
 
 ```bash
-# Group "workers" — each message goes to only one subscriber
-mosquitto_sub -t '$share/workers/jobs/#'
+# All three workers subscribe to the same shared group "workers"
+mosquitto_sub -t '$share/workers/jobs/#'  # Worker 1
+mosquitto_sub -t '$share/workers/jobs/#'  # Worker 2
+mosquitto_sub -t '$share/workers/jobs/#'  # Worker 3
+
+# Each message in jobs/# will be received by only one of three
 ```
+
+Format: `$share/{group-name}/{topic-filter}`. Different groups work independently — you can create a `loggers` group and a `processors` group, and each will receive all messages, but within a group — no duplication.
+
+### Session Expiry Interval — Session Lifetime Management
+
+In v3.1.1, a session is either deleted on disconnect (`clean session = true`) or lives forever (`clean session = false`). Eternal sessions are a headache: forgotten devices accumulate message queues, consuming broker memory.
+
+In v5, the client specifies the **exact session lifetime** in seconds:
+
+```
+CONNECT:
+  Clean Start: true / false
+  Session Expiry Interval: 3600  # session lives 1 hour after disconnect
+```
+
+- `0` — delete session on disconnect (equivalent to `clean session = true`)
+- `4294967295` (0xFFFFFFFF) — session lives indefinitely
+- Any other value — TTL in seconds
+
+This solves the "zombie sessions" problem: if a device doesn't reconnect within an hour, the broker automatically cleans up its queue.
+
+### Flow Control — Overload Protection
+
+In v3.1.1, a fast publisher could "flood" a slow subscriber, and the broker had no standard way to limit this. In v5, **Receive Maximum** appeared — the maximum number of unacknowledged QoS 1/2 messages in flight:
+
+```
+CONNECT:
+  Receive Maximum: 10   # client can handle at most 10 messages simultaneously
+
+CONNACK:
+  Receive Maximum: 100  # broker can accept at most 100 simultaneously
+```
+
+When the limit is reached, the sender pauses publishing until acknowledgments are received. This prevents a device with 32 KB of RAM from drowning in a data stream.
+
+### Comparison Summary
+
+| Feature | MQTT 3.1.1 | MQTT 5.0 |
+|---------|-----------|----------|
+| Message metadata | ❌ | ✅ Properties |
+| Error diagnostics | Connection drop | Reason Code + String |
+| Load balancing | ❌ | ✅ Shared Subscriptions |
+| Session lifetime | Forever or 0 | Configurable TTL |
+| Message lifetime | ❌ | ✅ Message Expiry |
+| Request/Response | Workarounds | ✅ Response-Topic |
+| Flow Control | ❌ | ✅ Receive Maximum |
+| Topic Alias | ❌ | ✅ Traffic savings |
+| Disconnect reason | ❌ | ✅ Disconnect Reason Code |
+
+### When to Stay on 3.1.1?
+
+Not everyone needs to upgrade to v5:
+- **Device doesn't support v5** — many cheap ESP8266/ESP32 libraries still only work with v3.1.1
+- **Broker doesn't support v5** — some cloud IoT platforms haven't updated yet
+- **Simple scenario** — if pub/sub with QoS 0 without metadata is sufficient, v3.1.1 is simpler and lighter
+
+Mosquitto 2.x supports both protocols simultaneously — v3.1.1 and v5 clients can work with the same broker.
 
 ---
 

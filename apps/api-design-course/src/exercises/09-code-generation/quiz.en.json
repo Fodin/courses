@@ -1,0 +1,132 @@
+[
+  {
+    "question": "What is a contract-first approach in API development?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The backend writes code from which the OpenAPI specification is automatically generated",
+        "correct": false,
+        "explanation": "This is the code-first approach. In it, implementation is primary and documentation is secondary — the API design is dictated by code, not intent."
+      },
+      {
+        "text": "The specification is agreed upon by the team before implementation begins, and types and mocks are generated from it",
+        "correct": true,
+        "explanation": "Correct. Contract-first: openapi.yaml → frontend generates types and MSW mocks → backend implements. Teams work in parallel."
+      },
+      {
+        "text": "Frontend and backend agree on the API in Confluence, without a formal specification",
+        "correct": false,
+        "explanation": "Agreements in Confluence are an informal contract. Contract-first implies a machine-readable specification (OpenAPI) from which code can be generated."
+      },
+      {
+        "text": "Development begins only after signing a legal contract with the client",
+        "correct": false,
+        "explanation": "This has nothing to do with API design. Contract-first is a technical term: the OpenAPI specification as a technical contract between teams."
+      }
+    ]
+  },
+  {
+    "question": "Why does openapi-generator require Java, but openapi-typescript does not?",
+    "type": "single",
+    "options": [
+      {
+        "text": "openapi-generator is written in Java and runs on the JVM, openapi-typescript is on Node.js",
+        "correct": true,
+        "explanation": "Correct. openapi-generator is a Java project running on the JVM. openapi-typescript is written in TypeScript and runs on Node.js, so it requires no additional runtime dependencies."
+      },
+      {
+        "text": "openapi-typescript uses WebAssembly instead of Java for speedup",
+        "correct": false,
+        "explanation": "openapi-typescript does not use WebAssembly. It is simply written in TypeScript/Node.js, which makes it native to the npm ecosystem."
+      },
+      {
+        "text": "Java is needed for OpenAPI 2.0 support, openapi-typescript only works with OpenAPI 3.x",
+        "correct": false,
+        "explanation": "Java is needed because the tool itself is written in Java, not because of an OpenAPI version. openapi-generator supports both versions."
+      },
+      {
+        "text": "openapi-generator can be run without Java via the npm package @openapitools/openapi-generator-cli",
+        "correct": false,
+        "explanation": "Partially true, but this npm package still downloads and runs a Java artifact internally. The Java dependency does not disappear."
+      }
+    ]
+  },
+  {
+    "question": "You use openapi-typescript. Which of the following does it NOT generate?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "TypeScript interfaces for schemas",
+        "correct": false,
+        "explanation": "Incorrect — this is the primary function of openapi-typescript. It generates types for all schemas from components/schemas."
+      },
+      {
+        "text": "React Query hooks (useQuery, useMutation)",
+        "correct": true,
+        "explanation": "Correct — openapi-typescript does not generate hooks. For hooks you need orval or a manual wrapper via openapi-fetch."
+      },
+      {
+        "text": "MSW mocks for testing",
+        "correct": true,
+        "explanation": "Correct — MSW mock generation is not part of openapi-typescript. This is functionality of orval or separate tools."
+      },
+      {
+        "text": "Typed paths and request parameters",
+        "correct": false,
+        "explanation": "Incorrect — this is exactly what openapi-typescript does: generates a paths structure with full types for parameters and responses of each endpoint."
+      }
+    ]
+  },
+  {
+    "question": "How is the OpenAPI construct allOf: [$ref: A, {type: object, properties: {...}}] expressed in TypeScript?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Union type: A | { ... }",
+        "correct": false,
+        "explanation": "No, union type (|) corresponds to oneOf / anyOf — 'one of the options'. allOf means 'all options at once'."
+      },
+      {
+        "text": "Intersection type: A & { ... } or interface extends A",
+        "correct": true,
+        "explanation": "Correct. allOf requires conformance to all schemas simultaneously — this is the analog of intersection type (A & B) or interface extends A in TypeScript."
+      },
+      {
+        "text": "Generic type: Array<A>",
+        "correct": false,
+        "explanation": "Array<A> corresponds to type: array + items: $ref A. allOf is about combining structures, not arrays."
+      },
+      {
+        "text": "Mapped type: { [K in keyof A]: A[K] }",
+        "correct": false,
+        "explanation": "Mapped types are a TypeScript construct for type transformations. Code generators do not create mapped types from allOf."
+      }
+    ]
+  },
+  {
+    "question": "Your team of 10 people (5 frontend, 3 backend, 2 mobile) uses the same OpenAPI. Which type generation strategy is most suitable?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Each developer generates locally as needed",
+        "correct": false,
+        "explanation": "With this approach, different developers will have different versions of types. This is a source of elusive bugs: 'it works on my machine, not on yours'."
+      },
+      {
+        "text": "openapi-typescript for everyone — it supports all languages",
+        "correct": false,
+        "explanation": "openapi-typescript is only for TypeScript/JavaScript. It won't work for mobile (Swift/Kotlin)."
+      },
+      {
+        "text": "openapi-generator in CI: different generators for TS, Swift, Kotlin; results published as packages",
+        "correct": true,
+        "explanation": "Correct. openapi-generator supports 50+ languages. CI runs the needed generators when the spec is updated and publishes results — each platform takes its own package."
+      },
+      {
+        "text": "orval with multi-language mode for all platforms",
+        "correct": false,
+        "explanation": "orval is focused exclusively on JavaScript/TypeScript. It is not suitable for Swift and Kotlin."
+      }
+    ]
+  }
+]

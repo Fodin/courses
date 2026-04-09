@@ -2,12 +2,13 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 12.1: Helmet & Headers
+// Task 12.1: Helmet & Headers
 // ============================================
 
-// TODO: Настройте безопасные HTTP-заголовки через Helmet
-// TODO: Покажите каждый заголовок: CSP, X-Frame-Options, HSTS и др.
-// TODO: Настройте Content-Security-Policy для вашего API
-// TODO: Реализуйте кастомные security headers вручную (без Helmet)
+// TODO: Настройте безопасные HTTP-заголовки через Helmet / Set up secure HTTP headers via Helmet
+// TODO: Покажите каждый заголовок: CSP, X-Frame-Options, HSTS и др. / Show each header: CSP, X-Frame-Options, HSTS, etc.
+// TODO: Настройте Content-Security-Policy для вашего API / Configure Content-Security-Policy for your API
+// TODO: Реализуйте кастомные security headers вручную (без Helmet) / Implement custom security headers manually (without Helmet)
 
 export function Task12_1() {
   const [results, setResults] = useState<string[]>([])
@@ -18,10 +19,10 @@ export function Task12_1() {
     log.push('=== Helmet & Security Headers ===')
     log.push('')
 
-    // TODO: Подключите app.use(helmet()) с кастомной конфигурацией
-    // TODO: Настройте CSP: script-src 'self', img-src 'self' data:
-    // TODO: Покажите X-Content-Type-Options: nosniff
-    // TODO: Настройте Strict-Transport-Security для HTTPS
+    // TODO: Подключите app.use(helmet()) с кастомной конфигурацией / Connect app.use(helmet()) with custom configuration
+    // TODO: Настройте CSP: script-src 'self', img-src 'self' data: / Configure CSP: script-src 'self', img-src 'self' data:
+    // TODO: Покажите X-Content-Type-Options: nosniff / Show X-Content-Type-Options: nosniff
+    // TODO: Настройте Strict-Transport-Security для HTTPS / Configure Strict-Transport-Security for HTTPS
     log.push('Helmet')
     log.push('  ... app.use(helmet({ contentSecurityPolicy: { directives: { ... } } }))')
     log.push('  ... X-Content-Type-Options: nosniff')

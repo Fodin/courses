@@ -2,12 +2,17 @@ import { useState } from 'react'
 
 // ============================================
 // Задание 8.3: Redis
+// Task 8.3: Redis
 // ============================================
 
 // TODO: Подключитесь к Redis через ioredis или redis
+// TODO: Connect to Redis via ioredis or redis
 // TODO: Реализуйте кэширование ответов API в Redis
+// TODO: Implement API response caching in Redis
 // TODO: Используйте SET/GET с TTL (EX) для автоматического истечения
+// TODO: Use SET/GET with TTL (EX) for automatic expiration
 // TODO: Покажите паттерн cache-aside: проверка кэша -> БД -> запись в кэш
+// TODO: Show cache-aside pattern: check cache -> DB -> write to cache
 
 export function Task8_3() {
   const [results, setResults] = useState<string[]>([])
@@ -19,9 +24,13 @@ export function Task8_3() {
     log.push('')
 
     // TODO: Создайте Redis client и подключитесь
+    // TODO: Create Redis client and connect
     // TODO: Реализуйте cacheMiddleware с проверкой redis.get(key)
+    // TODO: Implement cacheMiddleware with redis.get(key) check
     // TODO: Покажите redis.set(key, JSON.stringify(data), "EX", 300)
+    // TODO: Show redis.set(key, JSON.stringify(data), "EX", 300)
     // TODO: Реализуйте инвалидацию кэша при мутациях (POST/PUT/DELETE)
+    // TODO: Implement cache invalidation on mutations (POST/PUT/DELETE)
     log.push('Redis')
     log.push('  ... const redis = new Redis(REDIS_URL)')
     log.push('  ... cache-aside: cached = await redis.get(key)')

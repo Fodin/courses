@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Какую роль выполняет файл remoteEntry.js в Module Federation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это основной бандл remote-приложения со всем кодом компонентов",
+        "correct": false,
+        "explanation": "Неверно. remoteEntry.js — лёгкий файл-манифест (~2-10 KB). Основной код компонентов находится в отдельных chunk-файлах, которые загружаются после парсинга манифеста."
+      },
+      {
+        "text": "Это точка входа: манифест с метаданными о модулях, shared-зависимостях и ссылками на чанки",
+        "correct": true,
+        "explanation": "Верно. remoteEntry.js содержит описание публичного API remote (exposes), список требуемых shared-зависимостей с версиями и ссылки на реальные JS-чанки. Именно этот файл host запрашивает первым."
+      },
+      {
+        "text": "Это конфигурационный файл для webpack/vite, описывающий настройки сборки",
+        "correct": false,
+        "explanation": "Неверно. Конфигурация сборки находится в vite.config.ts / webpack.config.js. remoteEntry.js — это артефакт сборки (выходной файл), а не её конфигурация."
+      },
+      {
+        "text": "Это HTML-файл с точкой монтирования React-приложения",
+        "correct": false,
+        "explanation": "Неверно. index.html — это HTML-точка входа для SPA. remoteEntry.js — JS-файл, который регистрирует remote в runtime Module Federation и описывает его интерфейс."
+      }
+    ]
+  },
+  {
+    "question": "Зачем для библиотеки react в поле shared нужен флаг singleton: true?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чтобы уменьшить размер бандла за счёт tree-shaking",
+        "correct": false,
+        "explanation": "Неверно. tree-shaking и singleton — разные механизмы. Tree-shaking удаляет неиспользуемый код на этапе сборки. singleton: true управляет тем, будет ли в runtime один экземпляр библиотеки или несколько."
+      },
+      {
+        "text": "Чтобы ускорить загрузку за счёт кеширования браузером",
+        "correct": false,
+        "explanation": "Неверно. Кеширование управляется HTTP-заголовками и именами файлов (content hash). singleton не влияет на кеш — он влияет на то, сколько копий React будет загружено в память."
+      },
+      {
+        "text": "Чтобы гарантировать один экземпляр React для всех MFE — иначе хуки выбросят ошибку из-за нескольких копий библиотеки",
+        "correct": true,
+        "explanation": "Верно. React хранит состояние хуков во внутреннем объекте своего модуля. Если в приложении окажется два экземпляра React (от host и от remote), они будут иметь разные объекты хранения, и вы получите 'Invalid hook call'. singleton: true предотвращает это."
+      },
+      {
+        "text": "Чтобы разрешить одновременную загрузку нескольких версий React",
+        "correct": false,
+        "explanation": "Неверно. Это противоположно правде. singleton: true запрещает загрузку нескольких копий — всегда будет использован один экземпляр, даже если remote хочет другую совместимую версию."
+      }
+    ]
+  },
+  {
+    "question": "Ключ в поле exposes должен начинаться с './'. Что произойдёт, если написать exposes: { 'App': './src/App.tsx' }?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Конфигурация будет работать нормально — это просто конвенция, не требование",
+        "correct": false,
+        "explanation": "Неверно. Module Federation требует, чтобы ключи exposes начинались с './'. Это не просто конвенция — это часть спецификации ES Module путей, которую реализует плагин."
+      },
+      {
+        "text": "Module Federation выдаст ошибку или игнорирует expose — ключ без './' не является валидным относительным путём",
+        "correct": true,
+        "explanation": "Верно. Ключи exposes трактуются как относительные пути в стиле ES Modules. Ключ без './' не соответствует этому формату. При попытке import('remoteName/App') плагин не найдёт соответствие."
+      },
+      {
+        "text": "Ключ будет автоматически исправлен до './App' во время сборки",
+        "correct": false,
+        "explanation": "Неверно. Webpack и vite-plugin-federation не исправляют ключи автоматически. Ошибка проявится либо на этапе сборки, либо в runtime при попытке импортировать модуль."
+      },
+      {
+        "text": "Компонент будет доступен только внутри remote-приложения, но не снаружи",
+        "correct": false,
+        "explanation": "Неверно. Ключ в exposes не влияет на внутреннюю доступность компонента. Проблема именно в том, что host не сможет найти модуль по неправильному пути при import('remoteName/App')."
+      }
+    ]
+  },
+  {
+    "question": "На каком шаге жизненного цикла загрузки remote Module Federation проверяет, нужно ли загружать React повторно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "При парсинге remoteEntry.js",
+        "correct": false,
+        "explanation": "Неверно. При парсинге remoteEntry.js система только читает метаданные: какие модули экспортируются и какие версии shared требуются. Сама проверка наличия совместимых версий происходит позже."
+      },
+      {
+        "text": "При загрузке JS-чанков remote",
+        "correct": false,
+        "explanation": "Неверно. Загрузка чанков — это получение самого кода компонентов remote. На этом шаге shared-зависимости уже должны быть разрешены, иначе чанки не смогут выполниться."
+      },
+      {
+        "text": "На шаге shared resolution — после загрузки чанков remote, перед рендерингом",
+        "correct": true,
+        "explanation": "Верно. Shared resolution происходит после того, как система знает, что нужно remote (из манифеста), и загружены сами чанки. Runtime проверяет: есть ли уже в памяти совместимая версия react/react-dom? Если да — отдаёт её, не загружая повторно."
+      },
+      {
+        "text": "Во время рендеринга компонента",
+        "correct": false,
+        "explanation": "Неверно. К моменту рендеринга все зависимости уже должны быть разрешены — иначе компонент не сможет вызвать import('react') внутри своего кода. Shared resolution завершается до запуска кода компонента."
+      }
+    ]
+  },
+  {
+    "question": "Чем отличается разработка на vite-plugin-federation от Webpack Module Federation в dev-режиме?",
+    "type": "single",
+    "options": [
+      {
+        "text": "vite-plugin-federation быстрее из-за ESBuild, но API тот же",
+        "correct": false,
+        "explanation": "Неверно. Скорость — это преимущество Vite в целом, но для federated модулей есть принципиальное ограничение: vite-plugin-federation не поддерживает federation в dev-режиме (`vite dev`), только в production build."
+      },
+      {
+        "text": "С vite-plugin-federation нельзя использовать dynamic import для remote модулей",
+        "correct": false,
+        "explanation": "Неверно. Dynamic import работает и с vite-plugin-federation — это основной механизм подключения remote. Ограничение в другом: dev-сервер Vite не обрабатывает federation, нужен build + preview."
+      },
+      {
+        "text": "vite-plugin-federation не работает в `vite dev` — для федерации нужно делать `vite build && vite preview` для каждого remote",
+        "correct": true,
+        "explanation": "Верно. Это главное неудобство vite-plugin-federation. Dev-сервер Vite работает с нативными ES Modules и не компилирует federation в dev-режиме. Remote-приложения должны быть собраны (`build`) и запущены через `preview` на фиксированном порту."
+      },
+      {
+        "text": "vite-plugin-federation требует TypeScript, тогда как Webpack MF работает с JavaScript",
+        "correct": false,
+        "explanation": "Неверно. Оба инструмента работают как с TypeScript, так и с JavaScript. Ограничение vite-plugin-federation связано с dev-режимом, а не с языком."
+      }
+    ]
+  },
+  {
+    "question": "Команда A деплоит remote с react@18.2.0, команда B (host) использует react@18.0.0. Оба указали singleton: true, requiredVersion: '^18.0.0'. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Module Federation загрузит обе версии React, каждая команда получит свою копию",
+        "correct": false,
+        "explanation": "Неверно. При singleton: true гарантируется один экземпляр. Загрузка двух копий произошла бы без singleton или при несовместимых версиях (например, ^17 vs ^18)."
+      },
+      {
+        "text": "Будет ошибка сборки — версии должны совпадать точно",
+        "correct": false,
+        "explanation": "Неверно. Module Federation использует semver для сравнения версий. 18.2.0 и 18.0.0 оба попадают в диапазон ^18.0.0, поэтому конфликта нет. Ошибка сборки не возникнет."
+      },
+      {
+        "text": "Module Federation выберет одну версию (скорее всего 18.2.0 как более новую) и использует её для обоих — в консоли может быть предупреждение о несовпадении версий",
+        "correct": true,
+        "explanation": "Верно. Оба попадают в диапазон ^18.0.0. Runtime выберет более новую совместимую версию или ту, что загружена первой. При разных patch/minor версиях может быть предупреждение в консоли, но ошибки не будет — это штатное поведение."
+      },
+      {
+        "text": "Remote откажется загружаться, потому что его версия React новее, чем у host",
+        "correct": false,
+        "explanation": "Неверно. Module Federation не отдаёт приоритет хосту автоматически. Semver-диапазон ^18.0.0 включает любые 18.x.x версии. Более новая patch/minor версия совместима с более старой."
+      }
+    ]
+  },
+  {
+    "question": "Вы добавили новый remote-компонент в поле exposes. Какие файлы нужно обновить в host, чтобы TypeScript не выдавал ошибки при импорте?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Добавить declare module 'remoteName/NewComponent' в файл .d.ts с типами",
+        "correct": true,
+        "explanation": "Верно. TypeScript не знает о runtime-импортах Module Federation. Нужно вручную объявить типы через ambient module declaration, либо использовать автогенерацию типов (Module Federation 2.0)."
+      },
+      {
+        "text": "Пересобрать remote и host одновременно — TypeScript автоматически подхватит типы",
+        "correct": false,
+        "explanation": "Неверно. TypeScript не умеет автоматически подхватывать типы из remote при сборке. Это не npm-зависимость с @types — это runtime-импорт, о котором TypeScript ничего не знает без явных деклараций."
+      },
+      {
+        "text": "Обновить список remotes в vite.config.ts host (если добавляется новый remote, а не модуль)",
+        "correct": true,
+        "explanation": "Верно. Если добавляется новый remote-приложение (не просто новый expose в существующем), его нужно зарегистрировать в поле remotes конфига host. Без этого import('newRemote/Component') не найдёт точку входа."
+      },
+      {
+        "text": "Добавить новый компонент в shared-зависимости host",
+        "correct": false,
+        "explanation": "Неверно. shared предназначен для разделения сторонних библиотек (react, react-dom и т.д.), а не для expose-модулей remote-приложений. Компоненты remote регистрируются через exposes/remotes, не через shared."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если remote-сервер окажется недоступен при попытке host загрузить удалённый компонент?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Host автоматически покажет пустое место вместо компонента",
+        "correct": false,
+        "explanation": "Неверно. Без явной обработки ошибок React выбросит исключение, которое поднимется вверх по дереву компонентов. Если нет Error Boundary — упадёт всё приложение."
+      },
+      {
+        "text": "Module Federation перезагрузит страницу и попробует снова",
+        "correct": false,
+        "explanation": "Неверно. Module Federation не имеет встроенного retry-механизма с перезагрузкой страницы. Это задача разработчика — добавить обработку ошибок и fallback."
+      },
+      {
+        "text": "Будет брошено исключение при выполнении dynamic import — нужен .catch() или Error Boundary для graceful degradation",
+        "correct": true,
+        "explanation": "Верно. Если remoteEntry.js недоступен, Promise из dynamic import будет rejected. Без .catch() или Error Boundary это uncaught exception, которое может уронить всё приложение. Правильный паттерн: import('remote/App').catch(() => ({ default: FallbackComponent }))."
+      },
+      {
+        "text": "Загрузится кешированная версия компонента из Service Worker",
+        "correct": false,
+        "explanation": "Неверно. Service Worker кеширует только то, что вы явно настроили кешировать. Module Federation сам по себе не настраивает Service Worker. И даже с Service Worker поведение при недоступности remote зависит от вашей стратегии кеширования."
+      }
+    ]
+  },
+  {
+    "question": "В чём принципиальное отличие поля exposes от обычного export в JavaScript-модуле?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "exposes определяет публичный API на уровне Module Federation runtime, а не на уровне файла — позволяет подключать модули из другого origin без предварительной установки через npm",
+        "correct": true,
+        "explanation": "Верно. Обычный export работает только внутри одной сборки (bundle). exposes в Module Federation позволяет другому приложению, задеплоенному по отдельному URL, загрузить ваш код в runtime — через HTTP, а не через npm install."
+      },
+      {
+        "text": "exposes автоматически tree-shaken — в бандл попадает только то, что реально используется host",
+        "correct": false,
+        "explanation": "Неверно. exposes работает наоборот — каждый expose создаёт отдельный chunk, который может быть загружен независимо. Tree-shaking внутри remote работает для его внутреннего кода, но сам механизм exposes не является tree-shaking."
+      },
+      {
+        "text": "Через exposes можно экспортировать не только компоненты, но и хуки, утилиты, константы — любой JS-модуль",
+        "correct": true,
+        "explanation": "Верно. exposes может указывать на любой JS/TS файл — компонент, хук, утилитарные функции, TypeScript-типы (через re-export). Нет ограничения только на React-компоненты."
+      },
+      {
+        "text": "exposes работает только с default export — named exports не поддерживаются",
+        "correct": false,
+        "explanation": "Неверно. Module Federation поддерживает и default, и named exports. Файл, указанный в exposes, может экспортировать что угодно — потребитель использует стандартный синтаксис деструктуризации: import { Button } from 'remote/UI'."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик настраивает remote и указывает в filename: 'bundle.js' вместо 'remoteEntry.js'. Что нужно изменить в конфиге host?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ничего — host автоматически найдёт любой JS-файл на том же домене",
+        "correct": false,
+        "explanation": "Неверно. Host ищет файл по конкретному URL, указанному в поле remotes. Он не сканирует домен remote в поисках JS-файлов. URL должен точно совпадать с именем выходного файла."
+      },
+      {
+        "text": "Добавить filename: 'bundle.js' в секцию shared конфига host",
+        "correct": false,
+        "explanation": "Неверно. shared — это для разделения зависимостей, не для настройки имени файла remote. filename remote-приложения отражается в URL в поле remotes конфига host."
+      },
+      {
+        "text": "Обновить URL в поле remotes — вместо '.../remoteEntry.js' указать '.../bundle.js'",
+        "correct": true,
+        "explanation": "Верно. URL в поле remotes должен точно соответствовать значению filename remote-приложения. Если remote генерирует bundle.js, то host должен запрашивать его по адресу http://remote.example.com/bundle.js."
+      },
+      {
+        "text": "Добавить алиас в vite.config.ts host: { remoteEntry: 'bundle' }",
+        "correct": false,
+        "explanation": "Неверно. Такого механизма в vite-plugin-federation нет. Имя файла определяется на стороне remote через filename, и host должен знать точный URL для его загрузки."
+      }
+    ]
+  }
+]

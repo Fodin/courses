@@ -1,0 +1,412 @@
+[
+  {
+    "question": "What is the 'affected-only' strategy in Nx?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Running builds only for packages that have changed since the last commit or whose dependencies have changed",
+        "correct": true,
+        "explanation": "Nx builds a dependency graph between projects and determines which of them are affected by the current changes. This allows CI to remain fast even in large monorepos."
+      },
+      {
+        "text": "Running builds only for packages marked with the --affected flag in package.json",
+        "correct": false,
+        "explanation": "The --affected flag in package.json does not exist. Nx determines affected projects automatically through git diff analysis and the dependency graph."
+      },
+      {
+        "text": "Building all packages in the monorepo in parallel to speed up CI",
+        "correct": false,
+        "explanation": "Building all packages in parallel is a different optimization. Affected-only goes further: it does not run builds for packages that have not changed at all."
+      },
+      {
+        "text": "Skipping tests for packages without changes in test files",
+        "correct": false,
+        "explanation": "Affected-only applies to all operations (build, test, lint), not just tests, and accounts for transitive dependencies — if a library changes, all its consumers are also affected."
+      }
+    ]
+  },
+  {
+    "question": "A team uses polyrepo for 8 MFEs. A developer wants to rename a prop in a shared ui-kit component. What will happen?",
+    "type": "single",
+    "options": [
+      {
+        "text": "8 Pull Requests must be created in 8 different repositories to update usages of the component",
+        "correct": true,
+        "explanation": "In polyrepo, cross-repo refactoring is the main pain point. There is no single place for the change, no atomic commit, no guarantee that all repos will be updated simultaneously. In a monorepo — one PR, one commit."
+      },
+      {
+        "text": "It is enough to update the ui-kit and all MFEs will automatically receive the change",
+        "correct": false,
+        "explanation": "In polyrepo each MFE has its own pinned version of ui-kit in package.json. Package updates are not automated — each repo must be updated separately."
+      },
+      {
+        "text": "Create 1 PR with a breaking change and wait for all teams to update",
+        "correct": false,
+        "explanation": "One PR in ui-kit is not yet a solution. It is only the beginning: 8 separate PRs in 8 MFE repositories follow, coordination between teams, and the risk of desynchronization."
+      },
+      {
+        "text": "Polyrepo prohibits breaking changes in shared packages",
+        "correct": false,
+        "explanation": "Polyrepo does not technically prohibit breaking changes. The problem is organizational: it is difficult to coordinate changes that affect multiple independent repositories."
+      }
+    ]
+  },
+  {
+    "question": "How does workspace:* in PNPM dependencies differ from a regular version like ^1.0.0?",
+    "type": "single",
+    "options": [
+      {
+        "text": "workspace:* references a local package from the monorepo via a symlink; on publish it is replaced with the real version",
+        "correct": true,
+        "explanation": "The workspace: protocol in PNPM means: during local development use a symlink to the package from the workspaces. On npm publish, PNPM automatically replaces workspace:* with the real package version number."
+      },
+      {
+        "text": "workspace:* installs the package from the npm registry at the latest version",
+        "correct": false,
+        "explanation": "For the latest version from the registry, * or latest is used. workspace:* is specific to PNPM workspaces and means a local package, not the registry."
+      },
+      {
+        "text": "workspace:* prevents the package from being updated to major versions",
+        "correct": false,
+        "explanation": "workspace:* has nothing to do with semver constraints. It specifies the source of the package (local workspace), not the allowed version range."
+      },
+      {
+        "text": "workspace:* installs the package only in devDependencies",
+        "correct": false,
+        "explanation": "workspace:* can be used in any field: dependencies, devDependencies, peerDependencies. The type of dependency is determined by the field, not by the protocol."
+      }
+    ]
+  },
+  {
+    "question": "What does dependsOn: ['^build'] mean in a Turborepo pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Before building the current package, all its dependencies from package.json must be built first",
+        "correct": true,
+        "explanation": "The ^ symbol in Turborepo means 'from dependencies'. ^build = first run build in all packages listed in the current package.json dependencies. This guarantees the correct build order."
+      },
+      {
+        "text": "The build depends on the presence of a .build file in the repository root",
+        "correct": false,
+        "explanation": "^ in Turborepo has nothing to do with files. It is an operator meaning 'transitive dependencies of the package', defined in package.json dependencies."
+      },
+      {
+        "text": "Run the build of the parent package before the current one",
+        "correct": false,
+        "explanation": "Turborepo has no concept of a 'parent package'. ^ means dependencies (packages listed in dependencies), not a parent in the file system."
+      },
+      {
+        "text": "Run build only if the previous build failed with an error",
+        "correct": false,
+        "explanation": "Turborepo does not have such logic. dependsOn defines the execution order of tasks, not a condition for running them based on the previous task's status."
+      }
+    ]
+  },
+  {
+    "question": "A developer is working on catalog-mfe and wants to run only it without the other 5 MFEs. What is the correct strategy?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Configure mock remote: load other MFEs from the staging CDN, run only catalog locally",
+        "correct": true,
+        "explanation": "Mock remote is the right strategy: the developer sees the real behavior of the other MFEs (from staging) but works with only one local server. Fast startup, no port conflicts."
+      },
+      {
+        "text": "Use MSW to mock the APIs of other MFEs in isolated development",
+        "correct": true,
+        "explanation": "MSW allows developing an MFE in complete isolation by mocking all external APIs. Suitable when fast iteration is needed without relying on the staging environment."
+      },
+      {
+        "text": "Run all 6 MFEs and shell locally for maximum realism",
+        "correct": false,
+        "explanation": "Running all MFEs locally is bad DX: it loads the machine, takes long to start, and makes onboarding complex. This is especially painful with 10+ MFEs."
+      },
+      {
+        "text": "Add a LOCAL_CATALOG_MFE=true flag to the shell config to switch between prod and local",
+        "correct": true,
+        "explanation": "Environment flags for switching remote URLs are standard practice. Shell uses localhost:3001 in dev mode and a CDN URL in production. The developer sets only the needed flag."
+      },
+      {
+        "text": "Comment out imports of other MFEs in shell during development",
+        "correct": false,
+        "explanation": "Manual code commenting is a recipe for accidentally committing commented-out code. Use environment variables or the mock remote strategy."
+      }
+    ]
+  },
+  {
+    "question": "A monorepo has 3 MFEs (catalog, cart, checkout) and a shared ui-kit package. checkout depends on cart, cart depends on catalog. A developer changed only ui-kit. Which projects will be rebuilt by Nx affected?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All 3 MFEs and ui-kit, since all depend on ui-kit",
+        "correct": true,
+        "explanation": "Nx builds the dependency graph. ui-kit changed → all direct consumers (catalog, cart, checkout) are affected. Transitive dependencies between MFEs (checkout→cart→catalog) do not add new affected projects — they are already all included due to ui-kit."
+      },
+      {
+        "text": "Only ui-kit — changes in shared do not affect MFEs",
+        "correct": false,
+        "explanation": "Nx accounts for transitive dependencies. If ui-kit changes, all packages that use it (directly or indirectly) are considered affected and must be rebuilt."
+      },
+      {
+        "text": "Only checkout, since it depends on everything else",
+        "correct": false,
+        "explanation": "Affected propagates down the dependency tree from the changed package. ui-kit changed → all its consumers are affected: catalog, cart, checkout. Not just the leaf node."
+      },
+      {
+        "text": "Only ui-kit and catalog — the first direct consumer",
+        "correct": false,
+        "explanation": "Nx considers the entire graph, not just the first level of consumers. If cart and checkout also use ui-kit (directly or transitively), they are also affected."
+      }
+    ]
+  },
+  {
+    "question": "A team of 3 MFE teams is moving to a monorepo. What problems may arise that are specific to a monorepo?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Developers may start importing directly from neighboring MFEs, breaking isolation",
+        "correct": true,
+        "explanation": "In a monorepo all files are physically nearby — the temptation to write ../catalog-mfe/src/component is great. This breaks MFE independence. Solutions: Nx module boundaries or eslint-plugin-import."
+      },
+      {
+        "text": "MFE deployment independence is completely lost",
+        "correct": false,
+        "explanation": "A monorepo is a code organization approach in a single repository, not a deployment restriction. Each MFE is still deployed independently via separate CI pipelines or Nx targets."
+      },
+      {
+        "text": "Large git clone — with 10+ MFEs the repository can take up gigabytes",
+        "correct": true,
+        "explanation": "A monorepo accumulates the history of all projects. With 10+ MFEs and active development the repository can grow to several GB. Solutions: git sparse-checkout, git lfs for binary files."
+      },
+      {
+        "text": "It is impossible to use different Node.js versions for different MFEs",
+        "correct": false,
+        "explanation": "Different Node.js versions in a monorepo are supported via .nvmrc or Volta. This is not a monorepo limitation as such."
+      },
+      {
+        "text": "One failing test in any MFE blocks the PR for the entire team if CI is configured incorrectly",
+        "correct": true,
+        "explanation": "With improper CI configuration — running all tests on every PR — one failing team blocks everyone else. Solution: affected-only CI, independent checks per MFE."
+      }
+    ]
+  },
+  {
+    "question": "What is Remote Cache in Nx/Turborepo?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A centralized store of build results shared between developers and CI",
+        "correct": true,
+        "explanation": "Remote Cache saves build artifacts (dist/, test results) in the cloud. If CI built a package, a developer gets the result from cache instantly. Saves hours of work when shared packages change."
+      },
+      {
+        "text": "Caching HTTP requests to the npm registry during dependency installation",
+        "correct": false,
+        "explanation": "npm registry caching is the job of the package manager (npm cache, pnpm store). Nx/Turborepo Remote Cache works with build artifacts: compiled files, test results."
+      },
+      {
+        "text": "A CDN for storing Module Federation remoteEntry.js files",
+        "correct": false,
+        "explanation": "CDN for remoteEntry.js is a deployment infrastructure solution, not a build tool. Nx Remote Cache stores build artifacts for reuse during development and CI."
+      },
+      {
+        "text": "A configuration store for remote development servers",
+        "correct": false,
+        "explanation": "Remote Cache has nothing to do with server configuration. It is a cache of task results: build outputs, test results, lint reports — for reuse without rerunning."
+      }
+    ]
+  },
+  {
+    "question": "A developer is setting up a shared ESLint configuration for a monorepo with 8 MFEs. How should it be organized?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Create a @company/eslint-config package with base rules and a React extension; each MFE inherits via extends",
+        "correct": true,
+        "explanation": "A shared ESLint package is standard practice. One place to change rules, all MFEs automatically receive the update. Extensions (react, node) allow different project types to have the rules they need."
+      },
+      {
+        "text": "Copy .eslintrc.js into each MFE when creating it via a scaffolding CLI",
+        "correct": false,
+        "explanation": "Copying configuration violates DRY. A rule changes → 8 files must be updated. One MFE forgets to update → standards diverge between teams."
+      },
+      {
+        "text": "Use a single .eslintrc.js in the monorepo root with overrides for different project types",
+        "correct": true,
+        "explanation": "A root config with overrides is a valid approach for monorepos. ESLint searches for configuration up the directory tree. Overrides allow applying different rules to apps/* and packages/*."
+      },
+      {
+        "text": "Each team maintains its own ESLint config independently",
+        "correct": false,
+        "explanation": "Independent ESLint configs lead to diverging code standards. After 6 months each team will have different rules, and cross-MFE code reviews will be harder."
+      }
+    ]
+  },
+  {
+    "question": "What is a circular dependency between MFEs and why is it dangerous?",
+    "type": "single",
+    "options": [
+      {
+        "text": "MFE A depends on B, B depends on A — forms a graph with a cycle, breaks initialization order and independent deployment",
+        "correct": true,
+        "explanation": "A cycle in the dependency graph means: it is impossible to determine what to build first. For MFEs this means A cannot be deployed without B and B cannot be deployed without A — independence is lost. Turborepo/Nx throw an error when a cycle is detected."
+      },
+      {
+        "text": "An MFE uses the same shared libraries multiple times",
+        "correct": false,
+        "explanation": "Repeated use of shared libraries is normal and desirable. A circular dependency is when two packages depend on each other, creating a closed loop."
+      },
+      {
+        "text": "An MFE imports components via circular paths in the file system (../../..)",
+        "correct": false,
+        "explanation": "Long relative paths are a code readability issue, not a circular dependency. A cycle is a dependency graph between package.json packages, not file system paths."
+      },
+      {
+        "text": "Two MFEs subscribe to the same events in EventBus",
+        "correct": false,
+        "explanation": "Multiple MFEs subscribing to the same event is a normal pub/sub pattern. A circular dependency is a structural connection through imports/dependencies, not runtime behavior."
+      }
+    ]
+  },
+  {
+    "question": "A team is choosing between Nx and Turborepo for a monorepo with 10 MFEs. What factors matter when choosing?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Nx provides code generators, a dependency graph UI, and module boundaries — a full-featured platform",
+        "correct": true,
+        "explanation": "Nx is a more complete solution: nx generate creates boilerplate, nx graph visualizes dependencies, @nrwl/enforce-module-boundaries prevents incorrect imports. The tradeoff is configuration complexity."
+      },
+      {
+        "text": "Turborepo is simpler to configure and has less opinionated configuration",
+        "correct": true,
+        "explanation": "Turborepo focuses on one task: fast builds via pipeline and caching. No generators, no dependency graph UI. But turbo.json is simpler than nx.json, especially for teams without Nx experience."
+      },
+      {
+        "text": "Nx only works with Angular projects",
+        "correct": false,
+        "explanation": "Nx was created as Nrwl Extensions for Angular but has long supported React, Vue, Node.js, and any framework. There are official plugins for Vite, Webpack, Next.js, NestJS, and many others."
+      },
+      {
+        "text": "Team size affects the choice: larger teams benefit more from Nx with its governance features",
+        "correct": true,
+        "explanation": "Nx module boundaries and workspace lint rules help large teams enforce architectural decisions. For 2–3 developers the Nx overhead is not justified — Turborepo or PNPM is sufficient."
+      },
+      {
+        "text": "PNPM workspaces without Nx/Turborepo is only suitable for projects without CI",
+        "correct": false,
+        "explanation": "PNPM workspaces works perfectly with CI. There is simply no built-in affected-only logic — it must be implemented manually, or Turborepo can be added on top of PNPM workspaces (a popular combination)."
+      }
+    ]
+  },
+  {
+    "question": "Why use writeToDisk: true in webpack dev server for an MFE?",
+    "type": "single",
+    "options": [
+      {
+        "text": "So that remoteEntry.js is available on disk and the host can load it, since HMR only updates files in memory",
+        "correct": true,
+        "explanation": "By default, webpack-dev-server stores compiled files in memory. But remoteEntry.js is needed by the host application for Module Federation. writeToDisk: true for remoteEntry.js guarantees the file is accessible via HTTP even with HMR active."
+      },
+      {
+        "text": "To save change history in version control",
+        "correct": false,
+        "explanation": "writeToDisk is a webpack dev server parameter for writing files to disk instead of keeping them in memory. It has nothing to do with git or version control."
+      },
+      {
+        "text": "To speed up the build via disk caching",
+        "correct": false,
+        "explanation": "writeToDisk does not speed up the build — on the contrary, writing to disk is slower than writing to memory. It is needed solely for file availability for other processes (e.g., the host MFE)."
+      },
+      {
+        "text": "To enable TypeScript without intermediate compilation",
+        "correct": false,
+        "explanation": "TypeScript compilation happens independently of writeToDisk. This parameter only affects where webpack output is stored: disk vs memory."
+      }
+    ]
+  },
+  {
+    "question": "A scaffolding CLI for a new MFE must check that the port is unique. How should this check be implemented?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Read package.json or webpack.config.js of all existing MFEs and collect the list of used ports",
+        "correct": true,
+        "explanation": "Dynamically reading existing MFE configs is a reliable approach. The CLI checks the real state of the project, not a hardcoded list. When an MFE is removed, its port is automatically freed."
+      },
+      {
+        "text": "Store the list of used ports in a separate JSON file updated manually",
+        "correct": false,
+        "explanation": "Manual registry updates are unreliable. A developer may forget to update the file when removing an MFE or changing a port. This is a source of false validation errors."
+      },
+      {
+        "text": "Check whether the port is open via a TCP connection to localhost",
+        "correct": false,
+        "explanation": "A TCP check determines whether a server is running now, not whether a port is configured. If the MFE is not running, the port will appear 'free' even though it is already occupied in the config."
+      },
+      {
+        "text": "Skip the check — the developer is responsible for port uniqueness",
+        "correct": false,
+        "explanation": "Without an automatic check, port collisions happen regularly. It is one of the most frequent onboarding issues in MFE: two dev servers on the same port leading to confusing errors."
+      }
+    ]
+  },
+  {
+    "question": "Why does CI time grow linearly with the number of MFEs in polyrepo but not in a monorepo with Nx?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In polyrepo every PR triggers full CI for all repositories; in a monorepo Nx runs only affected projects",
+        "correct": false,
+        "explanation": "A PR in polyrepo triggers CI only for its own repository, not for all of them. The problem is different: if a shared package changes, all dependent repos must be manually updated and their CI rerun."
+      },
+      {
+        "text": "In polyrepo a shared package change requires updating and running CI in all N dependent repositories; in a monorepo Nx automatically determines the affected projects and runs only them",
+        "correct": true,
+        "explanation": "This is the key difference: when a shared package changes in polyrepo, N separate CI runs are needed (often manually). In a monorepo Nx affected automatically finds all consumers and runs their CI atomically."
+      },
+      {
+        "text": "CI servers are slower in polyrepo because repositories are smaller",
+        "correct": false,
+        "explanation": "CI server speed does not scale linearly with repository size. The problem is the number of runs and the absence of a shared cache, not hardware characteristics."
+      },
+      {
+        "text": "In a monorepo all MFEs are built in a single process without network delays",
+        "correct": false,
+        "explanation": "A monorepo does not eliminate parallel build processes — Nx runs them in parallel. The advantage lies in affected-only logic and Remote Cache, not in the absence of network delays."
+      }
+    ]
+  },
+  {
+    "question": "You are creating a shared TypeScript configuration for a monorepo with React MFEs and Node.js services. What structure should you choose?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Create base.json with common compilerOptions; react.json and node.json extend from base",
+        "correct": true,
+        "explanation": "A tsconfig hierarchy is the right approach. base.json contains common settings (strict, target, module), react.json adds jsx and dom lib, node.json adds node types. Each MFE extends the appropriate preset."
+      },
+      {
+        "text": "One tsconfig.json in the root with overrides — all projects use it",
+        "correct": false,
+        "explanation": "One tsconfig for React and Node.js is inconvenient: jsx settings break Node.js compilation, dom types are not needed for server code. Overrides in one file grow in complexity."
+      },
+      {
+        "text": "Publish the tsconfig package as @company/tsconfig with versioning",
+        "correct": true,
+        "explanation": "In a monorepo — workspace:*. In polyrepo — publish to an npm registry (internal Verdaccio). Versioning allows MFE repositories to update on their own schedule; breaking changes do not break everything at once."
+      },
+      {
+        "text": "Store the base tsconfig in the monorepo root as /tsconfig.base.json",
+        "correct": true,
+        "explanation": "A common convention in Nx monorepos: tsconfig.base.json in the root contains path aliases and common settings. Project tsconfig.json files inherit it via extends: '../../tsconfig.base.json'."
+      },
+      {
+        "text": "Each MFE should have a full tsconfig without inheritance for explicitness",
+        "correct": false,
+        "explanation": "A full tsconfig without inheritance means copying. 8 files each with the same 50 lines. Changing one setting requires updating all 8. Inheritance solves this problem."
+      }
+    ]
+  }
+]

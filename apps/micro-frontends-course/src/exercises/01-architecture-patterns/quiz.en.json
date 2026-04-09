@@ -1,0 +1,293 @@
+[
+  {
+    "question": "What is the key difference between Vertical Split and Horizontal Split?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Vertical Split divides the page by technical layers (header, content, footer)",
+        "correct": false,
+        "explanation": "This describes Horizontal Split. Horizontal division goes by page layers, not by domains."
+      },
+      {
+        "text": "Vertical Split means a team owns an entire business domain from UI to API",
+        "correct": true,
+        "explanation": "Exactly: with vertical splitting, Team Catalog owns the catalog pages, components, business logic, and API — the full vertical slice of the product."
+      },
+      {
+        "text": "Vertical Split is only used in monorepos",
+        "correct": false,
+        "explanation": "Vertical Split is a decomposition principle not tied to the type of repository. It applies equally to monorepos and polyrepos."
+      },
+      {
+        "text": "Vertical Split only suits small teams",
+        "correct": false,
+        "explanation": "The opposite is true: Vertical Split scales especially well with a large number of teams, as it provides maximum autonomy."
+      }
+    ]
+  },
+  {
+    "question": "What is the main role of a Shell application in a micro-frontend architecture?",
+    "type": "single",
+    "options": [
+      {
+        "text": "To contain all the business logic of the application",
+        "correct": false,
+        "explanation": "The Shell should be as thin as possible. Business logic in the Shell violates team autonomy and creates coupling."
+      },
+      {
+        "text": "To act as an orchestrator: load remote MFEs, manage routing, and provide shared context",
+        "correct": true,
+        "explanation": "The Shell is the load-bearing walls of the building: it is responsible for the overall structure, loading parts, global navigation, and shared providers (theme, auth). Business logic is not its job."
+      },
+      {
+        "text": "To provide an API for MFEs to communicate with each other",
+        "correct": false,
+        "explanation": "MFEs communicate through events, URLs, or contracts — not through the Shell. The Shell is not a message broker."
+      },
+      {
+        "text": "To manage the deployment of all micro-frontend applications",
+        "correct": false,
+        "explanation": "Deployment independence is a key advantage of MFEs. The Shell does not manage the deployment of remote applications."
+      }
+    ]
+  },
+  {
+    "question": "Why is Build-time composition (npm packages) often not considered 'real' MFE?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Because npm packages cannot be written in React",
+        "correct": false,
+        "explanation": "React components are perfectly fine as npm packages. The problem is not the technology."
+      },
+      {
+        "text": "Because deployment independence is lost: updating any MFE requires rebuilding the shell",
+        "correct": true,
+        "explanation": "The main advantage of MFEs is the ability to deploy parts of the application independently. Build-time composition removes this advantage: updating cart-mfe requires rebuilding and redeploying the entire shell."
+      },
+      {
+        "text": "Because npm packages do not support TypeScript",
+        "correct": false,
+        "explanation": "npm packages support TypeScript perfectly well and can export types. This is one of their advantages."
+      },
+      {
+        "text": "Because npm packages only work with webpack",
+        "correct": false,
+        "explanation": "npm packages work with any bundler. Build-time composition is compatible with Vite, Rollup, esbuild, and others."
+      }
+    ]
+  },
+  {
+    "question": "You are building an e-commerce platform. SEO is critically important. Which type of composition is best suited?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Client-side composition",
+        "correct": false,
+        "explanation": "CSR is poorly suited for SEO: search bots receive an empty HTML and wait for JavaScript to execute. TTI (Time to Interactive) also increases."
+      },
+      {
+        "text": "Server-side composition",
+        "correct": true,
+        "explanation": "Server-side composition delivers ready HTML immediately: search bots see the full content, FCP is minimal. This is the standard choice for public e-commerce pages."
+      },
+      {
+        "text": "Build-time composition",
+        "correct": false,
+        "explanation": "Build-time gives good performance metrics but removes deployment independence. For SEO it is sufficient, but edge/server-side gives more flexibility."
+      },
+      {
+        "text": "The type of composition does not affect SEO",
+        "correct": false,
+        "explanation": "The type of composition directly affects SEO through FCP and content availability to crawlers. Client-side rendering is a well-known SEO problem."
+      }
+    ]
+  },
+  {
+    "question": "Which dependencies should be made shared (singleton) in Module Federation? Select all correct answers.",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "React and ReactDOM",
+        "correct": true,
+        "explanation": "React must be a singleton: different instances break contexts and hooks. This is a mandatory shared dependency."
+      },
+      {
+        "text": "React Router",
+        "correct": true,
+        "explanation": "The router creates a global navigation context. Multiple Router instances in one application conflict with each other."
+      },
+      {
+        "text": "Utility functions (date-fns, lodash)",
+        "correct": false,
+        "explanation": "Utility libraries do not use global contexts, so they can safely be bundled separately in each MFE. This allows independent versioning."
+      },
+      {
+        "text": "HTTP client (axios, ky)",
+        "correct": false,
+        "explanation": "HTTP clients do not require singleton: each MFE can use its own version and configuration. Sharing creates unnecessary coupling."
+      },
+      {
+        "text": "Design System with theme",
+        "correct": true,
+        "explanation": "A Design System typically creates a ThemeContext. If each MFE brings its own copy of the DS, contexts will not propagate from the shell to the remote. Singleton is mandatory."
+      }
+    ]
+  },
+  {
+    "question": "A team chose server-side composition and wants to use Redux as shared state. What problem will arise?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Redux does not support TypeScript",
+        "correct": false,
+        "explanation": "Redux supports TypeScript perfectly and has full type definitions. This is not a problem."
+      },
+      {
+        "text": "Hydration problem: the Redux store created on the server will not match the client-side one during hydration",
+        "correct": true,
+        "explanation": "Server-side rendering creates a Redux store with initial state. The client creates its own store. If the states diverge, React will throw a hydration error or re-sync the DOM, causing a visual glitch."
+      },
+      {
+        "text": "Redux is too slow for server-side rendering",
+        "correct": false,
+        "explanation": "Redux performance on the server is quite acceptable. The problem is architectural, not performance-related."
+      },
+      {
+        "text": "Redux cannot be used with micro-frontends",
+        "correct": false,
+        "explanation": "Redux can be used in MFEs. The problem is specific to combining server-side composition with shared global state, not to MFEs in general."
+      }
+    ]
+  },
+  {
+    "question": "You are using Horizontal Split. The Header team decided to increase the header height from 60px to 80px. What will happen?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Nothing — the Header MFE is independent and can change its styles",
+        "correct": false,
+        "explanation": "Changing the header size affects the entire page layout. The Content team, Footer team, and everyone else use offsets calculated for 60px."
+      },
+      {
+        "text": "All teams must synchronously update their offsets, turning independent deploys into coordinated ones",
+        "correct": true,
+        "explanation": "This is the key drawback of Horizontal Split: changing a layout layer cascades to all other layers. Deployment independence is violated exactly where it was expected."
+      },
+      {
+        "text": "The browser automatically adapts the layout",
+        "correct": false,
+        "explanation": "CSS is not aware of the MFE concept. The browser will simply apply the Header MFE styles, which will conflict with the hardcoded offsets of other MFEs."
+      },
+      {
+        "text": "The problem is solved through CSS variables in the Design System",
+        "correct": false,
+        "explanation": "CSS variables help if they were used as a contract from the start. But if other MFEs hardcoded their offsets, the variable won't help without updating each MFE."
+      }
+    ]
+  },
+  {
+    "question": "The correct test for defining a micro-frontend boundary is:",
+    "type": "single",
+    "options": [
+      {
+        "text": "The boundary must align with a React component boundary",
+        "correct": false,
+        "explanation": "React components are too granular a level for MFEs. The infrastructure overhead exceeds the benefit when splitting at this level."
+      },
+      {
+        "text": "The boundary must align with an npm package boundary",
+        "correct": false,
+        "explanation": "npm packages are build artifacts, not organizational units. MFE boundaries are defined by business domains, not technical packaging."
+      },
+      {
+        "text": "A change within the boundary does not require communication with other teams",
+        "correct": true,
+        "explanation": "This is the main test: if deploying a change requires coordination with another team, the boundary is drawn incorrectly. Team autonomy is the primary criterion."
+      },
+      {
+        "text": "The boundary is defined by bundle size (no more than 500 KB)",
+        "correct": false,
+        "explanation": "Bundle size is a performance metric, not a decomposition criterion. An MFE with 50 KB may have a wrong boundary, while an MFE with 2 MB may have a correct one."
+      }
+    ]
+  },
+  {
+    "question": "A team chose Vertical Split with independent deploys and added Redux as a shared singleton. What risk did they create?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Teams will compete over the structure of the global store",
+        "correct": true,
+        "explanation": "With Vertical Split each team wants isolated logic. A shared Redux store means Team Catalog and Team Cart will conflict when naming slices and reducers."
+      },
+      {
+        "text": "With independent deploys, Redux store versions can diverge",
+        "correct": true,
+        "explanation": "If Team Catalog upgraded shared Redux to v5 but Team Cart still uses v4, the singleton will break at runtime. Independent deploys and a shared state manager are poorly compatible."
+      },
+      {
+        "text": "Redux is incompatible with TypeScript in an MFE environment",
+        "correct": false,
+        "explanation": "Redux works perfectly with TypeScript in MFEs. The problem is not technical compatibility but architectural coupling."
+      },
+      {
+        "text": "Team autonomy is violated: a store change by one team can break another",
+        "correct": true,
+        "explanation": "This is a direct violation of the MFE principle. With Vertical Split, isolated stores or event-driven communication without shared state is preferable."
+      }
+    ]
+  },
+  {
+    "question": "An ADR (Architecture Decision Record) is:",
+    "type": "single",
+    "options": [
+      {
+        "text": "A tool for automated micro-frontend deployment",
+        "correct": false,
+        "explanation": "An ADR is a document, not a deployment tool. It records a decision and its context but does not automate any processes."
+      },
+      {
+        "text": "A formal document recording an architectural decision with its context, choice, and consequences",
+        "correct": true,
+        "explanation": "An ADR allows future team members to understand not only WHAT was decided but WHY. Context explains the situation, Decision — the choice, Consequences — what is expected."
+      },
+      {
+        "text": "A configuration file for Module Federation",
+        "correct": false,
+        "explanation": "Module Federation is configured via webpack.config or vite-plugin-federation. An ADR is an organizational practice for documenting decisions."
+      },
+      {
+        "text": "A standard for describing APIs between micro-frontends",
+        "correct": false,
+        "explanation": "APIs between MFEs are described through contracts (TypeScript interfaces, OpenAPI). An ADR records architectural decisions at a higher level."
+      }
+    ]
+  },
+  {
+    "question": "Which inter-MFE communication approach provides the lowest coupling (loose coupling)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Direct imports from another MFE",
+        "correct": false,
+        "explanation": "Direct imports create a hard dependency: if the Catalog MFE changes its exports, the Cart MFE will break. This is maximum coupling."
+      },
+      {
+        "text": "Shared Redux store as a singleton",
+        "correct": false,
+        "explanation": "Shared state creates implicit coupling through store structure. Changing a slice in one MFE can break another MFE that relies on it."
+      },
+      {
+        "text": "Custom Events via window.dispatchEvent",
+        "correct": true,
+        "explanation": "Custom Events follow the publish/subscribe pattern: the producer knows nothing about consumers. MFEs can appear and disappear independently. Loose coupling is achieved through named events."
+      },
+      {
+        "text": "Props through the orchestrator (Shell passes data down)",
+        "correct": false,
+        "explanation": "Props through the Shell creates tight coupling: the Shell must know about the data needed by each MFE and becomes the mediator of all communication."
+      }
+    ]
+  }
+]

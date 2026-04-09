@@ -1,0 +1,402 @@
+[
+  {
+    "question": "What happens to the application if one of the MFEs throws an exception during rendering and Error Boundary is NOT configured?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only that MFE stops rendering, the rest continue working",
+        "correct": false,
+        "explanation": "This is the behavior of an Error Boundary — without it, React does not isolate the error."
+      },
+      {
+        "text": "The entire React tree unmounts, the user sees a blank screen",
+        "correct": true,
+        "explanation": "Without an Error Boundary, React does not catch the exception during rendering — it bubbles up to the root and unmounts the entire component tree, including the Shell and all other MFEs."
+      },
+      {
+        "text": "React automatically rolls back the changes and retries rendering",
+        "correct": false,
+        "explanation": "React has no built-in mechanism for automatic recovery from rendering errors — an Error Boundary is required for that."
+      },
+      {
+        "text": "The error is ignored and the application continues working",
+        "correct": false,
+        "explanation": "React in production mode does not ignore rendering exceptions — they cause the UI tree to crash."
+      }
+    ]
+  },
+  {
+    "question": "In which Error Boundary lifecycle method should Sentry.captureException() be called? Why not in getDerivedStateFromError?",
+    "type": "single",
+    "options": [
+      {
+        "text": "getDerivedStateFromError — it is called first",
+        "correct": false,
+        "explanation": "getDerivedStateFromError is a pure function (static) intended only for updating state. Side effects (logging, sending to Sentry) are forbidden here by the React specification."
+      },
+      {
+        "text": "componentDidCatch — it is designed for side effects",
+        "correct": true,
+        "explanation": "componentDidCatch is called after the fallback renders and is specifically designed for side effects: logging, sending to Sentry, analytics. getDerivedStateFromError is only for updating state (pure function)."
+      },
+      {
+        "text": "render — after checking this.state.hasError",
+        "correct": false,
+        "explanation": "Calling Sentry in render is an anti-pattern: render can be called multiple times, which will result in duplicate events in Sentry."
+      },
+      {
+        "text": "constructor — when the component initializes",
+        "correct": false,
+        "explanation": "In the constructor the error has not yet occurred — there is nothing to log."
+      }
+    ]
+  },
+  {
+    "question": "What types of errors does Error Boundary NOT catch? Select all correct answers.",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Errors in async/await functions (fetch, setTimeout)",
+        "correct": true,
+        "explanation": "Error Boundary only catches synchronous rendering errors. Asynchronous errors must be handled via try/catch or .catch() and passed to the Error Boundary manually via setState."
+      },
+      {
+        "text": "Errors in event handlers (onClick, onChange)",
+        "correct": true,
+        "explanation": "React intentionally does not catch errors in event handlers through Error Boundary — they are not part of the rendering process. Use try/catch inside handlers."
+      },
+      {
+        "text": "Errors in child component renders",
+        "correct": false,
+        "explanation": "This is exactly what Error Boundary is designed for — it catches rendering errors throughout the entire component subtree."
+      },
+      {
+        "text": "Errors in componentDidMount of a child component",
+        "correct": false,
+        "explanation": "Error Boundary catches errors in lifecycle methods of child components, including componentDidMount and componentDidUpdate."
+      },
+      {
+        "text": "Errors in server-side rendering",
+        "correct": true,
+        "explanation": "Error Boundary only works on the client. SSR requires separate error handling mechanisms."
+      }
+    ]
+  },
+  {
+    "question": "The Circuit Breaker is in the Open state. What should happen to requests to the MFE?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Requests are executed normally",
+        "correct": false,
+        "explanation": "This is the Closed state — normal operation without restrictions."
+      },
+      {
+        "text": "Requests are blocked immediately (fast fail), without contacting the MFE",
+        "correct": true,
+        "explanation": "In the Open state the Circuit Breaker immediately returns an error or fallback without making a real request. This is where the benefit lies: no time is wasted waiting for a timeout from a failed service."
+      },
+      {
+        "text": "One request is let through as a probe",
+        "correct": false,
+        "explanation": "This is the Half-Open state — the Circuit Breaker allows a limited number of probe requests to check for recovery."
+      },
+      {
+        "text": "Requests are queued until recovery",
+        "correct": false,
+        "explanation": "Circuit Breaker is not a queue. Its goal is fast fail, not buffering."
+      }
+    ]
+  },
+  {
+    "question": "Why is the Half-Open state needed in Circuit Breaker? What would happen without it?",
+    "type": "single",
+    "options": [
+      {
+        "text": "For logging — it records the moment recovery begins",
+        "correct": false,
+        "explanation": "Logging is useful but is not the primary purpose of the Half-Open state."
+      },
+      {
+        "text": "Without Half-Open, the Circuit Breaker would never close automatically",
+        "correct": true,
+        "explanation": "Without Half-Open the cycle would be Open → Open → Open forever. Half-Open allows a probe request to pass through: if successful — transition to Closed; if an error — back to Open. This is the automatic recovery mechanism."
+      },
+      {
+        "text": "For load limiting — lets through only 50% of requests",
+        "correct": false,
+        "explanation": "Half-Open allows a limited number of probe requests (usually one), not a percentage of the load."
+      },
+      {
+        "text": "For HTTP compatibility — corresponds to the 503 status",
+        "correct": false,
+        "explanation": "Half-Open is an architectural pattern unrelated to HTTP status codes."
+      }
+    ]
+  },
+  {
+    "question": "How should a trace-id be passed across MFE boundaries for log correlation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Each MFE generates its own trace-id",
+        "correct": false,
+        "explanation": "With independent trace-ids it is impossible to link events from different MFEs into a single user journey — all the value of tracing is lost."
+      },
+      {
+        "text": "Shell generates the trace-id, passes it via a global variable or Event Bus, MFE adds it to request headers",
+        "correct": true,
+        "explanation": "Shell is the single entry point, so it is the one that generates the trace-id for the session. Passing it via window.__SHELL_TRACE_ID__ or the Event Bus allows all MFEs to use the same trace-id in the X-Trace-Id header."
+      },
+      {
+        "text": "The backend generates the trace-id and passes it to the browser via a cookie",
+        "correct": false,
+        "explanation": "The backend is not aware of the MFE structure on the frontend. The frontend trace-id must be generated on the frontend and correlated with backend trace-ids when necessary."
+      },
+      {
+        "text": "The trace-id is passed via URL query parameters",
+        "correct": false,
+        "explanation": "URL parameters are visible to the user, are cached, and modify the page URL — an unsuitable approach for service mesh tracing."
+      }
+    ]
+  },
+  {
+    "question": "The SLO for Cart MFE is set at 99.95%. How many minutes of downtime are allowed per month (30 days)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "43.8 minutes",
+        "correct": false,
+        "explanation": "43.8 min is the error budget for an SLO of 99.9% (0.1% × 43,800 min). At 99.95% the error budget is twice as small."
+      },
+      {
+        "text": "21.9 minutes",
+        "correct": true,
+        "explanation": "Error budget = (100% − 99.95%) × 43,800 min/month = 0.05% × 43,800 = 21.9 min. Formula: 30 days × 24 h × 60 min = 43,200 min (or 43,800 for an average month)."
+      },
+      {
+        "text": "4.38 minutes",
+        "correct": false,
+        "explanation": "4.38 min is the error budget for an SLO of 99.99% (0.01% × 43,800)."
+      },
+      {
+        "text": "219 minutes",
+        "correct": false,
+        "explanation": "219 min is the error budget for an SLO of 99.5%. At 99.95% availability significantly less downtime is permitted."
+      }
+    ]
+  },
+  {
+    "question": "Your team receives 200 alerts per day from a shared Sentry project with no per-MFE tagging. How should this problem be solved?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Add mfe and team tags when initializing each MFE",
+        "correct": true,
+        "explanation": "Tags allow filtering errors by MFE in the Sentry UI and configuring Ownership Rules for automatic routing."
+      },
+      {
+        "text": "Configure Sentry Ownership Rules to route issues by the mfe tag",
+        "correct": true,
+        "explanation": "Ownership Rules automatically assign issues to the right team — without manually triaging 200 alerts a day."
+      },
+      {
+        "text": "Create a separate Sentry DSN for each MFE",
+        "correct": true,
+        "explanation": "Separate DSNs provide full isolation: each team sees only its own errors, configures its own alert thresholds and retention policies."
+      },
+      {
+        "text": "Increase the sample rate to 100% for accurate counting",
+        "correct": false,
+        "explanation": "This will increase data volume but will not solve the attribution problem. Additionally, a 100% sample rate can be expensive and slow down the application."
+      },
+      {
+        "text": "Disable Sentry in development mode",
+        "correct": false,
+        "explanation": "This does not solve the problem in production. Unattributed alerts in development are not related to the production issue."
+      }
+    ]
+  },
+  {
+    "question": "Why is CLS (Cumulative Layout Shift) harder to control in MFE architecture than in a monolith?",
+    "type": "single",
+    "options": [
+      {
+        "text": "MFEs use more CSS animations",
+        "correct": false,
+        "explanation": "Animations can cause CLS in any architecture — this is not specific to MFEs."
+      },
+      {
+        "text": "MFEs load asynchronously and can shift already-rendered content from other MFEs",
+        "correct": true,
+        "explanation": "When the Catalog MFE loads lazily and suddenly appears in the DOM, it can shift the content of the Cart MFE or Profile MFE that the Shell has already rendered. Each MFE is an independent source of potential layout shifts."
+      },
+      {
+        "text": "The Web Vitals API is not supported in MFE architecture",
+        "correct": false,
+        "explanation": "The Web Vitals API operates at the browser level and is independent of the application architecture."
+      },
+      {
+        "text": "MFEs cannot use CSS Grid and Flexbox",
+        "correct": false,
+        "explanation": "MFEs can use any CSS technologies — this does not specifically affect CLS."
+      }
+    ]
+  },
+  {
+    "question": "What HTTP status should a Health Check endpoint for an MFE return if the MFE is successfully deployed but its dependency (API) is unavailable?",
+    "type": "single",
+    "options": [
+      {
+        "text": "200 OK with {\"status\": \"ok\"}",
+        "correct": false,
+        "explanation": "If the dependency is unavailable, a status of ok is misleading — the Circuit Breaker or orchestrator will make an incorrect decision."
+      },
+      {
+        "text": "200 OK with {\"status\": \"degraded\", \"dependencies\": {\"api\": \"down\"}}",
+        "correct": true,
+        "explanation": "HTTP 200 indicates that the MFE itself (the static artifact) is available. The degraded status signals that functionality is limited due to an unavailable dependency. This allows the Circuit Breaker to make the right decision."
+      },
+      {
+        "text": "503 Service Unavailable",
+        "correct": false,
+        "explanation": "503 means the service itself is unavailable. But the MFE (a static file on CDN) is available — the problem is with its dependency. A 200 with a degraded status is more appropriate."
+      },
+      {
+        "text": "404 Not Found",
+        "correct": false,
+        "explanation": "404 means the endpoint does not exist. This is not an appropriate status for a degradation scenario."
+      }
+    ]
+  },
+  {
+    "question": "The Cart team set an SLO of 99.99%. What does exhausting the Error Budget in the first 10 days of the month mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The last deployment must be rolled back immediately",
+        "correct": false,
+        "explanation": "A rollback is one possible measure, but not a mandatory one. Exhausting the Error Budget means switching to reliability mode — the specific actions depend on the root cause."
+      },
+      {
+        "text": "The team switches to reliability mode: no new features are deployed until the end of the month",
+        "correct": true,
+        "explanation": "SLO practice: when the Error Budget is exhausted, the team stops developing new functionality and focuses on stabilization. This creates the right incentives — do not deploy unstable features."
+      },
+      {
+        "text": "The SLO is automatically lowered to 99.9% for the next month",
+        "correct": false,
+        "explanation": "An SLO is an agreement with the business; it does not change automatically. Changing an SLO requires a separate decision."
+      },
+      {
+        "text": "Users are sent notifications about incidents",
+        "correct": false,
+        "explanation": "User notifications are a separate incident management process not directly related to Error Budget exhaustion."
+      }
+    ]
+  },
+  {
+    "question": "What is the best way to manage monitoring configuration (SLOs, alerts, Circuit Breaker parameters) in an MFE project?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Store settings only in the Sentry/Datadog UI",
+        "correct": false,
+        "explanation": "Settings in the UI are not versioned, do not go through code review, and can be accidentally changed. Recovery after a mistake is difficult."
+      },
+      {
+        "text": "Store as a JSON/YAML file in the repository, apply via CI/CD",
+        "correct": true,
+        "explanation": "Monitoring as Code: configuration in the repository is versioned, goes through code review, and is applied deterministically on every deployment. Changing an SLO or alert is a PR with discussion, not clicking in a UI."
+      },
+      {
+        "text": "Each team stores settings in its own MFE repository",
+        "correct": false,
+        "explanation": "Distributing settings across repositories makes it harder to see the overall health of the system and creates a risk of inconsistent configuration."
+      },
+      {
+        "text": "No configuration needed — the default values of the tools are sufficient",
+        "correct": false,
+        "explanation": "Default values do not account for the specifics of individual MFEs: Cart with an SLO of 99.99% should have stricter alerts than Profile with 99.5%."
+      }
+    ]
+  },
+  {
+    "question": "When configuring a Circuit Breaker for loading a remote MFE, what threshold value (number of errors) is a reasonable starting point?",
+    "type": "single",
+    "options": [
+      {
+        "text": "1 — the very first error opens the circuit",
+        "correct": false,
+        "explanation": "A threshold of 1 is too aggressive: a single network fluctuation immediately blocks the MFE. The user will not be able to successfully reload the page even during a brief outage."
+      },
+      {
+        "text": "3–5 — a reasonable balance between responsiveness to failures and resilience to fluctuations",
+        "correct": true,
+        "explanation": "3–5 consecutive errors very likely indicate a real failure rather than a temporary network issue. This allows fast reaction to degradation without triggering on isolated errors."
+      },
+      {
+        "text": "100 — statistics need to be accumulated",
+        "correct": false,
+        "explanation": "100 errors means 100 users had a bad experience before the circuit opened. The goal is rapid protection, not accumulating statistics."
+      },
+      {
+        "text": "The threshold does not matter, only the timeout matters",
+        "correct": false,
+        "explanation": "Both parameters matter: the threshold determines sensitivity to errors, the timeout determines the time before a recovery attempt."
+      }
+    ]
+  },
+  {
+    "question": "You see in metrics: LCP = 4.2 s, but only on pages where Catalog MFE is mounted. What does this mean and what should you do?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Catalog MFE is the likely source of the LCP element (a large image or block)",
+        "correct": true,
+        "explanation": "LCP degrades specifically on pages with Catalog — this is a strong indicator that the LCP element belongs to Catalog MFE. Use the Web Vitals attribution API for precise identification."
+      },
+      {
+        "text": "Use onLCP with attribution to identify the specific element",
+        "correct": true,
+        "explanation": "attribution.lcpEntry.element and attribution.lcpEntry.url will show exactly which element of Catalog MFE became the LCP — an image, a text block, or something else."
+      },
+      {
+        "text": "The problem is in Shell — it mounts Catalog MFE slowly",
+        "correct": false,
+        "explanation": "Shell is responsible for orchestration, but if the LCP element is inside Catalog MFE, the Catalog team should optimize it."
+      },
+      {
+        "text": "Possible solutions: preloading Catalog images, lazy loading below the fold, bundle optimization",
+        "correct": true,
+        "explanation": "After identifying the LCP element: if it is an image — add a preload hint; if the component mounts asynchronously — add a skeleton to prevent layout shift; if the bundle is large — apply code splitting."
+      }
+    ]
+  },
+  {
+    "question": "Why should each MFE add the mfe tag in a scope before calling Sentry.captureException(), rather than using a global Sentry.setTag() at initialization?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Sentry does not support global tags",
+        "correct": false,
+        "explanation": "Sentry supports global tags via Sentry.setTag(). The problem lies elsewhere."
+      },
+      {
+        "text": "Global tags can be overwritten between MFEs — all MFEs run in the same browser context",
+        "correct": true,
+        "explanation": "In MFE architecture all MFEs run in the same window and share one Sentry SDK. If Catalog does Sentry.setTag('mfe', 'catalog') and then Cart does Sentry.setTag('mfe', 'cart') — the global tag is overwritten. Using a scope via Sentry.withScope() isolates tags for the specific event."
+      },
+      {
+        "text": "Global tags do not work in production mode",
+        "correct": false,
+        "explanation": "Global tags work in any mode. The problem is their shareability between MFEs."
+      },
+      {
+        "text": "withScope() is faster than setTag()",
+        "correct": false,
+        "explanation": "Performance is not the reason here — this is a question of attribution correctness."
+      }
+    ]
+  }
+]

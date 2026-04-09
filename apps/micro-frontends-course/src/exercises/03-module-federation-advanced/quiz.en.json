@@ -1,0 +1,262 @@
+[
+  {
+    "question": "What happens if the host uses react@17.0.2 with requiredVersion: '^17.0.0', and the remote uses react@18.2.0 with requiredVersion: '^18.0.0' and strictVersion: true?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Module Federation will choose the newer version react@18.2.0 and both MFEs will use it",
+        "correct": false,
+        "explanation": "Incorrect. react@17 and react@18 are incompatible — they do not fall within the same semver range. Module Federation cannot simply 'choose' the newer one if the host declared ^17.0.0."
+      },
+      {
+        "text": "The runtime will throw an error: the remote's strictVersion is violated because react@17 does not fall within the ^18.0.0 range",
+        "correct": true,
+        "explanation": "Correct. strictVersion: true means: 'if there is no compatible version — it is better to fail with an explicit error than to work incorrectly'. The host provides react@17.0.2 but the remote requires ^18.0.0. This is a major conflict; strictVersion turns it into a runtime error."
+      },
+      {
+        "text": "Both MFEs will load their own copies of React and work independently",
+        "correct": false,
+        "explanation": "Incorrect. The presence of singleton: true in any participant prevents duplication. With strictVersion: true, the conflict surfaces as an explicit error rather than silently loading a duplicate copy."
+      },
+      {
+        "text": "A console warning, remote loads with react@17 (the host's version)",
+        "correct": false,
+        "explanation": "Incorrect. strictVersion: false would cause a warning but not an error. With strictVersion: true, an incompatible version is not accepted silently — the entire remote will not load."
+      }
+    ]
+  },
+  {
+    "question": "A developer wants to read the remote URL from an API at application startup instead of hardcoding it in vite.config.ts. What is the correct approach?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add the remote URL to .env environment variables and read them in vite.config.ts via process.env",
+        "correct": false,
+        "explanation": "Incorrect. Environment variables are embedded at build time — this is not runtime. If the URL needs to change without rebuilding (different environments, feature flags, A/B test), a runtime approach is needed."
+      },
+      {
+        "text": "Dynamically create a <script> tag with src=URL, load remoteEntry.js, and manually call container.init() via the Module Federation Low-Level API",
+        "correct": true,
+        "explanation": "Correct. Dynamic remote is based on manually adding a script to the DOM and calling __webpack_init_sharing__ / container.init() / container.get(). This is the Module Federation Low-Level API, which does not require the URL to be specified at build time."
+      },
+      {
+        "text": "Use dynamic import() with a variable in the path: import(remoteUrl + '/App')",
+        "correct": false,
+        "explanation": "Incorrect. Module Federation does not work with direct import() calls using arbitrary URLs. Dynamic import() can only be used with remote names that are registered in the federation config in advance."
+      },
+      {
+        "text": "Store the URL in localStorage and reload the page after receiving it from the API",
+        "correct": false,
+        "explanation": "Incorrect. Reloading the page just to get a URL is an antipattern. It also does not solve the problem: you still need to implement dynamic script loading into the same runtime without a page reload."
+      }
+    ]
+  },
+  {
+    "question": "Team A specified singleton: false for react in their remote, Team B — singleton: true. What will happen when both remotes are loaded?",
+    "type": "single",
+    "options": [
+      {
+        "text": "singleton: true wins — one React instance for all",
+        "correct": false,
+        "explanation": "Incorrect. singleton in Module Federation is not a majority vote. If even one participant declared singleton: false, it will load its own copy, not participating in the shared scope."
+      },
+      {
+        "text": "The remote with singleton: false will load its own React copy, the remote with singleton: true will use the shared scope copy — two instances in memory",
+        "correct": true,
+        "explanation": "Correct. singleton: false means 'I always want my own copy'. Such a remote will load React regardless of what others do. This is exactly what breaks hooks and Context — two React instances with different storage objects."
+      },
+      {
+        "text": "A configuration error on load — Module Federation requires the same singleton setting for all participants",
+        "correct": false,
+        "explanation": "Incorrect. Module Federation does not throw an error on inconsistent singleton — it simply loads an additional copy. This is a silent bug that manifests as 'Invalid hook call' or broken contexts."
+      },
+      {
+        "text": "singleton: false wins — two instances for both remotes",
+        "correct": false,
+        "explanation": "Incorrect. The remote with singleton: true uses the shared scope and reuses the already-loaded React. The problem is only with the remote with singleton: false, which loads its own copy regardless."
+      }
+    ]
+  },
+  {
+    "question": "Why use a health-check endpoint before loading a remote? Can't you just try to load remoteEntry.js and handle the error?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Health-check allows faster fallback URL switching — no need to spend timeout waiting for an unavailable remote",
+        "correct": true,
+        "explanation": "Correct. Attempting to load remoteEntry.js from an unavailable server takes as long as the timeout (e.g., 5000 ms). A health-check via a lightweight /health endpoint (usually <100 ms) allows quickly determining that the primary URL is unavailable and switching to fallback."
+      },
+      {
+        "text": "Health-check guarantees that the loaded remote code will work without errors",
+        "correct": false,
+        "explanation": "Incorrect. Health-check only verifies server availability, not the correctness of the remote code. Technically, the server can return 200 on /health but serve broken JS. Health-check is an availability check, not a functional one."
+      },
+      {
+        "text": "Health-check reduces load on the remote server — when unavailable, the heavy remoteEntry.js request is not made",
+        "correct": true,
+        "explanation": "Correct. If the server is overloaded or crashing, many parallel remoteEntry.js requests can make things worse. A health-check is a lightweight request that helps decide whether to contact the primary URL at all."
+      },
+      {
+        "text": "Health-check is required for Module Federation to work — without it, dynamic remotes won't load",
+        "correct": false,
+        "explanation": "Incorrect. Health-check is an architectural pattern, not a required Module Federation feature. Dynamic remotes work without health-check; this is just a best practice for production systems with reliability requirements."
+      }
+    ]
+  },
+  {
+    "question": "A developer configured a dynamic remote with a fallback URL. When the primary URL is unavailable, the remote loads from the fallback. What risk remains?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The fallback always contains an outdated version, so users will get an old interface",
+        "correct": false,
+        "explanation": "Incorrect. The fallback URL is not necessarily old — it can be a copy of the same deploy on a CDN or in another region. 'Outdated version' is not a problem with fallback as a pattern, but with improper deploy management."
+      },
+      {
+        "text": "If both URLs are unavailable, there is no third level of degradation — explicit handling of total failure is needed",
+        "correct": true,
+        "explanation": "Correct. Fallback solves the single point of failure problem, but not a total infrastructure failure. If both primary and fallback are unavailable, loadRemote() will throw an error. A third level is needed: ErrorBoundary or a static fallback placeholder component."
+      },
+      {
+        "text": "The fallback URL loads the remote from a different origin, which violates CORS",
+        "correct": false,
+        "explanation": "Incorrect. CORS is configured on the server serving remoteEntry.js. A properly configured fallback server must have the same CORS headers as the primary. This is a DevOps/infrastructure task, not a limitation of the pattern."
+      },
+      {
+        "text": "Fallback slows down the initial load because the browser tries the primary first",
+        "correct": false,
+        "explanation": "Partially correct, but this is not a risk — it is expected behavior. When the primary is available, the fallback is not used. The 'risk' in this context is the situation where both URLs fail and there is no further degradation."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between requiredVersion: '^18.0.0' and requiredVersion: '~18.2.0' for shared react?",
+    "type": "single",
+    "options": [
+      {
+        "text": "^ allows any 18.x.x, ~ allows only 18.2.x — tilde is more strict",
+        "correct": true,
+        "explanation": "Correct. Semver: ^ (caret) allows minor and patch changes within the major, ~ (tilde) allows only patch changes within the minor. ^18.0.0 is compatible with 18.3.1. ~18.2.0 is compatible with 18.2.5 but not 18.3.0."
+      },
+      {
+        "text": "^ and ~ work the same way for major versions — both allow 18.x.x",
+        "correct": false,
+        "explanation": "Incorrect. The difference is fundamental: ~18.2.0 allows only 18.2.x (minor is fixed). ^18.0.0 allows any 18.x.x. For react in MFEs, ^ is usually better to avoid conflicts due to minor updates."
+      },
+      {
+        "text": "~ is not supported in Module Federation — only ^ and exact versions",
+        "correct": false,
+        "explanation": "Incorrect. Module Federation uses the standard semver package for version comparison. All standard semver ranges are supported: ^, ~, >=, <=, exact versions, and their combinations."
+      },
+      {
+        "text": "^ requires an exact match of major and minor, ~ — only major",
+        "correct": false,
+        "explanation": "Incorrect. This description is reversed. ^ fixes the major (allows any minor/patch). ~ fixes the major and minor (allows only patch). Neither requires an exact minor match."
+      }
+    ]
+  },
+  {
+    "question": "A team decided to store remote module types in a shared @company/mfe-contracts package. What will happen if the Catalog team changes CatalogApp props without updating the contracts package?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "TypeScript in the host project will throw a compilation error — type mismatch",
+        "correct": false,
+        "explanation": "Incorrect. If the @company/mfe-contracts package is not updated, the host's TypeScript considers the old props current. There will be no compilation error — the host compiles successfully with the old types."
+      },
+      {
+        "text": "At runtime the host will pass incompatible props to the remote — possible error or incorrect behavior of the remote component",
+        "correct": true,
+        "explanation": "Correct. TypeScript is a static check that works at compile time. If types are outdated, the compiler will miss the incompatibility. At runtime, the remote will receive data that does not match its actual contract."
+      },
+      {
+        "text": "This is a breaking change — a versioning and coordination process between teams is required",
+        "correct": true,
+        "explanation": "Correct. Shared type contracts are a public API. Changing them is a breaking change that requires: 1) a major package version, 2) coordination with consumer teams, 3) a migration guide. Otherwise the host will not know about the incompatibility."
+      },
+      {
+        "text": "Module Federation will automatically detect the props mismatch in the shared scope and throw an error",
+        "correct": false,
+        "explanation": "Incorrect. Module Federation controls library versioning (react, react-dom, etc.), but not React component typing. Props incompatibility is a TypeScript contracts problem, not a Module Federation runtime issue."
+      }
+    ]
+  },
+  {
+    "question": "You configure dynamic remote loading with a 5000 ms timeout and 3 retry attempts with exponential backoff (1s, 2s, 4s). What is the maximum wait time a user might potentially experience?",
+    "type": "single",
+    "options": [
+      {
+        "text": "5000 ms — only the first attempt with timeout",
+        "correct": false,
+        "explanation": "Incorrect. If the first attempt fails on timeout (5s), retries begin: 1s pause + second attempt (5s) + 2s pause + third attempt (5s) + 4s pause. Total is far more than 5 seconds."
+      },
+      {
+        "text": "About 22 seconds: 3 attempts of 5s + pauses between them (0 + 1s + 2s) + 4s final pause",
+        "correct": false,
+        "explanation": "Almost correct, but the 4s pause comes before the third attempt, not after. Correctly: 5s + 1s + 5s + 2s + 5s = 18s. After 3 failed attempts, the error is thrown without additional waiting."
+      },
+      {
+        "text": "About 18 seconds: three attempts of 5s with 1s and 2s pauses between them",
+        "correct": true,
+        "explanation": "Correct. The scheme: attempt 1 (5s timeout) → 1s pause → attempt 2 (5s timeout) → 2s pause → attempt 3 (5s timeout) = 5 + 1 + 5 + 2 + 5 = 18s. After three failures — error. This is important to consider for UX design."
+      },
+      {
+        "text": "No more than 7 seconds — retry does not increase timeout, just repeats the attempt",
+        "correct": false,
+        "explanation": "Incorrect. Each retry is a new full attempt with the same 5s timeout. Exponential backoff adds additional pauses. Total: three attempts of 5s plus pauses = ~18s. This is the maximum acceptable time before showing a fallback."
+      }
+    ]
+  },
+  {
+    "question": "A developer wants to implement A/B testing through dynamic remotes: 50% of users see checkout-v1, 50% — checkout-v2. Which approach is most correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "On the host side: Math.random() < 0.5 → URL v1, otherwise URL v2. Both versions are deployed at different URLs",
+        "correct": true,
+        "explanation": "Correct. This is the classic A/B pattern via dynamic remotes. Both versions are deployed independently. The Shell selects the URL at runtime without rebuilding. The variant is saved in sessionStorage/cookie for stability of the already-chosen variant. Analytics records the variant."
+      },
+      {
+        "text": "Bundle both checkout variants into one remote bundle and show the needed one through a feature flag inside the remote",
+        "correct": false,
+        "explanation": "Incorrect. This contradicts the micro-frontends principle. If both variants are in one bundle, its size grows, teams lose deployment independence, and changing variant B requires rebuilding the remote where variant A also lives."
+      },
+      {
+        "text": "Use nginx upstream with weight 50/50 — one remote URL is enough, the server will balance",
+        "correct": false,
+        "explanation": "A partially working approach, but with a problem: the user will see different variants on each remote access (page refresh). Correct A/B requires stability — one user always sees one variant, ensured by saving the variant on the client."
+      },
+      {
+        "text": "This cannot be implemented through Module Federation — a specialized A/B tool is required",
+        "correct": false,
+        "explanation": "Incorrect. Dynamic remotes are one of the best mechanisms for A/B testing in MFE architecture, precisely because you can switch between deploys without changing the host code. Specialized tools complement but do not replace this approach."
+      }
+    ]
+  },
+  {
+    "question": "When using shared: { 'react': { singleton: true } } without specifying requiredVersion, what will happen when loading a remote with react@18 on a host with react@17?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Build error — requiredVersion is required for singleton dependencies",
+        "correct": false,
+        "explanation": "Incorrect. requiredVersion is an optional field. The build will pass without errors. The problem will manifest at runtime, silently — without an explicit error."
+      },
+      {
+        "text": "The runtime will choose the last loaded version (either 17 or 18) without compatibility checks — a silent potential bug",
+        "correct": true,
+        "explanation": "Correct. Without requiredVersion, Module Federation cannot check if versions are compatible. It will take the already-loaded version (the host usually loads first, so react@17) and give it to the remote, which may not work with react@17. A silent bug that is hard to catch in tests."
+      },
+      {
+        "text": "Both MFEs will load their React versions because the versions don't match",
+        "correct": false,
+        "explanation": "Incorrect. singleton: true still applies — Module Federation will not load two copies. But without requiredVersion it does not check compatibility and may provide an incompatible version instead of throwing a warning."
+      },
+      {
+        "text": "A console warning and loading the newer version (react@18)",
+        "correct": false,
+        "explanation": "Incorrect. Without requiredVersion, Module Federation does not know which version is 'correct'. There will be no compatibility warning — the compatibility check simply does not happen. The version already in the shared scope (likely from the host) will be loaded."
+      }
+    ]
+  }
+]

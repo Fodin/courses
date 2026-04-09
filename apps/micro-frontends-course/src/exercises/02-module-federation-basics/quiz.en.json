@@ -1,0 +1,262 @@
+[
+  {
+    "question": "What role does the remoteEntry.js file play in Module Federation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "It is the main bundle of the remote application containing all component code",
+        "correct": false,
+        "explanation": "Incorrect. remoteEntry.js is a lightweight manifest file (~2–10 KB). The main component code lives in separate chunk files that are loaded after the manifest is parsed."
+      },
+      {
+        "text": "It is the entry point: a manifest with metadata about modules, shared dependencies, and links to chunks",
+        "correct": true,
+        "explanation": "Correct. remoteEntry.js contains the description of the remote's public API (exposes), the list of required shared dependencies with versions, and links to the actual JS chunks. This is the file the host requests first."
+      },
+      {
+        "text": "It is a configuration file for webpack/vite describing build settings",
+        "correct": false,
+        "explanation": "Incorrect. Build configuration lives in vite.config.ts / webpack.config.js. remoteEntry.js is a build artifact (output file), not its configuration."
+      },
+      {
+        "text": "It is an HTML file with the React application's mount point",
+        "correct": false,
+        "explanation": "Incorrect. index.html is the HTML entry point for a SPA. remoteEntry.js is a JS file that registers the remote in the Module Federation runtime and describes its interface."
+      }
+    ]
+  },
+  {
+    "question": "Why does the react library in the shared field need the singleton: true flag?",
+    "type": "single",
+    "options": [
+      {
+        "text": "To reduce bundle size through tree-shaking",
+        "correct": false,
+        "explanation": "Incorrect. Tree-shaking and singleton are different mechanisms. Tree-shaking removes unused code at build time. singleton: true controls whether there will be one or multiple instances of the library at runtime."
+      },
+      {
+        "text": "To speed up loading through browser caching",
+        "correct": false,
+        "explanation": "Incorrect. Caching is controlled by HTTP headers and file names (content hash). singleton does not affect the cache — it affects how many copies of React are loaded into memory."
+      },
+      {
+        "text": "To guarantee a single React instance for all MFEs — otherwise hooks will throw an error due to multiple copies of the library",
+        "correct": true,
+        "explanation": "Correct. React stores hook state in an internal object of its module. If there are two React instances in the application (from host and from remote), they will have different storage objects and you will get 'Invalid hook call'. singleton: true prevents this."
+      },
+      {
+        "text": "To allow multiple versions of React to load simultaneously",
+        "correct": false,
+        "explanation": "Incorrect. This is the opposite of the truth. singleton: true prevents loading multiple copies — one instance will always be used, even if the remote wants a different compatible version."
+      }
+    ]
+  },
+  {
+    "question": "Keys in the exposes field must start with './'. What happens if you write exposes: { 'App': './src/App.tsx' }?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The configuration will work fine — this is just a convention, not a requirement",
+        "correct": false,
+        "explanation": "Incorrect. Module Federation requires that exposes keys start with './'. This is not just a convention — it is part of the ES Module path specification that the plugin implements."
+      },
+      {
+        "text": "Module Federation will throw an error or ignore the expose — a key without './' is not a valid relative path",
+        "correct": true,
+        "explanation": "Correct. exposes keys are treated as relative paths in the ES Modules style. A key without './' does not match this format. When trying import('remoteName/App'), the plugin will find no match."
+      },
+      {
+        "text": "The key will be automatically corrected to './App' during build",
+        "correct": false,
+        "explanation": "Incorrect. webpack and vite-plugin-federation do not automatically fix keys. The error will surface either at build time or at runtime when trying to import the module."
+      },
+      {
+        "text": "The component will be accessible only inside the remote application, but not from outside",
+        "correct": false,
+        "explanation": "Incorrect. The key in exposes does not affect internal accessibility of the component. The problem is that the host will not be able to find the module by the wrong path when calling import('remoteName/App')."
+      }
+    ]
+  },
+  {
+    "question": "At which step of the remote loading lifecycle does Module Federation check whether React needs to be loaded again?",
+    "type": "single",
+    "options": [
+      {
+        "text": "When parsing remoteEntry.js",
+        "correct": false,
+        "explanation": "Incorrect. When parsing remoteEntry.js, the system only reads metadata: which modules are exported and which shared versions are required. The actual check for compatible versions happens later."
+      },
+      {
+        "text": "When loading remote JS chunks",
+        "correct": false,
+        "explanation": "Incorrect. Loading chunks is obtaining the actual remote component code. At this step, shared dependencies must already be resolved, otherwise the chunks cannot execute."
+      },
+      {
+        "text": "At the shared resolution step — after loading remote chunks, before rendering",
+        "correct": true,
+        "explanation": "Correct. Shared resolution happens after the system knows what the remote needs (from the manifest) and the chunks are loaded. The runtime checks: is there already a compatible version of react/react-dom in memory? If yes — it provides it without loading again."
+      },
+      {
+        "text": "During component rendering",
+        "correct": false,
+        "explanation": "Incorrect. By the time of rendering, all dependencies must already be resolved — otherwise the component cannot call import('react') inside its code. Shared resolution completes before the component code runs."
+      }
+    ]
+  },
+  {
+    "question": "How does vite-plugin-federation differ from Webpack Module Federation in dev mode?",
+    "type": "single",
+    "options": [
+      {
+        "text": "vite-plugin-federation is faster due to ESBuild, but the API is the same",
+        "correct": false,
+        "explanation": "Incorrect. Speed is a Vite advantage in general, but for federated modules there is a fundamental limitation: vite-plugin-federation does not support federation in dev mode (vite dev), only in production builds."
+      },
+      {
+        "text": "With vite-plugin-federation, dynamic import for remote modules is not available",
+        "correct": false,
+        "explanation": "Incorrect. Dynamic import works with vite-plugin-federation — it is the main mechanism for connecting remotes. The limitation is different: the Vite dev server does not process federation, you need build + preview."
+      },
+      {
+        "text": "vite-plugin-federation does not work in vite dev — federation requires running vite build && vite preview for each remote",
+        "correct": true,
+        "explanation": "Correct. This is the main inconvenience of vite-plugin-federation. The Vite dev server works with native ES Modules and does not compile federation in dev mode. Remote applications must be built (build) and served through preview on a fixed port."
+      },
+      {
+        "text": "vite-plugin-federation requires TypeScript, while Webpack MF works with JavaScript",
+        "correct": false,
+        "explanation": "Incorrect. Both tools work with TypeScript and JavaScript. The vite-plugin-federation limitation is related to dev mode, not the language."
+      }
+    ]
+  },
+  {
+    "question": "Team A deploys a remote with react@18.2.0, Team B (host) uses react@18.0.0. Both specified singleton: true, requiredVersion: '^18.0.0'. What will happen?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Module Federation will load both React versions, each team gets its own copy",
+        "correct": false,
+        "explanation": "Incorrect. With singleton: true, a single instance is guaranteed. Loading two copies would happen without singleton or with incompatible versions (e.g., ^17 vs ^18)."
+      },
+      {
+        "text": "There will be a build error — versions must match exactly",
+        "correct": false,
+        "explanation": "Incorrect. Module Federation uses semver for version comparison. 18.2.0 and 18.0.0 both fall within the ^18.0.0 range, so there is no conflict. No build error will occur."
+      },
+      {
+        "text": "Module Federation will choose one version (likely 18.2.0 as newer) and use it for both — there may be a console warning about version mismatch",
+        "correct": true,
+        "explanation": "Correct. Both fall within the ^18.0.0 range. The runtime will choose the newer compatible version or the one loaded first. With different patch/minor versions there may be a console warning, but no error — this is expected behavior."
+      },
+      {
+        "text": "The remote will refuse to load because its React version is newer than the host's",
+        "correct": false,
+        "explanation": "Incorrect. Module Federation does not automatically give priority to the host. The semver range ^18.0.0 includes any 18.x.x versions. A newer patch/minor version is compatible with an older one."
+      }
+    ]
+  },
+  {
+    "question": "You added a new remote component to the exposes field. Which files need to be updated in the host so that TypeScript does not report errors on import?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Add declare module 'remoteName/NewComponent' to the .d.ts types file",
+        "correct": true,
+        "explanation": "Correct. TypeScript does not know about Module Federation runtime imports. You need to manually declare types through ambient module declaration, or use type auto-generation (Module Federation 2.0)."
+      },
+      {
+        "text": "Rebuild remote and host simultaneously — TypeScript will automatically pick up the types",
+        "correct": false,
+        "explanation": "Incorrect. TypeScript cannot automatically pick up types from a remote during build. This is not an npm dependency with @types — it is a runtime import that TypeScript knows nothing about without explicit declarations."
+      },
+      {
+        "text": "Update the remotes list in the host's vite.config.ts (if adding a new remote, not just a module)",
+        "correct": true,
+        "explanation": "Correct. If a new remote application is added (not just a new expose in an existing one), it needs to be registered in the remotes field of the host config. Without this, import('newRemote/Component') will not find the entry point."
+      },
+      {
+        "text": "Add the new component to the host's shared dependencies",
+        "correct": false,
+        "explanation": "Incorrect. shared is intended for sharing third-party libraries (react, react-dom, etc.), not for expose modules of remote applications. Remote components are registered through exposes/remotes, not through shared."
+      }
+    ]
+  },
+  {
+    "question": "What will happen if the remote server is unavailable when the host tries to load a remote component?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The host will automatically show an empty space instead of the component",
+        "correct": false,
+        "explanation": "Incorrect. Without explicit error handling, React will throw an exception that propagates up the component tree. Without an Error Boundary, the entire application will crash."
+      },
+      {
+        "text": "Module Federation will reload the page and try again",
+        "correct": false,
+        "explanation": "Incorrect. Module Federation does not have a built-in retry mechanism with page reload. It is the developer's responsibility to add error handling and a fallback."
+      },
+      {
+        "text": "An exception will be thrown on dynamic import — a .catch() or Error Boundary is needed for graceful degradation",
+        "correct": true,
+        "explanation": "Correct. If remoteEntry.js is unavailable, the Promise from dynamic import will be rejected. Without .catch() or Error Boundary this is an uncaught exception that can bring down the entire application. Correct pattern: import('remote/App').catch(() => ({ default: FallbackComponent }))."
+      },
+      {
+        "text": "A cached version of the component will be loaded from the Service Worker",
+        "correct": false,
+        "explanation": "Incorrect. The Service Worker only caches what you explicitly configure it to cache. Module Federation does not configure the Service Worker by itself. Even with a Service Worker, behavior when the remote is unavailable depends on your caching strategy."
+      }
+    ]
+  },
+  {
+    "question": "What is the fundamental difference between the exposes field and a regular JavaScript module export?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "exposes defines a public API at the Module Federation runtime level, not at the file level — allows connecting modules from a different origin without prior npm installation",
+        "correct": true,
+        "explanation": "Correct. A regular export works only within a single build (bundle). exposes in Module Federation allows another application, deployed at a separate URL, to load your code at runtime — via HTTP, not npm install."
+      },
+      {
+        "text": "exposes is automatically tree-shaken — only what the host actually uses ends up in the bundle",
+        "correct": false,
+        "explanation": "Incorrect. exposes works the other way around — each expose creates a separate chunk that can be loaded independently. Tree-shaking inside the remote works for its internal code, but the exposes mechanism itself is not tree-shaking."
+      },
+      {
+        "text": "Through exposes you can export not only components but also hooks, utilities, constants — any JS module",
+        "correct": true,
+        "explanation": "Correct. exposes can point to any JS/TS file — a component, a hook, utility functions, TypeScript types (via re-export). There is no limitation to React components only."
+      },
+      {
+        "text": "exposes only works with default export — named exports are not supported",
+        "correct": false,
+        "explanation": "Incorrect. Module Federation supports both default and named exports. The file pointed to by exposes can export anything — the consumer uses standard destructuring syntax: import { Button } from 'remote/UI'."
+      }
+    ]
+  },
+  {
+    "question": "A developer configures a remote and specifies filename: 'bundle.js' instead of 'remoteEntry.js'. What needs to change in the host config?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Nothing — the host will automatically find any JS file on the same domain",
+        "correct": false,
+        "explanation": "Incorrect. The host looks for the file at a specific URL specified in the remotes field. It does not scan the remote domain looking for JS files. The URL must exactly match the output file name."
+      },
+      {
+        "text": "Add filename: 'bundle.js' to the shared section of the host config",
+        "correct": false,
+        "explanation": "Incorrect. shared is for sharing dependencies, not for configuring the remote file name. The remote application's filename is reflected in the URL in the host config's remotes field."
+      },
+      {
+        "text": "Update the URL in the remotes field — replace '.../remoteEntry.js' with '.../bundle.js'",
+        "correct": true,
+        "explanation": "Correct. The URL in the remotes field must exactly match the value of the remote application's filename. If the remote generates bundle.js, the host must request it at http://remote.example.com/bundle.js."
+      },
+      {
+        "text": "Add an alias in the host's vite.config.ts: { remoteEntry: 'bundle' }",
+        "correct": false,
+        "explanation": "Incorrect. No such mechanism exists in vite-plugin-federation. The file name is defined on the remote side through filename, and the host must know the exact URL to load it."
+      }
+    ]
+  }
+]

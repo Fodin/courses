@@ -1,0 +1,314 @@
+[
+  {
+    "question": "Two MFEs are loaded on the same page. Both use the global class `.btn`. Which MFE will 'win' in the CSS cascade?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The MFE with the higher selector specificity",
+        "correct": false,
+        "explanation": "Both use the same class .btn — specificity is equal. The order is determined not by specificity, but by position in the DOM."
+      },
+      {
+        "text": "The MFE loaded last in DOM order",
+        "correct": true,
+        "explanation": "With equal specificity, the CSS cascade applies the rule encountered later in the document. Whoever is loaded last overwrites the styles."
+      },
+      {
+        "text": "The MFE registered first in the shell application",
+        "correct": false,
+        "explanation": "Registration order in the config does not determine CSS cascade order. What matters is the physical order of <style>/<link> tags in the DOM."
+      },
+      {
+        "text": "The browser randomly picks one of the rules",
+        "correct": false,
+        "explanation": "The CSS cascade is deterministic. With equal specificity, the last encountered rule is applied — this is the W3C standard."
+      }
+    ]
+  },
+  {
+    "question": "CSS Modules generate unique class names. What exactly is added to a class name to ensure uniqueness?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The name of the component file",
+        "correct": false,
+        "explanation": "The file name is used as a base, but a content hash is appended to it. The file name alone does not guarantee uniqueness when names are identical across different MFEs."
+      },
+      {
+        "text": "A hash computed from the file's content or path",
+        "correct": true,
+        "explanation": "The bundler (webpack/vite) computes a hash from the CSS file's content or path. This guarantees uniqueness: .btn → .btn_a3x9k1. Changing the file changes the hash."
+      },
+      {
+        "text": "A random number generated at each build",
+        "correct": false,
+        "explanation": "If the hash were random, every build would produce different class names. This would break caching and stability."
+      },
+      {
+        "text": "The version of the component's npm package",
+        "correct": false,
+        "explanation": "The npm version does not participate in CSS Modules hash generation. Different components of the same version would have the same hash."
+      }
+    ]
+  },
+  {
+    "question": "What unique property of CSS Custom Properties allows them to be used as a 'bridge' through Shadow DOM?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CSS Custom Properties have a special status in the Shadow DOM specification",
+        "correct": false,
+        "explanation": "There is no special status. Their behavior is explained by standard CSS mechanisms."
+      },
+      {
+        "text": "They are inherited across Shadow DOM boundaries, unlike regular CSS properties",
+        "correct": true,
+        "explanation": "CSS Custom Properties (--var) are inherited throughout the entire DOM tree, including Shadow DOM. This is the only official way to pass style information inside Shadow DOM without direct access to the shadow root."
+      },
+      {
+        "text": "Shadow DOM automatically copies CSS Custom Properties from the parent document",
+        "correct": false,
+        "explanation": "Shadow DOM does not 'copy' anything. Custom Properties are inherited through the standard CSS inheritance mechanism."
+      },
+      {
+        "text": "CSS Custom Properties only work in light DOM, not in Shadow DOM",
+        "correct": false,
+        "explanation": "This is incorrect. CSS Custom Properties are inherited through Shadow DOM, which makes them the primary mechanism for passing tokens into Web Components."
+      }
+    ]
+  },
+  {
+    "question": "The design system releases version 3.0.0 and renames the token --ds-color-blue → --ds-color-primary. What should be in tokens.css v3.0.0?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only --ds-color-primary; the --ds-color-blue token is completely removed",
+        "correct": false,
+        "explanation": "Instant removal will break all MFEs that use --ds-color-blue. This violates the principle of backward compatibility."
+      },
+      {
+        "text": "Both tokens: --ds-color-primary with the new value, and --ds-color-blue: var(--ds-color-primary) as a deprecated alias",
+        "correct": true,
+        "explanation": "The correct approach: a new token + a deprecated alias pointing to the new one. Teams get time to migrate. The alias is removed only in the next major version."
+      },
+      {
+        "text": "Only --ds-color-blue renamed without an alias, but with a note in the CHANGELOG",
+        "correct": false,
+        "explanation": "The CHANGELOG does not help applications that already use the old token. The code will break before anyone reads the CHANGELOG."
+      },
+      {
+        "text": "Both tokens with the same value, without marking deprecated",
+        "correct": false,
+        "explanation": "Adding both without marking deprecated means not signaling to teams that migration is needed. In a few versions, both will have to be removed anyway."
+      }
+    ]
+  },
+  {
+    "question": "A team is choosing between CSS Modules and Shadow DOM for style isolation of a new MFE. Which factor should be decisive in favor of Shadow DOM?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The MFE must support IE11",
+        "correct": false,
+        "explanation": "Shadow DOM is not supported in IE11. This is an argument against Shadow DOM, not in favor of it."
+      },
+      {
+        "text": "The MFE will be used as a reusable Web Component across different applications",
+        "correct": true,
+        "explanation": "Shadow DOM is justified when full DOM structure encapsulation for reuse is needed. If the MFE is just a regular page section, CSS Modules are sufficient and easier to maintain."
+      },
+      {
+        "text": "The project uses TypeScript",
+        "correct": false,
+        "explanation": "TypeScript does not influence the choice of CSS isolation strategy. Both approaches are compatible with TypeScript."
+      },
+      {
+        "text": "Maximum render speed is required",
+        "correct": false,
+        "explanation": "Shadow DOM has some runtime cost for creating a shadow root and setting up styles. CSS Modules have no runtime cost — everything happens at build time."
+      }
+    ]
+  },
+  {
+    "question": "What is a design token in the context of design systems? Choose the most accurate definition.",
+    "type": "single",
+    "options": [
+      {
+        "text": "A specific CSS value (e.g., #1976d2) stored in a variable for reuse",
+        "correct": false,
+        "explanation": "This describes a CSS variable, not a design token. A token is an abstraction of a design decision, not just a named value."
+      },
+      {
+        "text": "A named variable of a design decision that abstracts semantics from a concrete value",
+        "correct": true,
+        "explanation": "The token --ds-color-primary means 'the primary action color' — the semantics are stable. The value (#1976d2 or #8b5cf6 after a rebrand) can change without changing the token."
+      },
+      {
+        "text": "Any CSS Custom Property starting with two dashes (--)",
+        "correct": false,
+        "explanation": "Not every CSS Custom Property is a design token. A component-local variable --local-padding also starts with --, but it is not a design system token."
+      },
+      {
+        "text": "A JSON file with component appearance settings",
+        "correct": false,
+        "explanation": "JSON is one of the formats for storing and distributing tokens, but not a definition of the concept itself."
+      }
+    ]
+  },
+  {
+    "question": "CSS Layers (@layer) are declared in order: @layer base, mfe-a, mfe-b. Inside mfe-a there is .btn with background: blue (!important). In mfe-b — .btn with background: red (no !important). What color will .btn be?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Blue, because mfe-a has !important",
+        "correct": false,
+        "explanation": "!important inside a layer raises priority relative to other rules in the same layer. But between layers, priority is determined by declaration order, and !important works in reverse order for layers."
+      },
+      {
+        "text": "Red, because mfe-b is declared later and has higher layer priority",
+        "correct": true,
+        "explanation": "In CSS Layers, a later layer has higher priority for normal rules. !important inside a layer has reversed priority: !important in mfe-a loses to !important in mfe-b, but a normal rule in mfe-b wins."
+      },
+      {
+        "text": "Blue, because mfe-a was loaded first",
+        "correct": false,
+        "explanation": "With @layer, load order does not determine the winner. The winner is the layer with the highest priority according to the @layer base, mfe-a, mfe-b declaration."
+      },
+      {
+        "text": "The result is unpredictable — it depends on script load order",
+        "correct": false,
+        "explanation": "It is exactly the opposite: the point of @layer is to make the cascade predictable and independent of load order."
+      }
+    ]
+  },
+  {
+    "question": "Which statements about the token distribution strategy via an npm package are correct?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Updating tokens requires a rebuild and redeploy of all MFE consumers",
+        "correct": true,
+        "explanation": "This is the main drawback of the npm approach. For a token update to take effect, each MFE must update its dependency and be rebuilt."
+      },
+      {
+        "text": "Supports TypeScript types and tree-shaking",
+        "correct": true,
+        "explanation": "An npm package can export TypeScript types for tokens and supports tree-shaking — only used tokens will end up in the bundle."
+      },
+      {
+        "text": "Allows updating styles in production without deploying MFEs",
+        "correct": false,
+        "explanation": "This describes the CDN or Federated Module approach. An npm package is embedded in the bundle at build time, so an update requires a rebuild."
+      },
+      {
+        "text": "Each MFE can use different versions of tokens",
+        "correct": true,
+        "explanation": "Different MFEs can have different versions of @company/design-tokens in their dependencies. This allows gradual migration, but may lead to visual inconsistency."
+      }
+    ]
+  },
+  {
+    "question": "A team is migrating from Shadow DOM to CSS Modules. What problems might they encounter during migration?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Global page styles can now affect the component",
+        "correct": true,
+        "explanation": "Shadow DOM fully isolates from external styles. CSS Modules only isolate class names, but do not protect against global properties (body font-size, * box-sizing, etc.)."
+      },
+      {
+        "text": "CSS Custom Properties will stop working inside the component",
+        "correct": false,
+        "explanation": "CSS Custom Properties are inherited in regular DOM just as through Shadow DOM. Switching to CSS Modules does not break CSS variable behavior."
+      },
+      {
+        "text": "Component styles need to be rewritten — Shadow DOM CSS is not directly applicable",
+        "correct": true,
+        "explanation": "Styles written for Shadow DOM use :host, ::slotted, and other Shadow DOM-specific selectors. When migrating to CSS Modules, these selectors need to be rewritten."
+      },
+      {
+        "text": "A polyfill will be required to support CSS Modules in older browsers",
+        "correct": false,
+        "explanation": "CSS Modules do not require polyfills — they are transformed into regular CSS classes at build time. The browser receives already-transformed CSS."
+      }
+    ]
+  },
+  {
+    "question": "The design system is distributed via Federated Module. On Friday evening, a bug is discovered in a token: --ds-color-error turned out to be orange instead of red. What will happen after fixing and deploying design-system?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Nothing — MFEs already have their own copies of tokens in their bundles",
+        "correct": false,
+        "explanation": "This describes the npm package approach. With Federated Module, tokens are loaded from the host at runtime, not embedded in the bundle."
+      },
+      {
+        "text": "All MFEs will receive the fix on the next page load by the user",
+        "correct": true,
+        "explanation": "Federated Module loads code from a remote URL at runtime. After deploying design-system, the new code with the fixed token will be loaded on the next page open — without rebuilding MFEs."
+      },
+      {
+        "text": "The fix will apply instantly to all active sessions",
+        "correct": false,
+        "explanation": "Federated Module is loaded when the page is opened. Users with open tabs will receive the fix only after reloading the page."
+      },
+      {
+        "text": "Manual dependency updates in each MFE will be required",
+        "correct": false,
+        "explanation": "This describes the npm approach. Federated Module does not require updating dependencies — the remote URL stays the same, only the content at that URL changes."
+      }
+    ]
+  },
+  {
+    "question": "Why is using !important in design tokens considered a bad practice?",
+    "type": "single",
+    "options": [
+      {
+        "text": "!important does not work with CSS Custom Properties",
+        "correct": false,
+        "explanation": "!important technically works with CSS Custom Properties. The problem is not a technical limitation."
+      },
+      {
+        "text": "!important makes it impossible to override a token at the MFE or component level",
+        "correct": true,
+        "explanation": "One of the primary use cases for tokens is the ability to locally override them (e.g., for a dark theme). !important breaks this mechanism: an MFE won't be able to override a token even in valid cases."
+      },
+      {
+        "text": "!important is incompatible with CSS Layers",
+        "correct": false,
+        "explanation": "!important is compatible with CSS Layers, although it has special behavior (reversed priority order between layers). This alone is not a reason to avoid !important in tokens."
+      },
+      {
+        "text": "!important increases the CSS file size",
+        "correct": false,
+        "explanation": "Adding !important to each token adds a few bytes, but this is negligible. The real problem is the architectural constraints it creates."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following design token naming approaches is most correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "--blue-500, --gray-100, --red-600",
+        "correct": false,
+        "explanation": "These are primitive tokens — they describe a value, not semantics. After a rebrand, --blue-500 might become purple, creating a semantic mismatch."
+      },
+      {
+        "text": "--ds-color-primary, --ds-color-error, --ds-spacing-md",
+        "correct": true,
+        "explanation": "Semantic tokens with an explicit namespace (--ds-) and category (color, spacing). They describe purpose, not value. --ds-color-primary means 'the primary action color' regardless of the specific shade."
+      },
+      {
+        "text": "--button-background, --header-color, --card-padding",
+        "correct": false,
+        "explanation": "Component tokens — too specific. If a button and header use the same color, you either duplicate the value or reference a semantic token."
+      },
+      {
+        "text": "--color1, --color2, --size1, --size2",
+        "correct": false,
+        "explanation": "Unreadable names with no meaning. It is impossible to understand the purpose without documentation. Maintaining such a token system is extremely difficult."
+      }
+    ]
+  }
+]

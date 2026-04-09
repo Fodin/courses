@@ -1,0 +1,314 @@
+[
+  {
+    "question": "What is the key principle underlying communication between MFEs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Maximum data transfer speed",
+        "correct": false,
+        "explanation": "Speed matters, but it is not the key architectural principle. Performance optimization is secondary to correct architecture."
+      },
+      {
+        "text": "Minimal coupling and explicit contracts",
+        "correct": true,
+        "explanation": "MFEs should only know about the contract's events and data, not about each other's internal implementation. An explicit contract (typed events, interfaces) makes the system predictable and maintainable."
+      },
+      {
+        "text": "A centralized store for all data",
+        "correct": false,
+        "explanation": "A single centralized store for all MFEs violates the isolation principle and creates tight coupling. Shared State is only used for data that multiple MFEs need simultaneously."
+      },
+      {
+        "text": "Synchronous communication for reliability",
+        "correct": false,
+        "explanation": "Synchronous communication creates dependencies between MFEs. Most MFE communication patterns are asynchronous precisely to preserve independence."
+      }
+    ]
+  },
+  {
+    "question": "The Catalog MFE clicks 'Add to Cart'. The Cart MFE must update its counter. Catalog does not expect a response. Which pattern should be used?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Props via Shell — Shell passes data to both MFEs",
+        "correct": false,
+        "explanation": "Props via Shell is not suitable for runtime user events. Shell will remount the MFE on every item addition — this is an expensive operation and wrong semantics."
+      },
+      {
+        "text": "Custom Events — Catalog emits an event, Cart is subscribed",
+        "correct": true,
+        "explanation": "An ideal case for Custom Events: fire-and-forget, Catalog has no knowledge of Cart. Catalog emits('catalog:add-to-cart', payload), Cart subscribes independently. Full decoupling — Cart can be replaced without changing Catalog."
+      },
+      {
+        "text": "Shared State — a shared store for the cart",
+        "correct": false,
+        "explanation": "Shared State is excessive here and violates ownership. If Catalog writes to Cart's store, the principle is broken: only one MFE should mutate its own data. Cart must own its own state."
+      },
+      {
+        "text": "Direct import of cartApi from Cart MFE",
+        "correct": false,
+        "explanation": "A direct import creates a build-time dependency between MFEs. This breaks deployment isolation: changing Cart requires rebuilding Catalog. This is an anti-pattern in micro-frontend architecture."
+      }
+    ]
+  },
+  {
+    "question": "Shell must display a badge with the number of items in the cart. Data is updated in the Cart MFE. Which pattern fits best?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Custom Events — Cart emits an event on every change",
+        "correct": false,
+        "explanation": "Custom Events create a problem: Shell must maintain a local counter by listening to all events. If Shell mounts late, it will miss the current state — it won't receive events that fired before its mount."
+      },
+      {
+        "text": "Shared State — Zustand store with cartCount, Cart writes, Shell reads",
+        "correct": true,
+        "explanation": "A classic case for Shared State: data is needed by multiple components simultaneously (Cart + Shell), updates are synchronous. Shell always reads the current value from the store regardless of mount order."
+      },
+      {
+        "text": "URL/localStorage — Cart writes, Shell reads",
+        "correct": false,
+        "explanation": "localStorage is synchronous and slow for frequently updated data. Additionally, count in localStorage will persist between sessions, which may be undesirable for a cart counter."
+      },
+      {
+        "text": "Orchestrator — Shell manages cart state",
+        "correct": false,
+        "explanation": "Orchestrator is intended for managing a sequence of steps in a process (checkout wizard), not for synchronizing UI state. Using Orchestrator for a badge is unnecessary complexity."
+      }
+    ]
+  },
+  {
+    "question": "What namespace format is recommended for Custom Events in micro-frontends?",
+    "type": "single",
+    "options": [
+      {
+        "text": "camelCase without a separator: addToCart, userLogout",
+        "correct": false,
+        "explanation": "Without a namespace it is unclear which MFE is the source of the event. With a large number of MFEs and events this leads to name collisions and debugging difficulty."
+      },
+      {
+        "text": "mfe-name:action: catalog:add-to-cart, profile:logout",
+        "correct": true,
+        "explanation": "The 'mfe-name:action' format immediately shows the event source, prevents name collisions, and makes debugging and code search easier. This is the industry-standard convention for event-driven MFE architectures."
+      },
+      {
+        "text": "UPPER_CASE: ADD_TO_CART, USER_LOGOUT",
+        "correct": false,
+        "explanation": "UPPER_CASE carries no information about the event source and does not prevent collisions. This convention is accepted for constants, not for event names in MFE."
+      },
+      {
+        "text": "UUID: evt-3f2a1b9c, evt-7d4e2f1a",
+        "correct": false,
+        "explanation": "UUIDs are completely unreadable. It is impossible to understand what the event is and where it comes from without additional documentation."
+      }
+    ]
+  },
+  {
+    "question": "What is an 'orphan emitter' in the context of an event contract?",
+    "type": "single",
+    "options": [
+      {
+        "text": "An MFE that is not connected to the event bus",
+        "correct": false,
+        "explanation": "An MFE that does not use the event bus at all is perfectly fine (if it needs no communication). An orphan emitter is a specific problem with an event, not with an MFE as a whole."
+      },
+      {
+        "text": "An event that is emitted but has no subscribers",
+        "correct": true,
+        "explanation": "An orphan emitter is an event without listeners. This is a potential contract error: Catalog emits catalog:add-to-cart, but no MFE is subscribed. Such events are 'dead code' or a forgotten subscription."
+      },
+      {
+        "text": "An MFE that emits too many events",
+        "correct": false,
+        "explanation": "The number of events is not a problem in itself. What matters is that every event has at least one listener."
+      },
+      {
+        "text": "An event with the wrong payload type",
+        "correct": false,
+        "explanation": "A type mismatch is a typing problem, not an orphan. An orphan emitter is about the absence of subscribers, not about types."
+      }
+    ]
+  },
+  {
+    "question": "Why can't a JWT authorization token be stored in localStorage for passing between MFEs?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "localStorage is accessible to any JS code on the page, including XSS scripts",
+        "correct": true,
+        "explanation": "This is the main vulnerability. If a malicious script runs on the page (XSS), it will gain access to the token and can make requests on behalf of the user."
+      },
+      {
+        "text": "localStorage is slower than props",
+        "correct": false,
+        "explanation": "The speed difference is negligible for an authorization token. The reason to avoid localStorage is security, not performance."
+      },
+      {
+        "text": "Token lifecycle management (refresh) becomes more complex with localStorage",
+        "correct": true,
+        "explanation": "If the token is in localStorage, each MFE must independently monitor its expiry and refresh. Shell as a centralized token manager handles this more reliably and clearly."
+      },
+      {
+        "text": "localStorage is not supported in Safari",
+        "correct": false,
+        "explanation": "localStorage is supported in all modern browsers, including Safari. This is not a reason to avoid it for tokens."
+      }
+    ]
+  },
+  {
+    "question": "What is the Orchestrator pattern used for in the context of MFEs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "For real-time synchronization of UI state between MFEs",
+        "correct": false,
+        "explanation": "Shared State is better suited for synchronizing UI state (counters, indicators). Orchestrator is not about synchronizing data — it is about managing a sequence of steps."
+      },
+      {
+        "text": "For managing multi-step processes with a clear step sequence",
+        "correct": true,
+        "explanation": "Orchestrator (usually Shell) implements a state machine: step 1 → step 2 → step 3. Each MFE receives only its step's data and signals completion. This makes the flow explicit, predictable, and testable."
+      },
+      {
+        "text": "For centralizing all events through a single point",
+        "correct": false,
+        "explanation": "This description refers to the event bus pattern. Orchestrator is not an event intermediary — it is the controlling logic for a business process."
+      },
+      {
+        "text": "For optimizing MFE loading through lazy initialization",
+        "correct": false,
+        "explanation": "Lazy loading is a separate optimization (dynamic imports, lazy initialization). It is unrelated to the Orchestrator pattern."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following situations indicate a violation of the ownership principle in Shared State?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Catalog MFE calls cartStore.addItem() directly",
+        "correct": true,
+        "explanation": "Catalog violates ownership: it writes to a store owned by Cart. Correct approach: Catalog emits an event, Cart subscribes and updates its own store."
+      },
+      {
+        "text": "Shell reads cartStore.count to display a badge",
+        "correct": false,
+        "explanation": "Reading from another MFE's store is fine. The ownership principle prohibits writing to another store, not reading from it. Shell only reads count, it does not modify it."
+      },
+      {
+        "text": "Profile MFE directly modifies cartStore.items",
+        "correct": true,
+        "explanation": "Profile should not know about the internal structure of cartStore, let alone modify items. This creates hidden coupling: changes to Cart's structure will break Profile."
+      },
+      {
+        "text": "Analytics MFE subscribes to cartStore changes for tracking",
+        "correct": false,
+        "explanation": "Subscribing to changes (subscribe/useStore) is reading, not writing. Analytics MFE does not violate ownership — it simply observes Cart's public state."
+      }
+    ]
+  },
+  {
+    "question": "A user changes the interface language in the Profile MFE. Requirements: 1) apply the language immediately across all MFEs, 2) persist the choice between sessions, 3) sync across tabs. Which pattern?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Custom Events — Profile emits a language-change event",
+        "correct": false,
+        "explanation": "Custom Events do not persist state between sessions and do not work across tabs. If an MFE mounts after the event, it won't receive the current language."
+      },
+      {
+        "text": "Props via Shell — Shell passes lang to each MFE",
+        "correct": false,
+        "explanation": "Props via Shell works, but does not satisfy the requirements for session persistence and tab synchronization without additional code. localStorage solves all three requirements natively."
+      },
+      {
+        "text": "localStorage + StorageEvent for tab synchronization",
+        "correct": true,
+        "explanation": "localStorage persists the value between sessions. window StorageEvent fires in all tabs when localStorage changes. On mount, any MFE reads the current value from localStorage. All three requirements are met."
+      },
+      {
+        "text": "Shared State (Zustand) — all MFEs use a single language store",
+        "correct": false,
+        "explanation": "A Zustand store exists only in the current tab's memory. It does not persist data between sessions and does not sync across tabs without persist middleware + broadcast channel."
+      }
+    ]
+  },
+  {
+    "question": "What problems arise from using window.__appState as a shared store between MFEs?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Any MFE can accidentally overwrite another MFE's data",
+        "correct": true,
+        "explanation": "window.__appState = {} — a single line like this will destroy all application state. There is no protection mechanism against accidental or intentional overwrites. Any script on the page has full access."
+      },
+      {
+        "text": "window.__appState only works in Chrome",
+        "correct": false,
+        "explanation": "window is available in all browsers. Browser compatibility is not a problem with this approach. The problems are architectural."
+      },
+      {
+        "text": "No typing — TypeScript does not know the structure of window.__appState",
+        "correct": true,
+        "explanation": "Without typing, any change to the data structure becomes a silent error. An MFE consumer won't know that a field was renamed or removed until a runtime error occurs."
+      },
+      {
+        "text": "The MFE initialization order affects data availability",
+        "correct": true,
+        "explanation": "MFEs load asynchronously. If Cart accesses window.__appState.catalog before Catalog has initialized it — it will get undefined. Explicit contracts (events, store) solve this problem."
+      }
+    ]
+  },
+  {
+    "question": "Typed EventBus returns a function from the on() method. Why?",
+    "type": "single",
+    "options": [
+      {
+        "text": "To get the current state value",
+        "correct": false,
+        "explanation": "EventBus is a pub/sub system, not a state store. The returned function does not contain state data."
+      },
+      {
+        "text": "To unsubscribe from the event when the component unmounts",
+        "correct": true,
+        "explanation": "The returned function is an unsubscribe callback. Calling it removes the handler from the Set of handlers. Without unsubscribing on MFE unmount, handlers accumulate → memory leak and handlers executing after the component is destroyed."
+      },
+      {
+        "text": "To re-subscribe with the same parameters",
+        "correct": false,
+        "explanation": "Re-subscribing is done by calling on() again. The returned function is specifically an unsubscribe (cleanup), not a re-subscribe."
+      },
+      {
+        "text": "This is a TypeScript technical requirement for generic functions",
+        "correct": false,
+        "explanation": "TypeScript does not require returning a function from generic methods. Returning an unsubscribe is an architectural decision for managing subscription lifecycle."
+      }
+    ]
+  },
+  {
+    "question": "When using Module Federation, two different instances of a Zustand store from a shared package can be created. What does this mean in practice?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The application will crash with an error when trying to use the store",
+        "correct": false,
+        "explanation": "Two instances do not cause a crash. The code works, but MFEs using different instances will not see each other's changes — a silent failure."
+      },
+      {
+        "text": "MFEs using different instances will not see each other's changes",
+        "correct": true,
+        "explanation": "Shell reads from instance A, Cart writes to instance B. The badge counter will never update. This is exactly why Zustand (and other shared libraries) must be declared as singleton in the Module Federation config."
+      },
+      {
+        "text": "The store will be slower due to duplication",
+        "correct": false,
+        "explanation": "Two small instances will not create a noticeable performance problem. The problem is functional: loss of reactivity between MFEs."
+      },
+      {
+        "text": "TypeScript will throw a compilation error",
+        "correct": false,
+        "explanation": "TypeScript has no information about runtime instances. The error will only appear at runtime as inconsistent UI behavior."
+      }
+    ]
+  }
+]

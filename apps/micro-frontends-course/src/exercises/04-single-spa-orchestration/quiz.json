@@ -1,0 +1,262 @@
+[
+  {
+    "question": "В какой момент Single-SPA вызывает функцию bootstrap() у приложения?",
+    "type": "single",
+    "options": [
+      {
+        "text": "При каждом монтировании — перед каждым вызовом mount()",
+        "correct": false,
+        "explanation": "Неверно. bootstrap() вызывается только один раз за всё время жизни страницы — перед первым mount(). Повторные активации маршрута переводят приложение из NOT_MOUNTED прямо в MOUNTING, минуя bootstrap."
+      },
+      {
+        "text": "Один раз: когда приложение переходит из NOT_BOOTSTRAPPED в NOT_MOUNTED",
+        "correct": true,
+        "explanation": "Верно. bootstrap() — одноразовая инициализация. После неё приложение остаётся в состоянии NOT_MOUNTED и при повторном посещении маршрута переходит сразу в MOUNTING. Это место для тяжёлой инициализации: store, i18n, preload."
+      },
+      {
+        "text": "При первой загрузке страницы для всех зарегистрированных приложений",
+        "correct": false,
+        "explanation": "Неверно. Single-SPA использует lazy bootstrap — приложение начинает загружаться только тогда, когда его activity function возвращает true. Приложение, чей маршрут ни разу не посещался, остаётся в NOT_LOADED."
+      },
+      {
+        "text": "При вызове start() в root config",
+        "correct": false,
+        "explanation": "Неверно. start() запускает оркестратор Single-SPA и анализирует текущий URL. Bootstrap вызывается позже — когда конкретное приложение впервые становится активным по своей activity function."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик зарегистрировал home-приложение с activeWhen: '/'. Пользователь заходит на /catalog. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "home-приложение не будет активно — строка '/' совпадает только с корневым путём",
+        "correct": false,
+        "explanation": "Неверно. Строка '/' в activeWhen работает как prefix match — она совпадает с любым путём, начинающимся с '/'. Поскольку все пути начинаются с '/', home-приложение будет активно на каждом маршруте."
+      },
+      {
+        "text": "home-приложение будет активно на /catalog, /cart и всех других маршрутах",
+        "correct": true,
+        "explanation": "Верно. Single-SPA интерпретирует строку в activeWhen как prefix. '/' является префиксом ЛЮБОГО пути. Для активации только на корневом маршруте нужна функция-предикат: location => location.pathname === '/'."
+      },
+      {
+        "text": "Single-SPA выбросит ошибку — '/' не является допустимым значением activeWhen",
+        "correct": false,
+        "explanation": "Неверно. '/' — допустимое значение, Single-SPA не ошибётся. Но поведение будет неожиданным: приложение активно везде. Ошибки в консоли не будет — только логический баг в маршрутизации."
+      },
+      {
+        "text": "home-приложение смонтируется на /catalog параллельно с catalog-приложением",
+        "correct": false,
+        "explanation": "Частично верно: оба действительно будут смонтированы одновременно. Но формулировка 'параллельно' не совсем точна — Single-SPA сначала завершает unmount, потом выполняет mount всех активных приложений. Ключевая проблема — home будет активен везде, что скорее всего нежелательно."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений про Single-SPA верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Single-SPA может оркестрировать одновременно React, Vue и Angular приложения",
+        "correct": true,
+        "explanation": "Верно. Это одно из главных преимуществ Single-SPA перед Module Federation. Он фреймворк-агностичен — любое приложение, реализующее lifecycle API (bootstrap/mount/unmount), может быть зарегистрировано."
+      },
+      {
+        "text": "Single-SPA автоматически изолирует CSS между приложениями",
+        "correct": false,
+        "explanation": "Неверно. Single-SPA не предоставляет CSS-изоляцию. Это ответственность каждого приложения — использовать CSS Modules, BEM, Shadow DOM или CSS-in-JS. В unmount() нужно удалять добавленные стили вручную."
+      },
+      {
+        "text": "start({ urlRerouteOnly: true }) обязателен — без него приложения не активируются",
+        "correct": true,
+        "explanation": "Верно. start() запускает Single-SPA — без него registerApplication() регистрирует приложения, но оркестратор не работает. urlRerouteOnly: true — рекомендованная опция, предотвращает лишние popstate-события при programmatic navigation."
+      },
+      {
+        "text": "Module Federation и Single-SPA решают одну задачу — выбирайте любой",
+        "correct": false,
+        "explanation": "Неверно. Module Federation решает задачу code sharing (общий код между бандлами). Single-SPA решает задачу оркестрации (управление lifecycle приложений). Они дополняют друг друга: можно использовать Single-SPA для оркестрации и Module Federation для sharing."
+      }
+    ]
+  },
+  {
+    "question": "Команда решила использовать single-spa-layout вместо прямых вызовов registerApplication(). В чём основное преимущество этого подхода?",
+    "type": "single",
+    "options": [
+      {
+        "text": "single-spa-layout работает быстрее из-за оптимизаций на уровне DOM",
+        "correct": false,
+        "explanation": "Неверно. single-spa-layout не даёт performance-преимуществ — под капотом он всё равно вызывает те же registerApplication() и constructLayoutEngine(). Это инструмент для удобства разработчика, не для производительности."
+      },
+      {
+        "text": "Структура маршрутов описывается декларативно в HTML-подобном шаблоне, что легче читать и изменять",
+        "correct": true,
+        "explanation": "Верно. single-spa-layout позволяет описать топологию приложений как разметку: <route path='catalog'><application name='catalog'/></route>. Это интуитивнее, чем JavaScript-код, особенно для onboarding новых разработчиков и для review изменений маршрутов."
+      },
+      {
+        "text": "single-spa-layout автоматически генерирует root-config.js из package.json зависимостей",
+        "correct": false,
+        "explanation": "Неверно. single-spa-layout читает HTML-шаблон или JavaScript-объект с описанием маршрутов. Он не имеет никакого отношения к package.json или автоматической генерации конфигурации из зависимостей."
+      },
+      {
+        "text": "С single-spa-layout не нужно реализовывать lifecycle функции в каждом приложении",
+        "correct": false,
+        "explanation": "Неверно. single-spa-layout — это описание топологии маршрутов, не замена lifecycle API. Каждое приложение по-прежнему должно экспортировать bootstrap, mount и unmount. Layout engine лишь управляет, когда эти функции вызываются."
+      }
+    ]
+  },
+  {
+    "question": "Что должна сделать функция unmount() приложения перед возвратом промиса?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Размонтировать React/Vue/Angular дерево (ReactDOM.unmount, vueApp.unmount и т.д.)",
+        "correct": true,
+        "explanation": "Верно. Основная задача unmount() — удалить рендеренный UI из DOM. Для React это root.unmount(), для Vue — app.unmount(). Без этого DOM-узлы остаются, что приводит к утечкам памяти и конфликтам при повторном mount."
+      },
+      {
+        "text": "Отписаться от всех event listeners и store subscriptions",
+        "correct": true,
+        "explanation": "Верно. Event listeners и subscriptions, добавленные в mount(), должны быть удалены в unmount(). Иначе они накапливаются при каждом mount/unmount цикле, вызывая утечки памяти и неожиданное поведение."
+      },
+      {
+        "text": "Удалить приложение из реестра Single-SPA через deregisterApplication()",
+        "correct": false,
+        "explanation": "Неверно. unmount() — это временная деактивация, а не удаление из реестра. deregisterApplication() — отдельная операция для полного удаления приложения из Single-SPA. При обычной навигации unmount() просто приостанавливает приложение до следующего mount."
+      },
+      {
+        "text": "Сбросить application state (Redux store, Vuex store и т.д.)",
+        "correct": false,
+        "explanation": "Зависит от архитектуры. Обычно state сохраняется между mount/unmount для UX-преемственности (пользователь вернулся на страницу и видит то же состояние). Сброс state в unmount — это опциональное решение, не обязательное требование Single-SPA."
+      }
+    ]
+  },
+  {
+    "question": "В чём разница между Applications и Parcels в Single-SPA?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Applications управляются Single-SPA автоматически через URL; Parcels монтируются вручную в конкретный DOM-узел",
+        "correct": true,
+        "explanation": "Верно. Applications — это приложения, lifecycle которых управляет оркестратор на основе URL (activity function). Parcels — переиспользуемые UI-компоненты, которые другое приложение монтирует вручную через mountParcel() в любой DOM-узел в любое время."
+      },
+      {
+        "text": "Applications работают с React, Parcels — с Vue и Angular",
+        "correct": false,
+        "explanation": "Неверно. И Applications, и Parcels фреймворк-агностичны — оба работают с любым фреймворком, реализующим lifecycle API. Разница не в фреймворке, а в способе активации и управлении."
+      },
+      {
+        "text": "Parcels — это устаревший API, замененный Applications в Single-SPA v6",
+        "correct": false,
+        "explanation": "Неверно. Parcels — это живая функциональность Single-SPA, используемая для cross-application UI sharing. Они позволяют одному приложению рендерить компонент из другого без Module Federation."
+      },
+      {
+        "text": "Applications загружаются лениво, Parcels — всегда при старте",
+        "correct": false,
+        "explanation": "Неверно. И те и другие загружаются лениво. Applications — когда activity function возвращает true. Parcels — когда вызывается mountParcel(). Различие в механизме активации, а не в стратегии загрузки."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик в bootstrap() пишет: await initI18n(); await preloadCriticalImages(). Почему это лучше, чем делать то же самое в mount()?",
+    "type": "single",
+    "options": [
+      {
+        "text": "bootstrap() выполняется в фоне при загрузке страницы, поэтому не блокирует отображение",
+        "correct": false,
+        "explanation": "Неверно. bootstrap() выполняется в момент первого перехода на маршрут, не в фоне. Он блокирует отображение так же, как и mount(). Преимущество в другом — повторные посещения маршрута не вызывают bootstrap повторно."
+      },
+      {
+        "text": "bootstrap() вызывается один раз — тяжёлые операции выполняются только при первом посещении, не при каждом",
+        "correct": true,
+        "explanation": "Верно. Это ключевое преимущество разделения bootstrap/mount. i18n и preload нужно делать один раз за сессию. Если вынести их в mount(), они будут повторяться каждый раз, когда пользователь возвращается на маршрут — лишние 300-500мс задержки."
+      },
+      {
+        "text": "Код в bootstrap() компилируется в отдельный chunk и кешируется браузером",
+        "correct": false,
+        "explanation": "Неверно. bootstrap() — это просто экспортируемая async-функция в том же бандле. Никакой специальной компиляции или кеширования не происходит. Chunking определяется конфигурацией сборщика, не lifecycle-функцией."
+      },
+      {
+        "text": "Single-SPA запускает все bootstrap() параллельно в фоне после start()",
+        "correct": false,
+        "explanation": "Неверно. Single-SPA запускает bootstrap() конкретного приложения только когда оно впервые становится активным (activity function возвращает true). Фоновой параллельной инициализации нет — это lazy по своей природе."
+      }
+    ]
+  },
+  {
+    "question": "Проект использует Single-SPA с SystemJS. Чтобы обновить URL catalog-приложения без пересборки host, нужно...",
+    "type": "single",
+    "options": [
+      {
+        "text": "Поменять URL в import-map — файл или API, который читается при загрузке страницы",
+        "correct": true,
+        "explanation": "Верно. SystemJS читает import-map при инициализации. Обновив запись '@company/catalog' в import-map (inline JSON или внешний файл), вы меняете URL, с которого загружается приложение. Host не нужно пересобирать — он просто читает актуальную карту импортов."
+      },
+      {
+        "text": "Изменить activeWhen в registerApplication() и задеплоить новый root-config.js",
+        "correct": false,
+        "explanation": "Неверно. activeWhen — это условие активации (URL-путь), а не URL загрузки бандла. URL бандла задаётся в import-map или в функции app: () => System.import('@company/catalog'). Смена activeWhen изменит маршрут, но не адрес загрузки."
+      },
+      {
+        "text": "Обновить remoteEntry.js на CDN — SystemJS автоматически подхватит новый файл",
+        "correct": false,
+        "explanation": "Неверно. SystemJS не 'подхватывает' изменения автоматически. Если URL остаётся тем же, браузер может отдать кешированную версию. Для обновления нужно либо изменить URL в import-map (cache-busting через версию в имени файла), либо инвалидировать кеш."
+      },
+      {
+        "text": "Нет способа обновить URL без пересборки host — это ограничение Single-SPA",
+        "correct": false,
+        "explanation": "Неверно. Это одно из ключевых преимуществ связки Single-SPA + SystemJS + import-maps — возможность менять URL бандлов без пересборки host. Именно для этого import-maps обычно вынесены в отдельный API-эндпоинт или CDN-файл."
+      }
+    ]
+  },
+  {
+    "question": "Приложение catalog реализует mount() и unmount(), но не реализует bootstrap(). Что произойдёт при первой активации?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Single-SPA выбросит ошибку: 'bootstrap() is required'",
+        "correct": false,
+        "explanation": "Неверно. Single-SPA не требует обязательной реализации bootstrap(). Если приложение не экспортирует bootstrap, оркестратор просто пропускает этот шаг и переходит сразу к mount(). Ошибки не будет."
+      },
+      {
+        "text": "Single-SPA пропустит шаг bootstrapping и перейдёт сразу к mounting",
+        "correct": true,
+        "explanation": "Верно. bootstrap() — не обязательная функция. Если приложение не экспортирует её, Single-SPA регистрирует no-op bootstrap и сразу вызывает mount(). Это нормальный паттерн для простых приложений, которым не нужна предварительная инициализация."
+      },
+      {
+        "text": "Приложение зависнет в состоянии NOT_BOOTSTRAPPED навсегда",
+        "correct": false,
+        "explanation": "Неверно. NOT_BOOTSTRAPPED — это состояние 'код загружен, bootstrap ещё не запускался'. Single-SPA попытается вызвать bootstrap(). Если функции нет, использует no-op и двигается дальше. Зависания не произойдёт."
+      },
+      {
+        "text": "Приложение будет каждый раз проходить LOADING при активации маршрута",
+        "correct": false,
+        "explanation": "Неверно. LOADING — это состояние, когда бандл ещё не загружен (NOT_LOADED → LOADING → NOT_BOOTSTRAPPED). После первой загрузки приложение не переходит в NOT_LOADED повторно — оно остаётся в NOT_MOUNTED и при повторной активации сразу переходит в MOUNTING."
+      }
+    ]
+  },
+  {
+    "question": "Архитектор выбирает между Module Federation и Single-SPA для проекта: 5 команд, 3 фреймворка (React, Vue, Angular), много legacy jQuery, требуется независимый деплой. Что лучше выбрать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Module Federation — он лучше поддерживает несколько фреймворков",
+        "correct": false,
+        "explanation": "Неверно. Module Federation хорошо работает с несколькими фреймворками только при использовании webpack. Интеграция legacy jQuery затруднена, а сам MF ориентирован на code sharing, а не на изоляцию независимых приложений с разными стеками."
+      },
+      {
+        "text": "Single-SPA — он фреймворк-агностичен и поддерживает постепенную миграцию legacy",
+        "correct": true,
+        "explanation": "Верно. Сценарий 'несколько фреймворков + legacy + независимый деплой' — классический кейс для Single-SPA. Любое приложение, реализующее lifecycle API, может быть зарегистрировано — в том числе обёртка над jQuery-кодом. Независимый деплой обеспечивается через import-maps."
+      },
+      {
+        "text": "Оба инструмента одинаково хороши для этого случая — выбор не важен",
+        "correct": false,
+        "explanation": "Неверно. Набор критериев (legacy, несколько фреймворков, независимый деплой) явно указывает на Single-SPA как более подходящий инструмент. Выбор инструмента влияет на сложность интеграции, команды и поддержку — это важное архитектурное решение."
+      },
+      {
+        "text": "Комбинация: Module Federation для React/Vue/Angular, Single-SPA для jQuery-legacy",
+        "correct": false,
+        "explanation": "Технически возможно, но избыточно. Добавление Module Federation только ради sharing между React/Vue/Angular увеличивает сложность без явной необходимости. Сначала стоит оценить, есть ли реальная потребность в code sharing — если нет, Single-SPA достаточен и проще."
+      }
+    ]
+  }
+]

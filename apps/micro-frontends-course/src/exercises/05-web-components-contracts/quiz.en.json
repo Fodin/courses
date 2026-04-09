@@ -1,0 +1,267 @@
+[
+  {
+    "question": "Why must a Custom Element name contain a hyphen?",
+    "type": "single",
+    "options": [
+      {
+        "text": "It is a developer style convention",
+        "correct": false,
+        "explanation": "No, this is a W3C specification requirement, not just a convention."
+      },
+      {
+        "text": "To prevent conflicts with future native HTML elements in the browser",
+        "correct": true,
+        "explanation": "The specification requires a hyphen so that the namespace of names like 'my-element' never collides with standard HTML elements such as 'div', 'section', or 'dialog'."
+      },
+      {
+        "text": "To improve HTML parsing performance",
+        "correct": false,
+        "explanation": "Parsing performance does not depend on whether a tag name contains a hyphen."
+      },
+      {
+        "text": "To distinguish Web Components from element attributes",
+        "correct": false,
+        "explanation": "Attributes and tags have different syntax in HTML — a hyphen is not needed to tell them apart."
+      }
+    ]
+  },
+  {
+    "question": "Which CustomEvent parameter allows an event to cross the Shadow DOM boundary and bubble up to the document?",
+    "type": "single",
+    "options": [
+      {
+        "text": "bubbles: true",
+        "correct": false,
+        "explanation": "bubbles: true allows an event to bubble up the DOM tree, but it stops at the Shadow DOM boundary."
+      },
+      {
+        "text": "composed: true",
+        "correct": true,
+        "explanation": "composed: true is the key parameter for crossing the shadow boundary. Without it, events stay inside the Shadow DOM even when bubbles: true is set."
+      },
+      {
+        "text": "cancelable: true",
+        "correct": false,
+        "explanation": "cancelable affects whether the event can be cancelled via preventDefault(), but has no effect on crossing the shadow boundary."
+      },
+      {
+        "text": "detail: { propagate: true }",
+        "correct": false,
+        "explanation": "detail is simply the event payload; it does not affect event routing."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following does NOT penetrate the Shadow DOM boundary?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CSS Custom Properties (--my-var)",
+        "correct": false,
+        "explanation": "CSS Custom Properties intentionally cross the shadow boundary — this is the primary mechanism for customizing Web Components."
+      },
+      {
+        "text": "Regular CSS rules (p { color: red })",
+        "correct": true,
+        "explanation": "Regular CSS rules do not penetrate into the Shadow DOM — that is the whole point of style encapsulation. Styles inside the component do not 'leak' out, and styles outside do not affect the component's internals."
+      },
+      {
+        "text": "Inherited CSS properties (font-family)",
+        "correct": false,
+        "explanation": "Inherited CSS properties (font-family, font-size, color) are inherited into the Shadow DOM — this allows typography to be set at the application level."
+      },
+      {
+        "text": "JavaScript properties of the element",
+        "correct": false,
+        "explanation": "JS properties are directly accessible on the DOM element — the shadow boundary does not affect their availability."
+      }
+    ]
+  },
+  {
+    "question": "You are building a Web Component for a micro-frontend architecture. You need to pass an array of product objects into the component. What is the correct way to do this?",
+    "type": "single",
+    "options": [
+      {
+        "text": "element.setAttribute('items', JSON.stringify(items))",
+        "correct": false,
+        "explanation": "Passing objects via attributes as a JSON string is an anti-pattern. It is slow, brittle (requires parsing), and problematic with encoding special characters."
+      },
+      {
+        "text": "element.items = items",
+        "correct": true,
+        "explanation": "Properties are designed specifically for passing JavaScript objects and arrays. They are set via a setter, can be typed in TypeScript, and require no serialization."
+      },
+      {
+        "text": "element.setAttribute('items-count', items.length) and pass items one by one via attributes",
+        "correct": false,
+        "explanation": "Splitting an array into multiple attributes is extremely inconvenient and inefficient."
+      },
+      {
+        "text": "Pass via the data-items data attribute",
+        "correct": false,
+        "explanation": "Data attributes are also string-based — the same problem with JSON.stringify/parse applies."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between Shadow DOM mode: 'open' and mode: 'closed'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "open — styles penetrate inside, closed — they do not",
+        "correct": false,
+        "explanation": "mode does not affect style isolation. Both modes encapsulate CSS identically."
+      },
+      {
+        "text": "open — shadowRoot is accessible externally via element.shadowRoot, closed — returns null",
+        "correct": true,
+        "explanation": "mode: 'open' allows external JS to obtain a reference via element.shadowRoot. mode: 'closed' returns null — shadowRoot is accessible only within the component's class."
+      },
+      {
+        "text": "open — events bubble out, closed — they do not",
+        "correct": false,
+        "explanation": "Event propagation behavior is controlled by the composed parameter, not the Shadow DOM mode."
+      },
+      {
+        "text": "open — the component can be used in HTML, closed — only from JS",
+        "correct": false,
+        "explanation": "Both modes allow the component to be used in HTML as well as from JS."
+      }
+    ]
+  },
+  {
+    "question": "You are wrapping a React component in a Custom Element. In which lifecycle method should you call root.unmount()?",
+    "type": "single",
+    "options": [
+      {
+        "text": "constructor()",
+        "correct": false,
+        "explanation": "In the constructor, the React root has not yet been created — calling unmount is impossible. The constructor is only for attachShadow."
+      },
+      {
+        "text": "connectedCallback()",
+        "correct": false,
+        "explanation": "connectedCallback is called when the element is added to the DOM — this is where you call createRoot and render, not unmount."
+      },
+      {
+        "text": "disconnectedCallback()",
+        "correct": true,
+        "explanation": "disconnectedCallback is called when the element is removed from the DOM — this is exactly where resources should be cleaned up: root.unmount(), removeEventListener, clearInterval."
+      },
+      {
+        "text": "attributeChangedCallback()",
+        "correct": false,
+        "explanation": "attributeChangedCallback is called when attributes change — this is where you update the render, not call unmount."
+      }
+    ]
+  },
+  {
+    "question": "Which CSS mechanisms can be used to style specific internal parts of a Web Component from outside?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "::part() pseudo-element",
+        "correct": true,
+        "explanation": "::part(button) allows styling elements with the attribute part='button' inside the Shadow DOM — this is the intentionally 'open' public styling API."
+      },
+      {
+        "text": "CSS Custom Properties",
+        "correct": true,
+        "explanation": "CSS Custom Properties cross the shadow boundary — the component accepts --my-var and uses it via var(--my-var, default)."
+      },
+      {
+        "text": "Regular CSS selectors (.inner-class)",
+        "correct": false,
+        "explanation": "Regular selectors do not work inside the Shadow DOM — that is precisely what Shadow DOM is for."
+      },
+      {
+        "text": "::slotted() pseudo-element",
+        "correct": true,
+        "explanation": "::slotted() allows styling content inserted into component slots — but only direct children, not nested descendants."
+      }
+    ]
+  },
+  {
+    "question": "Content inserted into a slot (<slot>) physically resides in...",
+    "type": "single",
+    "options": [
+      {
+        "text": "The component's Shadow DOM (moved there by the browser)",
+        "correct": false,
+        "explanation": "The browser does not move the content — this is a common misconception."
+      },
+      {
+        "text": "The Light DOM (stays there but is visually rendered in the Shadow DOM)",
+        "correct": true,
+        "explanation": "Slots are a projection, not a move. Content physically stays in the Light DOM (accessible via document.querySelector, page scripts, and global styles) but is visually rendered at the location of the <slot>."
+      },
+      {
+        "text": "An isolated tree — accessible from neither Light DOM nor Shadow DOM",
+        "correct": false,
+        "explanation": "No such isolated tree exists — slotted content is accessible via the Light DOM."
+      },
+      {
+        "text": "document.body directly",
+        "correct": false,
+        "explanation": "The content resides inside the host element in the Light DOM, not directly in body."
+      }
+    ]
+  },
+  {
+    "question": "You are on a team developing the catalog-card Web Component. What elements should be included in the component contract documentation?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "List of attributes with types and default values",
+        "correct": true,
+        "explanation": "Attributes are the public HTML API — their documentation is required for using the component in HTML markup."
+      },
+      {
+        "text": "Internal implementation details (how the Shadow DOM is structured inside)",
+        "correct": false,
+        "explanation": "Implementation details should not be documented as part of the contract — they can change. The contract covers only the public API."
+      },
+      {
+        "text": "CSS Custom Properties with defaults",
+        "correct": true,
+        "explanation": "CSS Custom Properties are the public styling API. Without documenting them, consumers do not know how to customize the component."
+      },
+      {
+        "text": "Events (CustomEvent) with payload types",
+        "correct": true,
+        "explanation": "Events are the only feedback mechanism from the component. Their names and payload must be documented for correct subscription."
+      },
+      {
+        "text": "Slots with a description of expected content",
+        "correct": true,
+        "explanation": "Slots are the public API for content insertion. Consumers must know which slots exist and what to insert into them."
+      }
+    ]
+  },
+  {
+    "question": "In a micro-frontend project, the Shell (React) listens to events from the Catalog MFE (Web Component). The 'item-selected' event does not reach the Shell. What is the cause?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React does not support addEventListener for Custom Elements",
+        "correct": false,
+        "explanation": "React works perfectly well with addEventListener on DOM elements. That is not the issue."
+      },
+      {
+        "text": "The event was created without composed: true — it gets stuck inside the Shadow DOM",
+        "correct": true,
+        "explanation": "Without composed: true, the event does not cross the shadow boundary. It bubbles up through the Shadow DOM tree but stops at the shadow root and does not reach the document."
+      },
+      {
+        "text": "The event name contains a hyphen: 'item-selected'",
+        "correct": false,
+        "explanation": "A hyphen in an event name is perfectly valid and even recommended for namespacing (catalog:item-selected)."
+      },
+      {
+        "text": "Shell added the listener before Catalog MFE was mounted",
+        "correct": false,
+        "explanation": "The order in which listeners are added only affects already-dispatched events, not the delivery of events across the shadow boundary."
+      }
+    ]
+  }
+]

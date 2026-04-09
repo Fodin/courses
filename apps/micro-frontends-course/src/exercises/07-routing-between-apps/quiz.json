@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Почему только Shell должен вызывать history.pushState(), а не сами MFE?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Потому что MFE загружаются лениво и не имеют доступа к window.history до полной инициализации",
+        "correct": false,
+        "explanation": "Lazy-загрузка не ограничивает доступ к window.history — после монтирования MFE имеет полный доступ к браузерному API. Проблема не в доступности, а в координации"
+      },
+      {
+        "text": "Потому что два MFE могут вызвать pushState одновременно, второй вызов тихо перезапишет первый — URL окажется некорректным, а состояния MFE рассинхронизируются",
+        "correct": true,
+        "explanation": "history.pushState() не генерирует события и не бросает исключений при конфликте. При race condition оба вызова выполнятся, но в браузере останется только последний URL — это приводит к рассогласованному состоянию приложения"
+      },
+      {
+        "text": "Потому что React Router в MFE не умеет работать с нативным history API — только через собственные абстракции",
+        "correct": false,
+        "explanation": "React Router использует history API внутри — он прекрасно умеет с ним работать. Ограничение — архитектурное решение для координации, а не техническое ограничение React Router"
+      },
+      {
+        "text": "Потому что браузер блокирует вызовы pushState из iframe, а MFE часто используют iframe-изоляцию",
+        "correct": false,
+        "explanation": "Не все MFE используют iframe. При iframe история действительно изолирована, но речь о более общем случае — JS-интеграции, где все MFE в одном window"
+      }
+    ]
+  },
+  {
+    "question": "Shell объявляет маршрут `/catalog/*`. Какую конфигурацию internal routes должен использовать Catalog MFE?",
+    "type": "single",
+    "options": [
+      {
+        "text": "<Route path=\"/catalog\" />, <Route path=\"/catalog/search\" />, <Route path=\"/catalog/:id\" />",
+        "correct": false,
+        "explanation": "Дублирование prefix /catalog во внутренних маршрутах MFE — частая ошибка. React Router уже знает, что MFE обрабатывает пути под /catalog/* — поэтому внутри нужны только относительные пути"
+      },
+      {
+        "text": "<Route index />, <Route path=\"search\" />, <Route path=\":id\" />",
+        "correct": true,
+        "explanation": "Внутри Route с path='/catalog/*' React Router v6 автоматически знает базовый путь. Относительные пути (search, :id, index) корректно разрешаются в /catalog/search и /catalog/:id — без дублирования префикса"
+      },
+      {
+        "text": "<Route path=\"/*\" />, <Route path=\"/*/search\" />, <Route path=\"/*/:id\" />",
+        "correct": false,
+        "explanation": "Такой синтаксис не является корректным способом написания relative routes в React Router v6. Звёздочка как placeholder сегмента пути не работает так, как предполагается"
+      },
+      {
+        "text": "Catalog MFE не должен иметь собственного Router — Shell полностью управляет всеми маршрутами",
+        "correct": false,
+        "explanation": "Shell управляет только верхним уровнем (/catalog/*). Внутренние маршруты — ответственность Catalog MFE. Это ключевой принцип nested routing в MFE: Shell делегирует внутреннюю навигацию MFE"
+      }
+    ]
+  },
+  {
+    "question": "Пользователь вставляет в адресную строку браузера URL `/catalog/42` напрямую. Что должен делать сервер?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Вернуть 404 — сервер не знает про /catalog/42, это маршрут SPA",
+        "correct": false,
+        "explanation": "Возврат 404 сломает deep linking — одну из ключевых возможностей современных приложений. Пользователи не смогут делиться ссылками на конкретные страницы"
+      },
+      {
+        "text": "Выполнить серверный рендер Catalog MFE с ProductDetail для ID 42",
+        "correct": false,
+        "explanation": "SSR — один из возможных подходов, но не единственный и не обязательный. Для большинства внутренних приложений достаточно client-side deep linking с правильной nginx-конфигурацией"
+      },
+      {
+        "text": "Вернуть index.html для любого пути, который не является статическим файлом — SPA сама разберётся с URL",
+        "correct": true,
+        "explanation": "Паттерн try_files $uri /index.html в nginx — стандартное решение для SPA deep linking. Shell загружается, видит URL /catalog/42, определяет нужный MFE и монтирует его с initialPath='/catalog/42'"
+      },
+      {
+        "text": "Перенаправить на / через 302 redirect — пользователь сам дойдёт до нужной страницы через навигацию",
+        "correct": false,
+        "explanation": "Redirect на / уничтожает deep link — пользователь теряет контекст. Это антипаттерн, который делает невозможным шаринг ссылок на конкретные страницы приложения"
+      }
+    ]
+  },
+  {
+    "question": "Разработчик ставит wildcard-маршрут `*` первым в списке Shell routes. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ничего особенного — React Router v6 автоматически сортирует маршруты по специфичности",
+        "correct": false,
+        "explanation": "React Router v6 действительно использует алгоритм ранжирования для большинства маршрутов, однако wildcard (*) по-прежнему чувствителен к порядку в некоторых сценариях. Хорошая практика — всегда ставить * последним"
+      },
+      {
+        "text": "Wildcard перехватит все запросы — конкретные маршруты /catalog/*, /cart/* никогда не сработают",
+        "correct": true,
+        "explanation": "Маршрут * совпадает с любым путём. Если он первый, роутер остановится на нём и никогда не проверит более специфичные маршруты. Wildcard всегда должен быть последним — это не только стилистика, но и корректность работы"
+      },
+      {
+        "text": "React Router выдаст ошибку компиляции — wildcard не может стоять перед другими маршрутами",
+        "correct": false,
+        "explanation": "React Router не бросает ошибку при таком порядке — это логическая ошибка конфигурации, которую нужно отловить через тесты или валидацию конфига"
+      },
+      {
+        "text": "Wildcard будет использоваться только если ни один другой маршрут не совпал — порядок не важен",
+        "correct": false,
+        "explanation": "В большинстве роутеров порядок имеет значение. В React Router v6 алгоритм ранжирования помогает для обычных маршрутов, но для wildcard — надёжнее явно ставить его последним"
+      }
+    ]
+  },
+  {
+    "question": "Какой механизм лучше всего подходит для передачи запроса на навигацию от Cart MFE к Shell?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "CustomEvent на window с именем 'mfe:navigate' и detail.path",
+        "correct": true,
+        "explanation": "Custom Events — нативный браузерный стандарт. Не требует дополнительных зависимостей, работает между любыми MFE без общей библиотеки, легко дебажится в DevTools"
+      },
+      {
+        "text": "Shared Navigation Bus — singleton в shared пакете, Shell подписывается через onNavigate()",
+        "correct": true,
+        "explanation": "Navigation Bus даёт дополнительные возможности: guards (auth check, unsaved changes), middleware, централизованный лог. Подходит для приложений с complex navigation requirements"
+      },
+      {
+        "text": "Прямой вызов window.history.pushState() из Cart MFE",
+        "correct": false,
+        "explanation": "Это именно то, что нельзя делать. Прямой вызов pushState из MFE обходит Shell-роутер, создаёт риск race conditions и делает невозможным централизованный auth guard или аналитику навигации"
+      },
+      {
+        "text": "localStorage.setItem('navigate', path) + window 'storage' event",
+        "correct": false,
+        "explanation": "Использование localStorage для координации навигации — антипаттерн. localStorage асинхронен (события 'storage' не гарантируют порядок), загрязняет хранилище, усложняет отладку. Для навигации есть специализированные механизмы"
+      }
+    ]
+  },
+  {
+    "question": "Shell загружает Catalog MFE с `path='/catalog/*'`. Пользователь открывает deep link `/catalog/42`. Как Catalog MFE должен обработать начальный URL?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Catalog MFE всегда стартует с / — пользователь должен доNavigate вручную",
+        "correct": false,
+        "explanation": "Игнорирование initialPath ломает deep linking. Пользователь, открывший /catalog/42 из закладки или email-письма, ожидает увидеть карточку товара 42, а не список каталога"
+      },
+      {
+        "text": "Catalog MFE читает window.location.pathname и извлекает путь, передавая его в MemoryRouter через initialEntries или в BrowserRouter через встроенный match",
+        "correct": true,
+        "explanation": "При монтировании MFE должен инициализировать внутренний роутер с текущим pathname. Это позволяет корректно открыть нужный view (ProductDetail для /catalog/42) при прямом переходе по URL"
+      },
+      {
+        "text": "Shell перехватывает /catalog/42, сам рендерит ProductDetail без Catalog MFE — это быстрее",
+        "correct": false,
+        "explanation": "Shell не должен знать про внутренние компоненты Catalog MFE. Это нарушает инкапсуляцию и создаёт сильную связанность — Shell становится зависимым от деталей реализации каждого MFE"
+      },
+      {
+        "text": "Catalog MFE перенаправляет на /catalog и потом делает client-side navigate к /catalog/42",
+        "correct": false,
+        "explanation": "Лишний редирект /catalog → /catalog/42 создаёт артефакт в browser history и неприятное мигание интерфейса. Правильно — сразу инициализировать роутер с нужным путём"
+      }
+    ]
+  },
+  {
+    "question": "В чём разница между lazy и eager загрузкой MFE при конфигурации Shell routes?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Lazy MFE загружается только при первом переходе на его маршрут — уменьшает initial bundle size Shell",
+        "correct": true,
+        "explanation": "Lazy loading через dynamic import() откладывает загрузку MFE до момента, когда пользователь переходит на его маршрут. Shell стартует быстрее, не загружая весь код всех MFE"
+      },
+      {
+        "text": "Eager MFE включается в основной bundle Shell — доступен мгновенно, но увеличивает время загрузки страницы",
+        "correct": true,
+        "explanation": "Eager загрузка означает, что Shell импортирует MFE статически. При переходе на маршрут нет дополнительного network request, но Shell загружается дольше из-за большего бандла"
+      },
+      {
+        "text": "Lazy MFE не поддерживает deep linking — при прямом переходе на /catalog/42 lazy Catalog MFE выдаст ошибку",
+        "correct": false,
+        "explanation": "Lazy MFE прекрасно поддерживает deep linking. При прямом переходе на /catalog/42 Shell загружает lazy Catalog MFE (небольшая задержка) и передаёт ему initialPath. Suspense обеспечивает fallback на время загрузки"
+      },
+      {
+        "text": "Lazy MFE требует обёртки в Suspense с fallback для обработки состояния загрузки",
+        "correct": true,
+        "explanation": "React lazy() вместе с dynamic import() бросает Promise при первой загрузке — это механизм Suspense. Без <Suspense fallback={...}> React выдаст ошибку. Fallback показывает skeleton или spinner пока MFE загружается"
+      }
+    ]
+  },
+  {
+    "question": "Команда предлагает использовать hash-routing (#/catalog/42) вместо history API для избежания конфликтов. Какие последствия?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Hash routing не отправляется на сервер — nginx не нужно настраивать, deep links работают из коробки",
+        "correct": true,
+        "explanation": "Хэш-часть URL (#/catalog/42) не включается в HTTP-запрос. Сервер всегда получает запрос к /, возвращает index.html, а SPA обрабатывает хэш на клиенте — без специальной nginx-конфигурации"
+      },
+      {
+        "text": "Hash routing хуже для SEO — поисковики исторически игнорировали или плохо индексировали хэш-пути",
+        "correct": true,
+        "explanation": "Google научился индексировать JavaScript-приложения, но hash URLs до сих пор считаются anti-pattern для SEO. Для публичных сайтов history API + SSR или prerendering предпочтительнее"
+      },
+      {
+        "text": "Hash routing полностью решает проблему конфликтов pushState — конфликты становятся невозможны",
+        "correct": false,
+        "explanation": "Hash routing заменяет pushState на location.hash изменения, но race conditions никуда не деваются. Два MFE могут одновременно изменить location.hash — проблема координации остаётся"
+      },
+      {
+        "text": "URL выглядит менее профессионально: http://app.com/#/catalog/42 вместо http://app.com/catalog/42",
+        "correct": true,
+        "explanation": "Hash URLs визуально отличаются и воспринимаются как устаревший подход. Для корпоративных и публичных приложений это может быть важным фактором"
+      }
+    ]
+  },
+  {
+    "question": "Navigation guard в Shell должен проверять авторизацию перед переходом на защищённые маршруты. В каком месте лучше разместить эту логику?",
+    "type": "single",
+    "options": [
+      {
+        "text": "В каждом MFE отдельно — они сами проверяют токен перед рендером своих компонентов",
+        "correct": false,
+        "explanation": "Дублирование auth logic в каждом MFE нарушает DRY и создаёт риск рассинхронизации. Если логика авторизации изменится — нужно обновлять все MFE одновременно. Единое место авторизации проще поддерживать"
+      },
+      {
+        "text": "В обработчике события mfe:navigate в Shell, до выполнения router.navigate()",
+        "correct": true,
+        "explanation": "Центральный guard в Shell — правильное архитектурное решение. Shell перехватывает все запросы навигации, проверяет права перед переходом, и только при успехе вызывает router.navigate(). Все MFE автоматически защищены"
+      },
+      {
+        "text": "В React Router loader функции в конфигурации Shell routes",
+        "correct": false,
+        "explanation": "Loader — хороший вариант для data-fetching, но для navigation guard предпочтительнее interceptor на уровне навигации. Loader запускается уже после начала перехода, что может привести к flash of unprotected content"
+      },
+      {
+        "text": "В shared AuthService, который MFE вызывают самостоятельно перед каждым действием пользователя",
+        "correct": false,
+        "explanation": "AuthService в каждом MFE — это дублирование точек интеграции. Если MFE вызывает navigate() через Shell, то и проверка авторизации должна быть в Shell — единая точка входа для всей навигации"
+      }
+    ]
+  },
+  {
+    "question": "Проект использует Module Federation. Shell и Catalog MFE оба включают react-router-dom в shared с singleton:true. Что произойдёт с историей браузера?",
+    "type": "single",
+    "options": [
+      {
+        "text": "У каждого MFE будет своя независимая история навигации — pushState в одном не виден другому",
+        "correct": false,
+        "explanation": "Это описывает поведение при НЕ-shared роутере. При singleton:true оба MFE используют одну копию react-router-dom — и один RouterContext. История браузера общая"
+      },
+      {
+        "text": "Оба используют единый экземпляр react-router-dom — они делят один RouterContext и одну history",
+        "correct": true,
+        "explanation": "Singleton означает одна копия в рантайме. Shell создаёт BrowserRouter (или createBrowserRouter), Catalog MFE получает доступ к тому же RouterContext через shared react-router-dom. useNavigate() в Catalog работает с той же историей"
+      },
+      {
+        "text": "Module Federation выдаст ошибку — react-router-dom не поддерживает singleton режим",
+        "correct": false,
+        "explanation": "react-router-dom прекрасно работает как singleton в Module Federation. Более того, это рекомендуемый подход — без singleton два роутера конкурируют за одну историю браузера"
+      },
+      {
+        "text": "Shell будет использовать актуальную версию, Catalog MFE — кэшированную старую копию",
+        "correct": false,
+        "explanation": "Singleton гарантирует одну версию для всех. Module Federation выполняет version negotiation и загружает максимально совместимую версию — не «актуальную для одного» и «кэшированную для другого»"
+      }
+    ]
+  }
+]

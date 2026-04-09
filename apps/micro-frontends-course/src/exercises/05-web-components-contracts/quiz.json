@@ -1,0 +1,267 @@
+[
+  {
+    "question": "Почему имя Custom Element обязано содержать дефис?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это стилистическое соглашение разработчиков",
+        "correct": false,
+        "explanation": "Нет, это требование спецификации W3C, а не просто соглашение"
+      },
+      {
+        "text": "Для предотвращения конфликтов с будущими нативными HTML-элементами браузера",
+        "correct": true,
+        "explanation": "Спецификация требует дефис чтобы пространство имён вида 'my-element' никогда не пересекалось со стандартными элементами HTML типа 'div', 'section', 'dialog'"
+      },
+      {
+        "text": "Для улучшения производительности парсинга HTML",
+        "correct": false,
+        "explanation": "Производительность парсинга не зависит от наличия дефиса в имени тега"
+      },
+      {
+        "text": "Чтобы отличить Web Components от атрибутов элементов",
+        "correct": false,
+        "explanation": "Атрибуты и теги имеют разный синтаксис в HTML — дефис не нужен для их различия"
+      }
+    ]
+  },
+  {
+    "question": "Какой параметр CustomEvent позволяет событию пересечь границу Shadow DOM и всплыть в document?",
+    "type": "single",
+    "options": [
+      {
+        "text": "bubbles: true",
+        "correct": false,
+        "explanation": "bubbles: true позволяет событию всплывать по DOM-дереву, но останавливается на границе Shadow DOM"
+      },
+      {
+        "text": "composed: true",
+        "correct": true,
+        "explanation": "composed: true — ключевой параметр для пересечения shadow boundary. Без него события остаются внутри Shadow DOM даже при bubbles: true"
+      },
+      {
+        "text": "cancelable: true",
+        "correct": false,
+        "explanation": "cancelable влияет на возможность отмены события через preventDefault(), но не на пересечение shadow boundary"
+      },
+      {
+        "text": "detail: { propagate: true }",
+        "correct": false,
+        "explanation": "detail — это просто payload события, он не влияет на маршрутизацию события"
+      }
+    ]
+  },
+  {
+    "question": "Что из перечисленного НЕ проникает через границу Shadow DOM?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CSS Custom Properties (--my-var)",
+        "correct": false,
+        "explanation": "CSS Custom Properties намеренно пересекают shadow boundary — это основной механизм кастомизации Web Components"
+      },
+      {
+        "text": "Обычные CSS-правила (p { color: red })",
+        "correct": true,
+        "explanation": "Обычные CSS-правила не проникают внутрь Shadow DOM — это и есть инкапсуляция стилей. Стили внутри компонента не 'утекают' наружу и стили снаружи не влияют на внутренности"
+      },
+      {
+        "text": "Наследуемые CSS-свойства (font-family)",
+        "correct": false,
+        "explanation": "Наследуемые CSS-свойства (font-family, font-size, color) наследуются в Shadow DOM — это позволяет задать типографику на уровне приложения"
+      },
+      {
+        "text": "JavaScript-свойства элемента",
+        "correct": false,
+        "explanation": "JS-свойства напрямую доступны на DOM-элементе — shadow boundary не влияет на их доступность"
+      }
+    ]
+  },
+  {
+    "question": "Вы разрабатываете Web Component для микрофронтенд-архитектуры. Нужно передать массив объектов-товаров в компонент. Как правильно это сделать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "element.setAttribute('items', JSON.stringify(items))",
+        "correct": false,
+        "explanation": "Передача объектов через атрибуты в виде JSON-строки — антипаттерн. Это медленно, хрупко (надо парсить), и проблематично с кодировкой специальных символов"
+      },
+      {
+        "text": "element.items = items",
+        "correct": true,
+        "explanation": "Свойства (properties) созданы именно для передачи JavaScript-объектов и массивов. Задаются через сеттер, типизируются в TypeScript, не требуют сериализации"
+      },
+      {
+        "text": "element.setAttribute('items-count', items.length) и items.forEach через атрибуты",
+        "correct": false,
+        "explanation": "Разбивать массив на атрибуты — крайне неудобно и неэффективно"
+      },
+      {
+        "text": "Передать через data-атрибут data-items",
+        "correct": false,
+        "explanation": "data-атрибуты тоже строковые — та же проблема с JSON.stringify/parse"
+      }
+    ]
+  },
+  {
+    "question": "Что такое Shadow DOM mode: 'open' vs mode: 'closed'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "open — стили проникают внутрь, closed — нет",
+        "correct": false,
+        "explanation": "mode не влияет на изоляцию стилей. Оба режима одинаково изолируют CSS"
+      },
+      {
+        "text": "open — shadowRoot доступен снаружи через element.shadowRoot, closed — возвращает null",
+        "correct": true,
+        "explanation": "mode: 'open' позволяет внешнему JS получить ссылку через element.shadowRoot. mode: 'closed' возвращает null — shadowRoot доступен только внутри класса компонента"
+      },
+      {
+        "text": "open — события всплывают наружу, closed — нет",
+        "correct": false,
+        "explanation": "Поведение событий контролируется параметром composed, а не mode Shadow DOM"
+      },
+      {
+        "text": "open — компонент можно использовать в HTML, closed — только из JS",
+        "correct": false,
+        "explanation": "Оба режима позволяют использовать компонент как в HTML, так и из JS"
+      }
+    ]
+  },
+  {
+    "question": "Вы оборачиваете React-компонент в Custom Element. В каком lifecycle-методе нужно вызвать root.unmount()?",
+    "type": "single",
+    "options": [
+      {
+        "text": "constructor()",
+        "correct": false,
+        "explanation": "В constructor React root ещё не создан — unmount вызвать невозможно. В конструкторе только attachShadow"
+      },
+      {
+        "text": "connectedCallback()",
+        "correct": false,
+        "explanation": "connectedCallback вызывается при добавлении в DOM — здесь нужно createRoot и render, а не unmount"
+      },
+      {
+        "text": "disconnectedCallback()",
+        "correct": true,
+        "explanation": "disconnectedCallback вызывается когда элемент удаляется из DOM — именно здесь нужно очищать ресурсы: root.unmount(), removeEventListener, clearInterval"
+      },
+      {
+        "text": "attributeChangedCallback()",
+        "correct": false,
+        "explanation": "attributeChangedCallback вызывается при изменении атрибутов — здесь нужно обновлять render, а не unmount"
+      }
+    ]
+  },
+  {
+    "question": "Каким CSS-механизмом можно стилизовать конкретные внутренние части Web Component снаружи?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "::part() псевдоэлемент",
+        "correct": true,
+        "explanation": "::part(button) позволяет стилизовать элементы с атрибутом part='button' внутри Shadow DOM — это намеренно 'открытый' публичный API стилизации"
+      },
+      {
+        "text": "CSS Custom Properties",
+        "correct": true,
+        "explanation": "CSS Custom Properties проникают через shadow boundary — компонент принимает --my-var и использует через var(--my-var, default)"
+      },
+      {
+        "text": "Обычные CSS-селекторы (.inner-class)",
+        "correct": false,
+        "explanation": "Обычные селекторы не работают внутри Shadow DOM — именно для этого он и нужен"
+      },
+      {
+        "text": "::slotted() псевдоэлемент",
+        "correct": true,
+        "explanation": "::slotted() позволяет стилизовать контент, вставленный в слоты компонента — но только прямых потомков, не вложенных"
+      }
+    ]
+  },
+  {
+    "question": "Контент, вставленный в слот (<slot>), физически находится в...",
+    "type": "single",
+    "options": [
+      {
+        "text": "Shadow DOM компонента (перемещается туда браузером)",
+        "correct": false,
+        "explanation": "Браузер не перемещает контент — это распространённое заблуждение"
+      },
+      {
+        "text": "Light DOM (остаётся там, но визуально отображается в Shadow DOM)",
+        "correct": true,
+        "explanation": "Слоты — это проекция, а не перемещение. Контент физически остаётся в Light DOM (доступен для document.querySelector, скриптов страницы, глобальных стилей), но визуально рендерится в том месте, где находится <slot>"
+      },
+      {
+        "text": "Изолированном дереве — недоступен ни из Light, ни из Shadow",
+        "correct": false,
+        "explanation": "Такого изолированного дерева не существует — контент в слотах доступен через Light DOM"
+      },
+      {
+        "text": "document.body напрямую",
+        "correct": false,
+        "explanation": "Контент находится внутри host-элемента в Light DOM, а не напрямую в body"
+      }
+    ]
+  },
+  {
+    "question": "Вы работаете в команде, которая разрабатывает catalog-card Web Component. Какие элементы должны быть в документации контракта компонента?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Список атрибутов с типами и default-значениями",
+        "correct": true,
+        "explanation": "Атрибуты — публичный HTML API, их документация обязательна для использования компонента в HTML-разметке"
+      },
+      {
+        "text": "Детали внутренней реализации (как устроен Shadow DOM внутри)",
+        "correct": false,
+        "explanation": "Детали реализации не должны документироваться как контракт — они могут меняться. Контракт — только публичный API"
+      },
+      {
+        "text": "CSS Custom Properties с defaults",
+        "correct": true,
+        "explanation": "CSS Custom Properties — публичный API стилизации. Без их документации потребитель не знает, как кастомизировать компонент"
+      },
+      {
+        "text": "События (CustomEvent) с типом payload",
+        "correct": true,
+        "explanation": "События — единственный механизм обратной связи от компонента. Их имена и payload нужно документировать для правильной подписки"
+      },
+      {
+        "text": "Слоты с описанием ожидаемого контента",
+        "correct": true,
+        "explanation": "Слоты — публичный API для вставки контента. Потребитель должен знать, какие слоты есть и что в них вставлять"
+      }
+    ]
+  },
+  {
+    "question": "В микрофронтенд-проекте Shell (React) слушает события от Catalog MFE (Web Component). Событие 'item-selected' не доходит до Shell. В чём причина?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React не поддерживает addEventListener для Custom Elements",
+        "correct": false,
+        "explanation": "React прекрасно работает с addEventListener на DOM-элементах. Проблема не в этом"
+      },
+      {
+        "text": "Событие создано без composed: true — застревает внутри Shadow DOM",
+        "correct": true,
+        "explanation": "Без composed: true событие не пересекает shadow boundary. Оно всплывает по дереву внутри Shadow DOM, но останавливается на shadow-root и не выходит в документ"
+      },
+      {
+        "text": "Имя события содержит двоеточие 'item-selected'",
+        "correct": false,
+        "explanation": "Двоеточие в имени события допустимо и даже рекомендуется для namespace (catalog:item-selected)"
+      },
+      {
+        "text": "Shell не добавил слушатель до монтирования Catalog MFE",
+        "correct": false,
+        "explanation": "Порядок добавления слушателей влияет лишь на уже пойманные события, но не на саму доставку событий через shadow boundary"
+      }
+    ]
+  }
+]

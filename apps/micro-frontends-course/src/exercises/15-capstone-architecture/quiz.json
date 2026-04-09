@@ -1,0 +1,397 @@
+[
+  {
+    "question": "Что такое закон Конвея (Conway's Law) и как он применяется к MFE?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Организации проектируют системы, копирующие структуру их коммуникаций — MFE-границы должны совпадать с границами команд",
+        "correct": true,
+        "explanation": "Conway's Law: «Organizations which design systems are constrained to produce designs which are copies of the communication structures.» Для MFE это означает: если Catalog и Cart принадлежат одной команде Commerce, стоит держать их как один MFE до момента разделения команды."
+      },
+      {
+        "text": "Количество MFE не должно превышать число разработчиков в команде",
+        "correct": false,
+        "explanation": "Такого правила не существует. Conway's Law говорит о структуре коммуникаций между командами, а не о численности разработчиков."
+      },
+      {
+        "text": "MFE должны иметь одинаковый размер кодовой базы для балансировки нагрузки на команды",
+        "correct": false,
+        "explanation": "Размер кодовой базы не является критерием декомпозиции. MFE разрезаются по бизнес-доменам и командным границам, которые могут быть очень разными по объёму."
+      },
+      {
+        "text": "Каждый MFE должен иметь отдельный бэкенд-сервис (Backend for Frontend)",
+        "correct": false,
+        "explanation": "BFF — полезный паттерн, но не обязательный и не связанный с Conway's Law. Можно иметь MFE без выделенного BFF."
+      }
+    ]
+  },
+  {
+    "question": "Команда проектирует e-commerce платформу. Shell, Catalog, Cart, Checkout, Profile — 5 отдельных MFE. Checkout падает с ошибкой. Что должно произойти с остальными MFE?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Остальные MFE продолжают работать, Checkout отображает fallback UI через Error Boundary в Shell",
+        "correct": true,
+        "explanation": "Ключевой принцип MFE: изоляция отказов. Error Boundary в Shell для каждого MFE гарантирует, что ошибка в одном не роняет другие. Пользователь теряет только Checkout, но может продолжать просматривать каталог."
+      },
+      {
+        "text": "Вся страница падает, так как Shell не может работать без всех MFE",
+        "correct": false,
+        "explanation": "Это антипаттерн — отсутствие Error Boundary. Shell должен защищать от ошибок в MFE через React ErrorBoundary или аналогичный механизм. Падение одного MFE не должно быть видно пользователю как падение всей платформы."
+      },
+      {
+        "text": "Shell автоматически перезагружает Checkout каждые 5 секунд",
+        "correct": false,
+        "explanation": "Автоматический ретрай может усугубить ситуацию (DDoS на упавший сервис). Правильный подход — показать fallback и опционально дать пользователю кнопку 'попробовать снова'."
+      },
+      {
+        "text": "Shell уведомляет все остальные MFE о падении Checkout через EventBus",
+        "correct": false,
+        "explanation": "Уведомление через EventBus о падении MFE — не стандартный паттерн. Остальные MFE не должны знать о состоянии соседних MFE. Изоляция ошибок — задача Error Boundary, а не межMFE коммуникации."
+      }
+    ]
+  },
+  {
+    "question": "Команда выбирает стратегию деплоя для Checkout MFE (обработка платежей, PCI DSS). Какую стратегию выбрать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Blue/Green с обязательным ручным подтверждением перед переключением трафика",
+        "correct": true,
+        "explanation": "Checkout — критический MFE: ошибки = прямые финансовые потери и регуляторные последствия. Blue/Green даёт нулевой downtime и мгновенный rollback. Ручное подтверждение (дополнительный smoke test) снижает риск автоматического продвижения сломанной версии."
+      },
+      {
+        "text": "Direct deploy: обновление прямо в production без промежуточных шагов",
+        "correct": false,
+        "explanation": "Direct deploy для платёжного MFE — максимальный риск. Нет механизма rollback, нет возможности проверить работоспособность до начала приёма реальных платежей."
+      },
+      {
+        "text": "Canary с постепенным выкатом от 1% до 100% за 24 часа",
+        "correct": false,
+        "explanation": "Canary полезен для каталога с высоким трафиком. Но для платёжного MFE 24 часа на выкат — это 24 часа когда часть пользователей может столкнуться с ошибкой оплаты. Blue/Green + ручное подтверждение надёжнее."
+      },
+      {
+        "text": "Synchronized release вместе с остальными MFE каждые 2 недели",
+        "correct": false,
+        "explanation": "Synchronized release нарушает принцип независимости MFE. Checkout критически важен — его обновления (патчи безопасности, исправления) не должны ждать готовности других MFE."
+      }
+    ]
+  },
+  {
+    "question": "Зачем в remoteEntry.js URL использовать версию или хэш, а не 'latest'?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Версионированный URL позволяет мгновенно откатиться к предыдущей версии MFE без редеплоя Shell",
+        "correct": true,
+        "explanation": "Если remoteEntry.js имеет URL с версией (/v1.2.3/remoteEntry.js), для rollback достаточно поменять конфиг Shell (указать /v1.2.2/). С 'latest' URL rollback требует редеплоя MFE с предыдущим кодом."
+      },
+      {
+        "text": "CDN кэширует версионированные URL на долгое время — производительность лучше чем при постоянном revalidate 'latest'",
+        "correct": true,
+        "explanation": "CDN с long-lived cache headers (Cache-Control: max-age=31536000) кэширует версионированные файлы. 'latest' URL нужно либо не кэшировать (медленно), либо инвалидировать при каждом деплое (сложно)."
+      },
+      {
+        "text": "Версионированный URL запрещает MFE загружаться дважды на одной странице",
+        "correct": false,
+        "explanation": "Версионирование не предотвращает двойную загрузку MFE. Для этого используется singleton mode в Module Federation или уникальные имена. URL версии — это про rollback и кэширование."
+      },
+      {
+        "text": "latest URL создаёт риск непредвиденного обновления MFE у пользователей в середине сессии",
+        "correct": true,
+        "explanation": "Если Shell кэшировал 'latest' URL и MFE обновился, новые загрузки получат новую версию, а уже открытые страницы — старую. Это создаёт рассогласование версий в одной сессии. Версионированные URL устраняют эту проблему."
+      }
+    ]
+  },
+  {
+    "question": "В e-commerce MFE платформе Catalog MFE публикует событие 'cart:add'. Cart MFE слушает его. Команда Catalog хочет добавить поле 'discount' в payload. Как правильно сделать это?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Добавить 'discount?' как optional поле в существующий тип события — backward compatible",
+        "correct": true,
+        "explanation": "Добавление optional поля — backward compatible изменение. Cart MFE продолжает работать без discount, но может использовать его если присутствует. Это не breaking change и не требует координации с другими командами."
+      },
+      {
+        "text": "Переименовать событие в 'cart:add:v2' с новым payload, убрать 'cart:add' немедленно",
+        "correct": false,
+        "explanation": "Немедленное удаление 'cart:add' сломает Cart MFE, если он не успел обновиться. Версионирование через 'cart:add:v2' — правильное решение, но нужен период deprecation: оба события работают параллельно до завершения миграции."
+      },
+      {
+        "text": "Изменить тип поля cart:add на any, чтобы принимать любой payload",
+        "correct": false,
+        "explanation": "any в TypeScript — антипаттерн. Теряется типизация, runtime ошибки становятся незаметными в compile time. Event contracts должны быть строго типизированы."
+      },
+      {
+        "text": "Сделать синхронный релиз: обновить Catalog и Cart одновременно",
+        "correct": false,
+        "explanation": "Синхронный релиз — нарушение принципа независимости MFE. Кроме того, даже синхронные деплои имеют race conditions в distributed systems. Правильно: backward compatible API или явное версионирование с deprecation period."
+      }
+    ]
+  },
+  {
+    "question": "Банк с 10 командами, Angular + React стек, PCI DSS требования. Какую интеграцию MFE выбрать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Web Components (Custom Elements + Shadow DOM)",
+        "correct": true,
+        "explanation": "Web Components дают максимальную изоляцию через Shadow DOM: CSS Angular MFE не протекает в React MFE и наоборот. Оба фреймворка рендерятся в Custom Elements, работают как черные ящики. Для PCI DSS изоляция DOM критична: платёжный виджет не должен быть доступен из другого MFE."
+      },
+      {
+        "text": "Module Federation (Webpack 5)",
+        "correct": false,
+        "explanation": "Module Federation отлично работает с Angular и React по отдельности, но mixing Angular + React с shared dependencies сложнее. Главная проблема для банка: Module Federation не даёт DOM-изоляцию (Shadow DOM) — CSS может протекать между MFE."
+      },
+      {
+        "text": "Single-SPA",
+        "correct": false,
+        "explanation": "Single-SPA поддерживает Angular и React через separate адаптеры, но не решает проблему CSS изоляции без дополнительных инструментов. Для PCI DSS нужна более жёсткая изоляция."
+      },
+      {
+        "text": "Import Maps",
+        "correct": false,
+        "explanation": "Import Maps — нативный ESM механизм, не обеспечивает DOM или CSS изоляцию. Для смешанного Angular+React стека с требованиями безопасности не подходит."
+      }
+    ]
+  },
+  {
+    "question": "Почему в SaaS с multi-tenant white-label платформой Module Federation + Single-SPA лучше, чем Module Federation в одиночку?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Single-SPA обеспечивает программную оркестрацию: какие MFE монтировать для каждого tenant на основе runtime-конфига",
+        "correct": true,
+        "explanation": "Single-SPA parcel API позволяет runtime управление: для tenant A монтируем MFE-A и MFE-B, для tenant B — MFE-A и MFE-C. Module Federation без Single-SPA не имеет встроенного механизма runtime оркестрации по конфигу."
+      },
+      {
+        "text": "Single-SPA позволяет изменить routing для каждого tenant без изменения Shell",
+        "correct": true,
+        "explanation": "В Single-SPA routes — это конфигурация, не хардкод. Можно передавать tenant-специфичный routing config из сервиса конфигурации. Без Single-SPA routing в Shell захардкожен."
+      },
+      {
+        "text": "Module Federation без Single-SPA не поддерживает lazy loading MFE",
+        "correct": false,
+        "explanation": "Module Federation отлично поддерживает lazy loading через dynamic import и React.lazy. Это не причина добавлять Single-SPA. Проблема в runtime оркестрации, а не в lazy loading."
+      },
+      {
+        "text": "Комбинация позволяет использовать versioned URLs для разных tenant: tenant A получает MFE v1, tenant B — MFE v2",
+        "correct": true,
+        "explanation": "Single-SPA + Module Federation позволяют задавать разные remoteEntry.js URL для разных tenant. Shell загружает конфиг tenant из API и инициализирует MFE с нужной версией. Это невозможно без программной оркестрации."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Network Waterfall в контексте MFE и как его минимизировать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Последовательная загрузка: Shell → remoteEntry.js каждого MFE → JS бандл MFE. Решение: prefetch remoteEntry.js в Shell",
+        "correct": true,
+        "explanation": "Waterfall: Shell грузится (100ms) → обнаруживает нужные MFE → последовательно или параллельно грузит их remoteEntry.js → грузит их бандлы. Prefetch через <link rel='prefetch'> или явный preload в Shell сокращает perceived latency."
+      },
+      {
+        "text": "Ситуация когда несколько MFE делают запросы к одному API одновременно и создают нагрузку",
+        "correct": false,
+        "explanation": "Это проблема параллельных API запросов, не Network Waterfall. Waterfall — это последовательная (не параллельная) загрузка ресурсов, где каждый следующий начинается только после завершения предыдущего."
+      },
+      {
+        "text": "Падение производительности при использовании CDN из-за географической удалённости серверов",
+        "correct": false,
+        "explanation": "CDN latency — отдельная тема. Network Waterfall — это паттерн последовательных зависимостей при загрузке, когда каждый ресурс блокирует следующий."
+      },
+      {
+        "text": "Переполнение очереди HTTP запросов при загрузке более 6 MFE одновременно",
+        "correct": false,
+        "explanation": "HTTP/2 multiplexing устраняет ограничение на 6 параллельных запросов (это ограничение HTTP/1.1). Waterfall — про последовательность, а не параллельность. Использование HTTP/2 для CDN — хорошая практика, но это другая тема."
+      }
+    ]
+  },
+  {
+    "question": "Какой из подходов — monorepo или polyrepo — лучше подходит для банка с 10 командами и PCI DSS?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Polyrepo: явные границы доступа, соответствие security-требованиям, каждый репозиторий — отдельная единица аудита",
+        "correct": true,
+        "explanation": "Для банка важно: кто имеет доступ к коду платёжного MFE. Polyrepo даёт явный контроль доступа к каждому репозиторию. Аудиторы PCI DSS смотрят на разграничение доступа — monorepo где все видят всё сложнее обосновать."
+      },
+      {
+        "text": "Monorepo (Nx): affected-only CI ускоряет разработку, shared конфиги упрощают управление",
+        "correct": false,
+        "explanation": "Монорепо удобнее для разработки, но создаёт проблему: разработчик каталога видит код платёжного MFE. Для PCI DSS нужно доказать изоляцию доступа — в monorepo это сложнее. Производительность CI второстепенна относительно compliance."
+      },
+      {
+        "text": "Monorepo (Turborepo): проще чем Nx, подходит для смешанного Angular+React стека",
+        "correct": false,
+        "explanation": "Аргументация та же что для Nx: монорепо не решает требования к доступу для PCI DSS. Turborepo vs Nx — вторичный выбор в данном контексте."
+      },
+      {
+        "text": "Вопрос не имеет значения: monorepo и polyrepo не влияют на security",
+        "correct": false,
+        "explanation": "Имеет значение. Polyrepo позволяет настроить права доступа на уровне репозитория: команда payments видит только свой репо. В monorepo всё в одном месте — контроль доступа гранулярнее настроить, но это требует дополнительных инструментов (CODEOWNERS, branch protection)."
+      }
+    ]
+  },
+  {
+    "question": "E-commerce с SEO-критичным каталогом использует Module Federation + Next.js для SSR. Какие из утверждений верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Module Federation поддерживает SSR: remoteEntry.js может быть загружен на сервере, компоненты рендерятся в HTML",
+        "correct": true,
+        "explanation": "@module-federation/nextjs-mf позволяет использовать Module Federation в Next.js SSR контексте. Remote модули загружаются на сервере и рендерятся в HTML — поисковые боты получают полный контент без JavaScript."
+      },
+      {
+        "text": "При SSR remoteEntry.js загружается один раз при старте Node.js процесса, не при каждом запросе",
+        "correct": true,
+        "explanation": "Для производительности SSR важно кэшировать загруженные remote модули. Node.js кэширует модули, поэтому remoteEntry.js и remote chunk загружаются при первом запросе, затем берутся из кэша модулей Node.js."
+      },
+      {
+        "text": "Module Federation SSR не имеет смысла — для SEO достаточно использовать prerender (статическая генерация)",
+        "correct": false,
+        "explanation": "Prerender/SSG подходит для статического контента. Для каталога с 100k+ товаров, персонализацией и частыми обновлениями цен SSR (server-side rendering) предпочтительнее SSG. Module Federation SSR позволяет каждой команде независимо управлять своим SSR MFE."
+      },
+      {
+        "text": "Для SEO важен First Contentful Paint (FCP) — SSR обеспечивает HTML с контентом сразу, без ожидания загрузки JS бандлов",
+        "correct": true,
+        "explanation": "Поисковые боты и Core Web Vitals (LCP, FCP) выигрывают от SSR: HTML приходит уже с контентом. Клиент не ждёт загрузки и гидратации JavaScript для отображения товаров. Это критично для ранжирования в поиске."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Module Federation 2.0 и чем он отличается от 1.0?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Standalone runtime (@module-federation/runtime) без зависимости от webpack, поддержка Rspack и Vite, автоматическая генерация TypeScript типов",
+        "correct": true,
+        "explanation": "MF 2.0 выделяет runtime в отдельный пакет, не привязанный к webpack. Это позволяет использовать Module Federation с Rspack (быстрее webpack), Vite, Rollup. Автотипизация через @module-federation/dts-plugin решает боль отсутствия типов для remote модулей."
+      },
+      {
+        "text": "Module Federation 2.0 добавляет поддержку только React 18 Concurrent Mode",
+        "correct": false,
+        "explanation": "MF 2.0 не ограничивается React и тем более конкретной версией. Это фундаментальное изменение архитектуры runtime для поддержки любых бандлеров и фреймворков."
+      },
+      {
+        "text": "Module Federation 2.0 — переименование в @module-federation/core без технических изменений",
+        "correct": false,
+        "explanation": "Переименование — только часть. Ключевые технические изменения: decoupled runtime, FederationHost API, типизация. Это не просто rebrand."
+      },
+      {
+        "text": "Module Federation 2.0 требует использования только TypeScript, JavaScript не поддерживается",
+        "correct": false,
+        "explanation": "Module Federation 2.0 совместим с JavaScript. Типизация — optional feature через @module-federation/dts-plugin, не обязательное требование."
+      }
+    ]
+  },
+  {
+    "question": "Стартап с 3 командами, React-only стек, MVP в проде, планируют рост до 5 команд. Какой набор технологий правильный для первых 6 месяцев?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Module Federation + Monorepo (Nx) + Independent deploy",
+        "correct": true,
+        "explanation": "Для React-only стека MF — оптимальный выбор: нативный sharing react/react-dom как singletons, minimal overhead. Nx monorepo ускоряет разработку (affected CI, shared конфиги). Independent deploy с первого дня — чтобы команды не ждали друг друга."
+      },
+      {
+        "text": "Web Components + Polyrepo + Blue/Green",
+        "correct": false,
+        "explanation": "Web Components избыточны для React-only стека — их сила в мультифреймворковой среде. Polyrepo замедлит небольшую команду. Blue/Green — хорошая стратегия, но всё вместе — overengineering для стартапа."
+      },
+      {
+        "text": "Single-SPA + Polyrepo + Synchronized releases",
+        "correct": false,
+        "explanation": "Single-SPA хорош для сложной оркестрации, но добавляет complexity для 3 команд. Synchronized releases противоречит основному принципу MFE — независимости. Это плохой старт для стартапа."
+      },
+      {
+        "text": "Import Maps + Monorepo + Canary",
+        "correct": false,
+        "explanation": "Import Maps — экспериментальный подход с ограниченной экосистемой. Canary требует зрелого CI/CD и мониторинга. Для стартапа с MVP лучше начать с проверенного Module Federation."
+      }
+    ]
+  },
+  {
+    "question": "Какие компоненты входят в минимальный checklist архитектора перед запуском MFE-платформы в production?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Error Boundary на каждом MFE — ошибка в одном не должна роняет остальные",
+        "correct": true,
+        "explanation": "Это обязательное требование. Error Boundary — базовая защита. Без него ошибка в React-компоненте Catalog упадёт в Shell и погасит всю страницу. Это нарушает принцип fault isolation."
+      },
+      {
+        "text": "Все MFE используют одинаковый фреймворк и версию React",
+        "correct": false,
+        "explanation": "Однородность стека — желательна, но не обязательна. Одна из задач MFE — возможность использовать разные фреймворки. Module Federation поддерживает sharing нескольких версий React через versioned entries."
+      },
+      {
+        "text": "remoteEntry.js URL версионированы или содержат хэш — не 'latest'",
+        "correct": true,
+        "explanation": "Версионирование URL критично для rollback и CDN-кэширования. 'latest' — антипаттерн: нет возможности быстро откатиться, CDN кэш нужно постоянно инвалидировать."
+      },
+      {
+        "text": "SLO определены и измеряются для каждого MFE отдельно",
+        "correct": true,
+        "explanation": "Без SLO нет ответственности. Checkout должен иметь SLO 99.95%, Admin может иметь 99%. Если у всех один SLO 'платформы', команды не знают на что ориентироваться и нет baseline для алертов."
+      },
+      {
+        "text": "Каждый MFE должен иметь минимум 100% покрытие unit-тестами",
+        "correct": false,
+        "explanation": "100% unit coverage — недостижимая и неразумная цель. Важнее coverage критичных путей (Happy Path, основные ошибки) и наличие contract тестов между MFE. Метрика 100% unit coverage создаёт ложное ощущение безопасности."
+      }
+    ]
+  },
+  {
+    "question": "Почему 'слишком мелкая декомпозиция' (Header, Footer, Button — отдельные MFE) считается антипаттерном?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Module Federation overhead на каждый MFE: отдельный remoteEntry.js, network request, scope initialization",
+        "correct": true,
+        "explanation": "Каждый MFE добавляет: HTTP-запрос для remoteEntry.js, время инициализации Module Federation scope, возможное дублирование shared deps. Для компонента Button без бизнес-логики этот overhead не окупается."
+      },
+      {
+        "text": "Нельзя независимо деплоить Header — нет команды, которая владеет им и имеет свой deploy pipeline",
+        "correct": true,
+        "explanation": "Принцип MFE: каждый MFE принадлежит команде. Header — cross-cutting concern, обновляется несколькими командами. Кто деплоит? Нет ownership = нет независимости. Это shared компонент, он должен быть в shared package, не в отдельном MFE."
+      },
+      {
+        "text": "Маленькие MFE не поддерживают Module Federation из-за ограничений на размер бандла",
+        "correct": false,
+        "explanation": "Module Federation не имеет ограничений на размер бандла. Технически можно создать MFE из одного компонента. Проблема в organizational overhead и отсутствии смысла, а не в технических ограничениях."
+      },
+      {
+        "text": "20+ MFE создают управленческий overhead: 20 репозиториев, 20 CI пайплайнов, 20 команд — при недостаточной команде это неуправляемо",
+        "correct": true,
+        "explanation": "Организационная сложность растёт с числом MFE. Если у вас 5 разработчиков и 20 MFE — это не независимость, это хаос. Каждый разработчик работает в 4 MFE, coordinating overhead превышает выгоды."
+      }
+    ]
+  },
+  {
+    "question": "Команда хочет обновить API события 'checkout:start' (добавить обязательное поле 'shippingAddress'). Cart MFE публикует, Checkout MFE слушает. Как провести миграцию без downtime?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Опубликовать 'checkout:start:v2' с новым полем, Checkout слушает оба v1 и v2 в период миграции, Cart деплоится первым с v2, затем Checkout убирает поддержку v1",
+        "correct": true,
+        "explanation": "Правильная sequence для backward-compatible миграции: 1) Checkout добавляет поддержку v2 (сохраняя v1) — деплой. 2) Cart обновляется на publish v2 — деплой. 3) Checkout убирает v1 handler — деплой. В любой момент система работает корректно."
+      },
+      {
+        "text": "Заменить 'checkout:start' на новую версию, одновременно задеплоить Cart и Checkout",
+        "correct": false,
+        "explanation": "Одновременный деплой в distributed systems имеет race conditions: между деплоями есть window когда Cart уже публикует v2, а Checkout ещё ждёт v1. Это гарантированный downtime или потеря данных."
+      },
+      {
+        "text": "Добавить shippingAddress как optional поле в v1 события — нет необходимости версионировать",
+        "correct": false,
+        "explanation": "Добавить optional поле — backward compatible, верно. Но задание говорит об обязательном поле 'shippingAddress'. Обязательное поле — breaking change, требует версионирования события."
+      },
+      {
+        "text": "Деплоить Checkout первым с новым handler v2, Cart позже — так Checkout готов принять новые события",
+        "correct": false,
+        "explanation": "Деплой Checkout первым, убрав поддержку v1, создаёт window когда Cart ещё публикует v1, а Checkout его уже не слушает — потеря событий. Правильный порядок: сначала добавляем поддержку в потребителе (Checkout), потом обновляем издателя (Cart)."
+      }
+    ]
+  }
+]

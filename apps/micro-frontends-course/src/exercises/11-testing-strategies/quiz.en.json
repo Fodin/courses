@@ -1,0 +1,392 @@
+[
+  {
+    "question": "Which level of testing is specific to micro-frontend architecture and practically absent in a monolith?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Unit tests",
+        "correct": false,
+        "explanation": "Unit tests are used in any architecture — they test isolated components and are independent of architectural style."
+      },
+      {
+        "text": "Contract tests (Pact)",
+        "correct": true,
+        "explanation": "Consumer-driven contract testing solves the problem of independent deployments: it verifies that a change in one MFE does not break the expectations of another. In a monolith this is unnecessary — all components share common types."
+      },
+      {
+        "text": "E2E tests",
+        "correct": false,
+        "explanation": "E2E tests are used in monolithic architecture as well — they verify user scenarios regardless of the internal structure."
+      },
+      {
+        "text": "Visual regression",
+        "correct": false,
+        "explanation": "Visual regression tests are used in any frontend architecture. In MFE they are more important due to the risk of design desynchronization, but they are not unique to MFE."
+      }
+    ]
+  },
+  {
+    "question": "How do you correctly stub an import from another MFE in Jest for unit tests?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use jest.mock() with the full path to the remote",
+        "correct": false,
+        "explanation": "jest.mock('catalog/ProductList') does not work because Jest cannot resolve Module Federation remotes — this is a webpack runtime mechanism."
+      },
+      {
+        "text": "Configure moduleNameMapper in jest.config.ts",
+        "correct": true,
+        "explanation": "moduleNameMapper: { '^catalog/(.*)$': '<rootDir>/__mocks__/catalog/$1' } — the correct way. Jest intercepts the import during module resolution and substitutes a local mock file."
+      },
+      {
+        "text": "Start all MFE dev servers before tests",
+        "correct": false,
+        "explanation": "This is the approach for integration tests, not unit tests. Unit tests must work without network dependencies — fast and reliably."
+      },
+      {
+        "text": "Use jest.spyOn on the global __webpack_require__",
+        "correct": false,
+        "explanation": "Hacking webpack internals is a fragile approach that will break when tools are updated. moduleNameMapper is the official way."
+      }
+    ]
+  },
+  {
+    "question": "In Pact, who generates the contract — consumer or provider?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Provider generates the contract, consumer verifies",
+        "correct": false,
+        "explanation": "This is the reverse order. The provider publishes an API but does not know all consumer expectations. The contract is formed from the side of the one who consumes."
+      },
+      {
+        "text": "Consumer generates the contract, provider verifies",
+        "correct": true,
+        "explanation": "Consumer-driven contract testing: Shell (consumer) runs the Pact test, which generates a pact.json with expectations. Catalog (provider) verifies that its API matches these expectations."
+      },
+      {
+        "text": "The contract is generated automatically from TypeScript types",
+        "correct": false,
+        "explanation": "TypeScript types are a compile-time artifact. Pact works with runtime HTTP interactions and has no knowledge of TypeScript."
+      },
+      {
+        "text": "Both generate their parts independently",
+        "correct": false,
+        "explanation": "This is not a consumer-driven approach. The essence of Pact is that the consumer dictates expectations and the provider must satisfy them."
+      }
+    ]
+  },
+  {
+    "question": "You have 5 MFEs and the E2E test pipeline takes 50 minutes. Which approach is most effective?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Run E2E only on a pre-release tag, not on every PR",
+        "correct": true,
+        "explanation": "Slow tests should not block every PR. Unit + Contract on PR, E2E — before deploying to production."
+      },
+      {
+        "text": "Use Playwright sharding: --shard=1/5 for parallelization",
+        "correct": true,
+        "explanation": "Playwright supports sharding — splitting tests across N parallel agents. 50 min / 5 = ~10 min per shard."
+      },
+      {
+        "text": "Remove Visual regression tests entirely",
+        "correct": false,
+        "explanation": "Visual regression tests are important when working with a design system. It is better to optimize the run (only changed MFEs) than to remove them."
+      },
+      {
+        "text": "Keep only smoke tests for E2E, give detailed coverage to integration",
+        "correct": true,
+        "explanation": "E2E should cover only critical user journeys (3–5 scenarios). Detailed behavior is tested at the integration level, which is faster."
+      }
+    ]
+  },
+  {
+    "question": "What is a mock remote in the context of MFE testing?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A Jest mock for functions inside an MFE",
+        "correct": false,
+        "explanation": "A Jest mock is a unit-testing tool for stubbing functions. A mock remote is an architectural pattern at the Module Federation level."
+      },
+      {
+        "text": "A replacement of a real MFE with a simplified stub in the Module Federation config",
+        "correct": true,
+        "explanation": "A mock remote is a separate webpack bundle that exports the same modules as the real MFE, but with predictable behavior. Shell connects it instead of the real remote during testing."
+      },
+      {
+        "text": "An HTTP mock server intercepting requests to the MFE",
+        "correct": false,
+        "explanation": "An HTTP mock (MSW) intercepts API requests but does not replace the MFE itself as a Module Federation remote."
+      },
+      {
+        "text": "Storybook with isolated MFE components",
+        "correct": false,
+        "explanation": "Storybook is a component development tool. A mock remote is a specific pattern for substituting a Module Federation remote in a test configuration."
+      }
+    ]
+  },
+  {
+    "question": "A team updates design tokens (colors, spacing) in a shared design system. Which type of tests will be the first to catch visual desynchronizations between MFEs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Unit tests of components",
+        "correct": false,
+        "explanation": "Unit tests check logic and rendering, not visual correspondence. Changing a CSS variable will not break a unit test."
+      },
+      {
+        "text": "Contract tests",
+        "correct": false,
+        "explanation": "Contract tests verify API contracts, not visuals. Pact has no knowledge of CSS."
+      },
+      {
+        "text": "Visual regression tests",
+        "correct": true,
+        "explanation": "This is exactly what visual regression tests exist for. When a design token is updated, each MFE's snapshot will change and the test will fail — the team will see all discrepancies before deployment."
+      },
+      {
+        "text": "Integration tests",
+        "correct": false,
+        "explanation": "Integration tests verify MFE interaction (EventBus, state), not CSS/visuals."
+      }
+    ]
+  },
+  {
+    "question": "What is 'Can I Deploy' in the context of Pact?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A CI/CD command to check infrastructure readiness",
+        "correct": false,
+        "explanation": "This is not an infrastructure check — it is a Pact Broker tool."
+      },
+      {
+        "text": "A Pact Broker tool that checks whether an MFE version is compatible with all consumer contracts before deployment",
+        "correct": true,
+        "explanation": "npx pact-broker can-i-deploy --pacticipant CatalogMFE --version X queries the Pact Broker: 'Are there any unverified contracts for this version?' If yes — deployment is blocked."
+      },
+      {
+        "text": "A check for whether a developer has deployment permissions",
+        "correct": false,
+        "explanation": "This is not about access rights. Can I Deploy is exclusively about contract compatibility between MFEs."
+      },
+      {
+        "text": "A command to run E2E tests before deployment",
+        "correct": false,
+        "explanation": "E2E tests run separately. Can I Deploy is a Pact-specific tool for checking contract compatibility."
+      }
+    ]
+  },
+  {
+    "question": "What CI trigger is optimal for a full E2E + Visual regression suite in a large MFE system?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Every commit to a feature branch",
+        "correct": false,
+        "explanation": "Too expensive — developers wait 40+ minutes for every commit. This kills productivity."
+      },
+      {
+        "text": "Every PR to main",
+        "correct": false,
+        "explanation": "Unit + Contract are suitable for every PR, but full E2E + Visual is too slow and expensive for the PR cycle."
+      },
+      {
+        "text": "Pre-release tag (before deploying to production)",
+        "correct": true,
+        "explanation": "The optimal balance: developers do not wait in PRs, but a full check runs before an actual deployment. A nightly run can also be added for early problem detection."
+      },
+      {
+        "text": "Manual trigger only",
+        "correct": false,
+        "explanation": "A manual trigger creates risk: someone will forget to run the tests. Automation on pre-release is more reliable."
+      }
+    ]
+  },
+  {
+    "question": "A team is working on Cart MFE. Catalog MFE changed the structure of its exported data: { products: [] } → { items: [] }. Which test will catch this earliest?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Unit test of Cart MFE",
+        "correct": false,
+        "explanation": "Cart's unit test works with a mock Catalog. If the mock is not updated — the test will pass, but prod will break."
+      },
+      {
+        "text": "Contract test (Pact) for Shell → Catalog",
+        "correct": true,
+        "explanation": "Shell's Pact test fixes the expectation { products: [] }. When verifying the new Catalog v1.6 with { items: [] }, the test will fail and can-i-deploy will block the deployment."
+      },
+      {
+        "text": "E2E test of checkout flow",
+        "correct": false,
+        "explanation": "E2E will catch it, but later — you have to wait for the E2E pipeline to run. A contract test catches it immediately when attempting to deploy Catalog."
+      },
+      {
+        "text": "TypeScript compilation in the Shell repository",
+        "correct": false,
+        "explanation": "Shell and Catalog are separate repositories. Shell's TypeScript has no knowledge of a runtime change in Catalog until the remote is loaded in the browser."
+      }
+    ]
+  },
+  {
+    "question": "You are setting up a hybrid mock strategy. Which configuration is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "All remotes are mocked, except the MFE under test",
+        "correct": true,
+        "explanation": "Hybrid: the MFE under test is real (to verify its behavior), all dependencies are mocked (to isolate from external changes). This is the optimal balance of speed and fidelity."
+      },
+      {
+        "text": "All remotes are real dev servers",
+        "correct": false,
+        "explanation": "This is 'real remotes', not hybrid. It requires all MFEs to run simultaneously — slow and unstable."
+      },
+      {
+        "text": "All remotes are mocked, including the one under test",
+        "correct": false,
+        "explanation": "If the MFE under test is also mocked — what exactly are we testing? This makes no sense."
+      },
+      {
+        "text": "Only APIs are mocked, all MFEs are real",
+        "correct": false,
+        "explanation": "This is the MSW approach (mocking HTTP), not the mock remote strategy. Mock remote replaces the MFE as a Module Federation remote, not the API."
+      }
+    ]
+  },
+  {
+    "question": "What attributes are recommended to add to MFE root elements for easy testing?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "data-mfe=\"catalog\" to identify the MFE in E2E tests",
+        "correct": true,
+        "explanation": "data-mfe allows E2E tests to unambiguously find the MFE boundary: page.locator('[data-mfe=\"catalog\"]'). This is a stable selector that does not depend on CSS."
+      },
+      {
+        "text": "data-testid with a unique MFE prefix (catalog-search, cart-total)",
+        "correct": true,
+        "explanation": "A prefix prevents conflicts between MFEs. cart-total and catalog-total are different elements — the test unambiguously knows which MFE to look in."
+      },
+      {
+        "text": "CSS class and id for stable selectors",
+        "correct": false,
+        "explanation": "CSS classes are an implementation detail. They change when styles are refactored. data-testid intentionally carries no style load and is more stable."
+      },
+      {
+        "text": "aria-label for accessibility, which is also used in tests",
+        "correct": true,
+        "explanation": "Using aria-label/aria-role in tests is good practice: tests verify accessibility alongside functionality. getByRole('button', { name: 'Add to Cart' }) is a reliable selector."
+      }
+    ]
+  },
+  {
+    "question": "A team has added a new 'Reviews' MFE. Unit tests are written. What else must be done before other MFEs start using Reviews?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Write a Pact consumer test for each MFE that will use Reviews",
+        "correct": true,
+        "explanation": "Each consumer (Shell, Catalog) must fix its expectations for Reviews through Pact. Without this, there is no guarantee of compatibility during independent deployments."
+      },
+      {
+        "text": "Set up a Visual baseline for the Reviews MFE",
+        "correct": true,
+        "explanation": "The first run of Playwright with --update-snapshots creates the baseline. Without it, visual regression tests have nothing to compare against."
+      },
+      {
+        "text": "Add Reviews to the E2E test matrix",
+        "correct": false,
+        "explanation": "Not mandatory right away — E2E covers critical user journeys, not every possible scenario. Adding Reviews to integration tests is sufficient."
+      },
+      {
+        "text": "Add a mock for Reviews in the moduleNameMapper of other MFEs",
+        "correct": true,
+        "explanation": "Other MFEs that will import from Reviews must have a mock in their Jest configuration for unit tests."
+      }
+    ]
+  },
+  {
+    "question": "A visual regression test unexpectedly failed due to a button animation (a different screenshot frame). How should this be fixed correctly?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Increase the wait timeout to 10 seconds",
+        "correct": false,
+        "explanation": "A timeout does not solve the animation problem — the screenshot will still capture an arbitrary frame."
+      },
+      {
+        "text": "Use the mask option or disable animations via a CSS media query in tests",
+        "correct": true,
+        "explanation": "Playwright supports mask to hide dynamic areas. You can also emulate prefers-reduced-motion: reduce, which causes most CSS animations to complete instantly."
+      },
+      {
+        "text": "Delete the visual regression test for this component",
+        "correct": false,
+        "explanation": "Deletion is a last resort. The flakiness should first be fixed rather than abandoning the test."
+      },
+      {
+        "text": "Increase maxDiffPixelRatio to 50%",
+        "correct": false,
+        "explanation": "A 50% tolerance makes the test meaningless — it will miss real visual regressions. The normal range is 1–5%."
+      }
+    ]
+  },
+  {
+    "question": "Why can't you rely solely on TypeScript to verify cross-team contracts in MFE architecture?",
+    "type": "single",
+    "options": [
+      {
+        "text": "TypeScript does not support Module Federation",
+        "correct": false,
+        "explanation": "TypeScript supports Module Federation via @module-federation/typescript or manual type declarations. This is not a problem."
+      },
+      {
+        "text": "TypeScript checks types at compile time, but MFEs deploy independently — the runtime version may differ from the types in another repository",
+        "correct": true,
+        "explanation": "Shell is compiled with Catalog v1.5 types. But in production, Catalog v1.6 with a changed API may be deployed. TypeScript will not protect against this runtime mismatch. Pact verifies real HTTP interactions."
+      },
+      {
+        "text": "TypeScript compiles too slowly in a monorepo",
+        "correct": false,
+        "explanation": "Compilation performance is a separate issue, unrelated to contract testing."
+      },
+      {
+        "text": "Module Federation does not support strict TypeScript",
+        "correct": false,
+        "explanation": "This is incorrect. TypeScript strict mode works with Module Federation."
+      }
+    ]
+  },
+  {
+    "question": "Which statement about the ratio of testing levels in an MFE system is most correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Even distribution: 20% unit, 20% contract, 20% integration, 20% e2e, 20% visual",
+        "correct": false,
+        "explanation": "An even distribution violates the pyramid principle. E2E and visual are expensive — there should be fewer of them. Unit tests are cheap — there should be more of them."
+      },
+      {
+        "text": "Foundation — unit (~70%), middle layer — contract + integration (~20%), top — e2e + visual (~10%)",
+        "correct": true,
+        "explanation": "This is the classic testing pyramid adapted for MFE. Unit tests are cheap and fast — there are many. E2E and visual are expensive, slow, and fragile — there are few, covering only critical scenarios."
+      },
+      {
+        "text": "Foundation — e2e (70%), because they verify real UX",
+        "correct": false,
+        "explanation": "This is an inverted pyramid (the ice cream cone anti-pattern). E2E tests are slow, expensive, and unstable — they should not be the majority."
+      },
+      {
+        "text": "Contract tests should make up 50%+ for MFE, other levels are secondary",
+        "correct": false,
+        "explanation": "Contract tests are important for MFE, but they do not replace other levels. Unit tests cover the internal component logic that Pact does not test."
+      }
+    ]
+  }
+]

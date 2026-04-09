@@ -1,0 +1,262 @@
+[
+  {
+    "question": "What is a micro-frontend?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A small frontend bundle (< 100 KB)",
+        "correct": false,
+        "explanation": "Incorrect. Bundle size does not define an MFE. A micro-frontend is an architectural concept, not about file size."
+      },
+      {
+        "text": "An independently developed and deployed part of a frontend application",
+        "correct": true,
+        "explanation": "Correct. The key words are independent development and independent deployment. This is the main difference from just a 'component'."
+      },
+      {
+        "text": "A frontend application that uses microservices on the backend",
+        "correct": false,
+        "explanation": "Incorrect. MFE is about frontend architecture, not the backend. You can have MFEs with a monolithic backend and vice versa."
+      },
+      {
+        "text": "A frontend with micro-optimizations for performance",
+        "correct": false,
+        "explanation": "Incorrect. 'Micro' in MFE refers to the size of the area of responsibility, not rendering optimizations."
+      }
+    ]
+  },
+  {
+    "question": "What is 'deploy coupling' in a monolithic frontend?",
+    "type": "single",
+    "options": [
+      {
+        "text": "One team's deployment depending on other teams being ready",
+        "correct": true,
+        "explanation": "Correct. When all teams are forced to deploy simultaneously, a delay in one blocks everyone — that is deploy coupling."
+      },
+      {
+        "text": "Optimizing deployment through Docker layer caching",
+        "correct": false,
+        "explanation": "Incorrect. This is a CI acceleration technique, unrelated to the concept of coupling between teams."
+      },
+      {
+        "text": "The relationship between frontend and backend deployments",
+        "correct": false,
+        "explanation": "Incorrect. Deploy coupling in the MFE context describes dependencies between frontend teams, not a frontend-backend connection."
+      },
+      {
+        "text": "Mandatory synchronization of npm package versions",
+        "correct": false,
+        "explanation": "Incorrect. Version synchronization is a technical detail, while deploy coupling is an organizational problem with release cycles."
+      }
+    ]
+  },
+  {
+    "question": "How does build-time integration differ from runtime integration in the MFE context?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Build-time builds faster, runtime runs faster in the browser",
+        "correct": false,
+        "explanation": "Incorrect. The key difference is not speed but independence of deployments. Runtime integration can load the remote over the network."
+      },
+      {
+        "text": "Build-time requires rebuilding the host when an MFE is updated; runtime does not",
+        "correct": true,
+        "explanation": "Correct. With build-time integration, MFEs are compiled into a shared bundle, so updating one without rebuilding everything is impossible. Runtime loads MFEs by URL at page load time."
+      },
+      {
+        "text": "Build-time is only used with React, runtime — with Vue and Angular",
+        "correct": false,
+        "explanation": "Incorrect. Neither approach is tied to a specific framework. Module Federation supports any stack."
+      },
+      {
+        "text": "Build-time cannot be used in production",
+        "correct": false,
+        "explanation": "Incorrect. Build-time is perfectly usable in production — it is just regular npm dependencies or workspace packages. You simply lose deployment independence."
+      }
+    ]
+  },
+  {
+    "question": "Select the correct statements about iframe-based MFE integration",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Provides full CSS and JavaScript isolation between MFEs",
+        "correct": true,
+        "explanation": "Correct. An iframe is the most isolated integration approach. Each iframe is a separate browsing context."
+      },
+      {
+        "text": "Works well for SEO since content is visible to search engines",
+        "correct": false,
+        "explanation": "Incorrect. Search engines index iframe content poorly. This is one of the main drawbacks of the iframe approach."
+      },
+      {
+        "text": "Communication between an iframe and the host is done through postMessage",
+        "correct": true,
+        "explanation": "Correct. postMessage is the standard mechanism for cross-origin communication between an iframe and the parent window."
+      },
+      {
+        "text": "Allows running MFEs on different technology stacks",
+        "correct": true,
+        "explanation": "Correct. Since each iframe is isolated, you can use React in one and Vue in another — without conflicts."
+      }
+    ]
+  },
+  {
+    "question": "A team of 5 people is building an early-stage SaaS product. Do they need MFEs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Yes, it's better to build the right architecture from the start",
+        "correct": false,
+        "explanation": "Incorrect. Premature optimization. MFEs add infrastructure complexity that slows development in the early stages without tangible benefit."
+      },
+      {
+        "text": "No, for a single team MFEs add overhead with no benefit",
+        "correct": true,
+        "explanation": "Correct. MFEs solve the problem of scaling teams. A single team does not need 'independence of deployments from itself'. It's better to focus on a well-structured modular monolith."
+      },
+      {
+        "text": "Yes, this will allow scaling server load",
+        "correct": false,
+        "explanation": "Incorrect. MFEs have no effect on server load. This is a frontend architecture related to the organization of development teams."
+      },
+      {
+        "text": "It depends on which framework they use",
+        "correct": false,
+        "explanation": "Incorrect. The decision about MFEs does not depend on the choice of framework. It depends on the organizational context: number of teams, deployment frequency, degree of independence."
+      }
+    ]
+  },
+  {
+    "question": "What is Conway's Law and how does it apply to MFEs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A law about code performance: less code means faster execution",
+        "correct": false,
+        "explanation": "Incorrect. Conway's Law is about organizational structures and system architecture, not performance."
+      },
+      {
+        "text": "Organizations create systems whose architecture mirrors their communication structure",
+        "correct": true,
+        "explanation": "Correct. Formulated by Melvin Conway in 1967. Applied to MFEs: if you have three teams, the system will (most likely) split into three parts. MFEs allow you to do this intentionally."
+      },
+      {
+        "text": "A rule that prohibits a team from working on multiple repositories",
+        "correct": false,
+        "explanation": "Incorrect. No such rule exists. Conway's Law is an observation, not a prohibition."
+      },
+      {
+        "text": "A principle that each MFE must have a separate backend",
+        "correct": false,
+        "explanation": "Incorrect. Conway's Law does not dictate a separate backend. Many MFE architectures use a shared API gateway."
+      }
+    ]
+  },
+  {
+    "question": "Which metrics are important to track when evaluating the effectiveness of a transition to MFEs?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Time-to-Deploy (TTD) — time from commit to production",
+        "correct": true,
+        "explanation": "Correct. TTD is a key metric for deployment independence. In MFEs it should decrease for each team."
+      },
+      {
+        "text": "Team autonomy — can teams deploy without coordinating with others",
+        "correct": true,
+        "explanation": "Correct. Team autonomy is one of the main reasons for adopting MFEs. If teams still coordinate deployments after the transition, something went wrong."
+      },
+      {
+        "text": "Number of lines of code in each MFE",
+        "correct": false,
+        "explanation": "Incorrect. Codebase size is not a success metric for MFEs. The right MFE size is determined by domain boundaries, not lines of code."
+      },
+      {
+        "text": "Bundle size — size of JS loaded for each page",
+        "correct": true,
+        "explanation": "Correct. One of the bonuses of MFEs is the ability to load only the needed MFEs. If the bundle has not shrunk, lazy loading may be configured incorrectly."
+      }
+    ]
+  },
+  {
+    "question": "Server-side composition differs from client-side integration in that:",
+    "type": "single",
+    "options": [
+      {
+        "text": "HTML fragments from different MFEs are assembled on the server before being sent to the browser",
+        "correct": true,
+        "explanation": "Correct. With SSC, the server (or edge) receives HTML from different MFE services and assembles the final page before sending it to the client. This improves SEO and initial load."
+      },
+      {
+        "text": "MFEs are deployed to different servers for load balancing",
+        "correct": false,
+        "explanation": "Incorrect. Server-side composition describes a UI assembly method, not load distribution. Load balancing is a separate infrastructure topic."
+      },
+      {
+        "text": "MFE JavaScript is executed on a Node.js server, not in the browser",
+        "correct": false,
+        "explanation": "Partially correct, but incomplete. SSC is about assembling HTML fragments, not necessarily server-side rendering of all JavaScript."
+      },
+      {
+        "text": "Requires using GraphQL instead of REST",
+        "correct": false,
+        "explanation": "Incorrect. SSC does not depend on the API protocol. You can use REST, GraphQL, or any other."
+      }
+    ]
+  },
+  {
+    "question": "What will happen to deploy coupling if you split a monolith into 10 MFEs but keep a single manual testing process before release?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Deploy coupling will disappear completely — the code is now separate",
+        "correct": false,
+        "explanation": "Incorrect. Deploy coupling is an organizational problem, not a technical one. If all MFEs are tested simultaneously before release, the dependency remains regardless of code structure."
+      },
+      {
+        "text": "Deploy coupling will remain — the bottleneck moves to the testing process",
+        "correct": true,
+        "explanation": "Correct. Technical boundaries without organizational changes do not provide independence. Autonomous testing pipelines for each MFE are required."
+      },
+      {
+        "text": "Deploy coupling will be reduced by half",
+        "correct": false,
+        "explanation": "Incorrect. Coupling is not a fractional quantity. If there is a single synchronization point, all MFEs depend on each other at that point."
+      },
+      {
+        "text": "This is an impossible situation — MFEs are by definition tested independently",
+        "correct": false,
+        "explanation": "Incorrect. This situation is very common. Teams split the code but keep a monolithic QA process — getting the worst of both worlds."
+      }
+    ]
+  },
+  {
+    "question": "When is build-time MFE integration preferable to runtime?",
+    "type": "single",
+    "options": [
+      {
+        "text": "When maximum performance and static type analysis are needed, and deployment independence is not critical",
+        "correct": true,
+        "explanation": "Correct. Build-time gives an optimal bundle (tree shaking, code splitting), and TypeScript types work without additional setup. Suitable for teams that value code modularity but not deployment independence."
+      },
+      {
+        "text": "When different MFEs have different versions of React",
+        "correct": false,
+        "explanation": "Incorrect. With build-time integration, different React versions in one bundle will cause conflicts. This is actually an argument in favor of runtime or iframe."
+      },
+      {
+        "text": "When each MFE needs to be deployed as independently and quickly as possible",
+        "correct": false,
+        "explanation": "Incorrect. Independent deployment is the main argument against build-time. Every MFE update requires rebuilding the entire application."
+      },
+      {
+        "text": "When MFEs are created by different companies",
+        "correct": false,
+        "explanation": "Incorrect. If MFEs are created by different companies, runtime integration is needed — you won't have access to another company's build."
+      }
+    ]
+  }
+]

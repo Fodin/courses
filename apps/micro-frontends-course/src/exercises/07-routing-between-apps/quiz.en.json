@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Why should only Shell call history.pushState(), and not the MFEs themselves?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Because MFEs are loaded lazily and do not have access to window.history until fully initialized",
+        "correct": false,
+        "explanation": "Lazy loading does not restrict access to window.history — after mounting, an MFE has full access to the browser API. The issue is not availability, but coordination."
+      },
+      {
+        "text": "Because two MFEs can call pushState simultaneously; the second call silently overwrites the first — the URL becomes incorrect and MFE states become desynchronized",
+        "correct": true,
+        "explanation": "history.pushState() does not emit events and does not throw exceptions on conflict. In a race condition both calls will execute, but only the last URL will remain in the browser — this leads to an inconsistent application state."
+      },
+      {
+        "text": "Because React Router in an MFE cannot work with the native history API — only through its own abstractions",
+        "correct": false,
+        "explanation": "React Router uses the history API internally — it works with it perfectly. The restriction is an architectural decision for coordination, not a technical limitation of React Router."
+      },
+      {
+        "text": "Because the browser blocks pushState calls from iframes, and MFEs often use iframe isolation",
+        "correct": false,
+        "explanation": "Not all MFEs use iframes. With iframes history is indeed isolated, but the question is about the more general case — JS integration where all MFEs share the same window."
+      }
+    ]
+  },
+  {
+    "question": "Shell declares the route `/catalog/*`. What internal routes configuration should Catalog MFE use?",
+    "type": "single",
+    "options": [
+      {
+        "text": "<Route path=\"/catalog\" />, <Route path=\"/catalog/search\" />, <Route path=\"/catalog/:id\" />",
+        "correct": false,
+        "explanation": "Duplicating the /catalog prefix in the MFE's internal routes is a common mistake. React Router already knows the MFE handles paths under /catalog/* — so only relative paths are needed inside."
+      },
+      {
+        "text": "<Route index />, <Route path=\"search\" />, <Route path=\":id\" />",
+        "correct": true,
+        "explanation": "Inside a Route with path='/catalog/*', React Router v6 automatically knows the base path. Relative paths (search, :id, index) correctly resolve to /catalog/search and /catalog/:id — without duplicating the prefix."
+      },
+      {
+        "text": "<Route path=\"/*\" />, <Route path=\"/*/search\" />, <Route path=\"/*/:id\" />",
+        "correct": false,
+        "explanation": "This syntax is not a valid way to write relative routes in React Router v6. A wildcard as a path segment placeholder does not work this way."
+      },
+      {
+        "text": "Catalog MFE should not have its own Router — Shell fully manages all routes",
+        "correct": false,
+        "explanation": "Shell manages only the top level (/catalog/*). Internal routes are the responsibility of Catalog MFE. This is the key principle of nested routing in MFEs: Shell delegates internal navigation to the MFE."
+      }
+    ]
+  },
+  {
+    "question": "A user enters the URL `/catalog/42` directly into the browser address bar. What should the server do?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Return 404 — the server does not know about /catalog/42, it is an SPA route",
+        "correct": false,
+        "explanation": "Returning 404 breaks deep linking — one of the key features of modern applications. Users will not be able to share links to specific pages."
+      },
+      {
+        "text": "Perform server-side rendering of Catalog MFE with ProductDetail for ID 42",
+        "correct": false,
+        "explanation": "SSR is one possible approach, but not the only one or a required one. For most internal applications, client-side deep linking with proper nginx configuration is sufficient."
+      },
+      {
+        "text": "Return index.html for any path that is not a static file — the SPA will handle the URL itself",
+        "correct": true,
+        "explanation": "The try_files $uri /index.html pattern in nginx is the standard solution for SPA deep linking. Shell loads, sees the URL /catalog/42, determines the appropriate MFE, and mounts it with initialPath='/catalog/42'."
+      },
+      {
+        "text": "Redirect to / via a 302 redirect — the user will navigate to the needed page themselves",
+        "correct": false,
+        "explanation": "Redirecting to / destroys the deep link — the user loses context. This is an anti-pattern that makes it impossible to share links to specific pages of the application."
+      }
+    ]
+  },
+  {
+    "question": "A developer places a wildcard route `*` first in the Shell routes list. What will happen?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Nothing special — React Router v6 automatically sorts routes by specificity",
+        "correct": false,
+        "explanation": "React Router v6 does use a ranking algorithm for most routes, but wildcard (*) is still order-sensitive in some scenarios. Best practice is to always place * last."
+      },
+      {
+        "text": "The wildcard will intercept all requests — the specific routes /catalog/*, /cart/* will never match",
+        "correct": true,
+        "explanation": "The * route matches any path. If it is first, the router will stop at it and never check more specific routes. Wildcard must always be last — this is not just style, it is correctness."
+      },
+      {
+        "text": "React Router will throw a compile error — a wildcard cannot appear before other routes",
+        "correct": false,
+        "explanation": "React Router does not throw an error for this ordering — it is a logical configuration mistake that must be caught through tests or config validation."
+      },
+      {
+        "text": "The wildcard will only be used if no other route matched — order does not matter",
+        "correct": false,
+        "explanation": "In most routers, order matters. In React Router v6, the ranking algorithm helps for regular routes, but for wildcard — it is safer to explicitly place it last."
+      }
+    ]
+  },
+  {
+    "question": "What mechanism is best suited for passing a navigation request from Cart MFE to Shell?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "CustomEvent on window with the name 'mfe:navigate' and detail.path",
+        "correct": true,
+        "explanation": "Custom Events are a native browser standard. No additional dependencies are needed; they work between any MFEs without a shared library and are easy to debug in DevTools."
+      },
+      {
+        "text": "Shared Navigation Bus — a singleton in a shared package, Shell subscribes via onNavigate()",
+        "correct": true,
+        "explanation": "A Navigation Bus provides additional capabilities: guards (auth check, unsaved changes), middleware, centralized logging. Suitable for applications with complex navigation requirements."
+      },
+      {
+        "text": "Direct call to window.history.pushState() from Cart MFE",
+        "correct": false,
+        "explanation": "This is exactly what should not be done. Calling pushState directly from an MFE bypasses the Shell router, creates a risk of race conditions, and makes centralized auth guards or navigation analytics impossible."
+      },
+      {
+        "text": "localStorage.setItem('navigate', path) + window 'storage' event",
+        "correct": false,
+        "explanation": "Using localStorage to coordinate navigation is an anti-pattern. localStorage is asynchronous (storage events do not guarantee order), pollutes the store, and complicates debugging. Specialized mechanisms exist for navigation."
+      }
+    ]
+  },
+  {
+    "question": "Shell loads Catalog MFE with `path='/catalog/*'`. The user opens a deep link `/catalog/42`. How should Catalog MFE handle the initial URL?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Catalog MFE always starts at / — the user must navigate manually",
+        "correct": false,
+        "explanation": "Ignoring initialPath breaks deep linking. A user who opened /catalog/42 from a bookmark or an email expects to see product card 42, not the catalog list."
+      },
+      {
+        "text": "Catalog MFE reads window.location.pathname and extracts the path, passing it to MemoryRouter via initialEntries or to BrowserRouter via the built-in match",
+        "correct": true,
+        "explanation": "On mount, the MFE must initialize its internal router with the current pathname. This allows the correct view (ProductDetail for /catalog/42) to be shown on a direct URL navigation."
+      },
+      {
+        "text": "Shell intercepts /catalog/42 and renders ProductDetail itself without Catalog MFE — it is faster",
+        "correct": false,
+        "explanation": "Shell should not know about Catalog MFE's internal components. This violates encapsulation and creates tight coupling — Shell becomes dependent on the implementation details of each MFE."
+      },
+      {
+        "text": "Catalog MFE redirects to /catalog and then does a client-side navigate to /catalog/42",
+        "correct": false,
+        "explanation": "The extra redirect /catalog → /catalog/42 creates an artifact in the browser history and an unpleasant UI flash. The correct approach is to immediately initialize the router with the correct path."
+      }
+    ]
+  },
+  {
+    "question": "What is the difference between lazy and eager loading of MFEs in Shell route configuration?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A lazy MFE loads only on the first visit to its route — reduces Shell's initial bundle size",
+        "correct": true,
+        "explanation": "Lazy loading via dynamic import() defers loading the MFE until the user navigates to its route. Shell starts faster by not loading all MFE code upfront."
+      },
+      {
+        "text": "An eager MFE is included in the Shell's main bundle — available instantly, but increases page load time",
+        "correct": true,
+        "explanation": "Eager loading means Shell imports the MFE statically. There is no additional network request when navigating to the route, but Shell takes longer to load due to the larger bundle."
+      },
+      {
+        "text": "A lazy MFE does not support deep linking — a direct visit to /catalog/42 with a lazy Catalog MFE will cause an error",
+        "correct": false,
+        "explanation": "Lazy MFEs support deep linking perfectly. On a direct visit to /catalog/42, Shell loads the lazy Catalog MFE (a small delay) and passes it the initialPath. Suspense provides a fallback while loading."
+      },
+      {
+        "text": "A lazy MFE must be wrapped in Suspense with a fallback to handle the loading state",
+        "correct": true,
+        "explanation": "React lazy() combined with dynamic import() throws a Promise on first load — this is the Suspense mechanism. Without <Suspense fallback={...}>, React will throw an error. The fallback shows a skeleton or spinner while the MFE is loading."
+      }
+    ]
+  },
+  {
+    "question": "A team proposes using hash-routing (#/catalog/42) instead of the history API to avoid conflicts. What are the consequences?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Hash routing is not sent to the server — nginx does not need to be configured, deep links work out of the box",
+        "correct": true,
+        "explanation": "The hash part of the URL (#/catalog/42) is not included in the HTTP request. The server always receives a request for /, returns index.html, and the SPA handles the hash on the client — no special nginx configuration needed."
+      },
+      {
+        "text": "Hash routing is worse for SEO — search engines have historically ignored or poorly indexed hash paths",
+        "correct": true,
+        "explanation": "Google has learned to index JavaScript applications, but hash URLs are still considered an anti-pattern for SEO. For public-facing sites, history API + SSR or prerendering is preferable."
+      },
+      {
+        "text": "Hash routing completely solves the pushState conflict problem — conflicts become impossible",
+        "correct": false,
+        "explanation": "Hash routing replaces pushState with location.hash changes, but race conditions do not go away. Two MFEs can simultaneously change location.hash — the coordination problem remains."
+      },
+      {
+        "text": "The URL looks less professional: http://app.com/#/catalog/42 instead of http://app.com/catalog/42",
+        "correct": true,
+        "explanation": "Hash URLs look different and are perceived as an outdated approach. For corporate and public-facing applications this can be an important factor."
+      }
+    ]
+  },
+  {
+    "question": "A navigation guard in Shell must check authorization before transitioning to protected routes. Where is the best place to put this logic?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In each MFE separately — they check the token themselves before rendering their components",
+        "correct": false,
+        "explanation": "Duplicating auth logic in every MFE violates DRY and creates a risk of desynchronization. If the authorization logic changes, all MFEs need to be updated simultaneously. A single authorization point is easier to maintain."
+      },
+      {
+        "text": "In the mfe:navigate event handler in Shell, before calling router.navigate()",
+        "correct": true,
+        "explanation": "A centralized guard in Shell is the correct architectural solution. Shell intercepts all navigation requests, checks permissions before the transition, and only on success calls router.navigate(). All MFEs are automatically protected."
+      },
+      {
+        "text": "In the React Router loader function in the Shell routes configuration",
+        "correct": false,
+        "explanation": "A loader is a good option for data-fetching, but for a navigation guard an interceptor at the navigation level is preferable. The loader runs after the transition has already begun, which can lead to a flash of unprotected content."
+      },
+      {
+        "text": "In a shared AuthService that MFEs call independently before each user action",
+        "correct": false,
+        "explanation": "AuthService in every MFE duplicates integration points. If an MFE calls navigate() through Shell, then authorization checks should also be in Shell — a single entry point for all navigation."
+      }
+    ]
+  },
+  {
+    "question": "A project uses Module Federation. Shell and Catalog MFE both include react-router-dom in shared with singleton:true. What will happen with browser history?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Each MFE will have its own independent navigation history — a pushState in one is not visible to the other",
+        "correct": false,
+        "explanation": "This describes behavior with a NON-shared router. With singleton:true both MFEs use one copy of react-router-dom — and one RouterContext. Browser history is shared."
+      },
+      {
+        "text": "Both use a single react-router-dom instance — they share one RouterContext and one history",
+        "correct": true,
+        "explanation": "Singleton means one copy in the runtime. Shell creates a BrowserRouter (or createBrowserRouter), Catalog MFE gets access to the same RouterContext through shared react-router-dom. useNavigate() in Catalog works with the same history."
+      },
+      {
+        "text": "Module Federation will throw an error — react-router-dom does not support singleton mode",
+        "correct": false,
+        "explanation": "react-router-dom works perfectly as a singleton in Module Federation. Moreover, this is the recommended approach — without singleton, two routers compete for the same browser history."
+      },
+      {
+        "text": "Shell will use the current version, Catalog MFE — a cached old copy",
+        "correct": false,
+        "explanation": "Singleton guarantees one version for all. Module Federation performs version negotiation and loads the maximum compatible version — not 'current for one' and 'cached for another'."
+      }
+    ]
+  }
+]

@@ -1,0 +1,392 @@
+[
+  {
+    "question": "What is the Strangler Fig Pattern as applied to the frontend?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Removing the monolith and fully rewriting it from scratch in a single release",
+        "correct": false,
+        "explanation": "This is the Big Bang approach — the opposite of Strangler Fig. Big Bang is risky: the team maintains two applications in parallel, the monolith keeps receiving features, and by the time the rewrite is done the new application is already outdated."
+      },
+      {
+        "text": "Gradually replacing the monolith with new MFEs via a shell that intercepts routes one by one",
+        "correct": true,
+        "explanation": "Strangler Fig: the shell wraps the monolith and gradually intercepts URL routes, redirecting them to new MFEs. The monolith shrinks until it is completely displaced. Each step delivers value."
+      },
+      {
+        "text": "Breaking the monolith into npm packages without creating separate applications",
+        "correct": false,
+        "explanation": "Creating npm packages is modularization of the monolith, but not micro-frontends. MFEs imply independent applications with independent deployments."
+      },
+      {
+        "text": "Moving the monolith into a Docker container for isolation",
+        "correct": false,
+        "explanation": "Containerization is an infrastructure solution, not a frontend architectural pattern. A monolith in Docker is still a monolith."
+      }
+    ]
+  },
+  {
+    "question": "Which monolith domain should be chosen as the first candidate for extraction into an MFE?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Checkout — the most business-critical, so it should be improved first",
+        "correct": false,
+        "explanation": "A critical domain is the worst first candidate. An incident in prod on the very first MFE will destroy trust in the project. Start with non-critical domains."
+      },
+      {
+        "text": "Analytics — non-critical, no dependencies, small size, high frequency of changes",
+        "correct": true,
+        "explanation": "Ideal first candidate: non-critical (an error is not critical for the business), no incoming dependencies (no need to migrate dependencies first), small (quick), frequent changes (the team will quickly benefit from independent deployment)."
+      },
+      {
+        "text": "The largest domain — to reduce the monolith quickly",
+        "correct": false,
+        "explanation": "A large domain means a long migration, many risks, many dependencies. The first MFE should be a pilot for establishing patterns — it must be simple."
+      },
+      {
+        "text": "Any domain — the order does not matter",
+        "correct": false,
+        "explanation": "The order is critically important. If Checkout is extracted before Cart, Checkout will depend on the still-monolithic Cart through a complex integration. Dependencies must be extracted before the domains that depend on them."
+      }
+    ]
+  },
+  {
+    "question": "A team wants to migrate Checkout MFE, but it depends on Cart and Catalog. Cart and Catalog are still in the monolith. What should they do?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Migrate Checkout first, connect Cart and Catalog via the monolith's API",
+        "correct": false,
+        "explanation": "Checkout MFE will depend on the monolith via an HTTP API — the coupling is preserved. When the monolith's API changes, Checkout breaks. This is not true independence."
+      },
+      {
+        "text": "First migrate Catalog → then Cart → then Checkout",
+        "correct": true,
+        "explanation": "Correct order: dependencies are extracted before the domains that depend on them. Catalog depends on nothing → first. Cart depends on Catalog (already an MFE) → second. Checkout depends on Cart+Catalog (both already MFEs) → third."
+      },
+      {
+        "text": "Migrate all three simultaneously in a single sprint",
+        "correct": false,
+        "explanation": "Parallel migration of three connected domains is maximum risk. If something breaks, it is unclear which MFE caused the problem. Sequential migration allows issues to be isolated."
+      },
+      {
+        "text": "Wait until all monolith domains are ready, then migrate all at once",
+        "correct": false,
+        "explanation": "This is the Big Bang approach disguised as 'preparation'. There is no reason to wait — each ready domain can be deployed independently, delivering value immediately."
+      }
+    ]
+  },
+  {
+    "question": "How should data be exchanged between the monolith and MFEs during the transition period?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A versioned key in localStorage: mfe:auth:v2 with a JSON schema",
+        "correct": true,
+        "explanation": "localStorage is convenient for synchronous reads without network requests. Key versioning (v2) allows the schema to change without breaking changes — old MFEs keep reading v1, new ones switch to v2."
+      },
+      {
+        "text": "CustomEvent via window for reactive synchronization of changes",
+        "correct": true,
+        "explanation": "window.dispatchEvent(new CustomEvent('mfe:cart:updated', { detail })) allows the monolith to notify MFEs of changes without a direct connection. The MFE subscribes to the event and updates its local state."
+      },
+      {
+        "text": "Direct module imports from the monolith via Module Federation",
+        "correct": false,
+        "explanation": "This creates a bidirectional dependency: the MFE depends on the monolith as a Module Federation remote. Now the MFE cannot be deployed without the monolith. This contradicts the goal of migration."
+      },
+      {
+        "text": "REST API endpoints of the monolith for reading shared state",
+        "correct": true,
+        "explanation": "The monolith as the source of truth via API is a valid approach for non-critical data. The MFE calls fetch('/api/user') — the monolith responds. When the monolith is decommissioned, this endpoint moves to a separate auth service."
+      }
+    ]
+  },
+  {
+    "question": "What does 'traffic routing' mean in the context of Strangler Fig?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Load balancing between backend servers",
+        "correct": false,
+        "explanation": "Traffic routing in Strangler Fig is about routing URL requests between the monolith and MFEs in the frontend (shell), not about backend load balancing."
+      },
+      {
+        "text": "The shell application decides: this URL → MFE, everything else → monolith",
+        "correct": true,
+        "explanation": "Shell contains a routing table: '/analytics/*' → Analytics MFE, '/profile/*' → Profile MFE, '/*' → monolith. The percentage of traffic going to MFEs grows as migration progresses. In the end the monolith receives 0% of requests."
+      },
+      {
+        "text": "CDN distribution of MFE static files across regions",
+        "correct": false,
+        "explanation": "CDN is about delivery performance, not routing during migration. Traffic routing in Strangler Fig is a logical choice between the monolith and MFEs."
+      },
+      {
+        "text": "A/B testing between the old and new version of the interface",
+        "correct": false,
+        "explanation": "A/B testing is a product tool. Traffic routing in Strangler Fig is a technical separation of the monolith and MFEs by URL space."
+      }
+    ]
+  },
+  {
+    "question": "A team observes that SEO traffic dropped by 40% after the first three MFEs. What is the most likely cause?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Module Federation increased page load time",
+        "correct": false,
+        "explanation": "Module Federation may add ~100ms for loading remoteEntry.js, but this does not cause a 40% drop in SEO traffic. The cause is different."
+      },
+      {
+        "text": "The monolith rendered HTML on the server (SSR), while MFEs render on the client (CSR) — search engines do not index CSR",
+        "correct": true,
+        "explanation": "A classic mistake. If the monolith was an SSR application and the MFEs are pure React CSR, Googlebot sees empty HTML. SEO-critical pages require SSR MFEs (Next.js). Check SEO requirements before starting any extraction."
+      },
+      {
+        "text": "URL routes changed when switching to the shell router",
+        "correct": false,
+        "explanation": "If URLs have not changed (and with a proper migration they should not), search bots will not lose pages. 301 redirects handle the case when URLs do change."
+      },
+      {
+        "text": "CDN cached old monolith pages",
+        "correct": false,
+        "explanation": "CDN cache is a temporary problem that resolves itself via TTL or invalidation. A 40% SEO drop caused by cache is unlikely."
+      }
+    ]
+  },
+  {
+    "question": "Why is it important to build a dependency graph between domains when planning migration?",
+    "type": "single",
+    "options": [
+      {
+        "text": "For documentation required by management",
+        "correct": false,
+        "explanation": "Documentation is a side effect, not the primary goal. The dependency graph is a technical tool for determining a safe migration order."
+      },
+      {
+        "text": "To determine the correct extraction order: domains with no incoming dependencies are the first candidates",
+        "correct": true,
+        "explanation": "The graph shows which domain depends on which. Domains with no incoming edges (roots) can be extracted independently. Domains with incoming edges must be extracted after their dependencies. Without the graph it is easy to create an unresolvable situation."
+      },
+      {
+        "text": "To calculate the migration budget",
+        "correct": false,
+        "explanation": "The budget is calculated separately based on domain size and complexity. The dependency graph affects the sequence but not directly the cost."
+      },
+      {
+        "text": "To configure Module Federation remotes in webpack.config",
+        "correct": false,
+        "explanation": "Module Federation configuration follows from architectural decisions, not from the monolith's dependency graph. The graph is a planning tool, not a configuration tool."
+      }
+    ]
+  },
+  {
+    "question": "The monolith has a direct call: import { formatPrice } from '../catalog/utils'. After Catalog is extracted into an MFE, how should this import be handled?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Replace with import { formatPrice } from 'catalog/utils' via Module Federation",
+        "correct": false,
+        "explanation": "A direct import from an MFE via Module Federation creates coupling: the consumer cannot be deployed without Catalog MFE. This contradicts the MFE independence principle."
+      },
+      {
+        "text": "Move formatPrice to @company/shared-utils and import it from there in both domains",
+        "correct": true,
+        "explanation": "Shared utilities (formatting, validation) belong to all teams and do not carry the business logic of a specific MFE. This is the correct place for formatPrice."
+      },
+      {
+        "text": "Duplicate the function in each domain that uses it",
+        "correct": false,
+        "explanation": "Duplication violates DRY and causes drift: different MFEs start formatting differently. Acceptable only for very simple utilities (one loop) in a team with good discipline."
+      },
+      {
+        "text": "Keep it in Cart-MFE and expose it via Module Federation exposes, but advise others not to import it",
+        "correct": false,
+        "explanation": "Exposing utilities from an MFE is an architectural smell. Utilities are not part of Catalog's public API. Besides, Cart will depend on the Catalog MFE runtime."
+      }
+    ]
+  },
+  {
+    "question": "What are the signs of a completed migration from a monolith?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "0% of URL routes point to the monolith",
+        "correct": true,
+        "explanation": "Shell does not route any URL to the monolith — all routes are served by MFEs. This is a necessary condition for decommissioning the monolith."
+      },
+      {
+        "text": "The monolith JS bundle is not loaded on any page",
+        "correct": true,
+        "explanation": "If the monolith bundle is still loading in the browser — the monolith is still alive, even if only as an iframe or MFE. Full migration means 0 bytes from the monolith in the browser."
+      },
+      {
+        "text": "All MFEs are written on the same version of React",
+        "correct": false,
+        "explanation": "Technology unification is good practice, but not a criterion for migration completion. MFEs can use different versions of React via module federation with different scopes."
+      },
+      {
+        "text": "Each team has an independent CI/CD pipeline and can deploy without coordination",
+        "correct": true,
+        "explanation": "Independent deployment is the primary goal of MFE architecture. If teams still coordinate deployments (release freeze, deployment windows), the migration is not complete from an organizational perspective."
+      }
+    ]
+  },
+  {
+    "question": "A team started migration and built an ideal architecture — shell, EventBus, contracts — over 3 months. Not a single MFE is in production. What went wrong?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Too little time was allocated to architecture",
+        "correct": false,
+        "explanation": "3 months on architecture with not a single deployment to production is already too much. Real problems (auth, routing edge cases, SEO) are only discovered with real users."
+      },
+      {
+        "text": "A pilot MFE should have been started immediately — real problems are only visible in production",
+        "correct": true,
+        "explanation": "A classic mistake: 'first let's build the ideal architecture'. Strangler Fig works iteratively. Architecture should evolve based on real problems, not hypotheses. A pilot in production in 2–4 weeks is better than 3 months of design."
+      },
+      {
+        "text": "The team used the wrong framework",
+        "correct": false,
+        "explanation": "Framework choice is a secondary concern. The problem lies in the approach (up-front design instead of iterative delivery)."
+      },
+      {
+        "text": "Not enough DevOps resources to set up CI/CD",
+        "correct": false,
+        "explanation": "CI/CD for the first MFE does not require 3 months. GitHub Actions + CDN can be set up in 1–2 days. The problem is architectural over-engineering."
+      }
+    ]
+  },
+  {
+    "question": "Why is it not advisable to extract several related domains in parallel during migration?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Module Federation does not support more than 5 remotes simultaneously",
+        "correct": false,
+        "explanation": "Module Federation supports an unlimited number of remotes. This is not a technical limitation."
+      },
+      {
+        "text": "During an incident it is unclear which MFE caused the problem, and rollback is more difficult",
+        "correct": true,
+        "explanation": "Sequential migration isolates risks: if everything broke after adding Catalog MFE — the cause is obvious. Parallel changes turn debugging into guesswork. Additionally, two independent MFEs with a dependency between them require deployment coordination."
+      },
+      {
+        "text": "Parallel work across several teams is always slower than sequential work",
+        "correct": false,
+        "explanation": "Parallel team work can be faster in calendar time. The problem is not speed but the complexity of integration and debugging related domains."
+      },
+      {
+        "text": "You cannot have several MFEs and a monolith in the same shell at the same time",
+        "correct": false,
+        "explanation": "Shell is specifically designed to work with both MFEs and the monolith simultaneously. This is its primary function in Strangler Fig."
+      }
+    ]
+  },
+  {
+    "question": "How should domain priority for migration be evaluated? Select the factors that increase priority:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "High frequency of changes (daily deployments)",
+        "correct": true,
+        "explanation": "The team with daily changes suffers the most from dependence on the monolith's shared release cycle. They will gain the maximum benefit from independent deployment — and quickly."
+      },
+      {
+        "text": "Low business criticality (analytics, SEO pages)",
+        "correct": true,
+        "explanation": "Non-critical domain: an error during extraction does not stop checkout processing. This reduces risk and allows the team to learn from the pilot without catastrophic consequences."
+      },
+      {
+        "text": "Maximum codebase size (100K+ LOC)",
+        "correct": false,
+        "explanation": "Large size is a complexity factor, not a priority factor. An XL domain takes longer to migrate and carries more risk. It is better to start with S/M and gain experience."
+      },
+      {
+        "text": "Minimum number of API dependencies and shared state",
+        "correct": true,
+        "explanation": "Fewer dependencies = fewer contracts to extract, less shared state to refactor, faster extraction. A domain with 0–2 API dependencies is many times simpler to use as the first MFE."
+      }
+    ]
+  },
+  {
+    "question": "Shell needs to wrap the monolith. What technical approach is best for the initial step?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Full refactoring of the monolith to export it via Module Federation remoteEntry.js",
+        "correct": false,
+        "explanation": "Refactoring the monolith for Module Federation is a complex task. At the initial step the goal is to wrap the monolith with minimal changes to it."
+      },
+      {
+        "text": "An iframe with the monolith inside the shell application, communication via postMessage",
+        "correct": true,
+        "explanation": "An iframe is the fastest way to wrap the monolith without any changes to its code. Shell controls the URL, shows a common header/footer, and passes auth via postMessage. The monolith is unaware of the changes."
+      },
+      {
+        "text": "Nginx reverse proxy without a frontend shell",
+        "correct": false,
+        "explanation": "Nginx proxy handles request routing but does not solve the problem of a shared header/footer, shared auth state, and communication between MFEs and the monolith in the browser."
+      },
+      {
+        "text": "A Web Components custom element wrapping the monolith",
+        "correct": false,
+        "explanation": "A Web Component requires the monolith to support a specific lifecycle (connectedCallback, etc.). This is a change to the monolith. An iframe isolates the monolith without any changes to it."
+      }
+    ]
+  },
+  {
+    "question": "You have completed migration of all domains. The monolith is removed. A month later it is discovered that the Checkout MFE crashes only in Safari. This did not happen with the monolith. What is most likely?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Module Federation is incompatible with Safari",
+        "correct": false,
+        "explanation": "Module Federation works in Safari. The problem lies elsewhere — a specific behavior in Checkout MFE, not a system-wide incompatibility."
+      },
+      {
+        "text": "The monolith contained a Safari-specific polyfill that Checkout MFE did not include",
+        "correct": true,
+        "explanation": "A migration classic: the monolith accumulates polyfills and workarounds over the years (Safari clipboard API, CSS Grid gaps, Promise.allSettled). The MFE starts fresh and does not inherit these fixes. Auditing the monolith's polyfills is a mandatory step before removing it."
+      },
+      {
+        "text": "Safari blocks requests to different subdomains (CORS)",
+        "correct": false,
+        "explanation": "CORS is configured at the server level and is a cross-browser issue. A Safari-specific bug in Checkout points to a browser API or CSS issue, not CORS."
+      },
+      {
+        "text": "EventBus does not work in Safari",
+        "correct": false,
+        "explanation": "CustomEvent and window.addEventListener are standard Web APIs supported in all browsers, including Safari."
+      }
+    ]
+  },
+  {
+    "question": "A team wants to measure the percentage of monolith code moved to MFEs. What is the most accurate measurement of progress?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Number of MFEs (e.g., 4 out of 6 domains = 67%)",
+        "correct": false,
+        "explanation": "The number of MFEs does not account for domain size. 4 small MFEs out of 6 may represent only 20% of the code if the remaining 2 domains are monolithic mammoths."
+      },
+      {
+        "text": "Percentage of LOC (lines of code) moved to MFEs relative to the total monolith volume",
+        "correct": true,
+        "explanation": "LOC (lines of code) is a more precise metric than the number of domains. If Analytics (5K LOC) and Profile (5K LOC) are migrated out of a 100K monolith — that is 10%, not 33% (2 out of 6 domains)."
+      },
+      {
+        "text": "Percentage of URL routes served by MFEs",
+        "correct": false,
+        "explanation": "URL routes do not correlate with domain complexity. /analytics may be one page, /checkout — twenty. LOC more accurately reflects the volume of migrated code."
+      },
+      {
+        "text": "Number of MFE deployments per month relative to monolith deployments",
+        "correct": false,
+        "explanation": "Deployment frequency is a DX and team independence metric, not a migration progress metric."
+      }
+    ]
+  }
+]

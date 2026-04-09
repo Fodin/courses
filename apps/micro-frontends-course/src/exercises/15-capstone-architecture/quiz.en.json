@@ -1,0 +1,397 @@
+[
+  {
+    "question": "What is Conway's Law and how does it apply to MFEs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Organizations design systems that mirror their communication structures — MFE boundaries should align with team boundaries",
+        "correct": true,
+        "explanation": "Conway's Law: «Organizations which design systems are constrained to produce designs which are copies of the communication structures.» For MFEs this means: if Catalog and Cart belong to the same Commerce team, it is worth keeping them as one MFE until the team splits."
+      },
+      {
+        "text": "The number of MFEs must not exceed the number of developers on the team",
+        "correct": false,
+        "explanation": "No such rule exists. Conway's Law is about the structure of communication between teams, not the number of developers."
+      },
+      {
+        "text": "MFEs must have equal codebase sizes to balance team workload",
+        "correct": false,
+        "explanation": "Codebase size is not a decomposition criterion. MFEs are split by business domains and team boundaries, which can differ greatly in volume."
+      },
+      {
+        "text": "Each MFE must have a separate backend service (Backend for Frontend)",
+        "correct": false,
+        "explanation": "BFF is a useful pattern but is not mandatory and is not related to Conway's Law. It is possible to have MFEs without a dedicated BFF."
+      }
+    ]
+  },
+  {
+    "question": "A team is designing an e-commerce platform. Shell, Catalog, Cart, Checkout, Profile — 5 separate MFEs. Checkout crashes with an error. What should happen to the other MFEs?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The other MFEs continue working; Checkout displays a fallback UI via an Error Boundary in Shell",
+        "correct": true,
+        "explanation": "A key MFE principle: fault isolation. An Error Boundary in Shell for each MFE guarantees that an error in one does not bring down the others. The user loses only Checkout but can continue browsing the catalog."
+      },
+      {
+        "text": "The entire page crashes because Shell cannot function without all MFEs",
+        "correct": false,
+        "explanation": "This is an anti-pattern — the absence of an Error Boundary. Shell must protect against errors in MFEs via React ErrorBoundary or an equivalent mechanism. A single MFE crash should not appear to the user as the entire platform going down."
+      },
+      {
+        "text": "Shell automatically reloads Checkout every 5 seconds",
+        "correct": false,
+        "explanation": "Automatic retries can make the situation worse (DDoS on the crashed service). The correct approach is to show a fallback and optionally give the user a 'try again' button."
+      },
+      {
+        "text": "Shell notifies all other MFEs about Checkout's failure via EventBus",
+        "correct": false,
+        "explanation": "Notifying about an MFE crash via EventBus is not a standard pattern. Other MFEs should not know about the state of neighboring MFEs. Error isolation is the responsibility of Error Boundary, not cross-MFE communication."
+      }
+    ]
+  },
+  {
+    "question": "A team is choosing a deployment strategy for Checkout MFE (payment processing, PCI DSS). What strategy should they choose?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Blue/Green with mandatory manual confirmation before switching traffic",
+        "correct": true,
+        "explanation": "Checkout is a critical MFE: errors = direct financial losses and regulatory consequences. Blue/Green provides zero downtime and instant rollback. Manual confirmation (an additional smoke test) reduces the risk of automatically promoting a broken version."
+      },
+      {
+        "text": "Direct deploy: updating directly in production without intermediate steps",
+        "correct": false,
+        "explanation": "Direct deploy for a payment MFE is maximum risk. There is no rollback mechanism and no way to verify functionality before real payments start being accepted."
+      },
+      {
+        "text": "Canary with a gradual rollout from 1% to 100% over 24 hours",
+        "correct": false,
+        "explanation": "Canary is useful for a high-traffic catalog. But for a payment MFE, 24 hours of rollout means 24 hours during which some users may encounter payment errors. Blue/Green + manual confirmation is more reliable."
+      },
+      {
+        "text": "Synchronized release together with other MFEs every 2 weeks",
+        "correct": false,
+        "explanation": "Synchronized releases violate the MFE independence principle. Checkout is critical — its updates (security patches, fixes) must not wait for other MFEs to be ready."
+      }
+    ]
+  },
+  {
+    "question": "Why use a version or hash in remoteEntry.js URLs instead of 'latest'?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "A versioned URL allows instant rollback to the previous MFE version without redeploying Shell",
+        "correct": true,
+        "explanation": "If remoteEntry.js has a versioned URL (/v1.2.3/remoteEntry.js), rollback requires only changing the Shell config (point to /v1.2.2/). With a 'latest' URL, rollback requires redeploying the MFE with the previous code."
+      },
+      {
+        "text": "CDN caches versioned URLs for a long time — better performance than constantly revalidating 'latest'",
+        "correct": true,
+        "explanation": "CDN with long-lived cache headers (Cache-Control: max-age=31536000) caches versioned files. A 'latest' URL must either not be cached (slow) or be invalidated on every deployment (complex)."
+      },
+      {
+        "text": "A versioned URL prevents an MFE from being loaded twice on the same page",
+        "correct": false,
+        "explanation": "Versioning does not prevent double MFE loading. Singleton mode in Module Federation or unique names handle that. Version URLs are about rollback and caching."
+      },
+      {
+        "text": "A 'latest' URL creates the risk of an unexpected MFE update for users in the middle of a session",
+        "correct": true,
+        "explanation": "If Shell cached a 'latest' URL and the MFE was updated, new loads get the new version while pages already open get the old one. This creates version mismatch within a session. Versioned URLs eliminate this problem."
+      }
+    ]
+  },
+  {
+    "question": "In an e-commerce MFE platform, Catalog MFE publishes a 'cart:add' event. Cart MFE listens to it. The Catalog team wants to add a 'discount' field to the payload. How should this be done?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Add 'discount?' as an optional field to the existing event type — backward compatible",
+        "correct": true,
+        "explanation": "Adding an optional field is a backward compatible change. Cart MFE continues to work without discount but can use it if present. This is not a breaking change and does not require coordination with other teams."
+      },
+      {
+        "text": "Rename the event to 'cart:add:v2' with the new payload, remove 'cart:add' immediately",
+        "correct": false,
+        "explanation": "Immediately removing 'cart:add' will break Cart MFE if it has not yet updated. Versioning via 'cart:add:v2' is the correct solution, but a deprecation period is needed: both events run in parallel until the migration is complete."
+      },
+      {
+        "text": "Change the type of cart:add to any, to accept any payload",
+        "correct": false,
+        "explanation": "any in TypeScript is an anti-pattern. Type information is lost, and runtime errors become invisible at compile time. Event contracts must be strictly typed."
+      },
+      {
+        "text": "Make a synchronized release: update Catalog and Cart at the same time",
+        "correct": false,
+        "explanation": "A synchronized release violates the MFE independence principle. Moreover, even synchronized deployments have race conditions in distributed systems. The correct approach: backward compatible API or explicit versioning with a deprecation period."
+      }
+    ]
+  },
+  {
+    "question": "A bank with 10 teams, Angular + React stack, PCI DSS requirements. Which MFE integration approach should be chosen?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Web Components (Custom Elements + Shadow DOM)",
+        "correct": true,
+        "explanation": "Web Components provide maximum isolation via Shadow DOM: Angular MFE CSS does not leak into React MFE and vice versa. Both frameworks render into Custom Elements and work as black boxes. For PCI DSS, DOM isolation is critical: the payment widget must not be accessible from another MFE."
+      },
+      {
+        "text": "Module Federation (Webpack 5)",
+        "correct": false,
+        "explanation": "Module Federation works well with Angular and React separately, but mixing Angular + React with shared dependencies is more complex. The main issue for the bank: Module Federation does not provide DOM isolation (Shadow DOM) — CSS can leak between MFEs."
+      },
+      {
+        "text": "Single-SPA",
+        "correct": false,
+        "explanation": "Single-SPA supports Angular and React via separate adapters, but does not solve the CSS isolation problem without additional tools. For PCI DSS stricter isolation is needed."
+      },
+      {
+        "text": "Import Maps",
+        "correct": false,
+        "explanation": "Import Maps is a native ESM mechanism that does not provide DOM or CSS isolation. Not suitable for a mixed Angular+React stack with security requirements."
+      }
+    ]
+  },
+  {
+    "question": "Why is Module Federation + Single-SPA better than Module Federation alone for a SaaS multi-tenant white-label platform?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Single-SPA provides programmatic orchestration: which MFEs to mount for each tenant based on a runtime config",
+        "correct": true,
+        "explanation": "The Single-SPA parcel API allows runtime management: for tenant A mount MFE-A and MFE-B, for tenant B — MFE-A and MFE-C. Module Federation without Single-SPA has no built-in runtime orchestration mechanism based on config."
+      },
+      {
+        "text": "Single-SPA allows changing routing for each tenant without changing Shell",
+        "correct": true,
+        "explanation": "In Single-SPA, routes are configuration, not hardcode. Tenant-specific routing config can be passed from a configuration service. Without Single-SPA, routing in Shell is hardcoded."
+      },
+      {
+        "text": "Module Federation without Single-SPA does not support lazy loading of MFEs",
+        "correct": false,
+        "explanation": "Module Federation supports lazy loading perfectly via dynamic import and React.lazy. This is not a reason to add Single-SPA. The issue is runtime orchestration, not lazy loading."
+      },
+      {
+        "text": "The combination allows using versioned URLs for different tenants: tenant A gets MFE v1, tenant B gets MFE v2",
+        "correct": true,
+        "explanation": "Single-SPA + Module Federation allow setting different remoteEntry.js URLs for different tenants. Shell loads the tenant config from an API and initializes MFEs with the required version. This is impossible without programmatic orchestration."
+      }
+    ]
+  },
+  {
+    "question": "What is a Network Waterfall in the context of MFEs and how can it be minimized?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Sequential loading: Shell → remoteEntry.js for each MFE → MFE JS bundle. Solution: prefetch remoteEntry.js in Shell",
+        "correct": true,
+        "explanation": "Waterfall: Shell loads (100ms) → discovers the needed MFEs → sequentially or in parallel loads their remoteEntry.js → loads their bundles. Prefetch via <link rel='prefetch'> or an explicit preload in Shell reduces perceived latency."
+      },
+      {
+        "text": "A situation where multiple MFEs make requests to the same API simultaneously and create load",
+        "correct": false,
+        "explanation": "This is a parallel API requests problem, not a Network Waterfall. Waterfall is sequential (not parallel) resource loading, where each next resource starts only after the previous one finishes."
+      },
+      {
+        "text": "Performance degradation when using a CDN due to geographic distance from servers",
+        "correct": false,
+        "explanation": "CDN latency is a separate topic. Network Waterfall is a pattern of sequential loading dependencies where each resource blocks the next."
+      },
+      {
+        "text": "HTTP request queue overflow when loading more than 6 MFEs simultaneously",
+        "correct": false,
+        "explanation": "HTTP/2 multiplexing eliminates the 6 parallel requests limit (that is an HTTP/1.1 limitation). Waterfall is about sequence, not parallelism. Using HTTP/2 for CDN is a good practice, but that is a different topic."
+      }
+    ]
+  },
+  {
+    "question": "Which approach — monorepo or polyrepo — is better suited for a bank with 10 teams and PCI DSS?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Polyrepo: explicit access boundaries, compliance with security requirements, each repository is a separate audit unit",
+        "correct": true,
+        "explanation": "For a bank the key question is: who has access to the payment MFE code. Polyrepo gives explicit access control for each repository. PCI DSS auditors look at access segregation — a monorepo where everyone sees everything is harder to justify."
+      },
+      {
+        "text": "Monorepo (Nx): affected-only CI speeds up development, shared configs simplify management",
+        "correct": false,
+        "explanation": "A monorepo is more convenient for development but creates a problem: a catalog developer can see the payment MFE code. For PCI DSS you need to prove access isolation — in a monorepo this is more difficult. CI performance is secondary to compliance."
+      },
+      {
+        "text": "Monorepo (Turborepo): simpler than Nx, suitable for mixed Angular+React stack",
+        "correct": false,
+        "explanation": "The reasoning is the same as for Nx: a monorepo does not satisfy PCI DSS access requirements. Turborepo vs Nx is a secondary choice in this context."
+      },
+      {
+        "text": "The question does not matter: monorepo and polyrepo do not affect security",
+        "correct": false,
+        "explanation": "It does matter. Polyrepo allows configuring access rights at the repository level: the payments team sees only their repo. In a monorepo everything is in one place — granular access control is possible but requires additional tools (CODEOWNERS, branch protection)."
+      }
+    ]
+  },
+  {
+    "question": "An e-commerce site with an SEO-critical catalog uses Module Federation + Next.js for SSR. Which of the following statements are true?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Module Federation supports SSR: remoteEntry.js can be loaded on the server, components are rendered to HTML",
+        "correct": true,
+        "explanation": "@module-federation/nextjs-mf allows using Module Federation in a Next.js SSR context. Remote modules are loaded on the server and rendered to HTML — search bots receive full content without JavaScript."
+      },
+      {
+        "text": "With SSR, remoteEntry.js is loaded once when the Node.js process starts, not on every request",
+        "correct": true,
+        "explanation": "For SSR performance it is important to cache loaded remote modules. Node.js caches modules, so remoteEntry.js and remote chunks are loaded on the first request and then retrieved from the Node.js module cache."
+      },
+      {
+        "text": "Module Federation SSR makes no sense — for SEO it is enough to use prerender (static generation)",
+        "correct": false,
+        "explanation": "Prerender/SSG is suitable for static content. For a catalog with 100k+ products, personalization, and frequent price updates, SSR (server-side rendering) is preferable to SSG. Module Federation SSR allows each team to independently manage their SSR MFE."
+      },
+      {
+        "text": "For SEO, First Contentful Paint (FCP) matters — SSR provides HTML with content immediately, without waiting for JS bundles to load",
+        "correct": true,
+        "explanation": "Search bots and Core Web Vitals (LCP, FCP) benefit from SSR: HTML arrives already with content. The client does not wait for JavaScript to load and hydrate to display products. This is critical for search ranking."
+      }
+    ]
+  },
+  {
+    "question": "What is Module Federation 2.0 and how does it differ from 1.0?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Standalone runtime (@module-federation/runtime) without webpack dependency, support for Rspack and Vite, automatic TypeScript type generation",
+        "correct": true,
+        "explanation": "MF 2.0 extracts the runtime into a separate package not tied to webpack. This allows using Module Federation with Rspack (faster than webpack), Vite, and Rollup. Auto-typing via @module-federation/dts-plugin solves the pain of missing types for remote modules."
+      },
+      {
+        "text": "Module Federation 2.0 adds support only for React 18 Concurrent Mode",
+        "correct": false,
+        "explanation": "MF 2.0 is not limited to React or any specific version. It is a fundamental change to the runtime architecture to support any bundler and framework."
+      },
+      {
+        "text": "Module Federation 2.0 is a rename to @module-federation/core with no technical changes",
+        "correct": false,
+        "explanation": "The rename is only part of it. The key technical changes include: decoupled runtime, FederationHost API, and typing support. This is not just a rebrand."
+      },
+      {
+        "text": "Module Federation 2.0 requires TypeScript only — JavaScript is not supported",
+        "correct": false,
+        "explanation": "Module Federation 2.0 is compatible with JavaScript. Typing is an optional feature via @module-federation/dts-plugin, not a mandatory requirement."
+      }
+    ]
+  },
+  {
+    "question": "A startup with 3 teams, React-only stack, MVP in production, planning to grow to 5 teams. What technology stack is right for the first 6 months?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Module Federation + Monorepo (Nx) + Independent deploy",
+        "correct": true,
+        "explanation": "For a React-only stack MF is the optimal choice: native sharing of react/react-dom as singletons, minimal overhead. Nx monorepo speeds up development (affected CI, shared configs). Independent deploy from day one — so teams do not wait for each other."
+      },
+      {
+        "text": "Web Components + Polyrepo + Blue/Green",
+        "correct": false,
+        "explanation": "Web Components are excessive for a React-only stack — their strength is in multi-framework environments. Polyrepo will slow down a small team. Blue/Green is a good strategy, but all together this is over-engineering for a startup."
+      },
+      {
+        "text": "Single-SPA + Polyrepo + Synchronized releases",
+        "correct": false,
+        "explanation": "Single-SPA is great for complex orchestration but adds complexity for 3 teams. Synchronized releases contradict the core MFE principle — independence. This is a poor start for a startup."
+      },
+      {
+        "text": "Import Maps + Monorepo + Canary",
+        "correct": false,
+        "explanation": "Import Maps is an experimental approach with a limited ecosystem. Canary requires mature CI/CD and monitoring. For a startup with an MVP it is better to start with the proven Module Federation."
+      }
+    ]
+  },
+  {
+    "question": "What components make up the minimum architect's checklist before launching an MFE platform in production?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Error Boundary on each MFE — an error in one must not bring down the others",
+        "correct": true,
+        "explanation": "This is a mandatory requirement. Error Boundary is the basic protection. Without it, a rendering error in the Catalog React component will bubble up to Shell and blank out the entire page. This violates the fault isolation principle."
+      },
+      {
+        "text": "All MFEs use the same framework and React version",
+        "correct": false,
+        "explanation": "Stack homogeneity is desirable but not mandatory. One goal of MFEs is the ability to use different frameworks. Module Federation supports sharing multiple React versions via versioned entries."
+      },
+      {
+        "text": "remoteEntry.js URLs are versioned or contain a hash — not 'latest'",
+        "correct": true,
+        "explanation": "URL versioning is critical for rollback and CDN caching. 'latest' is an anti-pattern: no fast rollback option, CDN cache must be constantly invalidated."
+      },
+      {
+        "text": "SLOs are defined and measured for each MFE separately",
+        "correct": true,
+        "explanation": "Without SLOs there is no accountability. Checkout should have an SLO of 99.95%, Admin can have 99%. If everyone shares one 'platform' SLO, teams do not know what to aim for and there is no baseline for alerts."
+      },
+      {
+        "text": "Each MFE must have a minimum of 100% unit test coverage",
+        "correct": false,
+        "explanation": "100% unit coverage is an unachievable and unreasonable goal. What matters more is coverage of critical paths (Happy Path, main errors) and the presence of contract tests between MFEs. A 100% unit coverage metric creates a false sense of security."
+      }
+    ]
+  },
+  {
+    "question": "Why is 'over-decomposition' (Header, Footer, Button as separate MFEs) considered an anti-pattern?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Module Federation overhead per MFE: a separate remoteEntry.js, network request, scope initialization",
+        "correct": true,
+        "explanation": "Each MFE adds: an HTTP request for remoteEntry.js, Module Federation scope initialization time, and potential duplication of shared deps. For a Button component with no business logic, this overhead does not pay off."
+      },
+      {
+        "text": "Header cannot be deployed independently — there is no team that owns it and has its own deploy pipeline",
+        "correct": true,
+        "explanation": "MFE principle: each MFE belongs to a team. Header is a cross-cutting concern updated by multiple teams. Who deploys it? No ownership = no independence. This is a shared component; it belongs in a shared package, not a separate MFE."
+      },
+      {
+        "text": "Small MFEs do not support Module Federation due to bundle size restrictions",
+        "correct": false,
+        "explanation": "Module Federation has no bundle size restrictions. Technically a single-component MFE is possible. The problem is organizational overhead and the absence of purpose, not technical limitations."
+      },
+      {
+        "text": "20+ MFEs create management overhead: 20 repositories, 20 CI pipelines, 20 teams — with insufficient staffing this becomes unmanageable",
+        "correct": true,
+        "explanation": "Organizational complexity grows with the number of MFEs. If you have 5 developers and 20 MFEs — that is not independence, it is chaos. Each developer works across 4 MFEs, and coordination overhead exceeds the benefits."
+      }
+    ]
+  },
+  {
+    "question": "A team wants to update the 'checkout:start' event API (add a required 'shippingAddress' field). Cart MFE publishes it, Checkout MFE listens. How should the migration be done without downtime?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Publish 'checkout:start:v2' with the new field; Checkout listens to both v1 and v2 during migration; Cart deploys first with v2; then Checkout drops v1 support",
+        "correct": true,
+        "explanation": "Correct sequence for a backward-compatible migration: 1) Checkout adds v2 support (keeping v1) — deploy. 2) Cart updates to publish v2 — deploy. 3) Checkout removes the v1 handler — deploy. At any point the system works correctly."
+      },
+      {
+        "text": "Replace 'checkout:start' with the new version and simultaneously deploy Cart and Checkout",
+        "correct": false,
+        "explanation": "Simultaneous deployment in distributed systems has race conditions: between deployments there is a window when Cart is already publishing v2 but Checkout is still expecting v1. This guarantees downtime or data loss."
+      },
+      {
+        "text": "Add shippingAddress as an optional field to the v1 event — no need to version",
+        "correct": false,
+        "explanation": "Adding an optional field is backward compatible — true. But the task specifies a required 'shippingAddress' field. A required field is a breaking change and requires event versioning."
+      },
+      {
+        "text": "Deploy Checkout first with the new v2 handler, Cart later — so Checkout is ready to receive new events",
+        "correct": false,
+        "explanation": "Deploying Checkout first after removing v1 support creates a window where Cart is still publishing v1 but Checkout is no longer listening — events are lost. The correct order: first add support in the consumer (Checkout), then update the publisher (Cart)."
+      }
+    ]
+  }
+]

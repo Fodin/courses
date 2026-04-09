@@ -1,0 +1,392 @@
+[
+  {
+    "question": "Какой уровень тестирования специфичен именно для архитектуры микрофронтендов и практически отсутствует в монолите?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Unit-тесты",
+        "correct": false,
+        "explanation": "Unit-тесты используются в любой архитектуре — они тестируют изолированные компоненты и не зависят от архитектурного стиля."
+      },
+      {
+        "text": "Contract-тесты (Pact)",
+        "correct": true,
+        "explanation": "Consumer-driven contract testing решает проблему независимых деплоев: проверяет, что изменение в одном MFE не ломает ожидания другого. В монолите это не нужно — все компоненты видят общие типы."
+      },
+      {
+        "text": "E2E-тесты",
+        "correct": false,
+        "explanation": "E2E-тесты используются и в монолитной архитектуре — они проверяют пользовательские сценарии независимо от внутреннего устройства."
+      },
+      {
+        "text": "Visual regression",
+        "correct": false,
+        "explanation": "Visual regression тесты применяются в любой фронтенд-архитектуре. В MFE они важнее из-за риска рассинхронизации дизайна, но не являются уникальными."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно заглушить импорт из другого MFE в Jest для unit-тестов?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Использовать jest.mock() с полным путём к remote",
+        "correct": false,
+        "explanation": "jest.mock('catalog/ProductList') не работает, потому что Jest не умеет разрешать Module Federation remotes — это runtime-механизм webpack."
+      },
+      {
+        "text": "Настроить moduleNameMapper в jest.config.ts",
+        "correct": true,
+        "explanation": "moduleNameMapper: { '^catalog/(.*)$': '<rootDir>/__mocks__/catalog/$1' } — правильный способ. Jest перехватывает импорт на этапе разрешения модулей и подставляет локальный mock-файл."
+      },
+      {
+        "text": "Запустить все MFE dev-серверы перед тестами",
+        "correct": false,
+        "explanation": "Это подход для integration-тестов, не для unit. Unit-тесты должны работать без сетевых зависимостей — быстро и надёжно."
+      },
+      {
+        "text": "Использовать jest.spyOn для глобального __webpack_require__",
+        "correct": false,
+        "explanation": "Хакинг внутренностей webpack — хрупкий подход, который сломается при обновлении инструментов. moduleNameMapper — официальный способ."
+      }
+    ]
+  },
+  {
+    "question": "В Pact кто генерирует контракт — consumer или provider?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Provider генерирует контракт, consumer верифицирует",
+        "correct": false,
+        "explanation": "Это обратный порядок. Provider публикует API, но не знает всех ожиданий потребителей. Контракт формируется со стороны того, кто потребляет."
+      },
+      {
+        "text": "Consumer генерирует контракт, provider верифицирует",
+        "correct": true,
+        "explanation": "Consumer-driven contract testing: Shell (consumer) запускает Pact-тест, который генерирует pact.json с ожиданиями. Catalog (provider) верифицирует, что его API соответствует этим ожиданиям."
+      },
+      {
+        "text": "Контракт генерируется автоматически из TypeScript типов",
+        "correct": false,
+        "explanation": "TypeScript типы — compile-time артефакт. Pact работает с runtime HTTP-взаимодействиями и не знает о TypeScript."
+      },
+      {
+        "text": "Оба генерируют свои части независимо",
+        "correct": false,
+        "explanation": "Это не consumer-driven подход. Суть Pact в том, что consumer диктует ожидания, а provider должен им соответствовать."
+      }
+    ]
+  },
+  {
+    "question": "У вас 5 MFE и pipeline E2E-тестов занимает 50 минут. Какой подход наиболее эффективен?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Запускать E2E только на pre-release теге, не на каждый PR",
+        "correct": true,
+        "explanation": "Медленные тесты не должны блокировать каждый PR. Unit + Contract на PR, E2E — перед деплоем в prod."
+      },
+      {
+        "text": "Использовать Playwright shard: --shard=1/5 для параллелизации",
+        "correct": true,
+        "explanation": "Playwright поддерживает sharding — разбивку тестов на N параллельных агентов. 50 мин / 5 = ~10 мин на каждый шард."
+      },
+      {
+        "text": "Удалить Visual regression тесты полностью",
+        "correct": false,
+        "explanation": "Visual regression важны при работе с дизайн-системой. Лучше оптимизировать запуск (только изменённые MFE), чем удалять."
+      },
+      {
+        "text": "Оставить только smoke-тесты для E2E, детальное покрытие дать integration",
+        "correct": true,
+        "explanation": "E2E должны покрывать только критические user journeys (3-5 сценариев). Детальное поведение тестируется на уровне integration, что быстрее."
+      }
+    ]
+  },
+  {
+    "question": "Что такое mock remote в контексте тестирования MFE?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Jest-mock для функций внутри MFE",
+        "correct": false,
+        "explanation": "Jest-mock — инструмент unit-тестирования для заглушки функций. Mock remote — архитектурный паттерн на уровне Module Federation."
+      },
+      {
+        "text": "Замена реального MFE на упрощённую заглушку в Module Federation конфиге",
+        "correct": true,
+        "explanation": "Mock remote — это отдельный webpack bundle, который экспортирует те же модули что и реальный MFE, но с предсказуемым поведением. Shell подключает его вместо реального remote при тестировании."
+      },
+      {
+        "text": "HTTP mock-server, перехватывающий запросы к MFE",
+        "correct": false,
+        "explanation": "HTTP mock (MSW) перехватывает API-запросы, но не заменяет сам MFE как Module Federation remote."
+      },
+      {
+        "text": "Storybook с изолированными компонентами MFE",
+        "correct": false,
+        "explanation": "Storybook — инструмент разработки компонентов. Mock remote — конкретный паттерн подмены Module Federation remote в тестовой конфигурации."
+      }
+    ]
+  },
+  {
+    "question": "Команда обновляет дизайн-токены (цвета, отступы) в shared дизайн-системе. Какой тип тестов первым поймает визуальные рассинхронизации между MFE?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Unit-тесты компонентов",
+        "correct": false,
+        "explanation": "Unit-тесты проверяют логику и рендер, но не визуальное соответствие. Изменение CSS переменной не сломает unit-тест."
+      },
+      {
+        "text": "Contract-тесты",
+        "correct": false,
+        "explanation": "Contract-тесты проверяют API-контракты, не визуал. Pact не знает о CSS."
+      },
+      {
+        "text": "Visual regression тесты",
+        "correct": true,
+        "explanation": "Именно для этого и существуют visual regression тесты. При обновлении дизайн-токена снимок каждого MFE изменится, и тест упадёт — команда увидит все расхождения до деплоя."
+      },
+      {
+        "text": "Integration-тесты",
+        "correct": false,
+        "explanation": "Integration-тесты проверяют взаимодействие MFE (EventBus, state), но не CSS/визуал."
+      }
+    ]
+  },
+  {
+    "question": "Что такое 'Can I Deploy' в контексте Pact?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CI/CD команда для проверки готовности инфраструктуры",
+        "correct": false,
+        "explanation": "Это не инфраструктурная проверка, а инструмент Pact Broker."
+      },
+      {
+        "text": "Инструмент Pact Broker, проверяющий что версия MFE совместима со всеми consumer-контрактами перед деплоем",
+        "correct": true,
+        "explanation": "npx pact-broker can-i-deploy --pacticipant CatalogMFE --version X запрашивает Pact Broker: 'Есть ли неверифицированные контракты для этой версии?' Если да — деплой блокируется."
+      },
+      {
+        "text": "Проверка наличия прав на деплой у разработчика",
+        "correct": false,
+        "explanation": "Это не про права доступа. Can I Deploy — исключительно про контрактную совместимость между MFE."
+      },
+      {
+        "text": "Команда для запуска E2E-тестов перед деплоем",
+        "correct": false,
+        "explanation": "E2E запускаются отдельно. Can I Deploy — специфический инструмент Pact для проверки контрактной совместимости."
+      }
+    ]
+  },
+  {
+    "question": "Какой CI-триггер оптимален для полного E2E + Visual regression набора при большой MFE-системе?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Каждый коммит в feature-ветку",
+        "correct": false,
+        "explanation": "Слишком дорого — разработчик ждёт 40+ минут на каждый коммит. Это убивает продуктивность."
+      },
+      {
+        "text": "Каждый PR в main",
+        "correct": false,
+        "explanation": "Unit + Contract подходят для каждого PR, но полный E2E + Visual — слишком долго и дорого для PR-цикла."
+      },
+      {
+        "text": "Pre-release тег (перед деплоем в production)",
+        "correct": true,
+        "explanation": "Оптимальный баланс: разработчики не ждут в PR, но перед реальным деплоем проходит полная проверка. Можно также добавить nightly для раннего обнаружения проблем."
+      },
+      {
+        "text": "Только вручную (manual trigger)",
+        "correct": false,
+        "explanation": "Manual trigger создаёт риск: кто-то забудет запустить тесты. Автоматизация на pre-release надёжнее."
+      }
+    ]
+  },
+  {
+    "question": "Команда работает над Cart MFE. Catalog MFE изменил структуру экспортируемых данных: { products: [] } → { items: [] }. Какой тест поймает это раньше всего?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Unit-тест Cart MFE",
+        "correct": false,
+        "explanation": "Unit-тест Cart работает с mock Catalog. Если mock не обновили — тест пройдёт, но prod сломается."
+      },
+      {
+        "text": "Contract-тест (Pact) для Shell → Catalog",
+        "correct": true,
+        "explanation": "Pact-тест Shell фиксирует ожидание { products: [] }. При верификации нового Catalog v1.6 с { items: [] } тест упадёт и can-i-deploy заблокирует деплой."
+      },
+      {
+        "text": "E2E-тест checkout flow",
+        "correct": false,
+        "explanation": "E2E поймает, но позже — нужно дождаться запуска E2E пайплайна. Contract-тест поймает сразу при попытке задеплоить Catalog."
+      },
+      {
+        "text": "TypeScript компиляция в Shell репозитории",
+        "correct": false,
+        "explanation": "Shell и Catalog — разные репозитории. TypeScript Shell не знает о runtime-изменении в Catalog до момента загрузки remote в браузере."
+      }
+    ]
+  },
+  {
+    "question": "Вы настраиваете hybrid mock-стратегию. Какая конфигурация корректна?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Все remotes — mock, кроме тестируемого MFE",
+        "correct": true,
+        "explanation": "Hybrid: тестируемый MFE — реальный (чтобы проверить его поведение), все зависимости — mock (чтобы изолировать от внешних изменений). Это оптимальный баланс скорости и достоверности."
+      },
+      {
+        "text": "Все remotes — реальные dev-серверы",
+        "correct": false,
+        "explanation": "Это 'real remotes', не hybrid. Требует запуска всех MFE одновременно — медленно и нестабильно."
+      },
+      {
+        "text": "Все remotes — mock, включая тестируемый",
+        "correct": false,
+        "explanation": "Если тестируемый MFE тоже mock — что именно тестируем? Это лишено смысла."
+      },
+      {
+        "text": "Mock только для API, все MFE реальные",
+        "correct": false,
+        "explanation": "Это MSW-подход (мокирование HTTP), не mock remote стратегия. Mock remote заменяет MFE как Module Federation remote, не API."
+      }
+    ]
+  },
+  {
+    "question": "Какие атрибуты рекомендуется добавлять к корневым элементам MFE для удобного тестирования?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "data-mfe=\"catalog\" для идентификации MFE в E2E",
+        "correct": true,
+        "explanation": "data-mfe позволяет E2E-тестам однозначно найти границу MFE: page.locator('[data-mfe=\"catalog\"]'). Это стабильный селектор, не зависящий от CSS."
+      },
+      {
+        "text": "data-testid с уникальным префиксом MFE (catalog-search, cart-total)",
+        "correct": true,
+        "explanation": "Префикс предотвращает конфликты между MFE. cart-total и catalog-total — разные элементы, тест однозначно понимает в каком MFE искать."
+      },
+      {
+        "text": "class и id в CSS для стабильных селекторов",
+        "correct": false,
+        "explanation": "CSS классы — implementation detail. Они меняются при рефакторинге стилей. data-testid намеренно не несёт стилевой нагрузки и стабильнее."
+      },
+      {
+        "text": "aria-label для доступности, который также используется в тестах",
+        "correct": true,
+        "explanation": "Использование aria-label/aria-role в тестах — хорошая практика: тесты проверяют доступность заодно с функциональностью. getByRole('button', { name: 'Добавить в корзину' }) — надёжный селектор."
+      }
+    ]
+  },
+  {
+    "question": "Команда добавила новый MFE 'Reviews'. Unit-тесты написаны. Что ещё обязательно нужно сделать перед тем, как другие MFE начнут использовать Reviews?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Написать Pact consumer-тест для каждого MFE, который будет использовать Reviews",
+        "correct": true,
+        "explanation": "Каждый consumer (Shell, Catalog) должен зафиксировать свои ожидания к Reviews через Pact. Без этого нет гарантии совместимости при независимых деплоях."
+      },
+      {
+        "text": "Настроить Visual baseline для Reviews MFE",
+        "correct": true,
+        "explanation": "Первый запуск Playwright с --update-snapshots создаёт baseline. Без него visual regression тесты не имеют с чем сравнивать."
+      },
+      {
+        "text": "Добавить Reviews в matrix E2E-тестов",
+        "correct": false,
+        "explanation": "Не обязательно сразу — E2E покрывают критические user journeys, а не все возможные сценарии. Достаточно добавить Reviews в integration-тесты."
+      },
+      {
+        "text": "Добавить mock для Reviews в moduleNameMapper других MFE",
+        "correct": true,
+        "explanation": "Другие MFE, которые будут импортировать из Reviews, должны иметь mock в своей Jest конфигурации для unit-тестов."
+      }
+    ]
+  },
+  {
+    "question": "Visual regression тест неожиданно упал из-за анимации кнопки (разный кадр скриншота). Как правильно исправить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Увеличить timeout ожидания до 10 секунд",
+        "correct": false,
+        "explanation": "Timeout не решает проблему анимации — скриншот всё равно попадёт в произвольный кадр."
+      },
+      {
+        "text": "Использовать mask опцию или отключить анимации через CSS media query в тестах",
+        "correct": true,
+        "explanation": "Playwright поддерживает mask для скрытия динамических областей. Также можно эмулировать prefers-reduced-motion: reduce, что заставляет большинство CSS-анимаций мгновенно завершаться."
+      },
+      {
+        "text": "Удалить visual regression тест для этого компонента",
+        "correct": false,
+        "explanation": "Удаление — крайняя мера. Сначала нужно исправить нестабильность (flakiness), а не отказываться от тестирования."
+      },
+      {
+        "text": "Увеличить maxDiffPixelRatio до 50%",
+        "correct": false,
+        "explanation": "50% допуск делает тест бессмысленным — он пропустит реальные визуальные регрессии. Нормальный диапазон — 1-5%."
+      }
+    ]
+  },
+  {
+    "question": "Почему в MFE-архитектуре нельзя полагаться только на TypeScript для проверки межкомандных контрактов?",
+    "type": "single",
+    "options": [
+      {
+        "text": "TypeScript не поддерживает Module Federation",
+        "correct": false,
+        "explanation": "TypeScript поддерживает Module Federation через @module-federation/typescript или ручное описание типов. Это не проблема."
+      },
+      {
+        "text": "TypeScript проверяет типы compile-time, но MFE деплоятся независимо — runtime версия может отличаться от типов в другом репозитории",
+        "correct": true,
+        "explanation": "Shell компилируется с типами Catalog v1.5. Но в prod может быть задеплоен Catalog v1.6 с изменённым API. TypeScript не защитит от этого runtime-рассогласования. Pact проверяет реальное HTTP-взаимодействие."
+      },
+      {
+        "text": "TypeScript слишком медленно компилирует в монорепо",
+        "correct": false,
+        "explanation": "Производительность компиляции — отдельная проблема, не связанная с контрактным тестированием."
+      },
+      {
+        "text": "Module Federation не поддерживает strict TypeScript",
+        "correct": false,
+        "explanation": "Это неверное утверждение. TypeScript strict mode работает с Module Federation."
+      }
+    ]
+  },
+  {
+    "question": "Какое утверждение о соотношении уровней тестирования в MFE-системе наиболее верно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Равномерное распределение: 20% unit, 20% contract, 20% integration, 20% e2e, 20% visual",
+        "correct": false,
+        "explanation": "Равномерное распределение нарушает принцип пирамиды. E2E и visual дорогие — их должно быть меньше. Unit дешёвые — их должно быть больше."
+      },
+      {
+        "text": "Основа — unit (~70%), средний слой — contract + integration (~20%), вершина — e2e + visual (~10%)",
+        "correct": true,
+        "explanation": "Это классическая пирамида тестирования, адаптированная для MFE. Unit дешёвые и быстрые — их много. E2E и visual дорогие, медленные и хрупкие — их мало, только критические сценарии."
+      },
+      {
+        "text": "Основа — e2e (70%), потому что они проверяют реальный UX",
+        "correct": false,
+        "explanation": "Это перевёрнутая пирамида (ice cream cone anti-pattern). E2E-тесты медленные, дорогие и нестабильные — их не должно быть большинство."
+      },
+      {
+        "text": "Contract-тесты должны составлять 50%+ для MFE, остальные уровни — вторичны",
+        "correct": false,
+        "explanation": "Contract-тесты важны для MFE, но не заменяют другие уровни. Unit-тесты охватывают внутреннюю логику компонентов, которую Pact не тестирует."
+      }
+    ]
+  }
+]

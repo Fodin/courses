@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Why does having two copies of React in the runtime cause an 'Invalid hook call' error?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Because React does not support multiple versions simultaneously at the specification level",
+        "correct": false,
+        "explanation": "The React specification does not prohibit multiple copies — the issue lies in the hook dispatcher implementation."
+      },
+      {
+        "text": "Because hooks work through a global dispatcher bound to a specific React instance, and with two copies the dispatchers are not synchronized",
+        "correct": true,
+        "explanation": "Each React instance has its own currentDispatcher. A component from copy A calls a hook through dispatcher A, but if the parent render happens through copy B — the dispatchers do not match and React throws an error."
+      },
+      {
+        "text": "Because two React copies occupy the same memory cells and overwrite each other's state",
+        "correct": false,
+        "explanation": "JavaScript does not have direct access to memory cells. The problem is in the dispatcher logic, not in memory."
+      },
+      {
+        "text": "Because webpack cannot deduplicate modules when code splitting",
+        "correct": false,
+        "explanation": "Webpack deduplicates modules within a single bundle, but with independent MFEs (Module Federation, separate scripts) each bundle can contain its own copy."
+      }
+    ]
+  },
+  {
+    "question": "Which HTML tag is used to declaratively define an import map in the browser?",
+    "type": "single",
+    "options": [
+      {
+        "text": "<script type=\"module-map\">",
+        "correct": false,
+        "explanation": "No such type exists. The specification defines the type 'importmap'."
+      },
+      {
+        "text": "<link rel=\"importmap\" href=\"importmap.json\">",
+        "correct": false,
+        "explanation": "External import maps via link rel are not natively supported (only through polyfills). Native support is limited to inline scripts only."
+      },
+      {
+        "text": "<script type=\"importmap\">",
+        "correct": true,
+        "explanation": "The correct syntax per the WHATWG HTML specification. The content is a JSON object with imports and/or scopes keys."
+      },
+      {
+        "text": "<meta name=\"importmap\" content=\"...\">",
+        "correct": false,
+        "explanation": "The meta tag is not intended for defining import maps. Only script type=importmap is valid."
+      }
+    ]
+  },
+  {
+    "question": "What does the `singleton: true` option mean in the Module Federation shared configuration?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The library loads once on application startup and is never requested again",
+        "correct": false,
+        "explanation": "This describes caching behavior, but not the essence of singleton. Singleton means a single instance in the runtime, not just caching."
+      },
+      {
+        "text": "Only one instance of this library exists in the runtime — all MFEs use the same copy",
+        "correct": true,
+        "explanation": "Singleton guarantees that no matter how many MFEs declare this dependency as shared, only one loaded copy will exist in the runtime. This is critical for libraries with global state (React, router)."
+      },
+      {
+        "text": "Only one MFE can use this library",
+        "correct": false,
+        "explanation": "On the contrary: singleton means ALL MFEs share ONE copy — it is not a restriction, it is the principle of sharing."
+      },
+      {
+        "text": "The library is available only in Shell and unavailable in remote MFEs",
+        "correct": false,
+        "explanation": "A shared library with singleton is available to all MFEs — that is exactly the purpose of sharing."
+      }
+    ]
+  },
+  {
+    "question": "What is the `eager: true` option in the Module Federation shared configuration used for?",
+    "type": "single",
+    "options": [
+      {
+        "text": "To make the library load faster via parallel downloading",
+        "correct": false,
+        "explanation": "eager does not affect network speed. It affects at which point in the initialization lifecycle the module becomes available."
+      },
+      {
+        "text": "To include the library in the synchronous entry point chunk, without requiring an async boundary",
+        "correct": true,
+        "explanation": "Without eager: true, shared modules are placed in an async chunk and require a dynamic import at the entry point (async boundary). eager: true includes the module in the synchronous entry chunk — useful when Shell itself uses React in index.js."
+      },
+      {
+        "text": "To apply a library version update immediately without a page reload",
+        "correct": false,
+        "explanation": "eager has nothing to do with hot module replacement or live version updates."
+      },
+      {
+        "text": "To prevent lazy-loading of this library in remote MFEs",
+        "correct": false,
+        "explanation": "eager only applies to the specific MFE where it is specified. It does not control the behavior of other MFEs."
+      }
+    ]
+  },
+  {
+    "question": "Shell has react@18.3.0 with singleton:true, Cart has react@18.2.0 with singleton:true, both with requiredVersion: '^18.0.0'. What will happen at runtime?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Module Federation will load both versions — each MFE gets its own",
+        "correct": false,
+        "explanation": "With singleton:true, loading two copies would violate the singleton principle. MF will try to select one version."
+      },
+      {
+        "text": "The application will crash with an error — incompatible versions will block loading",
+        "correct": false,
+        "explanation": "Different patch versions within the same minor (^18.0.0) are compatible. No blocking will occur — MF will select the maximum version."
+      },
+      {
+        "text": "Module Federation will select the maximum compatible version (18.3.0) and show a warning in dev mode",
+        "correct": true,
+        "explanation": "MF implements version negotiation: when semver ranges are compatible, the highest version is loaded. In dev mode a warning about version mismatch is printed, but in production everything works."
+      },
+      {
+        "text": "The version from whichever MFE initialized first will be loaded",
+        "correct": false,
+        "explanation": "MF does not use a 'first come, first served' principle. The version is selected by the semver algorithm, not by initialization order."
+      }
+    ]
+  },
+  {
+    "question": "What is a scope in an import map and what is it used for?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Access control for modules — some paths cannot import certain modules",
+        "correct": false,
+        "explanation": "Import maps do not implement security boundaries. CSP and other mechanisms are used for access restriction."
+      },
+      {
+        "text": "A local override of mappings for a specific URL path — scripts from that path use different module versions",
+        "correct": true,
+        "explanation": "A scope lets you specify that scripts at the path /app-legacy/ should resolve lodash to an older version, while the rest use the global mapping. This solves the problem of incompatible versions within a single application."
+      },
+      {
+        "text": "A namespace for grouping mappings — multiple independent import maps in one tag",
+        "correct": false,
+        "explanation": "A scope does not create a namespace. One importmap tag = one configuration; scopes are URL-specific overrides."
+      },
+      {
+        "text": "A cache key for the browser — modules in the same scope are cached together",
+        "correct": false,
+        "explanation": "Scopes in an import map do not affect browser caching. Specific URLs are cached independently of scopes."
+      }
+    ]
+  },
+  {
+    "question": "Why is the externals + CDN (UMD) approach less preferable compared to Import Maps + ESM?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "UMD bundles do not support tree-shaking — the entire module is loaded",
+        "correct": true,
+        "explanation": "UMD exports as a single object; the bundler cannot statically analyze what is used. ESM has explicit named exports and supports tree-shaking."
+      },
+      {
+        "text": "The CDN approach pollutes window with global variables (window.React, window.ReactDOM)",
+        "correct": true,
+        "explanation": "UMD libraries loaded via CDN register themselves in the global namespace. This creates a risk of name conflicts and complicates debugging."
+      },
+      {
+        "text": "CDN is a single point of failure — if the CDN is unavailable, the entire application stops working",
+        "correct": true,
+        "explanation": "Runtime dependency on an external CDN means that unavailability of cdn.jsdelivr.net or unpkg.com breaks the application. ESM can be hosted on your own infrastructure."
+      },
+      {
+        "text": "UMD libraries do not work in modern browsers",
+        "correct": false,
+        "explanation": "UMD works perfectly in modern browsers — it is a compatibility format. The problem is not compatibility, but the lack of tree-shaking and global namespace pollution."
+      }
+    ]
+  },
+  {
+    "question": "A developer added React to shared with singleton:true and eager:false. On startup they get the error 'Shared module is not available for eager consumption'. What is the cause?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The React version is incompatible with Module Federation",
+        "correct": false,
+        "explanation": "The 'not available for eager consumption' error is not related to the React version — it is about the module loading order."
+      },
+      {
+        "text": "The entry point (index.js) imports React synchronously, but the shared module is not yet ready for synchronous consumption",
+        "correct": true,
+        "explanation": "Without eager:true or an async boundary, the shared React is placed in an async chunk. If index.js synchronously imports App.tsx → React, at the time of that import React is not yet loaded. Solution: eager:true in shell, or split index.js + bootstrap.js."
+      },
+      {
+        "text": "React needs to be added to devDependencies instead of dependencies",
+        "correct": false,
+        "explanation": "The placement in package.json does not affect the 'not available for eager consumption' error. This is an MF initialization order problem."
+      },
+      {
+        "text": "Module Federation does not support sharing React without additional plugins",
+        "correct": false,
+        "explanation": "MF natively supports sharing React. The error occurs due to incorrect eager configuration, not incompatibility."
+      }
+    ]
+  },
+  {
+    "question": "Which libraries should be shared via Module Federation shared?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "react and react-dom with singleton:true",
+        "correct": true,
+        "explanation": "React must be a singleton — two copies break Context and hooks. This is a fundamental architectural requirement for React-based micro-frontends."
+      },
+      {
+        "text": "Router (react-router-dom) with singleton:true",
+        "correct": true,
+        "explanation": "The router manages a single browser navigation history. Multiple router copies mean unsynchronized URL state across different MFEs."
+      },
+      {
+        "text": "Internal utilities of a specific MFE (e.g., helpers from cart-mfe)",
+        "correct": false,
+        "explanation": "Internal utilities of one MFE should not be shared — this violates isolation and creates a direct dependency between MFEs."
+      },
+      {
+        "text": "Company Design System / UI Kit with singleton:false",
+        "correct": true,
+        "explanation": "A shared UI Kit is worth sharing — it guarantees visual consistency and saves significant download size. singleton:false is appropriate if the UI Kit has no global state."
+      }
+    ]
+  },
+  {
+    "question": "A tech lead proposes automatically adding all 120 dependencies from package.json to shared via `...dependencies`. What risks does this approach carry?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Slower initialization — on every startup MF performs version negotiation across 120 libraries",
+        "correct": true,
+        "explanation": "Version negotiation is a synchronous process that occurs during initialization. The more shared libraries there are, the longer the application takes to load, especially with a large number of MFEs."
+      },
+      {
+        "text": "Risk of unintentionally sharing mutable singleton modules from third-party packages",
+        "correct": true,
+        "explanation": "Some libraries maintain global state and are not designed to be shared between independent applications. Automatically sharing everything can lead to unexpected interactions."
+      },
+      {
+        "text": "Module Federation prohibits more than 50 shared dependencies — this is a hard limit",
+        "correct": false,
+        "explanation": "There is no limit on the number of shared dependencies. The issue is with performance and architectural cleanliness, not technical restrictions."
+      },
+      {
+        "text": "Update issues: when any of the 120 libraries is updated in one MFE, versions must be synchronized across all MFEs",
+        "correct": true,
+        "explanation": "With shared dependencies at fixed versions, all MFEs must move in sync. The more shared libraries there are, the harder it is to coordinate updates in large teams."
+      }
+    ]
+  }
+]

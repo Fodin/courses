@@ -1,0 +1,392 @@
+[
+  {
+    "question": "The Cart team deployed a new version and discovered a critical bug. They want to roll back. What needs to be changed first?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Rebuild all MFEs with the previous version of Cart",
+        "correct": false,
+        "explanation": "Rebuilding all MFEs is the monolith approach. The core value of MFE is independent rollback. No rebuilding is needed."
+      },
+      {
+        "text": "Update the entry in the MFE registry to the previous version of Cart",
+        "correct": true,
+        "explanation": "The registry is the source of truth about which URL to load. Rollback = updating one entry. On the next request, Shell and other MFEs will automatically load the previous version of Cart."
+      },
+      {
+        "text": "Delete the new files from the CDN and wait for the cache to expire",
+        "correct": false,
+        "explanation": "Deleting files from the CDN is not allowed — it will break already-open sessions. The registry should be updated while the old files remain accessible."
+      },
+      {
+        "text": "Restart the Shell application in production",
+        "correct": false,
+        "explanation": "Restarting Shell will interrupt user sessions. The correct approach is to update the registry, so new sessions will receive the old version without interrupting current ones."
+      }
+    ]
+  },
+  {
+    "question": "Catalog MFE uses a content-hash strategy. After deployment, the file URL changed from `/mfe/catalog/a3b9f2c1/remoteEntry.js` to `/mfe/catalog/7d4e8f2a/remoteEntry.js`. What does this mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A pipeline error occurred — the URL should not change",
+        "correct": false,
+        "explanation": "This is the expected behavior of the content-hash strategy. New code → new hash → new URL. This is exactly how content-addressable storage works."
+      },
+      {
+        "text": "The build content changed — the hash was recomputed from the new code",
+        "correct": true,
+        "explanation": "The content hash is computed from the file's contents at build time. Any code change updates the hash and creates a new unique URL. The old URL remains accessible for already-loaded sessions."
+      },
+      {
+        "text": "The package version was updated in package.json",
+        "correct": false,
+        "explanation": "The version in package.json affects semver, not content-hash. The hash is computed from the contents of the built file, not from package metadata."
+      },
+      {
+        "text": "The CDN randomly generated a new path",
+        "correct": false,
+        "explanation": "CDN does not generate paths. The hash is computed deterministically from the file's contents during the webpack/vite build. Identical code always produces the same hash."
+      }
+    ]
+  },
+  {
+    "question": "Why can `Cache-Control: max-age=31536000, immutable` be set for files with a content-hash in their name?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CDN automatically updates immutable files upon deployment",
+        "correct": false,
+        "explanation": "Immutable means the opposite — CDN and browser will never re-request this file. Updates happen via a new URL with a new hash."
+      },
+      {
+        "text": "If the content changes, the URL also changes — the old URL remains permanently unchanged",
+        "correct": true,
+        "explanation": "This is the key property of the content-hash approach: one URL = one content forever. The browser can cache the file indefinitely because it will never change. A new version = a new URL."
+      },
+      {
+        "text": "Immutable cache only works in Chrome and does not affect other browsers",
+        "correct": false,
+        "explanation": "Cache-Control: immutable is supported in most modern browsers. But this is not the reason to use it with content-hash — the reason is the guarantee of content immutability."
+      },
+      {
+        "text": "This is a standard requirement for all CDN files",
+        "correct": false,
+        "explanation": "Not for all files. Immutable cache is only appropriate for files whose URL is guaranteed not to change when content changes — that is, content-hash files."
+      }
+    ]
+  },
+  {
+    "question": "A canary deployment is running for Cart MFE: 5% of users get v3.1.0, 95% get v3.0.0. How to implement deterministic routing (one user always sees the same version)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Randomly pick a version on each page load",
+        "correct": false,
+        "explanation": "Random selection gives a poor UX: the user sees different versions between sessions. It also complicates metrics analysis — it is impossible to track a specific user's behavior."
+      },
+      {
+        "text": "Hash the userId and take the remainder when dividing by 100 to determine the bucket",
+        "correct": true,
+        "explanation": "A deterministic hash of userId gives a stable distribution: one user always lands in the same bucket. If bucket < 5, they always get the new version. This is the standard practice for canary and A/B testing."
+      },
+      {
+        "text": "Show the new version only to logged-in users, the old version to anonymous users",
+        "correct": false,
+        "explanation": "This is not a canary distribution by traffic percentage. Also, you might have 80% anonymous users — and then canary would cover far less than 5%."
+      },
+      {
+        "text": "Use the user's IP address to determine the group",
+        "correct": false,
+        "explanation": "IP can change (mobile networks, VPN). The user will see different versions when switching networks. Additionally, IP is not used in modern privacy-safe systems."
+      }
+    ]
+  },
+  {
+    "question": "How does blue-green deployment fundamentally differ from canary deployment for MFEs?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Blue-green switches 100% of traffic atomically, canary — gradually",
+        "correct": true,
+        "explanation": "In blue-green, at a certain moment all traffic switches from blue to green. Canary gradually increases the percentage of new traffic: 5% → 25% → 50% → 100%."
+      },
+      {
+        "text": "Blue-green requires two full environments simultaneously, canary does not",
+        "correct": true,
+        "explanation": "Blue-green keeps two live environments for instant switching. Canary only needs one CDN with two versions of files — routing at the registry level."
+      },
+      {
+        "text": "Canary cannot be used together with Module Federation",
+        "correct": false,
+        "explanation": "Canary works perfectly with Module Federation. The registry returns different URLs for different users. Shell loads the URL from the registry dynamically."
+      },
+      {
+        "text": "Blue-green allows testing on production traffic before full switchover",
+        "correct": false,
+        "explanation": "This describes canary, not blue-green. Blue-green is typically tested on staging traffic before the switch, not on real users."
+      }
+    ]
+  },
+  {
+    "question": "The Shell application uses the `latest` strategy to load all remote MFEs. What risks does this create?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Shell may load an incompatible MFE version without warning",
+        "correct": true,
+        "explanation": "Latest means 'whatever is deployed right now'. If Catalog released a breaking change, Shell will load it immediately — without compatibility testing."
+      },
+      {
+        "text": "Rollback becomes impossible when using latest",
+        "correct": false,
+        "explanation": "Rollback is possible — you need to roll back the MFE itself, after which latest will point to the previous version. But managing this is more complex than with an explicit version."
+      },
+      {
+        "text": "CDN will cache a stale version if no-cache is not used",
+        "correct": true,
+        "explanation": "The latest URL does not change when the MFE is updated. Without no-cache, the CDN and browser will cache the file. Deploying a new MFE will not be visible to users until the cache expires."
+      },
+      {
+        "text": "It is impossible to reproduce the production state at a specific date",
+        "correct": true,
+        "explanation": "With latest, there is no way to know which exact MFE version was running in production at the time of an incident. This is critical for debugging and post-mortem analysis."
+      }
+    ]
+  },
+  {
+    "question": "A team is setting up a pipeline and choosing between two approaches to updating the MFE registry. Approach A: update the registry before uploading files to CDN. Approach B: update the registry after uploading files to CDN. Which approach is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Approach A — the registry should always be ahead of CDN",
+        "correct": false,
+        "explanation": "If the registry is updated but files are not yet uploaded, Shell will try to load a non-existent URL. Users will get a 404 error or the load will fail with a network error."
+      },
+      {
+        "text": "Approach B — files must be on CDN before updating the registry",
+        "correct": true,
+        "explanation": "First ensure the file is available at the new URL (Upload CDN), then announce that URL to the world (Update Registry). This is the classic 'upload then activate' approach."
+      },
+      {
+        "text": "Order doesn't matter — registry and CDN are independent",
+        "correct": false,
+        "explanation": "Order is critically important. If Shell learns about the new URL before the file is uploaded to CDN, the first requests after the registry update will fail."
+      },
+      {
+        "text": "Update in parallel — this speeds up deployment",
+        "correct": false,
+        "explanation": "Parallel update creates a race condition: the registry may update before CDN. This failure window can be reduced in other ways (prefetch, staged rollout)."
+      }
+    ]
+  },
+  {
+    "question": "You have 8 MFEs. You found that a new version of the Design System (a shared library) is incompatible with Cart v3.0.0. What needs to be done before deploying the new Design System?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Deploy Design System and Cart simultaneously as a coordinated deploy",
+        "correct": true,
+        "explanation": "If Design System and Cart are incompatible independently, a coordinated deploy is needed: first ensure Cart v3.1.0 (compatible) is ready, then deploy both via a pipeline with depends_on."
+      },
+      {
+        "text": "Deploy Design System and wait — Cart will pick up the changes on its own",
+        "correct": false,
+        "explanation": "Cart will not 'pick up' anything on its own — it will load an incompatible version of DS and break. This is exactly the situation that coordinated deploy and contract testing prevents."
+      },
+      {
+        "text": "Freeze the DS deployment until all 8 MFEs have been updated",
+        "correct": false,
+        "explanation": "This is reverting to the monolith approach. The correct solution is to maintain backward compatibility in DS (deprecated alias) or do a coordinated deploy only for incompatible MFEs."
+      },
+      {
+        "text": "Add a feature flag to the Design System to disable new changes",
+        "correct": false,
+        "explanation": "A feature flag can be part of the solution but does not replace version management. If DS changes its public API, versioned compatibility is needed, not runtime flags."
+      }
+    ]
+  },
+  {
+    "question": "What Cache TTL should be set for `remoteEntry.js` with a semver strategy? For example, for `/mfe/catalog/1.5.2/remoteEntry.js`.",
+    "type": "single",
+    "options": [
+      {
+        "text": "immutable — the file will not change after deployment",
+        "correct": false,
+        "explanation": "Technically the file indeed will not change (it's a semver URL), but immutable prevents urgent rollback: if the file at that URL needs to be updated urgently, the browser won't re-request it."
+      },
+      {
+        "text": "no-cache — always check freshness with the server",
+        "correct": false,
+        "explanation": "no-cache creates unnecessary load on the CDN. A versioned URL /1.5.2/ changes with each deployment — there is no need to validate the old URL on every request."
+      },
+      {
+        "text": "Short TTL (1–24 hours) — a balance between performance and the ability to invalidate",
+        "correct": true,
+        "explanation": "1h–24h lets CDN serve the file efficiently. If needed, the CDN cache can be invalidated via API (CloudFront Invalidation). This is the standard practice for semver files."
+      },
+      {
+        "text": "1 week — real versions rarely change",
+        "correct": false,
+        "explanation": "One week is too long for remoteEntry.js. During a rollback or hotfix, users will load the broken version for a week. A TTL of 1–24 hours provides flexibility without sacrificing performance."
+      }
+    ]
+  },
+  {
+    "question": "A CI/CD pipeline for an MFE goes through the stages: Build → Test → Publish → Canary. At which stage should contract tests (compatibility checks with other MFEs) run?",
+    "type": "single",
+    "options": [
+      {
+        "text": "After Publish, before Canary — to verify the real artifact",
+        "correct": false,
+        "explanation": "Contract tests verify API compatibility, not runtime behavior. Running them after Publish means spending CDN resources on a potentially incompatible artifact."
+      },
+      {
+        "text": "During Test — before publishing the artifact to CDN",
+        "correct": true,
+        "explanation": "Contract tests must run before Publish: if the contract is broken, the pipeline fails without unnecessary costs. This is the fail-fast principle: problems are identified as early as possible."
+      },
+      {
+        "text": "In parallel with Build — to save time",
+        "correct": false,
+        "explanation": "Contract tests verify the build output (the exported API). They cannot run in parallel with Build — there is no artifact to check yet."
+      },
+      {
+        "text": "After 100% canary — only in production does everything work for real",
+        "correct": false,
+        "explanation": "This shifts testing to production. By the time of 100% canary, the incompatibility has already affected users. Contract tests should prevent incompatible code from reaching production."
+      }
+    ]
+  },
+  {
+    "question": "Why must the MFE registry TTL be very short (10–60 seconds), even if this creates additional load on the CDN?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The registry is updated frequently — each MFE has its own deployment schedule",
+        "correct": false,
+        "explanation": "Registry update frequency does not equal TTL time. The registry may be updated once a day, but the TTL should still be short."
+      },
+      {
+        "text": "A short registry TTL ensures rapid rollback application without waiting for cache expiry",
+        "correct": true,
+        "explanation": "Rollback = updating an entry in the registry. If TTL = 1 hour, users will keep loading the broken MFE for another hour. A TTL of 60 seconds means: within a minute, all new sessions will receive the old version."
+      },
+      {
+        "text": "A long registry TTL violates GDPR requirements",
+        "correct": false,
+        "explanation": "Registry TTL has nothing to do with GDPR. GDPR governs personal data, while the registry contains technical URLs."
+      },
+      {
+        "text": "Browsers ignore Cache-Control for JSON files",
+        "correct": false,
+        "explanation": "Browsers respect Cache-Control for all file types, including JSON. This technical statement is incorrect."
+      }
+    ]
+  },
+  {
+    "question": "You are setting up a pipeline for an MFE and deciding whether CDN cache invalidation is needed after deployment. For which file types is invalidation mandatory?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "`remoteEntry.js` with a semver URL (`/mfe/cart/3.1.0/remoteEntry.js`)",
+        "correct": true,
+        "explanation": "Although the URL contains a version, CDN may cache the file with incorrect headers. Invalidation ensures that CDN edge nodes receive a fresh file after deployment."
+      },
+      {
+        "text": "Chunk files with content-hash (`chunk.a3b9f2c1.js`)",
+        "correct": false,
+        "explanation": "Invalidation is not needed — the URL is unique for each content. New version = new URL. The old URL with an immutable cache remains untouched."
+      },
+      {
+        "text": "Registry JSON (`registry.json`) after updating the registry",
+        "correct": true,
+        "explanation": "The registry is updated with every deployment. If the CDN cached an old registry, Shell will load old MFE versions. Registry invalidation is critical for changes to take effect."
+      },
+      {
+        "text": "`remoteEntry.js` with a latest URL (`/mfe/cart/latest/remoteEntry.js`)",
+        "correct": true,
+        "explanation": "The latest URL does not change upon deployment. Without invalidation, CDN will serve the old version. Invalidation is mandatory, or no-cache must be used (but this adds load on the origin)."
+      }
+    ]
+  },
+  {
+    "question": "When the frequency of coordinated deploys (deploying multiple MFEs simultaneously) starts to increase, what does this signal about the architecture?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Teams coordinate well — this is a sign of a mature organization",
+        "correct": false,
+        "explanation": "Good coordination is good, but frequent coordinated deploys are a symptom. The goal of MFE is independent deployments. If teams are forced to constantly coordinate, independence has not been achieved."
+      },
+      {
+        "text": "MFEs are too tightly coupled — the independence principle is violated",
+        "correct": true,
+        "explanation": "If MFEs regularly need to be deployed together, there is a tight dependency between them (shared API, shared state, tight contracts). This is a signal to revisit MFE boundaries and contracts."
+      },
+      {
+        "text": "The CI/CD pipeline is not fast enough — optimization is needed",
+        "correct": false,
+        "explanation": "Pipeline speed affects deployment time, but not the need for coordination. Coordinated deploys are required due to architectural dependencies, not speed."
+      },
+      {
+        "text": "The MFE registry is misconfigured",
+        "correct": false,
+        "explanation": "Registry configuration does not affect the need for coordinated deploys. The problem lies in architectural coupling, not in infrastructure."
+      }
+    ]
+  },
+  {
+    "question": "What metrics are critical to monitor during a canary deployment of a new Cart MFE?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "JavaScript error rate for the canary segment vs the stable segment",
+        "correct": true,
+        "explanation": "Comparing error rates between the new and old versions is the baseline canary metric. If the new version generates more errors, this is a signal for rollback."
+      },
+      {
+        "text": "Cart bundle size",
+        "correct": false,
+        "explanation": "Bundle size matters for performance, but it is not an operational canary metric. Size will not change during a canary rollout."
+      },
+      {
+        "text": "Business metrics: add-to-cart conversion rate",
+        "correct": true,
+        "explanation": "Cart is a key component for conversion. If the canary segment shows a decrease in add-to-cart events, the new version is negatively affecting UX or functionality."
+      },
+      {
+        "text": "Core Web Vitals (LCP, CLS) for pages with Cart",
+        "correct": true,
+        "explanation": "Performance regressions do not always manifest as errors. If the new version of Cart slows down LCP or worsens CLS, this is also a reason for rollback."
+      }
+    ]
+  },
+  {
+    "question": "A developer suggests storing the MFE registry directly in the Shell repository as a static JSON file. What problems does this approach create?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Updating the registry requires a commit and deployment of Shell",
+        "correct": true,
+        "explanation": "If the registry is in the Shell repository, any MFE deployment requires a PR to Shell → review → merge → Shell deployment. This kills deployment independence and creates an additional bottleneck."
+      },
+      {
+        "text": "Rollback is impossible without git revert",
+        "correct": true,
+        "explanation": "A rollback requires a commit + Shell deployment. Instead of changing one line in the registry, the team needs to create a PR and wait for deployment. This increases MTTR during incidents."
+      },
+      {
+        "text": "Git does not support JSON files",
+        "correct": false,
+        "explanation": "Git handles JSON perfectly. The problem is not a technical limitation, but the process: registry updates are tied to Shell deployment."
+      },
+      {
+        "text": "Canary routing based on userId is impossible with a static file",
+        "correct": true,
+        "explanation": "A static JSON cannot return different URLs for different users. For per-user canary, a dynamic registry service is needed that can route based on userId/session."
+      }
+    ]
+  }
+]

@@ -165,5 +165,168 @@ export const translations: Translations = {
     'level.15.desc': 'Проектируем распределённый кэш: consistent hashing, gossip, репликация',
     'level.16.desc': 'Проектируем видеоплатформу: транскодирование, CDN, adaptive bitrate',
   },
-  en: {},
+  en: {
+    // Common
+    'common.loading': 'Loading...',
+    'common.error': 'Error',
+    'common.close': 'Close',
+
+    // Navigation
+    'nav.title': '📚 Levels',
+    'nav.levels': 'Levels',
+    'nav.level': 'Level',
+    'nav.networkingBasics': 'Networking Basics',
+    'nav.scalingFundamentals': 'Scaling',
+    'nav.loadBalancing': 'Load Balancing',
+    'nav.caching': 'Caching',
+    'nav.databasesAndStorage': 'Databases & Storage',
+    'nav.messageQueues': 'Message Queues',
+    'nav.apiDesign': 'API Design',
+    'nav.reliabilityPatterns': 'Reliability Patterns',
+    'nav.designUrlShortener': 'Design: URL Shortener',
+    'nav.designPasteService': 'Design: Paste Service',
+    'nav.designRateLimiter': 'Design: Rate Limiter',
+    'nav.designNotificationSystem': 'Design: Notifications',
+    'nav.designChatSystem': 'Design: Messenger',
+    'nav.designNewsfeed': 'Design: News Feed',
+    'nav.designSearchSystem': 'Design: Search',
+    'nav.designDistributedCache': 'Design: Distributed Cache',
+    'nav.designVideoStreaming': 'Design: Video Streaming',
+
+    // Level 0 — Networking Basics
+    'task.0.1': 'Quiz: protocols and networking',
+    'task.0.2': 'Latency calculator',
+    'task.0.3': 'Protocol selection',
+
+    // Level 1 — Scaling
+    'task.1.1': 'Quiz: scaling',
+    'task.1.2': 'Scaling planner',
+    'task.1.3': 'Scaling strategy',
+
+    // Level 2 — Load Balancing
+    'task.2.1': 'Quiz: load balancing',
+    'task.2.2': 'Load balancing simulator',
+    'task.2.3': 'Consistent hashing visualizer',
+    'task.2.4': 'Load balancing design',
+
+    // Level 3 — Caching
+    'task.3.1': 'Quiz: caching',
+    'task.3.2': 'Cache simulator (LRU/LFU)',
+    'task.3.3': 'Cache strategy calculator',
+    'task.3.4': 'Multi-level cache',
+
+    // Level 4 — Databases & Storage
+    'task.4.1': 'Quiz: databases and CAP',
+    'task.4.2': 'Sharding visualizer',
+    'task.4.3': 'Database selection',
+    'task.4.4': 'Replication and sharding schema',
+
+    // Level 5 — Message Queues
+    'task.5.1': 'Quiz: queues and async',
+    'task.5.2': 'Message queue visualizer',
+    'task.5.3': 'Event pipeline design',
+
+    // Level 6 — API Design
+    'task.6.1': 'Quiz: API design',
+    'task.6.2': 'Rate limiter simulator',
+    'task.6.3': 'REST API design',
+    'task.6.4': 'API Gateway and BFF',
+
+    // Level 7 — Reliability Patterns
+    'task.7.1': 'Quiz: reliability',
+    'task.7.2': 'Circuit breaker simulator',
+    'task.7.3': 'SLO/Error budget calculator',
+    'task.7.4': 'Reliability strategy',
+
+    // Level 8 — URL Shortener
+    'task.8.1': 'Quiz: URL shortener',
+    'task.8.2': 'Architecture builder: URL Shortener',
+    'task.8.3': 'Full design: URL Shortener',
+
+    // Level 9 — Paste Service
+    'task.9.1': 'Quiz: content storage',
+    'task.9.2': 'Capacity calculator',
+    'task.9.3': 'Full design: Paste Service',
+
+    // Level 10 — Rate Limiter
+    'task.10.1': 'Quiz: distributed rate limiting',
+    'task.10.2': 'Rate limiting algorithms comparison',
+    'task.10.3': 'Full design: Rate Limiter',
+
+    // Level 11 — Notification System
+    'task.11.1': 'Quiz: notification system',
+    'task.11.2': 'Notification pipeline builder',
+    'task.11.3': 'Full design: Notification System',
+
+    // Level 12 — Messenger
+    'task.12.1': 'Quiz: real-time messaging',
+    'task.12.2': 'Message delivery simulator',
+    'task.12.3': 'Message storage design',
+    'task.12.4': 'Full design: Messenger',
+
+    // Level 13 — News Feed
+    'task.13.1': 'Quiz: feed generation',
+    'task.13.2': 'Fan-out calculator',
+    'task.13.3': 'Social graph design',
+    'task.13.4': 'Full design: News Feed',
+
+    // Level 14 — Search System
+    'task.14.1': 'Quiz: search systems',
+    'task.14.2': 'Inverted index visualizer',
+    'task.14.3': 'Full design: Search System',
+
+    // Level 15 — Distributed Cache
+    'task.15.1': 'Quiz: distributed cache',
+    'task.15.2': 'Cluster simulator',
+    'task.15.3': 'Full design: Distributed Cache',
+
+    // Level 16 — Video Streaming
+    'task.16.1': 'Quiz: video streaming',
+    'task.16.2': 'Video infrastructure calculator',
+    'task.16.3': 'Transcoding pipeline design',
+    'task.16.4': 'Full design: Video Platform',
+
+    // Platform UI
+    'task.title': 'Task',
+    'task.description': '📋 Task Description',
+    'task.placeholder': 'Your result will appear here',
+    'task.markComplete': 'Mark as complete',
+    'task.markIncomplete': 'Mark as incomplete',
+    'theory.title': '📚 Theory',
+    'theory.brief': 'Brief',
+    'theory.detailed': 'Detailed',
+    'theory.notFound': 'Theory not found',
+    'solution.show': '💡 Show solution',
+    'solution.hide': '🙈 Hide solution',
+    'quiz.title': '🧪 Theory Quiz',
+    'quiz.submit': 'Submit',
+    'quiz.correct': '✅ Correct!',
+    'quiz.wrong': '❌ Incorrect',
+    'theme.light': 'Light',
+    'theme.dark': 'Dark',
+    'theme.toggle': 'Toggle theme',
+    'language.select': 'Select language',
+    'language.ru': 'Русский',
+    'language.en': 'English',
+    'scroll.top': 'Back to top',
+
+    // Level descriptions
+    'level.0.desc': 'TCP/IP, HTTP/2, WebSocket, gRPC, DNS — how data travels across the network',
+    'level.1.desc': 'Vertical and horizontal scaling, stateless/stateful, scaling cube',
+    'level.2.desc': 'L4/L7 balancing, algorithms, consistent hashing, health checks',
+    'level.3.desc': 'Cache-aside, write-through, LRU/LFU, CDN, multi-level caching',
+    'level.4.desc': 'SQL vs NoSQL, CAP theorem, replication, sharding, indexes',
+    'level.5.desc': 'RabbitMQ, Kafka, pub/sub, delivery guarantees, backpressure, CQRS',
+    'level.6.desc': 'REST, GraphQL, gRPC, pagination, rate limiting, API Gateway, BFF',
+    'level.7.desc': 'Circuit breaker, retry, bulkhead, SLA/SLO, graceful degradation',
+    'level.8.desc': 'Design URL Shortener: hashing, base62, caching, scaling',
+    'level.9.desc': 'Design Paste Service: object storage, CDN, metadata separation',
+    'level.10.desc': 'Design Rate Limiter: distributed state, Redis, atomicity',
+    'level.11.desc': 'Design Notification System: push/email/SMS, priority queues',
+    'level.12.desc': 'Design Messenger: WebSocket, presence, delivery, groups',
+    'level.13.desc': 'Design News Feed: fan-out, social graph, ranking',
+    'level.14.desc': 'Design Search: inverted index, TF-IDF, Elasticsearch, typeahead',
+    'level.15.desc': 'Design Distributed Cache: consistent hashing, gossip, replication',
+    'level.16.desc': 'Design Video Platform: transcoding, CDN, adaptive bitrate',
+  },
 }

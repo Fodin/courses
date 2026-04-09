@@ -1,0 +1,202 @@
+import type { Translations } from '@courses/platform'
+
+export const translations: Translations = {
+  ru: {
+    // Навигация
+    'nav.title': '📚 Уровни',
+    'nav.levels': 'Уровни',
+    'nav.level': 'Уровень',
+    'nav.intro': 'Введение в проектирование API',
+    'nav.urlDesign': 'REST — ресурсы и URL',
+    'nav.httpMethods': 'HTTP-методы и идемпотентность',
+    'nav.statusCodes': 'Статус-коды и ошибки',
+    'nav.requestResponse': 'Тело запроса и ответа',
+    'nav.pagination': 'Пагинация и фильтрация',
+    'nav.versioning': 'Версионирование API',
+    'nav.openApiBasics': 'OpenAPI — основы',
+    'nav.openApiSchemas': 'OpenAPI — схемы',
+    'nav.codeGeneration': 'Генерация кода и SDK',
+    'nav.documentation': 'Документация API',
+    'nav.rateLimiting': 'Rate Limiting',
+    'nav.fullDesign': 'Проектирование реального API',
+
+    // Описания уровней
+    'level.0.desc': 'Зачем проектировать API, что отличает хороший API от плохого, Richardson Maturity Model',
+    'level.1.desc': 'Именование ресурсов, иерархия URL, вложенные ресурсы, конвенции',
+    'level.2.desc': 'GET, POST, PUT, PATCH, DELETE — безопасность, идемпотентность, семантика',
+    'level.3.desc': 'Группы статус-кодов, обработка ошибок, RFC 7807 Problem Details',
+    'level.4.desc': 'JSON-конвенции, envelope vs flat, именование полей, partial updates',
+    'level.5.desc': 'Offset vs cursor пагинация, фильтрация, сортировка, query-параметры',
+    'level.6.desc': 'Стратегии версионирования: URL, header, query — плюсы и минусы',
+    'level.7.desc': 'Структура OpenAPI-документа, paths, operations, parameters, responses',
+    'level.8.desc': '$ref, components, schemas, переиспользование и композиция',
+    'level.9.desc': 'openapi-generator, openapi-typescript, orval — из спеки в типизированный клиент',
+    'level.10.desc': 'Swagger UI, Redoc, Stoplight — инструменты и best practices',
+    'level.11.desc': 'Token bucket, sliding window, retry-стратегии, exponential backoff',
+    'level.12.desc': 'Итоговый проект: проектирование полного API от ресурсов до документации',
+
+    // Уровень 0 — Введение
+    'task.0.1': 'Хороший vs плохой API',
+    'task.0.2': 'Richardson Maturity Model',
+    'task.0.3': 'Анализ API',
+
+    // Уровень 1 — URL-дизайн
+    'task.1.1': 'URL-конструктор',
+    'task.1.2': 'Исправь ошибки в URL',
+    'task.1.3': 'Проектирование URL-схемы',
+
+    // Уровень 2 — HTTP-методы
+    'task.2.1': 'Матрица HTTP-методов',
+    'task.2.2': 'Подбери метод для сценария',
+    'task.2.3': 'CRUD endpoints',
+
+    // Уровень 3 — Статус-коды
+    'task.3.1': 'Справочник статус-кодов',
+    'task.3.2': 'Конструктор error response',
+    'task.3.3': 'Статус-код для сценария',
+
+    // Уровень 4 — Request/Response
+    'task.4.1': 'Трансформатор JSON',
+    'task.4.2': 'Envelope vs Flat',
+    'task.4.3': 'Проектирование request/response',
+
+    // Уровень 5 — Пагинация
+    'task.5.1': 'Визуализатор пагинации',
+    'task.5.2': 'Конструктор query-параметров',
+    'task.5.3': 'Проектирование пагинации',
+
+    // Уровень 6 — Версионирование
+    'task.6.1': 'Сравнение стратегий',
+    'task.6.2': 'Timeline миграции',
+    'task.6.3': 'Выбор стратегии',
+
+    // Уровень 7 — OpenAPI основы
+    'task.7.1': 'Анатомия OpenAPI',
+    'task.7.2': 'Конструктор OpenAPI-пути',
+    'task.7.3': 'Написание спецификации',
+
+    // Уровень 8 — OpenAPI схемы
+    'task.8.1': 'Визуализатор $ref',
+    'task.8.2': 'Рефакторинг спецификации',
+    'task.8.3': 'Проектирование схем',
+
+    // Уровень 9 — Генерация кода
+    'task.9.1': 'OpenAPI → TypeScript',
+    'task.9.2': 'Сравнение инструментов',
+    'task.9.3': 'Настройка генерации',
+
+    // Уровень 10 — Документация
+    'task.10.1': 'Анатомия документации',
+    'task.10.2': 'Сравнение инструментов',
+    'task.10.3': 'Оценка документации',
+
+    // Уровень 11 — Rate Limiting
+    'task.11.1': 'Симулятор token bucket',
+    'task.11.2': 'Конструктор retry-стратегии',
+    'task.11.3': 'Проектирование rate limiting',
+
+    // Уровень 12 — Итоговый проект
+    'task.12.1': 'Полный конструктор API',
+    'task.12.2': 'Review чужого API',
+    'task.12.3': 'Проектирование e-commerce API',
+
+    // UI платформы
+    'common.loading': 'Загрузка...',
+    'common.error': 'Ошибка',
+    'common.close': 'Закрыть',
+    'task.title': 'Задание',
+    'task.description': '📋 Описание задания',
+    'task.placeholder': 'Ваш результат появится здесь',
+    'task.markComplete': 'Отметить как выполненное',
+    'task.markIncomplete': 'Отметить как не выполненное',
+    'theory.title': '📚 Теория',
+    'theory.brief': 'Кратко',
+    'theory.detailed': 'Развёрнуто',
+    'theory.notFound': 'Теория не найдена',
+    'solution.show': '💡 Показать решение',
+    'solution.hide': '🙈 Скрыть решение',
+    'quiz.title': '🧪 Тест по теории',
+    'quiz.submit': 'Ответить',
+    'quiz.correct': '✅ Правильно!',
+    'quiz.wrong': '❌ Неправильно',
+    'theme.light': 'Светлая',
+    'theme.dark': 'Тёмная',
+    'theme.toggle': 'Переключить тему',
+    'language.select': 'Выбрать язык',
+    'language.ru': 'Русский',
+    'language.en': 'English',
+    'scroll.top': 'Наверх',
+  },
+  en: {
+    'nav.title': '📚 Levels',
+    'nav.levels': 'Levels',
+    'nav.level': 'Level',
+    'nav.intro': 'Introduction to API Design',
+    'nav.urlDesign': 'REST — Resources and URLs',
+    'nav.httpMethods': 'HTTP Methods and Idempotency',
+    'nav.statusCodes': 'Status Codes and Errors',
+    'nav.requestResponse': 'Request and Response Body',
+    'nav.pagination': 'Pagination and Filtering',
+    'nav.versioning': 'API Versioning',
+    'nav.openApiBasics': 'OpenAPI Basics',
+    'nav.openApiSchemas': 'OpenAPI Schemas',
+    'nav.codeGeneration': 'Code Generation and SDK',
+    'nav.documentation': 'API Documentation',
+    'nav.rateLimiting': 'Rate Limiting',
+    'nav.fullDesign': 'Designing a Real API',
+
+    'level.0.desc': 'Why design APIs, what makes a good API, Richardson Maturity Model',
+    'level.1.desc': 'Resource naming, URL hierarchy, nested resources, conventions',
+    'level.2.desc': 'GET, POST, PUT, PATCH, DELETE — safety, idempotency, semantics',
+    'level.3.desc': 'Status code groups, error handling, RFC 7807 Problem Details',
+    'level.4.desc': 'JSON conventions, envelope vs flat, field naming, partial updates',
+    'level.5.desc': 'Offset vs cursor pagination, filtering, sorting, query parameters',
+    'level.6.desc': 'Versioning strategies: URL, header, query — pros and cons',
+    'level.7.desc': 'OpenAPI document structure, paths, operations, parameters, responses',
+    'level.8.desc': '$ref, components, schemas, reuse and composition',
+    'level.9.desc': 'openapi-generator, openapi-typescript, orval — from spec to typed client',
+    'level.10.desc': 'Swagger UI, Redoc, Stoplight — tools and best practices',
+    'level.11.desc': 'Token bucket, sliding window, retry strategies, exponential backoff',
+    'level.12.desc': 'Final project: designing a complete API from resources to documentation',
+
+    'task.0.1': 'Good vs Bad API',
+    'task.0.2': 'Richardson Maturity Model',
+    'task.0.3': 'API Analysis',
+    'task.1.1': 'URL Constructor',
+    'task.1.2': 'Fix URL Errors',
+    'task.1.3': 'URL Schema Design',
+    'task.2.1': 'HTTP Methods Matrix',
+    'task.2.2': 'Match Method to Scenario',
+    'task.2.3': 'CRUD Endpoints',
+    'task.3.1': 'Status Code Reference',
+    'task.3.2': 'Error Response Constructor',
+    'task.3.3': 'Status Code for Scenario',
+    'task.4.1': 'JSON Transformer',
+    'task.4.2': 'Envelope vs Flat',
+    'task.4.3': 'Request/Response Design',
+    'task.5.1': 'Pagination Visualizer',
+    'task.5.2': 'Query Params Constructor',
+    'task.5.3': 'Pagination Design',
+    'task.6.1': 'Strategy Comparison',
+    'task.6.2': 'Migration Timeline',
+    'task.6.3': 'Strategy Selection',
+    'task.7.1': 'OpenAPI Anatomy',
+    'task.7.2': 'OpenAPI Path Constructor',
+    'task.7.3': 'Writing a Specification',
+    'task.8.1': '$ref Visualizer',
+    'task.8.2': 'Spec Refactoring',
+    'task.8.3': 'Schema Design',
+    'task.9.1': 'OpenAPI → TypeScript',
+    'task.9.2': 'Tools Comparison',
+    'task.9.3': 'Generation Setup',
+    'task.10.1': 'Documentation Anatomy',
+    'task.10.2': 'Tools Comparison',
+    'task.10.3': 'Documentation Evaluation',
+    'task.11.1': 'Token Bucket Simulator',
+    'task.11.2': 'Retry Strategy Constructor',
+    'task.11.3': 'Rate Limiting Design',
+    'task.12.1': 'Full API Constructor',
+    'task.12.2': 'API Review',
+    'task.12.3': 'E-commerce API Design',
+  },
+}

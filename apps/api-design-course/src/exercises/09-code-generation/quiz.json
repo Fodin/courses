@@ -1,0 +1,132 @@
+[
+  {
+    "question": "Что такое contract-first подход в разработке API?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Бэкенд пишет код, из которого автоматически генерируется OpenAPI-спецификация",
+        "correct": false,
+        "explanation": "Это code-first подход. В нём реализация первична, документация вторична — дизайн API диктует код, а не намерение."
+      },
+      {
+        "text": "Спецификация согласуется командой до начала реализации, на её основе генерируются типы и моки",
+        "correct": true,
+        "explanation": "Верно. Contract-first: openapi.yaml → frontend генерирует типы и MSW-моки → backend реализует. Команды работают параллельно."
+      },
+      {
+        "text": "Frontend и backend договариваются об API в Confluence, без формальной спецификации",
+        "correct": false,
+        "explanation": "Договорённости в Confluence — это неформальный контракт. Contract-first подразумевает машиночитаемую спецификацию (OpenAPI), из которой можно генерировать код."
+      },
+      {
+        "text": "Разработка начинается только после подписания юридического контракта с заказчиком",
+        "correct": false,
+        "explanation": "Это не имеет отношения к API-дизайну. Contract-first — технический термин: OpenAPI-спецификация как технический контракт между командами."
+      }
+    ]
+  },
+  {
+    "question": "Почему openapi-generator требует Java, а openapi-typescript — нет?",
+    "type": "single",
+    "options": [
+      {
+        "text": "openapi-generator написан на Java и выполняется в JVM, openapi-typescript — на Node.js",
+        "correct": true,
+        "explanation": "Верно. openapi-generator — это Java-проект, работающий в JVM. openapi-typescript написан на TypeScript и выполняется в Node.js, поэтому не требует дополнительных runtime-зависимостей."
+      },
+      {
+        "text": "openapi-typescript использует WebAssembly вместо Java для ускорения",
+        "correct": false,
+        "explanation": "openapi-typescript не использует WebAssembly. Он просто написан на TypeScript/Node.js, что и делает его нативным для npm-экосистемы."
+      },
+      {
+        "text": "Java нужна для поддержки OpenAPI 2.0, openapi-typescript работает только с OpenAPI 3.x",
+        "correct": false,
+        "explanation": "Java нужна потому что сам инструмент написан на Java, а не из-за версии OpenAPI. openapi-generator поддерживает обе версии."
+      },
+      {
+        "text": "openapi-generator можно запустить без Java через npm-пакет @openapitools/openapi-generator-cli",
+        "correct": false,
+        "explanation": "Частично верно, но этот npm-пакет всё равно скачивает и запускает Java-артефакт внутри. Java-зависимость никуда не исчезает."
+      }
+    ]
+  },
+  {
+    "question": "Вы используете openapi-typescript. Что из перечисленного он НЕ генерирует?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "TypeScript interfaces для схем",
+        "correct": false,
+        "explanation": "Неверно — это как раз основная функция openapi-typescript. Он генерирует типы для всех схем из components/schemas."
+      },
+      {
+        "text": "React Query хуки (useQuery, useMutation)",
+        "correct": true,
+        "explanation": "Верно — openapi-typescript не генерирует хуки. Для хуков нужен orval или ручная обёртка через openapi-fetch."
+      },
+      {
+        "text": "MSW-моки для тестирования",
+        "correct": true,
+        "explanation": "Верно — генерация MSW-моков не входит в openapi-typescript. Это функциональность orval или отдельных инструментов."
+      },
+      {
+        "text": "Типизированные пути и параметры запросов",
+        "correct": false,
+        "explanation": "Неверно — openapi-typescript именно это и делает: генерирует структуру paths с полными типами для параметров и ответов каждого эндпоинта."
+      }
+    ]
+  },
+  {
+    "question": "Как в TypeScript выражается OpenAPI-конструкция allOf: [$ref: A, {type: object, properties: {...}}]?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Union type: A | { ... }",
+        "correct": false,
+        "explanation": "Нет, union type (|) соответствует oneOf / anyOf — 'один из вариантов'. allOf означает 'все варианты сразу'."
+      },
+      {
+        "text": "Intersection type: A & { ... } или interface extends A",
+        "correct": true,
+        "explanation": "Верно. allOf требует соответствия всем схемам одновременно — это аналог intersection type (A & B) или interface extends A в TypeScript."
+      },
+      {
+        "text": "Generic type: Array<A>",
+        "correct": false,
+        "explanation": "Array<A> соответствует type: array + items: $ref A. allOf — это про объединение структур, не массивы."
+      },
+      {
+        "text": "Mapped type: { [K in keyof A]: A[K] }",
+        "correct": false,
+        "explanation": "Mapped types — это TypeScript-конструкция для трансформации типов. Генераторы кода из allOf не создают mapped types."
+      }
+    ]
+  },
+  {
+    "question": "Ваша команда из 10 человек (5 frontend, 3 backend, 2 mobile) использует один и тот же OpenAPI. Какая стратегия генерации типов наиболее подходит?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Каждый разработчик генерирует локально по мере необходимости",
+        "correct": false,
+        "explanation": "При таком подходе у разных разработчиков будут разные версии типов. Это источник трудноуловимых багов: 'у меня работает, у тебя нет'."
+      },
+      {
+        "text": "openapi-typescript для всех — он поддерживает все языки",
+        "correct": false,
+        "explanation": "openapi-typescript — только для TypeScript/JavaScript. Для мобильных (Swift/Kotlin) он не подойдёт."
+      },
+      {
+        "text": "openapi-generator в CI: разные генераторы для TS, Swift, Kotlin; результат публикуется как пакеты",
+        "correct": true,
+        "explanation": "Верно. openapi-generator поддерживает 50+ языков. CI запускает нужные генераторы при обновлении спеки и публикует результаты — каждая платформа берёт свой пакет."
+      },
+      {
+        "text": "orval с режимом multi-language для всех платформ",
+        "correct": false,
+        "explanation": "orval ориентирован исключительно на JavaScript/TypeScript. Для Swift и Kotlin он не подходит."
+      }
+    ]
+  }
+]

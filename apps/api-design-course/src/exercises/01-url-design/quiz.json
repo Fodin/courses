@@ -1,0 +1,137 @@
+[
+  {
+    "question": "Какой из этих URL соответствует принципам REST?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GET /api/getUsers",
+        "correct": false,
+        "explanation": "Глагол 'get' в URL избыточен — HTTP-метод GET уже несёт это значение. URL должен описывать ресурс, а не действие."
+      },
+      {
+        "text": "GET /api/users",
+        "correct": true,
+        "explanation": "Правильно: существительное во множественном числе, lowercase. Метод GET определяет операцию — 'получить список пользователей'."
+      },
+      {
+        "text": "GET /api/user",
+        "correct": false,
+        "explanation": "Единственное число для коллекции — неоднозначно. Стандарт: коллекции во множественном числе (/users), один объект — /users/:id."
+      },
+      {
+        "text": "GET /api/Users",
+        "correct": false,
+        "explanation": "URL пишутся в lowercase. PascalCase нарушает соглашение и может вызывать проблемы с регистрозависимыми серверами."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно удалить пользователя с ID = 5?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GET /api/users/deleteUser/5",
+        "correct": false,
+        "explanation": "Двойная ошибка: используется GET вместо DELETE, а 'deleteUser' — глагол в пути. Операция выражается HTTP-методом."
+      },
+      {
+        "text": "POST /api/users?action=delete&id=5",
+        "correct": false,
+        "explanation": "Действие в query params — это RPC-стиль, не REST. HTTP-метод DELETE создан именно для удаления."
+      },
+      {
+        "text": "DELETE /api/users/5",
+        "correct": true,
+        "explanation": "Верно: метод DELETE + адрес конкретного ресурса (/users/5). Семантически чисто, идиоматично для REST."
+      },
+      {
+        "text": "DELETE /api/deleteUser/5",
+        "correct": false,
+        "explanation": "Метод правильный, но URL содержит глагол 'deleteUser'. Достаточно /users/5 — метод DELETE уже несёт смысл удаления."
+      }
+    ]
+  },
+  {
+    "question": "Вы проектируете API для получения всех комментариев к посту с ID = 10. Какой URL выбрать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "GET /api/comments?postId=10",
+        "correct": false,
+        "explanation": "Технически работает, но теряет иерархию: непонятно, что комментарии — зависимый ресурс поста. Вложенность выражает принадлежность."
+      },
+      {
+        "text": "GET /api/posts/10/comments",
+        "correct": true,
+        "explanation": "Правильно: вложенный ресурс. URL явно показывает, что комментарии принадлежат посту 10. Читаемо и семантически точно."
+      },
+      {
+        "text": "GET /api/getCommentsByPost/10",
+        "correct": false,
+        "explanation": "Глагол 'getCommentsByPost' в URL — нарушение REST. Действие определяется методом, а не путём."
+      },
+      {
+        "text": "POST /api/posts/10/comments",
+        "correct": false,
+        "explanation": "URL правильный, но метод POST означает создание, а не получение. Для чтения нужен GET."
+      }
+    ]
+  },
+  {
+    "question": "Какие правила именования URL являются корректными? (выберите все верные)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Существительные во множественном числе: /products",
+        "correct": true,
+        "explanation": "Верно. Коллекции именуются во множественном числе, что делает URL однозначным: /products — это список товаров."
+      },
+      {
+        "text": "Kebab-case для составных слов: /blog-posts",
+        "correct": true,
+        "explanation": "Верно. Kebab-case — стандарт для URL. camelCase (/blogPosts) и snake_case (/blog_posts) не рекомендуются."
+      },
+      {
+        "text": "camelCase для читаемости: /blogPosts",
+        "correct": false,
+        "explanation": "Неверно. URL — не переменная JavaScript. Стандарт веб-разработки — kebab-case: /blog-posts."
+      },
+      {
+        "text": "Lowercase для всех сегментов: /user-profiles",
+        "correct": true,
+        "explanation": "Верно. URL принято писать в нижнем регистре, это предотвращает проблемы с регистрозависимыми серверами и путаницу."
+      },
+      {
+        "text": "Глаголы для ясности: /getUserById",
+        "correct": false,
+        "explanation": "Неверно. Глаголы в URL — антипаттерн REST. Операция определяется HTTP-методом, URL описывает ресурс."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть ресурс 'посты в блоге'. Нужно добавить endpoint для публикации черновика (это сложная операция: уведомления, проверки, смена статуса). Как лучше оформить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "PUT /api/posts/42 с телом { \"status\": \"published\" }",
+        "correct": false,
+        "explanation": "Работает, но скрывает намерение. PUT заменяет ресурс целиком, а публикация — специфическое действие с побочными эффектами."
+      },
+      {
+        "text": "GET /api/posts/42/publish",
+        "correct": false,
+        "explanation": "GET не должен изменять состояние — нарушение идемпотентности. Публикация — это мутация, используйте POST."
+      },
+      {
+        "text": "POST /api/posts/42/publish",
+        "correct": true,
+        "explanation": "Правильно. Для нетривиальных действий допустим RPC-style endpoint. POST /resource/:id/action — признанное исключение в REST."
+      },
+      {
+        "text": "POST /api/publishPost?id=42",
+        "correct": false,
+        "explanation": "ID ресурса должен быть в пути, не в query params. Query params — для фильтрации, не для идентификации конкретного объекта."
+      }
+    ]
+  }
+]

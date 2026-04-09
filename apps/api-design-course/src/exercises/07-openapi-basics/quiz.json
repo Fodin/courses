@@ -1,0 +1,137 @@
+[
+  {
+    "question": "Какие секции OpenAPI-документа являются обязательными?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "openapi",
+        "correct": true,
+        "explanation": "Обязательное поле — указывает версию спецификации OpenAPI, которой соответствует документ"
+      },
+      {
+        "text": "info",
+        "correct": true,
+        "explanation": "Обязательная секция — содержит метаданные: title и version API"
+      },
+      {
+        "text": "paths",
+        "correct": true,
+        "explanation": "Обязательная секция — описывает все endpoints API"
+      },
+      {
+        "text": "servers",
+        "correct": false,
+        "explanation": "Необязательная секция. Если опустить — считается, что API доступен на хосте документа"
+      },
+      {
+        "text": "components",
+        "correct": false,
+        "explanation": "Необязательная секция. Нужна только если есть переиспользуемые схемы или ответы"
+      }
+    ]
+  },
+  {
+    "question": "Как правильно записать статус-коды в секции responses?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Как числа: 200, 400, 404",
+        "correct": false,
+        "explanation": "Числа — невалидный YAML-ключ для статус-кодов. OpenAPI требует строки"
+      },
+      {
+        "text": "Как строки в кавычках: \"200\", \"400\", \"404\"",
+        "correct": true,
+        "explanation": "Статус-коды в OpenAPI — строки. Это позволяет также использовать диапазоны: \"2XX\", \"4XX\""
+      },
+      {
+        "text": "Как строки без кавычек: HTTP_200, HTTP_404",
+        "correct": false,
+        "explanation": "Такой формат не поддерживается OpenAPI. Используются стандартные HTTP-коды в виде строк"
+      },
+      {
+        "text": "В любом формате — числа или строки одинаково валидны",
+        "correct": false,
+        "explanation": "Нет, спецификация OpenAPI требует именно строковые ключи для кодов ответов"
+      }
+    ]
+  },
+  {
+    "question": "Параметр передаётся в URL как /users/550e8400-e29b. Какое значение поля in нужно указать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "in: query",
+        "correct": false,
+        "explanation": "Query-параметры идут после ? в URL: /users?id=550e8400. Здесь ID — часть пути"
+      },
+      {
+        "text": "in: path",
+        "correct": true,
+        "explanation": "Path-параметры — часть шаблона пути: /users/{id}. Всегда обязательны (required: true)"
+      },
+      {
+        "text": "in: header",
+        "correct": false,
+        "explanation": "Header-параметры передаются в HTTP-заголовках, а не в URL"
+      },
+      {
+        "text": "in: body",
+        "correct": false,
+        "explanation": "В OpenAPI 3.x нет in: body — тело запроса описывается через requestBody"
+      }
+    ]
+  },
+  {
+    "question": "Что означает $ref: \"#/components/schemas/User\"?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ссылка на внешний файл User.yaml",
+        "correct": false,
+        "explanation": "Внешние ссылки выглядят иначе: $ref: \"./User.yaml\". Символ # означает текущий документ"
+      },
+      {
+        "text": "Ссылка на объект User в текущем документе по пути /components/schemas/User",
+        "correct": true,
+        "explanation": "# означает корень текущего документа, далее — JSON Pointer путь к объекту User в components/schemas"
+      },
+      {
+        "text": "Импорт TypeScript-интерфейса User",
+        "correct": false,
+        "explanation": "$ref — механизм OpenAPI/JSON Schema, не TypeScript. Ссылается на описание схемы в YAML/JSON"
+      },
+      {
+        "text": "Создание новой схемы с именем User",
+        "correct": false,
+        "explanation": "$ref — это ссылка на уже существующий объект, а не объявление нового"
+      }
+    ]
+  },
+  {
+    "question": "В вашем API есть endpoint GET /products. Нужно добавить фильтрацию по категории. Как это правильно описать в OpenAPI?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Добавить requestBody с полем category",
+        "correct": false,
+        "explanation": "GET-запросы не должны иметь тела. Это нарушение HTTP-семантики и требований OpenAPI"
+      },
+      {
+        "text": "Добавить parameter с in: query и name: category",
+        "correct": true,
+        "explanation": "Фильтры в GET-запросах передаются как query-параметры: /products?category=electronics"
+      },
+      {
+        "text": "Добавить parameter с in: path и изменить путь на /products/{category}",
+        "correct": false,
+        "explanation": "Path-параметры для идентификации ресурса, не для фильтрации. /products/{category} означало бы конкретную категорию, не фильтр"
+      },
+      {
+        "text": "Создать отдельный endpoint POST /products/filter",
+        "correct": false,
+        "explanation": "Фильтрация через отдельный POST — антипаттерн. Усложняет API без причины. Используйте query-параметры"
+      }
+    ]
+  }
+]

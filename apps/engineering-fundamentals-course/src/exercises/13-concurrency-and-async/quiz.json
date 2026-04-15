@@ -1,0 +1,189 @@
+[
+  {
+    "question": "Ресторан нанял шеф-повара, который одновременно следит за тремя блюдами: пока суп варится — режет овощи, пока тушатся овощи — готовит соус. К какой концепции ближе эта аналогия?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Parallelism — три блюда готовятся одновременно",
+        "correct": false,
+        "explanation": "Parallelism требует нескольких независимых исполнителей (поваров). Здесь один повар переключается между задачами в моменты ожидания — это concurrency. Один поток, несколько продвигающихся задач."
+      },
+      {
+        "text": "Concurrency — один повар управляет несколькими задачами, переключаясь в моменты ожидания",
+        "correct": true,
+        "explanation": "Точное описание concurrency. Один исполнитель (один поток Event Loop), несколько задач — каждая продвигается вперёд в моменты, когда другие ждут. JavaScript работает именно так: пока fetch ждёт сети — выполняется другой код."
+      },
+      {
+        "text": "Асинхронность — все операции выполняются без ожидания",
+        "correct": false,
+        "explanation": "Асинхронность — механизм (операция не блокирует поток), а concurrency/parallelism — модели выполнения. Аналогия описывает именно модель управления задачами одним исполнителем, что соответствует concurrency."
+      },
+      {
+        "text": "Multithreading — несколько потоков выполнения",
+        "correct": false,
+        "explanation": "Multithreading — это parallelism: несколько потоков выполняются на разных ядрах. В аналогии один повар (один поток) — это concurrency, а не multithreading."
+      }
+    ]
+  },
+  {
+    "question": "Рассмотрите код:\n\nconsole.log('A')\nsetTimeout(() => console.log('B'), 0)\nPromise.resolve().then(() => console.log('C'))\nconsole.log('D')\n\nКакой порядок вывода?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A, B, C, D",
+        "correct": false,
+        "explanation": "setTimeout с delay=0 попадает в macrotask queue, а не выполняется сразу. Код выполняется в порядке: Call Stack (A, D) → Microtasks (C) → Macrotasks (B)."
+      },
+      {
+        "text": "A, D, B, C",
+        "correct": false,
+        "explanation": "Близко, но порядок microtask и macrotask перепутан. Promise.then — это microtask, setTimeout — macrotask. Microtasks всегда выполняются ДО macrotasks после опустошения Call Stack."
+      },
+      {
+        "text": "A, D, C, B",
+        "correct": true,
+        "explanation": "Правильно. Call Stack выполняется синхронно: A, D. Затем Event Loop проверяет Microtask Queue (приоритет выше): C из Promise.then. После полного опустошения microtasks — первая macrotask: B из setTimeout. Порядок: Call Stack → Microtasks → Macrotasks."
+      },
+      {
+        "text": "A, C, D, B",
+        "correct": false,
+        "explanation": "Promise.then не выполняется синхронно — он попадает в Microtask Queue. Call Stack должен полностью опустошиться (выполнить D) прежде чем Event Loop возьмёт microtasks."
+      }
+    ]
+  },
+  {
+    "question": "Чем Promise.allSettled отличается от Promise.all и когда предпочтительнее использовать allSettled?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Promise.all отклоняется при первой ошибке любого Promise; Promise.allSettled ждёт завершения ВСЕХ Promise независимо от результата",
+        "correct": true,
+        "explanation": "Ключевое различие. Promise.all при ошибке в одном из Promise сразу reject — остальные результаты теряются. Promise.allSettled всегда возвращает массив с результатом каждого Promise: { status: 'fulfilled', value } или { status: 'rejected', reason }."
+      },
+      {
+        "text": "Promise.allSettled предпочтительнее при загрузке некритичных данных (рекомендации, баннеры, реклама), когда сбой части не должен ломать страницу",
+        "correct": true,
+        "explanation": "Именно для этого случая создан allSettled. Если три секции страницы загружаются независимо и сбой одной не критичен — allSettled позволяет показать то, что загрузилось, вместо того чтобы показывать ошибку из-за одной неудавшейся рекламы."
+      },
+      {
+        "text": "Promise.allSettled выполняет Promise последовательно, Promise.all — параллельно",
+        "correct": false,
+        "explanation": "Оба комбинатора запускают переданные Promise параллельно. Разница только в поведении при ошибке: all — fail-fast, allSettled — ждёт всех. Последовательное выполнение — это await в цикле."
+      },
+      {
+        "text": "Promise.allSettled предпочтительнее при выполнении взаимосвязанных операций, где все должны успешно завершиться (транзакционная логика)",
+        "correct": false,
+        "explanation": "Для транзакционной логики ('всё или ничего') нужен Promise.all — он немедленно сигнализирует об ошибке. Promise.allSettled скрывает ошибки и подходит для независимых некритичных операций."
+      }
+    ]
+  },
+  {
+    "question": "В React-компоненте поиска пользователь быстро набирает текст. При каждом нажатии клавиши запускается fetch. Какая проблема может возникнуть и как её решить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Слишком много запросов перегрузят сервер — нужен debounce",
+        "correct": false,
+        "explanation": "Debounce решает проблему количества запросов, но не race condition. Даже с debounce два запроса могут выполняться одновременно, и медленный первый запрос может прийти позже быстрого второго, показав устаревшие данные."
+      },
+      {
+        "text": "Race condition: медленный запрос для старого запроса может прийти позже быстрого запроса для нового — нужен AbortController для отмены предыдущего запроса",
+        "correct": true,
+        "explanation": "Точное описание проблемы. Запрос 'r' может завершиться после запроса 'react' и перезаписать актуальные результаты устаревшими. AbortController в cleanup функции useEffect позволяет отменить предыдущий запрос при каждом новом вводе. Альтернатива — флаг isCurrent."
+      },
+      {
+        "text": "Memory leak: каждый запрос создаёт новый Promise который не освобождается — нужна явная очистка",
+        "correct": false,
+        "explanation": "Promises автоматически освобождаются сборщиком мусора. Проблема не в утечке памяти, а в race condition — устаревшие данные могут перезаписать актуальные."
+      },
+      {
+        "text": "Стеклянный потолок Event Loop: много Promise блокируют очередь — нужно ограничить concurrency",
+        "correct": false,
+        "explanation": "Event Loop не блокируется Promise — они добавляются в Microtask Queue и обрабатываются асинхронно. Реальная проблема — race condition в порядке завершения запросов."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт если в useEffect React-компонента запустить бесконечную цепочку microtasks через Promise.resolve().then()?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React автоматически прервёт цепочку после 100 итераций",
+        "correct": false,
+        "explanation": "React не имеет встроенной защиты от бесконечных microtask-цепочек. Это ответственность разработчика."
+      },
+      {
+        "text": "Браузер зависнет: Event Loop застрянет в Microtask Queue и никогда не перейдёт к macrotasks (рендеринг, UI events, таймеры)",
+        "correct": true,
+        "explanation": "Microtask Queue опустошается ПОЛНОСТЬЮ перед каждой macrotask. Бесконечная цепочка microtasks означает что Event Loop никогда не выйдет из этой очереди — рендеринг не произойдёт, setTimeout не сработает, UI полностью заморозится."
+      },
+      {
+        "text": "Создаётся отдельный поток для обработки microtasks — основной поток продолжит работу",
+        "correct": false,
+        "explanation": "В JavaScript нет автоматического создания потоков. Microtask Queue обрабатывается в том же основном потоке Event Loop. Для параллельного выполнения нужны Web Workers с явным созданием."
+      },
+      {
+        "text": "Node.js/браузер выбросит RangeError: Maximum call stack size exceeded",
+        "correct": false,
+        "explanation": "Stack overflow происходит при синхронной рекурсии. Цепочка Promise.resolve().then() не заполняет call stack — каждый .then создаёт новую microtask, не новый кадр стека. Проблема в зависании Event Loop, а не stack overflow."
+      }
+    ]
+  },
+  {
+    "question": "Вы пишете функцию загрузки данных для 1000 пользователей. Какой подход наиболее оптимален?",
+    "type": "single",
+    "options": [
+      {
+        "text": "for (const id of ids) { await fetchUser(id) } — последовательно для надёжности",
+        "correct": false,
+        "explanation": "await в цикле — антипаттерн для независимых операций. 1000 запросов по 200ms = 200 секунд последовательно. Надёжность не связана с последовательностью — параллельные запросы так же надёжны при правильной обработке ошибок."
+      },
+      {
+        "text": "Promise.all(ids.map(id => fetchUser(id))) — все 1000 запросов одновременно",
+        "correct": false,
+        "explanation": "1000 одновременных запросов могут перегрузить сервер, исчерпать connection pool и получить rate limit. Теоретически быстро, практически — плохо для production."
+      },
+      {
+        "text": "Promise.all с ограничением concurrency (например p-limit(10)) — параллельно, но не более N запросов одновременно",
+        "correct": true,
+        "explanation": "Золотая середина. Параллелизм ускоряет загрузку в ~10 раз против последовательного, но ограничение concurrency защищает сервер от перегрузки и не исчерпывает connection pool. Библиотеки p-limit, bottleneck реализуют этот паттерн."
+      },
+      {
+        "text": "Promise.race(ids.map(id => fetchUser(id))) — вернуть первого загруженного пользователя",
+        "correct": false,
+        "explanation": "Promise.race возвращает только ПЕРВЫЙ результат, остальные игнорируются. Для загрузки всех 1000 пользователей это не подходит — нужен Promise.all или allSettled."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих операций являются macrotasks, а не microtasks?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "setTimeout(() => {}, 0) — macrotask",
+        "correct": true,
+        "explanation": "setTimeout добавляет callback в Task Queue (macrotask queue) через Web API таймер. Даже с delay=0 он выполняется после всех microtasks текущего тика Event Loop."
+      },
+      {
+        "text": "Promise.resolve().then(fn) — macrotask",
+        "correct": false,
+        "explanation": "Promise.then — microtask, добавляется в Microtask Queue. Выполняется ДО macrotasks, сразу после опустошения Call Stack. Это ключевое отличие от setTimeout."
+      },
+      {
+        "text": "setInterval(() => {}, 100) — macrotask",
+        "correct": true,
+        "explanation": "setInterval, как и setTimeout, добавляет callbacks в Task Queue. Каждое срабатывание интервала — отдельная macrotask."
+      },
+      {
+        "text": "queueMicrotask(fn) — macrotask",
+        "correct": false,
+        "explanation": "queueMicrotask явно добавляет функцию в Microtask Queue — высокоприоритетную очередь. Выполняется после текущего синхронного кода, но ДО любых macrotasks."
+      },
+      {
+        "text": "Обработчик onClick на DOM-элементе — macrotask",
+        "correct": true,
+        "explanation": "DOM-события (click, keydown, input и другие) обрабатываются как macrotasks — они попадают в Task Queue через браузерные Web APIs. Когда пользователь кликает — callback добавляется в macrotask queue."
+      }
+    ]
+  }
+]

@@ -1,0 +1,184 @@
+[
+  {
+    "question": "Расположите виды coupling от наименее опасного (лучший) к наиболее опасному (худший):",
+    "type": "single",
+    "options": [
+      {
+        "text": "Data → Message → Stamp → Control → Common → Content",
+        "correct": false,
+        "explanation": "Message coupling лучше Data coupling, так как при Message coupling передаётся только сигнал без каких-либо данных. Правильный порядок начинается с Message."
+      },
+      {
+        "text": "Message → Data → Stamp → Control → Common → Content",
+        "correct": true,
+        "explanation": "Правильный спектр. Message (только сигнал/событие) → Data (простые данные) → Stamp (структура, часть используется) → Control (флаги управляют поведением) → Common (общий глобальный стейт) → Content (залезаем во внутренности чужого модуля). Content coupling — худший вид, потому что любое изменение внутри модуля ломает зависимые."
+      },
+      {
+        "text": "Content → Common → Control → Stamp → Data → Message",
+        "correct": false,
+        "explanation": "Это порядок от худшего к лучшему, а не наоборот. Вопрос спрашивает от лучшего к худшему."
+      },
+      {
+        "text": "Message → Stamp → Data → Common → Control → Content",
+        "correct": false,
+        "explanation": "Data coupling лучше Stamp coupling (Data — только нужные примитивы, Stamp — вся структура). Control coupling хуже Common coupling в большинстве интерпретаций, но часто их меняют местами. Ключевое: Content — всегда в конце."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Stamp Coupling и как его исправить?\n\nasync function notifyUser(user: User): Promise<void> {\n  await emailService.send(user.email, 'Уведомление', 'Текст')\n}",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это нарушение SRP: функция и уведомляет, и работает с email. Нужно разделить на два метода",
+        "correct": false,
+        "explanation": "SRP здесь не нарушен — функция делает одно дело: уведомляет пользователя. Проблема в stamp coupling: передаётся весь объект User, хотя используется только одно поле email."
+      },
+      {
+        "text": "Функция получает весь объект User, но использует только поле email — это stamp coupling. Исправление: передавать только email: string",
+        "correct": true,
+        "explanation": "Stamp coupling: передаём 'штамп' (структуру) когда нужна только часть данных. Функция notifyUser теперь зависит от типа User со всеми его полями. При добавлении нового обязательного поля в User — это может затронуть notifyUser. Исправление: async function notifyUser(email: string) — зависим только от конкретных данных."
+      },
+      {
+        "text": "Это Control Coupling: user передаётся как контрольный параметр, управляющий поведением emailService",
+        "correct": false,
+        "explanation": "Control coupling предполагает передачу флагов или режимов, которые меняют ветвление внутри функции. Здесь user — это данные, не управляющий параметр. Проблема — в избыточности передаваемой структуры (stamp coupling)."
+      },
+      {
+        "text": "Код нормальный — передача объекта User это стандартная практика и не является проблемой",
+        "correct": false,
+        "explanation": "Это stamp coupling, и в данном случае он избыточен. Если функция использует один атрибут User — она должна принимать именно этот атрибут. Это делает функцию переиспользуемой с любым email-адресом, не только с User-объектом."
+      }
+    ]
+  },
+  {
+    "question": "Что нарушает Закон Деметры в этом коде?\n\nconst discount = order.getCustomer().getLoyaltyCard().getDiscountPercentage()",
+    "type": "single",
+    "options": [
+      {
+        "text": "Метод getDiscountPercentage() должен быть статическим — Закон Деметры запрещает вызовы на экземплярах",
+        "correct": false,
+        "explanation": "Закон Деметры не касается статических vs. экземплярных методов. Он запрещает навигацию через цепочки объектов, полученных от других объектов."
+      },
+      {
+        "text": "Код обращается к getCustomer(), затем к getLoyaltyCard() — каждая точка означает знание о чужой внутренней структуре. Order знает о Customer, Customer о LoyaltyCard",
+        "correct": true,
+        "explanation": "Нарушение LoD: мы знаем, что внутри Order есть Customer, внутри Customer — LoyaltyCard. При изменении структуры любого из них — сломается этот код. Исправление по принципу 'Tell, don't ask': order.getDiscountPercentage() — Order сам знает, как получить скидку через своего Customer."
+      },
+      {
+        "text": "Проблема в именовании: getCustomer() должен называться customer() по Java Beans convention",
+        "correct": false,
+        "explanation": "Именование не имеет отношения к Закону Деметры. Проблема структурная: цепочка вызовов через несколько уровней объектов."
+      },
+      {
+        "text": "Код нарушает SRP: одна строка делает три действия — получает клиента, карту и скидку",
+        "correct": false,
+        "explanation": "SRP применяется к классам и модулям, не к отдельным строкам кода. Нарушение здесь — Закон Деметры: избыточное знание о внутренней структуре объектов через цепочку вызовов."
+      }
+    ]
+  },
+  {
+    "question": "Какой вид cohesion демонстрирует этот модуль?\n\n// helpers.ts\nexport function formatDate(d: Date): string { ... }\nexport function generateUUID(): string { ... }\nexport function sendEmail(to: string, body: string): void { ... }\nexport function calculateTax(price: number): number { ... }\nexport function validatePhone(phone: string): boolean { ... }",
+    "type": "single",
+    "options": [
+      {
+        "text": "Functional cohesion — все функции выполняют свою задачу",
+        "correct": false,
+        "explanation": "Functional cohesion означает, что все элементы модуля направлены на решение одной конкретной задачи. Здесь пять совершенно разных задач: форматирование дат, генерация ID, email, налоги, валидация телефона."
+      },
+      {
+        "text": "Temporal cohesion — все эти функции нужны при инициализации приложения",
+        "correct": false,
+        "explanation": "Temporal cohesion — когда элементы выполняются в одно время. Это не тот случай: функции вызываются в разное время и в разных контекстах."
+      },
+      {
+        "text": "Coincidental cohesion — случайное объединение несвязанных функций в одном модуле без концептуальной связи",
+        "correct": true,
+        "explanation": "Coincidental cohesion — худший вид. Функции попали в helpers.ts только потому, что 'не вписались' в другие модули. Нет никакой концептуальной связи между форматированием дат и расчётом налогов. Решение: разделить на emailService.ts, taxCalculator.ts, phoneValidator.ts, dateUtils.ts, idGenerator.ts."
+      },
+      {
+        "text": "Logical cohesion — все функции являются утилитами, поэтому логически связаны",
+        "correct": false,
+        "explanation": "Logical cohesion — когда элементы делают похожие по природе вещи, но концептуально несвязаны (например: validateEmail, validatePhone, validateAge — все 'валидируют'). Здесь даже логической связи нет: функции принципиально разные по области применения."
+      }
+    ]
+  },
+  {
+    "question": "Зачем нужен Anti-Corruption Layer (ACL) при интеграции с внешним API?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Чтобы изолировать доменную модель от чужой модели данных: изменения во внешнем API затрагивают только ACL, а не всю систему",
+        "correct": true,
+        "explanation": "Это основная цель ACL. Если CRM изменит ContactId → contact_id, или тип поля, — меняется только метод toDomain() в адаптере. Остальной код работает с вашей доменной моделью Customer и ничего не знает о CrmContact."
+      },
+      {
+        "text": "Чтобы предотвратить 'заражение' вашей модели чужими концепциями, именами и структурами",
+        "correct": true,
+        "explanation": "Без ACL вы начинаете использовать чужие имена (ContactId вместо id, IsActive: number вместо isActive: boolean). Это 'заражение' концептуальной моделью внешней системы. ACL переводит на ваш язык: toDomain() и fromDomain()."
+      },
+      {
+        "text": "Для кэширования запросов к внешнему API в целях производительности",
+        "correct": false,
+        "explanation": "Кэширование — это отдельная ответственность, не цель ACL. ACL отвечает за трансляцию моделей данных, а не за оптимизацию сетевых запросов."
+      },
+      {
+        "text": "Чтобы упростить тестирование: в тестах ACL подменяется на mock, и тесты не зависят от реального внешнего API",
+        "correct": true,
+        "explanation": "Дополнительное преимущество ACL. Так как внешний API скрыт за интерфейсом (ExternalCrmPort), в тестах подставляется InMemoryCrmAdapter или mock. Тесты быстрые и не требуют реального CRM."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Bounded Context и зачем он нужен?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ограничение числа модулей в одном пакете (не более 10 файлов) для управляемости кода",
+        "correct": false,
+        "explanation": "Bounded Context — не про количество файлов. Это концепция из DDD (Domain-Driven Design) о границах, внутри которых термин имеет единое чёткое значение."
+      },
+      {
+        "text": "Граница, внутри которой бизнес-термин (например, 'User') имеет конкретное значение. Разные контексты (Auth, Billing, Content) могут иметь разные модели для одной сущности",
+        "correct": true,
+        "explanation": "Именно так. 'User' в Auth-контексте: email, passwordHash, sessions. 'User' в Billing: plan, paymentMethod, invoices. 'User' в Content: displayName, bio, publishedPosts. Одно слово — разные концепции. Bounded Context защищает от 'God Object User' с сотней полей для всех нужд."
+      },
+      {
+        "text": "Ограничение области видимости переменных через замыкания в JavaScript для предотвращения утечек",
+        "correct": false,
+        "explanation": "Это описание лексического скоупа и замыканий в JavaScript — совершенно другая концепция. Bounded Context — архитектурный паттерн из Domain-Driven Design."
+      },
+      {
+        "text": "Пространство имён (namespace) TypeScript, ограничивающее доступ к типам из других модулей",
+        "correct": false,
+        "explanation": "TypeScript namespaces — технический механизм организации кода. Bounded Context — архитектурная концепция о смысловых границах в предметной области. Bounded Context может реализовываться через микросервисы, модули, или даже отдельные таблицы — это не про TypeScript."
+      }
+    ]
+  },
+  {
+    "question": "В гексагональной архитектуре (Ports and Adapters) как Application Core должен зависеть от базы данных?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Напрямую: Application Core импортирует pg или mongoose и работает с БД через их API",
+        "correct": false,
+        "explanation": "Это нарушение гексагональной архитектуры. Если Core зависит от конкретной БД, замена PostgreSQL на MongoDB потребует изменения бизнес-логики. Тесты будут требовать реальной БД."
+      },
+      {
+        "text": "Core не зависит от БД напрямую: он объявляет интерфейс (Port), а конкретная реализация для PostgreSQL/MongoDB находится в Adapter-е",
+        "correct": true,
+        "explanation": "Правильно. Core определяет: interface OrderRepository { save(order: Order): Promise<void> } — это Output Port. PgOrderRepository и MongoOrderRepository реализуют этот интерфейс — это Adapters. Core не знает про Postgres, знает только контракт. Поменять БД = написать новый Adapter."
+      },
+      {
+        "text": "Core зависит от ORM (TypeORM или Prisma), так как ORM абстрагирует конкретную БД",
+        "correct": false,
+        "explanation": "ORM всё равно является инфраструктурной зависимостью. Core, зависящий от TypeORM entities или Prisma client, не может легко переключиться на другой способ хранения. Правильный подход: Core зависит от собственных интерфейсов, а ORM используется внутри Adapter-а."
+      },
+      {
+        "text": "Core должен вообще не работать с данными — это задача отдельного Data Layer",
+        "correct": false,
+        "explanation": "Application Core работает с данными, но через абстракции (Ports). Использование репозиториев через интерфейсы — нормальная и необходимая практика. Вопрос не в том, работает ли Core с данными, а в том, через какую абстракцию."
+      }
+    ]
+  }
+]

@@ -1,0 +1,324 @@
+[
+  {
+    "question": "Что всегда возвращает async function, даже если внутри нет ни одного await?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Возвращаемое значение как есть (число, строку, объект)",
+        "correct": false,
+        "explanation": "Нет. async function ВСЕГДА оборачивает возвращаемое значение в Promise.resolve(). Вызывающий код получает Promise, а не само значение."
+      },
+      {
+        "text": "Promise, резолвящийся с возвращаемым значением",
+        "correct": true,
+        "explanation": "Верно. async function автоматически оборачивает результат: return 42 становится Promise.resolve(42). Даже без единого await функция возвращает промис."
+      },
+      {
+        "text": "undefined — если нет явного return",
+        "correct": false,
+        "explanation": "При отсутствии return возвращается Promise.resolve(undefined), а не просто undefined. Это всё равно промис."
+      },
+      {
+        "text": "Зависит от того, есть ли await внутри",
+        "correct": false,
+        "explanation": "Нет зависимости. async всегда создаёт промис. Наличие await влияет только на то, где функция приостанавливается, но не на тип возвращаемого значения."
+      }
+    ]
+  },
+  {
+    "question": "Что именно 'останавливает' оператор await?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Весь JavaScript-поток — никакой другой код не выполняется",
+        "correct": false,
+        "explanation": "Это главное заблуждение! await не блокирует поток. Event Loop продолжает работать: обрабатывает клики, таймеры, другие промисы — пока ожидает текущий."
+      },
+      {
+        "text": "Текущую async-функцию — управление возвращается вызывающему коду",
+        "correct": true,
+        "explanation": "Именно так. await приостанавливает только ту функцию, где стоит. Вызывающий код (и весь Event Loop) продолжают работу. Когда промис резолвится — функция 'просыпается' и продолжает."
+      },
+      {
+        "text": "Только микрозадачи — макрозадачи продолжают выполняться",
+        "correct": false,
+        "explanation": "await не разделяет задачи на микро/макро таким образом. Он приостанавливает конкретную функцию и регистрирует продолжение как микрозадачу."
+      },
+      {
+        "text": "Браузерный рендеринг до получения ответа",
+        "correct": false,
+        "explanation": "Противоположно верному. await как раз ОСВОБОЖДАЕТ поток, позволяя браузеру рендерить и обрабатывать события пока идёт ожидание."
+      }
+    ]
+  },
+  {
+    "question": "В каком порядке выведутся числа?\n\nasync function run() {\n  console.log('1')\n  await Promise.resolve()\n  console.log('3')\n}\nrun()\nconsole.log('2')",
+    "type": "single",
+    "options": [
+      {
+        "text": "1, 2, 3",
+        "correct": true,
+        "explanation": "Код до первого await выполняется синхронно (1). После вызова run() управление возвращается — печатается 2. Продолжение после await — микрозадача, выполняется после текущей синхронной очереди (3)."
+      },
+      {
+        "text": "1, 3, 2",
+        "correct": false,
+        "explanation": "Нет. await приостанавливает функцию run(). Управление возвращается вызывающему коду, который выполняет console.log('2') ПЕРЕД тем, как run() возобновится."
+      },
+      {
+        "text": "2, 1, 3",
+        "correct": false,
+        "explanation": "Нет. Код до первого await в async-функции выполняется синхронно при вызове. console.log('1') в run() печатается ДО console.log('2') снаружи."
+      },
+      {
+        "text": "Порядок непредсказуем",
+        "correct": false,
+        "explanation": "Порядок полностью предсказуем. Модель выполнения JavaScript детерминирована: синхронный код → микрозадачи → макрозадачи."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно обработать ошибку при использовании await?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "try { const data = await fetch(url) } catch (err) { ... }",
+        "correct": true,
+        "explanation": "Верно. try/catch перехватывает reject промиса, переданного в await. Это стандартный и наиболее читаемый способ."
+      },
+      {
+        "text": "const data = await fetch(url).catch(err => null)",
+        "correct": true,
+        "explanation": "Верно. .catch() можно повесить прямо на промис перед await. Если промис реджектится — возвращается fallback-значение (null), функция продолжается без исключения."
+      },
+      {
+        "text": "await fetch(url).onError(err => { ... })",
+        "correct": false,
+        "explanation": "Метода .onError() у Promise не существует. Это невалидный JavaScript."
+      },
+      {
+        "text": "const [err, data] = await to(fetch(url))",
+        "correct": true,
+        "explanation": "Верно. Go-style паттерн с вспомогательной функцией to(), которая оборачивает промис и возвращает [null, result] при успехе или [Error, null] при ошибке."
+      },
+      {
+        "text": "await fetch(url) // ошибки обработаются сами",
+        "correct": false,
+        "explanation": "Нет. Необработанный rejection пробрасывается как исключение из await. Если не поймать — функция прервётся, а в Node.js/браузере выведется UnhandledPromiseRejection."
+      }
+    ]
+  },
+  {
+    "question": "У вас три независимых API-запроса: fetchA() (200ms), fetchB() (300ms), fetchC() (150ms). Какой вариант завершится быстрее всего?",
+    "type": "single",
+    "options": [
+      {
+        "text": "const a = await fetchA(); const b = await fetchB(); const c = await fetchC()",
+        "correct": false,
+        "explanation": "Последовательный await суммирует время: 200 + 300 + 150 = 650ms. Это медленнейший вариант для независимых запросов."
+      },
+      {
+        "text": "const [a, b, c] = await Promise.all([fetchA(), fetchB(), fetchC()])",
+        "correct": true,
+        "explanation": "Promise.all запускает все запросы одновременно. Время = max(200, 300, 150) = 300ms. Ускорение более чем в 2 раза по сравнению с последовательным."
+      },
+      {
+        "text": "Promise.race([fetchA(), fetchB(), fetchC()])",
+        "correct": false,
+        "explanation": "Promise.race возвращает результат первого завершившегося промиса (150ms от fetchC), но теряет результаты остальных двух. Не подходит если нужны все три значения."
+      },
+      {
+        "text": "Оба варианта await одинаково быстры",
+        "correct": false,
+        "explanation": "Нет. Последовательный await — 650ms, Promise.all — 300ms. Разница принципиальная и растёт с количеством запросов."
+      }
+    ]
+  },
+  {
+    "question": "Почему await в forEach не работает так, как ожидают новички?",
+    "type": "single",
+    "options": [
+      {
+        "text": "forEach не поддерживает async-функции",
+        "correct": false,
+        "explanation": "forEach принимает любую функцию, включая async. Проблема не в том, что async не работает, а в том, что forEach игнорирует возвращаемый промис."
+      },
+      {
+        "text": "forEach не ждёт возвращённый промис из коллбэка — цикл завершается немедленно",
+        "correct": true,
+        "explanation": "forEach передаёт коллбэк и не ждёт его результата. Если коллбэк async — он возвращает промис, который forEach игнорирует. Все async-коллбэки запускаются, но forEach не ждёт их завершения."
+      },
+      {
+        "text": "await в коллбэке автоматически становится синхронным",
+        "correct": false,
+        "explanation": "await остаётся async независимо от контекста. Это не меняет поведение forEach — он всё равно не ждёт промисы."
+      },
+      {
+        "text": "forEach выполняет коллбэки параллельно, что вызывает race condition",
+        "correct": false,
+        "explanation": "Это не совсем верно. forEach запускает коллбэки синхронно в цикле — они все инициируются, но не ждутся. Результаты приходят в произвольном порядке, но это следствие неожидания, а не параллельности в классическом смысле."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт при выполнении этого кода?\n\nasync function check() {\n  const user = getUser() // async function, без await!\n  if (user) console.log('found')\n}",
+    "type": "single",
+    "options": [
+      {
+        "text": "Выведется 'found' если пользователь существует",
+        "correct": false,
+        "explanation": "Нет. user содержит Promise, а не пользователя. Promise — это объект, объекты всегда truthy в JS. if(user) всегда true, независимо от результата запроса."
+      },
+      {
+        "text": "Всегда выведется 'found' — Promise truthy",
+        "correct": true,
+        "explanation": "Верно. Без await user = Promise {pending}. Любой объект (включая промис) — truthy. if (user) всегда выполнится. Это классический баг с забытым await."
+      },
+      {
+        "text": "Код выбросит TypeError: user.name is not defined",
+        "correct": false,
+        "explanation": "TypeError был бы если обратиться к user.name или другому свойству. Простая проверка if (user) не выбрасывает ошибку — она просто всегда true."
+      },
+      {
+        "text": "TypeScript автоматически добавит await",
+        "correct": false,
+        "explanation": "TypeScript не добавляет await автоматически. Он может предупредить (если ожидается не-Promise тип), но не исправляет код за вас."
+      }
+    ]
+  },
+  {
+    "question": "Когда оправдан последовательный await вместо Promise.all?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Когда каждый следующий запрос использует результат предыдущего",
+        "correct": true,
+        "explanation": "Верно. Если fetchPosts(user.id) требует user из fetchUser() — их нельзя параллелить. Зависимость делает последовательность обязательной."
+      },
+      {
+        "text": "Когда запросы независимы, но так проще читать код",
+        "correct": false,
+        "explanation": "Удобство чтения — не оправдание потери производительности. Три независимых запроса по 300ms = 900ms последовательно vs 300ms с Promise.all."
+      },
+      {
+        "text": "Когда нужно ограничить количество одновременных запросов к API",
+        "correct": true,
+        "explanation": "Верно. Если API имеет rate limit (например, 1 запрос в секунду) — параллельность нарушит ограничение. В этом случае последовательный await или async pool (Level 7) — правильный выбор."
+      },
+      {
+        "text": "Когда нужно обработать элементы массива в строго определённом порядке",
+        "correct": true,
+        "explanation": "Верно. for...of + await гарантирует порядок обработки. Promise.all запускает всё параллельно и возвращает результаты в порядке промисов, но обработка идёт параллельно."
+      },
+      {
+        "text": "Всегда — async/await создан для последовательного кода",
+        "correct": false,
+        "explanation": "Неверно. async/await отлично работает с Promise.all и другими комбинаторами. Последовательность — только один из паттернов, не единственный."
+      }
+    ]
+  },
+  {
+    "question": "Что делает функция to() в Go-style паттерне обработки ошибок?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Преобразует промис в синхронную операцию",
+        "correct": false,
+        "explanation": "to() не делает код синхронным. Внутри — обычный async/await. Она лишь меняет способ представления результата/ошибки."
+      },
+      {
+        "text": "Оборачивает промис, возвращая [null, result] при успехе и [error, null] при ошибке",
+        "correct": true,
+        "explanation": "Именно. to<T>(promise) всегда резолвируется (не реджектится) с кортежем [err, data]. Вызывающий код проверяет первый элемент — если не null, произошла ошибка."
+      },
+      {
+        "text": "Автоматически повторяет запрос при ошибке",
+        "correct": false,
+        "explanation": "to() не делает retry. Она лишь нормализует результат: вместо throw — возврат ошибки как значения. Retry — отдельный паттерн (рассмотрим в Level 7)."
+      },
+      {
+        "text": "Логирует все ошибки в консоль",
+        "correct": false,
+        "explanation": "to() не делает никакого логирования. Она возвращает ошибку как значение — решение о логировании остаётся за вызывающим кодом."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть: async function add(a, b) { return a + b }. Что не так?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Функция не нужна async — нет await внутри",
+        "correct": true,
+        "explanation": "Верно. async без await — бессмысленная обёртка. Функция синхронная, результат оборачивается в промис без причины. Просто function add(a, b) { return a + b } работало бы корректнее."
+      },
+      {
+        "text": "Вызывающий код обязан написать await add(1, 2) или .then()",
+        "correct": true,
+        "explanation": "Верно. add() теперь возвращает Promise<number>, а не number. Это усложняет использование — требует async-контекст или .then() даже для простого сложения."
+      },
+      {
+        "text": "Функция не скомпилируется в TypeScript",
+        "correct": false,
+        "explanation": "TypeScript скомпилирует без ошибок. Это не синтаксическая ошибка, а антипаттерн с точки зрения дизайна API."
+      },
+      {
+        "text": "Скрывает синхронную природу операции от пользователя API",
+        "correct": true,
+        "explanation": "Верно. Разработчик, видящий async функцию, ожидает асинхронную операцию (сеть, файл). Async add() вводит в заблуждение — создаётся впечатление что внутри что-то ждут."
+      }
+    ]
+  },
+  {
+    "question": "Top-level await (await вне async-функции) работает:",
+    "type": "single",
+    "options": [
+      {
+        "text": "В любом JavaScript-файле в современных браузерах",
+        "correct": false,
+        "explanation": "Нет. Top-level await работает только в ES-модулях (файлы с type='module' или .mjs). В обычных скриптах (без type='module') это SyntaxError."
+      },
+      {
+        "text": "Только в ES-модулях (ES2022)",
+        "correct": true,
+        "explanation": "Верно. Top-level await — фича ES2022, доступная исключительно в модульном контексте. Это позволяет модулям 'приостанавливать' своё выполнение до готовности зависимостей."
+      },
+      {
+        "text": "В любом .js файле при добавлении 'use strict'",
+        "correct": false,
+        "explanation": "'use strict' не включает поддержку top-level await. Нужен именно модульный контекст (type='module' или .mjs/.ts с module: ESNext)."
+      },
+      {
+        "text": "Только в Node.js, не в браузерах",
+        "correct": false,
+        "explanation": "Top-level await поддерживается и в современных браузерах (Chrome 89+, Firefox 89+, Safari 15+), и в Node.js 14.8+. Условие — ES-модуль, не конкретное окружение."
+      }
+    ]
+  },
+  {
+    "question": "Вы разрабатываете функцию загрузки дашборда. Нужно: (1) загрузить пользователя, (2) параллельно загрузить посты и уведомления пользователя. Какой код правильный?",
+    "type": "single",
+    "options": [
+      {
+        "text": "const user = await fetchUser(); const posts = await fetchPosts(user.id); const notifs = await fetchNotifs(user.id)",
+        "correct": false,
+        "explanation": "Посты и уведомления загружаются последовательно, хотя они независимы и могут загружаться параллельно. Время = fetchUser + fetchPosts + fetchNotifs."
+      },
+      {
+        "text": "const [user, posts, notifs] = await Promise.all([fetchUser(), fetchPosts(), fetchNotifs()])",
+        "correct": false,
+        "explanation": "Не работает: fetchPosts и fetchNotifs нужен user.id, который ещё не известен. Нельзя запустить все три одновременно — первый запрос должен завершиться первым."
+      },
+      {
+        "text": "const user = await fetchUser(); const [posts, notifs] = await Promise.all([fetchPosts(user.id), fetchNotifs(user.id)])",
+        "correct": true,
+        "explanation": "Правильно. Сначала последовательно получаем пользователя (он нужен для следующих запросов). Затем параллельно загружаем посты и уведомления — они независимы между собой. Время = fetchUser + max(fetchPosts, fetchNotifs)."
+      },
+      {
+        "text": "Promise.race([fetchUser(), fetchPosts(), fetchNotifs()])",
+        "correct": false,
+        "explanation": "Promise.race возвращает только первый результат. Это не решение для загрузки дашборда — потеряются результаты остальных промисов."
+      }
+    ]
+  }
+]

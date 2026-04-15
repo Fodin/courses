@@ -1,0 +1,319 @@
+[
+  {
+    "question": "Почему Web Worker не может обращаться к document.getElementById()?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Из соображений безопасности — DOM защищён от параллельного доступа",
+        "correct": false,
+        "explanation": "Причина не в безопасности, а в архитектуре. DOM — это объекты, привязанные к главному потоку. Worker выполняется в отдельном контексте, где DOM попросту не существует."
+      },
+      {
+        "text": "Worker выполняется в отдельном контексте без доступа к window и document",
+        "correct": true,
+        "explanation": "У Worker свой глобальный контекст — self (WorkerGlobalScope), а не window. Объекты document, localStorage, alert и DOM-API там отсутствуют. Worker создан именно для вычислений, а не для работы с UI."
+      },
+      {
+        "text": "document.getElementById() работает асинхронно и требует await в Worker",
+        "correct": false,
+        "explanation": "document.getElementById() — синхронный вызов. Проблема не в асинхронности, а в том, что Worker не имеет объекта document в своём контексте."
+      },
+      {
+        "text": "Worker должен использовать document через postMessage с главным потоком",
+        "correct": false,
+        "explanation": "Это верный паттерн взаимодействия — попросить главный поток сделать DOM-операцию. Но причина не в том, что 'должен использовать через postMessage', а в том, что document в Worker просто недоступен."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит с переданным ArrayBuffer после postMessage(buffer, [buffer])?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Буфер копируется — у отправителя остаётся оригинал, Worker получает копию",
+        "correct": false,
+        "explanation": "Это описание обычного postMessage(buffer) без списка Transferable. При передаче через список [buffer] копирования не происходит — происходит передача владения."
+      },
+      {
+        "text": "Буфер удаляется из памяти и пересоздаётся в Worker",
+        "correct": false,
+        "explanation": "Удаления нет. Физические байты буфера никуда не перемещаются — меняется только владелец. Это ключевое преимущество Transfer: нет копирования, нет выделения новой памяти."
+      },
+      {
+        "text": "Буфер 'detach' — у отправителя byteLength становится 0, Worker получает исходный буфер",
+        "correct": true,
+        "explanation": "Transfer передаёт право владения буфером. У отправителя объект ArrayBuffer становится 'detached': byteLength === 0, любые попытки читать/писать вызовут ошибку. Worker получает тот же физический буфер — без копирования."
+      },
+      {
+        "text": "Буфер замораживается (freeze) — ни отправитель, ни Worker не могут его изменить",
+        "correct": false,
+        "explanation": "Freeze — это про Object.freeze(), а не про Transferable. Worker полностью владеет буфером и может его читать и изменять. Отправитель просто теряет к нему доступ."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих значений НЕЛЬЗЯ передать через postMessage?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "function() { return 42 }",
+        "correct": true,
+        "explanation": "Функции не поддерживаются алгоритмом Structured Clone — они содержат замыкания, скомпилированный код и ссылки на контекст. postMessage с функцией выбросит DataCloneError."
+      },
+      {
+        "text": "new Map([['key', 'value']])",
+        "correct": false,
+        "explanation": "Map поддерживается алгоритмом Structured Clone с ES2016. Map, Set, Date, ArrayBuffer — всё это клонируется корректно."
+      },
+      {
+        "text": "document.getElementById('myDiv')",
+        "correct": true,
+        "explanation": "DOM-узлы не могут быть клонированы — они привязаны к документу и рендерингу. Попытка передать DOM-узел через postMessage вызовет DataCloneError."
+      },
+      {
+        "text": "new Error('something failed')",
+        "correct": false,
+        "explanation": "Error объекты поддерживаются Structured Clone начиная с определённых версий браузеров. message, name и stack передаются корректно."
+      },
+      {
+        "text": "Symbol('mySymbol')",
+        "correct": true,
+        "explanation": "Symbol нельзя клонировать через postMessage. Symbols уникальны по определению, и их семантика несовместима с deep clone."
+      }
+    ]
+  },
+  {
+    "question": "Вы создаёте Inline Worker через Blob URL. Когда нужно вызывать URL.revokeObjectURL(url)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "После worker.terminate() в конце работы",
+        "correct": false,
+        "explanation": "К этому моменту URL уже не нужен — Worker уже создан. Хранить URL до terminate() бессмысленно. Blob URL нужен только для конструктора Worker, после чего его можно сразу освободить."
+      },
+      {
+        "text": "Сразу после new Worker(url) — URL больше не нужен",
+        "correct": true,
+        "explanation": "Worker загружает код по URL в момент создания. После этого URL объект больше не нужен. Вызов revokeObjectURL сразу после new Worker(url) освобождает память, не влияя на уже запущенный Worker."
+      },
+      {
+        "text": "revokeObjectURL вызывать не нужно — GC сделает это автоматически",
+        "correct": false,
+        "explanation": "Blob URLs не освобождаются GC автоматически — они хранятся в специальном реестре браузера. Если не вызвать revokeObjectURL, Blob и URL останутся в памяти на всё время жизни страницы."
+      },
+      {
+        "text": "В обработчике onmessage после получения первого ответа",
+        "correct": false,
+        "explanation": "URL уже не используется к этому моменту — Worker давно запущен. Технически работает, но откладывает освобождение памяти без причины. Правильно — сразу после new Worker(url)."
+      }
+    ]
+  },
+  {
+    "question": "Чем SharedWorker отличается от Dedicated Worker?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "SharedWorker может быть доступен из нескольких вкладок одного origin одновременно",
+        "correct": true,
+        "explanation": "Это главное отличие. Dedicated Worker создаётся заново для каждой страницы. SharedWorker существует в единственном экземпляре и доступен всем вкладкам одного origin, что позволяет делиться состоянием между вкладками."
+      },
+      {
+        "text": "SharedWorker работает быстрее Dedicated Worker для CPU-задач",
+        "correct": false,
+        "explanation": "Скорость выполнения вычислений одинакова — оба работают в отдельном потоке. SharedWorker оптимален не для скорости, а для кросс-вкладочного стейта и экономии ресурсов (один экземпляр вместо N)."
+      },
+      {
+        "text": "SharedWorker общается через MessagePort, а не напрямую через postMessage",
+        "correct": true,
+        "explanation": "У SharedWorker нет прямого postMessage. Каждое подключение создаёт MessagePort, который нужно явно запустить через port.start(). Это позволяет Worker'у управлять несколькими одновременными соединениями."
+      },
+      {
+        "text": "SharedWorker имеет доступ к DOM, в отличие от Dedicated Worker",
+        "correct": false,
+        "explanation": "Оба типа воркеров не имеют доступа к DOM. SharedWorker — не ServiceWorker, он не перехватывает запросы и не имеет привилегированного доступа к документу."
+      }
+    ]
+  },
+  {
+    "question": "Как создать Worker Pool, который эффективно обрабатывает 100 задач на 4 воркерах?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Создать 100 воркеров, по одному на задачу, и запустить все одновременно",
+        "correct": false,
+        "explanation": "Создание 100 воркеров — огромный overhead: каждый Worker занимает память (~5MB), требует инициализации и имеет свой Event Loop. 100 воркеров для 100 задач — антипаттерн, даже если CPU имеет только 4 ядра."
+      },
+      {
+        "text": "Создать 4 воркера, разделить задачи на 4 части и отдать каждую воркеру",
+        "correct": false,
+        "explanation": "Это статическое разделение — работает, но неэффективно. Если одна часть содержит сложные задачи, её воркер будет занят дольше, пока другие простаивают. Динамическая очередь лучше."
+      },
+      {
+        "text": "Создать 4 воркера, поставить задачи в очередь, каждый воркер после завершения берёт следующую задачу",
+        "correct": true,
+        "explanation": "Это правильный паттерн Worker Pool. Динамическая очередь обеспечивает балансировку нагрузки: быстрые воркеры берут больше задач, медленные — меньше. Никто не простаивает, пока есть задачи в очереди."
+      },
+      {
+        "text": "Использовать один воркер и переключаться между задачами через setTimeout",
+        "correct": false,
+        "explanation": "Один воркер не даёт параллелизма — задачи выполняются последовательно. setTimeout внутри Worker позволяет чередовать задачи, но не ускоряет их на многоядерном CPU."
+      }
+    ]
+  },
+  {
+    "question": "У вас приложение с матричными вычислениями (умножение матриц 2000x2000). Какой подход верный?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Обернуть вычисление в async function и использовать await",
+        "correct": false,
+        "explanation": "async/await не делает синхронные вычисления неблокирующими. Умножение матриц 2000x2000 — это сотни миллисекунд CPU-работы. Простое добавление async не освобождает главный поток."
+      },
+      {
+        "text": "Перенести вычисление в Web Worker, передать матрицы через postMessage",
+        "correct": true,
+        "explanation": "CPU-bound задача должна выполняться в Worker. Матрицы передаются через Structured Clone (ArrayBuffer/TypedArray — ещё лучше через Transfer для больших данных). Главный поток остаётся отзывчивым."
+      },
+      {
+        "text": "Разбить матрицу на чанки и считать через requestAnimationFrame",
+        "correct": false,
+        "explanation": "Это сработает, но requestAnimationFrame привязан к частоте экрана (60fps = 16ms между кадрами). При этом вычисления всё равно выполняются в главном потоке. Worker даст истинный параллелизм."
+      },
+      {
+        "text": "Использовать Promise.all для параллельного вычисления строк матрицы",
+        "correct": false,
+        "explanation": "Promise.all параллелизирует асинхронные операции, но не CPU-вычисления. Все callback'и выполняются в одном потоке последовательно. Promise не создаёт новых потоков выполнения."
+      }
+    ]
+  },
+  {
+    "question": "В чём ключевое отличие Worker Threads (Node.js) от Web Workers (браузер)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Worker Threads могут использовать require() и все Node.js API",
+        "correct": true,
+        "explanation": "Node.js Worker имеет полный доступ к runtime: fs, crypto, path, net и т.д. Browser Web Worker имеет только fetch, WebSocket, IndexedDB, console — браузерный API без DOM."
+      },
+      {
+        "text": "Worker Threads поддерживают workerData для передачи данных при создании",
+        "correct": true,
+        "explanation": "В Node.js можно передать начальные данные через new Worker(filename, { workerData: {...} }), и они доступны внутри как import { workerData } from 'worker_threads'. В браузере начальные данные передаются только через postMessage."
+      },
+      {
+        "text": "Web Workers работают быстрее Worker Threads, так как оптимизированы для браузера",
+        "correct": false,
+        "explanation": "Скорость определяется задачей и железом, а не средой выполнения. Оба используют реальные OS-потоки. Нет оснований считать один быстрее другого."
+      },
+      {
+        "text": "В Node.js SharedArrayBuffer не требует COOP/COEP HTTP-заголовков",
+        "correct": true,
+        "explanation": "Браузер требует Cross-Origin-Opener-Policy и Cross-Origin-Embedder-Policy для использования SharedArrayBuffer из соображений безопасности (Spectre). В Node.js эти заголовки не применимы — SharedArrayBuffer доступен без ограничений."
+      }
+    ]
+  },
+  {
+    "question": "Что такое OffscreenCanvas и зачем он нужен?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Canvas-элемент, который скрыт от пользователя (display: none)",
+        "correct": false,
+        "explanation": "OffscreenCanvas — не CSS-скрытый элемент. Это специальный объект Canvas, полностью отвязанный от DOM, который можно передать в Worker через Transferable и рисовать там."
+      },
+      {
+        "text": "Объект Canvas, который можно передать в Worker для рендеринга в отдельном потоке",
+        "correct": true,
+        "explanation": "OffscreenCanvas позволяет перенести рендеринг (2D Context или WebGL) в Worker. Вызов canvas.transferControlToOffscreen() передаёт контроль воркеру, который может рисовать не блокируя главный поток. Используется для тяжёлой анимации и WebGL."
+      },
+      {
+        "text": "Canvas без аппаратного ускорения — рисует программно через CPU",
+        "correct": false,
+        "explanation": "OffscreenCanvas поддерживает WebGL и аппаратное ускорение так же, как обычный Canvas. Разница — в потоке выполнения, а не в методе рендеринга."
+      },
+      {
+        "text": "Canvas, который буферизует операции и применяет их батчами для оптимизации",
+        "correct": false,
+        "explanation": "Батчинг операций — это другой паттерн оптимизации canvas. OffscreenCanvas отличается тем, что работает в Worker, позволяя рендерингу происходить параллельно с основным потоком."
+      }
+    ]
+  },
+  {
+    "question": "Для какой из задач Web Worker будет НАИМЕНЕЕ полезен?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сжатие изображения 4K перед загрузкой на сервер",
+        "correct": false,
+        "explanation": "Сжатие изображения — классический CPU-bound кейс. Worker здесь отлично подойдёт: тяжёлые вычисления не блокируют UI, пользователь видит прогресс."
+      },
+      {
+        "text": "Парсинг и трансформация JSON-файла размером 50 MB",
+        "correct": false,
+        "explanation": "JSON.parse на 50 MB займёт секунды и заблокирует UI. Worker здесь необходим: парсинг в фоне, результат передаётся через postMessage."
+      },
+      {
+        "text": "Запрос к API через fetch и отображение данных в таблице",
+        "correct": true,
+        "explanation": "fetch — асинхронная I/O операция, она НЕ блокирует главный поток. Worker здесь излишен: fetch в главном потоке с await не создаёт проблем. Worker нужен для CPU-bound задач, не I/O-bound."
+      },
+      {
+        "text": "Инференс ML-модели (нейросеть) на входных данных пользователя",
+        "correct": false,
+        "explanation": "Запуск нейросети — максимально CPU-bound задача (или GPU через WebGL). Worker здесь критически важен: без него интерфейс замерзает на секунды во время предсказания."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если вызвать worker.terminate() до получения ответа?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Worker завершит текущую задачу, затем остановится",
+        "correct": false,
+        "explanation": "terminate() немедленно прерывает Worker без возможности завершить задачу. Никаких 'grace period' нет. Если Worker в процессе вычисления — оно прерывается."
+      },
+      {
+        "text": "Worker немедленно прерывается, onmessage не будет вызван",
+        "correct": true,
+        "explanation": "terminate() — немедленное принудительное завершение. Worker останавливается, его Event Loop уничтожается, все ожидающие сообщения отбрасываются. onmessage не получит результат."
+      },
+      {
+        "text": "Worker выбросит ошибку, которую можно поймать через onerror",
+        "correct": false,
+        "explanation": "При terminate() Worker не выбрасывает ошибку в главный поток. onerror не вызывается. Worker просто перестаёт существовать без уведомления."
+      },
+      {
+        "text": "Worker переходит в режим паузы и может быть возобновлён позже",
+        "correct": false,
+        "explanation": "Web Worker не поддерживает паузу/возобновление. terminate() — необратимая операция. Для создания новой задачи нужно создать новый Worker."
+      }
+    ]
+  },
+  {
+    "question": "Вы используете Worker Pool из 8 воркеров на машине с 4 ядрами CPU. Что произойдёт с производительностью по сравнению с пулом из 4 воркеров?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Производительность удвоится — 8 воркеров работают в 2 раза быстрее",
+        "correct": false,
+        "explanation": "При 4 физических ядрах 8 воркеров не дадут удвоения. 4 воркера уже используют все ядра. Дополнительные 4 воркера будут конкурировать за те же ядра через context switching."
+      },
+      {
+        "text": "Производительность незначительно вырастет или останется прежней из-за context switching",
+        "correct": true,
+        "explanation": "Это diminishing returns. При N воркеров > N ядер CPU OS начинает переключать контексты (context switching), что само по себе требует времени. Выигрыш минимален или нулевой, иногда даже появляется деградация."
+      },
+      {
+        "text": "Производительность упадёт — слишком много воркеров создают deadlock",
+        "correct": false,
+        "explanation": "Deadlock возникает при циклическом ожидании ресурсов — это не проблема количества Worker'ов в типичном пуле. Просто будет context switching overhead, а не deadlock."
+      },
+      {
+        "text": "Производительность упадёт в 2 раза из-за overhead управления лишними воркерами",
+        "correct": false,
+        "explanation": "Падение в 2 раза — преувеличение. Context switching overhead реален, но обычно небольшой для типичных CPU-bound задач. Производительность скорее останется примерно такой же, как с 4 воркерами."
+      }
+    ]
+  }
+]

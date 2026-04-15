@@ -1,0 +1,314 @@
+[
+  {
+    "question": "Что такое AbortController и какова роль AbortSignal?",
+    "type": "single",
+    "options": [
+      {
+        "text": "AbortController — это промис, AbortSignal — это его resolve-функция",
+        "correct": false,
+        "explanation": "AbortController не является промисом. Это отдельный объект-контроллер с методом abort(). AbortSignal — это EventTarget, который слушается операциями."
+      },
+      {
+        "text": "AbortController создаёт сигнал и умеет его активировать; AbortSignal передаётся операциям и позволяет им получить уведомление об отмене",
+        "correct": true,
+        "explanation": "Точная аналогия: AbortController — кнопка, AbortSignal — провод. Кнопка нажата (abort()) → сигнал приходит ко всем операциям, слушающим этот провод."
+      },
+      {
+        "text": "AbortSignal отменяет fetch, AbortController следит за его состоянием",
+        "correct": false,
+        "explanation": "Всё наоборот: именно controller.abort() инициирует отмену. AbortSignal — пассивный наблюдатель, который получает событие 'abort'."
+      },
+      {
+        "text": "AbortController — это timeout-обёртка над Promise.race",
+        "correct": false,
+        "explanation": "AbortController не связан с Promise.race. Это самостоятельный DOM API для управления отменой. AbortSignal.timeout() заменяет Promise.race с таймером, но это отдельная статическая функция."
+      }
+    ]
+  },
+  {
+    "question": "Какое исключение выбрасывает fetch() при вызове controller.abort()?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Error с message 'fetch aborted'",
+        "correct": false,
+        "explanation": "Обычный Error не выбрасывается. При отмене fetch выбрасывает DOMException со специфичным именем."
+      },
+      {
+        "text": "DOMException с name === 'AbortError'",
+        "correct": true,
+        "explanation": "Именно DOMException { name: 'AbortError' }. Это стандартное поведение fetch при отмене через signal. Важно проверять err.name === 'AbortError', а не просто err.message."
+      },
+      {
+        "text": "TypeError: Failed to fetch",
+        "correct": false,
+        "explanation": "TypeError: Failed to fetch возникает при сетевых ошибках (нет соединения, CORS и т.п.), но не при отмене через AbortController."
+      },
+      {
+        "text": "DOMException с name === 'TimeoutError'",
+        "correct": false,
+        "explanation": "TimeoutError выбрасывается при использовании AbortSignal.timeout(), но не при ручном вызове controller.abort(). Это важное различие для корректной обработки."
+      }
+    ]
+  },
+  {
+    "question": "Чем AbortSignal.timeout(3000) отличается от Promise.race([fetch(), новый таймаут])?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "AbortSignal.timeout() автоматически отменяет fetch, освобождая ресурсы; Promise.race оставляет fetch «висеть» в фоне",
+        "correct": true,
+        "explanation": "Это ключевое различие. При Promise.race со вторым промисом-таймером сам fetch не отменяется — он продолжает работу в фоне, занимая соединение и память."
+      },
+      {
+        "text": "AbortSignal.timeout() бросает TimeoutError, а не AbortError — разные имена для разных причин",
+        "correct": true,
+        "explanation": "Именно. Это позволяет в catch различать: таймаут (TimeoutError) или ручная отмена (AbortError). Promise.race этого разделения не даёт без дополнительного кода."
+      },
+      {
+        "text": "Promise.race работает быстрее, потому что использует нативный механизм",
+        "correct": false,
+        "explanation": "Нет никакой разницы в скорости. AbortSignal.timeout() сам реализован через нативный механизм браузера, не медленнее Promise.race."
+      },
+      {
+        "text": "AbortSignal.timeout() нельзя использовать совместно с другими сигналами",
+        "correct": false,
+        "explanation": "Как раз наоборот: AbortSignal.any([userSignal, AbortSignal.timeout(ms)]) — это стандартный паттерн объединения таймаута с ручной отменой."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если вызвать fetch() с сигналом, который уже aborted?",
+    "type": "single",
+    "options": [
+      {
+        "text": "fetch() проигнорирует сигнал и выполнится нормально",
+        "correct": false,
+        "explanation": "Нет. fetch() проверяет signal.aborted сразу при вызове. Если сигнал уже отменён — fetch немедленно отклоняет промис с AbortError, не делая HTTP-запроса."
+      },
+      {
+        "text": "fetch() немедленно отклоняется с AbortError, HTTP-запрос не отправляется",
+        "correct": true,
+        "explanation": "Правильно. Это важно: если вы переиспользуете уже-aborted сигнал (например, сохранили старый контроллер), fetch не будет работать вообще. Создавайте новый AbortController для каждой операции."
+      },
+      {
+        "text": "fetch() бросает synchronous TypeError сразу, не возвращая промис",
+        "correct": false,
+        "explanation": "fetch() всегда возвращает промис, даже при немедленном отклонении. Ошибка передаётся через .catch() или try/await, не через синхронный throw."
+      },
+      {
+        "text": "signal.aborted = false сбрасывается автоматически при новом fetch",
+        "correct": false,
+        "explanation": "AbortSignal одноразовый — его нельзя сбросить. Раз став aborted (true), он остаётся таким навсегда. Единственный выход — создать новый AbortController."
+      }
+    ]
+  },
+  {
+    "question": "В React useEffect вы делаете fetch внутри эффекта. Cleanup-функция НЕ вызывает controller.abort(). Что произойдёт при быстрой смене значений?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Всё будет работать корректно — React автоматически отменяет старые запросы",
+        "correct": false,
+        "explanation": "React не отменяет fetch автоматически. Cleanup-функция вызывается при следующем рендере с новыми deps, но если в ней нет controller.abort(), старый запрос продолжает работать."
+      },
+      {
+        "text": "Несколько fetch выполняются параллельно; медленный старый может прийти позже быстрого нового и перезаписать state — race condition",
+        "correct": true,
+        "explanation": "Классическая проблема. Быстрая смена deps запускает N параллельных fetch. Если запрос #1 медленнее запроса #3, он придёт позже и обновит state устаревшими данными."
+      },
+      {
+        "text": "Браузер автоматически отменяет предыдущий fetch при новом вызове fetch()",
+        "correct": false,
+        "explanation": "Браузер не отменяет старые fetch автоматически. Каждый вызов fetch() независим. Управление жизненным циклом запросов — ответственность разработчика."
+      },
+      {
+        "text": "useEffect выполняется строго последовательно — следующий не стартует, пока предыдущий не завершится",
+        "correct": false,
+        "explanation": "Нет, useEffect не ждёт завершения предыдущего. Cleanup вызывается немедленно при следующем рендере, после чего новый эффект запускается — независимо от состояния предыдущего fetch."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно обработать AbortError в catch, чтобы не показывать его пользователю как ошибку?",
+    "type": "single",
+    "options": [
+      {
+        "text": "catch (err) { /* ничего не делать */ } — просто проглотить все ошибки",
+        "correct": false,
+        "explanation": "Опасно! Так вы проглотите и настоящие ошибки (сетевые, серверные). AbortError нужно обрабатывать явно, остальные — пробрасывать или логировать."
+      },
+      {
+        "text": "catch (err) { if (err.name !== 'AbortError') setError(err) } — обрабатывать только не-AbortError",
+        "correct": true,
+        "explanation": "Правильный паттерн. AbortError — это нормальная операция, не ошибка. Все остальные ошибки должны быть обработаны явно (показаны пользователю, залогированы и т.д.)."
+      },
+      {
+        "text": "catch (err) { if (signal.aborted) return } — проверять signal.aborted",
+        "correct": false,
+        "explanation": "Идея верная, но реализация неполная. Нужно ещё обработать остальные ошибки — иначе они тихо проглатываются. Лучше проверять err.name === 'AbortError'."
+      },
+      {
+        "text": "AbortError не попадает в catch — его обрабатывает браузер автоматически",
+        "correct": false,
+        "explanation": "Нет. AbortError попадает в catch так же, как любое другое исключение. Браузер не делает никакой специальной обработки — всё на стороне разработчика."
+      }
+    ]
+  },
+  {
+    "question": "AbortSignal.any([signal1, signal2, signal3]) — каков результат, если signal2 уже aborted при создании?",
+    "type": "single",
+    "options": [
+      {
+        "text": "AbortSignal.any() выбросит ошибку — нельзя передавать уже-aborted сигналы",
+        "correct": false,
+        "explanation": "AbortSignal.any() не выбрасывает ошибок. Он просто создаёт составной сигнал и проверяет состояние переданных сигналов."
+      },
+      {
+        "text": "Возвращённый сигнал будет немедленно aborted с reason от signal2",
+        "correct": true,
+        "explanation": "Если хотя бы один из переданных сигналов уже aborted — результирующий сигнал тоже немедленно aborted. Это логично: 'любой из' уже выполнен."
+      },
+      {
+        "text": "signal2 игнорируется, используются только активные signal1 и signal3",
+        "correct": false,
+        "explanation": "AbortSignal.any() не игнорирует уже-aborted сигналы. Если хоть один aborted — результат тоже aborted немедленно."
+      },
+      {
+        "text": "Возвращённый сигнал будет aborted только когда все три сигнала станут aborted",
+        "correct": false,
+        "explanation": "Нет, AbortSignal.any() — это OR (любой из), не AND (все). Для AND-логики нет стандартного API; нужно реализовывать вручную."
+      }
+    ]
+  },
+  {
+    "question": "Вы хотите автоматически удалить addEventListener при вызове controller.abort(). Какой API это поддерживает?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Только через WeakRef и FinalizationRegistry",
+        "correct": false,
+        "explanation": "WeakRef и FinalizationRegistry — это инструменты для работы с GC, не для управления event listeners. Для автоматической отписки используется опция signal в addEventListener."
+      },
+      {
+        "text": "addEventListener принимает { signal } в options — при signal.abort() обработчик удаляется автоматически",
+        "correct": true,
+        "explanation": "Это стандартная возможность DOM Level 4. addEventListener(type, handler, { signal }) — при abort() обработчик снимается автоматически. Очень удобно для управления подписками."
+      },
+      {
+        "text": "Только через ObservableEvent (proposal) — пока не стандартизирован",
+        "correct": false,
+        "explanation": "Observable — это отдельный proposal, не связанный с AbortController. Опция signal в addEventListener уже стандартизирована и работает во всех современных браузерах."
+      },
+      {
+        "text": "removeEventListener нужно вызывать вручную в обработчике abort-события",
+        "correct": false,
+        "explanation": "Ручной removeEventListener — устаревший подход. Передача { signal } в addEventListener автоматизирует это, что и является рекомендуемым современным паттерном."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть цепочка: fetch('/users') → fetch('/posts') → transformData(). Как правильно распространить AbortSignal?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Передавать signal в каждый fetch: fetch('/users', { signal }) и fetch('/posts', { signal })",
+        "correct": true,
+        "explanation": "Да, signal нужно передавать в каждую async-операцию. Один контроллер — все операции слушают один и тот же сигнал."
+      },
+      {
+        "text": "В transformData() периодически проверять signal.aborted и throw, если операция длинная",
+        "correct": true,
+        "explanation": "Для тяжёлых синхронных операций нет автоматического механизма — нужно вручную проверять signal.aborted в цикле и бросать исключение при необходимости."
+      },
+      {
+        "text": "Создавать новый AbortController для каждого fetch в цепочке",
+        "correct": false,
+        "explanation": "Нет, один контроллер — для всей цепочки. Создание новых контроллеров сломало бы связь: abort() на внешнем контроллере не затронул бы внутренние операции."
+      },
+      {
+        "text": "signal передаётся только в первый fetch — остальные отменятся автоматически",
+        "correct": false,
+        "explanation": "Нет автоматического распространения. Если signal передан только в fetch('/users'), то fetch('/posts') продолжит работу даже после abort(). Signal нужно передавать явно везде."
+      }
+    ]
+  },
+  {
+    "question": "Проект использует axios. Вы хотите перейти с CancelToken на AbortController. Какой API поддерживает axios?",
+    "type": "single",
+    "options": [
+      {
+        "text": "axios не поддерживает AbortController — нужно использовать fetch",
+        "correct": false,
+        "explanation": "Неверно. Начиная с axios v0.22 (2021) поддержка AbortController добавлена нативно. Опция { signal } работает так же, как в fetch."
+      },
+      {
+        "text": "axios >= 0.22 принимает { signal } в конфиге — идентично fetch API",
+        "correct": true,
+        "explanation": "Правильно. axios({ url, signal: controller.signal }) — и старый CancelToken депрекирован. AbortController стал стандартом даже в библиотеках, обёртках над fetch."
+      },
+      {
+        "text": "axios поддерживает только AbortSignal.timeout(), но не controller.signal",
+        "correct": false,
+        "explanation": "Нет ограничений. axios принимает любой AbortSignal — как от controller, так и от AbortSignal.timeout(), так и от AbortSignal.any()."
+      },
+      {
+        "text": "Нужен адаптер: CancelToken.fromAbortSignal(controller.signal)",
+        "correct": false,
+        "explanation": "Такого адаптера нет в стандартном API. В современном axios просто передаётся { signal } напрямую, без конвертации."
+      }
+    ]
+  },
+  {
+    "question": "Вы используете AbortSignal.any([s1, AbortSignal.timeout(5000)]). Операция завершилась успешно за 2 секунды. Что происходит с таймером таймаута?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Таймер продолжит работать ещё 3 секунды и сработает вхолостую",
+        "correct": false,
+        "explanation": "Это была бы утечка ресурсов. Браузер умнее: если fetch завершился успешно, signal больше не слушается fetch-ом, и таймаут не причинит вреда."
+      },
+      {
+        "text": "Таймер продолжит работать, но поскольку fetch уже завершился, его срабатывание не имеет эффекта",
+        "correct": true,
+        "explanation": "Технически верно. Таймер из AbortSignal.timeout() работает до конца, но fetch уже вернул результат — поздний abort() никого не слушающего сигнала безвреден. Это допустимо."
+      },
+      {
+        "text": "AbortSignal.any() автоматически отменяет все внутренние таймеры при успехе",
+        "correct": false,
+        "explanation": "AbortSignal.any() не имеет механизма отмены внутренних таймеров при успехе. Таймер AbortSignal.timeout() живёт до своего срока — но это допустимо, ущерба нет."
+      },
+      {
+        "text": "Нужно вручную очищать через clearTimeout — иначе утечка памяти",
+        "correct": false,
+        "explanation": "AbortSignal.timeout() управляется браузером внутренне. Ручной clearTimeout не нужен и недоступен. После завершения fetch сигнал не вызывает проблем."
+      }
+    ]
+  },
+  {
+    "question": "Какой из подходов правильно реализует debounced-поиск с отменой в React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "useEffect(() => { fetch(query).then(setResults) }, [query])",
+        "correct": false,
+        "explanation": "Нет отмены и нет debounce. Каждый символ запускает fetch немедленно — много лишних запросов и race condition."
+      },
+      {
+        "text": "useEffect(() => { const ctrl = new AbortController(); const id = setTimeout(() => fetch(url, { signal: ctrl.signal }).then(setResults), 300); return () => { clearTimeout(id); ctrl.abort() } }, [query])",
+        "correct": true,
+        "explanation": "Правильный паттерн: debounce через setTimeout + AbortController для отмены fetch. Cleanup очищает и таймер, и запрос. Это сочетание даёт и задержку, и корректную отмену."
+      },
+      {
+        "text": "const debouncedFetch = useCallback(debounce(fetch, 300), [])",
+        "correct": false,
+        "explanation": "useCallback с debounce не решает проблему race condition и отмены. Debounced функция не знает о предыдущих запросах и не может их отменить."
+      },
+      {
+        "text": "useEffect с AbortController без debounce — отмены предыдущего достаточно",
+        "correct": false,
+        "explanation": "Технически отмена предыдущего работает, но без debounce каждый символ запускает fetch. При медленном наборе можно получить много параллельных запросов прежде чем предыдущий успеет отмениться."
+      }
+    ]
+  }
+]

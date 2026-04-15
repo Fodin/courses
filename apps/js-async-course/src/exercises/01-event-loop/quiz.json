@@ -1,0 +1,267 @@
+[
+  {
+    "question": "Какой порядок вывода у следующего кода?\nconsole.log('A')\nsetTimeout(() => console.log('B'), 0)\nPromise.resolve().then(() => console.log('C'))\nconsole.log('D')",
+    "type": "single",
+    "options": [
+      {
+        "text": "A → B → C → D",
+        "correct": false,
+        "explanation": "Неверно. setTimeout — макротаска, она всегда выполняется после синхронного кода и микротасок. B не может быть вторым."
+      },
+      {
+        "text": "A → D → C → B",
+        "correct": true,
+        "explanation": "Верно! A и D — синхронный код (выполняются сразу). C — Promise.then (микротаска, выполняется после синхронного кода). B — setTimeout (макротаска, самый последний)."
+      },
+      {
+        "text": "A → D → B → C",
+        "correct": false,
+        "explanation": "Неверно. Promise.then (C) — микротаска с более высоким приоритетом чем setTimeout (B) — макротаска. C всегда раньше B."
+      },
+      {
+        "text": "A → C → D → B",
+        "correct": false,
+        "explanation": "Неверно. D — синхронный код, он выполняется до того как Event Loop проверит очереди. C (микротаска) выполнится только после очистки Call Stack."
+      }
+    ]
+  },
+  {
+    "question": "Event Loop выполняет задачи из Microtask Queue...",
+    "type": "single",
+    "options": [
+      {
+        "text": "По одной — чередуя с макротасками",
+        "correct": false,
+        "explanation": "Неверно. Event Loop не чередует микро и макро. Он сначала опустошает ВСЮ очередь микротасок, только потом берёт одну макротаску."
+      },
+      {
+        "text": "Все сразу — до того как взять одну макротаску",
+        "correct": true,
+        "explanation": "Верно. Это фундаментальное правило: после каждой макротаски Event Loop выполняет ВСЕ накопившиеся микротаски (включая те, что добавились в процессе их выполнения), и только потом берёт следующую макротаску."
+      },
+      {
+        "text": "Только если Call Stack полностью пустой и нет макротасок",
+        "correct": false,
+        "explanation": "Неверно. Микротаски выполняются при каждом 'microtask checkpoint' — не только когда нет макротасок. Они выполняются до следующей макротаски, а не вместо неё."
+      },
+      {
+        "text": "Только те, которые были добавлены до начала текущей макротаски",
+        "correct": false,
+        "explanation": "Неверно. Event Loop выполняет все микротаски, включая те, что добавляются в процессе выполнения других микротасок. Это и является причиной Microtask Starvation."
+      }
+    ]
+  },
+  {
+    "question": "Что такое Microtask Starvation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ситуация когда микротасок нет и Event Loop простаивает",
+        "correct": false,
+        "explanation": "Нет, это противоположное. 'Starvation' (голодание) — это когда ресурса слишком МНОГО, а не мало. Здесь — слишком много микротасок."
+      },
+      {
+        "text": "Бесконечная цепочка Promise.then блокирует выполнение макротасок",
+        "correct": true,
+        "explanation": "Верно. Если каждая микротаска добавляет новую (например, Promise.resolve().then(fn) внутри fn), очередь микротасок никогда не опустеет. Event Loop никогда не дойдёт до макротасок — UI заморозится."
+      },
+      {
+        "text": "Макротаски выполняются слишком быстро и не дают микротаскам запуститься",
+        "correct": false,
+        "explanation": "Нет, всё наоборот. Микротаски имеют БОЛЕЕ ВЫСОКИЙ приоритет чем макротаски. Именно микротаски могут заблокировать макротаски, а не наоборот."
+      },
+      {
+        "text": "Promise.reject без обработчика вызывает UnhandledRejection",
+        "correct": false,
+        "explanation": "Это реальная проблема, но не Microtask Starvation. Starvation — про бесконечное добавление микротасок, не про необработанные отказы."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих API создают микротаски (microtasks)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Promise.then()",
+        "correct": true,
+        "explanation": "Да. Колбэк в Promise.then помещается в Microtask Queue. Это основной источник микротасок в браузере и Node.js."
+      },
+      {
+        "text": "setTimeout(fn, 0)",
+        "correct": false,
+        "explanation": "Нет. setTimeout создаёт макротаску (Task). Даже с задержкой 0ms — это Task Queue, не Microtask Queue. Именно поэтому Promise.then всегда раньше setTimeout."
+      },
+      {
+        "text": "queueMicrotask(fn)",
+        "correct": true,
+        "explanation": "Да. queueMicrotask — это явный способ добавить задачу в Microtask Queue. Работает аналогично Promise.resolve().then(fn), но без создания Promise-объекта."
+      },
+      {
+        "text": "MutationObserver callback",
+        "correct": true,
+        "explanation": "Да. MutationObserver колбэки выполняются как микротаски — они помещаются в Microtask Queue при обнаружении изменений DOM."
+      },
+      {
+        "text": "setInterval(fn, 100)",
+        "correct": false,
+        "explanation": "Нет. setInterval создаёт макротаски. Каждый срабатывающий колбэк помещается в Task Queue (Macrotask Queue), не в Microtask Queue."
+      }
+    ]
+  },
+  {
+    "question": "В Node.js, что выполняется раньше: process.nextTick или Promise.then?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Promise.then — согласно спецификации microtasks",
+        "correct": false,
+        "explanation": "Неверно для Node.js. В браузерах Promise.then — это стандартная микротаска. Но в Node.js process.nextTick имеет ещё более высокий приоритет и выполняется ДО Promise microtasks."
+      },
+      {
+        "text": "process.nextTick — он имеет наивысший приоритет в Node.js",
+        "correct": true,
+        "explanation": "Верно. process.nextTick обрабатывается в специальной nextTick-очереди, которая проверяется перед Promise microtasks и перед любой фазой libuv. Это историческое решение Node.js, отличающееся от браузерной спецификации."
+      },
+      {
+        "text": "Зависит от порядка регистрации в коде",
+        "correct": false,
+        "explanation": "Нет, порядок регистрации не влияет. nextTick-очередь всегда имеет приоритет над Promise microtasks в Node.js, независимо от того в каком порядке они зарегистрированы."
+      },
+      {
+        "text": "Они выполняются одновременно в одной очереди",
+        "correct": false,
+        "explanation": "Нет, это две разные очереди. nextTick-очередь и Microtask Queue (для Promise) — отдельные структуры данных в Node.js. nextTick обрабатывается первой."
+      }
+    ]
+  },
+  {
+    "question": "requestAnimationFrame выполняется...",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сразу при вызове, синхронно",
+        "correct": false,
+        "explanation": "Нет. requestAnimationFrame откладывает выполнение колбэка до следующего кадра браузера. Он не выполняется синхронно при вызове."
+      },
+      {
+        "text": "В Microtask Queue вместе с Promise.then",
+        "correct": false,
+        "explanation": "Нет. rAF — это не микротаска. Он выполняется как отдельная фаза в цикле браузера, после обработки микротасок и перед рендерингом. У него свой механизм."
+      },
+      {
+        "text": "Перед следующей перерисовкой страницы, после микротасок",
+        "correct": true,
+        "explanation": "Верно. requestAnimationFrame помещает колбэк в специальную очередь rAF-колбэков. Они выполняются после microtask checkpoint и перед Style/Layout/Paint — то есть синхронизированы с refresh rate монитора."
+      },
+      {
+        "text": "Вместе с setTimeout в Macrotask Queue",
+        "correct": false,
+        "explanation": "Нет. rAF и setTimeout — разные механизмы. setTimeout создаёт обычную макротаску. rAF — это фаза в rendering pipeline браузера, она выполняется перед рисованием кадра."
+      }
+    ]
+  },
+  {
+    "question": "Что выведет следующий код в Node.js?\nsetTimeout(() => console.log('A'), 0)\nsetImmediate(() => console.log('B'))\n(запущен вне I/O колбэка)",
+    "type": "single",
+    "options": [
+      {
+        "text": "Всегда A, затем B",
+        "correct": false,
+        "explanation": "Неверно. Вне I/O контекста порядок setTimeout(fn,0) vs setImmediate не гарантирован. Он зависит от времени инициализации процесса и состояния libuv timer."
+      },
+      {
+        "text": "Всегда B, затем A",
+        "correct": false,
+        "explanation": "Неверно. setImmediate выполняется в Check фазе, которая идёт ПОСЛЕ Timer фазы. Но вне I/O, если таймер успел сработать — порядок может быть любым."
+      },
+      {
+        "text": "Порядок не определён — зависит от состояния таймера при входе в цикл",
+        "correct": true,
+        "explanation": "Верно. Вне I/O контекста порядок setTimeout(fn,0) и setImmediate непредсказуем. Если при запуске Event Loop таймер уже истёк — первым будет A. Если нет — Node.js перейдёт к Poll/Check и будет B первым. В I/O контексте порядок определён: всегда B затем A."
+      },
+      {
+        "text": "Код вызовет ошибку — setImmediate не работает вне I/O",
+        "correct": false,
+        "explanation": "Нет, setImmediate работает везде в Node.js. Вне I/O просто непредсказуем его порядок относительно setTimeout(fn,0). Ошибки не будет."
+      }
+    ]
+  },
+  {
+    "question": "Почему setTimeout(fn, 0) не гарантирует немедленное выполнение fn?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "fn помещается в Macrotask Queue и выполняется только после всех микротасок",
+        "correct": true,
+        "explanation": "Верно. setTimeout создаёт макротаску. Перед ней выполнятся все накопившиеся микротаски (Promise.then, queueMicrotask) — сколько бы их ни было."
+      },
+      {
+        "text": "Минимальная задержка в браузере — 1ms (HTML spec), а не 0",
+        "correct": true,
+        "explanation": "Верно. HTML spec устанавливает минимальную задержку в 1ms для вложенных таймеров (глубже 4 уровней — 4ms). Ноль не гарантируется. Реальная задержка зависит от нагрузки."
+      },
+      {
+        "text": "setTimeout устарел и работает медленнее Promise",
+        "correct": false,
+        "explanation": "Неверно. setTimeout не устарел. Разница в производительности не объясняет порядок. Дело в архитектуре очередей: Task Queue vs Microtask Queue."
+      },
+      {
+        "text": "fn не выполнится пока Call Stack не пустой",
+        "correct": true,
+        "explanation": "Верно. Event Loop не может взять задачу из любой очереди пока Call Stack занят. Сначала должен завершиться весь синхронный код."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть функция, которая каждую секунду делает что-то через setInterval. Вы заметили, что она иногда пропускает интервалы. Вероятная причина?",
+    "type": "single",
+    "options": [
+      {
+        "text": "setInterval не работает в современных браузерах",
+        "correct": false,
+        "explanation": "Неверно. setInterval работает во всех браузерах. Пропуски вызваны другой причиной."
+      },
+      {
+        "text": "В Call Stack есть долго выполняющийся синхронный код, блокирующий Event Loop",
+        "correct": true,
+        "explanation": "Верно. Если Call Stack занят синхронным кодом (тяжёлые вычисления, долгий цикл), Event Loop не может взять задачи из очереди. Таймеры будут срабатывать с задержкой или пропускаться. Это классическая причина 'дёрганой' анимации и пропущенных интервалов."
+      },
+      {
+        "text": "setInterval нужно вызывать через async/await",
+        "correct": false,
+        "explanation": "Неверно. setInterval не является Promise-based и не используется с async/await напрямую. Пропуски вызваны блокировкой Event Loop, а не способом вызова."
+      },
+      {
+        "text": "Браузер ограничивает частоту таймеров до 1 раза в секунду",
+        "correct": false,
+        "explanation": "Неверно. Браузер не ограничивает таймеры таким образом. Ограничения есть для неактивных вкладок (throttling до 1000ms), но для активных вкладок таймеры срабатывают по расписанию."
+      }
+    ]
+  },
+  {
+    "question": "Что из перечисленного является ПРАВИЛЬНЫМ описанием Macrotask Queue?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "setTimeout и setInterval создают задачи в Macrotask Queue",
+        "correct": true,
+        "explanation": "Верно. Это основные источники макротасок наряду с I/O событиями DOM (click, input) и MessageChannel."
+      },
+      {
+        "text": "Event Loop берёт из Macrotask Queue одну задачу за итерацию",
+        "correct": true,
+        "explanation": "Верно. В отличие от Microtask Queue (где выполняются ВСЕ задачи), из Macrotask Queue берётся только ОДНА задача, после чего снова проверяется Microtask Queue."
+      },
+      {
+        "text": "Promise.then добавляет задачу в Macrotask Queue",
+        "correct": false,
+        "explanation": "Неверно. Promise.then добавляет в Microtask Queue, не Macrotask Queue. Это ключевое различие, объясняющее почему Promise всегда раньше setTimeout."
+      },
+      {
+        "text": "В браузере после каждой макротаски может произойти перерисовка страницы",
+        "correct": true,
+        "explanation": "Верно. Rendering pipeline (Style → Layout → Paint) выполняется между макротасками (но только если прошло достаточно времени, обычно ~16ms). Это объясняет зачем делать анимации через rAF, а не setTimeout."
+      }
+    ]
+  }
+]

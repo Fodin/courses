@@ -1,0 +1,215 @@
+[
+  {
+    "question": "Что выведет следующий код в консоль?\n\nconsole.log('A')\nPromise.resolve().then(() => console.log('B'))\nconsole.log('C')",
+    "type": "single",
+    "options": [
+      {
+        "text": "A, B, C",
+        "correct": false,
+        "explanation": "Неверно. Колбэк .then() выполняется асинхронно — он помещается в очередь микротасок. До него успевает выполниться синхронный код."
+      },
+      {
+        "text": "A, C, B",
+        "correct": true,
+        "explanation": "Правильно. 'A' и 'C' — синхронный код, выполняется немедленно. Колбэк .then() помещается в очередь микротасок и выполняется после того, как Call Stack опустеет. Поэтому порядок: A → C → B."
+      },
+      {
+        "text": "B, A, C",
+        "correct": false,
+        "explanation": "Неверно. Promise.resolve() создаёт уже resolved промис, но .then() всегда асинхронен — колбэк никогда не выполнится до синхронного кода."
+      },
+      {
+        "text": "A, B, C или A, C, B в зависимости от браузера",
+        "correct": false,
+        "explanation": "Неверно. Promise/A+ спецификация гарантирует, что колбэки .then() всегда асинхронны. Поведение одинаково во всех соответствующих реализациях."
+      }
+    ]
+  },
+  {
+    "question": "Промис находится в состоянии 'fulfilled'. Что произойдёт, если вызвать resolve() на нём ещё раз?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Промис перейдёт в новое состояние fulfilled с новым значением",
+        "correct": false,
+        "explanation": "Неверно. Settled-промис иммутабелен — его состояние не меняется никогда. Это фундаментальная гарантия Promise/A+ спецификации."
+      },
+      {
+        "text": "Будет выброшена ошибка TypeError",
+        "correct": false,
+        "explanation": "Неверно. Повторный вызов resolve() не выбрасывает ошибку — он просто молча игнорируется. Промис уже settled и остаётся таким."
+      },
+      {
+        "text": "Вызов будет молча проигнорирован — промис остаётся в fulfilled",
+        "correct": true,
+        "explanation": "Правильно. Раз промис settled (fulfilled или rejected), все последующие вызовы resolve() или reject() игнорируются без ошибки. Это гарантирует иммутабельность результата."
+      },
+      {
+        "text": "Промис сначала вернётся в pending, затем снова станет fulfilled",
+        "correct": false,
+        "explanation": "Неверно. Переход из settled обратно в pending невозможен. Жизненный цикл промиса однонаправлен: pending → fulfilled или pending → rejected."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит, когда в executor промиса выполняется throw?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Исключение всплывает в вызывающий код как обычная синхронная ошибка",
+        "correct": false,
+        "explanation": "Неверно. Движок JavaScript перехватывает throw внутри executor и автоматически вызывает reject(error). Ошибка не всплывает наружу — она превращает промис в rejected."
+      },
+      {
+        "text": "Промис переходит в rejected с брошенным значением как reason",
+        "correct": true,
+        "explanation": "Правильно. Executor обёрнут в try/catch. Любой throw внутри него перехватывается и вызывает reject(thrownValue). Это эквивалентно явному вызову reject()."
+      },
+      {
+        "text": "Промис зависает в состоянии pending навсегда",
+        "correct": false,
+        "explanation": "Неверно. Throw немедленно переводит промис в rejected. Промис никогда не остаётся в pending после синхронного исключения в executor."
+      },
+      {
+        "text": "Поведение зависит от того, был ли уже вызван resolve()",
+        "correct": false,
+        "explanation": "Частично верно только в смысле: если resolve() уже вызван (промис settled), то последующий throw игнорируется. Но сам по себе throw — это reject, а не неопределённое поведение."
+      }
+    ]
+  },
+  {
+    "question": "Какие утверждения о методе .finally() верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": ".finally() выполняется и при fulfilled, и при rejected промисе",
+        "correct": true,
+        "explanation": "Правильно. Это ключевая особенность .finally() — он выполняется всегда, независимо от исхода. Идеален для cleanup-логики (скрытие спиннера, закрытие соединения)."
+      },
+      {
+        "text": "Колбэк .finally() получает значение промиса как параметр",
+        "correct": false,
+        "explanation": "Неверно. Колбэк .finally() вызывается без аргументов — он не имеет доступа к значению промиса. Если вам нужно значение, используйте .then()."
+      },
+      {
+        "text": ".finally() возвращает новый промис с тем же значением, что и исходный",
+        "correct": true,
+        "explanation": "Правильно. .finally() «прозрачен» — он не меняет значение промиса. Если промис был fulfilled с 42, следующий .then() после .finally() получит 42."
+      },
+      {
+        "text": "Если в .finally() выбросить ошибку, она заменит исходную причину rejected-промиса",
+        "correct": true,
+        "explanation": "Правильно. Это редкий случай, когда .finally() меняет поведение: throw внутри него создаёт rejected промис с новой ошибкой, заменяя исходную причину."
+      },
+      {
+        "text": ".finally() эквивалентен .then(fn, fn) с одной функцией для обоих случаев",
+        "correct": false,
+        "explanation": "Неверно. .then(fn, fn) передаёт значение/ошибку в fn и использует её возвращаемое значение. .finally(fn) игнорирует возвращаемое значение fn (кроме случая throw). Семантика разная."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть функция на callback-API: getData(id, callback). Напишите её промис-обёртку. Какая реализация верна?",
+    "type": "single",
+    "options": [
+      {
+        "text": "function getDataAsync(id) { return new Promise(resolve => getData(id, resolve)) }",
+        "correct": false,
+        "explanation": "Неверно. Это передаёт resolve как callback напрямую. При ошибке getData вызовет resolve(error) вместо reject(error) — промис будет fulfilled с объектом ошибки, а не rejected."
+      },
+      {
+        "text": "function getDataAsync(id) { return new Promise((resolve, reject) => { getData(id, (err, data) => { if (err) reject(err); else resolve(data) }) }) }",
+        "correct": true,
+        "explanation": "Правильно. Это стандартный шаблон промисификации Node.js-style callback. Проверяем первый аргумент (err): если есть — reject, если нет — resolve со вторым аргументом (data)."
+      },
+      {
+        "text": "async function getDataAsync(id) { return getData(id) }",
+        "correct": false,
+        "explanation": "Неверно. getData — callback-функция, она не возвращает промис. async/await не превращает callback-API в промис автоматически."
+      },
+      {
+        "text": "function getDataAsync(id) { getData(id, (err, data) => err ? Promise.reject(err) : Promise.resolve(data)) }",
+        "correct": false,
+        "explanation": "Неверно. Функция ничего не возвращает. Promise.reject/resolve создаются внутри callback, но никак не связаны с внешним кодом — их никто не сможет использовать."
+      }
+    ]
+  },
+  {
+    "question": "Что выведет этот код?\n\nconst p = new Promise((resolve) => {\n  console.log('1')\n  resolve(2)\n  console.log('3')\n})\np.then(v => console.log(v))\nconsole.log('4')",
+    "type": "single",
+    "options": [
+      {
+        "text": "1, 2, 3, 4",
+        "correct": false,
+        "explanation": "Неверно. Колбэк .then() асинхронен — он выполнится только после того, как синхронный код завершится. Значение 2 не выводится сразу при resolve()."
+      },
+      {
+        "text": "1, 3, 4, 2",
+        "correct": true,
+        "explanation": "Правильно. Executor выполняется синхронно: console.log('1'), затем resolve(2) (промис становится fulfilled, но колбэк .then() ещё не вызван), затем console.log('3'). Потом console.log('4'). Только после этого очередь микротасок: v => console.log(v) выводит 2."
+      },
+      {
+        "text": "1, 3, 2, 4",
+        "correct": false,
+        "explanation": "Неверно. console.log('4') — синхронный код, он выполнится до колбэка .then(). Порядок: синхронный код → микротаски."
+      },
+      {
+        "text": "1, 4, 3, 2",
+        "correct": false,
+        "explanation": "Неверно. Весь executor выполняется синхронно: console.log('1') и console.log('3') — оба до console.log('4')."
+      }
+    ]
+  },
+  {
+    "question": "Вы пишете утилиту для загрузки данных. Какой из вариантов является антипаттерном «Promise Constructor Antipattern»?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "function load() { return new Promise((resolve, reject) => { fetch('/api').then(r => resolve(r.json())).catch(reject) }) }",
+        "correct": true,
+        "explanation": "Это классический Promise Constructor Antipattern. fetch() уже возвращает промис. Обёртка в new Promise лишняя и опасна: ошибки из r.json() не попадут в reject, если забыть их обработать."
+      },
+      {
+        "text": "function load() { return fetch('/api').then(r => r.json()) }",
+        "correct": false,
+        "explanation": "Это правильный подход. Возвращаем промис напрямую, без лишней обёртки. Ошибки propagate автоматически через цепочку."
+      },
+      {
+        "text": "function load() { return new Promise((resolve, reject) => { const xhr = new XMLHttpRequest(); xhr.onload = () => resolve(JSON.parse(xhr.responseText)); xhr.onerror = () => reject(new Error('network')); xhr.open('GET', '/api'); xhr.send() }) }",
+        "correct": false,
+        "explanation": "Это допустимый случай использования new Promise. XMLHttpRequest — callback API, у него нет встроенного Promise-интерфейса. Здесь обёртка оправдана."
+      },
+      {
+        "text": "async function load() { return new Promise(resolve => resolve(await fetch('/api').then(r => r.json()))) }",
+        "correct": true,
+        "explanation": "Антипаттерн: async функция возвращает промис неявно, а здесь ещё явно оборачиваем в new Promise. Двойная обёртка без смысла. Достаточно: async function load() { return fetch('/api').then(r => r.json()) }"
+      }
+    ]
+  },
+  {
+    "question": "В каком порядке выполнятся обработчики в этой цепочке, если начальный промис rejected?\n\nPromise.reject(new Error('!'))  \n  .then(v => console.log('then1', v))  \n  .catch(e => { console.log('catch', e.message); return 42 })  \n  .then(v => console.log('then2', v))",
+    "type": "single",
+    "options": [
+      {
+        "text": "then1, catch, then2",
+        "correct": false,
+        "explanation": "Неверно. При rejected промисе .then() с onFulfilled пропускается. 'then1' не выведется."
+      },
+      {
+        "text": "catch, then2",
+        "correct": true,
+        "explanation": "Правильно. .then(v => ...) пропускается (нет onRejected). .catch(e => ...) ловит ошибку и выводит 'catch !', возвращает 42. Цепочка возобновляется: .then(v => ...) получает 42 и выводит 'then2 42'."
+      },
+      {
+        "text": "catch только, then2 не выполнится",
+        "correct": false,
+        "explanation": "Неверно. .catch() возвращает fulfilled промис (с return 42). После catch цепочка возобновляется в «happy path» — следующий .then() получит 42."
+      },
+      {
+        "text": "Ни один не выполнится — Unhandled Rejection",
+        "correct": false,
+        "explanation": "Неверно. .catch() в цепочке обрабатывает rejected промис. Это не Unhandled Rejection — есть обработчик."
+      }
+    ]
+  }
+]

@@ -1,0 +1,272 @@
+[
+  {
+    "question": "Три запроса занимают 1с, 2с и 3с. Сколько времени займёт Promise.all([p1, p2, p3]) если все завершатся успешно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "1 секунда (первый готов)",
+        "correct": false,
+        "explanation": "Одна секунда — это поведение Promise.race, который разрешается при первом результате. Promise.all ждёт все промисы."
+      },
+      {
+        "text": "6 секунд (1 + 2 + 3, последовательно)",
+        "correct": false,
+        "explanation": "Последовательный await занял бы 6 секунд. Promise.all запускает все промисы параллельно, поэтому общее время определяется самым медленным."
+      },
+      {
+        "text": "3 секунды (ждёт самый медленный)",
+        "correct": true,
+        "explanation": "Promise.all запускает все промисы одновременно и ждёт завершения самого медленного. Три параллельных запроса займут столько, сколько занимает наибольший — 3 секунды."
+      },
+      {
+        "text": "2 секунды (среднее)",
+        "correct": false,
+        "explanation": "Promise.all не вычисляет среднее. Он ждёт последнего из всех промисов — в данном случае трёхсекундного."
+      }
+    ]
+  },
+  {
+    "question": "Что вернёт Promise.all([p1, p2, p3]) если p2 rejected раньше всех?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Массив [value1, rejected_error, value3] когда все завершатся",
+        "correct": false,
+        "explanation": "Это поведение Promise.allSettled, а не Promise.all. allSettled ждёт всех и возвращает статус каждого. all при первом rejected немедленно сам переходит в состояние rejected."
+      },
+      {
+        "text": "Немедленно rejected с причиной из p2 (fail-fast)",
+        "correct": true,
+        "explanation": "Promise.all использует стратегию fail-fast: как только любой промис из массива переходит в rejected — весь Promise.all немедленно rejected с той же ошибкой. p1 и p3 продолжают выполняться, но их результаты игнорируются."
+      },
+      {
+        "text": "Ждёт p1 и p3, затем rejected с массивом всех ошибок",
+        "correct": false,
+        "explanation": "Это поведение Promise.any при всех rejected (AggregateError). Promise.all не ждёт остальных — он немедленно rejected при первом упавшем."
+      },
+      {
+        "text": "Fulfilled с массивом [value1, undefined, value3]",
+        "correct": false,
+        "explanation": "Promise.all не подставляет undefined для rejected. Он сам переходит в rejected состояние с ошибкой из p2."
+      }
+    ]
+  },
+  {
+    "question": "Какой метод следует использовать для массовой отправки уведомлений пользователям, если частичные сбои допустимы и нужно знать статус каждой отправки?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Promise.all",
+        "correct": false,
+        "explanation": "Promise.all прервётся при первой же неудачной отправке и не вернёт статусы остальных. Для операций, где частичные сбои допустимы, это неподходящий выбор."
+      },
+      {
+        "text": "Promise.race",
+        "correct": false,
+        "explanation": "Promise.race возвращает результат первого завершившегося промиса. Для получения статуса каждой отправки это не подходит."
+      },
+      {
+        "text": "Promise.allSettled",
+        "correct": true,
+        "explanation": "Promise.allSettled ждёт все промисы и возвращает массив с {status, value/reason} для каждого. Частичные ошибки не прерывают процесс — вы получаете полную картину: кому отправлено, кому нет и почему."
+      },
+      {
+        "text": "Promise.any",
+        "correct": false,
+        "explanation": "Promise.any возвращает первый успешный результат. Для массовых операций, где нужен статус каждой, это не подходит."
+      }
+    ]
+  },
+  {
+    "question": "Что случится с Promise.race([]) — пустым массивом?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Немедленно fulfilled с undefined",
+        "correct": false,
+        "explanation": "Это поведение Promise.resolve(undefined). Promise.race с пустым массивом ведёт себя иначе — он не может определить победителя среди нуля промисов."
+      },
+      {
+        "text": "Немедленно rejected с TypeError",
+        "correct": false,
+        "explanation": "TypeError не выбрасывается — синтаксис корректный. Но и fulfilled Promise.race([]) тоже не становится."
+      },
+      {
+        "text": "Промис навсегда остаётся в состоянии pending",
+        "correct": true,
+        "explanation": "Promise.race([]) создаёт промис, который никогда не разрешится, потому что нет ни одного участника гонки. Это задокументированный edge case — нужно проверять длину массива перед вызовом."
+      },
+      {
+        "text": "Немедленно fulfilled с пустым массивом []",
+        "correct": false,
+        "explanation": "Это поведение Promise.all([]) — пустой массив → немедленно fulfilled с []. Promise.race([]) ведёт себя иначе и зависает навсегда."
+      }
+    ]
+  },
+  {
+    "question": "Чем Promise.any отличается от Promise.race при наличии rejected промисов в массиве?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Promise.any игнорирует rejected и ждёт первого fulfilled",
+        "correct": true,
+        "explanation": "Ключевое отличие: any пропускает rejected промисы и ждёт первого успешного. Это делает его подходящим для CDN-паттернов, где один сервер offline не означает провала."
+      },
+      {
+        "text": "Promise.race реагирует на первый результат любого типа — fulfilled или rejected",
+        "correct": true,
+        "explanation": "Именно так. Если самый быстрый промис rejected — race тоже rejected. race — это буквально 'первый финишировавший', без разбора типа результата."
+      },
+      {
+        "text": "Promise.any при всех rejected выбрасывает AggregateError",
+        "correct": true,
+        "explanation": "Когда все промисы rejected, any не может выбрать победителя и отдаёт AggregateError (ES2021) с массивом .errors, содержащим причину каждого rejected."
+      },
+      {
+        "text": "Promise.race при всех rejected выбрасывает AggregateError",
+        "correct": false,
+        "explanation": "Нет, AggregateError — это специфика Promise.any. Promise.race при первом rejected просто переходит в rejected с ошибкой первого упавшего, как обычный rejected Promise."
+      },
+      {
+        "text": "Promise.any работает быстрее Promise.race",
+        "correct": false,
+        "explanation": "Скорость не определяется выбором метода — она зависит от скорости промисов. any может работать медленнее race, если быстрый промис rejected и приходится ждать следующего."
+      }
+    ]
+  },
+  {
+    "question": "У вас три CDN-сервера. Primary часто падает, Secondary медленный, Tertiary быстрый но ненадёжный. Нужно получить файл как можно быстрее с максимальной надёжностью. Какой комбинатор использовать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Promise.race — берём первого ответившего",
+        "correct": false,
+        "explanation": "Promise.race вернёт rejected, если первый ответивший сервер упал. При ненадёжных серверах это не оптимально — может завершиться ошибкой, даже если другие серверы работают."
+      },
+      {
+        "text": "Promise.all — ждём всех и берём лучший",
+        "correct": false,
+        "explanation": "Promise.all вернёт массив всех результатов, только когда ВСЕ серверы ответят. Это медленнее всего — придётся ждать самого медленного (Secondary)."
+      },
+      {
+        "text": "Promise.any — берём первый успешный ответ",
+        "correct": true,
+        "explanation": "Promise.any идеально подходит для CDN-паттерна: отправляем запросы на все серверы параллельно, берём первый успешный. Primary упал — игнорируем, берём Tertiary или Secondary. Максимальная скорость и надёжность."
+      },
+      {
+        "text": "Promise.allSettled — собираем все статусы и выбираем лучший вручную",
+        "correct": false,
+        "explanation": "allSettled ждёт всех серверов, включая медленный Secondary. Это медленнее, чем нужно для получения файла. Паттерн allSettled подходит для аудита, не для быстрой выдачи контента."
+      }
+    ]
+  },
+  {
+    "question": "Какой порядок у результатов Promise.all([p1, p2, p3]) если p3 выполнится первым, p1 — последним?",
+    "type": "single",
+    "options": [
+      {
+        "text": "[value3, value2, value1] — в порядке завершения",
+        "correct": false,
+        "explanation": "Promise.all не сортирует результаты по скорости выполнения. Порядок результатов соответствует порядку входных промисов, не скорости их завершения."
+      },
+      {
+        "text": "[value1, value2, value3] — в порядке входного массива",
+        "correct": true,
+        "explanation": "Promise.all сохраняет соответствие индексов: результат из позиции 0 всегда будет в results[0], независимо от того, когда этот промис завершился. Это важно для деструктуризации: const [user, posts] = await Promise.all([fetchUser(), fetchPosts()])."
+      },
+      {
+        "text": "Порядок непредсказуем",
+        "correct": false,
+        "explanation": "Порядок полностью предсказуем — он всегда соответствует порядку входного массива. Это гарантия спецификации Promise.all."
+      },
+      {
+        "text": "[value2, value3, value1] — случайный порядок",
+        "correct": false,
+        "explanation": "Никакой случайности нет. results[i] всегда соответствует promises[i] — это детерминированное поведение."
+      }
+    ]
+  },
+  {
+    "question": "Что из этого верно про Promise.allSettled?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Собственный промис allSettled никогда не переходит в rejected",
+        "correct": true,
+        "explanation": "Это ключевое свойство: Promise.allSettled всегда fulfilled — он возвращает массив статусов независимо от того, были ли ошибки. Это делает его безопасным без try/catch вокруг самого вызова."
+      },
+      {
+        "text": "Результат содержит объекты вида {status: 'fulfilled', value: ...} или {status: 'rejected', reason: ...}",
+        "correct": true,
+        "explanation": "Именно такой формат. status — строка 'fulfilled' или 'rejected', value есть только при fulfilled, reason — только при rejected. Это позволяет обрабатывать каждый результат независимо."
+      },
+      {
+        "text": "allSettled быстрее all, потому что не ждёт ошибок",
+        "correct": false,
+        "explanation": "allSettled медленнее или одинаково по времени — он ждёт ВСЕХ промисов. all при ошибке завершается раньше (fail-fast). allSettled всегда ждёт последнего."
+      },
+      {
+        "text": "Появился в ES2020",
+        "correct": true,
+        "explanation": "Promise.allSettled введён в ES2020 (ECMAScript 2020). Promise.all и race — ES2015, Promise.any и AggregateError — ES2021."
+      },
+      {
+        "text": "Принимает только массивы промисов, не iterables",
+        "correct": false,
+        "explanation": "Все четыре метода принимают любой iterable — Set, Map, генератор. Массив — наиболее распространённый случай, но не единственный."
+      }
+    ]
+  },
+  {
+    "question": "Функция withTimeout(promise, ms) реализована через Promise.race([promise, timeoutPromise]). Почему нельзя использовать для таймаута Promise.all?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Promise.all медленнее Promise.race",
+        "correct": false,
+        "explanation": "Скорость не причина. Проблема в логике: all ждёт ВСЕХ — то есть ждал бы и запрос, и таймаут одновременно. Это не даёт нужного поведения."
+      },
+      {
+        "text": "Promise.all ждёт все промисы — он дождётся и таймаута, и запроса, что не имеет смысла",
+        "correct": true,
+        "explanation": "Паттерн таймаута нужен для прерывания при первом результате. all вернёт результат только когда ОБА завершатся — и fetch, и timeout. race нужен именно потому что возвращает первого победителя."
+      },
+      {
+        "text": "Promise.all не принимает промис таймаута",
+        "correct": false,
+        "explanation": "Promise.all принимает любые промисы, включая timeout-промисы. Проблема не в типе аргументов, а в семантике поведения."
+      },
+      {
+        "text": "Promise.any подошёл бы лучше Promise.race для таймаута",
+        "correct": false,
+        "explanation": "Promise.any игнорирует rejected — а timeout-промис это rejected. Значит any проигнорирует таймаут и будет ждать fetch. Для паттерна таймаута нужен именно race."
+      }
+    ]
+  },
+  {
+    "question": "Вы пишете: const [user, posts] = await Promise.all([fetchUser(), fetchPosts()]). fetchPosts() бросает ошибку. Что случится?",
+    "type": "single",
+    "options": [
+      {
+        "text": "user получит значение, posts будет undefined",
+        "correct": false,
+        "explanation": "Promise.all при ошибке не возвращает частичный результат. Весь await выбрасывает исключение, деструктуризация не выполняется."
+      },
+      {
+        "text": "Весь await выбросит исключение с ошибкой из fetchPosts()",
+        "correct": true,
+        "explanation": "Promise.all fail-fast: при ошибке fetchPosts() весь промис rejected. await выбросит это исключение, деструктуризация не произойдёт. user останется необъявленным (или undefined если var). Нужен try/catch вокруг всего блока."
+      },
+      {
+        "text": "user и posts оба будут undefined",
+        "correct": false,
+        "explanation": "Не undefined — они вообще не будут присвоены, потому что исключение возникает до деструктуризации."
+      },
+      {
+        "text": "fetchUser() тоже будет отменён и вернёт ошибку",
+        "correct": false,
+        "explanation": "Promise.all не отменяет запущенные промисы — у Promise нет механизма отмены (для этого нужен AbortController). fetchUser() продолжит выполнение, но его результат будет проигнорирован."
+      }
+    ]
+  }
+]

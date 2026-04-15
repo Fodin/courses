@@ -1,0 +1,340 @@
+[
+  {
+    "question": "Что возвращает вызов .next() на async-генераторе?",
+    "type": "single",
+    "options": [
+      {
+        "text": "{ value, done } — сразу, синхронно",
+        "correct": false,
+        "explanation": "Так работает обычный генератор (function*). Async-генератор отличается именно тем, что .next() возвращает промис, который нужно await'ить."
+      },
+      {
+        "text": "Promise<{ value, done }>",
+        "correct": true,
+        "explanation": "Именно так. Async-генератор реализует AsyncIterator protocol: next() всегда возвращает Promise. Это позволяет использовать await внутри тела генератора."
+      },
+      {
+        "text": "Observable с одним значением",
+        "correct": false,
+        "explanation": "Observable — паттерн из RxJS, не часть стандартного JavaScript. Async-генераторы используют промисы, а не Observable."
+      },
+      {
+        "text": "AsyncIterable объект",
+        "correct": false,
+        "explanation": "Сам генератор является AsyncIterable (через Symbol.asyncIterator), но .next() возвращает Promise<IteratorResult>, а не итерируемый объект."
+      }
+    ]
+  },
+  {
+    "question": "Чем for-await-of отличается от for-of при работе с async-генераторами?",
+    "type": "single",
+    "options": [
+      {
+        "text": "for-await-of работает быстрее, так как использует параллельные запросы",
+        "correct": false,
+        "explanation": "for-await-of работает последовательно: ждёт каждый Promise перед тем как перейти к следующей итерации. Параллельного выполнения нет."
+      },
+      {
+        "text": "for-await-of ждёт Promise от .next() перед каждой итерацией, for-of — нет",
+        "correct": true,
+        "explanation": "Именно так. for-of вызывает синхронный .next() и ожидает { value, done } немедленно. for-await-of вызывает .next() и await'ит возвращённый Promise. Поэтому for-of не работает с async-генераторами."
+      },
+      {
+        "text": "for-await-of может работать только с генераторами, не с массивами",
+        "correct": false,
+        "explanation": "for-await-of работает с любым AsyncIterable, включая массивы (они реализуют Symbol.asyncIterator через Symbol.iterator с обёрткой). Но обычно применяется к async-генераторам и потокам."
+      },
+      {
+        "text": "for-await-of всегда выполняет тело цикла в микрозадаче",
+        "correct": false,
+        "explanation": "Выполнение тела происходит синхронно после разрешения промиса. Микрозадачи используются для разрешения промисов, но само тело цикла — обычный код."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит при break в цикле for-await-of?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Вызывается метод .return() на генераторе",
+        "correct": true,
+        "explanation": "break, return и throw в for-await-of вызывают .return() на итераторе. Это даёт генератору шанс выполнить cleanup через блок finally."
+      },
+      {
+        "text": "Выполняется блок finally внутри генератора (если есть)",
+        "correct": true,
+        "explanation": ".return() генерирует IteratorResult с done: true и передаёт управление в блок finally. Это позволяет корректно закрыть соединения, файлы, таймеры."
+      },
+      {
+        "text": "Генератор немедленно выбрасывает TypeError",
+        "correct": false,
+        "explanation": "break не вызывает ошибок. Это штатный способ досрочно завершить потребление. Генератор получает сигнал через .return() и может корректно завершиться."
+      },
+      {
+        "text": "Оставшиеся yield-значения пропускаются без вычисления",
+        "correct": true,
+        "explanation": "После .return() генератор помечается как завершённый. Последующие вызовы .next() вернут { value: undefined, done: true } без выполнения тела генератора."
+      }
+    ]
+  },
+  {
+    "question": "Как объявить объект, который реализует AsyncIterable протокол?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Добавить метод [Symbol.iterator]() возвращающий объект с async next()",
+        "correct": false,
+        "explanation": "Symbol.iterator — это синхронный протокол Iterable. Для асинхронной итерации нужен Symbol.asyncIterator. Смешивание протоколов приведёт к TypeError в for-await-of."
+      },
+      {
+        "text": "Добавить метод [Symbol.asyncIterator]() возвращающий AsyncIterator",
+        "correct": true,
+        "explanation": "Именно так. [Symbol.asyncIterator]() должен возвращать объект с методом next(), который возвращает Promise<{ value, done }>. Опционально: return() и throw()."
+      },
+      {
+        "text": "Унаследовать от класса AsyncGenerator",
+        "correct": false,
+        "explanation": "Класса AsyncGenerator в JavaScript не существует как базового класса для наследования. Протокол реализуется через Symbol.asyncIterator, а не через наследование."
+      },
+      {
+        "text": "Обернуть объект в Promise.resolve()",
+        "correct": false,
+        "explanation": "Promise — не AsyncIterable. Промис решается один раз в одно значение. AsyncIterable может производить последовательность значений во времени."
+      }
+    ]
+  },
+  {
+    "question": "Что такое backpressure в контексте async-генераторов?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ошибка, возникающая когда генератор производит значения быстрее чем потребитель их обрабатывает",
+        "correct": false,
+        "explanation": "Backpressure — не ошибка, а механизм управления потоком. В async-генераторах это встроенная особенность: следующий yield не выполняется до тех пор, пока потребитель не запросит следующее значение через .next()."
+      },
+      {
+        "text": "Механизм, при котором потребитель контролирует скорость производителя — следующий yield не выполняется до вызова .next()",
+        "correct": true,
+        "explanation": "Именно так. В for-await-of: тело цикла выполняется → затем вызывается .next() → только тогда генератор продолжает до следующего yield. Медленный потребитель автоматически замедляет производителя."
+      },
+      {
+        "text": "Механизм кеширования значений генератора в памяти для ускорения работы",
+        "correct": false,
+        "explanation": "Это описание мемоизации или буферизации, а не backpressure. Backpressure — обратное давление от потребителя на производителя, замедляющее или останавливающее его."
+      },
+      {
+        "text": "Способность генератора принимать значения через gen.next(value)",
+        "correct": false,
+        "explanation": "Это описание двусторонней коммуникации с генератором (send value). Backpressure — это контроль скорости потока данных, а не отправка значений в генератор."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть API с пагинацией, который возвращает до 5000 записей на 100 страницах. Нужно обработать все записи без загрузки всего в память. Какой подход правильный?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Promise.all с 100 параллельными запросами, затем обработка массива",
+        "correct": false,
+        "explanation": "Promise.all загрузит все 5000 записей в память одновременно. Это именно то, что нужно избежать. Кроме того, 100 параллельных запросов могут перегрузить API и получить rate-limiting."
+      },
+      {
+        "text": "Async-генератор fetchAllPages() с for-await-of — страницы загружаются лениво, одна за раз",
+        "correct": true,
+        "explanation": "Async-генератор идеален для этого кейса. В памяти одновременно находится только одна страница (5 записей). Следующий запрос происходит только после обработки текущей. Нет лишней нагрузки на память и API."
+      },
+      {
+        "text": "Рекурсивная функция с async/await, которая вызывает себя для каждой страницы",
+        "correct": false,
+        "explanation": "Рекурсия для 100 страниц создаст 100 фреймов в стеке. Это не решает проблему памяти (все результаты всё равно накопятся в стеке рекурсии), и может вызвать Stack Overflow."
+      },
+      {
+        "text": "Observable из RxJS с оператором mergeMap",
+        "correct": false,
+        "explanation": "RxJS Observable решит задачу, но это дополнительная зависимость. Async-генераторы — нативное решение JS/TS без внешних библиотек, специально созданное для таких сценариев."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно обрабатывать ошибки в async-генераторе, чтобы поток продолжал работу при частичных сбоях?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Обернуть await-выражение внутри генератора в try/catch и yield объект с ошибкой",
+        "correct": true,
+        "explanation": "Локальный try/catch перехватывает ошибку на уровне генератора и позволяет продолжить итерацию. Yielding объекта с флагом success: false — стандартный паттерн для обработки частичных сбоев в потоке."
+      },
+      {
+        "text": "Добавить .catch() к for-await-of",
+        "correct": false,
+        "explanation": "for-await-of не возвращает промис — нельзя добавить .catch(). Для перехвата нужен try/catch вокруг всего цикла, но тогда первая ошибка прервёт весь поток."
+      },
+      {
+        "text": "Обернуть весь for-await-of в try/catch на стороне потребителя",
+        "correct": true,
+        "explanation": "try/catch вокруг for-await-of перехватывает необработанные ошибки из генератора. Это 'глобальный' fallback. Комбинация внутреннего try/catch в генераторе + внешнего в потребителе — наиболее надёжный подход."
+      },
+      {
+        "text": "Использовать window.onerror для перехвата ошибок из async-генераторов",
+        "correct": false,
+        "explanation": "window.onerror не перехватывает ошибки из промисов и async-функций. Для них используется window.onunhandledrejection. Но и он не подходит — правильный способ это try/catch."
+      }
+    ]
+  },
+  {
+    "question": "Какой результат даст следующий код?\n\nasync function* gen() {\n  yield 1\n  yield 2\n}\n\nconst g = gen()\nconsole.log(g.next())\nconsole.log(typeof g[Symbol.asyncIterator])",
+    "type": "single",
+    "options": [
+      {
+        "text": "Promise {<pending>} и 'function'",
+        "correct": true,
+        "explanation": "g.next() синхронно возвращает промис (не ждёт его). typeof g[Symbol.asyncIterator] === 'function' — async-генераторы реализуют AsyncIterable, поэтому Symbol.asyncIterator определён."
+      },
+      {
+        "text": "{ value: 1, done: false } и 'undefined'",
+        "correct": false,
+        "explanation": "{ value: 1, done: false } — результат для обычного генератора (function*). Async-генератор возвращает Promise. Symbol.asyncIterator будет 'function', не 'undefined'."
+      },
+      {
+        "text": "Promise {<pending>} и 'undefined'",
+        "correct": false,
+        "explanation": "g.next() правильно вернёт Promise. Но Symbol.asyncIterator не будет undefined — async-генераторы автоматически реализуют AsyncIterable, поэтому метод существует."
+      },
+      {
+        "text": "TypeError: g.next is not a function",
+        "correct": false,
+        "explanation": "Async-генераторы имеют метод .next(). TypeError не возникнет. Объект-генератор реализует все методы AsyncIterator: next(), return(), throw()."
+      }
+    ]
+  },
+  {
+    "question": "В чём ключевое преимущество pipeline из async-генераторов перед обработкой массивов?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Обработка начинается до получения всех данных — ленивые вычисления",
+        "correct": true,
+        "explanation": "При pipeline из генераторов первый элемент попадает в вывод раньше, чем source сгенерировал все остальные. Для массивов нужно дождаться полной загрузки перед началом обработки."
+      },
+      {
+        "text": "Постоянный объём памяти — в каждый момент в памяти только текущий элемент",
+        "correct": true,
+        "explanation": "Pipeline из генераторов не создаёт промежуточных массивов. Каждый элемент проходит через всю цепочку и освобождается. Для 1M элементов память = O(1), не O(N)."
+      },
+      {
+        "text": "Автоматическая параллелизация на нескольких ядрах процессора",
+        "correct": false,
+        "explanation": "JavaScript однопоточный. Async-генераторы работают в одном потоке. Параллелизация на нескольких ядрах требует Web Workers или Node.js worker_threads."
+      },
+      {
+        "text": "Естественный backpressure — производитель не опережает потребителя",
+        "correct": true,
+        "explanation": "Следующий yield в source не выполнится пока filter не запросит значение, а filter не запросит пока map не обработает, а map — пока потребитель не вызовет .next(). Цепочка ожиданий — встроенный backpressure."
+      }
+    ]
+  },
+  {
+    "question": "Функция async function* stream() создаёт WebSocket соединение. Как гарантировать его закрытие при любом завершении for-await-of (break, ошибка, нормальное завершение)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Проверять статус соединения после каждого await",
+        "correct": false,
+        "explanation": "Проверка статуса не гарантирует закрытие при break или исключении. Нужен механизм, который выполняется гарантированно — независимо от причины завершения."
+      },
+      {
+        "text": "Завернуть всё тело генератора в try/finally и закрыть соединение в finally",
+        "correct": true,
+        "explanation": "Блок finally выполняется при любом завершении генератора: естественном (return), через break (вызывает .return()), через исключение. Это единственный надёжный способ гарантировать cleanup ресурсов."
+      },
+      {
+        "text": "Использовать WeakRef на WebSocket объект — он закроется при сборке мусора",
+        "correct": false,
+        "explanation": "Garbage Collector не гарантирует момент сборки и не закрывает WebSocket. Открытые соединения удерживают объекты от сборки мусора. WeakRef не подходит для управления внешними ресурсами."
+      },
+      {
+        "text": "Добавить ws.onclose обработчик который обновит React state",
+        "correct": false,
+        "explanation": "Обработчик onclose реагирует на закрытие соединения, но не инициирует его. При break нужно явно вызвать ws.close(). Правильное место для этого — finally блок генератора."
+      }
+    ]
+  },
+  {
+    "question": "Вы написали async function* gen() и хотите итерировать по нему дважды. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Оба цикла получат все значения независимо",
+        "correct": false,
+        "explanation": "Async-генератор — stateful объект с внутренним состоянием. После первого for-await-of он находится в состоянии done: true. Второй цикл не получит никаких значений."
+      },
+      {
+        "text": "Второй for-await-of сразу завершится без значений — генератор уже исчерпан",
+        "correct": true,
+        "explanation": "После завершения первой итерации генератор находится в состоянии done: true. Вызов .next() на исчерпанном генераторе всегда возвращает { value: undefined, done: true }. Нужно создавать новый инстанс для каждой итерации."
+      },
+      {
+        "text": "Второй for-await-of начнёт с начала автоматически",
+        "correct": false,
+        "explanation": "Генераторы не сбрасываются автоматически. Для повторной итерации нужно создать новый объект-генератор, вызвав функцию заново: const g2 = gen()"
+      },
+      {
+        "text": "Ошибка TypeError: Cannot iterate an exhausted generator",
+        "correct": false,
+        "explanation": "TypeError не выбрасывается. Итерация по исчерпанному генератору просто немедленно завершается (done: true с первого .next()). Это штатное поведение."
+      }
+    ]
+  },
+  {
+    "question": "Как реализовать аналог Array.prototype.flatMap для AsyncIterable?",
+    "type": "single",
+    "options": [
+      {
+        "text": "async function* flatMap(iter, fn) { for await (const item of iter) { const sub = fn(item); for await (const v of sub) yield v } }",
+        "correct": true,
+        "explanation": "Это правильная реализация. Внешний for-await-of проходит по элементам источника. fn(item) возвращает вложенный AsyncIterable. Внутренний for-await-of разворачивает его. Так работает ленивый flatMap без промежуточных массивов."
+      },
+      {
+        "text": "async function* flatMap(iter, fn) { const results = []; for await (const item of iter) results.push(...await fn(item)); yield* results }",
+        "correct": false,
+        "explanation": "Этот вариант накапливает все результаты в массив перед тем как начать yield. Теряется ленивость и экономия памяти — ради чего и нужны async-генераторы."
+      },
+      {
+        "text": "Нельзя реализовать flatMap для AsyncIterable без дополнительных библиотек",
+        "correct": false,
+        "explanation": "Async-генераторы достаточно мощны для реализации flatMap, filter, map, take и других трансформаторов. Никаких внешних библиотек не требуется."
+      },
+      {
+        "text": "async function* flatMap(iter, fn) { yield* await Promise.all([...iter].map(fn)) }",
+        "correct": false,
+        "explanation": "Этот вариант не работает: [...iter] не разворачивает AsyncIterable в массив (нужен for-await-of). Даже если бы работал, Promise.all загружает всё в память — нет ленивости."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт при вызове gen.throw(error) на async-генераторе?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Ошибка будет брошена в месте последнего yield внутри генератора",
+        "correct": true,
+        "explanation": "gen.throw(error) возобновляет генератор и немедленно бросает переданную ошибку на месте, где генератор был приостановлен (на yield). Если внутри есть try/catch — ошибка перехватывается."
+      },
+      {
+        "text": "Если внутри генератора есть try/catch, он может перехватить ошибку и продолжить работу",
+        "correct": true,
+        "explanation": "Да. try/catch внутри генератора работает нормально. После catch генератор может выполнить следующий yield. Метод gen.throw() вернёт Promise с этим следующим значением."
+      },
+      {
+        "text": "Ошибка автоматически превращается в rejected Promise без возможности перехвата",
+        "correct": false,
+        "explanation": "gen.throw() возвращает Promise, но перехват возможен — через try/catch внутри генератора. Если перехвата нет, Promise из gen.throw() отклоняется (rejected), но это стандартное поведение."
+      },
+      {
+        "text": "Если ошибка не перехвачена внутри, генератор завершается с done: true",
+        "correct": true,
+        "explanation": "Неперехваченная ошибка завершает генератор: он переходит в состояние done: true. Последующие .next() вернут { value: undefined, done: true }. gen.throw() вернёт rejected Promise с оригинальной ошибкой."
+      }
+    ]
+  }
+]

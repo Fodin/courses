@@ -1,0 +1,132 @@
+[
+  {
+    "question": "Что такое useMemoCache и кто его вызывает?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Публичный хук React, аналог useMemo но с массивом зависимостей",
+        "correct": false,
+        "explanation": "useMemoCache не экспортируется из 'react' — он недоступен разработчику напрямую"
+      },
+      {
+        "text": "Внутренний хук React, который вставляет React Compiler в скомпилированный код",
+        "correct": true,
+        "explanation": "useMemoCache(n) создаёт persistent массив из n ячеек. Компилятор вставляет его вызов автоматически — разработчик никогда не вызывает его сам"
+      },
+      {
+        "text": "Браузерный Web API для кэширования вычислений",
+        "correct": false,
+        "explanation": "useMemoCache — это React-хук, не браузерный API"
+      },
+      {
+        "text": "Внутреннее имя useMemo в React source code",
+        "correct": false,
+        "explanation": "useMemo и useMemoCache — разные механизмы. useMemoCache эффективнее: один хук на весь компонент вместо N хуков"
+      }
+    ]
+  },
+  {
+    "question": "Какой из компонентов React Compiler НЕ сможет оптимизировать?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "function Card({ title }) { return <div>{title.toUpperCase()}</div> }",
+        "correct": false,
+        "explanation": "Чистый компонент, детерминированный вывод — компилятор оптимизирует без проблем"
+      },
+      {
+        "text": "function Badge({ count }) { return <span>{count > 0 ? count : 'пусто'}</span> }",
+        "correct": false,
+        "explanation": "Условный рендер от prop — допустимо, результат детерминирован"
+      },
+      {
+        "text": "function Timer() { return <div>{Date.now()}</div> }",
+        "correct": true,
+        "explanation": "Date.now() в рендере нарушает idempotency — каждый вызов возвращает разное значение. Компилятор пропустит оптимизацию"
+      },
+      {
+        "text": "function MutatingList({ items }) { items.push({ id: 'x' }); return <ul>{items.map(i => <li key={i.id}>{i.name}</li>)}</ul> }",
+        "correct": true,
+        "explanation": "Мутация props.items нарушает Rules of React — иммутабельность props. Компилятор не оптимизирует компоненты с мутациями"
+      }
+    ]
+  },
+  {
+    "question": "Вы подключили React Compiler, но компонент ProductList всё ещё перерендеривается при каждом изменении родителя. В чём может быть причина?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React Compiler не работает с компонентами, которые принимают функции как props",
+        "correct": false,
+        "explanation": "Компилятор отлично работает с функциями-props — он кэширует JSX, сравнивая зависимости"
+      },
+      {
+        "text": "ProductList содержит 'use no memo' директиву или нарушает Rules of React",
+        "correct": true,
+        "explanation": "'use no memo' явно отключает оптимизацию. Нарушение Rules of React (мутации, нестабильный вывод) тоже заставляет компилятор пропустить компонент"
+      },
+      {
+        "text": "Нужно добавить React.memo вручную — компилятор не оборачивает компоненты в React.memo",
+        "correct": false,
+        "explanation": "Компилятор кэширует JSX внутри компонента через useMemoCache — это эффективнее React.memo снаружи"
+      },
+      {
+        "text": "React Compiler работает только с компонентами в папке src/",
+        "correct": false,
+        "explanation": "Компилятор применяется ко всему, что проходит через Babel — конфигурация через babel.config.js"
+      }
+    ]
+  },
+  {
+    "question": "Какой порядок этапов в pipeline React Compiler?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Source → ReactiveScopes → HIR → AST → Codegen",
+        "correct": false,
+        "explanation": "Неверный порядок — ReactiveScopes анализируются после HIR, AST идёт до HIR"
+      },
+      {
+        "text": "Source → AST → HIR → ReactiveScopes → Codegen",
+        "correct": true,
+        "explanation": "Верно: парсим в AST, строим HIR (разворачиваем поток управления), анализируем ReactiveScopes (граф зависимостей), генерируем код с useMemoCache"
+      },
+      {
+        "text": "Source → HIR → AST → Codegen → ReactiveScopes",
+        "correct": false,
+        "explanation": "AST всегда первый этап (парсинг). HIR строится из AST, а не наоборот"
+      },
+      {
+        "text": "Source → AST → ReactiveScopes → HIR → Codegen",
+        "correct": false,
+        "explanation": "HIR строится из AST и является промежуточным представлением для анализа ReactiveScopes"
+      }
+    ]
+  },
+  {
+    "question": "Чем useMemoCache(n) эффективнее N вызовов useMemo?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Один хук создаёт один массив вместо N отдельных объектов зависимостей",
+        "correct": true,
+        "explanation": "N вызовов useMemo создают N массивов deps. useMemoCache(n) — один массив из n ячеек. Меньше аллокаций, меньше давления на GC"
+      },
+      {
+        "text": "Компилятор автоматически вычисляет правильные зависимости без ошибок",
+        "correct": true,
+        "explanation": "Статический анализ зависимостей точнее ручного указания deps в useMemo — разработчик не может забыть зависимость"
+      },
+      {
+        "text": "useMemoCache работает в несколько потоков, ускоряя вычисления",
+        "correct": false,
+        "explanation": "JavaScript однопоточный, useMemoCache не вносит параллелизм"
+      },
+      {
+        "text": "Гранулярность кэширования определяется оптимально — компилятор знает точные scope boundaries",
+        "correct": true,
+        "explanation": "Компилятор видит весь компонент статически и делит его на scopes оптимально. Разработчик часто кэширует слишком много или слишком мало"
+      }
+    ]
+  }
+]

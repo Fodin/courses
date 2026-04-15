@@ -1,0 +1,132 @@
+[
+  {
+    "question": "Компонент бросает новый Promise при каждом рендере (без кэша). Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React покажет fallback один раз и подождёт resolve",
+        "correct": false,
+        "explanation": "Нет: каждый рендер порождает новый Promise. React увидит незнакомый Promise, снова покажет fallback, снова перерендерит — и так по кругу."
+      },
+      {
+        "text": "Бесконечный цикл: fallback → resolve → новый throw → fallback",
+        "correct": true,
+        "explanation": "Именно так. Кэш обязателен: один Promise на ключ, чтобы повторный вызов read() вернул тот же объект, статус которого уже 'fulfilled'."
+      },
+      {
+        "text": "React выбросит ошибку 'Too many re-renders'",
+        "correct": false,
+        "explanation": "'Too many re-renders' — это про бесконечный setState в render. Thrown Promise вызывает другой сценарий: Suspense loop без ошибки в консоли (до тайм-аута)."
+      },
+      {
+        "text": "ErrorBoundary поймает ошибку после первого render",
+        "correct": false,
+        "explanation": "ErrorBoundary ловит Error-объекты. Thrown Promise перехватывается SuspenseComponent, а не ErrorBoundary."
+      }
+    ]
+  },
+  {
+    "question": "В чём разница между SyncLane и TransitionLane с точки зрения прерываемости?",
+    "type": "single",
+    "options": [
+      {
+        "text": "SyncLane медленнее, TransitionLane быстрее",
+        "correct": false,
+        "explanation": "Скорость не при чём. Разница в том, может ли work loop прерваться в середине обработки."
+      },
+      {
+        "text": "SyncLane нельзя прервать, TransitionLane проверяет shouldYield() после каждого fiber",
+        "correct": true,
+        "explanation": "workLoopSync крутится без проверок. workLoopConcurrent вызывает shouldYield() после каждого performUnitOfWork — если прошло >5ms, уступает браузеру."
+      },
+      {
+        "text": "SyncLane выполняется в microtask, TransitionLane — в macrotask",
+        "correct": false,
+        "explanation": "Оба выполняются через Scheduler, разница не в macrotask/microtask, а в наличии проверки shouldYield внутри work loop."
+      },
+      {
+        "text": "TransitionLane не обновляет DOM до полного завершения рендера",
+        "correct": false,
+        "explanation": "Обновление DOM (commit phase) происходит после завершения render phase — это верно для обоих lanes. Особенность TransitionLane — прерываемость в render phase."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит с primary ветвью дерева, когда Suspense показывает fallback?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Primary ветвь уничтожается, при resolve монтируется заново",
+        "correct": false,
+        "explanation": "Это было бы дорого: все useState, useEffect пришлось бы инициализировать заново. React специально сохраняет primary ветвь."
+      },
+      {
+        "text": "Primary ветвь сохраняется как OffscreenComponent с mode='hidden' (display:none в DOM)",
+        "correct": true,
+        "explanation": "Правильно. Дерево строится, DOM-узлы присутствуют, но скрыты. При resolve Promise React просто переключает mode в 'visible' — без перемонтирования."
+      },
+      {
+        "text": "Primary ветвь хранится в памяти JS, но не в DOM",
+        "correct": false,
+        "explanation": "OffscreenComponent с mode='hidden' применяет display:none к реальным DOM-узлам. Дерево есть в обоих местах."
+      },
+      {
+        "text": "Primary ветвь рендерится, но не коммитится до resolve",
+        "correct": false,
+        "explanation": "Коммит происходит сразу — иначе как бы React показал fallback. Primary коммитится как hidden, fallback как visible."
+      }
+    ]
+  },
+  {
+    "question": "Выберите все верные утверждения о хуке use()",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "use() можно вызывать внутри условного блока if",
+        "correct": true,
+        "explanation": "Это ключевое отличие use() от обычных хуков. use() не хранит состояние в hooks linked list, поэтому правило 'не вызывай хуки условно' на него не распространяется."
+      },
+      {
+        "text": "use() работает только с Promise, не с Context",
+        "correct": false,
+        "explanation": "use() поддерживает и Promise, и Context: const theme = use(ThemeContext) — это полноценная замена useContext."
+      },
+      {
+        "text": "use() бросает Promise если он pending, возвращает value если fulfilled",
+        "correct": true,
+        "explanation": "Именно так работает useThenable внутри use(): проверяет thenable.status и либо throw thenable, либо return thenable.value."
+      },
+      {
+        "text": "use() создаёт новый Promise при каждом рендере",
+        "correct": false,
+        "explanation": "use() получает Promise как аргумент — он не создаёт его. Создавать Promise нужно вне компонента или кэшировать, чтобы избежать infinite loop."
+      }
+    ]
+  },
+  {
+    "question": "У вас два компонента: UserProfile и UserPosts. Оба делают fetch в своём теле. Как избежать waterfall?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Запустить оба fetch до рендера и передать Promise как props",
+        "correct": true,
+        "explanation": "Fetch-then-render: Promise создаются в родителе одновременно, оба компонента получают уже стартованные Promise. Оба suspend параллельно."
+      },
+      {
+        "text": "Обернуть каждый компонент в отдельную Suspense boundary",
+        "correct": false,
+        "explanation": "Отдельные Suspense boundaries не устраняют waterfall — каждый fetch всё равно запускается только когда компонент доходит до рендера."
+      },
+      {
+        "text": "Использовать Promise.all для параллельных запросов",
+        "correct": true,
+        "explanation": "Promise.all([fetchUser(id), fetchPosts(id)]) запускает оба запроса одновременно. Общее время = max(t_user, t_posts), а не их сумма."
+      },
+      {
+        "text": "Добавить startTransition вокруг рендера UserPosts",
+        "correct": false,
+        "explanation": "startTransition влияет на приоритет обновления, но не на порядок запуска fetch-запросов. Waterfall останется."
+      }
+    ]
+  }
+]

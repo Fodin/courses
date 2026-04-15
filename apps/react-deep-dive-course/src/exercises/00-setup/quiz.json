@@ -1,0 +1,132 @@
+[
+  {
+    "question": "Что происходит во время фазы Render в React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React обновляет реальный DOM с новыми данными",
+        "correct": false,
+        "explanation": "Обновление реального DOM — это фаза Commit, а не Render. Render только строит виртуальное описание."
+      },
+      {
+        "text": "React вызывает функции компонентов и получает JSX-описание UI",
+        "correct": true,
+        "explanation": "Render — это вызов твоих функций компонентов. React собирает возвращённый JSX и строит виртуальное дерево."
+      },
+      {
+        "text": "Браузер перерисовывает пиксели на экране",
+        "correct": false,
+        "explanation": "Перерисовка пикселей — это работа браузера, которая происходит после фазы Commit."
+      },
+      {
+        "text": "React запускает все useEffect хуки",
+        "correct": false,
+        "explanation": "useEffect запускается после фазы Commit, когда браузер уже отрисовал изменения."
+      }
+    ]
+  },
+  {
+    "question": "В каких случаях React запускает обновление (Trigger)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Вызов setState / dispatch",
+        "correct": true,
+        "explanation": "Обновление состояния через setState — один из двух источников Trigger в React."
+      },
+      {
+        "text": "Изменение обычной переменной внутри компонента",
+        "correct": false,
+        "explanation": "React не отслеживает обычные переменные. Только setState/dispatch сигнализируют React об изменении."
+      },
+      {
+        "text": "Первый вызов root.render()",
+        "correct": true,
+        "explanation": "Первичный рендер при монтировании — это тоже Trigger, он запускает всю цепочку впервые."
+      },
+      {
+        "text": "Мутация объекта в state (state.value = 'new')",
+        "correct": false,
+        "explanation": "Прямая мутация объекта не вызывает Trigger. React не знает об изменении, потому что ссылка на объект не изменилась."
+      }
+    ]
+  },
+  {
+    "question": "Ты вызываешь setCount(0) несколько раз подряд, а count уже равен 0. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React обновит DOM каждый раз при вызове",
+        "correct": false,
+        "explanation": "React делает bailout: при одинаковом значении состояния он не будет без нужды обновлять DOM."
+      },
+      {
+        "text": "React вызовет функцию компонента, увидит тот же результат и пропустит Commit",
+        "correct": true,
+        "explanation": "Это называется bailout. React запускает Render, но если результат такой же, как прежде, Commit не происходит."
+      },
+      {
+        "text": "React проигнорирует вызов и не сделает даже Render",
+        "correct": false,
+        "explanation": "При первом вызове с тем же значением React всё ещё может вызвать функцию компонента. Полный пропуск гарантирован только при повторном одинаковом значении."
+      },
+      {
+        "text": "React выбросит ошибку — нельзя устанавливать то же значение",
+        "correct": false,
+        "explanation": "React не выбрасывает ошибок при установке одинакового значения. Это легальная операция."
+      }
+    ]
+  },
+  {
+    "question": "Чем отличается actualDuration от baseDuration в Profiler API?",
+    "type": "single",
+    "options": [
+      {
+        "text": "actualDuration — время рендера с учётом мемоизации, baseDuration — оценка без мемоизации",
+        "correct": true,
+        "explanation": "actualDuration показывает реальное время с учётом memo/useMemo bail-out, baseDuration — сколько бы ушло, если бы все компоненты рендерились без оптимизаций."
+      },
+      {
+        "text": "actualDuration — время первого рендера, baseDuration — время обновления",
+        "correct": false,
+        "explanation": "Это неправильное описание. Оба показателя относятся к одному рендеру, но измеряют разные вещи."
+      },
+      {
+        "text": "actualDuration — время на сервере, baseDuration — время в браузере",
+        "correct": false,
+        "explanation": "Profiler API работает только на клиенте и не различает серверное/клиентское время."
+      },
+      {
+        "text": "Разницы нет — они всегда равны",
+        "correct": false,
+        "explanation": "Если есть мемоизированные компоненты (React.memo), actualDuration будет меньше baseDuration, так как пропуск мемоизированных ветвей сокращает реальное время."
+      }
+    ]
+  },
+  {
+    "question": "В каком порядке выполняются эти операции после вызова setState?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Render → Commit → useEffect",
+        "correct": true,
+        "explanation": "Сначала React вызывает функции компонентов (Render), затем применяет изменения к DOM (Commit), и только потом — после того как браузер отрисовал — запускается useEffect."
+      },
+      {
+        "text": "useEffect → Render → Commit",
+        "correct": false,
+        "explanation": "useEffect из предыдущего рендера (cleanup) запускается до нового рендера только в специфичных случаях. Порядок другой."
+      },
+      {
+        "text": "Commit → Render → useEffect",
+        "correct": false,
+        "explanation": "Commit никогда не происходит до Render — React сначала должен знать, что менять."
+      },
+      {
+        "text": "Render → useEffect → Commit",
+        "correct": false,
+        "explanation": "useEffect не может выполниться до Commit — он зависит от того, что Commit уже применил изменения в DOM."
+      }
+    ]
+  }
+]

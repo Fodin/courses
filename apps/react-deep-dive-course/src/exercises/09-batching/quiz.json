@@ -1,0 +1,272 @@
+[
+  {
+    "question": "У вас есть обработчик onClick, который вызывает setA(1), setB(2), setC(3) подряд. React 18, createRoot. Сколько рендеров произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "3 рендера — по одному на каждый setState",
+        "correct": false,
+        "explanation": "Нет. React батчит все setState внутри обработчика события — это поведение сохранилось с React 17."
+      },
+      {
+        "text": "1 рендер — React батчит все обновления",
+        "correct": true,
+        "explanation": "Верно. Все три setState попадают в один batch, React выполняет один рендер в конце обработчика."
+      },
+      {
+        "text": "2 рендера — первый setA немедленный, остальные батчатся",
+        "correct": false,
+        "explanation": "Нет. React не выполняет рендер после первого setState — все обновления ставятся в очередь."
+      },
+      {
+        "text": "Зависит от того, используется ли useState или useReducer",
+        "correct": false,
+        "explanation": "Нет. Batching работает одинаково для useState и useReducer — оба используют одну очередь обновлений."
+      }
+    ]
+  },
+  {
+    "question": "React 18, createRoot. Вы вызываете setA(1) и setB(2) внутри Promise.then(). Сколько рендеров произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "2 рендера — Promise.then вне React event loop",
+        "correct": false,
+        "explanation": "Это поведение React 17! В React 18 automatic batching работает везде, включая Promise.then."
+      },
+      {
+        "text": "1 рендер — React 18 батчит и в Promise.then",
+        "correct": true,
+        "explanation": "Верно. React 18 с createRoot включает automatic batching — все setState в одной задаче Scheduler обрабатываются как один batch."
+      },
+      {
+        "text": "Зависит от приоритета Promise (microtask vs macrotask)",
+        "correct": false,
+        "explanation": "React не различает приоритеты по типу async задачи для целей batching. В React 18 оба случая батчатся."
+      },
+      {
+        "text": "0 рендеров — setState в Promise.then игнорируется",
+        "correct": false,
+        "explanation": "setState никогда не игнорируется. Он всегда вызывает обновление, вопрос только в том, сколько рендеров."
+      }
+    ]
+  },
+  {
+    "question": "Чем отличается поведение batching при ReactDOM.render (legacy) и ReactDOM.createRoot в React 18?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Никакого отличия — batching работает одинаково в обоих случаях",
+        "correct": false,
+        "explanation": "Отличие есть. ReactDOM.render сохраняет режим совместимости с React 17: batching работает только в event handlers."
+      },
+      {
+        "text": "createRoot включает automatic batching везде, ReactDOM.render — только в event handlers",
+        "correct": true,
+        "explanation": "Верно. ReactDOM.render в React 18 работает в legacy-режиме для обратной совместимости. Для automatic batching нужен createRoot."
+      },
+      {
+        "text": "createRoot отключает batching для повышения предсказуемости",
+        "correct": false,
+        "explanation": "Наоборот — createRoot расширяет batching, делая его автоматическим везде."
+      },
+      {
+        "text": "ReactDOM.render всегда вызывал один рендер, createRoot — несколько",
+        "correct": false,
+        "explanation": "Всё наоборот: createRoot (React 18) уменьшает количество рендеров за счёт automatic batching."
+      }
+    ]
+  },
+  {
+    "question": "Выберите все корректные утверждения про flushSync:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "flushSync форсирует синхронный рендер до возврата управления",
+        "correct": true,
+        "explanation": "Верно. После flushSync DOM уже обновлён — это гарантируется."
+      },
+      {
+        "text": "flushSync можно вызывать внутри рендер-функции компонента",
+        "correct": false,
+        "explanation": "Нельзя. React выбросит ошибку. flushSync допустим только в event handlers и нативных коллбэках."
+      },
+      {
+        "text": "flushSync полезен когда нужно прочитать DOM сразу после setState",
+        "correct": true,
+        "explanation": "Верно. Классический кейс — автоскролл: добавить элемент (flushSync), потом скроллить к нему."
+      },
+      {
+        "text": "flushSync — рекомендованный способ делать все обновления состояния",
+        "correct": false,
+        "explanation": "Нет. flushSync — это opt-out из batching. Обычные обновления должны идти без него — React сам оптимизирует."
+      },
+      {
+        "text": "flushSync внутри другого flushSync вызовет ошибку",
+        "correct": false,
+        "explanation": "React обрабатывает вложенные flushSync, хотя это необычный паттерн. Ошибки не будет, но рекомендуется избегать."
+      }
+    ]
+  },
+  {
+    "question": "Почему три setState подряд вызывают только один рендер, а не три?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React игнорирует дублирующиеся обновления",
+        "correct": false,
+        "explanation": "React не игнорирует — он применяет все обновления. Просто делает это в один рендер."
+      },
+      {
+        "text": "React ставит обновления в очередь (updateQueue) и запускает один рендер в конце batch",
+        "correct": true,
+        "explanation": "Верно. enqueueUpdate добавляет Update объекты в кольцевой список, scheduleUpdateOnFiber планирует один рендер. Все обновления применяются в одном проходе."
+      },
+      {
+        "text": "setState синхронный — state меняется сразу, рендер один",
+        "correct": false,
+        "explanation": "setState НЕ синхронный. Он ставит обновление в очередь. State меняется только во время рендера."
+      },
+      {
+        "text": "React Object.assign объединяет все setState в один вызов",
+        "correct": false,
+        "explanation": "Object.assign относится к классовым компонентам и только к объект-апдейтам. В функциональных компонентах используется очередь Update объектов."
+      }
+    ]
+  },
+  {
+    "question": "Вы пишете чат. При нажатии 'Отправить' нужно добавить сообщение и сразу проскроллить список вниз. Какой подход правильный?",
+    "type": "single",
+    "options": [
+      {
+        "text": "setMessages(prev => [...prev, msg]); listRef.current.scrollToBottom()",
+        "correct": false,
+        "explanation": "Неверно. На момент вызова scrollToBottom рендер ещё не произошёл — DOM не содержит новое сообщение, scrollHeight меньше нужного."
+      },
+      {
+        "text": "flushSync(() => setMessages(prev => [...prev, msg])); listRef.current.scrollToBottom()",
+        "correct": true,
+        "explanation": "Верно. flushSync форсирует рендер перед scrollToBottom — DOM уже содержит новое сообщение, и scrollHeight корректный."
+      },
+      {
+        "text": "setTimeout(() => listRef.current.scrollToBottom(), 100) после setMessages",
+        "correct": false,
+        "explanation": "Костыль с задержкой 100ms — ненадёжен: рендер может занять больше или меньше. Используйте flushSync для детерминированного поведения."
+      },
+      {
+        "text": "useEffect(() => { listRef.current.scrollToBottom() }, [messages])",
+        "correct": false,
+        "explanation": "useEffect запускается после paint — скролл произойдёт с визуальной задержкой (пользователь увидит старую позицию, потом прыжок). Для автоскролла лучше flushSync или useLayoutEffect."
+      }
+    ]
+  },
+  {
+    "question": "Проект на React 17. Нужно батчить setState внутри setTimeout. Что использовать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ничего — React 17 автоматически батчит setTimeout",
+        "correct": false,
+        "explanation": "Нет. React 17 не батчит обновления вне синтетических event handlers. setTimeout в React 17 даёт по рендеру на каждый setState."
+      },
+      {
+        "text": "unstable_batchedUpdates из react-dom",
+        "correct": true,
+        "explanation": "Верно. В React 17 для batching вне event handlers используется unstable_batchedUpdates(() => { ... }). Не идеально (unstable!), но это официальный способ."
+      },
+      {
+        "text": "flushSync",
+        "correct": false,
+        "explanation": "flushSync делает противоположное — он ВЫХОДИТ из batching, форсируя немедленный рендер."
+      },
+      {
+        "text": "Обернуть в useTransition",
+        "correct": false,
+        "explanation": "useTransition — это про приоритеты обновлений в React 18, не про batching в React 17."
+      }
+    ]
+  },
+  {
+    "question": "Какой из этих паттернов вызовет БОЛЬШЕ ВСЕГО рендеров при изменении данных?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Три setState в одном event handler",
+        "correct": false,
+        "explanation": "Один рендер — классический batching."
+      },
+      {
+        "text": "Вычисление производных значений через useMemo",
+        "correct": false,
+        "explanation": "useMemo не добавляет рендеры — он работает внутри существующего рендера."
+      },
+      {
+        "text": "Цепочка useEffect: эффект A меняет B, эффект B меняет C",
+        "correct": true,
+        "explanation": "Верно. Effect chain даёт по одному рендеру на каждый шаг: изменился A → рендер 1 → эффект setB → рендер 2 → эффект setC → рендер 3."
+      },
+      {
+        "text": "flushSync с тремя setState внутри",
+        "correct": false,
+        "explanation": "Три setState внутри одного flushSync — один рендер (они батчатся внутри flushSync)."
+      }
+    ]
+  },
+  {
+    "question": "Что хранится в fiber.updateQueue.shared.pending?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Массив новых значений состояния",
+        "correct": false,
+        "explanation": "Не массив, а кольцевой связный список Update объектов. Каждый Update содержит action (новое значение или функцию-редьюсер) и ссылку на следующий."
+      },
+      {
+        "text": "Последний добавленный Update в кольцевом связном списке",
+        "correct": true,
+        "explanation": "Верно. pending указывает на ПОСЛЕДНИЙ добавленный Update, который через .next указывает на первый (кольцо). Это позволяет быстро добавлять в конец и читать с начала."
+      },
+      {
+        "text": "Базовое состояние до всех обновлений",
+        "correct": false,
+        "explanation": "Базовое состояние хранится в updateQueue.baseState, не в shared.pending."
+      },
+      {
+        "text": "Флаг, указывающий что рендер запланирован",
+        "correct": false,
+        "explanation": "Для отслеживания запланированных задач React использует lanes и Scheduler, не updateQueue.shared.pending."
+      }
+    ]
+  },
+  {
+    "question": "Выберите все ситуации, когда flushSync является подходящим решением:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Нужно получить актуальный scrollHeight после добавления элемента в список",
+        "correct": true,
+        "explanation": "Верно. flushSync форсирует рендер → DOM обновляется → scrollHeight содержит новый элемент."
+      },
+      {
+        "text": "Нужно обновить три независимых поля формы при сабмите",
+        "correct": false,
+        "explanation": "Не нужен flushSync — три setState в event handler и так батчатся в React 18. flushSync тут только замедлит код."
+      },
+      {
+        "text": "Нужно позиционировать tooltip относительно только что добавленного элемента",
+        "correct": true,
+        "explanation": "Верно. Позиционирование требует актуальных размеров DOM — flushSync гарантирует что элемент уже отрисован."
+      },
+      {
+        "text": "Нужно форсировать рендер перед снятием скриншота страницы в e2e тесте",
+        "correct": true,
+        "explanation": "Верно. В тестовых сценариях где нужно гарантировать синхронный рендер — flushSync подходит."
+      },
+      {
+        "text": "Нужно ускорить все обновления состояния в приложении",
+        "correct": false,
+        "explanation": "flushSync не ускоряет — он форсирует синхронный рендер, что может ЗАМЕДЛИТЬ приложение если злоупотреблять (теряем преимущества concurrent mode)."
+      }
+    ]
+  }
+]

@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Где React хранит хуки функционального компонента?",
+    "type": "single",
+    "options": [
+      {
+        "text": "В глобальном объекте window",
+        "correct": false,
+        "explanation": "Хуки не хранятся глобально — каждый fiber-объект хранит свои хуки независимо."
+      },
+      {
+        "text": "В поле fiber.memoizedState как связный список (linked list)",
+        "correct": true,
+        "explanation": "Каждый хук — узел в linked list. fiber.memoizedState указывает на первый хук, остальные связаны через поле next."
+      },
+      {
+        "text": "В поле fiber.pendingProps как массив",
+        "correct": false,
+        "explanation": "fiber.pendingProps хранит входящие props, а не хуки."
+      },
+      {
+        "text": "В замыкании функции компонента",
+        "correct": false,
+        "explanation": "Функция компонента создаёт замыкание при каждом вызове — хранить состояние в нём нельзя, оно будет сброшено."
+      }
+    ]
+  },
+  {
+    "question": "Почему нельзя вызывать хуки внутри условий (if/else)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это ограничение линтера, в реальности работает",
+        "correct": false,
+        "explanation": "Это фундаментальное ограничение архитектуры — при нарушении React получит неверные значения из linked list."
+      },
+      {
+        "text": "React проходит linked list по порядку — пропуск хука сдвигает все последующие узлы",
+        "correct": true,
+        "explanation": "При mount React создаёт N узлов. При update читает те же N узлов по порядку. Если условие пропускает хук — следующий хук получит данные предыдущего."
+      },
+      {
+        "text": "Условия замедляют работу хуков",
+        "correct": false,
+        "explanation": "Производительность тут ни при чём — проблема в корректности данных."
+      },
+      {
+        "text": "Хуки внутри условий не имеют доступа к контексту",
+        "correct": false,
+        "explanation": "Доступ к контексту здесь не причём. Проблема в структуре данных linked list."
+      }
+    ]
+  },
+  {
+    "question": "Что такое 'stale closure' в контексте React-хуков?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Хук, который не был вызван при последнем рендере",
+        "correct": false,
+        "explanation": "Это описание нарушения правил хуков, а не stale closure."
+      },
+      {
+        "text": "Callback (например, в setInterval), захвативший старое значение state из прошлого рендера",
+        "correct": true,
+        "explanation": "Каждый рендер создаёт новое замыкание с новыми значениями state. Долгоживущие callbacks (setInterval, setTimeout) держат ссылку на старое замыкание."
+      },
+      {
+        "text": "useEffect с пустым массивом зависимостей",
+        "correct": false,
+        "explanation": "Пустой массив зависимостей — это паттерн, а не проблема сам по себе. Stale closure — следствие неправильного использования."
+      },
+      {
+        "text": "Компонент, который не перерендерился после изменения state",
+        "correct": false,
+        "explanation": "Stale closure про то, что callback видит устаревшее значение, а не про отсутствие рендера."
+      }
+    ]
+  },
+  {
+    "question": "Компонент использует useState + useEffect для вычисления fullName из firstName и lastName. Что лучше?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Оставить useState + useEffect — это явно показывает зависимость",
+        "correct": false,
+        "explanation": "useState + useEffect вызывает два рендера вместо одного и добавляет ненужную сложность."
+      },
+      {
+        "text": "const fullName = firstName + ' ' + lastName прямо в теле компонента",
+        "correct": true,
+        "explanation": "Вычисляемое значение (derived value), полностью определяемое другими значениями — не state. Его нужно вычислять во время рендера."
+      },
+      {
+        "text": "useRef для хранения fullName",
+        "correct": false,
+        "explanation": "useRef не вызывает рендер при изменении — fullName в DOM не обновится автоматически."
+      },
+      {
+        "text": "useMemo с зависимостями [firstName, lastName]",
+        "correct": false,
+        "explanation": "useMemo здесь избыточен — конкатенация строк настолько дешёвая операция, что overhead useMemo превысит пользу."
+      }
+    ]
+  },
+  {
+    "question": "Что такое 'eager state' в реализации useState?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Состояние, которое инициализируется lazy-функцией",
+        "correct": false,
+        "explanation": "Lazy initializer — это `useState(() => computeInitial())`. Eager state — другой механизм."
+      },
+      {
+        "text": "React вычисляет новое состояние в момент setState и пропускает рендер, если оно не изменилось",
+        "correct": true,
+        "explanation": "В dispatchSetState React применяет редьюсер к текущему состоянию. Если результат совпадает (Object.is) — рендер отменяется без создания обновления."
+      },
+      {
+        "text": "Состояние, которое обновляется синхронно без батчинга",
+        "correct": false,
+        "explanation": "Eager state — это оптимизация для пропуска рендера, а не механизм синхронного обновления."
+      },
+      {
+        "text": "Обновления состояния с высоким приоритетом (urgent updates)",
+        "correct": false,
+        "explanation": "Приоритеты обновлений — это lanes в планировщике. Eager state — оптимизация bailout до рендера."
+      }
+    ]
+  },
+  {
+    "question": "Что вернёт console.log(count) сразу после setCount(count + 1)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Новое значение count + 1",
+        "correct": false,
+        "explanation": "setState не мутирует переменную. Оно добавляет Update в очередь. Переменная count изменится только в следующем рендере."
+      },
+      {
+        "text": "Старое значение count — setState не мутирует переменную немедленно",
+        "correct": true,
+        "explanation": "count — это константа в текущем замыкании. setCount создаёт Update в queue, новое значение появится в следующем рендере (новом вызове функции компонента)."
+      },
+      {
+        "text": "undefined — setState асинхронный",
+        "correct": false,
+        "explanation": "Переменная count не становится undefined. Она остаётся прежним значением текущего рендера."
+      },
+      {
+        "text": "Зависит от режима (Concurrent или Legacy)",
+        "correct": false,
+        "explanation": "Snapshot behaviour одинаков в обоих режимах — в текущем рендере count всегда старое."
+      }
+    ]
+  },
+  {
+    "question": "Чем отличается HooksDispatcherOnMount от HooksDispatcherOnUpdate?",
+    "type": "single",
+    "options": [
+      {
+        "text": "OnMount работает медленнее из-за инициализации",
+        "correct": false,
+        "explanation": "Разница не в скорости, а в поведении: OnMount создаёт узлы, OnUpdate читает существующие."
+      },
+      {
+        "text": "OnMount создаёт новые Hook-узлы в linked list; OnUpdate читает существующие узлы и обрабатывает их очереди обновлений",
+        "correct": true,
+        "explanation": "Dispatcher Pattern: при первом рендере нужно создать структуру данных, при повторных — обновить существующую. Разные операции — разные реализации."
+      },
+      {
+        "text": "OnUpdate не поддерживает функциональные апдейтеры",
+        "correct": false,
+        "explanation": "Functional updater (prev => prev + 1) — основная фича updateReducer, доступная именно при update."
+      },
+      {
+        "text": "OnMount используется только в StrictMode",
+        "correct": false,
+        "explanation": "OnMount используется при первом рендере любого компонента, независимо от режима."
+      }
+    ]
+  },
+  {
+    "question": "Какой из вариантов корректно решает проблему stale closure в setInterval?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "setCount(prev => prev + 1) — functional updater",
+        "correct": true,
+        "explanation": "Functional updater получает актуальное значение из очереди обновлений React, не из замыкания. Корректное решение."
+      },
+      {
+        "text": "Сохранить count в useRef и читать countRef.current в setInterval",
+        "correct": true,
+        "explanation": "useRef — мутабельный объект, существующий всё время жизни компонента. countRef.current обновляется при каждом рендере и всегда актуален."
+      },
+      {
+        "text": "Добавить count в зависимости useEffect — тогда замыкание будет свежим",
+        "correct": true,
+        "explanation": "Корректно, но с оговоркой: setInterval будет пересоздаваться при каждом изменении count, что может быть нежелательным поведением."
+      },
+      {
+        "text": "Использовать setCount(count + 1) но вызвать forceUpdate после",
+        "correct": false,
+        "explanation": "forceUpdate не делает замыкание свежим. count в обработчике setInterval всё равно указывает на старое значение."
+      }
+    ]
+  },
+  {
+    "question": "Что хранит поле memoizedState у хука useMemo?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Только вычисленное значение",
+        "correct": false,
+        "explanation": "Одного значения недостаточно — React нужно знать зависимости, чтобы решить, пересчитывать ли значение."
+      },
+      {
+        "text": "Кортеж [computedValue, deps] — результат и массив зависимостей",
+        "correct": true,
+        "explanation": "useMemo сохраняет оба значения: результат вычисления и deps. При следующем рендере React сравнивает новые deps с сохранёнными и решает, вызывать ли factory снова."
+      },
+      {
+        "text": "Функцию-фабрику, которая пересчитывается при каждом рендере",
+        "correct": false,
+        "explanation": "Функция-фабрика не хранится в memoizedState — хранится её результат."
+      },
+      {
+        "text": "Объект { value, dirty } — результат и флаг инвалидации",
+        "correct": false,
+        "explanation": "React не использует dirty-флаг. Инвалидация происходит через сравнение deps при каждом рендере."
+      }
+    ]
+  },
+  {
+    "question": "Компонент имеет три хука: useState, useEffect, useMemo. Что произойдёт, если при следующем рендере добавить ещё один useState перед существующими?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React автоматически перестроит linked list",
+        "correct": false,
+        "explanation": "React не знает, как перестроить список. Он просто читает узлы по порядку — новый порядок приведёт к неверным данным."
+      },
+      {
+        "text": "Работает корректно — React умеет добавлять хуки динамически",
+        "correct": false,
+        "explanation": "React не поддерживает динамическое добавление хуков. Количество и порядок хуков фиксированы с первого рендера."
+      },
+      {
+        "text": "Все последующие хуки получат данные соседних узлов — баг с неверными значениями state",
+        "correct": true,
+        "explanation": "При update React читает узел 1 (ожидает useState) → узел 2 (ожидает useEffect) → узел 3 (ожидает useMemo). Если добавить новый useState первым — сдвиг смешает данные всех хуков."
+      },
+      {
+        "text": "React выбросит ошибку при попытке добавить хук",
+        "correct": false,
+        "explanation": "React не выбросит ошибку немедленно — он обнаружит несоответствие только при сравнении количества хуков (в dev-режиме). В prod — тихий баг."
+      }
+    ]
+  }
+]

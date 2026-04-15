@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Какое условие отличает `workLoopConcurrent` от `workLoopSync`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Concurrent проверяет количество оставшихся узлов",
+        "correct": false,
+        "explanation": "Количество узлов не проверяется. Concurrent Mode основан на времени, а не на счётчике узлов."
+      },
+      {
+        "text": "Concurrent добавляет проверку `!shouldYield()` в условие while",
+        "correct": true,
+        "explanation": "`shouldYield()` возвращает true, когда 5ms-слот истёк. Это позволяет прервать цикл и вернуть управление браузеру между порциями работы."
+      },
+      {
+        "text": "Concurrent использует Web Workers для параллельного обхода",
+        "correct": false,
+        "explanation": "React работает в одном потоке. Concurrent Mode — про прерываемость, а не параллелизм."
+      },
+      {
+        "text": "Concurrent использует `requestAnimationFrame` вместо while",
+        "correct": false,
+        "explanation": "React не использует requestAnimationFrame для work loop. Планирование осуществляется через MessageChannel в Scheduler."
+      }
+    ]
+  },
+  {
+    "question": "Что возвращает `beginWork`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Список всех дочерних Fiber nodes",
+        "correct": false,
+        "explanation": "beginWork возвращает только первого ребёнка. Остальные дети связаны через sibling — это linked list, а не массив."
+      },
+      {
+        "text": "Первого ребёнка (child) или null если детей нет",
+        "correct": true,
+        "explanation": "performUnitOfWork проверяет результат: если next !== null — workInProgress переключается на ребёнка (спуск вниз). Если null — вызывается completeUnitOfWork."
+      },
+      {
+        "text": "Обновлённый Fiber node текущего компонента",
+        "correct": false,
+        "explanation": "beginWork не возвращает текущий узел. workInProgress и так доступен — beginWork возвращает следующий узел для обработки (ребёнка)."
+      },
+      {
+        "text": "Флаги изменений (flags) для Commit фазы",
+        "correct": false,
+        "explanation": "Флаги (flags/subtreeFlags) заполняются в completeWork, а не в beginWork. beginWork работает с reconciliation и возвращает ребёнка."
+      }
+    ]
+  },
+  {
+    "question": "Почему React Scheduler использует `MessageChannel` вместо `setTimeout(fn, 0)`?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "setTimeout имеет минимальную задержку ~4ms при вложенных вызовах",
+        "correct": true,
+        "explanation": "Браузеры ограничивают вложенные setTimeout минимум до 4ms. MessageChannel не имеет такого ограничения и выполняется быстрее."
+      },
+      {
+        "text": "MessageChannel работает в Web Workers и Node.js",
+        "correct": true,
+        "explanation": "React Scheduler должен работать в разных окружениях. MessageChannel доступен в Worker, Node.js (через worker_threads), в отличие от requestAnimationFrame."
+      },
+      {
+        "text": "MessageChannel позволяет передавать данные между потоками",
+        "correct": false,
+        "explanation": "Данные не передаются через MessageChannel в Scheduler — он используется только как механизм планирования. Сообщение всегда null."
+      },
+      {
+        "text": "MessageChannel выполняется как macrotask до следующего paint",
+        "correct": true,
+        "explanation": "onmessage выполняется как macrotask в конце текущего event loop тика, до следующей отрисовки кадра. Это позволяет вклиниться между кадрами."
+      }
+    ]
+  },
+  {
+    "question": "Что такое `bailout` в контексте `beginWork`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ошибка рендеринга, которую перехватывает ErrorBoundary",
+        "correct": false,
+        "explanation": "Bailout не связан с ошибками. Это механизм оптимизации — пропуск рендера узла и его поддерева при отсутствии изменений."
+      },
+      {
+        "text": "Пропуск рендера узла и всего его поддерева при неизменённых props и отсутствии обновлений",
+        "correct": true,
+        "explanation": "Если memoizedProps === pendingProps и нет scheduled updates — beginWork возвращает null или клонирует дочерние узлы без полного обхода. React.memo использует именно этот механизм."
+      },
+      {
+        "text": "Отмена запланированного рендера через startTransition",
+        "correct": false,
+        "explanation": "startTransition позволяет прервать рендер при появлении более приоритетного обновления. Bailout — другое: это локальная оптимизация одного узла."
+      },
+      {
+        "text": "Переход к синхронному рендеру при истечении таймаута",
+        "correct": false,
+        "explanation": "Переход к синхронному рендеру при голодании — это другой механизм (expiration time). Bailout — про пропуск неизменённых узлов."
+      }
+    ]
+  },
+  {
+    "question": "Какая операция правильно проверяет, содержит ли `lanes` определённый `lane`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "`lanes === lane`",
+        "correct": false,
+        "explanation": "Строгое равенство проверяет только точное совпадение. Lanes — это битовые маски, и lanes может содержать несколько lane одновременно."
+      },
+      {
+        "text": "`lanes > lane`",
+        "correct": false,
+        "explanation": "Числовое сравнение не подходит для битовых масок. Lane с большим числовым значением не обязательно 'включает' lane с меньшим."
+      },
+      {
+        "text": "`(lanes & lane) !== 0`",
+        "correct": true,
+        "explanation": "Побитовый AND даёт ненулевой результат, если lane присутствует в lanes. Это функция includesSomeLane в исходниках React."
+      },
+      {
+        "text": "`lanes.includes(lane)`",
+        "correct": false,
+        "explanation": "Lanes — это числа (битовые маски), а не массивы. Метод .includes() у них не существует."
+      }
+    ]
+  },
+  {
+    "question": "В каком порядке вызываются `beginWork` и `completeWork` для дерева App → [Header, Main → [Article]]?",
+    "type": "single",
+    "options": [
+      {
+        "text": "begin(App), begin(Header), begin(Main), begin(Article), complete(Article), complete(Main), complete(Header), complete(App)",
+        "correct": false,
+        "explanation": "Header обрабатывается раньше Main (он первый sibling), но complete(Header) должно идти до begin(Main). После complete(Header) React переходит к sibling Main."
+      },
+      {
+        "text": "begin(App), begin(Header), complete(Header), begin(Main), begin(Article), complete(Article), complete(Main), complete(App)",
+        "correct": true,
+        "explanation": "DFS-обход: вниз (beginWork), когда нет детей — вверх/вправо (completeWork). Header не имеет детей → complete(Header) → sibling Main → его дети → complete снизу вверх."
+      },
+      {
+        "text": "complete(App), complete(Main), complete(Article), complete(Header), begin(Header), begin(Article), begin(Main), begin(App)",
+        "correct": false,
+        "explanation": "completeWork не может выполняться до beginWork. beginWork всегда предшествует completeWork для каждого узла."
+      },
+      {
+        "text": "begin(App), begin(Header), begin(Main), begin(Article), complete(App), complete(Main), complete(Header), complete(Article)",
+        "correct": false,
+        "explanation": "Нельзя вызвать complete(App) до complete его детей. completeWork для родителя вызывается ПОСЛЕ completeWork для всех детей."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит с низкоприоритетной задачей, если она долго не выполняется из-за постоянно поступающих высокоприоритетных задач?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Задача удаляется из очереди (dropped)",
+        "correct": false,
+        "explanation": "React никогда не удаляет обновления состояния. Все обновления в конечном счёте применяются."
+      },
+      {
+        "text": "Задача остаётся в очереди навсегда",
+        "correct": false,
+        "explanation": "React защищается от голодания через expiration time. Каждая задача имеет дедлайн, после которого её приоритет форсируется."
+      },
+      {
+        "text": "Задача повышает приоритет до SyncLane, когда истекает её expiration time",
+        "correct": true,
+        "explanation": "Starvation prevention: если currentTime > expirationTime задачи, она помечается как 'просроченная' и обрабатывается как срочная. Никакая задача не может ждать вечно."
+      },
+      {
+        "text": "Задача разбивается на несколько более мелких задач",
+        "correct": false,
+        "explanation": "React не делит задачи автоматически при голодании. Механизм защиты — повышение приоритета через expiration time."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик использует `startTransition` для обновления большого списка. Пользователь кликает кнопку во время этого рендера. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Клик будет проигнорирован до завершения рендера списка",
+        "correct": false,
+        "explanation": "Это поведение синхронного режима. В Concurrent Mode клик (SyncLane) вытесняет TransitionLane рендер."
+      },
+      {
+        "text": "Рендер списка будет прерван, клик обработается немедленно, рендер списка возобновится",
+        "correct": true,
+        "explanation": "SyncLane (клик) имеет высший приоритет. Scheduler прервёт TransitionLane рендер при следующем shouldYield(), обработает клик, затем возобновит рендер списка."
+      },
+      {
+        "text": "Оба обновления объединятся в одно (batching)",
+        "correct": false,
+        "explanation": "Batching объединяет обновления в одном event handler. Здесь два разных события в разное время — они не батчатся."
+      },
+      {
+        "text": "Рендер списка полностью отменится, и React начнёт с нуля включая клик",
+        "correct": false,
+        "explanation": "Рендер списка не отменяется полностью. Он прерывается, клик обрабатывается, затем рендер возобновляется с точки прерывания (workInProgress сохранён)."
+      }
+    ]
+  },
+  {
+    "question": "Какие из утверждений о `completeWork` верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Для HostComponent создаёт реальный DOM-узел при первом рендере",
+        "correct": true,
+        "explanation": "createInstance вызывается в completeWork для HostComponent при начальном рендере. Дочерние DOM-узлы уже готовы (обработаны раньше), поэтому их можно сразу appendAllChildren."
+      },
+      {
+        "text": "Пузырём собирает subtreeFlags от детей к родителю",
+        "correct": true,
+        "explanation": "В React 18 subtreeFlags родителя = OR всех flags и subtreeFlags детей. Это позволяет Commit пропускать поддеревья без изменений за O(1)."
+      },
+      {
+        "text": "Вызывает функцию компонента для получения JSX",
+        "correct": false,
+        "explanation": "Функция компонента вызывается в beginWork → renderWithHooks. completeWork обрабатывает уже отрендеренный узел."
+      },
+      {
+        "text": "После completeWork узла проверяется наличие sibling для перехода",
+        "correct": true,
+        "explanation": "completeUnitOfWork после вызова completeWork проверяет sibling. Если есть sibling — workInProgress = sibling, цикл продолжается. Если нет — поднимается к родителю."
+      }
+    ]
+  },
+  {
+    "question": "У тебя есть компонент, обёрнутый в `React.memo`. При ре-рендере родителя props не изменились. Что произойдёт в work loop?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Компонент вообще не попадёт в work loop",
+        "correct": false,
+        "explanation": "Fiber node компонента всё равно посетит beginWork. Именно там происходит проверка — bailout это результат beginWork, а не отсутствие вызова."
+      },
+      {
+        "text": "beginWork вызовется, обнаружит memoizedProps === pendingProps, выполнит bailout и вернёт null",
+        "correct": false,
+        "explanation": "Близко, но неточно. Для React.memo bailout возвращает не null, а клонированных детей (клонирует существующие child fibers) — чтобы React мог продолжить обход не перерендеривая компонент."
+      },
+      {
+        "text": "beginWork вызовется, MemoComponent проверит props через Object.is, и при совпадении выполнит bailout — пропуск поддерева",
+        "correct": true,
+        "explanation": "SimpleMemoComponent в beginWork сравнивает oldProps и newProps через shallowEqual (Object.is для каждого ключа). При совпадении — bailoutOnAlreadyFinishedWork пропускает поддерево."
+      },
+      {
+        "text": "completeWork вызовется вместо beginWork для оптимизации",
+        "correct": false,
+        "explanation": "completeWork вызывается ПОСЛЕ beginWork, а не вместо него. Порядок: beginWork (спуск) → completeWork (подъём)."
+      }
+    ]
+  }
+]

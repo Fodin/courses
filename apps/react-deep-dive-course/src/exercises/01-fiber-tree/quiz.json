@@ -1,0 +1,267 @@
+[
+  {
+    "question": "Что хранит поле `child` у Fiber node?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Массив всех дочерних Fiber nodes",
+        "correct": false,
+        "explanation": "child не является массивом. React использует linked list через sibling: child указывает только на первого ребёнка."
+      },
+      {
+        "text": "Ссылку на первый дочерний Fiber node",
+        "correct": true,
+        "explanation": "child — это указатель только на первого ребёнка. Остальные дети доступны через цепочку sibling → sibling → ..."
+      },
+      {
+        "text": "Количество дочерних узлов",
+        "correct": false,
+        "explanation": "child — это не счётчик, а ссылка. Количество детей в Fiber явно не хранится — нужно итерироваться по sibling."
+      },
+      {
+        "text": "React Element дочернего компонента",
+        "correct": false,
+        "explanation": "child указывает на Fiber node, а не на React Element. Это разные объекты: Element — одноразовый snapshot, Fiber — долгоживущий объект."
+      }
+    ]
+  },
+  {
+    "question": "Что такое `alternate` у Fiber node?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Предыдущая версия компонента, которая удаляется после рендера",
+        "correct": false,
+        "explanation": "alternate не удаляется. React переиспользует два дерева: current и workInProgress меняются ролями после каждого Commit."
+      },
+      {
+        "text": "Ссылка на соответствующий Fiber в другом дереве (current ↔ workInProgress)",
+        "correct": true,
+        "explanation": "Это double buffering: current.alternate = workInProgress, workInProgress.alternate = current. После Commit деревья меняются ролями."
+      },
+      {
+        "text": "Запасной компонент для ErrorBoundary",
+        "correct": false,
+        "explanation": "alternate не связан с ErrorBoundary. Это механизм double buffering для прерываемого рендера."
+      },
+      {
+        "text": "Ссылка на родительский Fiber",
+        "correct": false,
+        "explanation": "Родитель хранится в поле return, а не alternate. alternate — это двойник в параллельном дереве."
+      }
+    ]
+  },
+  {
+    "question": "Почему хуки нельзя вызывать внутри условий (if/else)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Потому что это синтаксически запрещено в JavaScript",
+        "correct": false,
+        "explanation": "Синтаксически это допустимо. Запрет — правило React, а не JS. Ошибка возникнет в runtime, а не при компиляции."
+      },
+      {
+        "text": "Потому что useState использует глобальный счётчик, который сбрасывается при условиях",
+        "correct": false,
+        "explanation": "Нет глобального счётчика между компонентами. Хуки хранятся в linked list у конкретного Fiber node."
+      },
+      {
+        "text": "Потому что хуки хранятся в linked list у Fiber, и порядок узлов должен совпадать между рендерами",
+        "correct": true,
+        "explanation": "memoizedState у FunctionComponent — это linked list Hook объектов. React сопоставляет хуки по позиции в списке, а не по имени. Изменение порядка = неправильное сопоставление."
+      },
+      {
+        "text": "Потому что условия вызывают лишние рендеры",
+        "correct": false,
+        "explanation": "Условия сами по себе не вызывают рендеры. Проблема именно в нарушении порядка хуков в linked list."
+      }
+    ]
+  },
+  {
+    "question": "Какие из этих узлов НЕ создают DOM-элементы, но существуют как Fiber nodes?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "React.Fragment",
+        "correct": true,
+        "explanation": "Fragment имеет tag=7, существует в Fiber-дереве, но не создаёт DOM-узел. Его дети 'подтягиваются' к ближайшему HostComponent-предку."
+      },
+      {
+        "text": "Context.Provider",
+        "correct": true,
+        "explanation": "ContextProvider имеет tag=10. Он существует в Fiber-дереве (хранит value, отслеживает Consumer'ов), но не производит DOM-узел."
+      },
+      {
+        "text": "div",
+        "correct": false,
+        "explanation": "div — это HostComponent (tag=5). Он создаёт реальный DOM-узел, который хранится в stateNode."
+      },
+      {
+        "text": "React.memo",
+        "correct": true,
+        "explanation": "MemoComponent (tag=14 или SimpleMemoComponent=15) — это обёртка, которая существует в Fiber-дереве для проверки props, но не создаёт DOM-узел."
+      },
+      {
+        "text": "p",
+        "correct": false,
+        "explanation": "p — это HostComponent, создаёт реальный DOM-узел <p>."
+      }
+    ]
+  },
+  {
+    "question": "Что хранится в `stateNode` у FunctionComponent?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Объект с текущим state компонента",
+        "correct": false,
+        "explanation": "State FunctionComponent хранится в memoizedState как linked list хуков. stateNode для FC = null."
+      },
+      {
+        "text": "null",
+        "correct": true,
+        "explanation": "У FunctionComponent нет экземпляра (instance), поэтому stateNode = null. Для ClassComponent — экземпляр класса, для HostComponent — DOM-узел."
+      },
+      {
+        "text": "Функция компонента",
+        "correct": false,
+        "explanation": "Функция компонента хранится в поле type, а не stateNode."
+      },
+      {
+        "text": "React Element, возвращённый компонентом",
+        "correct": false,
+        "explanation": "React Element не хранится в Fiber напрямую. Результат рендера используется для reconciliation и создания дочерних Fiber nodes."
+      }
+    ]
+  },
+  {
+    "question": "В каком порядке React обходит это дерево во время Render?\n\nApp → [Nav, Main → [Article, Sidebar], Footer]",
+    "type": "single",
+    "options": [
+      {
+        "text": "App, Nav, Main, Article, Sidebar, Footer",
+        "correct": false,
+        "explanation": "Это неполный порядок — пропущены completeWork вызовы. React делает beginWork (вниз) и completeWork (вверх/вправо) для каждого узла."
+      },
+      {
+        "text": "beginWork: App→Nav→Main→Article→Sidebar→Footer, completeWork в обратном порядке",
+        "correct": false,
+        "explanation": "completeWork не просто 'обратный порядок'. После completeWork(Nav) React переходит к sibling Main, а не возвращается к App."
+      },
+      {
+        "text": "begin(App), begin(Nav), complete(Nav), begin(Main), begin(Article), complete(Article), begin(Sidebar), complete(Sidebar), complete(Main), begin(Footer), complete(Footer), complete(App)",
+        "correct": true,
+        "explanation": "Это правильный DFS-порядок: вниз через child (beginWork), вверх через sibling и return (completeWork). После complete(Nav) — sibling Main, внутрь него, затем complete(Main), затем sibling Footer."
+      },
+      {
+        "text": "App, Footer, Sidebar, Article, Main, Nav (в обратном порядке)",
+        "correct": false,
+        "explanation": "React обходит дерево слева направо (по порядку children), а не в обратном порядке."
+      }
+    ]
+  },
+  {
+    "question": "Чем FiberRoot отличается от HostRoot?",
+    "type": "single",
+    "options": [
+      {
+        "text": "FiberRoot — это то же самое что HostRoot, просто разные названия",
+        "correct": false,
+        "explanation": "Это разные объекты разных типов. FiberRoot — не Fiber, это контейнер верхнего уровня. HostRoot — Fiber node с tag=3."
+      },
+      {
+        "text": "FiberRoot — объект, создаваемый ReactDOM.createRoot(), HostRoot — Fiber node (tag=3), являющийся корнем дерева",
+        "correct": true,
+        "explanation": "FiberRoot не является Fiber node — это отдельный объект с полями containerInfo, current (ссылка на HostRoot Fiber), pendingLanes и т.д. HostRoot — первый настоящий Fiber в дереве."
+      },
+      {
+        "text": "FiberRoot — корень дерева в development, HostRoot — в production",
+        "correct": false,
+        "explanation": "Оба существуют в обоих режимах. Различие в типе объекта, а не в режиме сборки."
+      },
+      {
+        "text": "FiberRoot — это <App />, HostRoot — невидимый обёртка над ним",
+        "correct": false,
+        "explanation": "<App /> создаёт Fiber с tag=FunctionComponent. HostRoot — выше App, это корень всего дерева. FiberRoot — ещё выше, это не-Fiber контейнер."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик добавил в компонент условный хук:\n\n```jsx\nif (isAdmin) {\n  const [log, setLog] = useState([])\n}\n```\n\nПочему React выбросит ошибку?",
+    "type": "single",
+    "options": [
+      {
+        "text": "useState нельзя использовать внутри if — это синтаксическая ошибка",
+        "correct": false,
+        "explanation": "Синтаксически это валидный JS/JSX. Ошибка происходит в runtime при несовпадении количества хуков между рендерами."
+      },
+      {
+        "text": "При первом рендере (isAdmin=true) создаётся 1 хук, при втором (isAdmin=false) — 0 хуков. React пытается прочитать hook[0] из пустого списка",
+        "correct": true,
+        "explanation": "React сопоставляет хуки по позиции в linked list. Если количество хуков изменилось — список сломан. React обнаруживает это и выбрасывает 'Rendered fewer hooks than expected'."
+      },
+      {
+        "text": "isAdmin — внешняя переменная, React не может её отслеживать",
+        "correct": false,
+        "explanation": "React не пытается отслеживать isAdmin. Проблема в стабильности количества хуков, а не в источнике условия."
+      },
+      {
+        "text": "useState не поддерживает массивы как начальное значение",
+        "correct": false,
+        "explanation": "useState прекрасно работает с массивами. Проблема исключительно в условном вызове хука."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно перебрать всех дочерних siblings у Fiber node?",
+    "type": "single",
+    "options": [
+      {
+        "text": "fiber.children.forEach(child => ...)",
+        "correct": false,
+        "explanation": "У Fiber нет поля children (это у React Element). У Fiber — child (первый ребёнок) и sibling (следующий брат)."
+      },
+      {
+        "text": "fiber.child.map(c => ...)",
+        "correct": false,
+        "explanation": "fiber.child — это один Fiber, а не массив. .map() на нём вызовет ошибку."
+      },
+      {
+        "text": "let c = fiber.child; while (c) { /* обработать c */ c = c.sibling }",
+        "correct": true,
+        "explanation": "Правильный паттерн: начинаем с child (первый ребёнок), затем итерируем через sibling до null. Это linked list обход."
+      },
+      {
+        "text": "Object.values(fiber).filter(f => f instanceof Fiber)",
+        "correct": false,
+        "explanation": "Это нерабочий подход. Fiber не является публичным классом, а поля Fiber содержат не только дочерние узлы."
+      }
+    ]
+  },
+  {
+    "question": "У тебя есть React-приложение с Context, Fragment и memo-компонентами. Ты смотришь на DOM через DevTools — там всего 3 div. Сколько Fiber nodes может быть в дереве?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ровно 3 — по одному на каждый DOM-узел",
+        "correct": false,
+        "explanation": "DOM-узлы и Fiber nodes — разные уровни. Fiber дерево содержит все узлы: компоненты, Fragment, Provider, Consumer, Memo, HostRoot и т.д."
+      },
+      {
+        "text": "Значительно больше 3 — каждый компонент, Fragment, Provider и memo-обёртка — это отдельный Fiber node",
+        "correct": true,
+        "explanation": "3 div в DOM = 3 HostComponent Fiber. Но в дереве также есть: HostRoot, App (FunctionComponent), Context.Provider (ContextProvider), Fragment, React.memo (MemoComponent), и функциональные компоненты. Может быть 15-20+ Fiber nodes для 3 DOM-узлов."
+      },
+      {
+        "text": "4 — плюс HostRoot",
+        "correct": false,
+        "explanation": "HostRoot есть, но это не единственный 'лишний' Fiber. Context.Provider, Fragment и другие тоже добавляют Fiber nodes без DOM-эквивалентов."
+      },
+      {
+        "text": "Это зависит от версии React",
+        "correct": false,
+        "explanation": "Принцип один и тот же во всех версиях React с Fiber (16+): каждый JSX-элемент порождает Fiber node, независимо от того, создаёт ли он DOM-узел."
+      }
+    ]
+  }
+]

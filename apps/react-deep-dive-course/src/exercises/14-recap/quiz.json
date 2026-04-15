@@ -1,0 +1,137 @@
+[
+  {
+    "question": "Какой порядок фаз в Commit? Выберите правильную последовательность.",
+    "type": "single",
+    "options": [
+      {
+        "text": "Mutation → Before mutation → Layout → Passive",
+        "correct": false,
+        "explanation": "Неверный порядок. Mutation идёт после Before mutation, а не до."
+      },
+      {
+        "text": "Before mutation → Mutation → Layout → Passive (effects)",
+        "correct": true,
+        "explanation": "Именно так: сначала Before mutation (getSnapshotBeforeUpdate, useLayoutEffect cleanup), затем Mutation (изменения DOM), затем Layout (useLayoutEffect setup), затем асинхронно Passive (useEffect)."
+      },
+      {
+        "text": "Layout → Mutation → Before mutation → Passive",
+        "correct": false,
+        "explanation": "Неверный порядок. Layout выполняется после Mutation, а не до."
+      },
+      {
+        "text": "Before mutation → Layout → Mutation → Passive",
+        "correct": false,
+        "explanation": "Неверный порядок. Layout следует за Mutation, не предшествует ей."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть компонент с дорогой фильтрацией списка. Profiler показывает, что фильтрация занимает 80ms. Какое решение правильное?",
+    "type": "single",
+    "options": [
+      {
+        "text": "useState для хранения отфильтрованного результата + useEffect для пересчёта",
+        "correct": false,
+        "explanation": "Это YMNAE антипаттерн: лишний рендер (Effect вызывает setState), лишний Effect, сложнее читать. Правильно — вычислять прямо в рендере."
+      },
+      {
+        "text": "useMemo с зависимостью от исходных данных и фильтра",
+        "correct": true,
+        "explanation": "Правильно. useMemo кэширует результат: пересчёт только при изменении данных или фильтра. 80ms — достаточно тяжело чтобы оправдать накладные расходы useMemo."
+      },
+      {
+        "text": "useCallback для функции фильтрации",
+        "correct": false,
+        "explanation": "useCallback стабилизирует ссылку на функцию, но не кэширует результат вызова. Функция всё равно будет вызываться при каждом рендере."
+      },
+      {
+        "text": "Вычислить прямо в теле компонента без мемоизации",
+        "correct": false,
+        "explanation": "80ms — слишком тяжело для прямого вычисления при каждом рендере. При таком времени useMemo оправдан."
+      }
+    ]
+  },
+  {
+    "question": "Что из перечисленного является верным описанием механизма 'двойной буферизации' в React?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "React поддерживает два Fiber-дерева: current (отображается) и workInProgress (строится)",
+        "correct": true,
+        "explanation": "Именно так. Двойная буферизация позволяет строить новое дерево, не затрагивая текущее."
+      },
+      {
+        "text": "После Commit workInProgress становится current, старый current переиспользуется для следующего обновления",
+        "correct": true,
+        "explanation": "Верно. root.current = finishedWork меняет указатель. Это минимизирует выделение памяти."
+      },
+      {
+        "text": "При каждом рендере React создаёт полностью новые Fiber-узлы с нуля",
+        "correct": false,
+        "explanation": "Нет. React переиспользует Fiber-узлы через alternate-указатели. Создание с нуля только при первом рендере или смене типа."
+      },
+      {
+        "text": "Узлы связаны через поле alternate: current.alternate === workInProgress",
+        "correct": true,
+        "explanation": "Верно. alternate — двунаправленная связь между парами узлов в двух деревьях."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик написал компонент, который подписывается на window.innerWidth через useEffect+useState. В Concurrent Mode это вызывает 'tearing'. Как исправить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Обернуть setState в startTransition внутри обработчика события",
+        "correct": false,
+        "explanation": "startTransition не решает проблему tearing — он только откладывает обновление. Проблема в том, что useState не синхронизирован с внешним состоянием в момент рендера."
+      },
+      {
+        "text": "Заменить на useSyncExternalStore с subscribe и getSnapshot",
+        "correct": true,
+        "explanation": "Правильно. useSyncExternalStore гарантирует консистентность: React перезапустит рендер синхронно если snapshot изменился в процессе."
+      },
+      {
+        "text": "Добавить useCallback для обработчика resize",
+        "correct": false,
+        "explanation": "useCallback стабилизирует ссылку на функцию, но не решает проблему tearing — несогласованности снимков состояния в Concurrent Mode."
+      },
+      {
+        "text": "Переключиться на useRef вместо useState для хранения innerWidth",
+        "correct": false,
+        "explanation": "useRef не вызывает ре-рендер при изменении. Компонент не обновится при изменении размера окна."
+      }
+    ]
+  },
+  {
+    "question": "Какие утверждения о Lanes (система приоритетов React) верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Lanes реализованы как битовые маски, что позволяет объединять несколько Lanes через OR",
+        "correct": true,
+        "explanation": "Верно. SyncLane = 0b001, InputContinuousLane = 0b100 и т.д. Объединение через OR даёт множество активных Lanes."
+      },
+      {
+        "text": "startTransition переводит обновление в TransitionLane, который Scheduler может прервать",
+        "correct": true,
+        "explanation": "Верно. TransitionLane — низкий приоритет. При появлении высокоприоритетного обновления (ввод пользователя) работа над TransitionLane прерывается."
+      },
+      {
+        "text": "SyncLane гарантирует выполнение в текущем микротаске (перед setTimeout)",
+        "correct": false,
+        "explanation": "Не совсем точно. SyncLane выполняется синхронно в рамках текущего батча, но механизм — не через микрозадачи. Scheduler использует MessageChannel (макрозадача)."
+      },
+      {
+        "text": "Обновления из одного обработчика события автоматически получают одинаковый Lane и батчатся",
+        "correct": true,
+        "explanation": "Верно. Auto-batching (React 18): все setState в одном обработчике получают одинаковый Lane и обрабатываются как одно обновление."
+      },
+      {
+        "text": "IdleLane имеет наивысший приоритет — выполняется первым",
+        "correct": false,
+        "explanation": "Наоборот. IdleLane — наинизший приоритет. SyncLane = 1 (наивысший), IdleLane = большое число. Меньший числовой Lane = выше приоритет."
+      }
+    ]
+  }
+]

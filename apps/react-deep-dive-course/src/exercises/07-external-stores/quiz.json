@@ -1,0 +1,272 @@
+[
+  {
+    "question": "Что такое tearing в контексте React Concurrent Mode?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ошибка при размонтировании компонента без cleanup",
+        "correct": false,
+        "explanation": "Это описывает утечку памяти, а не tearing. Tearing связан с рендером, а не с монтированием/размонтированием."
+      },
+      {
+        "text": "Ситуация, когда разные компоненты показывают разные версии одного внешнего состояния в одном визуальном рендере",
+        "correct": true,
+        "explanation": "Точно. В Concurrent Mode React может прерывать рендер, и за это время внешний store успевает измениться. Компоненты, отрендеренные до и после прерывания, читают разные версии данных."
+      },
+      {
+        "text": "Конфликт между useState и useReducer в одном компоненте",
+        "correct": false,
+        "explanation": "useState и useReducer не конфликтуют между собой — оба управляют локальным состоянием внутри React."
+      },
+      {
+        "text": "Попытка читать state после размонтирования компонента",
+        "correct": false,
+        "explanation": "Это антипаттерн, приводящий к утечке памяти, но не tearing. Tearing — проблема консистентности данных при concurrent рендере."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если getSnapshot каждый раз возвращает новый объект?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Компонент получит актуальные данные, так как объект всегда свежий",
+        "correct": false,
+        "explanation": "Актуальность данных не зависит от того, новый объект или нет. Проблема в другом — React будет считать, что данные всегда меняются."
+      },
+      {
+        "text": "Произойдёт бесконечный цикл ре-рендеров",
+        "correct": true,
+        "explanation": "React сравнивает результат getSnapshot через Object.is. Два разных объекта с одинаковым содержимым: Object.is({}, {}) === false. React думает, что state изменился, планирует ре-рендер, снова вызывает getSnapshot, снова получает новый объект — бесконечный цикл."
+      },
+      {
+        "text": "Компонент перестанет получать обновления от store",
+        "correct": false,
+        "explanation": "Это противоположная проблема — компонент будет обновляться слишком часто, а не слишком редко."
+      },
+      {
+        "text": "React выдаст warning в console, но продолжит работу нормально",
+        "correct": false,
+        "explanation": "React не определяет эту проблему статически — он обнаруживает её через постоянно меняющийся результат Object.is, что приводит к бесконечным ре-рендерам, а не к предупреждению."
+      }
+    ]
+  },
+  {
+    "question": "Какие параметры принимает useSyncExternalStore?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "subscribe — функция, которая принимает callback и возвращает unsubscribe",
+        "correct": true,
+        "explanation": "Да, это первый обязательный параметр. subscribe устанавливает подписку на изменения store и должна вернуть функцию для отписки."
+      },
+      {
+        "text": "initialState — начальное значение store",
+        "correct": false,
+        "explanation": "useSyncExternalStore не принимает initialState. Начальное значение всегда читается через getSnapshot, что гарантирует консистентность."
+      },
+      {
+        "text": "getSnapshot — функция, возвращающая текущее состояние store",
+        "correct": true,
+        "explanation": "Да, второй обязательный параметр. React вызывает её при рендере и после каждого вызова subscribe callback."
+      },
+      {
+        "text": "getServerSnapshot — функция для SSR (опциональная)",
+        "correct": true,
+        "explanation": "Да, третий опциональный параметр. Нужен для SSR, чтобы избежать ошибок гидратации при обращении к browser-only API."
+      },
+      {
+        "text": "deps — массив зависимостей для переподписки",
+        "correct": false,
+        "explanation": "useSyncExternalStore не принимает deps. Для переподписки при изменении параметров используйте useMemo для создания новых функций subscribe/getSnapshot."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть компонент, который подписывается на window.matchMedia через useEffect + useState. При переключении в Concurrent Mode пользователи периодически видят мигание интерфейса. Что нужно сделать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Добавить useLayoutEffect вместо useEffect для синхронной подписки",
+        "correct": false,
+        "explanation": "useLayoutEffect улучшит синхронизацию с DOM, но не устранит tearing — React всё равно может прерывать concurrent рендер между компонентами."
+      },
+      {
+        "text": "Обернуть setState в startTransition для отложенного обновления",
+        "correct": false,
+        "explanation": "startTransition помечает обновление как некритичное и может отложить его. Это усугубит проблему, так как компоненты будут дольше находиться в рассинхронизированном состоянии."
+      },
+      {
+        "text": "Рефакторить на useSyncExternalStore с подпиской на MediaQueryList",
+        "correct": true,
+        "explanation": "Верно. useSyncExternalStore гарантирует консистентность через принудительный синхронный рендер при обнаружении изменений в snapshot. Мигание — симптом tearing, который решает именно useSyncExternalStore."
+      },
+      {
+        "text": "Вынести matchMedia в Context и обернуть Provider в React.memo",
+        "correct": false,
+        "explanation": "React.memo и Context не защищают от tearing — они управляют когда компонент ре-рендерится, но не обеспечивают консистентность чтения внешнего store."
+      }
+    ]
+  },
+  {
+    "question": "Почему subscribe должна быть стабильной ссылкой?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Иначе React не сможет вызвать её при изменении store",
+        "correct": false,
+        "explanation": "React вызовет subscribe независимо от стабильности ссылки — проблема в другом."
+      },
+      {
+        "text": "Иначе React будет отписываться и переподписываться при каждом рендере, теряя события между ними",
+        "correct": true,
+        "explanation": "Если subscribe нестабильна (создаётся заново при каждом рендере), React увидит новую функцию, вызовет unsubscribe старой и subscribe новой. В момент между ними события будут потеряны. Плюс это создаёт лишние операции на каждом рендере."
+      },
+      {
+        "text": "Иначе TypeScript не сможет проверить типы",
+        "correct": false,
+        "explanation": "Типизация здесь ни при чём — это runtime-проблема, не проблема компиляции."
+      },
+      {
+        "text": "Стабильность subscribe важна только при StrictMode",
+        "correct": false,
+        "explanation": "Нестабильность subscribe проявляется при каждом ре-рендере компонента, независимо от StrictMode."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно реализовать useWindowSize(), чтобы избежать бесконечных ре-рендеров?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "getSnapshot возвращает примитив: отдельные хуки для width и height",
+        "correct": true,
+        "explanation": "Примитивы всегда стабильны при Object.is. Два хука — useWindowWidth и useWindowHeight — возвращают числа, которые безопасны."
+      },
+      {
+        "text": "getSnapshot возвращает новый объект { width, height } каждый вызов",
+        "correct": false,
+        "explanation": "Это гарантированный бесконечный цикл: Object.is({}, {}) === false при каждом вызове."
+      },
+      {
+        "text": "Кэшировать объект и возвращать старую ссылку, если ширина и высота не изменились",
+        "correct": true,
+        "explanation": "Правильный подход для объектов: хранить предыдущую ссылку и возвращать её, если данные не изменились. Object.is вернёт true для той же ссылки."
+      },
+      {
+        "text": "Обернуть getSnapshot в useCallback",
+        "correct": false,
+        "explanation": "useCallback стабилизирует ссылку на функцию getSnapshot, но не влияет на значение, которое она возвращает. Проблема в содержимом возвращаемого объекта, а не в ссылке на функцию."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит в мини-стор, если setState вызывают с тем же значением (Object.is возвращает true)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Listeners уведомляются, но React пропускает ре-рендер",
+        "correct": false,
+        "explanation": "Оптимизацию должен делать сам store, а не только React. Лучший вариант — не уведомлять listeners вообще, если значение не изменилось."
+      },
+      {
+        "text": "Правильно реализованный store не должен уведомлять listeners, это экономит лишние ре-рендеры",
+        "correct": true,
+        "explanation": "Да. Если Object.is(oldState, newState) === true, state не изменился. Нет смысла уведомлять подписчиков — это вызовет лишние вызовы getSnapshot и потенциально лишние ре-рендеры."
+      },
+      {
+        "text": "Это приведёт к ошибке, так как store не может определить равенство объектов",
+        "correct": false,
+        "explanation": "Определить равенство можно через Object.is — именно так и поступает правильно реализованный store."
+      },
+      {
+        "text": "Store должен всегда уведомлять listeners при вызове setState, даже если значение не изменилось",
+        "correct": false,
+        "explanation": "Это неоптимально. Уведомление при неизменном значении вызовет лишние вызовы getSnapshot у всех подписчиков."
+      }
+    ]
+  },
+  {
+    "question": "Почему при использовании selector в useStore нужно быть осторожным с возвращаемыми объектами?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Selector, возвращающий { a: state.a }, создаёт новый объект при каждом вызове getSnapshot",
+        "correct": true,
+        "explanation": "Object.is({a: 1}, {a: 1}) === false. React будет считать, что snapshot изменился при каждом вызове getSnapshot, что приведёт к бесконечному циклу."
+      },
+      {
+        "text": "Для объектов нужно либо возвращать примитив, либо кэшировать результат с shallowEqual",
+        "correct": true,
+        "explanation": "Да. Примитивы безопасны сразу. Для объектов нужно хранить предыдущий результат и возвращать его, если shallowEqual говорит, что данные не изменились."
+      },
+      {
+        "text": "Selector не может работать с вложенными объектами",
+        "correct": false,
+        "explanation": "Технических ограничений нет. Selector может возвращать вложенные объекты, но нужно позаботиться о стабильности ссылок."
+      },
+      {
+        "text": "Использование selector автоматически оборачивает результат в useMemo",
+        "correct": false,
+        "explanation": "Нет, useSyncExternalStore не добавляет никакого автоматического кэширования результата selector. Это ответственность разработчика."
+      }
+    ]
+  },
+  {
+    "question": "Компонент использует useSyncExternalStore без getServerSnapshot. Что произойдёт при SSR?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React использует undefined как начальное значение и гидратация пройдёт нормально",
+        "correct": false,
+        "explanation": "undefined не является допустимым fallback при SSR. React выбросит ошибку, а не будет использовать undefined."
+      },
+      {
+        "text": "React выбросит ошибку при серверном рендере",
+        "correct": true,
+        "explanation": "Без getServerSnapshot React не знает, какое значение использовать при SSR, где browser API (window, navigator и т.д.) недоступны. Это приведёт к ошибке гидратации или исключению при серверном рендере."
+      },
+      {
+        "text": "Компонент будет пропущен при SSR и отрендерится только на клиенте",
+        "correct": false,
+        "explanation": "React не пропускает компоненты молча. Без getServerSnapshot он выбросит ошибку."
+      },
+      {
+        "text": "React автоматически использует getSnapshot для SSR",
+        "correct": false,
+        "explanation": "React не может использовать getSnapshot на сервере, если getSnapshot обращается к browser-only API (window, document и т.д.). Именно для этого существует отдельный getServerSnapshot."
+      }
+    ]
+  },
+  {
+    "question": "Чем useSyncExternalStore принципиально лучше useEffect + addEventListener + setState для подписок на внешние данные?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Защита от tearing в Concurrent Mode",
+        "correct": true,
+        "explanation": "Это ключевое преимущество. useSyncExternalStore форсирует синхронный рендер при обнаружении изменений snapshot, гарантируя консистентность."
+      },
+      {
+        "text": "Нет двойного рендера при mount — значение читается прямо во время рендера",
+        "correct": true,
+        "explanation": "С useEffect + setState: mount → effect → setState → второй рендер. С useSyncExternalStore: getSnapshot вызывается прямо во время рендера, один рендер."
+      },
+      {
+        "text": "Автоматическая обработка race condition при async операциях",
+        "correct": false,
+        "explanation": "useSyncExternalStore не решает race condition при async операциях — это проблема useEffect с fetch. Для async нужен AbortController."
+      },
+      {
+        "text": "Единый стандартный API для любого типа внешнего store",
+        "correct": true,
+        "explanation": "Да. Один и тот же API работает для matchMedia, localStorage, кастомного store, Redux и любого другого внешнего источника данных."
+      },
+      {
+        "text": "Работает быстрее за счёт отказа от subscribe/unsubscribe",
+        "correct": false,
+        "explanation": "useSyncExternalStore также использует subscribe/unsubscribe — это часть его API. Преимущество не в скорости, а в корректности."
+      }
+    ]
+  }
+]

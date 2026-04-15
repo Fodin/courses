@@ -1,0 +1,132 @@
+[
+  {
+    "question": "У вас есть компонент App с state `searchQuery`. Этот state используется только в компонентах SearchBar и SearchResults, которые являются дочерними. При вводе текста ре-рендерится вся страница. Что нужно сделать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Обернуть SearchBar и SearchResults в React.memo",
+        "correct": false,
+        "explanation": "React.memo поможет только если у них нет изменяющихся props. Но searchQuery всё равно нужно передавать, и при его изменении они будут ре-рендериться. Причина проблемы — state слишком высоко."
+      },
+      {
+        "text": "Вынести searchQuery и setSearchQuery в отдельный компонент SearchSection, который рендерит SearchBar и SearchResults",
+        "correct": true,
+        "explanation": "State Colocation: перемещаем state к ближайшему общему предку потребителей. Теперь при вводе ре-рендерится только SearchSection, а не вся страница."
+      },
+      {
+        "text": "Добавить useMemo для вычислений внутри SearchResults",
+        "correct": false,
+        "explanation": "useMemo помогает с дорогими вычислениями внутри компонента, но не предотвращает сам ре-рендер компонента. Проблема в том, что ре-рендерится вся страница, а не в том, что SearchResults медленно вычисляет."
+      },
+      {
+        "text": "Перенести searchQuery в Context",
+        "correct": false,
+        "explanation": "Context решит проблему передачи через пропсы, но все подписчики контекста всё равно будут ре-рендериться. Более простое решение — State Colocation."
+      }
+    ]
+  },
+  {
+    "question": "В приложении есть один AppContext с полями: user (меняется при логине), theme (меняется при клике), notifications (меняется каждые 5 секунд). Компонент UserProfile использует только user. Как часто он ре-рендерится?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Только когда меняется user",
+        "correct": false,
+        "explanation": "useContext подписывает компонент на весь контекст. Любое изменение значения контекста (включая notifications каждые 5 секунд) вызовет ре-рендер UserProfile."
+      },
+      {
+        "text": "При каждом изменении любого поля AppContext — то есть каждые 5 секунд",
+        "correct": true,
+        "explanation": "useContext реагирует на изменение объекта контекста целиком. Поскольку notifications меняются каждые 5 секунд, объект контекста пересоздаётся, и UserProfile ре-рендерится, даже если user не изменился."
+      },
+      {
+        "text": "Никогда — React оптимизирует и отслеживает только используемые поля",
+        "correct": false,
+        "explanation": "React не делает field-level tracking для Context. Он видит только: изменился ли объект контекста? Если да — ре-рендер для всех потребителей. Это фундаментальное ограничение Context API."
+      },
+      {
+        "text": "При каждом изменении theme или user, но не notifications",
+        "correct": false,
+        "explanation": "Неверно. React не анализирует, какие поля контекста использует компонент. Любое изменение ссылки на объект контекста вызывает ре-рендер всех потребителей."
+      }
+    ]
+  },
+  {
+    "question": "Выберите все паттерны, при которых HeavyChild НЕ будет ре-рендериться, когда Wrapper обновляет свой internal state:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Wrapper принимает children как prop и рендерит {children}, а HeavyChild передаётся снаружи",
+        "correct": true,
+        "explanation": "Children as Props: JSX-элемент HeavyChild создаётся в родителе Wrapper-а до его рендера. При ре-рендере Wrapper-а children — тот же объект, React видит bailout."
+      },
+      {
+        "text": "HeavyChild обёрнут в React.memo и не получает никаких props",
+        "correct": true,
+        "explanation": "React.memo с пустыми props: при ре-рендере Wrapper-а React пытается отрендерить HeavyChild, но React.memo сравнивает props (пустой объект с пустым) — равны, ре-рендер пропускается."
+      },
+      {
+        "text": "Wrapper рендерит <HeavyChild /> напрямую (JSX inline), HeavyChild не обёрнут в memo",
+        "correct": false,
+        "explanation": "Без React.memo и без children as props: Wrapper при ре-рендере создаёт новый элемент <HeavyChild />, React видит тот же тип, но вызывает функцию — HeavyChild ре-рендерится."
+      },
+      {
+        "text": "HeavyChild принимает callback через props, callback обёрнут в useCallback в Wrapper",
+        "correct": false,
+        "explanation": "useCallback делает функцию стабильной, но HeavyChild всё равно ре-рендерится без React.memo — Wrapper при ре-рендере вызывает HeavyChild. useCallback + React.memo вместе — это другое дело."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит при вызове useState(expensiveCompute()) без функции-инициализатора?",
+    "type": "single",
+    "options": [
+      {
+        "text": "expensiveCompute() выполняется один раз при монтировании, результат кэшируется в Fiber",
+        "correct": false,
+        "explanation": "Это поведение useState(() => expensiveCompute()) — с функцией-инициализатором. Без функции аргумент вычисляется до вызова useState."
+      },
+      {
+        "text": "expensiveCompute() выполняется при каждом рендере компонента, но результат используется только при первом",
+        "correct": true,
+        "explanation": "Аргументы функции в JavaScript вычисляются до её вызова. expensiveCompute() выполняется каждый рендер, но useState игнорирует аргумент при обновлениях (update phase). Это лишние вычисления без эффекта."
+      },
+      {
+        "text": "Это вызовет ошибку — useState не принимает результат функции, только функцию",
+        "correct": false,
+        "explanation": "Никакой ошибки не будет. useState принимает любое значение как начальное состояние. Проблема не в ошибке, а в том, что expensiveCompute() выполняется при каждом рендере вхолостую."
+      },
+      {
+        "text": "expensiveCompute() выполняется два раза при монтировании (StrictMode) и никогда потом",
+        "correct": false,
+        "explanation": "В StrictMode React вызывает компонент дважды при монтировании, поэтому expensiveCompute() выполнится дважды. Но и при обычных обновлениях он тоже выполняется — просто результат игнорируется."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик хочет оптимизировать компонент с React.memo. Он передаёт пропсы: onSelect={item => setSelected(item)} и config={{ sortable: true, filterable: false }}. React.memo не работает — компонент ре-рендерится при каждом рендере родителя. Выберите все причины:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Inline arrow function onSelect создаётся заново при каждом рендере родителя",
+        "correct": true,
+        "explanation": "Arrow function в JSX — новый объект каждый рендер. React.memo сравнивает props через Object.is: старая функция !== новая функция. Решение: useCallback."
+      },
+      {
+        "text": "Объект config создаётся заново при каждом рендере родителя",
+        "correct": true,
+        "explanation": "Inline объект { sortable: true, filterable: false } — новый объект каждый рендер, даже если содержимое одинаковое. Object.is({ sortable: true }, { sortable: true }) === false. Решение: вынести за рендер или useMemo."
+      },
+      {
+        "text": "React.memo не работает с props-функциями по определению",
+        "correct": false,
+        "explanation": "React.memo прекрасно работает с функциями в props — если функция стабильна по ссылке (useCallback). Проблема не в типе, а в референциальной идентичности."
+      },
+      {
+        "text": "Нужно также обернуть дочерние компоненты мемоизированного компонента в React.memo",
+        "correct": false,
+        "explanation": "Мемоизация дочерних компонентов не влияет на то, ре-рендерится ли сам мемоизированный компонент. Проблема в нестабильных props родителя."
+      }
+    ]
+  }
+]

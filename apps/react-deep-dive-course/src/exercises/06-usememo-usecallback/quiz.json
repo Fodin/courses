@@ -1,0 +1,132 @@
+[
+  {
+    "question": "Что хранится в поле memoizedState хук-узла для useMemo?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Только результат вызова factory-функции",
+        "correct": false,
+        "explanation": "React хранит кортеж из двух элементов, а не только результат — иначе нельзя было бы сравнить deps при следующем рендере."
+      },
+      {
+        "text": "Кортеж [value, deps] — результат и массив зависимостей",
+        "correct": true,
+        "explanation": "React хранит пару [value, deps], чтобы при следующем рендере сравнить новые deps со старыми через Object.is и решить, пересчитывать ли value."
+      },
+      {
+        "text": "Только массив зависимостей deps",
+        "correct": false,
+        "explanation": "Без сохранения value React не смог бы вернуть мемоизированный результат при совпадении deps."
+      },
+      {
+        "text": "Функция factory и массив deps",
+        "correct": false,
+        "explanation": "Factory не сохраняется — она вызывается и отбрасывается. Сохраняется результат её вызова."
+      }
+    ]
+  },
+  {
+    "question": "Чем useCallback(fn, deps) принципиально отличается от useMemo(() => fn, deps)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "useCallback более оптимизирован и работает быстрее",
+        "correct": false,
+        "explanation": "В реальной реализации React useCallback — это useMemo для функции. Разницы в производительности нет."
+      },
+      {
+        "text": "Они эквивалентны: useCallback — синтаксический сахар над useMemo для функций",
+        "correct": true,
+        "explanation": "useCallback(fn, deps) === useMemo(() => fn, deps). Разница лишь семантическая: useMemo для значений, useCallback для функций."
+      },
+      {
+        "text": "useCallback обновляет функцию при каждом рендере, useMemo — нет",
+        "correct": false,
+        "explanation": "Оба хука обновляют значение только при изменении deps. useCallback не является исключением."
+      },
+      {
+        "text": "useCallback не создаёт hook-узел в linked list, а useMemo создаёт",
+        "correct": false,
+        "explanation": "Оба хука создают hook-узел. В реализации React они работают практически идентично."
+      }
+    ]
+  },
+  {
+    "question": "Компонент Child обёрнут в React.memo. Parent передаёт prop onClick={() => console.log('click')}. Сколько раз рендерится Child при каждом рендере Parent?",
+    "type": "single",
+    "options": [
+      {
+        "text": "0 — React.memo предотвращает все лишние рендеры",
+        "correct": false,
+        "explanation": "React.memo сравнивает props через shallowEqual. Inline-функция создаётся заново при каждом рендере — ссылка меняется, bail out не срабатывает."
+      },
+      {
+        "text": "1 — React.memo пропускает рендер, так как функция 'делает то же самое'",
+        "correct": false,
+        "explanation": "React.memo сравнивает не логику функций, а ссылки через Object.is. Две разные функции с одинаковым телом — разные ссылки."
+      },
+      {
+        "text": "При каждом рендере Parent — новый рендер Child, React.memo не помогает",
+        "correct": true,
+        "explanation": "shallowEqual сравнивает ссылки. Inline onClick = новая ссылка каждый рендер → не равна предыдущей → React.memo рендерит Child заново."
+      },
+      {
+        "text": "Зависит от содержимого функции — React анализирует AST",
+        "correct": false,
+        "explanation": "React не анализирует тело функций. Сравнение происходит только по ссылкам через Object.is."
+      }
+    ]
+  },
+  {
+    "question": "Компонент имеет: const [todos, setTodos] = useState([...]) и useEffect(() => { setVisible(todos.filter(t => t.done)) }, [todos]). Сколько рендеров происходит при изменении todos?",
+    "type": "single",
+    "options": [
+      {
+        "text": "1 — React батчирует setState внутри useEffect",
+        "correct": false,
+        "explanation": "Батчинг объединяет несколько setState в одном месте. Но здесь setState в Effect — это отдельный рендер после первого."
+      },
+      {
+        "text": "2 — первый от изменения todos, второй от setVisible в Effect",
+        "correct": true,
+        "explanation": "Рендер 1: todos изменился. После рендера срабатывает Effect → setVisible → Рендер 2. Это антипаттерн YMNAE — используй useMemo для вычисляемых данных."
+      },
+      {
+        "text": "3 — React всегда делает дополнительный согласующий проход",
+        "correct": false,
+        "explanation": "React не делает дополнительный согласующий проход по умолчанию. Два setState в разных фазах = два рендера."
+      },
+      {
+        "text": "Зависит от размера массива todos",
+        "correct": false,
+        "explanation": "Количество рендеров не зависит от данных. Архитектура (useEffect + setState) всегда даёт минимум 2 рендера."
+      }
+    ]
+  },
+  {
+    "question": "Какие из утверждений о useMemo верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "useMemo не вызывает factory при первом рендере — значение вычисляется лениво",
+        "correct": false,
+        "explanation": "Неверно. mountMemo вызывает factory() синхронно при первом рендере. Ленивая инициализация — это useState(() => expensiveValue()), не useMemo."
+      },
+      {
+        "text": "Если deps = [] (пустой массив), factory вызывается только один раз — при mount",
+        "correct": true,
+        "explanation": "areHookInputsEqual для пустого массива всегда вернёт true при обновлениях — deps не меняются. Factory вызывается только при mountMemo."
+      },
+      {
+        "text": "useMemo гарантирует, что factory не будет вызвана, если deps не изменились",
+        "correct": false,
+        "explanation": "Документация React явно говорит: React может забыть мемоизированное значение (например, при offscreen rendering). useMemo — оптимизация производительности, не гарантия семантики."
+      },
+      {
+        "text": "useMemo добавляет hook-узел в linked list — это не бесплатно",
+        "correct": true,
+        "explanation": "Каждый useMemo выделяет HookNode в памяти, при каждом рендере выполняет цикл areHookInputsEqual. Для тривиальных вычислений overhead может превышать пользу."
+      }
+    ]
+  }
+]

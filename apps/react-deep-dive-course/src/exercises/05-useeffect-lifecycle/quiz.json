@@ -1,0 +1,314 @@
+[
+  {
+    "question": "В каком порядке выполняются хуки эффектов относительно браузерной отрисовки?",
+    "type": "single",
+    "options": [
+      {
+        "text": "useEffect → browser paint → useLayoutEffect",
+        "correct": false,
+        "explanation": "Неверно. useLayoutEffect выполняется до paint, useEffect — после."
+      },
+      {
+        "text": "useLayoutEffect → browser paint → useEffect",
+        "correct": true,
+        "explanation": "useLayoutEffect запускается синхронно после DOM-мутаций, но до того как браузер нарисует кадр. useEffect запускается асинхронно — после paint."
+      },
+      {
+        "text": "browser paint → useLayoutEffect → useEffect",
+        "correct": false,
+        "explanation": "useLayoutEffect выполняется до paint — именно для этого он и существует (позволяет менять DOM до отрисовки)."
+      },
+      {
+        "text": "useEffect и useLayoutEffect запускаются одновременно после paint",
+        "correct": false,
+        "explanation": "Они запускаются в разное время и с разными гарантиями синхронности."
+      }
+    ]
+  },
+  {
+    "question": "Что вернёт Object.is(NaN, NaN) и как это влияет на useEffect?",
+    "type": "single",
+    "options": [
+      {
+        "text": "false — NaN не равен себе, поэтому effect перезапустится",
+        "correct": false,
+        "explanation": "Object.is(NaN, NaN) возвращает true. В отличие от ===, Object.is считает NaN стабильным значением."
+      },
+      {
+        "text": "true — React считает NaN стабильным значением и не перезапустит effect",
+        "correct": true,
+        "explanation": "Object.is использует алгоритм SameValue, где NaN равен NaN. Если deps содержит NaN и остаётся NaN — effect не перезапустится."
+      },
+      {
+        "text": "Зависит от версии React",
+        "correct": false,
+        "explanation": "Поведение Object.is стандартизировано в ES2015 и не зависит от версии React."
+      },
+      {
+        "text": "Вызовет ошибку — NaN не может быть в массиве зависимостей",
+        "correct": false,
+        "explanation": "React не запрещает NaN в deps. Сравнение происходит через Object.is без исключений."
+      }
+    ]
+  },
+  {
+    "question": "Компонент имеет useEffect с тремя setState внутри: setA, setB, setC. Сколько рендеров произойдёт при срабатывании этого effect?",
+    "type": "single",
+    "options": [
+      {
+        "text": "1 — React батчирует все setState внутри одного effect",
+        "correct": true,
+        "explanation": "В React 18 все setState внутри одного микротаска (включая внутри useEffect) батчируются автоматически. Три setState → один рендер."
+      },
+      {
+        "text": "3 — каждый setState вызывает отдельный рендер",
+        "correct": false,
+        "explanation": "До React 18 это было бы верно для асинхронного кода. Но React 18 добавил automatic batching для всех контекстов."
+      },
+      {
+        "text": "Зависит от того, обёрнуты ли вызовы в flushSync",
+        "correct": false,
+        "explanation": "flushSync форсирует синхронный flush, но сам по себе не определяет количество рендеров при трёх последовательных setState."
+      },
+      {
+        "text": "2 — первые два батчируются, третий отдельно",
+        "correct": false,
+        "explanation": "React 18 батчирует все setState в одной задаче без исключений."
+      }
+    ]
+  },
+  {
+    "question": "Почему в StrictMode useEffect запускается дважды в development-режиме?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Баг в React, который не починили",
+        "correct": false,
+        "explanation": "Это намеренное поведение, добавленное в React 18 для проверки идемпотентности cleanup."
+      },
+      {
+        "text": "Для проверки того, что cleanup идемпотентен — двойной mount не должен ломать компонент",
+        "correct": true,
+        "explanation": "React симулирует быстрый unmount/remount (планируемый для Offscreen API). Если двойной запуск ломает компонент — значит cleanup написан неправильно."
+      },
+      {
+        "text": "Для повышения производительности — два запуска позволяют React оптимизировать следующие",
+        "correct": false,
+        "explanation": "Двойной запуск — только в development. В production effect запускается один раз."
+      },
+      {
+        "text": "Чтобы проверить, что effect не зависит от порядка вызова",
+        "correct": false,
+        "explanation": "Двойной запуск проверяет идемпотентность cleanup, а не порядок вызовов."
+      }
+    ]
+  },
+  {
+    "question": "Какой из сценариев является примером Golden Rule 'Event Handler, не Effect'?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Отправка аналитики при нажатии кнопки 'Купить'",
+        "correct": true,
+        "explanation": "Действие пользователя → Event Handler. 'Потому что пользователь нажал кнопку' — не 'потому что компонент показан'."
+      },
+      {
+        "text": "POST-запрос регистрации при submit формы",
+        "correct": true,
+        "explanation": "Submit формы — действие пользователя. Регистрация должна происходить именно тогда, когда пользователь нажал кнопку, а не при mount или изменении данных."
+      },
+      {
+        "text": "Подписка на WebSocket при открытии чата",
+        "correct": false,
+        "explanation": "Подписка при показе компонента — классический Effect. 'Потому что компонент показан' → Effect."
+      },
+      {
+        "text": "Уведомление parent компонента через onChange при изменении внутреннего state",
+        "correct": true,
+        "explanation": "onChange должен вызываться синхронно в event handler, а не через useEffect. Это избегает лишнего рендера и проблем с зависимостями."
+      }
+    ]
+  },
+  {
+    "question": "Компонент SearchInput делает fetch при изменении query. Пользователь быстро набирает 'a', 'ab', 'abc'. Ответы пришли в обратном порядке: 3, 1, 2. Что отобразится без cleanup?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Результаты для 'abc' — последний запрос всегда выигрывает",
+        "correct": false,
+        "explanation": "Без cleanup React не знает, какой запрос последний. Победит тот, чей ответ пришёл последним — то есть запрос #2 для 'ab'."
+      },
+      {
+        "text": "Результаты для 'ab' — ответ запроса #2 пришёл последним и перезапишет результаты",
+        "correct": true,
+        "explanation": "Без ignore flag или AbortController setState вызовет тот fetch, чей Promise разрешился позже. Это запрос #2 (ответ пришёл последним) — результаты для 'ab' при запросе 'abc'."
+      },
+      {
+        "text": "Результаты для 'a' — первый запрос имеет приоритет",
+        "correct": false,
+        "explanation": "React не даёт приоритет первому запросу. Победитель определяется временем разрешения Promise."
+      },
+      {
+        "text": "React автоматически отменит предыдущие запросы",
+        "correct": false,
+        "explanation": "React не управляет отменой fetch. Для этого нужен AbortController или ignore flag в cleanup."
+      }
+    ]
+  },
+  {
+    "question": "Чем AbortController лучше ignore flag при data fetching в useEffect?",
+    "type": "single",
+    "options": [
+      {
+        "text": "AbortController работает только в современных браузерах, поэтому ignore flag надёжнее",
+        "correct": false,
+        "explanation": "AbortController поддерживается всеми современными браузерами. Но это не делает ignore flag надёжнее — они решают задачу по-разному."
+      },
+      {
+        "text": "AbortController реально отменяет HTTP-запрос в flight, а ignore flag лишь игнорирует пришедший ответ",
+        "correct": true,
+        "explanation": "При AbortController браузер отменяет TCP-соединение (экономит трафик и ресурсы сервера). ignore flag ждёт ответа, но не обновляет state."
+      },
+      {
+        "text": "AbortController автоматически обрабатывает ошибки сети",
+        "correct": false,
+        "explanation": "AbortController генерирует AbortError при отмене — его нужно обрабатывать явно. Автоматической обработки сетевых ошибок нет."
+      },
+      {
+        "text": "Они идентичны по поведению, выбор не имеет значения",
+        "correct": false,
+        "explanation": "Ключевое отличие: AbortController отменяет запрос, ignore flag только игнорирует ответ. Разные механизмы с разными последствиями."
+      }
+    ]
+  },
+  {
+    "question": "Проект имеет компонент с 3 useEffect в цепочке: A меняет B, B меняет C, C меняет D. Все зависимости корректны. Сколько рендеров происходит при изменении A?",
+    "type": "single",
+    "options": [
+      {
+        "text": "1 — React оптимизирует цепочки Effects",
+        "correct": false,
+        "explanation": "React не оптимизирует Effect chains. Каждый setState внутри Effect вызывает новый рендер после текущего."
+      },
+      {
+        "text": "4 — начальное изменение A + три дополнительных рендера от цепочки",
+        "correct": true,
+        "explanation": "Рендер 1: A изменился → Effect 1 → setState(B) → Рендер 2 → Effect 2 → setState(C) → Рендер 3 → Effect 3 → setState(D) → Рендер 4. Итого 4 рендера."
+      },
+      {
+        "text": "2 — React батчирует смежные Effects",
+        "correct": false,
+        "explanation": "React батчирует несколько setState в одном месте, но Effect chain — это последовательные рендеры с Effects между ними."
+      },
+      {
+        "text": "3 — первый рендер не считается",
+        "correct": false,
+        "explanation": "Все рендеры считаются. Первый — от изменения A, затем по одному от каждого звена цепочки."
+      }
+    ]
+  },
+  {
+    "question": "В каком поле Hook-узла React хранит функцию cleanup, возвращённую из useEffect?",
+    "type": "single",
+    "options": [
+      {
+        "text": "В поле memoizedState напрямую",
+        "correct": false,
+        "explanation": "memoizedState для useEffect хранит объект Effect, а не функцию cleanup напрямую."
+      },
+      {
+        "text": "В поле destroy объекта Effect, который хранится в memoizedState",
+        "correct": true,
+        "explanation": "Структура: hook.memoizedState → Effect { create, destroy, deps, tag, next }. Cleanup-функция хранится в поле destroy объекта Effect."
+      },
+      {
+        "text": "В отдельном глобальном Map эффектов",
+        "correct": false,
+        "explanation": "React не хранит cleanups глобально. Они привязаны к конкретному hook-узлу через объект Effect."
+      },
+      {
+        "text": "В поле baseState хука",
+        "correct": false,
+        "explanation": "baseState используется для оптимизации обработки очереди обновлений у useState/useReducer, не для Effects."
+      }
+    ]
+  },
+  {
+    "question": "Компонент Toggle вызывает onChange(isOn) через useEffect при изменении isOn. Родитель не мемоизировал onChange. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Всё работает корректно — useEffect игнорирует нестабильные функции",
+        "correct": false,
+        "explanation": "useEffect не игнорирует нестабильные функции в deps. Нестабильный onChange приведёт к проблемам."
+      },
+      {
+        "text": "Бесконечный цикл: onChange меняется каждый рендер → effect перезапускается → onChange родителя обновляет state → рендер родителя → новый onChange",
+        "correct": true,
+        "explanation": "Если onChange не стабилен (создаётся заново каждый рендер родителя), то deps [isOn, onChange] нестабильны. Каждый рендер родителя порождает новый onChange → перезапуск effect → потенциально новый setState родителя → рендер."
+      },
+      {
+        "text": "Один лишний рендер при каждом клике, потом стабилизируется",
+        "correct": false,
+        "explanation": "Один лишний рендер — это оптимистичный сценарий. В реальности нестабильный onChange в deps может привести к бесконечному циклу."
+      },
+      {
+        "text": "React автоматически стабилизирует функции в deps через useCallback",
+        "correct": false,
+        "explanation": "React не оборачивает функции в useCallback автоматически. Это ответственность разработчика."
+      }
+    ]
+  },
+  {
+    "question": "Когда правильно использовать useLayoutEffect вместо useEffect?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Для измерения размеров DOM-элемента и немедленного обновления позиции (например, тултип)",
+        "correct": true,
+        "explanation": "useLayoutEffect запускается до paint — можно измерить DOM и обновить стили, пользователь не увидит промежуточного состояния (flash)."
+      },
+      {
+        "text": "Для загрузки данных с сервера",
+        "correct": false,
+        "explanation": "Fetch данных не требует синхронного выполнения до paint. useLayoutEffect заблокирует браузер — используй useEffect."
+      },
+      {
+        "text": "Для синхронного изменения DOM-свойств, которые браузер должен видеть при paint",
+        "correct": true,
+        "explanation": "Если нужно, чтобы браузер нарисовал уже обновлённые свойства — useLayoutEffect гарантирует это. useEffect даст flash."
+      },
+      {
+        "text": "Для всех подписок на внешние события (resize, scroll)",
+        "correct": false,
+        "explanation": "Подписки на события не требуют синхронного выполнения. useEffect подходит и не блокирует paint."
+      }
+    ]
+  },
+  {
+    "question": "Какой подход ПРАВИЛЬНО решает проблему уведомления parent-компонента при изменении состояния дочернего?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Вызывать onChange в useEffect с [internalState] в deps",
+        "correct": false,
+        "explanation": "Effect-подход добавляет лишний рендер и создаёт риск нестабильных deps. Это антипаттерн из 'You Might Not Need an Effect'."
+      },
+      {
+        "text": "Вызывать onChange синхронно в event handler вместе с setInternalState",
+        "correct": true,
+        "explanation": "Синхронный вызов в event handler: один рендер дочернего + синхронный вызов parent. React 18 батчирует setState в дочернем и родительском — один рендер для каждого."
+      },
+      {
+        "text": "Использовать useRef для хранения onChange и вызывать через ref.current",
+        "correct": false,
+        "explanation": "useRef не решает проблему лишнего рендера. Хранение onChange в ref — отдельный паттерн для других задач."
+      },
+      {
+        "text": "Поднять состояние наверх и убрать внутренний state",
+        "correct": false,
+        "explanation": "Это может быть верным архитектурным решением, но не всегда применимо. Вопрос о том, как правильно уведомить parent при наличии внутреннего state."
+      }
+    ]
+  }
+]

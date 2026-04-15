@@ -1,0 +1,132 @@
+[
+  {
+    "question": "Что произойдёт, если не написать cleanup в useDebounce (не вернуть clearTimeout из useEffect)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ничего страшного — таймеры завершатся сами после delay",
+        "correct": false,
+        "explanation": "Таймеры действительно завершатся, но они все сработают — каждый keystroke создаст таймер, который вызовет setState. При вводе 5 букв за 300ms сработают все 5 таймеров подряд."
+      },
+      {
+        "text": "Каждый keystroke создаст таймер, и все они сработают, вызывая setState несколько раз",
+        "correct": true,
+        "explanation": "Без cleanup clearTimeout предыдущий таймер не отменяется. Все таймеры накапливаются и срабатывают один за другим, что полностью нивелирует смысл debounce."
+      },
+      {
+        "text": "React автоматически отменяет старые таймеры при повторном вызове useEffect",
+        "correct": false,
+        "explanation": "React не знает ничего о setTimeout — это браузерный API. React только вызывает функцию cleanup (если она возвращена), но не управляет таймерами самостоятельно."
+      },
+      {
+        "text": "Возникнет утечка памяти, но debounce будет работать корректно",
+        "correct": false,
+        "explanation": "Утечки памяти не будет (таймеры завершаются), но debounce работает некорректно: setState вызывается многократно вместо одного раза после паузы."
+      }
+    ]
+  },
+  {
+    "question": "Почему usePrevious реализуется через useRef + useEffect, а не через useState?",
+    "type": "single",
+    "options": [
+      {
+        "text": "useState не может хранить предыдущее значение — это техническое ограничение",
+        "correct": false,
+        "explanation": "Технически useState может хранить что угодно. Проблема не в возможности хранения, а в том, что обновление state триггерит дополнительный рендер."
+      },
+      {
+        "text": "useRef дешевле по памяти, чем useState",
+        "correct": false,
+        "explanation": "Разница по памяти минимальна. Ключевая причина — отсутствие лишнего рендера при обновлении ref.current."
+      },
+      {
+        "text": "Обновление ref.current не триггерит рендер, что позволяет сохранять значение без лишних ре-рендеров",
+        "correct": true,
+        "explanation": "useRef возвращает мутабельный объект. Изменение ref.current никак не влияет на жизненный цикл компонента — React не знает об этом изменении. Это и нужно для usePrevious: обновляем ref в эффекте (после рендера), не вызывая новый рендер."
+      },
+      {
+        "text": "useEffect запускается до рендера, поэтому значение корректно обновляется",
+        "correct": false,
+        "explanation": "useEffect запускается ПОСЛЕ рендера и commit. Именно поэтому usePrevious работает: во время рендера ref.current содержит значение из прошлого рендера, а после рендера эффект обновляет его."
+      }
+    ]
+  },
+  {
+    "question": "Что такое 'latest callback' паттерн и когда он нужен?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Паттерн для кэширования последнего результата функции через useMemo",
+        "correct": false,
+        "explanation": "useMemo кэширует результат вычисления, а не сам callback. Latest callback паттерн — про хранение актуальной версии функции в ref."
+      },
+      {
+        "text": "Хранение актуального callback в useRef для использования в long-lived подписках (setInterval, addEventListener) без closure trap",
+        "correct": true,
+        "explanation": "Суть паттерна: callback обновляется при каждом рендере через useEffect, но возвращается стабильная функция-обёртка (через useCallback с пустым deps), которая при вызове делегирует выполнение актуальному ref.current. Это решает closure trap в setInterval без пересоздания интервала."
+      },
+      {
+        "text": "Оптимизация с useCallback, предотвращающая создание новых функций",
+        "correct": false,
+        "explanation": "useCallback с пустым deps — это часть реализации паттерна, но не его суть. Цель — не оптимизация, а корректный доступ к актуальным значениям из closure."
+      },
+      {
+        "text": "Способ дебаунсить вызовы функции через useRef",
+        "correct": false,
+        "explanation": "Дебаунс — отдельный паттерн через setTimeout. Latest callback — про closure trap в long-lived подписках, а не про задержку вызовов."
+      }
+    ]
+  },
+  {
+    "question": "Вы пишете хук useFormState(initialValues). Какой интерфейс правильнее вернуть?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Возвращать { values, setValues } — прямой доступ к setState",
+        "correct": false,
+        "explanation": "Это протекающая абстракция: внешний код может поставить невалидное состояние, обойти валидацию, сбросить часть формы некорректно. Хук не инкапсулирует логику."
+      },
+      {
+        "text": "Возвращать { values, handleChange, handleSubmit, reset, errors }",
+        "correct": true,
+        "explanation": "Инкапсулированный интерфейс: вся логика изменения state находится внутри хука. Внешний код взаимодействует через семантические методы, не через низкоуровневый setState."
+      },
+      {
+        "text": "Возвращать { values, onChange: (field, value) => void }",
+        "correct": true,
+        "explanation": "Тоже хороший вариант: onChange принимает конкретное поле и значение. Внутри хука — валидация и обновление конкретного поля без прямого доступа к setState."
+      },
+      {
+        "text": "Возвращать { state, dispatch } — через useReducer",
+        "correct": false,
+        "explanation": "dispatch с action types — это тоже низкоуровневый интерфейс, хотя и более структурированный. Лучше инкапсулировать actions внутри хука и вернуть конкретные функции."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих хуков нарушают правило 'не храни вычислимое состояние' (YMNAE)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "const [filtered, setFiltered] = useState([]); useEffect(() => setFiltered(items.filter(fn)), [items])",
+        "correct": true,
+        "explanation": "filtered — вычислимая величина из items. Правильно: useMemo(() => items.filter(fn), [items]). useEffect+setState здесь лишний рендер."
+      },
+      {
+        "text": "const debounced = useDebounce(searchQuery, 300)",
+        "correct": false,
+        "explanation": "useDebounce корректен: debouncedQuery — не просто вычисление, а временная задержка. Нельзя получить через useMemo — нужен setTimeout и state."
+      },
+      {
+        "text": "const [isValid, setIsValid] = useState(false); useEffect(() => setIsValid(password.length >= 8), [password])",
+        "correct": true,
+        "explanation": "isValid — это просто password.length >= 8. Зачем хранить это в state и синхронизировать через useEffect? const isValid = password.length >= 8 — достаточно."
+      },
+      {
+        "text": "const [loading, setLoading] = useState(false); const fetch = async () => { setLoading(true); await api(); setLoading(false) }",
+        "correct": false,
+        "explanation": "loading здесь не вычислимое состояние — оно меняется в зависимости от хода выполнения async операции, которую нельзя предсказать при рендере."
+      }
+    ]
+  }
+]

@@ -1,0 +1,132 @@
+[
+  {
+    "question": "Какой тип строки в RSC payload обозначает ссылку на клиентский модуль (chunk)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "J — JSON element",
+        "correct": false,
+        "explanation": "J-строки содержат сериализованные React elements (JSX как данные), но не ссылки на JS-модули."
+      },
+      {
+        "text": "I — Import / client reference",
+        "correct": true,
+        "explanation": "Тип I (Import) содержит путь к chunk-файлу, список chunks и имя экспортируемого компонента. Клиент читает эту строку и загружает соответствующий JS-бандл."
+      },
+      {
+        "text": "S — String token",
+        "correct": false,
+        "explanation": "S-строки содержат строковые токены React: 'react.suspense', 'react.fragment' и т.д. Не ссылки на модули."
+      },
+      {
+        "text": "M — Module metadata",
+        "correct": false,
+        "explanation": "M-строки содержат метаданные бандла, но I-строка — это именно client reference с путём к конкретному chunk-у."
+      }
+    ]
+  },
+  {
+    "question": "Вы передаёте Date объект как prop из Server Component в Client Component. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Date автоматически сериализуется в ISO строку и десериализуется обратно в Date",
+        "correct": false,
+        "explanation": "RSC не делает автоматического round-trip для Date. Протокол основан на JSON-подобной сериализации, которая не поддерживает Date нативно."
+      },
+      {
+        "text": "Ошибка: Date не сериализуем через RSC payload",
+        "correct": true,
+        "explanation": "RSC payload поддерживает primitives, plain objects, arrays, JSX и Promises. Date, Map, Set, RegExp, функции — не поддерживаются. Нужно передавать date.toISOString() вместо объекта Date."
+      },
+      {
+        "text": "Date передаётся как timestamp (число миллисекунд)",
+        "correct": false,
+        "explanation": "Автоматической конвертации в timestamp не происходит. React выбросит ошибку сериализации."
+      },
+      {
+        "text": "Client Component получит пустой объект {}",
+        "correct": false,
+        "explanation": "React не молча подменяет несериализуемые значения — он выбрасывает ошибку на этапе сериализации payload."
+      }
+    ]
+  },
+  {
+    "question": "Пользователь кликнул на кнопку 'Комментировать' в секции Comments до того, как гидрация завершилась. Comments — это Client Component. Что сделает React?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Проигнорирует клик — гидрация ещё не завершена",
+        "correct": false,
+        "explanation": "React не теряет события. Selective Hydration специально создана для этого сценария — событие запоминается и воспроизводится после гидрации."
+      },
+      {
+        "text": "Приоритизирует гидрацию Comments, затем воспроизведёт событие клика",
+        "correct": true,
+        "explanation": "Это суть Selective Hydration. React перехватывает нативное событие через delegation на root, находит нужный Suspense boundary, гидрирует его с максимальным приоритетом (SyncLane), затем replay-ит событие — onClick срабатывает."
+      },
+      {
+        "text": "Сначала завершит гидрацию Header и Sidebar (слева направо), потом гидрирует Comments",
+        "correct": false,
+        "explanation": "Без пользовательского взаимодействия гидрация идёт слева направо по дереву. Но клик — это сигнал повысить приоритет Comments немедленно, прервав другие границы."
+      },
+      {
+        "text": "Браузер обработает клик через нативный HTML без React",
+        "correct": false,
+        "explanation": "Нативный HTML-клик сработал бы только если бы кнопка была <button type='submit'> в форме или <a> — то есть прогрессивное улучшение. Если это onClick-обработчик React, без гидрации он не выполнится нативно."
+      }
+    ]
+  },
+  {
+    "question": "Выберите все утверждения, верные для директивы 'use client'",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "'use client' — это инструкция для бандлера, не для Node.js runtime",
+        "correct": true,
+        "explanation": "Верно. Node.js не знает о 'use client'. Бандлер (Webpack, Turbopack) анализирует граф зависимостей во время сборки и создаёт отдельные chunks для файлов с этой директивой."
+      },
+      {
+        "text": "Компонент с 'use client' выполняется только в браузере, никогда на сервере",
+        "correct": false,
+        "explanation": "Неверно. Client Components выполняются и на сервере (для начального SSR/HTML) и на клиенте (для гидрации и последующих рендеров). 'use client' означает 'граница, ниже которой код нужен клиенту', не 'только в браузере'."
+      },
+      {
+        "text": "'use client' создаёт точку входа для клиентского bundle",
+        "correct": true,
+        "explanation": "Именно так. Бандлер трактует файл с 'use client' как новую точку входа и включает его (и все его зависимости) в клиентский chunk."
+      },
+      {
+        "text": "Server Component может импортировать Client Component напрямую",
+        "correct": true,
+        "explanation": "Да, это разрешено и является нормальным паттерном. Server Component импортирует Client Component, рендерит его — в payload появляется I-строка с ссылкой. Обратное (Client импортирует Server) — запрещено."
+      }
+    ]
+  },
+  {
+    "question": "Чем RSC payload принципиально отличается от HTML строки, которую отдаёт классический SSR?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "RSC payload содержит React-дерево (component tree), а не готовую HTML строку",
+        "correct": true,
+        "explanation": "Ключевое отличие. SSR отдаёт готовый HTML — строку тегов. RSC payload отдаёт описание компонентного дерева в виде сериализованных React elements. Клиент сам превращает это в DOM."
+      },
+      {
+        "text": "RSC payload стримится постепенно, SSR всегда ждёт полного рендера",
+        "correct": false,
+        "explanation": "Не совсем верно. Современный SSR (renderToPipeableStream в React 18+) тоже поддерживает streaming. Streaming — не эксклюзивная фича RSC."
+      },
+      {
+        "text": "RSC payload включает только вывод серверных компонентов, код которых не нужен клиенту",
+        "correct": true,
+        "explanation": "Именно. Server Components 'исчезают' — их код не попадает в JS bundle. Клиент получает только их вывод (JSX как данные). Это уменьшает bundle size."
+      },
+      {
+        "text": "RSC payload позволяет клиенту знать, какие части дерева нужно гидрировать, а какие нет",
+        "correct": true,
+        "explanation": "Верно. Через I-строки клиент знает, где Client Components (нужна гидрация) и где Server Components (только статичный output, гидрация не нужна). Это основа Selective Hydration."
+      }
+    ]
+  }
+]

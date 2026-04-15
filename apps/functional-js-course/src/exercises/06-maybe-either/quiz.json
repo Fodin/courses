@@ -1,0 +1,103 @@
+[
+  {
+    "question": "Что возвращает fromNullable(null)?",
+    "type": "single",
+    "options": [
+      { "text": "Some(null)", "correct": false, "explanation": "fromNullable специально предназначена для замены null/undefined на None, а не для их оборачивания в Some" },
+      { "text": "None", "correct": true, "explanation": "fromNullable превращает null и undefined в None, а любое другое значение — в Some(value)" },
+      { "text": "Right(null)", "correct": false, "explanation": "Right — конструктор Either, а не Maybe. fromNullable возвращает Maybe" },
+      { "text": "Left(null)", "correct": false, "explanation": "Left — конструктор Either. fromNullable работает с Maybe и возвращает None, а не Left" }
+    ]
+  },
+  {
+    "question": "Чем flatMap отличается от map в контексте Maybe?",
+    "type": "single",
+    "options": [
+      { "text": "flatMap работает только с числами, map — со строками", "correct": false, "explanation": "Оба метода работают с любыми типами. Разница в том, что возвращает переданная функция" },
+      { "text": "map применяется к значению внутри Some, flatMap — к значению внутри None", "correct": false, "explanation": "Оба работают только если контейнер — Some. На None оба возвращают None" },
+      { "text": "flatMap принимает функцию, возвращающую Maybe, map — функцию, возвращающую обычное значение", "correct": true, "explanation": "Если бы flatMap вёл себя как map, результатом была бы Maybe<Maybe<T>>. flatMap 'разворачивает' вложенность" },
+      { "text": "flatMap игнорирует None, а map — нет", "correct": false, "explanation": "Оба игнорируют None и возвращают None без вызова функции" }
+    ]
+  },
+  {
+    "question": "Зачем в Either по соглашению Left означает ошибку, а Right — успех?",
+    "type": "single",
+    "options": [
+      { "text": "Это произвольное соглашение, можно использовать наоборот", "correct": false, "explanation": "Хотя технически можно, нарушение соглашения делает код непредсказуемым и противоречит всем библиотекам (fp-ts, purify-ts и др.)" },
+      { "text": "Потому что Left — левый (неверный), Right — правый (верный/правильный)", "correct": true, "explanation": "В английском 'right' означает и 'правый', и 'правильный'. Эта игра слов закреплена как стандартное соглашение во всех FP-библиотеках" },
+      { "text": "Потому что map работает только с Right, Left используется для промежуточных шагов", "correct": false, "explanation": "map работает только с Right — это правда, но причина соглашения Left=ошибка не в этом, а в словесном каламбуре 'right=правильный'" },
+      { "text": "Потому что Left использует меньше памяти для ошибок", "correct": false, "explanation": "Оба конструктора хранят одно значение и занимают одинаковое количество памяти" }
+    ]
+  },
+  {
+    "question": "В чём суть railway-oriented programming?",
+    "type": "single",
+    "options": [
+      { "text": "Функции выполняются параллельно на нескольких 'рельсах'", "correct": false, "explanation": "Рельсы — это метафора, а не реальный параллелизм. Success track и Failure track — два возможных пути, не одновременных" },
+      { "text": "При первой ошибке (Left) цепочка flatMap пропускает все последующие функции", "correct": true, "explanation": "flatMap возвращает Left без вызова функции, поэтому ошибка 'протаскивается' через всю цепочку. Это и есть переключение на Failure track" },
+      { "text": "Все ошибки из всех функций накапливаются в массив", "correct": false, "explanation": "Это поведение Applicative (Validated), а не монадического Either. Either останавливается на первой ошибке" },
+      { "text": "Функции вызываются в обратном порядке при ошибке", "correct": false, "explanation": "При ошибке функции вообще не вызываются — Left просто 'проходит' через каждый flatMap" }
+    ]
+  },
+  {
+    "question": "Когда лучше использовать Maybe, а когда Either?",
+    "type": "single",
+    "options": [
+      { "text": "Maybe для синхронного кода, Either для асинхронного", "correct": false, "explanation": "Оба могут использоваться в обоих контекстах. Выбор зависит не от синхронности, а от того, нужна ли информация об ошибке" },
+      { "text": "Maybe когда отсутствие значения нормально (нет ошибки), Either когда отсутствие — это ошибка с причиной", "correct": true, "explanation": "Maybe(None) означает 'значения нет, и это нормально'. Either(Left) означает 'что-то пошло не так, вот причина'. Поиск в массиве → Maybe. Парсинг пользовательского ввода → Either" },
+      { "text": "Maybe для объектов, Either для примитивов", "correct": false, "explanation": "Оба работают с любыми типами. Выбор определяется семантикой, а не типом данных" },
+      { "text": "Разницы нет, оба выполняют одну функцию", "correct": false, "explanation": "Maybe не несёт информации об ошибке (только 'есть'/'нет'), Either несёт. Это принципиальное семантическое различие" }
+    ]
+  },
+  {
+    "question": "Вы пишете функцию getUser(id), которая ищет пользователя в массиве. Какой тип возврата лучше?",
+    "type": "single",
+    "options": [
+      { "text": "User | null", "correct": false, "explanation": "null не отражён в типе как требующий обработки — TypeScript не заставит вас проверить результат (без strictNullChecks)" },
+      { "text": "Maybe<User>", "correct": true, "explanation": "Отсутствие пользователя — нормальная ситуация, не ошибка. Maybe явно кодирует 'нашли / не нашли' без лишней информации об ошибке" },
+      { "text": "Either<string, User>", "correct": false, "explanation": "Это тоже работает, но избыточно: если пользователь не найден, это не 'ошибка с причиной', а просто факт. Maybe семантически точнее" },
+      { "text": "User[] (массив из 0 или 1 элемента)", "correct": false, "explanation": "Использование массива как Maybe — анти-паттерн. Это запутывает намерение и теряет типизацию на уровне 'одно значение'" }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений верны для функции map на Either?",
+    "type": "multiple",
+    "options": [
+      { "text": "map применяет функцию к значению внутри Right", "correct": true, "explanation": "map работает только на Success track (Right). Это стандартное поведение функтора" },
+      { "text": "map применяет функцию к значению внутри Left", "correct": false, "explanation": "map игнорирует Left и возвращает его без изменений. Для трансформации Left используется mapLeft" },
+      { "text": "map на Left возвращает тот же Left без изменений", "correct": true, "explanation": "Это ключевое свойство Either как функтора: Left 'проходит сквозь' map, не вызывая функцию" },
+      { "text": "map всегда возвращает Right", "correct": false, "explanation": "Если на входе Left, map вернёт тот же Left. Right на выходе только если на входе был Right" }
+    ]
+  },
+  {
+    "question": "Что произойдёт при выполнении этого кода?\n\nflatMap(flatMap(Left('ошибка'), x => Right(x + 1)), x => Right(x * 2))",
+    "type": "single",
+    "options": [
+      { "text": "Right(NaN) — JavaScript выполнит вычисления с undefined", "correct": false, "explanation": "flatMap на Left не вызывает функцию вообще, поэтому никаких NaN не возникнет" },
+      { "text": "Left('ошибка') — Left проходит сквозь оба flatMap", "correct": true, "explanation": "Первый flatMap получает Left и возвращает его, не вызывая fn. Второй flatMap также получает Left и возвращает его. Результат — исходный Left('ошибка')" },
+      { "text": "Right(2) — вычисления выполняются, игнорируя ошибку", "correct": false, "explanation": "flatMap не игнорирует Left, а 'пробрасывает' его. Вычисления x+1 и x*2 не произойдут" },
+      { "text": "Left(NaN) — функции вызываются, но результат обёртывается в Left", "correct": false, "explanation": "При Left функции внутри flatMap вообще не вызываются" }
+    ]
+  },
+  {
+    "question": "Какие из следующих случаев являются правильным применением Either (а не Maybe)?",
+    "type": "multiple",
+    "options": [
+      { "text": "Поиск элемента в массиве по id", "correct": false, "explanation": "Отсутствие элемента — нормальная ситуация, не ошибка. Используйте Maybe" },
+      { "text": "Парсинг JSON-строки от пользователя", "correct": true, "explanation": "Неверный JSON — это ошибка, и нужно знать причину (какой символ, какая позиция). Either<ParseError, T> — правильный выбор" },
+      { "text": "Получение опциональной конфигурации из env-переменной", "correct": false, "explanation": "Если переменная может отсутствовать в штатном режиме — это Maybe. Если отсутствие критично — Either. Без контекста ответ неоднозначен, но обычно это Maybe" },
+      { "text": "Валидация email в форме регистрации", "correct": true, "explanation": "Ошибка валидации — это именно ошибка с причиной ('нет @', 'нет точки'). Either<string, string> позволяет донести эту причину до пользователя" },
+      { "text": "HTTP-запрос который может вернуть 404", "correct": true, "explanation": "404 — это ошибка с кодом статуса. Either<HttpError, Response> позволяет типизировать все коды ошибок. Хотя можно и Maybe, Either информативнее" }
+    ]
+  },
+  {
+    "question": "Как реализовать maybeToEither — конвертацию Maybe<T> в Either<string, T>?",
+    "type": "single",
+    "options": [
+      { "text": "const maybeToEither = (m, err) => m === null ? Left(err) : Right(m)", "correct": false, "explanation": "m — это объект Maybe, не null. Нужно проверять m.tag, а не само значение m" },
+      { "text": "const maybeToEither = (m, err) => m.tag === 'Some' ? Right(m.value) : Left(err)", "correct": true, "explanation": "Правильный паттерн: проверяем тег discriminated union и конвертируем Some в Right, None в Left с переданным сообщением" },
+      { "text": "const maybeToEither = (m, err) => m.tag === 'None' ? Right(m.value) : Left(err)", "correct": false, "explanation": "Логика инвертирована: None должен давать Left (ошибку), а не Right (успех)" },
+      { "text": "const maybeToEither = (m, err) => Right(getOrElse(m, err))", "correct": false, "explanation": "getOrElse вернёт err как строку, и результатом будет Right('сообщение об ошибке') — ошибка обёрнута в Right вместо Left" }
+    ]
+  }
+]

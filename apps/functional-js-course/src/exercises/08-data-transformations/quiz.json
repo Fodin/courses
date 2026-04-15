@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Что должна возвращать функция `set` внутри Lens?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Изменённый исходный объект (мутирует source)",
+        "correct": false,
+        "explanation": "Мутация нарушает закон get-set и делает линзу небезопасной для иммутабельного кода."
+      },
+      {
+        "text": "Новый объект с обновлённым полем, исходный не изменён",
+        "correct": true,
+        "explanation": "Lens — иммутабельный примитив. set всегда возвращает новую структуру, не трогая source."
+      },
+      {
+        "text": "Только новое значение поля, без контекста структуры",
+        "correct": false,
+        "explanation": "set возвращает полную структуру S, а не просто значение A — иначе невозможно восстановить контекст."
+      },
+      {
+        "text": "Promise с новым объектом, потому что операция может быть асинхронной",
+        "correct": false,
+        "explanation": "Базовый Lens синхронный. Для асинхронных трансформаций есть отдельные абстракции."
+      }
+    ]
+  },
+  {
+    "question": "Какой закон нарушен, если `lset(l, view(l, s), s) !== s` (по значению)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Закон set-get",
+        "correct": false,
+        "explanation": "Закон set-get: view(l, lset(l, a, s)) === a — это про чтение после записи."
+      },
+      {
+        "text": "Закон get-set",
+        "correct": true,
+        "explanation": "Закон get-set гласит: если записать то же значение что уже есть — структура не должна меняться. Нарушение означает лишние аллокации или скрытые изменения."
+      },
+      {
+        "text": "Закон set-set",
+        "correct": false,
+        "explanation": "Закон set-set: два set подряд — побеждает последний. Это другой инвариант."
+      },
+      {
+        "text": "Никакой — это нормальное поведение для иммутабельных линз",
+        "correct": false,
+        "explanation": "Нет, это прямое нарушение. Хорошая линза при lset того же значения должна возвращать структурно эквивалентный объект."
+      }
+    ]
+  },
+  {
+    "question": "Есть две линзы: `outerLens: Lens<Company, Department>` и `innerLens: Lens<Department, string>`. Как получить `Lens<Company, string>`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "composeLens(innerLens, outerLens)",
+        "correct": false,
+        "explanation": "Порядок перепутан. outerLens смотрит на Company → Department, innerLens — на Department → string. Outer должен быть первым аргументом."
+      },
+      {
+        "text": "composeLens(outerLens, innerLens)",
+        "correct": true,
+        "explanation": "composeLens(outer, inner): get = s => inner.get(outer.get(s)), set = (c, s) => outer.set(inner.set(c, outer.get(s)), s). Outer применяется первым для навигации."
+      },
+      {
+        "text": "pipe(outerLens.get, innerLens.get)",
+        "correct": false,
+        "explanation": "pipe даст только getter, но не полноценную линзу с set. Линзы нельзя просто pipe-ить."
+      },
+      {
+        "text": "Это невозможно — линзы нельзя компоновать",
+        "correct": false,
+        "explanation": "Наоборот — возможность компоновать является ключевым свойством линз. Composition — основная причина их использования."
+      }
+    ]
+  },
+  {
+    "question": "Transducer `taking(5)` берёт первые 5 элементов. Вы создали один экземпляр transducer и вызвали `transduce` дважды. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Оба вызова вернут первые 5 элементов — transducer stateless",
+        "correct": false,
+        "explanation": "taking имеет внутренний счётчик count. Если переиспользовать один экземпляр, счётчик уже равен 5 после первого вызова."
+      },
+      {
+        "text": "Второй вызов вернёт пустой массив — счётчик уже достиг 5 после первого вызова",
+        "correct": true,
+        "explanation": "taking замыкает счётчик count. После первого transduce он равен 5, и второй вызов сразу пропускает все элементы. Нужно создавать новый taking(5) для каждого transduce."
+      },
+      {
+        "text": "Ошибка компиляции — TypeScript запретит повторное использование",
+        "correct": false,
+        "explanation": "TypeScript не знает о внутреннем состоянии — это runtime-проблема, не compile-time."
+      },
+      {
+        "text": "Второй вызов вернёт элементы 6-10 — счётчик продолжает с того места",
+        "correct": false,
+        "explanation": "Нет — при достижении n taking просто прекращает передавать элементы, а не начинает следующую страницу."
+      }
+    ]
+  },
+  {
+    "question": "В чём разница между `composeTransducers(t1, t2)` и `compose(t1, t2)` для обычных функций?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Никакой разницы — порядок применения одинаковый",
+        "correct": false,
+        "explanation": "Есть разница. compose(f, g)(x) = f(g(x)) — g применяется первой. Для transducers composeTransducers(t1, t2) означает t1 применяется первым (как pipe)."
+      },
+      {
+        "text": "В composeTransducers t1 применяется первым к данным, в compose — t2 применяется первым",
+        "correct": true,
+        "explanation": "Transducers оборачивают редьюсеры снаружи-внутрь, но данные идут изнутри-наружу. Поэтому composeTransducers(t1, t2) = t1 обрабатывает данные первым, что аналогично pipe, а не compose."
+      },
+      {
+        "text": "composeTransducers работает только с асинхронными данными",
+        "correct": false,
+        "explanation": "Transducers синхронны по умолчанию. Асинхронность — отдельная абстракция."
+      },
+      {
+        "text": "В compose функции должны быть чистыми, в composeTransducers — нет",
+        "correct": false,
+        "explanation": "Требования к чистоте не зависят от способа композиции. Transducers тоже желательно делать чистыми."
+      }
+    ]
+  },
+  {
+    "question": "Цепочка `.filter(f).map(g).slice(0, 10)` на массиве из 1000 элементов. Сколько элементов обрабатывает `map` если `filter` пропустил 100 из 1000?",
+    "type": "single",
+    "options": [
+      {
+        "text": "10 — map видит только те 10, что нужны",
+        "correct": false,
+        "explanation": "map не знает о последующем slice. Он обрабатывает все элементы, переданные filter."
+      },
+      {
+        "text": "100 — map обрабатывает всё что прошло через filter",
+        "correct": true,
+        "explanation": "filter создаёт массив из 100 элементов, и map обрабатывает все 100, хотя slice впоследствии возьмёт только 10. Transducer решает эту проблему — taking(10) остановит обработку после 10-го элемента."
+      },
+      {
+        "text": "1000 — map обрабатывает исходный массив",
+        "correct": false,
+        "explanation": "map обрабатывает результат filter, а не исходный массив."
+      },
+      {
+        "text": "0 — JavaScript лениво вычисляет цепочки массивов",
+        "correct": false,
+        "explanation": "Методы массива в JavaScript выполняются немедленно (eager). Ленивость — отдельная концепция, не встроенная в Array.prototype."
+      }
+    ]
+  },
+  {
+    "question": "В пайплайне с Either: `pipeChain(pipeChain(parseJSON(input), validateEvents), enrichEvents)`. Что произойдёт если `validateEvents` вернёт Left?",
+    "type": "single",
+    "options": [
+      {
+        "text": "enrichEvents вызовется с undefined",
+        "correct": false,
+        "explanation": "pipeChain проверяет tag перед вызовом fn. При Left — fn не вызывается."
+      },
+      {
+        "text": "enrichEvents не будет вызвана, Left пробросится до конца",
+        "correct": true,
+        "explanation": "pipeChain реализован как: e.tag === 'Right' ? fn(e.value) : e. Left просто прокидывается, минуя все последующие шаги."
+      },
+      {
+        "text": "Будет выброшено исключение с сообщением из Left",
+        "correct": false,
+        "explanation": "Either не бросает исключений — это весь смысл паттерна. Ошибка обрабатывается явно через значение, а не через throw."
+      },
+      {
+        "text": "enrichEvents вызовется с пустым массивом как fallback",
+        "correct": false,
+        "explanation": "Нет никакого fallback по умолчанию. pipeChain просто передаёт Left дальше без изменений."
+      }
+    ]
+  },
+  {
+    "question": "Какие из этих утверждений про Transducers верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Один transducer можно применять к массиву, генератору и Observable — без изменения кода трансформации",
+        "correct": true,
+        "explanation": "Transducer независим от источника данных. Нужна только функция transduce, адаптированная для конкретного источника."
+      },
+      {
+        "text": "Transducers создают промежуточный массив для каждого шага",
+        "correct": false,
+        "explanation": "Отсутствие промежуточных массивов — главное преимущество transducers перед цепочками map/filter."
+      },
+      {
+        "text": "taking(n) имеет внутреннее состояние и не должен переиспользоваться между вызовами transduce",
+        "correct": true,
+        "explanation": "Счётчик count замкнут в transducer. После достижения n он не сбрасывается — нужно создавать новый экземпляр."
+      },
+      {
+        "text": "Transducers всегда быстрее цепочки map/filter на малых массивах",
+        "correct": false,
+        "explanation": "На малых массивах (десятки элементов) overhead на оборачивание редьюсеров может превышать выигрыш. Transducers эффективны на больших данных."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть пайплайн с 6 этапами на Either. На 3-м этапе входные данные содержат невалидные даты, и `enrichEvents` возвращает Left. Как должны выглядеть этапы 4, 5, 6 в интерфейсе?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Выполниться с пустыми данными как fallback",
+        "correct": false,
+        "explanation": "Это нарушает идею railway-oriented programming. Пустые данные — тоже данные, которые могут создать ложные результаты."
+      },
+      {
+        "text": "Быть серыми/пропущенными — Left прокидывается до конца",
+        "correct": true,
+        "explanation": "При Left на этапе N все последующие pipeChain просто возвращают тот же Left без вызова своих функций. Интерфейс должен отображать это как 'skipped'."
+      },
+      {
+        "text": "Выбросить исключение на 4-м этапе",
+        "correct": false,
+        "explanation": "Either именно для того и нужен, чтобы не бросать исключений. Вся обработка ошибок через значения."
+      },
+      {
+        "text": "Запуститься параллельно и вернуть их Left тоже",
+        "correct": false,
+        "explanation": "Пайплайн последовательный. Этапы не запускаются параллельно и не вызываются если предыдущий вернул Left."
+      }
+    ]
+  },
+  {
+    "question": "Какой из этих подходов нарушает принцип чистоты функций в FP data pipeline?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Логирование внутри функции этапа: `function validate(events) { console.log('validating'); ... }`",
+        "correct": true,
+        "explanation": "console.log — побочный эффект. Чистая функция не должна производить эффекты. Логирование нужно выносить наружу пайплайна."
+      },
+      {
+        "text": "Возврат нового массива вместо мутации исходного в функции validate",
+        "correct": false,
+        "explanation": "Это правильный подход — иммутабельность. Возврат нового массива не нарушает чистоту."
+      },
+      {
+        "text": "Использование `new Date()` внутри функции enrich для получения текущего времени",
+        "correct": true,
+        "explanation": "new Date() недетерминирована — возвращает разные значения при каждом вызове. Это нарушает ссылочную прозрачность. Нужно передавать текущее время как аргумент."
+      },
+      {
+        "text": "Фильтрация невалидных событий с возвратом Either<string, ValidEvent[]>",
+        "correct": false,
+        "explanation": "Использование Either — это именно рекомендуемый подход. Ошибка выражается через значение, а не через исключение или побочный эффект."
+      }
+    ]
+  }
+]

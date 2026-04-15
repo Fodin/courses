@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Что вернёт `O.getOrElse('default')` в fp-ts?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Значение из Option если оно есть, иначе 'default'",
+        "correct": false,
+        "explanation": "Неверно: getOrElse принимает функцию (thunk), а не значение. O.getOrElse('default') вызовет ошибку типов."
+      },
+      {
+        "text": "Ошибка типов — getOrElse принимает thunk () => A, не значение A",
+        "correct": true,
+        "explanation": "Правильно. В fp-ts getOrElse принимает () => A для ленивых вычислений: O.getOrElse(() => 'default'). Это позволяет избежать вычисления дорогого fallback когда он не нужен."
+      },
+      {
+        "text": "Option с обёрнутым значением 'default'",
+        "correct": false,
+        "explanation": "Неверно. getOrElse извлекает значение из Option, не создаёт новый Option."
+      },
+      {
+        "text": "Всегда 'default' независимо от содержимого Option",
+        "correct": false,
+        "explanation": "Неверно. getOrElse возвращает fallback только для None."
+      }
+    ]
+  },
+  {
+    "question": "Чем `flow` отличается от `pipe` в fp-ts?",
+    "type": "single",
+    "options": [
+      {
+        "text": "flow выполняет трансформации немедленно, pipe — лениво",
+        "correct": false,
+        "explanation": "Наоборот. pipe выполняет трансформации немедленно на переданных данных, flow создаёт функцию которую нужно вызвать позже."
+      },
+      {
+        "text": "flow создаёт переиспользуемую функцию, pipe трансформирует данные прямо сейчас",
+        "correct": true,
+        "explanation": "Правильно. pipe(data, fn1, fn2) немедленно применяет fn1 и fn2 к data. flow(fn1, fn2) создаёт новую функцию, данные передаются позже: const process = flow(fn1, fn2); process(data)."
+      },
+      {
+        "text": "flow работает только с Option и Either, pipe — с любыми данными",
+        "correct": false,
+        "explanation": "Неверно. Оба работают с любыми данными и функциями."
+      },
+      {
+        "text": "Нет отличий, это синонимы",
+        "correct": false,
+        "explanation": "Неверно. pipe принимает данные первым аргументом и выполняет pipeline немедленно. flow принимает только функции и возвращает функцию-трансформацию."
+      }
+    ]
+  },
+  {
+    "question": "Что такое TaskEither<E, A> в fp-ts?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Promise<A> с дополнительной обработкой ошибок",
+        "correct": false,
+        "explanation": "Неверно. TaskEither — это не Promise. Это ленивое вычисление: функция () => Promise<Either<E, A>>. Оно не запускается пока вы явно не вызовете его."
+      },
+      {
+        "text": "() => Promise<Either<E, A>> — ленивое асинхронное вычисление с типизированной ошибкой",
+        "correct": true,
+        "explanation": "Правильно. TaskEither это функция которая при вызове возвращает Promise<Either<E, A>>. Ленивость важна: TaskEither можно скомпоновать до запуска. Запуск: await workflow()."
+      },
+      {
+        "text": "Either<E, Promise<A>> — Either внутри которого Promise",
+        "correct": false,
+        "explanation": "Неверно. Если бы это был Either<E, Promise<A>>, нельзя было бы использовать flatMap для цепочки async операций."
+      },
+      {
+        "text": "Async версия Option с поддержкой ошибок",
+        "correct": false,
+        "explanation": "Неверно. TaskEither — это Either (два случая: ошибка/успех) обёрнутый в асинхронное вычисление. Option — для отсутствующих значений, не ошибок."
+      }
+    ]
+  },
+  {
+    "question": "Почему после pipe нельзя продолжить цепочку через нативный .map()?",
+    "type": "single",
+    "options": [
+      {
+        "text": "pipe возвращает специальный тип fptsValue, не массив",
+        "correct": false,
+        "explanation": "Неверно. pipe возвращает обычное значение нужного типа. Проблема не в типе возвращаемого значения."
+      },
+      {
+        "text": "pipe с A.map возвращает readonly array, у которого нет .map()",
+        "correct": true,
+        "explanation": "Правильно. fp-ts использует ReadonlyArray для иммутабельности. У ReadonlyArray нет метода .map() в TypeScript. Решение: использовать A.map внутри pipe вместо цепочки методов."
+      },
+      {
+        "text": "Синтаксическая ошибка — после pipe нельзя ставить точку",
+        "correct": false,
+        "explanation": "Неверно. Синтаксически это возможно, проблема в типах."
+      },
+      {
+        "text": "pipe возвращает undefined",
+        "correct": false,
+        "explanation": "Неверно. pipe возвращает результат последней функции в цепочке."
+      }
+    ]
+  },
+  {
+    "question": "Когда в цепочке fp-ts нужен flatMap вместо map?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Когда функция внутри возвращает Option<B> вместо B",
+        "correct": true,
+        "explanation": "Правильно. Если использовать map с функцией возвращающей Option, получите Option<Option<B>>. flatMap 'разворачивает' внешний Option."
+      },
+      {
+        "text": "Когда функция внутри возвращает Either<E, B> вместо B",
+        "correct": true,
+        "explanation": "Правильно. Аналогично Option: map даст Either<E, Either<E2, B>>, flatMap правильно связывает два Either."
+      },
+      {
+        "text": "Когда функция асинхронная (возвращает TaskEither)",
+        "correct": true,
+        "explanation": "Правильно. TE.flatMap для цепочки TaskEither операций. TE.map для синхронных преобразований результата."
+      },
+      {
+        "text": "Когда нужно изменить тип ошибки",
+        "correct": false,
+        "explanation": "Неверно. Для изменения типа ошибки используется E.mapLeft или TE.mapLeft, не flatMap."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно запустить TaskEither workflow?",
+    "type": "single",
+    "options": [
+      {
+        "text": "const result = await workflow",
+        "correct": false,
+        "explanation": "Неверно и опасно! workflow — это функция () => Promise<Either<E, A>>. await workflow вернёт саму функцию (или TypeError в strict mode). Это одна из самых частых ошибок с TaskEither."
+      },
+      {
+        "text": "const result = await workflow()",
+        "correct": true,
+        "explanation": "Правильно. workflow() вызывает функцию и возвращает Promise<Either<E, A>>. await разворачивает Promise. result имеет тип Either<E, A>."
+      },
+      {
+        "text": "const result = workflow.run()",
+        "correct": false,
+        "explanation": "Неверно. TaskEither — это просто функция, у неё нет метода .run(). Это другие библиотеки (например, старые версии rxjs)."
+      },
+      {
+        "text": "const result = TE.run(workflow)",
+        "correct": false,
+        "explanation": "Неверно. В fp-ts нет функции TE.run. TaskEither запускается простым вызовом как функции: workflow()."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт при ошибке на втором шаге в цепочке TE.flatMap?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Выбросится exception, который нужно поймать через try/catch",
+        "correct": false,
+        "explanation": "Неверно. TaskEither никогда не бросает исключений. Ошибки представлены как E.left(...), они распространяются через цепочку как значения."
+      },
+      {
+        "text": "Третий и последующие шаги будут пропущены, цепочка вернёт Left с ошибкой второго шага",
+        "correct": true,
+        "explanation": "Правильно. Это short-circuit (прерывание цепочки). TE.flatMap не вызывает следующую функцию если текущий шаг вернул Left. Это аналог early return в обычном коде."
+      },
+      {
+        "text": "Третий шаг получит Left как входное значение и должен его обработать",
+        "correct": false,
+        "explanation": "Неверно. TE.flatMap принимает функцию A => TaskEither<E, B>. Если предыдущий шаг вернул Left(e), эта функция вообще не вызывается."
+      },
+      {
+        "text": "Workflow продолжается параллельно, все три шага выполнятся",
+        "correct": false,
+        "explanation": "Неверно. pipe + TE.flatMap — это последовательное выполнение с short-circuit. Для параллельного выполнения используется TE.ApplicativePar + sequenceT."
+      }
+    ]
+  },
+  {
+    "question": "Вы разрабатываете форму регистрации. Поля: email (может быть пустым при OAuth), возраст (строка из input). Какие fp-ts типы использовать?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Option<string> для email",
+        "correct": true,
+        "explanation": "Правильно. Option идеален для опциональных значений. fromNullable(user.email) даёт Option<string>."
+      },
+      {
+        "text": "Either<string, number> для парсинга возраста",
+        "correct": true,
+        "explanation": "Правильно. parseFloat(str) может вернуть NaN — это ошибка с сообщением. Either<string, number> — Left('Не число') или Right(42)."
+      },
+      {
+        "text": "TaskEither<ApiError, UserId> для отправки формы на сервер",
+        "correct": true,
+        "explanation": "Правильно. Отправка формы — async операция которая может завершиться ошибкой (сеть, валидация на сервере). TaskEither идеален для этого."
+      },
+      {
+        "text": "Either<string, string> для email — потому что нужна валидация формата",
+        "correct": false,
+        "explanation": "Не совсем. Для опциональности — Option, для результата валидации — Either. Можно скомбинировать: Option<string> flatMap validateEmail."
+      }
+    ]
+  },
+  {
+    "question": "Какой модуль fp-ts предоставляет типобезопасную сортировку строк?",
+    "type": "single",
+    "options": [
+      {
+        "text": "fp-ts/Array через A.sort с нативным compareFn",
+        "correct": false,
+        "explanation": "Частично верно: A.sort существует, но он принимает Ord instance, не нативный compareFn. Нативный compareFn — это другой API."
+      },
+      {
+        "text": "fp-ts/string через S.Ord как аргумент A.sort",
+        "correct": true,
+        "explanation": "Правильно. S.Ord из fp-ts/string — это Ord<string> instance. A.sort(S.Ord) даёт типобезопасную сортировку строк. Аналогично N.Ord для чисел."
+      },
+      {
+        "text": "fp-ts/Ord через Ord.string",
+        "correct": false,
+        "explanation": "Неверно. В fp-ts/Ord нет Ord.string. String Ord находится в fp-ts/string как S.Ord."
+      },
+      {
+        "text": "Нет специального модуля, нужно использовать нативный .sort()",
+        "correct": false,
+        "explanation": "Неверно. fp-ts предоставляет Ord instances для примитивов. Кроме того, нативный .sort() мутирует массив, что нарушает иммутабельность."
+      }
+    ]
+  },
+  {
+    "question": "В чём главное преимущество fp-ts перед ручными реализациями Maybe/Either?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Стандартизированный API — все разработчики знают одни и те же функции",
+        "correct": true,
+        "explanation": "Правильно. Ручные реализации у каждого разработчика разные: разные имена (Maybe vs Option), разные API (getOrElse vs orElse). fp-ts — один стандарт."
+      },
+      {
+        "text": "Lawful реализации — Option/Either подчиняются законам Functor и Monad",
+        "correct": true,
+        "explanation": "Правильно. fp-ts гарантирует что map следует identity law и composition law. Это позволяет писать обобщённые утилиты и рефакторить безопасно."
+      },
+      {
+        "text": "Лучшая производительность за счёт специальной JS VM оптимизации",
+        "correct": false,
+        "explanation": "Неверно. fp-ts не даёт особых гарантий производительности по сравнению с ручными реализациями. Оба подхода используют обычные JS объекты."
+      },
+      {
+        "text": "Богатая экосистема совместимых библиотек (io-ts, remote-data-ts)",
+        "correct": true,
+        "explanation": "Правильно. io-ts для runtime validation, remote-data-ts для UI-состояний — все используют fp-ts type class instances и совместимы через pipe."
+      }
+    ]
+  }
+]

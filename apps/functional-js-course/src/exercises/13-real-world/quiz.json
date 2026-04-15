@@ -1,0 +1,262 @@
+[
+  {
+    "question": "В чём принципиальная разница между Either (fail-fast) и Validation (collect all) при валидации формы?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Either быстрее работает, Validation медленнее",
+        "correct": false,
+        "explanation": "Нет. Разница не в производительности, а в поведении при ошибках."
+      },
+      {
+        "text": "Either — monadic chain, прерывается на первой ошибке; Validation — applicative, собирает все ошибки",
+        "correct": true,
+        "explanation": "Верно. flatMap в Either ленив: при Left следующий шаг не вызывается. Validation запускает все валидаторы независимо и аккумулирует Left-значения."
+      },
+      {
+        "text": "Either хранит одну ошибку, Validation хранит массив — они различаются только типом",
+        "correct": false,
+        "explanation": "Это следствие, но не суть. Суть — в структуре вычисления: монада vs аппликатив. Either может хранить строку, Validation хранит список именно потому, что все ошибки собираются одновременно."
+      },
+      {
+        "text": "Validation применяется только для форм, Either — только для API-запросов",
+        "correct": false,
+        "explanation": "Нет. Оба паттерна применимы в любом контексте. Выбор зависит от того, нужны ли все ошибки или достаточно первой."
+      }
+    ]
+  },
+  {
+    "question": "У вас форма заказа: сначала нужно проверить, что userId существует в базе, только потом — что баланс достаточен. Какой подход правильный?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Validation (collect all) — чтобы показать все проблемы сразу",
+        "correct": false,
+        "explanation": "Нет. Шаги логически зависят: проверка баланса бессмысленна без существующего userId. Это последовательная зависимость — monadic."
+      },
+      {
+        "text": "Either (fail-fast) — следующий шаг зависит от результата предыдущего",
+        "correct": true,
+        "explanation": "Верно. Если userId не существует — нет смысла идти в базу за балансом. Either через flatMap: каждый шаг получает значение предыдущего."
+      },
+      {
+        "text": "Оба подхода равнозначны в данном случае",
+        "correct": false,
+        "explanation": "Нет. Applicative (Validation) требует независимости шагов. Здесь шаги зависят — нужна монада."
+      },
+      {
+        "text": "Нужно использовать try/catch вместо Either",
+        "correct": false,
+        "explanation": "try/catch работает, но теряет типизацию ошибок и смешивает ожидаемые ошибки (нет userId) с неожиданными (сетевой сбой). Either даёт явный контракт."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт при вызове withContentType(withAuth(token)(req)), если обе функции реализованы через spread?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Второй вызов перезапишет headers из первого — останется только Content-Type",
+        "correct": false,
+        "explanation": "Нет. При правильной реализации через { ...req.headers, ... } headers сливаются: оба заголовка присутствуют в финальном объекте."
+      },
+      {
+        "text": "Оба заголовка — Authorization и Content-Type — присутствуют в результате",
+        "correct": true,
+        "explanation": "Верно. { ...req.headers, Authorization: ... } сохраняет существующие headers и добавляет новый. Вложенный spread при обоих вызовах даёт слияние."
+      },
+      {
+        "text": "Будет ошибка компиляции TypeScript — нельзя применять два withX подряд",
+        "correct": false,
+        "explanation": "Нет. Каждый withX принимает и возвращает ApiRequest — типы совместимы, и можно применять цепочкой."
+      },
+      {
+        "text": "req будет мутирован — это side effect",
+        "correct": false,
+        "explanation": "Нет. При правильной реализации через spread оригинальный req не изменяется — создаётся новый объект."
+      }
+    ]
+  },
+  {
+    "question": "Почему в event processing pipeline функцию enrich делают всегда успешной (не возвращает Either), а validate — возвращает Either?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Enrich только добавляет данные — этот шаг не может провалиться по логике задачи",
+        "correct": true,
+        "explanation": "Верно. Добавить sessionId или region к любому событию можно всегда. Ошибки тут нет — просто трансформация."
+      },
+      {
+        "text": "Validate отфильтровывает невалидные события — это семантика ошибки, Either подходит лучше",
+        "correct": true,
+        "explanation": "Верно. Left('missing id') означает 'это событие невалидно'. Either явно кодирует этот отказ и позволяет downstream-коду его обработать."
+      },
+      {
+        "text": "Enrich работает быстрее без Either-обёртки",
+        "correct": false,
+        "explanation": "Производительность — не причина. Either-обёртка добавляет только объект, это не узкое место. Причина архитектурная."
+      },
+      {
+        "text": "Разделение упрощает тестирование: enrich всегда даёт результат, validate — проверяемые кейсы Left/Right",
+        "correct": true,
+        "explanation": "Верно. enrich легко тестировать: вход → ожидаемый выход. validate тестируется парами: валидный вход → Right, невалидный → Left с конкретным сообщением."
+      }
+    ]
+  },
+  {
+    "question": "Как называется архитектурный паттерн, при котором pure функции обрабатывают данные, а побочные эффекты (запись в БД, метрики) выполняются только снаружи pipeline?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Event Sourcing",
+        "correct": false,
+        "explanation": "Event Sourcing — это хранение состояния как потока событий. Это смежная концепция, но не ответ на вопрос."
+      },
+      {
+        "text": "Functional core, imperative shell",
+        "correct": true,
+        "explanation": "Верно. Чистое ядро (трансформации, валидация) + грязная оболочка (IO, БД, сеть). Паттерн позволяет тестировать ядро без моков и изолировать побочные эффекты."
+      },
+      {
+        "text": "CQRS",
+        "correct": false,
+        "explanation": "CQRS (Command Query Responsibility Segregation) — разделение команд и запросов. Это архитектурный паттерн на уровне API, не про pure/impure разделение."
+      },
+      {
+        "text": "Dependency Injection",
+        "correct": false,
+        "explanation": "DI — про инверсию зависимостей. Это другой паттерн, хотя FP-подход к DI (через функции высшего порядка) используется на Level 11."
+      }
+    ]
+  },
+  {
+    "question": "Библиотека Zod при вызове safeParse() использует Either или Validation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Either (fail-fast) — Zod останавливается на первой ошибке схемы",
+        "correct": false,
+        "explanation": "Нет. Zod safeParse возвращает все ошибки через result.error.issues — это поведение Validation (applicative). Все поля проверяются независимо."
+      },
+      {
+        "text": "Validation (collect all) — safeParse проверяет все поля и возвращает массив ошибок",
+        "correct": true,
+        "explanation": "Верно. result.error.issues — массив всех ошибок схемы. Zod не останавливается на первой ошибке при safeParse, что типично для applicative-подхода."
+      },
+      {
+        "text": "Zod не относится к Either или Validation — это другая концепция",
+        "correct": false,
+        "explanation": "Нет. safeParse возвращает { success: true, data } или { success: false, error: ZodError } — это изоморфно Either. А сбор всех ошибок — это applicative (Validation)."
+      },
+      {
+        "text": "Зависит от опций: по умолчанию Either, с флагом allErrors — Validation",
+        "correct": false,
+        "explanation": "Нет. Zod по умолчанию собирает все ошибки в safeParse. Есть опция abortEarly в других библиотеках (Yup), но не в Zod по умолчанию."
+      }
+    ]
+  },
+  {
+    "question": "Вы рефакторите код: заменяете if/else для обработки ошибок API на Either. Какое из утверждений описывает главное преимущество?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "TypeScript знает тип ошибки: вместо unknown в catch — конкретный тип Left",
+        "correct": true,
+        "explanation": "Верно. Either<NetworkError | ParseError, User> — компилятор знает, какие именно ошибки возможны. try/catch даёт только unknown."
+      },
+      {
+        "text": "Код работает быстрее — исключения дорогостоящие операции в JS-рантайме",
+        "correct": false,
+        "explanation": "Теоретически верно в edge cases, но это не главное преимущество. Either применяется ради корректности типов и композируемости, а не производительности."
+      },
+      {
+        "text": "Ошибки нельзя случайно проигнорировать — Either заставляет обработать Left",
+        "correct": true,
+        "explanation": "Верно. Чтобы получить значение из Right, нужно явно обработать Left. Это приводит к явной обработке ошибок везде."
+      },
+      {
+        "text": "Функции с Either легко тестировать — возвращают либо Left либо Right, без исключений",
+        "correct": true,
+        "explanation": "Верно. Нет нужды в try/catch в тестах. Просто assert(isLeft(result)) или assert(isRight(result)) — предсказуемые результаты."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть request builder: const req = withAuth(token)(get('/api/v1')({})(undefined)). Как добавить новый заголовок X-Request-Id без изменения существующих функций?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Мутировать req.headers после создания: req.headers['X-Request-Id'] = uuid()",
+        "correct": false,
+        "explanation": "Нет. Мутация нарушает принцип pure middleware. Объект req может использоваться повторно или в параллельных запросах."
+      },
+      {
+        "text": "Создать withRequestId = (id) => (req) => ({ ...req, headers: { ...req.headers, 'X-Request-Id': id } }) и применить его",
+        "correct": true,
+        "explanation": "Верно. Новая pure middleware-функция в том же стиле. Применяется в цепочке: withRequestId(uuid())(withAuth(token)(req)). Существующий код не меняется."
+      },
+      {
+        "text": "Добавить опциональный параметр requestId в функцию get()",
+        "correct": false,
+        "explanation": "Нет. Это нарушает принцип composability — get() становится монолитной. Каждый middleware должен отвечать за одну вещь."
+      },
+      {
+        "text": "Изменить withAuth, чтобы он принимал дополнительные headers",
+        "correct": false,
+        "explanation": "Нет. withAuth отвечает за авторизацию, не за произвольные headers. Смешивание ответственностей делает код труднее тестировать и переиспользовать."
+      }
+    ]
+  },
+  {
+    "question": "Redux reducers, Zod safeParse, React Query useQuery — что объединяет эти инструменты с точки зрения FP?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Redux reducer — pure function: (state, action) → state без побочных эффектов",
+        "correct": true,
+        "explanation": "Верно. Детерминированность редьюсера — основа Redux DevTools time-travel. Pure function = тестируемость без моков."
+      },
+      {
+        "text": "Zod safeParse реализует Validation (applicative) — собирает все ошибки схемы",
+        "correct": true,
+        "explanation": "Верно. result.error.issues — массив всех ошибок. Все поля проверяются независимо — applicative, не monadic."
+      },
+      {
+        "text": "React Query useQuery реализует паттерн RemoteData — четыре состояния загрузки",
+        "correct": true,
+        "explanation": "Верно. isLoading/isError/data/isIdle — это NotAsked/Loading/Failure/Success. Usequery декларативно — описываешь что нужно, не как загружать."
+      },
+      {
+        "text": "Все три написаны на fp-ts внутри",
+        "correct": false,
+        "explanation": "Нет. Ни одна из них не использует fp-ts. FP-идеи воплощаются без специальных библиотек: pure functions, Either-like типы, ADT."
+      }
+    ]
+  },
+  {
+    "question": "Студент реализовал validateCollect и получает Left(['не реализовано']) даже при валидных данных. Какая наиболее вероятная ошибка?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Забыл проверить isRight перед сборкой Success-объекта — всегда возвращает Left",
+        "correct": false,
+        "explanation": "Нет. Эта ошибка привела бы к panic/ошибке при обращении к value на Left. Описанный симптом — всегда Left — указывает на другое."
+      },
+      {
+        "text": "Функция validateCollect возвращает заглушку Left(['не реализовано']) — TODO не удалён",
+        "correct": true,
+        "explanation": "Верно. В студенческом файле стоит return Left(['не реализовано']) как заглушка. Нужно реализовать логику сбора ошибок вместо этого."
+      },
+      {
+        "text": "Тип Validation<E, A> несовместим с Either<E[], A> — нужна явная конвертация",
+        "correct": false,
+        "explanation": "Нет. Validation<E, A> определён как type-alias для Either<E[], A> — они идентичны. Конвертация не нужна."
+      },
+      {
+        "text": "Все валидаторы возвращают Left — значит поля содержат невалидные данные",
+        "correct": false,
+        "explanation": "Это было бы корректным поведением, а не ошибкой. Симптом 'даже при валидных данных' исключает этот вариант."
+      }
+    ]
+  }
+]

@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Что происходит при создании Effect.sync(() => sideEffect())?",
+    "type": "single",
+    "options": [
+      {
+        "text": "sideEffect() выполняется немедленно",
+        "correct": false,
+        "explanation": "Нет. Effect.sync создаёт ленивое описание программы, но ничего не запускает."
+      },
+      {
+        "text": "sideEffect() будет вызван только при runSync/runPromise",
+        "correct": true,
+        "explanation": "Верно. Effect — это lazily evaluated описание. Код в thunk выполняется только при явном запуске."
+      },
+      {
+        "text": "Возникнет TypeScript ошибка — нельзя передавать побочные эффекты",
+        "correct": false,
+        "explanation": "Нет. Effect.sync специально предназначен для оборачивания синхронных побочных эффектов."
+      },
+      {
+        "text": "sideEffect() выполняется при следующем рендере компонента",
+        "correct": false,
+        "explanation": "Нет. Effect никак не связан с React-циклом, он запускается только через runSync/runPromise."
+      }
+    ]
+  },
+  {
+    "question": "Какой тип имеет Effect.succeed(42)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Effect<number, Error, never>",
+        "correct": false,
+        "explanation": "Нет. succeed не может провалиться, поэтому тип ошибки — never, не Error."
+      },
+      {
+        "text": "Effect<number, never, never>",
+        "correct": true,
+        "explanation": "Верно. succeed гарантирует успех: A=number, E=never (не может упасть), R=never (нет зависимостей)."
+      },
+      {
+        "text": "Effect<42, never, never>",
+        "correct": false,
+        "explanation": "Нет. TypeScript выводит тип number, а не литеральный тип 42 в данном случае."
+      },
+      {
+        "text": "Promise<number>",
+        "correct": false,
+        "explanation": "Нет. Effect и Promise — разные типы. Effect остаётся ленивым описанием, не Promise."
+      }
+    ]
+  },
+  {
+    "question": "Что делает Effect.catchTag('NetworkError', handler)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Перехватывает только ошибки с _tag === 'NetworkError'",
+        "correct": true,
+        "explanation": "Верно. catchTag дискриминирует по полю _tag — это tagged union паттерн."
+      },
+      {
+        "text": "Убирает NetworkError из типа ошибки pipeline",
+        "correct": true,
+        "explanation": "Верно. После catchTag TypeScript знает, что NetworkError обработан и исключает его из E-типа."
+      },
+      {
+        "text": "Перехватывает все ошибки, если NetworkError встречается первым",
+        "correct": false,
+        "explanation": "Нет. catchTag перехватывает строго по тегу, другие ошибки продолжают распространяться."
+      },
+      {
+        "text": "Позволяет заменить упавший эффект на recovery эффект",
+        "correct": true,
+        "explanation": "Верно. Handler принимает ошибку и возвращает Effect — это recovery/fallback логика."
+      }
+    ]
+  },
+  {
+    "question": "Чем Layer отличается от прямой передачи зависимости через аргумент функции?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Layer позволяет инъектировать зависимости без явной передачи через аргументы",
+        "correct": true,
+        "explanation": "Верно. Context.Tag + Layer работают как IoC-контейнер: зависимость объявляется как требование, а не параметр."
+      },
+      {
+        "text": "Layer типобезопасен — Requirements тип фиксирует все зависимости",
+        "correct": true,
+        "explanation": "Верно. Третий параметр Effect<A, E, R> точно кодирует все необходимые сервисы."
+      },
+      {
+        "text": "Layer работает быстрее, потому что использует кэширование",
+        "correct": false,
+        "explanation": "Производительность — не главное преимущество. Layer решает задачу модульности и тестируемости."
+      },
+      {
+        "text": "Layer позволяет заменять реализации (dev/test/prod) без изменения бизнес-логики",
+        "correct": true,
+        "explanation": "Верно. Это главная ценность Layer — бизнес-логика не знает про реализацию зависимостей."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно создать Layer для сервиса Logger?",
+    "type": "single",
+    "options": [
+      {
+        "text": "const LoggerLayer = new Logger({ log: msg => console.log(msg) })",
+        "correct": false,
+        "explanation": "Нет. Logger — это Context.Tag, не класс для инстанцирования напрямую."
+      },
+      {
+        "text": "const LoggerLayer = Layer.succeed(Logger, { log: msg => Effect.sync(() => console.log(msg)) })",
+        "correct": true,
+        "explanation": "Верно. Layer.succeed принимает тег сервиса и его реализацию. Метод log возвращает Effect."
+      },
+      {
+        "text": "const LoggerLayer = Context.make(Logger, { log: msg => console.log(msg) })",
+        "correct": false,
+        "explanation": "Нет. Context.make создаёт Context, а не Layer. Для инъекции нужен Layer."
+      },
+      {
+        "text": "const LoggerLayer = Effect.provideService(Logger, { log: msg => Effect.sync(() => console.log(msg)) })",
+        "correct": false,
+        "explanation": "Нет. Effect.provideService используется иначе — он оборачивает конкретный эффект, не создаёт Layer."
+      }
+    ]
+  },
+  {
+    "question": "Когда использовать Effect.gen вместо pipe?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Когда нужны ветвления (if/else) внутри цепочки",
+        "correct": true,
+        "explanation": "Верно. gen позволяет писать обычный императивный код с yield*, if/else работают естественно."
+      },
+      {
+        "text": "Когда цепочка содержит больше 2 шагов",
+        "correct": false,
+        "explanation": "Количество шагов само по себе не определяет выбор. pipe читается хорошо даже при 5-6 шагах."
+      },
+      {
+        "text": "Когда нужно использовать значение предыдущего шага в нескольких последующих",
+        "correct": true,
+        "explanation": "Верно. В pipe доступ к предыдущим значениям неудобен, в gen — переменные сохраняются как обычно."
+      },
+      {
+        "text": "Для циклов и условной логики внутри эффекта",
+        "correct": true,
+        "explanation": "Верно. Effect.gen делает асинхронный код похожим на обычный — циклы и условия работают нативно."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть Effect<User, AuthError | NetworkError>. Что вернёт catchTag('AuthError', recovery)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Effect<User, AuthError | NetworkError>",
+        "correct": false,
+        "explanation": "Нет. После catchTag тип обработанной ошибки убирается из union."
+      },
+      {
+        "text": "Effect<User, NetworkError>",
+        "correct": true,
+        "explanation": "Верно. AuthError обработан, остаётся только NetworkError в типе ошибки."
+      },
+      {
+        "text": "Effect<User, never>",
+        "correct": false,
+        "explanation": "Нет. catchTag обрабатывает только AuthError, NetworkError по-прежнему возможна."
+      },
+      {
+        "text": "Effect<User | undefined, NetworkError>",
+        "correct": false,
+        "explanation": "Нет. Тип успеха зависит от recovery эффекта, но не добавляет undefined автоматически."
+      }
+    ]
+  },
+  {
+    "question": "Вы пишете сервис для небольшого скрипта на 80 строк, который парсит CSV и выводит статистику. Стоит ли использовать Effect?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Да, Effect всегда лучше любого другого подхода",
+        "correct": false,
+        "explanation": "Нет. Effect добавляет cognitive overhead. Для маленьких утилит он избыточен."
+      },
+      {
+        "text": "Нет, для такого скрипта Effect — overkill, достаточно обычных функций",
+        "correct": true,
+        "explanation": "Верно. Effect оправдан в больших приложениях с множеством зависимостей и сложной обработкой ошибок."
+      },
+      {
+        "text": "Только если скрипт будет выполняться параллельно",
+        "correct": false,
+        "explanation": "Параллелизм не главный критерий. Даже параллельный скрипт на 80 строк не требует Effect."
+      },
+      {
+        "text": "Да, typed errors обязательны даже в скриптах",
+        "correct": false,
+        "explanation": "Typed errors полезны, но их можно получить и через Result/Either паттерны без всего Effect."
+      }
+    ]
+  },
+  {
+    "question": "Чем Effect.runSync отличается от Effect.runPromise?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "runSync выполняет только синхронные эффекты, runPromise — и асинхронные",
+        "correct": true,
+        "explanation": "Верно. runSync бросит исключение, если эффект содержит async-операции."
+      },
+      {
+        "text": "runSync возвращает значение напрямую, runPromise — Promise",
+        "correct": true,
+        "explanation": "Верно. runSync синхронно возвращает A, runPromise возвращает Promise<A>."
+      },
+      {
+        "text": "runSync нельзя использовать с Effect.succeed",
+        "correct": false,
+        "explanation": "Нет. Effect.succeed — чисто синхронный эффект, runSync с ним работает отлично."
+      },
+      {
+        "text": "runSync при ошибке бросает исключение, runPromise — возвращает rejected Promise",
+        "correct": true,
+        "explanation": "Верно. Это стандартное поведение синхронного vs асинхронного выполнения."
+      }
+    ]
+  },
+  {
+    "question": "Как Effect.gen соотносится с async/await из JavaScript?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Effect.gen — это просто псевдоним для async/await",
+        "correct": false,
+        "explanation": "Нет. Это разные механизмы. async/await — встроенный синтаксис JS для Promise, Effect.gen — генераторная функция."
+      },
+      {
+        "text": "Effect.gen с yield* — аналог async/await, но для Effect вместо Promise",
+        "correct": true,
+        "explanation": "Верно. Идея одинаковая: последовательное выполнение async-операций в читаемом стиле, но вместо Promise — Effect."
+      },
+      {
+        "text": "Effect.gen медленнее async/await из-за генераторов",
+        "correct": false,
+        "explanation": "Производительность обычно не является аргументом против Effect.gen. Оверхед минимален для большинства задач."
+      },
+      {
+        "text": "Effect.gen не поддерживает try/catch",
+        "correct": false,
+        "explanation": "Нет. В Effect.gen можно использовать try/catch, хотя обычно предпочитают Effect.catchTag/catchAll."
+      }
+    ]
+  }
+]

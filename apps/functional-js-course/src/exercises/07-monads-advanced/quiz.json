@@ -1,0 +1,324 @@
+[
+  {
+    "question": "Что происходит при вызове `new IO(() => console.log('hi'))`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "В консоль выводится 'hi'",
+        "correct": false,
+        "explanation": "Нет — IO ленив. Функция передаётся как аргумент, но не вызывается при создании объекта."
+      },
+      {
+        "text": "Ничего не происходит — создаётся описание эффекта",
+        "correct": true,
+        "explanation": "Правильно. IO хранит функцию `() => T` как данные. Эффект выполнится только при явном вызове `.run()`."
+      },
+      {
+        "text": "Выбрасывается исключение — console.log нельзя использовать в IO",
+        "correct": false,
+        "explanation": "IO не ограничивает содержимое эффекта. Любая функция `() => T` допустима — смысл в том, что она не вызывается немедленно."
+      },
+      {
+        "text": "Создаётся Promise с логом",
+        "correct": false,
+        "explanation": "IO — синхронная монада, она оборачивает `() => T`, а не `() => Promise<T>`. Для асинхронных эффектов используется Task."
+      }
+    ]
+  },
+  {
+    "question": "В чём ключевое отличие Task от Promise?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Task всегда быстрее Promise",
+        "correct": false,
+        "explanation": "Скорость зависит от выполняемой операции, а не от обёртки. Task не оптимизирует выполнение."
+      },
+      {
+        "text": "Task ленив — выполняется только при вызове `.run()`, Promise выполняется сразу при создании",
+        "correct": true,
+        "explanation": "Это главное отличие. `new Promise(executor)` вызывает executor немедленно. Task хранит `() => Promise<T>` и запускает её только в `.run()`."
+      },
+      {
+        "text": "Task поддерживает только синхронные операции",
+        "correct": false,
+        "explanation": "Task оборачивает `() => Promise<T>` — он полностью асинхронный. Синхронные эффекты — область IO."
+      },
+      {
+        "text": "Task нельзя отменить, Promise можно",
+        "correct": false,
+        "explanation": "И Task, и обычный Promise не имеют встроенной отмены. Это не является отличием между ними."
+      }
+    ]
+  },
+  {
+    "question": "Что вернёт следующий код?\n```ts\nconst t = new Task(() => Promise.resolve(42))\nconst t2 = t.map(x => x * 2)\n```",
+    "type": "single",
+    "options": [
+      {
+        "text": "84 — map немедленно применяет функцию",
+        "correct": false,
+        "explanation": "Task ленив. `map` создаёт новый Task с изменённым форком, но не вызывает `.run()`. Значение 84 появится только после `t2.run()`."
+      },
+      {
+        "text": "Promise<84> — map запускает форк",
+        "correct": false,
+        "explanation": "map не вызывает `this.fork()`. Только `.run()` возвращает Promise."
+      },
+      {
+        "text": "Task<84> — новый Task с отложенной трансформацией",
+        "correct": true,
+        "explanation": "Правильно. `map` возвращает `new Task(() => this.fork().then(fn))` — описание вычисления, которое выполнится при `.run()`."
+      },
+      {
+        "text": "Ошибка компиляции — Task не поддерживает map",
+        "correct": false,
+        "explanation": "Task реализует map, flatMap и другие монадические операции."
+      }
+    ]
+  },
+  {
+    "question": "Какой результат вернёт `Task.parallel([t1, t2, t3]).run()` если t1 занимает 800ms, t2 — 500ms, t3 — 1200ms?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Promise, который резолвится через ~2500ms (все задачи последовательно)",
+        "correct": false,
+        "explanation": "`Task.parallel` запускает все Task одновременно через `Promise.all`. Общее время — максимум из отдельных задач."
+      },
+      {
+        "text": "Promise, который резолвится через ~1200ms (задачи выполняются параллельно)",
+        "correct": true,
+        "explanation": "Правильно. `Promise.all` запускает все Task одновременно и ждёт завершения самого долгого (1200ms)."
+      },
+      {
+        "text": "Promise, который резолвится через ~500ms (только самый быстрый)",
+        "correct": false,
+        "explanation": "Это поведение `Promise.race`, а не `Promise.all`. `Task.parallel` ждёт все Task."
+      },
+      {
+        "text": "Ошибка — Task.parallel не существует",
+        "correct": false,
+        "explanation": "`Task.parallel` — стандартная операция для параллельного запуска нескольких Task."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит в `Do`-генераторе при получении `Left`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Выбрасывается JavaScript-исключение",
+        "correct": false,
+        "explanation": "`Do` не использует `throw`. При `Left` функция `Do` просто возвращает `Left` — без исключений, в обычном потоке выполнения."
+      },
+      {
+        "text": "Генератор продолжает выполнение, Left передаётся как значение yield",
+        "correct": false,
+        "explanation": "Нет. Когда `Do` получает `Left` из `yield`, она немедленно прекращает итерацию и возвращает этот `Left`. Генератор не продолжается."
+      },
+      {
+        "text": "`Do` возвращает этот `Left` немедленно, не продолжая итерацию генератора",
+        "correct": true,
+        "explanation": "Правильно. Это short-circuit: `if (either.tag === 'Left') return either`. Дальнейшие `yield` в генераторе не выполняются."
+      },
+      {
+        "text": "Left преобразуется в None и итерация продолжается",
+        "correct": false,
+        "explanation": "`Do` работает только с Either и не преобразует Left в другие типы. Short-circuit — основная семантика монадического bind для Either."
+      }
+    ]
+  },
+  {
+    "question": "Выберите все верные утверждения об IO-монаде:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "IO.of(x).run() всегда возвращает x",
+        "correct": true,
+        "explanation": "`IO.of(x)` создаёт `new IO(() => x)`, и `.run()` вызывает `() => x`, возвращая x. Это закон left identity."
+      },
+      {
+        "text": "io.map(fn) немедленно применяет fn к результату",
+        "correct": false,
+        "explanation": "`map` создаёт новый IO, не вызывая эффект. `fn` применится только при последующем `.run()`."
+      },
+      {
+        "text": "Один и тот же IO можно запустить несколько раз",
+        "correct": true,
+        "explanation": "Правильно. Каждый вызов `.run()` заново выполняет `this.effect()`. В отличие от Promise, IO не кэширует результат."
+      },
+      {
+        "text": "IO гарантирует, что функция-эффект вызовется не более одного раза",
+        "correct": false,
+        "explanation": "IO не даёт никаких гарантий по количеству запусков. Можно вызвать `.run()` сколько угодно раз."
+      },
+      {
+        "text": "IO делает побочные эффекты явными на уровне типов",
+        "correct": true,
+        "explanation": "Именно. Тип `IO<T>` сигнализирует: эта функция описывает эффект. Без IO побочные эффекты ничем не отличаются от чистых функций в сигнатуре."
+      }
+    ]
+  },
+  {
+    "question": "Какова связь между `async/await` и Do-нотацией?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Никакой связи — это принципиально разные механизмы",
+        "correct": false,
+        "explanation": "Связь прямая. `async/await` — это встроенная в JavaScript Do-нотация для Promise-монады."
+      },
+      {
+        "text": "async/await — это Do-нотация для Promise, встроенная в язык",
+        "correct": true,
+        "explanation": "Правильно. `await` = `yield`-в-Do, отклонение Promise = Left в Either. Оба механизма реализуют short-circuit и линейный синтаксис для монадических цепочек."
+      },
+      {
+        "text": "Do-нотация — это более медленная версия async/await",
+        "correct": false,
+        "explanation": "Do-нотация через генераторы не медленнее async/await для синхронных операций. Производительность зависит от конкретной монады, а не от синтаксиса."
+      },
+      {
+        "text": "async/await компилируется в Do-нотацию через Babel",
+        "correct": false,
+        "explanation": "async/await — стандартный синтаксис ECMAScript, реализованный напрямую в движке. Do через генераторы — отдельная пользовательская реализация для других монад."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть три независимых Task: `fetchUser`, `fetchPermissions`, `fetchSettings`. Какой подход корректен для параллельного получения всех трёх?",
+    "type": "single",
+    "options": [
+      {
+        "text": "fetchUser.flatMap(u => fetchPermissions.flatMap(p => fetchSettings.map(s => [u, p, s])))",
+        "correct": false,
+        "explanation": "Это последовательное выполнение через flatMap-цепочку. Каждый Task стартует только после завершения предыдущего."
+      },
+      {
+        "text": "Task.parallel([fetchUser, fetchPermissions, fetchSettings])",
+        "correct": true,
+        "explanation": "Правильно. `Task.parallel` запускает все три Task одновременно через `Promise.all`, давая максимальный результат за минимальное время."
+      },
+      {
+        "text": "Promise.all([fetchUser, fetchPermissions, fetchSettings])",
+        "correct": false,
+        "explanation": "Task — не Promise. Чтобы передать в `Promise.all`, нужно вызвать `.run()` у каждого, что нарушает ленивость. Используйте `Task.parallel`."
+      },
+      {
+        "text": "fetchUser.map(u => [u, fetchPermissions.run(), fetchSettings.run()])",
+        "correct": false,
+        "explanation": "Это запустит `fetchUser` последовательно, а внутри map вызовет `.run()` на других Task — смешивая ленивость и немедленное выполнение."
+      }
+    ]
+  },
+  {
+    "question": "Что делает строка `result = iterator.next(either.value)` в реализации `Do`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Перезапускает генератор с начала",
+        "correct": false,
+        "explanation": "`iterator.next(value)` не перезапускает. Он возобновляет выполнение генератора с точки последнего `yield`, передавая `value` как результат этого `yield`."
+      },
+      {
+        "text": "Передаёт распакованное значение Right как результат yield в генераторе и продолжает выполнение",
+        "correct": true,
+        "explanation": "Правильно. `iterator.next(value)` возобновляет генератор, и выражение `yield someEither` в нём получает `value` как своё значение — так `const x = yield Right(42)` присваивает `x = 42`."
+      },
+      {
+        "text": "Создаёт новый Either из значения",
+        "correct": false,
+        "explanation": "Нет, `iterator.next(value)` — это стандартный метод генератора для передачи значения внутрь. Right уже был распакован перед этим вызовом."
+      },
+      {
+        "text": "Проверяет, является ли either.value значением Right",
+        "correct": false,
+        "explanation": "Проверка тега `either.tag === 'Left'` происходит до этой строки. `either.value` здесь — уже извлечённое значение из Right."
+      }
+    ]
+  },
+  {
+    "question": "Вы строите пайплайн: `readFile().flatMap(parseJSON).flatMap(validateSchema)`. Какой результат будет, если `parseJSON` возвращает Left?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Выполнится только `readFile`, `validateSchema` пропустится, вернётся Left от `parseJSON`",
+        "correct": true,
+        "explanation": "Правильно. IO/Either propagation: если `parseJSON` возвращает Left, `flatMap` передаёт этот Left напрямую, не вызывая `validateSchema`. Short-circuit в действии."
+      },
+      {
+        "text": "Все три шага выполнятся, Left от parseJSON запишется в лог",
+        "correct": false,
+        "explanation": "flatMap для Either реализует short-circuit: при Left следующий шаг не вызывается. Это основная семантика railway-oriented programming."
+      },
+      {
+        "text": "Выбрасывается исключение при попытке продолжить цепочку",
+        "correct": false,
+        "explanation": "Either не использует исключения. Left — это обычное значение, которое flatMap пропускает насквозь без вызова следующего шага."
+      },
+      {
+        "text": "Вернётся Right с undefined, так как validateSchema не смогла выполниться",
+        "correct": false,
+        "explanation": "Either никогда не оборачивает ошибку в Right. Если шаг вернул Left, пайплайн возвращает этот Left без изменений."
+      }
+    ]
+  },
+  {
+    "question": "Выберите все характеристики, которые отличают IO от обычной функции `() => T`:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "IO имеет методы map и flatMap для построения цепочек",
+        "correct": true,
+        "explanation": "Правильно. Обычная функция не имеет встроенных монадических операций. IO предоставляет map/flatMap для композиции без немедленного выполнения."
+      },
+      {
+        "text": "IO выполняется автоматически после создания",
+        "correct": false,
+        "explanation": "IO — ленивый. Именно это и отличает его от немедленного вызова функции. Автоматического выполнения нет."
+      },
+      {
+        "text": "Тип IO<T> явно документирует наличие побочного эффекта",
+        "correct": true,
+        "explanation": "Правильно. `() => T` и IO<T> — разные типы. Появление IO<T> в сигнатуре — явный сигнал: эта операция имеет эффект."
+      },
+      {
+        "text": "IO гарантирует отсутствие побочных эффектов",
+        "correct": false,
+        "explanation": "IO не устраняет побочные эффекты — он их откладывает и делает управляемыми. Эффект всё равно происходит при `.run()`."
+      },
+      {
+        "text": "IO позволяет компоновать эффекты без их выполнения",
+        "correct": true,
+        "explanation": "Правильно. Цепочка `.flatMap().map().flatMap()` строит описание многошагового эффекта, не выполняя ни одного шага."
+      }
+    ]
+  },
+  {
+    "question": "Какой паттерн архитектуры реализует использование IO/Task для всех побочных эффектов?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Observer pattern",
+        "correct": false,
+        "explanation": "Observer — паттерн подписки на события. Он не связан с управлением побочными эффектами через монады."
+      },
+      {
+        "text": "Dependency Injection",
+        "correct": false,
+        "explanation": "DI — паттерн передачи зависимостей через конструкторы или параметры. Хотя IO можно использовать для DI, сам паттерн называется иначе."
+      },
+      {
+        "text": "Functional core, imperative shell",
+        "correct": true,
+        "explanation": "Правильно. Чистый функциональный код в центре, IO/Task на границе с внешним миром. Все эффекты изолированы в 'оболочке', ядро — чисто тестируемые функции."
+      },
+      {
+        "text": "Repository pattern",
+        "correct": false,
+        "explanation": "Repository — паттерн абстракции хранилища данных. Он может использовать IO внутри, но это разные концепции."
+      }
+    ]
+  }
+]

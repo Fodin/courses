@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Что делает Immer produce(state, draft => { draft.count++ })?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Мутирует оригинальный state.count",
+        "correct": false,
+        "explanation": "Нет. produce работает с Proxy-копией (draft), оригинальный state остаётся неизменным."
+      },
+      {
+        "text": "Возвращает новый объект с изменённым count, оригинал не тронут",
+        "correct": true,
+        "explanation": "Верно. Immer записывает мутации через Proxy и применяет их к копии через structural sharing."
+      },
+      {
+        "text": "Выбрасывает исключение: нельзя мутировать draft",
+        "correct": false,
+        "explanation": "Нет. Цель draft — именно в том, чтобы его мутировать внутри produce."
+      },
+      {
+        "text": "Возвращает тот же объект state, так как count — примитив",
+        "correct": false,
+        "explanation": "Нет. produce всегда возвращает новый объект при изменениях, вне зависимости от типа поля."
+      }
+    ]
+  },
+  {
+    "question": "В Undo/Redo паттерне что должно происходить с future при вызове dispatch?",
+    "type": "single",
+    "options": [
+      {
+        "text": "future сохраняется — можно будет снова нажать Redo",
+        "correct": false,
+        "explanation": "Нет. Когда пользователь выполняет новое действие после undo — future становится недействительным."
+      },
+      {
+        "text": "future очищается — новые действия обнуляют 'будущее'",
+        "correct": true,
+        "explanation": "Верно. Это стандартная семантика undo/redo: новое действие после undo создаёт новую ветку истории."
+      },
+      {
+        "text": "future добавляется в past вместе с present",
+        "correct": false,
+        "explanation": "Нет. future — это состояния, которые можно восстановить через redo. При dispatch они теряют смысл."
+      },
+      {
+        "text": "future остаётся, но первый элемент помечается как устаревший",
+        "correct": false,
+        "explanation": "Нет. В стандартной реализации undo/redo future просто очищается при новом действии."
+      }
+    ]
+  },
+  {
+    "question": "Какую проблему решает тип RemoteData<E, A> по сравнению с тремя флагами loading/error/data?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Исключает недопустимые комбинации состояний (например loading: true и data: [...])",
+        "correct": true,
+        "explanation": "Верно. Discriminated union гарантирует ровно одно из четырёх состояний в каждый момент."
+      },
+      {
+        "text": "Делает компилятор TypeScript ответственным за полноту обработки состояний",
+        "correct": true,
+        "explanation": "Верно. При exhaustive switch TypeScript сообщит об ошибке, если добавить новое состояние, но не обработать его."
+      },
+      {
+        "text": "Работает быстрее чем отдельные useState-вызовы",
+        "correct": false,
+        "explanation": "Производительность не является мотивом. Ценность RemoteData — в корректности типов, а не в скорости."
+      },
+      {
+        "text": "Хранит state и связанные данные в одной переменной",
+        "correct": true,
+        "explanation": "Верно. Вместо трёх отдельных переменных — один rd, где и state, и данные всегда согласованы."
+      }
+    ]
+  },
+  {
+    "question": "Что возвращает mapRD(notAsked(), x => x * 2)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "{ tag: 'Success', data: NaN }",
+        "correct": false,
+        "explanation": "Нет. mapRD применяет функцию только к Success. NotAsked возвращается без изменений."
+      },
+      {
+        "text": "{ tag: 'NotAsked' }",
+        "correct": true,
+        "explanation": "Верно. Как functor map — функция применяется только к значению внутри Success, остальные состояния пропускаются."
+      },
+      {
+        "text": "null",
+        "correct": false,
+        "explanation": "Нет. mapRD всегда возвращает RemoteData, никогда null."
+      },
+      {
+        "text": "Выбросит исключение — нет данных для применения функции",
+        "correct": false,
+        "explanation": "Нет. mapRD безопасно возвращает исходное состояние, когда данных нет."
+      }
+    ]
+  },
+  {
+    "question": "Почему компонент Match предпочтительнее цепочки if/else для RemoteData?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "TypeScript гарантирует, что все состояния обработаны (exhaustive check)",
+        "correct": true,
+        "explanation": "Верно. Switch с discriminated union + отсутствие default даёт exhaustiveness: компилятор сообщит о пропущенном состоянии."
+      },
+      {
+        "text": "Match работает быстрее чем if/else во время рендера",
+        "correct": false,
+        "explanation": "Нет. Switch и if/else имеют одинаковую производительность. Преимущество Match — в корректности, не в скорости."
+      },
+      {
+        "text": "Декларативная форма: handler для каждого состояния явно задан как prop",
+        "correct": true,
+        "explanation": "Верно. Все четыре обработчика видны в одном месте — это делает код самодокументируемым."
+      },
+      {
+        "text": "Невозможно добавить новый вариант RemoteData без обновления всех Match-компонентов",
+        "correct": true,
+        "explanation": "Верно. Это желаемое поведение: TypeScript заставит обновить все точки использования при изменении типа."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно реализовать useDebouncedValue?",
+    "type": "single",
+    "options": [
+      {
+        "text": "useState + useEffect с setTimeout без clearTimeout",
+        "correct": false,
+        "explanation": "Нет. Без clearTimeout при каждом изменении value будет накапливаться несколько таймеров — значение обновится несколько раз."
+      },
+      {
+        "text": "useState + useEffect с setTimeout и clearTimeout в cleanup",
+        "correct": true,
+        "explanation": "Верно. Cleanup-функция очищает предыдущий таймер при каждом изменении value. Только последний таймер сработает."
+      },
+      {
+        "text": "useRef с setInterval внутри useEffect",
+        "correct": false,
+        "explanation": "Нет. setInterval повторяет выполнение, setTimeout — один раз. Для дебаунса нужен setTimeout."
+      },
+      {
+        "text": "useMemo с зависимостью от value",
+        "correct": false,
+        "explanation": "Нет. useMemo синхронный — он не может задержать обновление значения во времени."
+      }
+    ]
+  },
+  {
+    "question": "У вас есть useFilteredList(products, [byCategory(cat), byPriceRange(min, max)]). Как меняется результат при добавлении нового фильтра?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Результат становится объединением (OR) трёх фильтров",
+        "correct": false,
+        "explanation": "Нет. filters.every(f => f(item)) — это логическое AND. Элемент должен пройти КАЖДЫЙ фильтр."
+      },
+      {
+        "text": "Новый фильтр добавляет дополнительное ограничение (AND)",
+        "correct": true,
+        "explanation": "Верно. every возвращает true только когда все фильтры вернули true для элемента."
+      },
+      {
+        "text": "Новый фильтр заменяет предыдущие",
+        "correct": false,
+        "explanation": "Нет. Все фильтры в массиве применяются одновременно через every."
+      },
+      {
+        "text": "Порядок фильтров влияет на результат",
+        "correct": false,
+        "explanation": "Нет. every прекращает выполнение на первом false, но финальный список одинаков при любом порядке."
+      }
+    ]
+  },
+  {
+    "question": "Вы строите форму регистрации. Поле email имеет правила: обязательное, валидный формат. Как правильно объединить правила через pipeRules?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "pipeRules(checkRequired('Заполните email'), checkPattern(/email-regex/, 'Неверный формат'))",
+        "correct": true,
+        "explanation": "Верно. Оба правила передаются в pipeRules, ошибки будут объединены."
+      },
+      {
+        "text": "Запустить checkRequired и checkPattern отдельно, объединить ошибки вручную",
+        "correct": false,
+        "explanation": "Нет. Это нарушает идею composition — pipeRules именно для этого и нужен."
+      },
+      {
+        "text": "pipeRules вернёт первую ошибку, остальные правила не выполнятся",
+        "correct": false,
+        "explanation": "Нет. pipeRules через flatMap запускает ВСЕ правила и собирает все ошибки."
+      },
+      {
+        "text": "Добавить checkMinLength внутрь checkPattern как дополнительный аргумент",
+        "correct": false,
+        "explanation": "Нет. Правила — независимые функции, каждое отвечает за одну проверку. Их нельзя смешивать."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если в React-компоненте напрямую мутировать массив state.items.push(newItem)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React обнаружит изменение и перерендерит компонент",
+        "correct": false,
+        "explanation": "Нет. React использует поверхностное сравнение ссылок. Мутация объекта не меняет ссылку — перерендера не будет."
+      },
+      {
+        "text": "React не обнаружит изменение — ссылка на массив та же, перерендера не будет",
+        "correct": true,
+        "explanation": "Верно. Это классическая ловушка. Нужно вернуть новый массив: [...state.items, newItem]."
+      },
+      {
+        "text": "TypeScript запретит мутацию readonly-массива",
+        "correct": false,
+        "explanation": "Частично верно: если массив помечен readonly, TypeScript запретит. Но без readonly — компилируется, хотя и неправильно работает."
+      },
+      {
+        "text": "Компонент перерендерится при следующем изменении любого state",
+        "correct": false,
+        "explanation": "Возможно, но это случайный перерендер, а не правильное поведение. Мутация state — источник трудноуловимых багов."
+      }
+    ]
+  },
+  {
+    "question": "В каком из сценариев Undo/Redo будет работать некорректно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Состояния иммутабельны и сохраняются в past через spread",
+        "correct": false,
+        "explanation": "Нет, это правильный подход. Иммутабельные копии позволяют надёжно хранить историю."
+      },
+      {
+        "text": "dispatch не очищает future при каждом действии",
+        "correct": true,
+        "explanation": "Верно. Если future не очищается при dispatch, после undo + новое действие + redo пользователь попадёт в некорректное состояние."
+      },
+      {
+        "text": "История хранит ссылки на иммутабельные объекты",
+        "correct": false,
+        "explanation": "Нет, это правильно. Иммутабельность гарантирует, что прошлые состояния не изменятся при будущих dispatch."
+      },
+      {
+        "text": "past хранит только последние 50 состояний",
+        "correct": false,
+        "explanation": "Ограничение истории — правомерная оптимизация. Это не нарушает корректность, только ограничивает глубину undo."
+      }
+    ]
+  }
+]

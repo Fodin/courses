@@ -1,6 +1,6 @@
 # Courses — монорепозиторий учебных курсов
 
-Монорепозиторий на npm workspaces. Содержит общую платформу и 19 интерактивных курсов с краткой теорией и подробным ее вариантом, заданиями, решениями и квизами на русском и английском языках.
+Монорепозиторий на npm workspaces. Содержит общую платформу и 23 интерактивных курса с краткой теорией и подробным её вариантом, заданиями, решениями и квизами на русском и английском языках.
 
 ## Курсы
 
@@ -11,6 +11,7 @@
 | **mobx-course** | MobX — реактивное управление состоянием, observable, reactions, stores | 10 | 40 | — |
 | **react19-course** | Миграция React 18 → 19 — новые хуки, Server Components, Actions | 9 | 28 | — |
 | **react-components-course** | React Components — композиция, паттерны, хуки, производительность | 13 | 40 | ✅ |
+| **react-deep-dive-course** | React Deep Dive — reconciliation, fiber, hooks internals, concurrent mode, server components | 15 | 51 | ✅ |
 | **error-handling-course** | Обработка ошибок в JS/TS/React — try/catch, Result, Error Boundaries | 10 | 32 | — |
 | **docker-course** | Docker — контейнеры, образы, Compose, сети, volumes, multi-stage builds | 13 | 41 | ✅ |
 | **ts-patterns-course** | Архитектурные паттерны в TypeScript — GoF, Result/Either, DI, Clean Arch | 9 | 31 | — |
@@ -18,6 +19,8 @@
 | **ts-arch-course** | Паттерны и архитектура TS — API contracts, events, builders, DI, state machines, domain modeling | 14 | 56 | — |
 | **node-core-course** | Ядро Node.js — event loop, streams, buffers, networking, child processes, worker threads, crypto | 14 | 50 | — |
 | **node-api-course** | API на Node.js — Express, Fastify, REST, auth, databases, WebSockets, testing, security, production | 15 | 53 | — |
+| **js-async-course** | Асинхронный JavaScript — event loop, promises, async/await, generators, Web Workers, streams | 15 | 51 | ✅ |
+| **functional-js-course** | Функциональный JS — чистые функции, композиция, монады, fp-ts, Effect, Immer | 14 | 42 | ✅ |
 | **system-design-course** | System Design — масштабирование, кэширование, очереди, проектирование систем | 17 | 58 | ✅ |
 | **api-design-course** | Проектирование API — REST, OpenAPI, версионирование, документация, rate limiting | 13 | 39 | ✅ |
 | **cicd-course** | CI/CD — GitHub Actions, Docker, тестирование, деплой, мониторинг | 18 | 57 | — |
@@ -25,6 +28,7 @@
 | **mqtt-course** | MQTT и Mosquitto — IoT-протокол, брокер, QoS, топики, безопасность | 13 | 39 | ✅ |
 | **claude-code-course** | Claude Code — AI-ассистент для разработки, промпты, автоматизация | 13 | 39 | ✅ |
 | **micro-frontends-course** | Микрофронтенды — Module Federation, Single-SPA, Web Components, деплой, миграция | 16 | 36 | ✅ |
+| **engineering-fundamentals-course** | Инженерные основы — типы, ADT, полиморфизм, модульность, IoC, тестирование, метапрограммирование, AI. По [плану Тимура Шемсединова](https://github.com/nicedoc/HowProgrammingWorks) | 19 | 128 квизов | ✅ |
 
 ## Структура
 
@@ -51,7 +55,11 @@ courses/
 │   ├── kafka-rabbitmq-course/
 │   ├── mqtt-course/
 │   ├── claude-code-course/
-│   └── micro-frontends-course/
+│   ├── micro-frontends-course/
+│   ├── react-deep-dive-course/
+│   ├── js-async-course/
+│   ├── functional-js-course/
+│   └── engineering-fundamentals-course/
 │       ├── src/
 │       │   ├── main.tsx              # Точка входа
 │       │   ├── courseConfig.ts       # Конфигурация курса

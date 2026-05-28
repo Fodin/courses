@@ -1,7 +1,7 @@
 import { useState } from 'react'
 
 // ============================================
-// Task 12.1: Library API Design Wizard
+// Task 14.1: Library API Design Wizard
 // ============================================
 
 type ResourceItem = { name: string; description: string; type: string }
@@ -373,7 +373,7 @@ function SolutionContent({ solution, stepId, methodColor }: { solution: WizardSo
   return null
 }
 
-export function Task12_1_Solution() {
+export function Task14_1_Solution() {
   const [currentStep, setCurrentStep] = useState(0)
   const [completedChecks, setCompletedChecks] = useState<Record<string, boolean>>({})
   const [showSolution, setShowSolution] = useState(false)
@@ -555,7 +555,7 @@ export function Task12_1_Solution() {
 }
 
 // ============================================
-// Task 12.2: API Review — найди проблемы
+// Task 14.2: API Review — найди проблемы
 // ============================================
 
 type Problem = {
@@ -749,7 +749,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   'Rate Limiting': '#0ea5e9',
 }
 
-export function Task12_2_Solution() {
+export function Task14_2_Solution() {
   const [problems, setProblems] = useState<Problem[]>(
     PROBLEMS.map(p => ({ id: p.id, category: p.category, found: false, fixed: false }))
   )
@@ -932,7 +932,7 @@ export function Task12_2_Solution() {
 }
 
 // ============================================
-// Task 12.3: E-commerce API Reference Design
+// Task 14.3: E-commerce API Reference Design
 // ============================================
 
 type EcomResource = {
@@ -1264,7 +1264,7 @@ const STATUS_COLORS: Record<string, string> = {
   '400': '#f59e0b', '401': '#ef4444', '403': '#ef4444', '404': '#f59e0b', '409': '#f59e0b',
 }
 
-export function Task12_3_Solution() {
+export function Task14_3_Solution() {
   const [activeResource, setActiveResource] = useState(0)
   const [activeEndpoint, setActiveEndpoint] = useState(0)
   const [showRequest, setShowRequest] = useState(true)

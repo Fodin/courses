@@ -1,0 +1,222 @@
+[
+  {
+    "question": "What does HATEOAS add to an ordinary REST API response?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Links to the next possible actions (_links), not just the resource data",
+        "correct": true,
+        "explanation": "Correct. HATEOAS embeds hypermedia links to available transitions in the response so the client follows them instead of a hardcoded list of URLs."
+      },
+      {
+        "text": "Mandatory encryption of the response body",
+        "correct": false,
+        "explanation": "That's about security (TLS), not HATEOAS. HATEOAS adds transition links, not encryption."
+      },
+      {
+        "text": "Response compression to save bandwidth",
+        "correct": false,
+        "explanation": "Compression (gzip) is a separate optimization. HATEOAS adds meaningful action links, which actually increases the response size."
+      }
+    ]
+  },
+  {
+    "question": "Which level of the Richardson Maturity Model does HATEOAS correspond to?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Level 3 — the highest maturity, adding hypermedia on top of resources, methods, and statuses",
+        "correct": true,
+        "explanation": "Correct. L0 — one endpoint, L1 — resources, L2 — methods and status codes, L3 — HATEOAS (hypermedia). Most APIs live at L2."
+      },
+      {
+        "text": "Level 1 — just the appearance of resources in URLs",
+        "correct": false,
+        "explanation": "Level 1 is only the split into resources. HATEOAS is Level 3, the topmost."
+      },
+      {
+        "text": "Level 0 — everything through one POST endpoint",
+        "correct": false,
+        "explanation": "Level 0 is the opposite of maturity (RPC through one endpoint). HATEOAS is Level 3."
+      }
+    ]
+  },
+  {
+    "question": "Per Fielding, what should a HATEOAS API client know in advance?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only a single entry point (URI); from there, transitions are determined by links in the server's responses",
+        "correct": true,
+        "explanation": "Correct. Like a browser bookmark: you know the entry URL, and from there you follow the links the server puts in the representations."
+      },
+      {
+        "text": "The full list of all the API's endpoints in advance",
+        "correct": false,
+        "explanation": "On the contrary — the essence of HATEOAS is to NOT hardcode the URL list. The client knows only the entry point."
+      },
+      {
+        "text": "The server's database schema",
+        "correct": false,
+        "explanation": "The client shouldn't know the server's internals at all — hypermedia precisely abstracts them away."
+      }
+    ]
+  },
+  {
+    "question": "Why should a client rely on a link's `rel` rather than its `href`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "rel (the meaning of the transition) is stable, while href (the address) the server may change without breaking the client",
+        "correct": true,
+        "explanation": "Correct. The relation name (rel: pay, cancel) is a contract of meaning. The server is free to move the URL behind it; a client reading rel won't break."
+      },
+      {
+        "text": "href can't be read from JSON, but rel can",
+        "correct": false,
+        "explanation": "Both fields read just fine. The point is stability: rel is stable in meaning, href may change."
+      },
+      {
+        "text": "rel contains the request method, href doesn't",
+        "correct": false,
+        "explanation": "The method is usually in a separate method field. The point is the stability of rel as a name of meaning, not the method."
+      }
+    ]
+  },
+  {
+    "question": "An order is in the `paid` state. Which `_links` should NOT be present?",
+    "type": "single",
+    "options": [
+      {
+        "text": "pay — the order is already paid, paying again is not allowed",
+        "correct": true,
+        "explanation": "Correct. The link set depends on state: a paid order should offer ship/refund, while pay must be absent."
+      },
+      {
+        "text": "self — the link to the resource itself",
+        "correct": false,
+        "explanation": "self is always present, in any state — it's the address of the resource itself."
+      },
+      {
+        "text": "ship — shipping after payment is exactly appropriate",
+        "correct": false,
+        "explanation": "On the contrary, ship is logical for a paid order. The one to remove is pay."
+      }
+    ]
+  },
+  {
+    "question": "The main benefit of conditional links (the `_links` set depends on state) for the client?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The client checks for a link's presence (if order._links.cancel) instead of duplicating the server's business rules",
+        "correct": true,
+        "explanation": "Correct. The rule \"when can it be cancelled\" lives on the server. The client doesn't hardcode conditions; it just checks whether the server provided a cancel link."
+      },
+      {
+        "text": "Responses become smaller in size",
+        "correct": false,
+        "explanation": "Size is irrelevant here (and HATEOAS tends to grow responses). The benefit is that business rules aren't duplicated on the client."
+      },
+      {
+        "text": "The client can skip using TLS",
+        "correct": false,
+        "explanation": "Security is unrelated to conditional links. The benefit is a single source of transition rules on the server."
+      }
+    ]
+  },
+  {
+    "question": "What happens to old clients if a new link is added to `_links` in a response?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Nothing — it's a non-breaking change; the client simply ignores unknown links",
+        "correct": true,
+        "explanation": "Correct. Adding a field/link is a safe change (recall versioning): old clients don't notice it, new ones use it."
+      },
+      {
+        "text": "All old clients break and require an urgent update",
+        "correct": false,
+        "explanation": "No. Adding a link is not breaking. What breaks is removing or changing the meaning of an existing link, not adding a new one."
+      },
+      {
+        "text": "The server must release a new major API version",
+        "correct": false,
+        "explanation": "A new version is needed for breaking changes. Adding a link is not one."
+      }
+    ]
+  },
+  {
+    "question": "What is the `rel` with the value `self` in a `_links` block?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The canonical address of the current resource itself (not an action, a link to itself)",
+        "correct": true,
+        "explanation": "Correct. self is a standard (IANA) relation pointing to the resource itself. It's navigation to oneself, not an action transition."
+      },
+      {
+        "text": "The action of deleting the resource",
+        "correct": false,
+        "explanation": "Deletion is usually a separate rel (delete/cancel) with the DELETE method. self merely points to the resource itself."
+      },
+      {
+        "text": "A link to the API's root entry point",
+        "correct": false,
+        "explanation": "The root is pointed to by other relations (e.g. index/home). self is the address of the current resource."
+      }
+    ]
+  },
+  {
+    "question": "Which of the following are standard (IANA) `rel` relation names? (select all that apply)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "self",
+        "correct": true,
+        "explanation": "Yes, self is a standard relation pointing to the resource itself."
+      },
+      {
+        "text": "next and prev",
+        "correct": true,
+        "explanation": "Yes, next/prev are standard relations for paginated navigation."
+      },
+      {
+        "text": "pay and ship",
+        "correct": false,
+        "explanation": "These are domain (custom) relations of a specific API — they're described in the docs and aren't in the IANA registry."
+      },
+      {
+        "text": "first and last",
+        "correct": true,
+        "explanation": "Yes, first/last are standard relations (first/last page of a collection)."
+      }
+    ]
+  },
+  {
+    "question": "Which statements about the cost of HATEOAS are true? (select all that apply)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Responses become heavier due to link blocks",
+        "correct": true,
+        "explanation": "Yes, _links are added to the data, growing the response."
+      },
+      {
+        "text": "Clients need link-navigation logic instead of direct calls",
+        "correct": true,
+        "explanation": "Yes, it's harder to implement than calling known URLs directly."
+      },
+      {
+        "text": "Pure HATEOAS is rarer than Level 2",
+        "correct": true,
+        "explanation": "Yes, in practice partial HATEOAS is more common (links for pagination and state transitions)."
+      },
+      {
+        "text": "HATEOAS makes the API less coupled to specific URLs",
+        "correct": false,
+        "explanation": "That's true, but it's a benefit, not a cost. The question is about the downsides of HATEOAS."
+      }
+    ]
+  }
+]

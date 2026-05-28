@@ -69,4 +69,6 @@ Over 13 levels you've completed the full path of an API designer:
 | 9 | Code Generation | openapi-typescript, orval, automation |
 | 10 | Documentation | DX, Swagger UI/Redoc, examples |
 | 11 | Rate Limiting | Token Bucket, 429, Retry-After, backoff |
-| 12 | Full Design | API Review, wizard, e-commerce reference |
+| 12 | Security | Authentication, authorization, encryption, logging |
+| 13 | HATEOAS | Hypermedia links, resource state, Richardson L3 |
+| 14 | Full Design | API Review, wizard, e-commerce reference |

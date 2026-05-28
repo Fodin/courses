@@ -60,3 +60,39 @@ For cursor pagination, `pageInfo` is used instead of `page`/`totalPages`:
   }
 }
 ```
+
+## Field filtering — fighting over-fetching
+
+Pagination limits the number of **rows**, while field filtering limits the number of **fields** in each row. These are two different axes of saving bandwidth.
+
+**Over-fetching** — the client needs `id` and `name`, but the API returns the whole object with 30 fields. For a list of 100 products this bloats the response several times over.
+
+The solution is a `fields` parameter (sparse fieldsets, the JSON:API convention):
+
+```
+GET /products?fields=id,name,price     # return only these fields
+GET /users/42?fields=id,email          # partial representation
+```
+
+```json
+// GET /products?fields=id,name → compact response
+{ "data": [ { "id": 1, "name": "Coffee" }, { "id": 2, "name": "Tea" } ] }
+```
+
+This is the "poor man's" GraphQL: the client decides what it needs. Rule: `fields` only shrinks the set of fields, it doesn't change the resource's structure.
+
+## Response compression (gzip)
+
+Even compact JSON compresses well — text is redundant. The client announces it can decompress, the server compresses:
+
+```http
+# Request
+Accept-Encoding: gzip, br
+
+# Response
+Content-Encoding: gzip
+```
+
+Gzip typically shrinks a JSON response by 70–90%. This is a **free** optimization at the infrastructure level (nginx, CDN), almost always on by default. Trade-off: extra CPU load, so there's no point compressing tiny responses (a few hundred bytes).
+
+**Three axes of saving bandwidth** work together: pagination cuts rows, `fields` cuts fields, gzip compresses the rest.

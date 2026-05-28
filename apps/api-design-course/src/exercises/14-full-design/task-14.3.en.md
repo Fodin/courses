@@ -1,4 +1,4 @@
-# Task 12.3: Reference E-commerce API
+# Task 14.3: Reference E-commerce API
 
 ## Goal
 
@@ -38,7 +38,7 @@ Study each resource and its endpoints:
 2. Answer all 5 self-check questions — write down your answers
 3. Try to reproduce the API structure from memory: what resources? what methods?
 4. Pay attention to the "Cross-cutting concerns" block — it applies to the entire API
-5. Compare this API with the one you saw in Task 12.2 — find specific differences
+5. Compare this API with the one you saw in Task 14.2 — find specific differences
 
 ## Tips
 

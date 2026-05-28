@@ -18,6 +18,8 @@ export const translations: Translations = {
     'nav.codeGeneration': 'Генерация кода и SDK',
     'nav.documentation': 'Документация API',
     'nav.rateLimiting': 'Rate Limiting',
+    'nav.security': 'Безопасность API',
+    'nav.hateoas': 'HATEOAS и состояние ресурса',
     'nav.fullDesign': 'Проектирование реального API',
 
     // Описания уровней
@@ -33,7 +35,9 @@ export const translations: Translations = {
     'level.9.desc': 'openapi-generator, openapi-typescript, orval — из спеки в типизированный клиент',
     'level.10.desc': 'Swagger UI, Redoc, Stoplight — инструменты и best practices',
     'level.11.desc': 'Token bucket, sliding window, retry-стратегии, exponential backoff',
-    'level.12.desc': 'Итоговый проект: проектирование полного API от ресурсов до документации',
+    'level.12.desc': 'Аутентификация (Basic/Bearer/JWT), авторизация (RBAC/ABAC/scopes), TLS, логирование',
+    'level.13.desc': 'HATEOAS, гипермедиа-ссылки, _links, переходы состояний, Richardson Level 3',
+    'level.14.desc': 'Итоговый проект: проектирование полного API от ресурсов до документации',
 
     // Уровень 0 — Введение
     'task.0.1': 'Хороший vs плохой API',
@@ -95,10 +99,20 @@ export const translations: Translations = {
     'task.11.2': 'Конструктор retry-стратегии',
     'task.11.3': 'Проектирование rate limiting',
 
-    // Уровень 12 — Итоговый проект
-    'task.12.1': 'Полный конструктор API',
-    'task.12.2': 'Review чужого API',
-    'task.12.3': 'Проектирование e-commerce API',
+    // Уровень 12 — Безопасность API
+    'task.12.1': 'Декодер JWT',
+    'task.12.2': 'Матрица доступа (RBAC/scopes)',
+    'task.12.3': 'Проектирование защиты API',
+
+    // Уровень 13 — HATEOAS
+    'task.13.1': 'Навигатор по гипермедиа',
+    'task.13.2': 'Конструктор _links по состоянию',
+    'task.13.3': 'Проектирование HATEOAS API',
+
+    // Уровень 14 — Итоговый проект
+    'task.14.1': 'Полный конструктор API',
+    'task.14.2': 'Review чужого API',
+    'task.14.3': 'Проектирование e-commerce API',
 
     // UI платформы
     'common.loading': 'Загрузка...',
@@ -143,6 +157,8 @@ export const translations: Translations = {
     'nav.codeGeneration': 'Code Generation and SDK',
     'nav.documentation': 'API Documentation',
     'nav.rateLimiting': 'Rate Limiting',
+    'nav.security': 'API Security',
+    'nav.hateoas': 'HATEOAS and Resource State',
     'nav.fullDesign': 'Designing a Real API',
 
     'level.0.desc': 'Why design APIs, what makes a good API, Richardson Maturity Model',
@@ -157,7 +173,9 @@ export const translations: Translations = {
     'level.9.desc': 'openapi-generator, openapi-typescript, orval — from spec to typed client',
     'level.10.desc': 'Swagger UI, Redoc, Stoplight — tools and best practices',
     'level.11.desc': 'Token bucket, sliding window, retry strategies, exponential backoff',
-    'level.12.desc': 'Final project: designing a complete API from resources to documentation',
+    'level.12.desc': 'Authentication (Basic/Bearer/JWT), authorization (RBAC/ABAC/scopes), TLS, logging',
+    'level.13.desc': 'HATEOAS, hypermedia links, _links, state transitions, Richardson Level 3',
+    'level.14.desc': 'Final project: designing a complete API from resources to documentation',
 
     'task.0.1': 'Good vs Bad API',
     'task.0.2': 'Richardson Maturity Model',
@@ -195,8 +213,14 @@ export const translations: Translations = {
     'task.11.1': 'Token Bucket Simulator',
     'task.11.2': 'Retry Strategy Constructor',
     'task.11.3': 'Rate Limiting Design',
-    'task.12.1': 'Full API Constructor',
-    'task.12.2': 'API Review',
-    'task.12.3': 'E-commerce API Design',
+    'task.12.1': 'JWT Decoder',
+    'task.12.2': 'Access Matrix (RBAC/scopes)',
+    'task.12.3': 'API Protection Design',
+    'task.13.1': 'Hypermedia Navigator',
+    'task.13.2': 'State-driven _links Builder',
+    'task.13.3': 'HATEOAS API Design',
+    'task.14.1': 'Full API Constructor',
+    'task.14.2': 'API Review',
+    'task.14.3': 'E-commerce API Design',
   },
 }

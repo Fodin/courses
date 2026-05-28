@@ -128,5 +128,47 @@
         "explanation": "Correct. Without totalCount the client cannot display \"Found 1247 products\". It would have to make a separate request like GET /api/products/count, which is inefficient."
       }
     ]
+  },
+  {
+    "question": "A client only needs id and name in a list, but the API returns the whole object with 30 fields. What is this called and how is it solved?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Over-fetching; solved with a fields parameter (sparse fieldsets): GET /products?fields=id,name",
+        "correct": true,
+        "explanation": "Correct. Over-fetching is returning extra fields. The fields parameter lets the client request only what it needs, like a \"poor man's\" GraphQL. It's an axis of saving separate from pagination."
+      },
+      {
+        "text": "Under-fetching; solved by increasing the page limit",
+        "correct": false,
+        "explanation": "This is over-fetching (excess data), not under-fetching. And limit controls the number of rows, not the number of fields in each row."
+      },
+      {
+        "text": "It's fine, gzip will compress the fields anyway — nothing to do",
+        "correct": false,
+        "explanation": "Gzip reduces traffic, but the server still serializes and sends the extra fields, and the client parses them. fields and compression are complementary, not interchangeable."
+      }
+    ]
+  },
+  {
+    "question": "Which pair of headers is responsible for HTTP response compression?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The client sends Accept-Encoding: gzip, the server responds with Content-Encoding: gzip",
+        "correct": true,
+        "explanation": "Correct. The client announces supported algorithms via Accept-Encoding, the server compresses and marks the response with Content-Encoding. JSON typically shrinks by 70–90%."
+      },
+      {
+        "text": "Content-Type: gzip in both request and response",
+        "correct": false,
+        "explanation": "Content-Type describes the data format (application/json), not compression. Compression is handled by Accept-Encoding / Content-Encoding."
+      },
+      {
+        "text": "Compression: true in the request headers",
+        "correct": false,
+        "explanation": "There is no such standard header. Compression is negotiated via Accept-Encoding (client) and Content-Encoding (server)."
+      }
+    ]
   }
 ]

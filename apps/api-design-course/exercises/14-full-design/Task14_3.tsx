@@ -40,7 +40,7 @@ import { useState } from 'react'
 // Method colors: GET #3b82f6, POST #22c55e, PUT #f59e0b, PATCH #8b5cf6, DELETE #ef4444
 // Status colors: 2xx #22c55e, 4xx #f59e0b/#ef4444
 
-export function Task12_3() {
+export function Task14_3() {
   // TODO: useState for activeResource (0), activeEndpoint (0), showRequest (true)
 
   // TODO: resource = ECOMMERCE_API[activeResource]

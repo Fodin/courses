@@ -69,4 +69,6 @@
 | 9 | Code Generation | openapi-typescript, orval, автоматизация |
 | 10 | Documentation | DX, Swagger UI/Redoc, примеры |
 | 11 | Rate Limiting | Token Bucket, 429, Retry-After, backoff |
-| 12 | Full Design | API Review, wizard, e-commerce эталон |
+| 12 | Security | Аутентификация, авторизация, шифрование, логирование |
+| 13 | HATEOAS | Гипермедиа-ссылки, состояние ресурса, Richardson L3 |
+| 14 | Full Design | API Review, wizard, e-commerce эталон |

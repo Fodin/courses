@@ -31,7 +31,7 @@ import { useState } from 'react'
 //
 // Colors: #6366f1 (indigo) for active, #22c55e for complete, #fde68a for solution panel
 
-export function Task12_1() {
+export function Task14_1() {
   // TODO: useState for currentStep (0), completedChecks ({}), showSolution (false)
 
   // TODO: step = WIZARD_STEPS[currentStep]

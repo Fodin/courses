@@ -35,7 +35,7 @@ import { useState } from 'react'
 // Category colors: URL Design #6366f1, HTTP Methods #22c55e, Status Codes #ef4444,
 //                  Data Model #f59e0b, Pagination #8b5cf6, etc.
 
-export function Task12_2() {
+export function Task14_2() {
   // TODO: useState for problems (15 items with found: false, fixed: false)
   // TODO: useState for showSpec (true), activeCategory (null)
 

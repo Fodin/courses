@@ -46,6 +46,14 @@ export { Task11_1 } from './11-rate-limiting/Task11_1'
 export { Task11_2 } from './11-rate-limiting/Task11_2'
 export { Task11_3 } from './11-rate-limiting/Task11_3'
 
-export { Task12_1 } from './12-full-design/Task12_1'
-export { Task12_2 } from './12-full-design/Task12_2'
-export { Task12_3 } from './12-full-design/Task12_3'
+export { Task12_1 } from './12-api-security/Task12_1'
+export { Task12_2 } from './12-api-security/Task12_2'
+export { Task12_3 } from './12-api-security/Task12_3'
+
+export { Task13_1 } from './13-hateoas/Task13_1'
+export { Task13_2 } from './13-hateoas/Task13_2'
+export { Task13_3 } from './13-hateoas/Task13_3'
+
+export { Task14_1 } from './14-full-design/Task14_1'
+export { Task14_2 } from './14-full-design/Task14_2'
+export { Task14_3 } from './14-full-design/Task14_3'

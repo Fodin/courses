@@ -39,7 +39,10 @@
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
+/* Гасим глобальный `button:hover` (index.css), который красит текст в #fff на
+   акцентном фоне — здесь фон светло-серый, поэтому белый текст нечитаем. */
 .backToCourses:hover {
+  color: var(--clr-text, inherit);
   background: var(--clr-bg-hover, rgba(127, 127, 127, 0.12));
   border-color: var(--clr-border-strong, currentColor);
 }

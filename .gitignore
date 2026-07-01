@@ -6,3 +6,7 @@ dist
 *.log
 .idea
 .claude
+
+# Рабочие копии заданий ученика — генерируются из starters/ авто-scaffold'ом
+# при запуске (см. packages/course-platform/vite-plugins.ts). Мастера — в starters/.
+apps/*/exercises/**/Task*.tsx

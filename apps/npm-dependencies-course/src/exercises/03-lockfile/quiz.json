@@ -1,0 +1,184 @@
+[
+  {
+    "question": "Зачем нужен package-lock.json, если package.json уже содержит список зависимостей?",
+    "type": "single",
+    "options": [
+      {
+        "text": "package-lock.json нужен только для ускорения установки",
+        "correct": false,
+        "explanation": "Ускорение — побочный эффект, но не главная цель. npm ci работает быстрее именно потому, что lockfile содержит точные версии. Основная задача — воспроизводимость."
+      },
+      {
+        "text": "package.json содержит диапазоны версий, которые могут разрешиться по-разному в разное время; lockfile фиксирует точные разрешённые версии для воспроизводимости",
+        "correct": true,
+        "explanation": "^1.2.3 сегодня может выбрать 1.2.5, завтра — 1.5.0. lockfile записывает: 'используем именно 1.2.5, с этим URL и SHA-512 хешем'. Это гарантирует одинаковые установки на всех машинах и в CI."
+      },
+      {
+        "text": "package-lock.json заменяет package.json при наличии обоих",
+        "correct": false,
+        "explanation": "Оба файла нужны. package.json — это конфигурация проекта (скрипты, метаданные, диапазоны). package-lock.json — снимок разрешённого дерева. Удаление любого из них приведёт к проблемам."
+      },
+      {
+        "text": "package-lock.json нужен только при работе в команде",
+        "correct": false,
+        "explanation": "lockfile важен и для соло-разработки: он гарантирует, что ваш CI-деплой использует те же пакеты, что и ваша локальная машина. Без него деплой и разработка могут расходиться."
+      }
+    ]
+  },
+  {
+    "question": "Команда `npm ci` в отличие от `npm install` обязательно...",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Удаляет node_modules перед установкой",
+        "correct": true,
+        "explanation": "npm ci всегда начинает с чистого slate: удаляет node_modules целиком и устанавливает заново. Это гарантирует отсутствие 'призраков' — пакетов, которые остались с прошлой установки."
+      },
+      {
+        "text": "Требует наличие package-lock.json",
+        "correct": true,
+        "explanation": "npm ci без lockfile немедленно завершится ошибкой. Это намеренное ограничение: если нет lockfile, нет и детерминизма, который ci должен обеспечить."
+      },
+      {
+        "text": "Обновляет package-lock.json до последних версий",
+        "correct": false,
+        "explanation": "npm ci НИКОГДА не изменяет lockfile. Это принципиальное отличие от npm install. ci = читает lockfile, устанавливает точно по нему."
+      },
+      {
+        "text": "Завершается ошибкой при расхождении package.json и lockfile",
+        "correct": true,
+        "explanation": "Если кто-то добавил зависимость в package.json, но не обновил lockfile — npm ci упадёт с ошибкой. Это защита от ситуации, когда CI ставит что-то непротестированное."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик вручную добавил строку в package.json и закоммитил, не запустив npm install. CI запускает npm ci. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npm ci обновит lockfile и продолжит установку",
+        "correct": false,
+        "explanation": "npm ci никогда не изменяет lockfile — это его принципиальное ограничение. Именно поэтому он и безопасен для CI."
+      },
+      {
+        "text": "npm ci упадёт с ошибкой о рассинхроне package.json и lockfile",
+        "correct": true,
+        "explanation": "npm ci сравнивает зависимости в package.json и lockfile. Если они расходятся — ошибка 'npm ci can only install packages when your package.json and package-lock.json are in sync'. Разработчик должен запустить npm install локально и закоммитить обновлённый lockfile."
+      },
+      {
+        "text": "npm ci установит пакеты из lockfile, проигнорировав изменения в package.json",
+        "correct": false,
+        "explanation": "npm ci не молча игнорирует расхождения — он явно сообщает об ошибке. Тихое игнорирование было бы опасным: вы бы не знали, что добавленная зависимость не установлена."
+      },
+      {
+        "text": "npm ci установит новую зависимость из реестра, не изменяя lockfile",
+        "correct": false,
+        "explanation": "npm ci не делает никаких умных решений при расхождении. Он просто останавливается и требует синхронизации lockfile с package.json."
+      }
+    ]
+  },
+  {
+    "question": "Для чего нужно поле `integrity` в package-lock.json?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Указывает версию lockfile-формата",
+        "correct": false,
+        "explanation": "Версию формата указывает поле lockfileVersion. integrity — это криптографический хеш конкретного пакета."
+      },
+      {
+        "text": "SHA-512 хеш tarball-архива: позволяет npm проверить, что скачанный пакет не был подменён",
+        "correct": true,
+        "explanation": "При установке npm вычисляет SHA-512 скачанного tarball и сравнивает с integrity. Если они не совпадают — установка прерывается. Это защита от supply chain атак: даже если реестр был взломан и tarball подменён, npm откажется его использовать."
+      },
+      {
+        "text": "Признак того, что пакет является приватным и не должен публиковаться",
+        "correct": false,
+        "explanation": "Приватность пакета обозначается полем 'private: true' в package.json. integrity в lockfile — исключительно криптографическая проверка."
+      },
+      {
+        "text": "Контрольная сумма для проверки, что node_modules не повреждён",
+        "correct": false,
+        "explanation": "integrity вычисляется для tarball в момент скачивания из реестра, не для содержимого node_modules. После распаковки tarball integrity уже не проверяется."
+      }
+    ]
+  },
+  {
+    "question": "Ваш проект — это npm-библиотека, которую вы публикуете в реестр. Нужно ли коммитить package-lock.json?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Да, всегда — для воспроизводимости",
+        "correct": false,
+        "explanation": "Для библиотек lockfile не коммитят. Причина: npm игнорирует lockfile вложенных пакетов при установке. Lockfile в репозитории библиотеки полезен только для разработчиков библиотеки (CI), но не для пользователей."
+      },
+      {
+        "text": "Нет, для публикуемых библиотек lockfile обычно добавляют в .gitignore",
+        "correct": true,
+        "explanation": "npm игнорирует package-lock.json при установке пакета как зависимости другого проекта. Зависимости библиотеки разрешаются в контексте проекта пользователя. Коммит lockfile для библиотеки не даёт пользователям воспроизводимости, но зато засоряет репозиторий."
+      },
+      {
+        "text": "Зависит от размера библиотеки",
+        "correct": false,
+        "explanation": "Размер библиотеки не влияет на это решение. Ключевой фактор — тип пакета: приложение (lockfile коммитим) или публикуемая библиотека (lockfile не коммитим)."
+      },
+      {
+        "text": "Нужно коммитить только секцию dependencies, но не packages",
+        "correct": false,
+        "explanation": "package-lock.json — неделимый файл, нельзя закоммитить только его часть. Это одно JSON-дерево. Либо весь файл, либо нет."
+      }
+    ]
+  },
+  {
+    "question": "В чём главное отличие lockfileVersion 3 (npm v9+) от lockfileVersion 2 (npm v7)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "lockfileVersion 3 поддерживает только peerDependencies",
+        "correct": false,
+        "explanation": "Поддержка peerDependencies не зависит от версии lockfile-формата. Это изменение поведения появилось в npm v7, а не в формате lockfile v3."
+      },
+      {
+        "text": "lockfileVersion 3 содержит только секцию `packages`, без legacy-секции `dependencies`",
+        "correct": true,
+        "explanation": "lockfileVersion 2 содержал обе секции: новую `packages` и старую `dependencies` для обратной совместимости с npm v6. lockfileVersion 3 убрал legacy-секцию `dependencies`, сделав файл компактнее. npm v9+ умеет читать все три формата."
+      },
+      {
+        "text": "lockfileVersion 3 не содержит поля integrity для производительности",
+        "correct": false,
+        "explanation": "integrity присутствует во всех версиях lockfile — это критически важная проверка безопасности. Её никогда не удаляли."
+      },
+      {
+        "text": "lockfileVersion 3 хранит зависимости в бинарном формате",
+        "correct": false,
+        "explanation": "Все версии package-lock.json используют JSON-текстовый формат. Бинарного формата у npm нет."
+      }
+    ]
+  },
+  {
+    "question": "Чем `npm-shrinkwrap.json` отличается от `package-lock.json`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "shrinkwrap используется только в монорепозиториях",
+        "correct": false,
+        "explanation": "shrinkwrap не имеет отношения к монорепозиториям. Это инструмент для публикуемых CLI-пакетов, где нужна воспроизводимость у пользователей."
+      },
+      {
+        "text": "shrinkwrap включается в tarball при npm publish, package-lock.json — нет",
+        "correct": true,
+        "explanation": "Функционально они одинаковы, но npm-shrinkwrap.json включается в публикуемый пакет. Когда пользователь делает npm install -g my-cli, npm использует shrinkwrap для точного воспроизведения зависимостей CLI. package-lock.json в публикацию не попадает."
+      },
+      {
+        "text": "shrinkwrap содержит только прямые зависимости, без транзитивных",
+        "correct": false,
+        "explanation": "shrinkwrap содержит полное дерево зависимостей — и прямые, и транзитивные. Именно это делает его полезным для CLI-пакетов."
+      },
+      {
+        "text": "shrinkwrap — устаревший формат, заменённый package-lock.json",
+        "correct": false,
+        "explanation": "shrinkwrap актуален и сегодня для специфического сценария: глобально устанавливаемые CLI-пакеты. npm shrinkwrap — поддерживаемая команда."
+      }
+    ]
+  }
+]

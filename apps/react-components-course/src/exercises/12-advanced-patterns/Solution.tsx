@@ -1,4 +1,4 @@
-import { useState, useReducer, useContext, createContext, useRef, useEffect, useId, forwardRef } from 'react'
+import React, { useState, useReducer, useContext, createContext, useRef, useEffect, useId, forwardRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { ReactNode, ReactElement } from 'react'
 
@@ -953,9 +953,6 @@ class ModalErrorBoundary extends React.Component<
     return this.props.children
   }
 }
-
-// Need React import for class component
-import React from 'react'
 
 // --- Lib Modal ---
 

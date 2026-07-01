@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { useLanguage } from 'src/hooks'
+import { useLanguage } from '../../hooks'
 
 // ============================================
 // Задание 15.1: Проблема двойной записи

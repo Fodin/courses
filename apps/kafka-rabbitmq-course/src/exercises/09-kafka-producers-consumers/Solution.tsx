@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { useLanguage } from 'src/hooks'
+import { useLanguage } from '../../hooks'
 
 // ============================================
 // Задание 9.1: Стратегии партиционирования

@@ -1,0 +1,210 @@
+[
+  {
+    "question": "Какие из менеджеров допускают фантомные зависимости (phantom dependencies)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "npm",
+        "correct": true,
+        "explanation": "Да. npm создаёт плоский node_modules с hoisting: транзитивные зависимости поднимаются в корень и становятся доступны для импорта, даже не будучи в package.json."
+      },
+      {
+        "text": "Yarn Classic (v1)",
+        "correct": true,
+        "explanation": "Да. Yarn Classic использует ту же стратегию плоского node_modules, что и npm. Phantom deps возможны по той же причине."
+      },
+      {
+        "text": "pnpm",
+        "correct": false,
+        "explanation": "Нет. pnpm создаёт симлинки в корне node_modules только для прямых зависимостей. Транзитивные пакеты скрыты в .pnpm/ и недоступны из корня."
+      },
+      {
+        "text": "Yarn Berry с nodeLinker: pnp",
+        "correct": false,
+        "explanation": "Нет. Yarn Berry PnP использует .pnp.cjs — строгую карту, в которой каждому пакету разрешено импортировать только свои задекларированные зависимости."
+      }
+    ]
+  },
+  {
+    "question": "У какого менеджера есть глобальный content-addressable store с hard links для экономии диска?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npm",
+        "correct": false,
+        "explanation": "npm кэширует пакеты в ~/.npm/cache, но при установке копирует файлы в node_modules каждого проекта. Hard links не используются."
+      },
+      {
+        "text": "pnpm",
+        "correct": true,
+        "explanation": "Верно. pnpm хранит все файлы в ~/.local/share/pnpm/store (CAS) и создаёт hard links при установке. 10 проектов с одним пакетом используют один экземпляр файлов на диске."
+      },
+      {
+        "text": "Yarn Classic",
+        "correct": false,
+        "explanation": "Yarn Classic имеет offline mirror (~/.yarn/cache), но при установке копирует файлы в node_modules. Hard links не используются."
+      },
+      {
+        "text": "Yarn Berry с nodeLinker: node-modules",
+        "correct": false,
+        "explanation": "При nodeLinker: node-modules Yarn Berry создаёт обычный node_modules с копиями файлов. Hard links — специфика pnpm."
+      }
+    ]
+  },
+  {
+    "question": "Как называются файлы блокировки у каждого из трёх менеджеров?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "npm → package-lock.json",
+        "correct": true,
+        "explanation": "Правильно. package-lock.json появился в npm v5 (2017) и является стандартным lockfile для npm."
+      },
+      {
+        "text": "pnpm → pnpm-lock.yaml",
+        "correct": true,
+        "explanation": "Правильно. pnpm использует YAML-формат. Файл содержит specifier, разрешённую версию и SHA-512 integrity для каждого пакета."
+      },
+      {
+        "text": "Yarn → .yarn-lock.json",
+        "correct": false,
+        "explanation": "Неправильно. Yarn использует yarn.lock — собственный формат, не JSON и не YAML. Файл называется yarn.lock без точки в начале."
+      },
+      {
+        "text": "Yarn → yarn.lock",
+        "correct": true,
+        "explanation": "Правильно. Единый формат yarn.lock используется и в Yarn Classic, и в Yarn Berry (хотя в Berry формат внутри был обновлён)."
+      }
+    ]
+  },
+  {
+    "question": "Какой подход не требует node_modules совсем?",
+    "type": "single",
+    "options": [
+      {
+        "text": "pnpm с --shamefully-hoist",
+        "correct": false,
+        "explanation": "--shamefully-hoist у pnpm наоборот создаёт более плоский node_modules (как у npm). Node_modules присутствует."
+      },
+      {
+        "text": "npm с --global",
+        "correct": false,
+        "explanation": "--global устанавливает пакет глобально, но проектный node_modules всё равно нужен для локальных зависимостей."
+      },
+      {
+        "text": "Yarn Berry с nodeLinker: pnp",
+        "correct": true,
+        "explanation": "Верно. Yarn Berry PnP (Plug'n'Play) — единственный из распространённых менеджеров, который полностью устраняет node_modules, заменяя его .pnp.cjs + .yarn/cache/."
+      },
+      {
+        "text": "Yarn Classic с --flat",
+        "correct": false,
+        "explanation": "yarn --flat устанавливает зависимости в плоский node_modules, запрашивая выбор версии при конфликтах. Node_modules всё равно создаётся."
+      }
+    ]
+  },
+  {
+    "question": "Вы переходите с npm на pnpm в крупном проекте. Код в нескольких местах делает import _ from 'lodash', хотя lodash не указан в package.json — только как транзитивная зависимость другого пакета. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "pnpm автоматически добавит lodash в package.json как зависимость",
+        "correct": false,
+        "explanation": "pnpm не модифицирует package.json автоматически. Он создаст структуру node_modules, где lodash недоступен из корня."
+      },
+      {
+        "text": "Код сломается с MODULE_NOT_FOUND, так как pnpm не создаёт симлинк на lodash в корне node_modules",
+        "correct": true,
+        "explanation": "Именно. Это пример phantom dependency: с npm lodash был доступен через hoisting, с pnpm — нет. Нужно явно добавить: pnpm add lodash."
+      },
+      {
+        "text": "pnpm выдаст предупреждение, но всё равно создаст симлинк для обратной совместимости",
+        "correct": false,
+        "explanation": "pnpm не создаёт симлинки на незадекларированные пакеты по умолчанию. Это принципиальное решение дизайна, а не упущение."
+      },
+      {
+        "text": "Ничего не произойдёт — lodash будет доступен через .pnpm/ директорию",
+        "correct": false,
+        "explanation": "lodash будет в .pnpm/, но Node.js ищет модули в node_modules/, где симлинка нет. Директория .pnpm/ не входит в стандартный путь резолюции."
+      }
+    ]
+  },
+  {
+    "question": "Команда для CI-установки (строго из lockfile, без обновлений) у каждого менеджера:",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "npm ci",
+        "correct": true,
+        "explanation": "Правильно. npm ci устанавливает строго из package-lock.json, предварительно удаляя node_modules. Стандарт для CI в npm-проектах."
+      },
+      {
+        "text": "pnpm install --frozen-lockfile",
+        "correct": true,
+        "explanation": "Правильно. --frozen-lockfile запрещает pnpm изменять pnpm-lock.yaml. Если lockfile не соответствует package.json — ошибка."
+      },
+      {
+        "text": "yarn install --immutable",
+        "correct": true,
+        "explanation": "Правильно для Yarn Berry. В Yarn Classic эквивалент — yarn install --frozen-lockfile. --immutable — современный вариант в Berry."
+      },
+      {
+        "text": "npm install --locked",
+        "correct": false,
+        "explanation": "Такого флага у npm нет. Правильная команда — npm ci."
+      }
+    ]
+  },
+  {
+    "question": "Вы работаете в компании с 50 разработчиками, у каждого 15-20 Node.js проектов. Какой менеджер лучше всего подходит для экономии дискового пространства?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npm с флагом --prefer-dedupe",
+        "correct": false,
+        "explanation": "npm с --prefer-dedupe пытается дедуплицировать внутри одного проекта, но не между проектами. Файлы по-прежнему копируются в каждый node_modules."
+      },
+      {
+        "text": "Yarn Classic с глобальным кэшем",
+        "correct": false,
+        "explanation": "Yarn Classic кэширует пакеты в ~/.yarn/cache, но при установке копирует их в каждый node_modules. Экономия только на сетевых запросах, не на диске."
+      },
+      {
+        "text": "pnpm с глобальным content-addressable store",
+        "correct": true,
+        "explanation": "Именно для этого сценария создан pnpm. Hard links из единого ~/.pnpm-store означают: 20 проектов с react@18.2.0 занимают столько же места, сколько один проект."
+      },
+      {
+        "text": "Yarn Berry PnP с nodeLinker: node-modules",
+        "correct": false,
+        "explanation": "При nodeLinker: node-modules Yarn Berry создаёт обычный node_modules с копиями. Чтобы экономить место, нужно использовать PnP (nodeLinker: pnp), но тогда может быть проблемы совместимости."
+      }
+    ]
+  },
+  {
+    "question": "Как принудительно заменить версию зависимости в Yarn (Classic и Berry)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Поле overrides в package.json",
+        "correct": false,
+        "explanation": "overrides — это поле npm. В Yarn используется resolutions."
+      },
+      {
+        "text": "Поле resolutions в package.json",
+        "correct": true,
+        "explanation": "Верно. resolutions работает и в Yarn Classic, и в Yarn Berry. Синтаксис поддерживает паттерны: '**/lodash' заменяет lodash везде в дереве зависимостей."
+      },
+      {
+        "text": "Поле pnpm.overrides в package.json",
+        "correct": false,
+        "explanation": "pnpm.overrides — это поле pnpm, не Yarn. У Yarn своё поле resolutions."
+      },
+      {
+        "text": "Секция dependencies.resolutions в yarn.lock",
+        "correct": false,
+        "explanation": "yarn.lock — автогенерированный файл, его не нужно редактировать вручную. Resolutions настраиваются в package.json."
+      }
+    ]
+  }
+]

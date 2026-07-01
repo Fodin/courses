@@ -1,0 +1,210 @@
+[
+  {
+    "question": "Какой источник данных использует npm audit для поиска уязвимостей?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Локальную базу данных, обновляемую при установке npm",
+        "correct": false,
+        "explanation": "npm audit не хранит локальную базу уязвимостей. Он отправляет запрос к npm Advisory Database на серверах npmjs.org при каждом вызове."
+      },
+      {
+        "text": "npm Advisory Database на registry.npmjs.org, обращаясь к ней при каждом запуске",
+        "correct": true,
+        "explanation": "npm audit читает package-lock.json, собирает список всех пакетов и их версий, затем отправляет bulk-запрос к API registry.npmjs.org, чтобы получить список известных advisory."
+      },
+      {
+        "text": "CVE базу данных NIST напрямую",
+        "correct": false,
+        "explanation": "npm обращается к собственной Advisory Database, которая агрегирует данные из CVE и других источников. Прямого обращения к NIST нет."
+      },
+      {
+        "text": "GitHub Security Advisories через GitHub API",
+        "correct": false,
+        "explanation": "GitHub Security Advisories — отдельная база, используемая GitHub Dependabot. npm audit работает с npm Advisory Database."
+      }
+    ]
+  },
+  {
+    "question": "npm audit сообщает о критической уязвимости в транзитивной зависимости. npm audit fix не помогает (требует semver-major обновления). Что делать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Запустить npm audit fix --force",
+        "correct": false,
+        "explanation": "--force может сделать даунгрейд прямых зависимостей или обновить их до несовместимых мажорных версий. Это рискованный путь без анализа последствий."
+      },
+      {
+        "text": "Добавить уязвимый пакет в overrides с безопасной версией, затем npm install",
+        "correct": true,
+        "explanation": "Это предпочтительный путь: точечный override устраняет конкретную уязвимость без риска сломать прямые зависимости. После npm install нужно запустить npm audit для верификации."
+      },
+      {
+        "text": "Добавить уязвимый пакет напрямую в dependencies проекта",
+        "correct": false,
+        "explanation": "Добавление транзитивной зависимости в прямые — антипаттерн (phantom dependency наоборот). При обновлении прямой зависимости ваша «фиксированная» версия может конфликтовать."
+      },
+      {
+        "text": "Игнорировать, потому что это транзитивная зависимость — не ваша ответственность",
+        "correct": false,
+        "explanation": "Транзитивные уязвимости — ваша ответственность, если код выполняется в вашем приложении. npm audit специально показывает полный путь к уязвимости именно для этого."
+      }
+    ]
+  },
+  {
+    "question": "Чем опасен npm audit fix --force по сравнению с npm audit fix?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Может обновить пакеты до мажорных версий с изменившимся API",
+        "correct": true,
+        "explanation": "--force игнорирует semver-ограничения и может установить мажорную версию с breaking changes, которые сломают ваш код."
+      },
+      {
+        "text": "Может сделать даунгрейд зависимостей, если это единственный путь к дереву без уязвимостей",
+        "correct": true,
+        "explanation": "npm audit fix --force иногда понижает версию пакета (например, react-scripts@5 → react-scripts@3), что контринтуитивно и опасно."
+      },
+      {
+        "text": "Удаляет все devDependencies из проекта",
+        "correct": false,
+        "explanation": "--force не удаляет devDependencies. Он меняет версии для устранения уязвимостей, не тип зависимостей."
+      },
+      {
+        "text": "Требует тестирования приложения после применения",
+        "correct": true,
+        "explanation": "После --force нужно обязательно запускать тесты и проверять приложение вручную — изменённые мажорные версии могут поломать функциональность."
+      }
+    ]
+  },
+  {
+    "question": "Что означает уровень severity «high» в отчёте npm audit?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Теоретическая уязвимость с ограниченным вектором атаки",
+        "correct": false,
+        "explanation": "Теоретические уязвимости с ограниченным риском относятся к уровню low. High — это серьёзная уязвимость с реальным вектором атаки."
+      },
+      {
+        "text": "Серьёзная уязвимость: утечка данных, эскалация привилегий, DoS-атака",
+        "correct": true,
+        "explanation": "High означает серьёзный риск: возможна утечка чувствительных данных, повышение привилегий или отказ в обслуживании. Требует приоритетного исправления."
+      },
+      {
+        "text": "Немедленная угроза: удалённое выполнение кода",
+        "correct": false,
+        "explanation": "Удалённое выполнение кода и полный захват системы — это уровень critical. High серьёзен, но не означает немедленный полный контроль над системой."
+      },
+      {
+        "text": "Умеренный риск без прямой угрозы данным",
+        "correct": false,
+        "explanation": "Умеренный риск — это уровень moderate. High прямо угрожает данным или доступности сервиса."
+      }
+    ]
+  },
+  {
+    "question": "Для чего используется флаг --omit=dev при запуске npm audit?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чтобы не обновлять devDependencies при npm audit fix",
+        "correct": false,
+        "explanation": "--omit=dev влияет на отчёт, а не на поведение fix. Он исключает devDependencies из анализа, позволяя сосредоточиться на production-рисках."
+      },
+      {
+        "text": "Чтобы сосредоточиться на production-уязвимостях, исключив пакеты только для разработки",
+        "correct": true,
+        "explanation": "devDependencies не попадают в production-сборку. --omit=dev показывает только уязвимости в пакетах, которые реально работают в production. Это даёт более точную картину реальных рисков."
+      },
+      {
+        "text": "Чтобы ускорить выполнение npm audit",
+        "correct": false,
+        "explanation": "Основной смысл --omit=dev не в скорости, а в фокусировке на production-рисках. Скоростной эффект незначителен."
+      },
+      {
+        "text": "Чтобы удалить devDependencies из node_modules",
+        "correct": false,
+        "explanation": "--omit=dev при audit не трогает node_modules. Он только фильтрует отчёт. При npm install --omit=dev он действительно не устанавливает devDependencies, но это другой контекст."
+      }
+    ]
+  },
+  {
+    "question": "Как настроить CI-пайплайн, чтобы он завершался с ошибкой при наличии уязвимостей уровня high и выше?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npm audit --level=high",
+        "correct": false,
+        "explanation": "Флаг называется --audit-level, не --level. Правильный синтаксис: npm audit --audit-level=high."
+      },
+      {
+        "text": "npm audit --audit-level=high",
+        "correct": true,
+        "explanation": "Флаг --audit-level задаёт минимальный уровень для ненулевого exit code. При audit-level=high команда вернёт код 1 (ошибка pipeline) если найдены уязвимости high или critical."
+      },
+      {
+        "text": "npm audit --fail-on=high",
+        "correct": false,
+        "explanation": "Флага --fail-on не существует в npm audit. Используйте --audit-level."
+      },
+      {
+        "text": "npm audit && exit 1",
+        "correct": false,
+        "explanation": "npm audit уже возвращает ненулевой exit code при обнаружении уязвимостей. && exit 1 запустит exit 1 только если npm audit завершился успешно (0 уязвимостей), что противоположно нужному результату."
+      }
+    ]
+  },
+  {
+    "question": "Что проверяет команда npm audit signatures?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Что все пакеты имеют валидные лицензии",
+        "correct": false,
+        "explanation": "Лицензии проверяются отдельными инструментами (license-checker и подобными). npm audit signatures проверяет криптографические подписи, не лицензии."
+      },
+      {
+        "text": "Криптографические подписи пакетов — что они подписаны ключами, зарегистрированными в реестре",
+        "correct": true,
+        "explanation": "npm audit signatures защищает от supply chain атак: проверяет, что каждый установленный пакет подписан ключом, зарегистрированным в npm registry. Это защита от подмены пакетов злоумышленниками."
+      },
+      {
+        "text": "Что package-lock.json не был изменён вручную",
+        "correct": false,
+        "explanation": "Ручные изменения lockfile — другая проблема. npm audit signatures проверяет именно криптографические подписи самих пакетов."
+      },
+      {
+        "text": "Что все авторы пакетов имеют двухфакторную аутентификацию на npm",
+        "correct": false,
+        "explanation": "npm audit signatures не проверяет настройки аккаунтов авторов. Он верифицирует подписи уже скачанных архивов пакетов."
+      }
+    ]
+  },
+  {
+    "question": "Вы видите в отчёте npm audit уязвимость в jest-environment-jsdom уровня moderate. Стоит ли её немедленно исправлять?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Да, любая уязвимость требует немедленного исправления",
+        "correct": false,
+        "explanation": "Приоритизация важна. jest-environment-jsdom — devDependency, используемая только при запуске тестов в dev-среде. В production это код не попадает."
+      },
+      {
+        "text": "Нет, jest-environment-jsdom — devDependency для тестирования, в production не попадает; уровень moderate не критичен для dev-среды",
+        "correct": true,
+        "explanation": "Контекст важен. Уязвимость в тест-окружении реальна только если злоумышленник может влиять на процесс тестирования. Для типичного проекта это низкий реальный риск. Используйте --omit=dev для фокуса на production."
+      },
+      {
+        "text": "Нет, уязвимости в devDependencies никогда не нужно исправлять",
+        "correct": false,
+        "explanation": "«Никогда» — слишком категорично. Если dev-среда разработчиков подвергается риску (например, уязвимость позволяет выполнить произвольный код в CI), это важно. Контекст решает."
+      },
+      {
+        "text": "Только если CI автоматически требует 0 уязвимостей",
+        "correct": false,
+        "explanation": "Настройки CI — не единственный критерий. Лучше настроить CI с --omit=dev --audit-level=high, чтобы CI фокусировался на реальных production-рисках."
+      }
+    ]
+  }
+]

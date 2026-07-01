@@ -1,0 +1,210 @@
+[
+  {
+    "question": "Вы пишете веб-приложение и используете библиотеку `date-fns` для форматирования дат в продакшне. В какое поле package.json её нужно добавить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "devDependencies",
+        "correct": false,
+        "explanation": "devDependencies предназначены для инструментов разработки (тесты, линтеры, сборщики). date-fns используется в runtime вашего приложения — пользователи видят результат её работы."
+      },
+      {
+        "text": "dependencies",
+        "correct": true,
+        "explanation": "date-fns нужна в продакшне: без неё приложение сломается при выполнении. Любой код, работающий в runtime и видимый пользователю, должен быть в dependencies."
+      },
+      {
+        "text": "peerDependencies",
+        "correct": false,
+        "explanation": "peerDependencies используется, когда вы пишете плагин/расширение и хотите разделить зависимость с хост-проектом. date-fns — прямая зависимость вашего приложения, а не peer."
+      },
+      {
+        "text": "optionalDependencies",
+        "correct": false,
+        "explanation": "optionalDependencies — для пакетов, отсутствие которых не ломает приложение. Если date-fns нужна для форматирования дат, её отсутствие вызовет ошибку."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит с devDependencies при выполнении `npm install --omit=dev`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Они устанавливаются в отдельную директорию dev_modules",
+        "correct": false,
+        "explanation": "Такой директории не существует. npm использует только один node_modules. Флаг --omit=dev просто пропускает установку devDependencies."
+      },
+      {
+        "text": "Они не устанавливаются вовсе — node_modules будет содержать только dependencies",
+        "correct": true,
+        "explanation": "--omit=dev говорит npm: «пропусти все пакеты из devDependencies». Это стандартная практика для продакшн-деплоя и Docker-образов: меньше пакетов — меньше размер, меньше attack surface."
+      },
+      {
+        "text": "Они устанавливаются, но помечаются как неактивные",
+        "correct": false,
+        "explanation": "npm не имеет концепции «неактивных» пакетов. Пакет либо установлен в node_modules, либо нет."
+      },
+      {
+        "text": "Команда завершится ошибкой, если devDependencies не пусты",
+        "correct": false,
+        "explanation": "--omit=dev — это валидный флаг, который работает без ошибок. Он просто исключает devDependencies из установки."
+      }
+    ]
+  },
+  {
+    "question": "Вы разрабатываете eslint-плагин `eslint-plugin-my-rules`. Библиотека eslint нужна для работы плагина, но пользователь должен сам установить нужную ему версию. В какое поле следует поместить eslint?",
+    "type": "single",
+    "options": [
+      {
+        "text": "dependencies",
+        "correct": false,
+        "explanation": "Если eslint в dependencies плагина, npm установит ещё одну копию eslint рядом с той, что уже есть у пользователя. Это приведёт к конфликту версий и двойной конфигурации."
+      },
+      {
+        "text": "devDependencies",
+        "correct": false,
+        "explanation": "devDependencies не устанавливаются при установке пакета как зависимости другого проекта. Если eslint там — он не будет установлен у пользователей плагина."
+      },
+      {
+        "text": "peerDependencies",
+        "correct": true,
+        "explanation": "peerDependencies — правильный выбор для плагинов. Плагин объявляет: «для работы мне нужен eslint, но устанавливать его должен хост-проект». Это предотвращает дублирование пакетов и позволяет пользователю выбрать версию eslint."
+      },
+      {
+        "text": "bundledDependencies",
+        "correct": false,
+        "explanation": "bundledDependencies включает пакеты в tarball при публикации. Это приведёт к тому, что eslint будет встроен в плагин — противоположность тому, что нужно."
+      }
+    ]
+  },
+  {
+    "question": "npm v7+ автоматически устанавливает peerDependencies. Что происходит, если версия peer-зависимости конфликтует с уже установленной в проекте?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npm молча выбирает более новую версию",
+        "correct": false,
+        "explanation": "npm v7+ не принимает решение автоматически при конфликте — это было бы опасно. Он прерывает установку с ошибкой ERESOLVE, чтобы разработчик явно разрешил конфликт."
+      },
+      {
+        "text": "npm устанавливает обе версии — каждая в своей поддиректории node_modules",
+        "correct": false,
+        "explanation": "Такое поведение применяется для обычных dependencies при конфликте версий, но не для peerDependencies. peerDeps по определению должны быть единственным экземпляром в дереве."
+      },
+      {
+        "text": "npm выдаёт ошибку ERESOLVE и прерывает установку",
+        "correct": true,
+        "explanation": "ERESOLVE (Error RESOLVEing dependency tree) — это ошибка npm v7+, означающая невозможность разрешить граф зависимостей. Решение: найти совместимую версию, или использовать --legacy-peer-deps (рискованно), или обновить конфликтующий пакет."
+      },
+      {
+        "text": "npm пропускает установку конфликтующей peer-зависимости без ошибки",
+        "correct": false,
+        "explanation": "npm не пропускает обязательные peerDependencies без уведомления. Только если peer помечен как optional в peerDependenciesMeta, установка продолжится."
+      }
+    ]
+  },
+  {
+    "question": "Пакет `fsevents` указан в optionalDependencies. Разработчик на Linux выполнил npm install. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npm выдаст ошибку и прервёт установку",
+        "correct": false,
+        "explanation": "Именно для этого и нужны optionalDependencies — установка не прерывается, даже если пакет не удалось поставить. npm выведет предупреждение, но продолжит."
+      },
+      {
+        "text": "fsevents будет установлен через эмуляцию Linux-версии",
+        "correct": false,
+        "explanation": "fsevents — нативный модуль macOS, Linux-версии не существует. npm не занимается кросс-компиляцией нативных модулей."
+      },
+      {
+        "text": "Установка продолжится без fsevents; npm выведет предупреждение",
+        "correct": true,
+        "explanation": "optionalDependencies позволяют установке завершиться успешно, даже если пакет не установился. npm сообщит об ошибке установки fsevents как о предупреждении, не как о критической ошибке."
+      },
+      {
+        "text": "Установка завершится успешно и без предупреждений",
+        "correct": false,
+        "explanation": "npm сообщит о неудаче установки optionalDependency, но это будет предупреждение, а не тихое молчание. Важно знать, что опциональный пакет недоступен."
+      }
+    ]
+  },
+  {
+    "question": "Вы разрабатываете React-компонентную библиотеку. React нужен для локальной разработки и тестирования, но пользователи библиотеки сами установят нужную им версию. Как правильно оформить React в package.json?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Добавить react в devDependencies (для локальной разработки)",
+        "correct": true,
+        "explanation": "Это позволяет запускать тесты и storybook локально. devDependencies не устанавливаются у пользователей библиотеки — они видят только dependencies и peerDependencies."
+      },
+      {
+        "text": "Добавить react в peerDependencies (требование к хост-проекту)",
+        "correct": true,
+        "explanation": "peerDependencies объявляют контракт: «для работы библиотеки в проекте должен быть React». Это стандартный паттерн для React-библиотек, предотвращающий две копии React в бандле."
+      },
+      {
+        "text": "Добавить react в dependencies (чтобы он точно установился)",
+        "correct": false,
+        "explanation": "React в dependencies библиотеки приведёт к дублированию: в проекте пользователя будет две копии React — его версия и та, что тащит библиотека. Это ломает хуки и Context API."
+      },
+      {
+        "text": "Вообще не упоминать react в package.json",
+        "correct": false,
+        "explanation": "Если react не указан нигде, пользователи не получат предупреждения о том, какая версия требуется. Это плохой UX и может привести к неочевидным ошибкам."
+      }
+    ]
+  },
+  {
+    "question": "Поле `engines` в package.json помечает несовместимость с текущей версией Node.js. Каково поведение npm по умолчанию?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Установка прерывается с ошибкой",
+        "correct": false,
+        "explanation": "По умолчанию несоответствие engines — только предупреждение, не ошибка. Чтобы сделать его ошибкой, нужен флаг --engine-strict или настройка engine-strict=true в .npmrc."
+      },
+      {
+        "text": "npm выводит предупреждение, но продолжает установку",
+        "correct": true,
+        "explanation": "По умолчанию npm проверяет engines и выводит 'npm warn EBADENGINE Unsupported engine', но не прерывает установку. Это позволяет пробовать пакет на несовместимых версиях на свой страх и риск."
+      },
+      {
+        "text": "npm автоматически устанавливает нужную версию Node.js через nvm",
+        "correct": false,
+        "explanation": "npm не умеет управлять версиями Node.js. Это задача nvm, fnm или volta. npm только проверяет engines, но не меняет окружение."
+      },
+      {
+        "text": "Поле engines игнорируется полностью",
+        "correct": false,
+        "explanation": "Поле engines не игнорируется — npm проверяет его и выводит предупреждение. Флаг --engine-strict превратит предупреждение в ошибку."
+      }
+    ]
+  },
+  {
+    "question": "Какая разница между `--legacy-peer-deps` и `--force` при конфликте peer-зависимостей?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Они идентичны по эффекту",
+        "correct": false,
+        "explanation": "Нет, они работают по-разному. --legacy-peer-deps возвращает старую логику npm v3-v6, --force принудительно игнорирует все конфликты."
+      },
+      {
+        "text": "--legacy-peer-deps игнорирует peerDependencies как npm v3-v6; --force обходит любые проверки конфликтов",
+        "correct": true,
+        "explanation": "--legacy-peer-deps говорит: «не устанавливай peerDeps автоматически, только предупреждай» — как работал npm до v7. --force же говорит «устанавливай несмотря ни на что», что может привести к сломанному node_modules. --legacy-peer-deps безопаснее --force."
+      },
+      {
+        "text": "--legacy-peer-deps применяется только для транзитивных зависимостей",
+        "correct": false,
+        "explanation": "--legacy-peer-deps меняет поведение для всех peerDependencies, не только транзитивных. Он возвращает поведение npm v3-v6 для всего дерева."
+      },
+      {
+        "text": "--force обходит только peerDependencies, остальные зависимости обрабатываются как обычно",
+        "correct": false,
+        "explanation": "--force — грубый инструмент, который обходит множество проверок npm: конфликты версий, совместимость, и даже проверку целостности пакетов."
+      }
+    ]
+  }
+]

@@ -1,0 +1,184 @@
+[
+  {
+    "question": "Чем npm ci принципиально отличается от npm install при запуске без аргументов?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "npm ci удаляет node_modules перед установкой",
+        "correct": true,
+        "explanation": "npm ci всегда начинает с чистого листа — удаляет node_modules целиком. Это гарантирует, что не останется лишних пакетов из предыдущих установок."
+      },
+      {
+        "text": "npm ci никогда не изменяет package-lock.json",
+        "correct": true,
+        "explanation": "В отличие от npm install, который может обновить lockfile, npm ci строго следует существующему lockfile и не вносит в него изменений. Это обеспечивает детерминизм."
+      },
+      {
+        "text": "npm ci завершится ошибкой, если package-lock.json не синхронизирован с package.json",
+        "correct": true,
+        "explanation": "npm ci намеренно строг: если lockfile и package.json рассинхронизированы, это сигнал о проблеме. npm ci предпочтёт сообщить об ошибке, а не молча исправить расхождение."
+      },
+      {
+        "text": "npm ci работает быстрее npm install за счёт параллельной загрузки",
+        "correct": false,
+        "explanation": "npm ci обычно медленнее из-за обязательного удаления node_modules. Преимущество ci — в детерминизме, а не скорости."
+      }
+    ]
+  },
+  {
+    "question": "В package.json: \"axios\": \"^1.3.0\". Текущая установленная версия: 1.3.0. В реестре доступны 1.4.0, 1.6.2, 2.0.0. Что сделает npm update axios?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Обновит до 1.6.2",
+        "correct": true,
+        "explanation": "npm update выбирает максимальную версию в пределах диапазона. ^1.3.0 означает >=1.3.0 <2.0.0. Максимальная подходящая — 1.6.2. До 2.0.0 npm update не перейдёт."
+      },
+      {
+        "text": "Обновит до 2.0.0, так как это последняя версия",
+        "correct": false,
+        "explanation": "npm update уважает диапазон semver в package.json. ^1.3.0 запрещает мажорный переход. Для установки 2.0.0 нужно явно: npm install axios@2."
+      },
+      {
+        "text": "Ничего не сделает, так как 1.3.0 уже установлен",
+        "correct": false,
+        "explanation": "npm update не просто проверяет текущую версию — он ищет максимальную в пределах диапазона. 1.3.0 < 1.6.2, обновление произойдёт."
+      },
+      {
+        "text": "Обновит до 1.4.0 как ближайшей следующей версии",
+        "correct": false,
+        "explanation": "npm выбирает максимальную совместимую версию, а не минимальную следующую. 1.6.2 > 1.4.0, поэтому будет выбрана 1.6.2."
+      }
+    ]
+  },
+  {
+    "question": "Что означает столбец 'Wanted' в выводе npm outdated?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Максимальная версия пакета, которую можно получить командой npm update без изменения package.json",
+        "correct": true,
+        "explanation": "Wanted — это semver.maxSatisfying применительно к диапазону в package.json. Именно эту версию установит npm update. Она может совпадать с Current (если уже максимум) или с Latest (если диапазон разрешает)."
+      },
+      {
+        "text": "Версия, рекомендованная командой npm как наиболее стабильная",
+        "correct": false,
+        "explanation": "npm не делает рекомендаций по стабильности в этом контексте. Wanted — чисто математический результат: max в пределах semver-диапазона."
+      },
+      {
+        "text": "Последняя версия пакета, опубликованная в реестре",
+        "correct": false,
+        "explanation": "Это описание столбца Latest, а не Wanted. Latest может выходить за пределы диапазона в package.json, тогда как Wanted — нет."
+      },
+      {
+        "text": "Версия, которую разработчики пакета пометили тегом 'wanted' при публикации",
+        "correct": false,
+        "explanation": "Тега 'wanted' не существует в npm. Есть теги latest, next, beta и другие пользовательские. Wanted в npm outdated — это вычисляемое значение, а не метка."
+      }
+    ]
+  },
+  {
+    "question": "Когда следует использовать флаг --save-exact при установке пакета?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Для инструментов генерации кода, где смена версии может изменить сгенерированный вывод",
+        "correct": true,
+        "explanation": "Генераторы (prisma, graphql-codegen, openapi-generator) могут изменять формат вывода при минорных обновлениях. Фиксация точной версии защищает от неожиданных diff-ов в сгенерированном коде."
+      },
+      {
+        "text": "Когда важна согласованность версии у всех разработчиков команды",
+        "correct": true,
+        "explanation": "Точная версия исключает ситуацию, когда у одного разработчика ^1.2.0 разрешилась в 1.2.3, а у другого — в 1.5.0 (после выхода новой версии). --save-exact + lockfile = полный детерминизм."
+      },
+      {
+        "text": "Для всех зависимостей в любом проекте по умолчанию",
+        "correct": false,
+        "explanation": "Это излишне строго. Тогда вы теряете автоматические патч-обновления с исправлениями безопасности. --save-exact стоит применять избирательно, для критичных инструментов."
+      },
+      {
+        "text": "Для исправлений безопасности, чтобы случайно не откатиться",
+        "correct": false,
+        "explanation": "Для security-патчей --save-exact скорее вредит: вы фиксируете конкретный патч и пропустите следующий security-патч при автоматическом обновлении. Лучше использовать ~1.2.3 для патч-диапазона."
+      }
+    ]
+  },
+  {
+    "question": "Что делает команда npm prune?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Удаляет из node_modules пакеты, которых нет в package.json (extraneous)",
+        "correct": true,
+        "explanation": "npm prune убирает 'лишние' пакеты — те, что физически присутствуют в node_modules, но не указаны ни в dependencies, ни в devDependencies. Это полезно после ручных изменений package.json."
+      },
+      {
+        "text": "Удаляет неиспользуемые зависимости, анализируя импорты в исходном коде",
+        "correct": false,
+        "explanation": "npm prune не анализирует исходный код. Он сравнивает только package.json с node_modules. Для анализа использования — инструмент depcheck."
+      },
+      {
+        "text": "Оптимизирует размер пакетов, удаляя лишние файлы внутри них",
+        "correct": false,
+        "explanation": "npm prune работает на уровне целых пакетов, а не файлов внутри них. Для tree-shaking (удаления неиспользуемого кода) используются бандлеры: webpack, rollup, esbuild."
+      },
+      {
+        "text": "Удаляет устаревшие версии пакетов, оставляя только последние",
+        "correct": false,
+        "explanation": "Это описывает поведение npm update или npm dedupe, но не prune. npm prune не меняет версии — он удаляет пакеты, отсутствующие в package.json."
+      }
+    ]
+  },
+  {
+    "question": "Команда npm install axios устанавливает axios и добавляет в package.json диапазон \"^1.6.0\". Какой флаг добавить, чтобы в package.json записалось \"1.6.0\" без каретки?",
+    "type": "single",
+    "options": [
+      {
+        "text": "--save-exact (или -E)",
+        "correct": true,
+        "explanation": "Флаг --save-exact (короткий -E) заставляет npm записывать точную версию без операторов диапазона. Результат: \"axios\": \"1.6.0\" вместо \"^1.6.0\"."
+      },
+      {
+        "text": "--no-range",
+        "correct": false,
+        "explanation": "Флага --no-range в npm не существует. Для фиксации точной версии используется --save-exact."
+      },
+      {
+        "text": "--fixed-version",
+        "correct": false,
+        "explanation": "Флага --fixed-version в npm не существует. Нужный флаг — --save-exact или его короткий вариант -E."
+      },
+      {
+        "text": "--pin",
+        "correct": false,
+        "explanation": "Флага --pin в npm нет. Это понятие из других контекстов (например, Docker image pinning). В npm для фиксации версии используется --save-exact."
+      }
+    ]
+  },
+  {
+    "question": "Разработчик хочет установить зависимости для production-сервера без devDependencies. Какая команда правильная?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npm ci --omit=dev",
+        "correct": true,
+        "explanation": "npm ci гарантирует детерминированную установку строго по lockfile. --omit=dev исключает devDependencies. Это оптимальный вариант для production-развёртывания."
+      },
+      {
+        "text": "npm install --production",
+        "correct": false,
+        "explanation": "--production работает (это устаревший синоним --omit=dev), но использование npm install вместо npm ci рискованно: lockfile может обновиться. В production лучше npm ci --omit=dev."
+      },
+      {
+        "text": "npm install --omit=dev",
+        "correct": false,
+        "explanation": "Технически работает, но npm install может изменить lockfile, что нежелательно на production. Для воспроизводимых production-установок всегда предпочтителен npm ci."
+      },
+      {
+        "text": "npm install --save-dev=false",
+        "correct": false,
+        "explanation": "Флага --save-dev=false не существует в npm. Для исключения devDependencies при установке используется --omit=dev."
+      }
+    ]
+  }
+]

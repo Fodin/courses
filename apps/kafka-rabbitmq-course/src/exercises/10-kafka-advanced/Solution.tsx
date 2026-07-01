@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLanguage } from 'src/hooks'
+import { useLanguage } from '../../hooks'
 
 // ============================================
 // Task 10.1: Kafka Streams — topology visualization

@@ -1,0 +1,222 @@
+[
+  {
+    "question": "Why don't the core REST constraints (stateless, cacheable, uniform interface) provide security?",
+    "type": "single",
+    "options": [
+      {
+        "text": "They exist for integration scalability, not protection; security is added by a separate constraint — layering",
+        "correct": true,
+        "explanation": "Correct. The four core constraints boost scalability but deliberately don't address security. Fielding adds a fifth — layering, where intermediary layers close the gaps."
+      },
+      {
+        "text": "Because REST runs only over HTTP, and HTTP is insecure by definition",
+        "correct": false,
+        "explanation": "The issue isn't HTTP itself: TLS runs on top of it. The point is that REST's constraints are about scalability, not protection."
+      },
+      {
+        "text": "REST is fully secure as long as you only use GET requests",
+        "correct": false,
+        "explanation": "A misconception. GET is also vulnerable (data leaks, enumeration), and restricting methods doesn't replace authentication and encryption."
+      }
+    ]
+  },
+  {
+    "question": "What does Base64 provide in the Basic Authentication scheme?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Transport compatibility: it turns login:password into HTTP-header-safe ASCII; it gives no encryption",
+        "correct": true,
+        "explanation": "Correct. Base64 is trivially decoded and is not encryption. It merely encodes the value so special characters (colon, etc.) don't break the header. Safe only over TLS."
+      },
+      {
+        "text": "Strong, irreversible password encryption",
+        "correct": false,
+        "explanation": "Base64 is encoding, not encryption. Anyone can decode it in one line of code. Without TLS the password is effectively in the clear."
+      },
+      {
+        "text": "Password hashing, like bcrypt",
+        "correct": false,
+        "explanation": "Base64 is reversible and is not a hash. A hash (bcrypt) is irreversible and used for storing passwords, not in the Basic header."
+      }
+    ]
+  },
+  {
+    "question": "What three parts make up a JWT and how are they separated?",
+    "type": "single",
+    "options": [
+      {
+        "text": "header.payload.signature — three Base64URL parts separated by dots",
+        "correct": true,
+        "explanation": "Correct: header (algorithm), payload (claims), and signature, each Base64URL-encoded and dot-separated."
+      },
+      {
+        "text": "user:password:token separated by colons",
+        "correct": false,
+        "explanation": "That resembles the Basic format, not a JWT. A JWT contains no password and is dot-separated."
+      },
+      {
+        "text": "key=value pairs separated by ampersands, like a query string",
+        "correct": false,
+        "explanation": "That's the query-parameter format, not a JWT. A JWT is three Base64URL parts separated by dots."
+      }
+    ]
+  },
+  {
+    "question": "Which is true about a JWT payload?",
+    "type": "single",
+    "options": [
+      {
+        "text": "It is not encrypted — only Base64URL-encoded, so you must not put secrets in it",
+        "correct": true,
+        "explanation": "Correct. Anyone holding the token can read the payload. The signature prevents forgery but does not hide the contents. Passwords and secrets in the payload are unacceptable."
+      },
+      {
+        "text": "It is encrypted with the server's secret and cannot be read",
+        "correct": false,
+        "explanation": "No. The payload is plain Base64URL, trivially decoded. JWT has no encryption by default (a separate standard, JWE, does that)."
+      },
+      {
+        "text": "It contains only the signature and carries no data",
+        "correct": false,
+        "explanation": "On the contrary: the payload carries claims (sub, exp, scope, etc.). The signature is the third, separate part of the token."
+      }
+    ]
+  },
+  {
+    "question": "What exactly does a JWT signature guarantee?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Integrity and authenticity: without the server's secret you can't change the payload and recreate a valid signature",
+        "correct": true,
+        "explanation": "Correct. The signature prevents forgery — having altered the claims, an attacker can't recompute the signature without the secret. It does not provide confidentiality."
+      },
+      {
+        "text": "Confidentiality: it hides the payload contents from outsiders",
+        "correct": false,
+        "explanation": "No, the payload stays readable. The signature is about integrity/authenticity, not hiding data."
+      },
+      {
+        "text": "Automatic token revocation on compromise",
+        "correct": false,
+        "explanation": "The signature doesn't revoke the token. A JWT is valid until exp; revocation needs a short TTL or a blacklist."
+      }
+    ]
+  },
+  {
+    "question": "A client sent a valid token but lacks the scope required for the operation. Which code should you return?",
+    "type": "single",
+    "options": [
+      {
+        "text": "403 Forbidden — \"I know who you are, but you may not\"",
+        "correct": true,
+        "explanation": "Correct. Identity is established (authentication passed) but rights are insufficient — that's 403. Re-logging in won't help."
+      },
+      {
+        "text": "401 Unauthorized — a token was presented, after all",
+        "correct": false,
+        "explanation": "401 is when the server doesn't know who you are (no token/expired/invalid). Here the token is valid, the problem is rights → 403."
+      },
+      {
+        "text": "400 Bad Request — the request is malformed",
+        "correct": false,
+        "explanation": "The request is well-formed; the problem is access rights. That's 403 semantics, not 400."
+      }
+    ]
+  },
+  {
+    "question": "How do OAuth 2.0 scopes differ from RBAC roles?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A scope limits a specific token/app to a narrow set of permissions (least privilege), while a role describes a user's rights overall",
+        "correct": true,
+        "explanation": "Correct. A scope is the permission granted to a specific third-party app's token, even if the user themselves has more rights. RBAC ties rights to the user's role."
+      },
+      {
+        "text": "They are the same thing, just different names",
+        "correct": false,
+        "explanation": "No. A role is about the user, a scope is about a specific token/app. A token can have fewer rights than the user (least privilege)."
+      },
+      {
+        "text": "A scope is about encryption, a role is about authorization",
+        "correct": false,
+        "explanation": "Both are about authorization. Encryption is TLS, not scope."
+      }
+    ]
+  },
+  {
+    "question": "What does TLS (HTTPS) guarantee for an API? (select all that apply)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Confidentiality — intercepted traffic is unreadable",
+        "correct": true,
+        "explanation": "Yes, channel encryption makes interception useless."
+      },
+      {
+        "text": "Integrity — tampering in transit is detected",
+        "correct": true,
+        "explanation": "Yes, TLS protects against silent data modification in transit."
+      },
+      {
+        "text": "Server authentication — the certificate proves it's the right host",
+        "correct": true,
+        "explanation": "Yes, the certificate confirms the server's authenticity, hindering man-in-the-middle."
+      },
+      {
+        "text": "Authorization — it decides which endpoints a client may access",
+        "correct": false,
+        "explanation": "No. Authorization is decided by RBAC/ABAC/scopes at the application level, not by TLS."
+      }
+    ]
+  },
+  {
+    "question": "What should you NOT write to API logs? (select all that apply)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Full Bearer tokens",
+        "correct": true,
+        "explanation": "Yes. A token in the log = access in the log. Mask it: `Bearer ***`."
+      },
+      {
+        "text": "Passwords and secret keys",
+        "correct": true,
+        "explanation": "Yes, never. A leaked log with passwords = leaked access."
+      },
+      {
+        "text": "Card numbers and CVV",
+        "correct": true,
+        "explanation": "Yes, this is forbidden (PCI DSS). Payment data is masked."
+      },
+      {
+        "text": "Method, path, status, request-id, and user id",
+        "correct": false,
+        "explanation": "On the contrary — these are exactly what you should log: incidents are investigated and anomalies caught through these fields."
+      }
+    ]
+  },
+  {
+    "question": "For critical operations (payments, webhooks) a body signature (HMAC in X-Signature) is often added on top of TLS. Why, if the channel is already encrypted?",
+    "type": "single",
+    "options": [
+      {
+        "text": "So the receiver can confirm the body wasn't altered and the sender is who they claim (message integrity and authenticity)",
+        "correct": true,
+        "explanation": "Correct. TLS protects the channel, but a body signature gives end-to-end integrity and authenticity of the message itself — regardless of how many proxies it passed through."
+      },
+      {
+        "text": "To additionally encrypt the body — TLS doesn't do that",
+        "correct": false,
+        "explanation": "TLS does encrypt the body in the channel. A signature (HMAC) doesn't encrypt; it confirms integrity and authorship."
+      },
+      {
+        "text": "To speed up request processing on the server",
+        "correct": false,
+        "explanation": "A signature adds work, it doesn't speed things up. Its goal is security (integrity/authenticity), not performance."
+      }
+    ]
+  }
+]

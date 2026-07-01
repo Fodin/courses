@@ -23,6 +23,27 @@
   overflow: auto;
 }
 
+.backToCourses {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--clr-text, inherit);
+  background: var(--clr-bg-surface, transparent);
+  border: 1px solid var(--clr-border, currentColor);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.backToCourses:hover {
+  background: var(--clr-bg-hover, rgba(127, 127, 127, 0.12));
+  border-color: var(--clr-border-strong, currentColor);
+}
+
 .sidebarHeader {
   display: flex;
   justify-content: space-between;

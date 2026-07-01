@@ -1,5 +1,6 @@
-import { useState, useEffect, useRef, type ComponentType } from 'react'
+import { useState, useEffect, useRef, useCallback, type ComponentType } from 'react'
 
+import { usePlatformOptions } from '../context/PlatformOptionsContext'
 import { TaskStub } from './TaskStub'
 
 interface Props {
@@ -16,15 +17,22 @@ export function DynamicStudentTask({ folder, taskId }: Props) {
   const [Component, setComponent] = useState<ComponentType | null>(null)
   const [failed, setFailed] = useState(false)
   const mountedRef = useRef(true)
+  const { loadStudentTask } = usePlatformOptions()
 
   const fileName = `Task${taskId.replace('.', '_')}`
+
+  // Загрузчик студенческого компонента: кастомный (от хоста/хаба) или дефолтный.
+  const load = useCallback(
+    (f: string, name: string) => (loadStudentTask ?? loadModule)(f, name),
+    [loadStudentTask]
+  )
 
   useEffect(() => {
     mountedRef.current = true
     setComponent(null)
     setFailed(false)
 
-    loadModule(folder, fileName)
+    load(folder, fileName)
       .then((comp) => {
         if (!mountedRef.current) return
         if (comp) {
@@ -40,14 +48,14 @@ export function DynamicStudentTask({ folder, taskId }: Props) {
     return () => {
       mountedRef.current = false
     }
-  }, [folder, fileName])
+  }, [folder, fileName, load])
 
   // HMR: при любом обновлении модулей перезагружаем студенческий компонент
   useEffect(() => {
     if (!import.meta.hot) return
 
     const reload = () => {
-      loadModule(folder, fileName)
+      load(folder, fileName)
         .then((comp) => {
           if (comp) {
             setComponent(() => comp)
@@ -61,7 +69,7 @@ export function DynamicStudentTask({ folder, taskId }: Props) {
     return () => {
       import.meta.hot?.off('vite:afterUpdate', reload)
     }
-  }, [folder, fileName])
+  }, [folder, fileName, load])
 
   if (failed || !Component) {
     return <TaskStub id={taskId} />

@@ -1,0 +1,184 @@
+[
+  {
+    "question": "Что такое Plug'n'Play (PnP) в Yarn Berry и чем он заменяет node_modules?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Плагин для подключения внешних реестров вместо npmjs.com",
+        "correct": false,
+        "explanation": "PnP — не про реестры. Это механизм резолюции зависимостей, заменяющий файловую систему node_modules."
+      },
+      {
+        "text": "Механизм, при котором .pnp.cjs патчит require() и использует .yarn/cache/ с zip-архивами вместо node_modules",
+        "correct": true,
+        "explanation": "Верно. .pnp.cjs — это карта резолюции: при require('express') Node.js перенаправляется к нужному zip-архиву в .yarn/cache/. Папка node_modules не создаётся."
+      },
+      {
+        "text": "Режим установки, при котором пакеты загружаются в фоновом режиме без блокировки",
+        "correct": false,
+        "explanation": "Это описание параллельных загрузок, которые есть и в Classic. PnP касается способа хранения и резолюции, а не процесса скачивания."
+      },
+      {
+        "text": "Система плагинов для расширения функциональности Yarn",
+        "correct": false,
+        "explanation": "Yarn Berry действительно поддерживает плагины, но это отдельная функция. PnP — конкретный nodeLinker: способ резолюции зависимостей."
+      }
+    ]
+  },
+  {
+    "question": "Что такое zero-installs в Yarn Berry и как это работает?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Режим, при котором зависимости не устанавливаются вообще — используются только глобальные версии",
+        "correct": false,
+        "explanation": "Zero-installs не означает отказ от зависимостей. Зависимости есть, но они закоммичены в репозиторий."
+      },
+      {
+        "text": "Подход, при котором .yarn/cache/ (zip-архивы пакетов) коммитится в git, и после git clone запуск возможен без yarn install",
+        "correct": true,
+        "explanation": "Точно. Поскольку PnP работает с zip-архивами, а не с node_modules, эти архивы можно хранить в репозитории. После клонирования — мгновенный старт без сетевых запросов."
+      },
+      {
+        "text": "Оптимизация, которая пропускает установку зависимостей с нулевым числом изменений в lockfile",
+        "correct": false,
+        "explanation": "Это скорее описание поведения при неизменившихся зависимостях. Zero-installs — про хранение кэша в репозитории."
+      },
+      {
+        "text": "Режим совместимости с npm без создания lockfile",
+        "correct": false,
+        "explanation": "Zero-installs не связан с совместимостью с npm. Это конкретная практика хранения .yarn/cache/ в git."
+      }
+    ]
+  },
+  {
+    "question": "Чем поле resolutions в Yarn Classic отличается от поля overrides в npm?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "resolutions поддерживает паттерн **/ для замены зависимости на любой глубине дерева",
+        "correct": true,
+        "explanation": "Верно. Синтаксис **/@types/react заменяет @types/react везде в дереве зависимостей. npm overrides такого паттерна не имеет."
+      },
+      {
+        "text": "resolutions работает только для прямых зависимостей, overrides — для транзитивных",
+        "correct": false,
+        "explanation": "Оба поля работают с транзитивными зависимостями — именно для этого они и предназначены."
+      },
+      {
+        "text": "Оба поля решают одну задачу — принудительную замену версии транзитивной зависимости, но синтаксис отличается",
+        "correct": true,
+        "explanation": "Правильно. Задача одна: форсировать конкретную версию вне зависимости от того, что просит граф зависимостей. Синтаксис разный: у Yarn — resolutions с **/pattern, у npm — overrides."
+      },
+      {
+        "text": "overrides появился раньше resolutions и является его расширением",
+        "correct": false,
+        "explanation": "Исторически наоборот: resolutions появился в Yarn (2016), overrides добавили в npm v8 (2021). overrides не является расширением resolutions — это независимые реализации."
+      }
+    ]
+  },
+  {
+    "question": "Для чего используется опция nodeLinker: node-modules в .yarnrc.yml Yarn Berry?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чтобы использовать Node.js вместо Deno как среду выполнения",
+        "correct": false,
+        "explanation": "nodeLinker не связан с выбором среды выполнения. Это настройка того, как Yarn размещает зависимости в файловой системе."
+      },
+      {
+        "text": "Чтобы Yarn Berry создавал обычный плоский node_modules вместо использования PnP",
+        "correct": true,
+        "explanation": "Правильно. nodeLinker: node-modules заставляет Yarn Berry вернуться к традиционной структуре node_modules — для совместимости с инструментами, которые не поддерживают PnP."
+      },
+      {
+        "text": "Чтобы включить pnpm-стиль симлинков в Yarn Berry",
+        "correct": false,
+        "explanation": "Для pnpm-стиля есть nodeLinker: pnpm. nodeLinker: node-modules — это именно плоский node_modules, как в npm и Yarn Classic."
+      },
+      {
+        "text": "Чтобы запретить установку нативных аддонов",
+        "correct": false,
+        "explanation": "nodeLinker не управляет нативными аддонами. Он определяет способ размещения всех пакетов в файловой системе."
+      }
+    ]
+  },
+  {
+    "question": "Что делает команда yarn dlx create-react-app my-app?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Устанавливает create-react-app глобально и запускает его",
+        "correct": false,
+        "explanation": "yarn dlx не устанавливает глобально. Это принципиальное отличие: пакет скачивается во временную среду, используется и удаляется."
+      },
+      {
+        "text": "Добавляет create-react-app в devDependencies проекта и запускает",
+        "correct": false,
+        "explanation": "dlx не модифицирует package.json. Он работает изолированно от текущего проекта."
+      },
+      {
+        "text": "Скачивает create-react-app во временную среду, запускает его и после завершения удаляет",
+        "correct": true,
+        "explanation": "Верно. dlx = Download and eXecute. Аналог npx (npm) и pnpm dlx. Идеально для одноразовых инструментов типа scaffolding."
+      },
+      {
+        "text": "Запускает create-react-app из .yarn/cache/, если он там есть",
+        "correct": false,
+        "explanation": "dlx не ищет в .yarn/cache/ текущего проекта. Он создаёт изолированную временную среду при каждом вызове."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений о Yarn Berry PnP верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "PnP устраняет фантомные зависимости — нельзя импортировать пакет, не указанный в package.json",
+        "correct": true,
+        "explanation": "Верно. .pnp.cjs содержит точную карту: какой пакет может импортировать какие зависимости. Если пакета нет в ваших dependencies — require упадёт с ошибкой."
+      },
+      {
+        "text": "PnP совместим со всеми инструментами экосистемы Node.js без исключений",
+        "correct": false,
+        "explanation": "Не со всеми. Инструменты, напрямую обращающиеся к файловой системе в поисках node_modules, не работают с PnP без адаптации. Для них — nodeLinker: node-modules."
+      },
+      {
+        "text": "При PnP пакеты хранятся как .zip-архивы в .yarn/cache/ и не распаковываются на диск",
+        "correct": true,
+        "explanation": "Правильно. Node.js с патчем .pnp.cjs читает файлы прямо из zip-архивов. Это сильно сокращает число файлов в файловой системе."
+      },
+      {
+        "text": "PnP работает только с JavaScript-пакетами, для TypeScript нужен nodeLinker: node-modules",
+        "correct": false,
+        "explanation": "PnP работает с TypeScript. Нужно лишь установить SDK для IDE: yarn dlx @yarnpkg/sdks vscode. Ограничение не в языке, а в конкретных инструментах."
+      }
+    ]
+  },
+  {
+    "question": "Как в Yarn Berry узнать, какой nodeLinker используется в проекте?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Посмотреть в package.json поле 'nodeLinker'",
+        "correct": false,
+        "explanation": "nodeLinker — это конфигурация Yarn, она хранится в .yarnrc.yml, а не в package.json."
+      },
+      {
+        "text": "Посмотреть в .yarnrc.yml поле nodeLinker (или проверить, есть ли .pnp.cjs в корне проекта)",
+        "correct": true,
+        "explanation": "Верно. .yarnrc.yml — главный конфиг Yarn Berry. Если nodeLinker не указан явно, используется pnp по умолчанию — и тогда в корне будет .pnp.cjs."
+      },
+      {
+        "text": "Запустить yarn config list и найти nodeLinker",
+        "correct": false,
+        "explanation": "yarn config list покажет конфигурацию, но самый прямой способ — читать .yarnrc.yml или проверить наличие .pnp.cjs в корне."
+      },
+      {
+        "text": "Посмотреть в yarn.lock — там указан тип линкера",
+        "correct": false,
+        "explanation": "yarn.lock содержит информацию о версиях и integrity пакетов, но не о способе их размещения (nodeLinker)."
+      }
+    ]
+  }
+]

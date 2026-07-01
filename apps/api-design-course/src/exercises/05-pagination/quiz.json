@@ -128,5 +128,47 @@
         "explanation": "Верно. Без totalCount клиент не может показать «Найдено 1247 товаров». Ему придётся делать отдельный запрос типа GET /api/products/count, что неэффективно."
       }
     ]
+  },
+  {
+    "question": "Клиенту в списке нужны только id и name, но API отдаёт весь объект с 30 полями. Как это называется и как решается?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Over-fetching; решается параметром fields (sparse fieldsets): GET /products?fields=id,name",
+        "correct": true,
+        "explanation": "Верно. Over-fetching — отдача лишних полей. Параметр fields позволяет клиенту запросить только нужное, как «бедный человек» GraphQL. Это ось экономии, отдельная от пагинации."
+      },
+      {
+        "text": "Under-fetching; решается увеличением limit на странице",
+        "correct": false,
+        "explanation": "Это over-fetching (лишние данные), а не under-fetching. И limit управляет числом строк, а не числом полей в каждой строке."
+      },
+      {
+        "text": "Это нормально, поля всё равно сожмёт gzip — ничего делать не нужно",
+        "correct": false,
+        "explanation": "Gzip уменьшает трафик, но сервер всё равно сериализует и отдаёт лишние поля, а клиент их парсит. fields и сжатие — дополняющие, а не взаимозаменяемые приёмы."
+      }
+    ]
+  },
+  {
+    "question": "Какая пара заголовков отвечает за сжатие HTTP-ответа?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Клиент шлёт Accept-Encoding: gzip, сервер отвечает Content-Encoding: gzip",
+        "correct": true,
+        "explanation": "Верно. Клиент объявляет поддерживаемые алгоритмы через Accept-Encoding, сервер сжимает и помечает ответ заголовком Content-Encoding. JSON сжимается обычно на 70–90%."
+      },
+      {
+        "text": "Content-Type: gzip в запросе и ответе",
+        "correct": false,
+        "explanation": "Content-Type описывает формат данных (application/json), а не сжатие. За сжатие отвечают Accept-Encoding / Content-Encoding."
+      },
+      {
+        "text": "Compression: true в заголовках запроса",
+        "correct": false,
+        "explanation": "Такого стандартного заголовка нет. Согласование сжатия идёт через Accept-Encoding (клиент) и Content-Encoding (сервер)."
+      }
+    ]
   }
 ]

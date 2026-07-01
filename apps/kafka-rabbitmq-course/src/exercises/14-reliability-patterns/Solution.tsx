@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react'
-import { useLanguage } from 'src/hooks'
+import { useLanguage } from '../../hooks'
 
 // ============================================
 // Task 14.1: Retry with Exponential Backoff

@@ -5,6 +5,7 @@ import { ErrorBoundary } from './components/ErrorBoundary'
 import { ExerciseRenderer } from './components/ExerciseRenderer'
 import { LevelSidebar } from './components/LevelSidebar'
 import { CourseConfigProvider, useCourseConfig, useExercisesConfigMap } from './context/CourseConfigContext'
+import { PlatformOptionsProvider, usePlatformOptions, type PlatformOptions } from './context/PlatformOptionsContext'
 import { LanguageProvider } from './hooks/LanguageProvider'
 import { ProgressProvider } from './hooks/ProgressProvider'
 import { ThemeProvider } from './hooks/ThemeProvider'
@@ -15,8 +16,9 @@ import appStyles from './styles/App.module.css'
 
 function TaskPage() {
   const { taskId } = useParams<{ taskId: string }>()
-  const { t } = useLanguage()
+  const { t, language } = useLanguage()
   const configMap = useExercisesConfigMap()
+  const { onExit } = usePlatformOptions()
 
   const levelId = taskId ? taskId.split('.')[0] : '0'
 
@@ -28,6 +30,11 @@ function TaskPage() {
   return (
     <div className={appStyles.container}>
       <aside className={appStyles.sidebar}>
+        {onExit && (
+          <button type="button" className={appStyles.backToCourses} onClick={onExit}>
+            ← {language === 'ru' ? 'Все курсы' : 'All courses'}
+          </button>
+        )}
         <div className={appStyles.sidebarHeader}>
           <h2 className={appStyles.sidebarTitle}>{t('nav.title')}</h2>
         </div>
@@ -68,14 +75,21 @@ function AppProviders({ config, children }: { config: CourseConfig; children: Re
   )
 }
 
-export function CoursePlatform({ config }: { config: CourseConfig }) {
+export function CoursePlatform({
+  config,
+  loadStudentTask,
+  onExit,
+  exercisesBaseUrl,
+}: { config: CourseConfig } & PlatformOptions) {
   return (
     <BrowserRouter>
-      <CourseConfigProvider config={config}>
-        <AppProviders config={config}>
-          <AppContent defaultRoute={config.defaultRoute} />
-        </AppProviders>
-      </CourseConfigProvider>
+      <PlatformOptionsProvider options={{ loadStudentTask, onExit, exercisesBaseUrl }}>
+        <CourseConfigProvider config={config}>
+          <AppProviders config={config}>
+            <AppContent defaultRoute={config.defaultRoute} />
+          </AppProviders>
+        </CourseConfigProvider>
+      </PlatformOptionsProvider>
     </BrowserRouter>
   )
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLanguage } from 'src/hooks'
+import { useLanguage } from '../../hooks'
 
 // ============================================
 // Задание 0.1: Монолит vs микросервисы

@@ -1,0 +1,210 @@
+[
+  {
+    "question": "При запуске `npm run build` у которого есть скрипты `prebuild` и `postbuild` — в каком порядке они выполняются?",
+    "type": "single",
+    "options": [
+      {
+        "text": "build → prebuild → postbuild",
+        "correct": false,
+        "explanation": "Неверно. Pre-хук всегда предшествует основному скрипту, а не следует за ним."
+      },
+      {
+        "text": "prebuild → build → postbuild",
+        "correct": true,
+        "explanation": "Верно. npm автоматически запускает pre-хук до основного скрипта и post-хук после него. Если prebuild завершится с ошибкой, build и postbuild не запустятся."
+      },
+      {
+        "text": "postbuild → build → prebuild",
+        "correct": false,
+        "explanation": "Неверно. Post-хук всегда идёт ПОСЛЕ основного скрипта, а не до."
+      },
+      {
+        "text": "Порядок не гарантирован, зависит от реализации",
+        "correct": false,
+        "explanation": "Неверно. Порядок строго фиксирован спецификацией npm: pre → основной → post."
+      }
+    ]
+  },
+  {
+    "question": "Скрипт `prepare` в package.json запускается автоматически при...",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "npm install (при наличии devDependencies)",
+        "correct": true,
+        "explanation": "Верно. prepare запускается после установки зависимостей — это позволяет автоматически собирать TypeScript-библиотеки после клонирования репозитория."
+      },
+      {
+        "text": "npm publish",
+        "correct": true,
+        "explanation": "Верно. prepare запускается перед публикацией, обеспечивая актуальность скомпилированных файлов в пакете."
+      },
+      {
+        "text": "npm test",
+        "correct": false,
+        "explanation": "Неверно. npm test не запускает prepare автоматически. prepare — это lifecycle-скрипт установки и публикации, не тестирования."
+      },
+      {
+        "text": "npm pack",
+        "correct": true,
+        "explanation": "Верно. npm pack также запускает prepare, так как создаёт архив пакета — аналогично публикации."
+      }
+    ]
+  },
+  {
+    "question": "Почему `postinstall`-скрипты зависимостей считаются потенциальным риском безопасности?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Они замедляют установку пакетов",
+        "correct": false,
+        "explanation": "Замедление — побочный эффект, но не угроза безопасности. Главная проблема — произвольное выполнение кода."
+      },
+      {
+        "text": "Они выполняют произвольный код с правами текущего пользователя при установке пакета",
+        "correct": true,
+        "explanation": "Верно. postinstall запускается автоматически при установке каждого пакета. Злоумышленник может встроить вредоносный код, который получит доступ к файловой системе, переменным окружения и сети — это вектор supply chain атак."
+      },
+      {
+        "text": "Они могут перезаписать package.json",
+        "correct": false,
+        "explanation": "Технически возможно, но это не главная угроза. Более серьёзно — кража токенов и учётных данных из переменных окружения CI/CD."
+      },
+      {
+        "text": "Они запускаются только в production-окружении",
+        "correct": false,
+        "explanation": "Неверно. postinstall запускается при любой установке — как в development, так и в production и CI."
+      }
+    ]
+  },
+  {
+    "question": "Что делает флаг `--ignore-scripts` при выполнении `npm install --ignore-scripts`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Отключает запуск lifecycle-скриптов всех устанавливаемых пакетов",
+        "correct": true,
+        "explanation": "Верно. --ignore-scripts предотвращает выполнение preinstall, install, postinstall, prepare и других lifecycle-скриптов. Это повышает безопасность, но может сломать пакеты, требующие компиляции нативных модулей."
+      },
+      {
+        "text": "Отключает скрипты только в корневом package.json проекта",
+        "correct": false,
+        "explanation": "Неверно. Флаг применяется ко ВСЕМ пакетам в дереве зависимостей, включая транзитивные."
+      },
+      {
+        "text": "Пропускает выполнение скриптов типа 'lint' и 'build'",
+        "correct": false,
+        "explanation": "Неверно. --ignore-scripts отключает lifecycle-хуки (postinstall, prepare и т.д.), а не пользовательские скрипты в 'scripts'. npm run build всё равно сработает."
+      },
+      {
+        "text": "Ускоряет установку за счёт параллельного выполнения скриптов",
+        "correct": false,
+        "explanation": "Неверно. Флаг не параллелизирует скрипты — он их полностью отключает."
+      }
+    ]
+  },
+  {
+    "question": "Чем `npx create-react-app my-app` отличается от добавления `create-react-app` в зависимости и запуска через `npm run`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npx медленнее, так как всегда скачивает пакет заново",
+        "correct": false,
+        "explanation": "Не совсем верно. npx использует кэш и сначала проверяет node_modules/.bin. Повторные запуски используют кэшированную версию."
+      },
+      {
+        "text": "npx скачивает пакет во временную папку и удаляет после запуска, не засоряя зависимости проекта",
+        "correct": true,
+        "explanation": "Верно. npx позволяет запускать инструменты без постоянной установки. Это особенно полезно для генераторов (create-*), которые нужны один раз — не нужно добавлять их в devDependencies."
+      },
+      {
+        "text": "npx может запускать только глобальные пакеты",
+        "correct": false,
+        "explanation": "Неверно. npx приоритетно смотрит в node_modules/.bin текущего проекта, затем в PATH, и только потом скачивает из реестра."
+      },
+      {
+        "text": "npx и npm run делают одно и то же, это просто синтаксический сахар",
+        "correct": false,
+        "explanation": "Неверно. npm run выполняет именованный скрипт из поля scripts в package.json. npx запускает бинарник напрямую, с возможностью загрузки из реестра."
+      }
+    ]
+  },
+  {
+    "question": "В каком из сценариев `prepublishOnly` выполнится, а `prepare` — нет?",
+    "type": "single",
+    "options": [
+      {
+        "text": "При клонировании репозитория и запуске npm install",
+        "correct": false,
+        "explanation": "Неверно. prepare запускается при npm install, а prepublishOnly — нет. Это противоположный сценарий."
+      },
+      {
+        "text": "Такого сценария нет: если выполняется prepublishOnly, то prepare тоже выполняется",
+        "correct": true,
+        "explanation": "Верно. prepublishOnly запускается только при npm publish и npm pack — и в обоих случаях prepare тоже запускается (после prepublishOnly). prepare — более широкий хук."
+      },
+      {
+        "text": "При npm publish с флагом --ignore-scripts",
+        "correct": false,
+        "explanation": "С --ignore-scripts оба скрипта будут пропущены, а не только prepare."
+      },
+      {
+        "text": "При выполнении npm version patch",
+        "correct": false,
+        "explanation": "npm version patch не запускает ни prepare, ни prepublishOnly — он только обновляет версию в package.json и создаёт git-тег."
+      }
+    ]
+  },
+  {
+    "question": "Как в скриптах package.json можно обратиться к версии пакета из того же package.json без хардкода?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Через переменную окружения $npm_package_version",
+        "correct": true,
+        "explanation": "Верно. npm автоматически экспортирует все поля package.json как переменные окружения с префиксом npm_package_. Так $npm_package_version содержит текущую версию пакета."
+      },
+      {
+        "text": "Через $VERSION, npm экспортирует её автоматически",
+        "correct": false,
+        "explanation": "Неверно. npm использует префикс npm_package_*, а не произвольные имена переменных."
+      },
+      {
+        "text": "Только через явное чтение package.json в скрипте: node -e \"require('./package.json').version\"",
+        "correct": false,
+        "explanation": "Технически работает, но это не нужно — npm уже экспортирует версию как $npm_package_version."
+      },
+      {
+        "text": "Через $PACKAGE_VERSION, если задать её в поле config",
+        "correct": false,
+        "explanation": "Неверно. Поле config экспортируется как $npm_package_config_*, а не просто $PACKAGE_VERSION. И для version отдельно задавать config не нужно."
+      }
+    ]
+  },
+  {
+    "question": "Если `prebuild` завершился с кодом выхода 1 (ошибка), что произойдёт с `build` и `postbuild`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "build пропустится, postbuild выполнится",
+        "correct": false,
+        "explanation": "Неверно. При ошибке в pre-хуке вся цепочка прерывается. postbuild не получит шанса выполниться."
+      },
+      {
+        "text": "Оба пропустятся, npm завершится с ошибкой",
+        "correct": true,
+        "explanation": "Верно. npm строго следует принципу fail-fast: ошибка в pre-хуке прерывает всю цепочку. build и postbuild не запустятся, npm выйдет с ненулевым кодом."
+      },
+      {
+        "text": "Оба выполнятся, prebuild-ошибка игнорируется",
+        "correct": false,
+        "explanation": "Неверно. npm не игнорирует ошибки в lifecycle-хуках. Ошибка в pre-хуке — это сигнал остановить выполнение."
+      },
+      {
+        "text": "build выполнится, postbuild пропустится",
+        "correct": false,
+        "explanation": "Неверно. Ошибка в prebuild прерывает цепочку немедленно — build не запустится."
+      }
+    ]
+  }
+]

@@ -1,4 +1,7 @@
 {
   "private": true,
-  "workspaces": ["packages/*", "apps/*"]
+  "workspaces": ["packages/*", "apps/*"],
+  "scripts": {
+    "dev": "npm run dev -w @courses/hub"
+  }
 }

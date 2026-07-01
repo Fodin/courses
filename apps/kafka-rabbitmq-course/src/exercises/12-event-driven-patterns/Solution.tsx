@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useLanguage } from 'src/hooks'
+import { useLanguage } from '../../hooks'
 
 // ============================================
 // Задание 12.1: Event Sourcing — визуализация потока событий

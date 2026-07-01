@@ -1,0 +1,184 @@
+[
+  {
+    "question": "Зачем pnpm использует content-addressable store вместо обычной папки с пакетами?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чтобы ускорить поиск пакетов по имени",
+        "correct": false,
+        "explanation": "Поиск по имени — не главная цель. CAS идентифицирует файлы по хешу содержимого, что нужно прежде всего для дедупликации."
+      },
+      {
+        "text": "Чтобы хранить каждый уникальный файл один раз и переиспользовать его через hard links во всех проектах",
+        "correct": true,
+        "explanation": "Именно так: если содержимое файла одинаково в разных пакетах, он хранится в store единожды. Все проекты получают hard link на один и тот же inode — это экономит гигабайты дискового пространства."
+      },
+      {
+        "text": "Чтобы поддерживать несколько версий Node.js одновременно",
+        "correct": false,
+        "explanation": "Управление версиями Node.js — задача nvm или volta, не pnpm store. CAS решает проблему дублирования файлов пакетов."
+      },
+      {
+        "text": "Чтобы шифровать пакеты для безопасности",
+        "correct": false,
+        "explanation": "Хеш в CAS используется для идентификации и проверки целостности, а не для шифрования данных."
+      }
+    ]
+  },
+  {
+    "question": "Как pnpm экономит место на диске по сравнению с npm?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сжимает пакеты в zip-архивы внутри node_modules",
+        "correct": false,
+        "explanation": "Zip-архивы используются в Yarn Berry (PnP). pnpm хранит распакованные файлы в глобальном store."
+      },
+      {
+        "text": "Не скачивает dev-зависимости по умолчанию",
+        "correct": false,
+        "explanation": "pnpm скачивает все зависимости, включая dev. Экономия достигается не за счёт пропуска пакетов."
+      },
+      {
+        "text": "Создаёт hard links из глобального store в node_modules вместо копирования файлов",
+        "correct": true,
+        "explanation": "Hard link — это дополнительная точка входа в те же данные на диске. 10 проектов с одинаковой версией React занимают столько же места, сколько один — данные физически не дублируются."
+      },
+      {
+        "text": "Удаляет файлы пакетов после установки и восстанавливает их по требованию",
+        "correct": false,
+        "explanation": "Такого механизма у pnpm нет. Файлы всегда доступны без восстановления — именно благодаря hard links."
+      }
+    ]
+  },
+  {
+    "question": "Что находится в корне node_modules при использовании pnpm?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Все пакеты проекта и их транзитивные зависимости в плоской структуре",
+        "correct": false,
+        "explanation": "Плоскую структуру создаёт npm. pnpm намеренно отказался от этого подхода, чтобы устранить фантомные зависимости."
+      },
+      {
+        "text": "Симлинки только на прямые зависимости проекта; транзитивные зависимости — в .pnpm/",
+        "correct": true,
+        "explanation": "Корень node_modules содержит симлинки исключительно на пакеты из package.json. Всё остальное скрыто в .pnpm/ — это ключ к строгой изоляции."
+      },
+      {
+        "text": "Только файл .modules.yaml с описанием зависимостей",
+        "correct": false,
+        "explanation": ".modules.yaml существует, но это мета-файл pnpm. В корне также есть симлинки на прямые зависимости."
+      },
+      {
+        "text": "Ничего — пакеты резолвятся напрямую из глобального store",
+        "correct": false,
+        "explanation": "node_modules не пустой. pnpm создаёт симлинки в корне, чтобы Node.js мог найти зависимости стандартным механизмом резолюции."
+      }
+    ]
+  },
+  {
+    "question": "Почему с pnpm нельзя сделать require('debug'), если debug не указан в package.json вашего проекта?",
+    "type": "single",
+    "options": [
+      {
+        "text": "pnpm не устанавливает транзитивные зависимости",
+        "correct": false,
+        "explanation": "pnpm устанавливает транзитивные зависимости — они просто попадают в .pnpm/, а не в корень node_modules."
+      },
+      {
+        "text": "В корне node_modules нет симлинка на debug, поэтому Node.js не находит пакет при резолюции",
+        "correct": true,
+        "explanation": "Именно так устроена строгая изоляция pnpm. Симлинки в корне — только для прямых зависимостей. debug есть в .pnpm/, но не доступен из корневого кода проекта."
+      },
+      {
+        "text": "pnpm блокирует require() из файлов в src/",
+        "correct": false,
+        "explanation": "pnpm не вмешивается в вызовы require(). Ограничение реализуется через структуру файловой системы, а не перехватом системных вызовов."
+      },
+      {
+        "text": "debug автоматически помечается как peerDependency и не устанавливается",
+        "correct": false,
+        "explanation": "debug — обычная зависимость express, не peer. Она устанавливается, но в .pnpm/, недоступном через стандартную резолюцию для вашего кода."
+      }
+    ]
+  },
+  {
+    "question": "Что происходит с файлом pnpm-lock.yaml при запуске pnpm install --frozen-lockfile?",
+    "type": "single",
+    "options": [
+      {
+        "text": "pnpm обновляет lockfile до последних совместимых версий",
+        "correct": false,
+        "explanation": "Флаг --frozen-lockfile запрещает изменение lockfile. Именно это и нужно в CI для воспроизводимых сборок."
+      },
+      {
+        "text": "pnpm устанавливает зависимости строго из lockfile и выдаёт ошибку, если lockfile не соответствует package.json",
+        "correct": true,
+        "explanation": "Правильно. --frozen-lockfile гарантирует: то, что установлено в CI, точно соответствует тому, что зафиксировал разработчик. Аналог npm ci."
+      },
+      {
+        "text": "pnpm удаляет lockfile и пересоздаёт его с нуля",
+        "correct": false,
+        "explanation": "Это поведение без флагов при наличии конфликтов. --frozen-lockfile, напротив, запрещает любые изменения lockfile."
+      },
+      {
+        "text": "Флаг работает только для production зависимостей",
+        "correct": false,
+        "explanation": "--frozen-lockfile применяется ко всем зависимостям без исключения."
+      }
+    ]
+  },
+  {
+    "question": "Как в pnpm принудительно заменить версию транзитивной зависимости debug только там, где её использует express?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npm.overrides: { 'debug': '4.3.4' }",
+        "correct": false,
+        "explanation": "Это синтаксис npm overrides (поле overrides в package.json). У pnpm поле называется pnpm.overrides."
+      },
+      {
+        "text": "resolutions: { 'express/debug': '4.3.4' }",
+        "correct": false,
+        "explanation": "Синтаксис resolutions — это Yarn. У pnpm используется pnpm.overrides с синтаксисом 'express>debug'."
+      },
+      {
+        "text": "pnpm.overrides: { 'express>debug': '4.3.4' }",
+        "correct": true,
+        "explanation": "Верно. Запись 'express>debug' в pnpm.overrides означает: заменить debug только в зависимостях express. Это точечнее, чем глобальная замена всех версий debug."
+      },
+      {
+        "text": "Это невозможно сделать точечно — можно только глобально заменить все версии debug",
+        "correct": false,
+        "explanation": "Можно. Синтаксис 'express>debug' в pnpm.overrides позволяет заменить зависимость только в контексте конкретного пакета."
+      }
+    ]
+  },
+  {
+    "question": "Команда для запуска пакета без его установки в проект (аналог npx) в экосистеме pnpm:",
+    "type": "single",
+    "options": [
+      {
+        "text": "pnpm exec",
+        "correct": false,
+        "explanation": "pnpm exec запускает исполняемый файл из node_modules/.bin текущего проекта. Это не аналог npx — пакет должен быть уже установлен."
+      },
+      {
+        "text": "pnpm dlx",
+        "correct": true,
+        "explanation": "pnpm dlx (download and execute) загружает пакет во временную среду и запускает его без установки в проект. Аналог npx."
+      },
+      {
+        "text": "pnpm run --remote",
+        "correct": false,
+        "explanation": "Такого флага у pnpm нет. pnpm run запускает только скрипты из поля scripts в package.json."
+      },
+      {
+        "text": "pnpm global exec",
+        "correct": false,
+        "explanation": "Такой команды нет. Для глобальной установки используется pnpm add -g, а для временного запуска — pnpm dlx."
+      }
+    ]
+  }
+]

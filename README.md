@@ -1,6 +1,6 @@
 # Courses — монорепозиторий учебных курсов
 
-Монорепозиторий на npm workspaces. Содержит общую платформу и 23 интерактивных курса с краткой теорией и подробным её вариантом, заданиями, решениями и квизами на русском и английском языках.
+Монорепозиторий на npm workspaces. Содержит общую платформу и 24 интерактивных курса с краткой теорией и подробным её вариантом, заданиями, решениями и квизами на русском и английском языках.
 
 ## Курсы
 
@@ -29,6 +29,7 @@
 | **claude-code-course** | Claude Code — AI-ассистент для разработки, промпты, автоматизация | 13 | 39 | ✅ |
 | **micro-frontends-course** | Микрофронтенды — Module Federation, Single-SPA, Web Components, деплой, миграция | 16 | 36 | ✅ |
 | **engineering-fundamentals-course** | Инженерные основы — типы, ADT, полиморфизм, модульность, IoC, тестирование, метапрограммирование, AI. По [плану Тимура Шемсединова](https://github.com/nicedoc/HowProgrammingWorks) | 19 | 128 квизов | ✅ |
+| **npm-dependencies-course** | npm и зависимости — package.json, semver, lockfile, node_modules, resolution, audit, workspaces, pnpm/yarn | 19 | квизы | ✅ |
 
 ## Структура
 
@@ -59,14 +60,16 @@ courses/
 │   ├── react-deep-dive-course/
 │   ├── js-async-course/
 │   ├── functional-js-course/
-│   └── engineering-fundamentals-course/
-│       ├── src/
-│       │   ├── main.tsx              # Точка входа
-│       │   ├── courseConfig.ts       # Конфигурация курса
-│       │   ├── translations.ts      # Переводы (ru/en)
-│       │   ├── hooks/index.ts       # Реэкспорт хуков платформы для студентов
-│       │   └── exercises/            # Solution-файлы и конфиг упражнений
-│       └── exercises/                # Рабочие файлы студентов (Task*.tsx)
+│   ├── engineering-fundamentals-course/
+│   │   ├── src/
+│   │   │   ├── main.tsx              # Точка входа
+│   │   │   ├── courseConfig.ts       # Конфигурация курса
+│   │   │   ├── translations.ts      # Переводы (ru/en)
+│   │   │   ├── hooks/index.ts       # Реэкспорт хуков платформы для студентов
+│   │   │   └── exercises/            # Solution-файлы и конфиг упражнений
+│   │   └── exercises/                # Рабочие файлы студентов (Task*.tsx)
+│   ├── npm-dependencies-course/
+│   └── hub/                     # Единая точка входа — выбор курса
 └── package.json              # Корневой конфиг workspaces
 ```
 
@@ -86,14 +89,20 @@ npm install
 
 ## Запуск
 
-### Dev-сервер курса
+### Hub — единая точка входа (рекомендуется)
+
+```bash
+npm run dev
+```
+
+Запускает приложение `hub` со страницей выбора курса и авто-возвратом к последнему открытому. Не нужно запускать каждый курс по отдельности — все курсы доступны из одного места. Откроется на http://localhost:5173
+
+### Dev-сервер отдельного курса
 
 ```bash
 cd apps/rhf-course     # или любой другой курс
 npm run dev
 ```
-
-Откроется на http://localhost:5173
 
 ### Сборка
 

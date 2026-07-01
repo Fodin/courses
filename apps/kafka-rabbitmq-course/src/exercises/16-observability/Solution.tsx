@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useLanguage } from 'src/hooks'
+import { useLanguage } from '../../hooks'
 
 // ============================================
 // Задание 16.1: Consumer Lag дашборд

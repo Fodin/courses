@@ -9,6 +9,7 @@ export { task } from './helpers'
 
 // Context
 export { useCourseConfig, useExercisesConfig, useExercisesConfigMap } from './context/CourseConfigContext'
+export { usePlatformOptions, type PlatformOptions } from './context/PlatformOptionsContext'
 
 // Hooks (for use in exercise solutions)
 export { useTheme } from './hooks/useTheme'

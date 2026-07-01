@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Для чего предназначено поле overrides в package.json?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Для переопределения скриптов npm (build, test) в дочерних пакетах monorepo",
+        "correct": false,
+        "explanation": "overrides не имеет отношения к скриптам. Оно предназначено для управления версиями зависимостей в дереве зависимостей."
+      },
+      {
+        "text": "Для принудительного задания версии транзитивной зависимости, которую нельзя контролировать напрямую",
+        "correct": true,
+        "explanation": "Именно это назначение overrides: когда прямая зависимость тянет уязвимую или несовместимую транзитивную зависимость, overrides позволяет задать нужную версию из корневого package.json."
+      },
+      {
+        "text": "Для создания псевдонимов пакетов при импорте в коде",
+        "correct": false,
+        "explanation": "Псевдонимы для импортов настраиваются в tsconfig.json (paths) или в бандлере (webpack aliases). overrides управляет версиями в дереве npm-зависимостей."
+      },
+      {
+        "text": "Для блокировки обновления конкретных пакетов при npm update",
+        "correct": false,
+        "explanation": "Для блокировки версий используется точная версия в package.json без диапазона (например, \"1.2.3\" вместо \"^1.2.3\"). overrides — это принудительная замена транзитивных зависимостей."
+      }
+    ]
+  },
+  {
+    "question": "С какой версии npm доступно поле overrides?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npm v6.0",
+        "correct": false,
+        "explanation": "npm v6 не поддерживал overrides. В v6 peer-зависимости вообще не проверялись строго."
+      },
+      {
+        "text": "npm v7.0",
+        "correct": false,
+        "explanation": "npm v7 ввёл строгую проверку peerDependencies, но overrides появился позже — в npm v8.3 (январь 2022)."
+      },
+      {
+        "text": "npm v8.3",
+        "correct": true,
+        "explanation": "Поле overrides введено в npm v8.3.0 (январь 2022). Это важно знать при проверке совместимости в проектах с ограничениями на версию npm."
+      },
+      {
+        "text": "npm v10.0",
+        "correct": false,
+        "explanation": "overrides появился значительно раньше — в npm v8.3. К npm v10 это уже давно устоявшийся инструмент."
+      }
+    ]
+  },
+  {
+    "question": "Что делает следующая конфигурация?\n\n```json\n{\n  \"overrides\": {\n    \"foo\": {\n      \"bar\": \"1.5.0\"\n    }\n  }\n}\n```",
+    "type": "single",
+    "options": [
+      {
+        "text": "Заменяет bar на 1.5.0 во всём дереве зависимостей",
+        "correct": false,
+        "explanation": "Чтобы заменить bar глобально, нужна плоская запись: { \"overrides\": { \"bar\": \"1.5.0\" } }. Вложенная структура применяется только в контексте foo."
+      },
+      {
+        "text": "Заменяет bar на 1.5.0 только когда он является зависимостью пакета foo",
+        "correct": true,
+        "explanation": "Вложенный override — точечная замена: bar получит версию 1.5.0 только в поддереве пакета foo. В других пакетах bar остаётся прежним."
+      },
+      {
+        "text": "Заменяет сам пакет foo на версию bar@1.5.0",
+        "correct": false,
+        "explanation": "Замена самого foo выглядела бы через ключ \".\": { \"foo\": { \".\": \"1.5.0\" } }. Здесь bar — это имя дочерней зависимости foo, которую мы переопределяем."
+      },
+      {
+        "text": "Создаёт алиас: при установке foo будет установлен bar@1.5.0",
+        "correct": false,
+        "explanation": "overrides не создаёт алиасы. Алиасы в npm делаются иначе: { \"dependencies\": { \"alias\": \"npm:bar@1.5.0\" } }."
+      }
+    ]
+  },
+  {
+    "question": "Что означает ключ \".\" во вложенном override?\n\n```json\n{\n  \"overrides\": {\n    \"package-a\": {\n      \".\": \"2.0.0\"\n    }\n  }\n}\n```",
+    "type": "single",
+    "options": [
+      {
+        "text": "Применить override к текущей директории проекта",
+        "correct": false,
+        "explanation": "Ключ \".\" здесь не про файловую систему. В контексте overrides он имеет специальное значение."
+      },
+      {
+        "text": "Принудительно заменить сам пакет package-a на версию 2.0.0",
+        "correct": true,
+        "explanation": "Ключ \".\" обозначает сам целевой пакет (package-a). Эта запись говорит: когда в дереве встречается package-a, использовать именно версию 2.0.0."
+      },
+      {
+        "text": "Заменить все зависимости package-a на версию 2.0.0",
+        "correct": false,
+        "explanation": "Ключ \".\" не означает «все зависимости». Он означает версию конкретно самого package-a, не его зависимостей."
+      },
+      {
+        "text": "Удалить package-a из дерева зависимостей",
+        "correct": false,
+        "explanation": "overrides не может удалять пакеты — только заменять их версии. Удаление зависимостей делается через npm uninstall."
+      }
+    ]
+  },
+  {
+    "question": "Что делает синтаксис $react в следующей записи?\n\n```json\n{\n  \"dependencies\": { \"react\": \"^18.2.0\" },\n  \"overrides\": { \"react\": \"$react\" }\n}\n```",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ссылается на переменную окружения $react из системы",
+        "correct": false,
+        "explanation": "Префикс $ в overrides — специальный синтаксис npm, не переменная окружения. Он ссылается на версию из поля dependencies/devDependencies."
+      },
+      {
+        "text": "Использует версию react из поля dependencies этого же package.json для всех вхождений react в дереве",
+        "correct": true,
+        "explanation": "Синтаксис $name означает: «взять версию из dependencies[name]». Здесь все пакеты в дереве получат ровно ту версию react, что указана в вашем dependencies — полезно для гарантии единственного экземпляра React."
+      },
+      {
+        "text": "Устанавливает react только для разработки (devDependency)",
+        "correct": false,
+        "explanation": "$-ссылка не меняет тип зависимости. Она только указывает версию. React по-прежнему остаётся в dependencies."
+      },
+      {
+        "text": "Отключает проверку версии react при разрешении зависимостей",
+        "correct": false,
+        "explanation": "$-ссылка не отключает проверки. Она задаёт конкретную версию, которая будет использоваться — строго в соответствии с тем, что указано в dependencies."
+      }
+    ]
+  },
+  {
+    "question": "Вы добавили overrides в package.json библиотеки my-lib, которую публикуете в npm. Как это повлияет на потребителей библиотеки?",
+    "type": "single",
+    "options": [
+      {
+        "text": "overrides автоматически применятся в проектах, установивших my-lib",
+        "correct": false,
+        "explanation": "Это принципиальное ограничение: overrides в зависимостях игнорируются npm. Они работают только из корневого package.json."
+      },
+      {
+        "text": "overrides в my-lib будут проигнорированы npm при установке в проекте потребителя",
+        "correct": true,
+        "explanation": "Это ключевое ограничение overrides: они действуют только из корневого package.json. Если my-lib объявляет overrides — потребители их не получат. Это сделано намеренно для предотвращения «войн переопределений» между зависимостями."
+      },
+      {
+        "text": "overrides применятся, только если потребитель явно укажет my-lib как trustedDependency",
+        "correct": false,
+        "explanation": "Понятия trustedDependency не существует в npm. overrides из пакетов-зависимостей просто игнорируются — без каких-либо флагов доверия."
+      },
+      {
+        "text": "npm выдаст предупреждение и не установит my-lib",
+        "correct": false,
+        "explanation": "npm не блокирует установку пакетов с overrides. Он просто молча игнорирует overrides в не-корневых package.json."
+      }
+    ]
+  },
+  {
+    "question": "npm audit сообщает об уязвимости в пакете nth-check, который является транзитивной зависимостью (ваш проект → @svgr/webpack → svgo → nth-check). Как правильно исправить через overrides?",
+    "type": "single",
+    "options": [
+      {
+        "text": "{ \"overrides\": { \"@svgr/webpack\": { \"svgo\": { \"nth-check\": \"^2.0.1\" } } } }",
+        "correct": false,
+        "explanation": "Вложенность уже избыточна. Хотя технически такая структура возможна, проще и правильнее сделать глобальную замену nth-check — это безопаснее."
+      },
+      {
+        "text": "{ \"overrides\": { \"nth-check\": \"^2.0.1\" } }",
+        "correct": true,
+        "explanation": "Правильный и минимально инвазивный вариант: заменить nth-check на безопасную версию во всём дереве. Это самый распространённый паттерн применения overrides для фиксации уязвимостей."
+      },
+      {
+        "text": "{ \"resolutions\": { \"nth-check\": \"^2.0.1\" } }",
+        "correct": false,
+        "explanation": "Поле resolutions — это синтаксис yarn, не npm. В npm нужно использовать поле overrides."
+      },
+      {
+        "text": "Нужно добавить nth-check в прямые зависимости: npm install nth-check@^2.0.1",
+        "correct": false,
+        "explanation": "Добавление транзитивной зависимости в прямые dependencies — антипаттерн. Это называется «имплицитная зависимость». overrides — правильный инструмент для этого сценария."
+      }
+    ]
+  },
+  {
+    "question": "Как выглядит аналог поля overrides в pnpm?",
+    "type": "single",
+    "options": [
+      {
+        "text": "{ \"resolutions\": { \"pkg\": \"1.0.0\" } }",
+        "correct": false,
+        "explanation": "resolutions — синтаксис yarn, не pnpm. Хотя pnpm также поддерживает resolutions для обратной совместимости, основной способ — через поле pnpm.overrides."
+      },
+      {
+        "text": "{ \"pnpm\": { \"overrides\": { \"pkg\": \"1.0.0\" } } }",
+        "correct": true,
+        "explanation": "В pnpm настройки менеджера пакетов размещаются внутри ключа \"pnpm\" в package.json. Поле overrides вложено туда: { \"pnpm\": { \"overrides\": {...} } }."
+      },
+      {
+        "text": "{ \"overrides\": { \"pkg\": \"1.0.0\" } }",
+        "correct": false,
+        "explanation": "Это синтаксис npm. В pnpm используется другое расположение: ключ overrides вложен внутрь ключа \"pnpm\"."
+      },
+      {
+        "text": "pnpm не поддерживает переопределение транзитивных зависимостей",
+        "correct": false,
+        "explanation": "pnpm поддерживает этот механизм через pnpm.overrides в package.json. Синтаксис также поддерживает путь через >, например: \"parent>child\": \"version\"."
+      }
+    ]
+  },
+  {
+    "question": "Вы добавили запись в overrides и хотите убедиться, что override применился. Какая команда поможет?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "npm ls <package-name>",
+        "correct": true,
+        "explanation": "npm ls показывает все вхождения пакета в дереве с их версиями. Если override применился — вы увидите только одну версию (принудительную)."
+      },
+      {
+        "text": "npm ls <package-name> --all",
+        "correct": true,
+        "explanation": "--all показывает полное дерево, включая все вложенные вхождения. Это позволяет убедиться, что нигде не осталась старая версия."
+      },
+      {
+        "text": "npm view <package-name> version",
+        "correct": false,
+        "explanation": "npm view показывает информацию о пакете в реестре, не в локальном дереве. Это не отразит результат override."
+      },
+      {
+        "text": "npm audit",
+        "correct": true,
+        "explanation": "Если override применялся для устранения уязвимости — npm audit покажет 0 vulnerabilities после успешного применения. Хороший способ верифицировать результат."
+      }
+    ]
+  },
+  {
+    "question": "Что принципиально отличает yarn resolutions от npm overrides в синтаксисе путей?",
+    "type": "single",
+    "options": [
+      {
+        "text": "yarn resolutions поддерживает glob-пути (например, **/package), npm overrides — нет",
+        "correct": true,
+        "explanation": "yarn v1 resolutions поддерживают glob-нотацию: **/pkg означает «заменить pkg везде в дереве», parent/pkg — «только в контексте parent». npm overrides использует вложенную структуру объектов вместо glob."
+      },
+      {
+        "text": "npm overrides более мощный, потому что поддерживает regex-паттерны",
+        "correct": false,
+        "explanation": "npm overrides не поддерживает ни glob, ни regex. yarn resolutions более гибок в части путей благодаря glob-синтаксису."
+      },
+      {
+        "text": "Они полностью идентичны, только называются по-разному",
+        "correct": false,
+        "explanation": "Помимо разных имён полей, синтаксис различается: yarn использует glob-нотацию, npm — вложенные объекты. Это не просто переименование."
+      },
+      {
+        "text": "yarn resolutions работает только в monorepo, npm overrides — в любом проекте",
+        "correct": false,
+        "explanation": "Оба работают в обычных проектах и в monorepo. Ограничение одинаковое: только из корневого package.json."
+      }
+    ]
+  }
+]

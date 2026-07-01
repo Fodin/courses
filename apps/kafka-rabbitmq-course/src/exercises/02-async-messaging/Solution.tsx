@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
-import { useTheme } from 'src/hooks'
+import { useTheme } from '../../hooks'
 
 // ============================================
 // Задание 2.1: Sync vs Async — визуальное сравнение

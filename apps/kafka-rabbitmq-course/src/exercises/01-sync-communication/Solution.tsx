@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useLanguage } from 'src/hooks'
+import { useLanguage } from '../../hooks'
 
 // ============================================
 // Task 1.1: REST vs gRPC Simulator — Solution

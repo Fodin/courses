@@ -1,0 +1,215 @@
+[
+  {
+    "question": "Вы публикуете пакет `@mycompany/utils` командой `npm publish`. Что произойдёт?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Пакет опубликуется как публичный, так как аккаунт npm бесплатный",
+        "correct": false,
+        "explanation": "Неверно. Scoped-пакеты (@scope/name) по умолчанию публикуются как restricted (приватные) независимо от типа аккаунта. Для публичной публикации scoped-пакета необходим флаг --access public."
+      },
+      {
+        "text": "npm выдаст ошибку 402 Payment Required — scoped-пакеты требуют платного аккаунта",
+        "correct": false,
+        "explanation": "Ошибка 402 появится если пытаться опубликовать restricted-пакет с бесплатным аккаунтом. Но с флагом --access public scoped-пакеты можно публиковать бесплатно."
+      },
+      {
+        "text": "Пакет опубликуется как restricted (приватный), что потребует платного аккаунта или организации",
+        "correct": true,
+        "explanation": "Верно. Scoped-пакеты по умолчанию restricted. Без платного аккаунта npm вернёт ошибку. Для публичного scoped-пакета всегда используйте: npm publish --access public."
+      },
+      {
+        "text": "Пакет опубликуется под именем utils (без scope), так как scopes игнорируются",
+        "correct": false,
+        "explanation": "Неверно. Scope — часть имени пакета. @mycompany/utils и utils — разные пакеты. npm всегда использует полное имя с scope."
+      }
+    ]
+  },
+  {
+    "question": "Что делает `npm version minor` если текущая версия `2.3.1`?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Обновляет version в package.json до 2.4.0",
+        "correct": true,
+        "explanation": "Верно. minor-бамп увеличивает минорную версию и сбрасывает патч в 0. 2.3.1 → 2.4.0."
+      },
+      {
+        "text": "Создаёт git-коммит с сообщением v2.4.0",
+        "correct": true,
+        "explanation": "Верно. npm version автоматически делает git commit с сообщением, совпадающим с новой версией (v2.4.0), если рабочее дерево git чистое."
+      },
+      {
+        "text": "Создаёт git-тег v2.4.0",
+        "correct": true,
+        "explanation": "Верно. npm version создаёт аннотированный git-тег v2.4.0 после коммита. Это позволяет триггерить CI/CD пайплайны на git push --follow-tags."
+      },
+      {
+        "text": "Автоматически публикует новую версию в npm-реестр",
+        "correct": false,
+        "explanation": "Неверно. npm version только меняет версию, коммитит и создаёт тег. Публикация — отдельный шаг: npm publish. Это намеренное разделение для ревью перед публикацией."
+      }
+    ]
+  },
+  {
+    "question": "Вы хотите опубликовать релиз-кандидат `2.0.0-rc.1` так, чтобы пользователи `npm install my-lib` продолжали получать стабильную `1.9.5`. Как это сделать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npm publish (без флагов) — npm автоматически определит что это RC",
+        "correct": false,
+        "explanation": "Неверно. npm не анализирует строку версии для определения тегов. Без --tag RC будет опубликован под тегом latest, и все npm install my-lib получат нестабильную версию."
+      },
+      {
+        "text": "npm publish --tag next (или --tag rc)",
+        "correct": true,
+        "explanation": "Верно. --tag задаёт dist-tag отличный от latest. Тег latest останется на 1.9.5. Пользователи получат RC только явно: npm install my-lib@next или npm install my-lib@2.0.0-rc.1."
+      },
+      {
+        "text": "npm publish --pre-release",
+        "correct": false,
+        "explanation": "Такого флага нет. Для управления dist-tags используется --tag."
+      },
+      {
+        "text": "npm publish --tag latest --version rc",
+        "correct": false,
+        "explanation": "Неверно. --tag latest — противоположно желаемому. --version rc — несуществующий флаг. Правильно: npm publish --tag next."
+      }
+    ]
+  },
+  {
+    "question": "В `package.json` настроено поле `\"files\": [\"dist\"]`. Какие файлы попадут в опубликованный пакет?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Все файлы из папки dist/",
+        "correct": true,
+        "explanation": "Верно. Поле files — это белый список. dist/ означает включить всё содержимое этой директории рекурсивно."
+      },
+      {
+        "text": "package.json",
+        "correct": true,
+        "explanation": "Верно. package.json всегда включается в пакет независимо от поля files. Это обязательный файл для npm."
+      },
+      {
+        "text": "README.md (если существует)",
+        "correct": true,
+        "explanation": "Верно. README* всегда включается независимо от поля files. npm автоматически добавляет его как документацию пакета."
+      },
+      {
+        "text": "src/ (исходники TypeScript)",
+        "correct": false,
+        "explanation": "Неверно. Поле files — белый список. Раз src/ не указан в files, он не попадёт в пакет. Это и есть главное преимущество files перед .npmignore."
+      },
+      {
+        "text": "node_modules/",
+        "correct": false,
+        "explanation": "Неверно. node_modules всегда исключается из пакета независимо от files или .npmignore — это жёстко зашито в npm."
+      }
+    ]
+  },
+  {
+    "question": "Зачем запускать `npm pack --dry-run` перед `npm publish`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Для создания финального tarball-архива, который затем передаётся npm publish",
+        "correct": false,
+        "explanation": "Неверно. npm publish создаёт tarball самостоятельно. --dry-run у npm pack означает показать содержимое без создания файла. Это инструмент проверки, а не подготовки."
+      },
+      {
+        "text": "Для проверки содержимого пакета перед публикацией: убедиться что нужные файлы есть, а лишних нет",
+        "correct": true,
+        "explanation": "Верно. npm pack --dry-run показывает список файлов, которые попадут в пакет, не создавая .tgz-файл. Позволяет обнаружить: забыли скомпилировать dist/, включили тесты или секреты, нет нужных .d.ts файлов."
+      },
+      {
+        "text": "Для проверки авторизации в npm-реестре перед публикацией",
+        "correct": false,
+        "explanation": "Неверно. npm pack не делает сетевых запросов и не проверяет авторизацию. Для проверки авторизации используйте npm whoami."
+      },
+      {
+        "text": "Для запуска скриптов prepublishOnly в тестовом режиме",
+        "correct": false,
+        "explanation": "Неверно. npm pack --dry-run не запускает prepublishOnly. Lifecycle-скрипты запускаются только при реальном npm publish."
+      }
+    ]
+  },
+  {
+    "question": "Чем `npm deprecate` отличается от `npm unpublish`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "deprecate помечает версию как устаревшую но сохраняет её в реестре, unpublish физически удаляет",
+        "correct": true,
+        "explanation": "Верно. npm deprecate оставляет пакет доступным, но показывает предупреждение при установке. npm unpublish удаляет версию из реестра. Политика: unpublish доступен только 72 часа после публикации. deprecate — предпочтительный способ устаревания."
+      },
+      {
+        "text": "deprecate работает только для major-версий, unpublish — для всех",
+        "correct": false,
+        "explanation": "Неверно. deprecate работает с любыми версиями и semver-диапазонами. Например: npm deprecate my-lib@\"< 2.0.0\" \"Use v2\"."
+      },
+      {
+        "text": "Оба удаляют пакет, но deprecate делает это постепенно",
+        "correct": false,
+        "explanation": "Неверно. deprecate НЕ удаляет пакет. Он только добавляет предупреждение в метаданные. Пакет остаётся доступным для установки."
+      },
+      {
+        "text": "unpublish требует 2FA, deprecate — нет",
+        "correct": false,
+        "explanation": "Требования 2FA не являются принципиальным отличием команд. Главное отличие — deprecate сохраняет пакет, unpublish удаляет."
+      }
+    ]
+  },
+  {
+    "question": "Почему npm ввёл ограничение на `npm unpublish` после 72 часов?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Для защиты от случайного удаления во время ревью пулл-реквестов",
+        "correct": false,
+        "explanation": "Это не основная причина. npm добавил ограничение из-за системного инцидента, показавшего уязвимость экосистемы при удалении зависимостей."
+      },
+      {
+        "text": "После инцидента с left-pad (2016): удаление маленького пакета сломало тысячи проектов по всему миру",
+        "correct": true,
+        "explanation": "Верно. Разработчик left-pad удалил свои пакеты в знак протеста. left-pad (11 строк) был транзитивной зависимостью Babel, React и тысяч других пакетов. Глобальный CI-outage показал что unpublish — слишком мощный инструмент без ограничений."
+      },
+      {
+        "text": "Для монетизации: через 72 часа npm берёт плату за удаление",
+        "correct": false,
+        "explanation": "Неверно. Ограничение имеет исключительно экосистемную мотивацию — защита зависимостей. npm не берёт плату за unpublish."
+      },
+      {
+        "text": "Технические ограничения CDN-кэширования пакетов",
+        "correct": false,
+        "explanation": "CDN-кэширование — это техническая реальность, но не причина 72-часовой политики. Политика появилась как сознательное решение после left-pad."
+      }
+    ]
+  },
+  {
+    "question": "Как скрипт `prepublishOnly` отличается от `prepare` при публикации?",
+    "type": "single",
+    "options": [
+      {
+        "text": "prepublishOnly запускается ДО prepare при npm publish",
+        "correct": true,
+        "explanation": "Верно. Порядок при npm publish: prepublishOnly → prepare → публикация tarball. prepublishOnly — место для тестов и проверок, prepare — для сборки. Если тесты упадут в prepublishOnly, prepare и публикация не запустятся."
+      },
+      {
+        "text": "Оба запускаются одновременно параллельно",
+        "correct": false,
+        "explanation": "Неверно. Lifecycle-скрипты npm всегда запускаются последовательно, никогда параллельно. Порядок строго определён: prepublishOnly → prepare."
+      },
+      {
+        "text": "prepare запускается ДО prepublishOnly при npm publish",
+        "correct": false,
+        "explanation": "Неверно. prepublishOnly запускается первым — это намеренно, чтобы не тратить время на сборку если тесты не прошли."
+      },
+      {
+        "text": "prepublishOnly заменяет prepare — если есть prepublishOnly, prepare не запускается",
+        "correct": false,
+        "explanation": "Неверно. Оба скрипта запускаются независимо. prepublishOnly не отменяет prepare. Они имеют разные назначения: проверки vs сборка."
+      }
+    ]
+  }
+]

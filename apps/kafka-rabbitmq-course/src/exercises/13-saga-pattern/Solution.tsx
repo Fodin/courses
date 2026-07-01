@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useLanguage } from 'src/hooks'
+import { useLanguage } from '../../hooks'
 
 // ============================================
 // Задание 13.1: Saga Choreography

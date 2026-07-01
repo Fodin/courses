@@ -12,7 +12,9 @@ import * as Level8 from './08-openapi-schemas'
 import * as Level9 from './09-code-generation'
 import * as Level10 from './10-documentation'
 import * as Level11 from './11-rate-limiting'
-import * as Level12 from './12-full-design'
+import * as Level12 from './12-api-security'
+import * as Level13 from './13-hateoas'
+import * as Level14 from './14-full-design'
 
 export const exercises: LevelConfig[] = [
   {
@@ -149,13 +151,35 @@ export const exercises: LevelConfig[] = [
   },
   {
     levelId: '12',
-    folder: '12-full-design',
-    navKey: 'nav.fullDesign',
+    folder: '12-api-security',
+    navKey: 'nav.security',
     descKey: 'level.12.desc',
     tasks: [
       task('12.1', <Level12.Task12_1_Solution />),
       task('12.2', <Level12.Task12_2_Solution />),
       task('12.3', <Level12.Task12_3_Solution />),
+    ],
+  },
+  {
+    levelId: '13',
+    folder: '13-hateoas',
+    navKey: 'nav.hateoas',
+    descKey: 'level.13.desc',
+    tasks: [
+      task('13.1', <Level13.Task13_1_Solution />),
+      task('13.2', <Level13.Task13_2_Solution />),
+      task('13.3', <Level13.Task13_3_Solution />),
+    ],
+  },
+  {
+    levelId: '14',
+    folder: '14-full-design',
+    navKey: 'nav.fullDesign',
+    descKey: 'level.14.desc',
+    tasks: [
+      task('14.1', <Level14.Task14_1_Solution />),
+      task('14.2', <Level14.Task14_2_Solution />),
+      task('14.3', <Level14.Task14_3_Solution />),
     ],
   },
 ]

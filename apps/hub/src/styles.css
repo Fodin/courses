@@ -28,17 +28,12 @@
 }
 
 .hub-card {
+  position: relative;
   display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-  align-items: flex-start;
-  text-align: left;
-  padding: 1.25rem 1.25rem;
-  min-height: 96px;
+  min-height: 150px;
   background: var(--clr-bg-surface, var(--clr-bg-secondary, transparent));
   border: 1px solid var(--clr-border, currentColor);
   border-radius: 14px;
-  cursor: pointer;
   transition:
     transform 0.12s ease,
     border-color 0.12s ease,
@@ -51,9 +46,131 @@
   border-color: var(--clr-border-accent, var(--clr-accent, currentColor));
 }
 
+/* Основное действие — открыть курс. Заполняет всю карточку по ширине и высоте. */
+.hub-card-open {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  align-items: flex-start;
+  text-align: left;
+  /* место справа под кнопку сброса */
+  padding: 1.1rem 3rem 1.1rem 1.25rem;
+  background: none;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  color: inherit;
+}
+
+/* .hub-card-open — нативный <button>. В платформе есть глобальное правило
+   `button:hover { background: var(--clr-accent); color: #fff }`, которое красит кнопку
+   в фиолетовый, а наши серые подписи перекрывают белый цвет — получается «серым по
+   фиолетовому». Гасим глобальный ховер: фон даёт карточка-обёртка (--clr-bg-hover),
+   а цвета заголовка/метрик остаются читаемыми. */
+.hub-card-open:hover {
+  background: none;
+  color: inherit;
+  border-color: transparent;
+}
+
+/* Строка кратких метрик курса: уроки · задания · квизы. */
+.hub-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.15rem;
+}
+
+.hub-card-chip {
+  padding: 0.1rem 0.45rem;
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--clr-text-secondary, var(--clr-text-muted, inherit));
+  background: var(--clr-bg-secondary, var(--clr-bg-tertiary, transparent));
+  border: 1px solid var(--clr-border, currentColor);
+  border-radius: 999px;
+}
+
+/* Полоса прогресса прохождения (задания + квизы из localStorage). */
+.hub-card-progress {
+  width: 100%;
+  height: 5px;
+  margin-top: 0.55rem;
+  overflow: hidden;
+  /* Не --clr-bg-hover: он совпадает с фоном карточки на ховере, и трек исчезает.
+     Берём вторичный фон + контурную рамку, чтобы полоса читалась в обоих состояниях. */
+  background: var(--clr-bg-secondary, var(--clr-bg-tertiary, rgba(127, 127, 127, 0.18)));
+  border: 1px solid var(--clr-border, currentColor);
+  border-radius: 999px;
+}
+
+.hub-card-progress-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--clr-accent, #646cff);
+  transition: width 0.2s ease;
+}
+
+.hub-card-progress-label {
+  font-size: 0.72rem;
+  color: var(--clr-text-muted, var(--clr-text-secondary, inherit));
+}
+
+/* Угловая кнопка сброса упражнений курса. Всегда видима, на ховере карточки
+   получает собственный непрозрачный фон, чтобы не сливаться с акцентным фоном. */
+.hub-card-reset {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 1.9rem;
+  height: 1.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  background: var(--clr-bg-base, var(--clr-bg, transparent));
+  border: 1px solid var(--clr-border, currentColor);
+  border-radius: 8px;
+  color: var(--clr-text-secondary, var(--clr-text, inherit));
+  cursor: pointer;
+  opacity: 0.7;
+  transition:
+    opacity 0.12s ease,
+    border-color 0.12s ease,
+    background 0.12s ease,
+    color 0.12s ease,
+    box-shadow 0.12s ease;
+}
+
+/* На наведении карточки — делаем чип чётко читаемым поверх синего фона. */
+.hub-card:hover .hub-card-reset {
+  opacity: 1;
+  background: var(--clr-bg-base, var(--clr-bg-surface, #fff));
+  color: var(--clr-text-heading, var(--clr-text, inherit));
+  border-color: var(--clr-border, currentColor);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+/* Наведение/фокус на самой иконке — акцентная рамка. */
+.hub-card-reset:hover,
+.hub-card-reset:focus-visible {
+  opacity: 1;
+  border-color: var(--clr-border-accent, var(--clr-accent, currentColor));
+  color: var(--clr-accent, var(--clr-text-heading, inherit));
+}
+
 .hub-card-title {
   font-size: 1.05rem;
   font-weight: 600;
+  color: var(--clr-text-heading, var(--clr-text, inherit));
+}
+
+/* Явно фиксируем контраст заголовка на ховере — на всякий случай. */
+.hub-card:hover .hub-card-title {
   color: var(--clr-text-heading, var(--clr-text, inherit));
 }
 
@@ -70,4 +187,145 @@
   min-height: 60vh;
   font-size: 1.1rem;
   color: var(--clr-text-secondary, inherit);
+}
+
+/* ===== Модалка сброса упражнений ===== */
+.reset-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.reset-panel {
+  width: 100%;
+  max-width: 560px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.4rem 1.4rem;
+  background: var(--clr-bg-surface, var(--clr-bg-secondary, #1e1e1e));
+  border: 1px solid var(--clr-border, currentColor);
+  border-radius: 16px;
+}
+
+.reset-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.reset-title {
+  margin: 0 0 0.2rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--clr-text-heading, var(--clr-text, inherit));
+}
+
+.reset-sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--clr-text-secondary, var(--clr-text-muted, inherit));
+}
+
+.reset-close {
+  flex: none;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+  background: none;
+  border: 1px solid var(--clr-border, currentColor);
+  border-radius: 8px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.reset-close:hover {
+  border-color: var(--clr-border-accent, var(--clr-accent, currentColor));
+}
+
+.reset-all {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  background: var(--clr-bg-hover, transparent);
+  border: 1px solid var(--clr-border-accent, var(--clr-accent, currentColor));
+  border-radius: 10px;
+  color: inherit;
+  cursor: pointer;
+}
+
+.reset-all:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.reset-msg {
+  margin: 0.75rem 0 0;
+  font-size: 0.9rem;
+  color: var(--clr-text-secondary, inherit);
+}
+
+.reset-err {
+  color: var(--clr-danger, #e5534b);
+  font-size: 0.9rem;
+}
+
+.reset-loading {
+  color: var(--clr-text-secondary, inherit);
+  font-size: 0.9rem;
+}
+
+.reset-body {
+  margin-top: 1rem;
+  overflow-y: auto;
+}
+
+.reset-level {
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--clr-border, currentColor);
+}
+
+.reset-level-name {
+  margin-bottom: 0.45rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.8rem;
+  color: var(--clr-text-muted, var(--clr-text-secondary, inherit));
+}
+
+.reset-tasks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.reset-task {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.85rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  background: none;
+  border: 1px solid var(--clr-border, currentColor);
+  border-radius: 8px;
+  color: inherit;
+  cursor: pointer;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease;
+}
+
+.reset-task:hover {
+  background: var(--clr-bg-hover, transparent);
+  border-color: var(--clr-border-accent, var(--clr-accent, currentColor));
+}
+
+.reset-task:disabled {
+  opacity: 0.6;
+  cursor: default;
 }

@@ -4,6 +4,8 @@ import path from 'path'
 import react from '@vitejs/plugin-react'
 import { defineConfig, type Plugin } from 'vite'
 
+import { courseScaffoldPlugin, courseResetPlugin } from '../../packages/course-platform/vite-plugins'
+
 const appsDir = path.resolve(__dirname, '..') // apps/
 const repoRoot = path.resolve(__dirname, '../..') // корень монорепо
 
@@ -80,7 +82,7 @@ function courseAliasPlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), courseAliasPlugin(), courseFilesPlugin()],
+  plugins: [react(), courseAliasPlugin(), courseFilesPlugin(), courseScaffoldPlugin(), courseResetPlugin()],
   // Абсолютный путь к apps/ — нужен для рантайм-импорта студенческих файлов
   // через /@fs/ (их нельзя брать через import.meta.glob: заготовки могут быть
   // синтаксически неполными и ломают dep-scan).
@@ -91,6 +93,33 @@ export default defineConfig({
     // Единый инстанс React для всех курсов (их файлы отдаются через /@fs/ вне root),
     // иначе — "Cannot access 'React' before initialization" из-за дублей.
     dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react/jsx-dev-runtime'],
+  },
+  optimizeDeps: {
+    // Тяжёлые библиотеки курсов импортируются из Task*.tsx, которые отдаются
+    // через /@fs/ вне root хаба и потому не попадают в стартовый dep-scan Vite.
+    // Без пре-бандла Vite обнаруживает их на лету при первом открытии курса,
+    // запускает переоптимизацию и полную перезагрузку — из-за чего in-flight
+    // динамический импорт конфига падает с "Failed to fetch dynamically imported
+    // module" (курсы rhf/mobx/yup/functional-js не открывались). Явно включаем их
+    // в пре-бандл, чтобы они были готовы к моменту открытия курса.
+    include: [
+      'react-hook-form',
+      '@hookform/resolvers/zod',
+      '@hookform/resolvers/yup',
+      'zod',
+      'yup',
+      'mobx',
+      'mobx-react-lite',
+      'immer',
+      'effect',
+      'fp-ts/function',
+      'fp-ts/Option',
+      'fp-ts/Either',
+      'fp-ts/Array',
+      'fp-ts/TaskEither',
+      'fp-ts/string',
+      'fp-ts/number',
+    ],
   },
   server: {
     port: 5173,

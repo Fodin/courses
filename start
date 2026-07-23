@@ -1,0 +1,4 @@
+#!/bin/bash
+# Run the dev server for the courses hub (includes all courses including claude-code-course)
+
+npm run dev -w @courses/hub

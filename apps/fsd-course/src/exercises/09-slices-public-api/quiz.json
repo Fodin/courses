@@ -1,0 +1,210 @@
+[
+  {
+    "question": "Что такое public API слайса в FSD?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Файл index.ts в корне слайса, реэкспортирующий то, что доступно снаружи",
+        "correct": true,
+        "explanation": "Именно так: index.ts — фасад слайса, единственная легальная точка входа."
+      },
+      {
+        "text": "REST-эндпоинты, которые слайс отдаёт на бэкенд",
+        "correct": false,
+        "explanation": "Public API здесь — про границы модулей внутри фронтенда, а не про HTTP."
+      },
+      {
+        "text": "Сегмент api/ внутри слайса",
+        "correct": false,
+        "explanation": "api/ — это сегмент для запросов к бэкенду; публичный интерфейс слайса задаёт index.ts."
+      },
+      {
+        "text": "Публичные поля TypeScript-класса сущности",
+        "correct": false,
+        "explanation": "Public API слайса — это его index.ts, а не модификаторы доступа в классе."
+      }
+    ]
+  },
+  {
+    "question": "Какой из импортов является «глубоким» (нарушает public API)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "import { UserCard } from '@/entities/user/ui/UserCard'",
+        "correct": true,
+        "explanation": "Путь лезет во внутренний сегмент ui/ мимо index.ts — это deep import."
+      },
+      {
+        "text": "import { UserCard } from '@/entities/user'",
+        "correct": false,
+        "explanation": "Это импорт через public API слайса — как и положено."
+      },
+      {
+        "text": "import type { User } from '@/entities/user'",
+        "correct": false,
+        "explanation": "Тоже через index.ts — корректно."
+      },
+      {
+        "text": "import { Button } from '@/shared/ui'",
+        "correct": false,
+        "explanation": "shared делится на сегменты, и shared/ui — его нормальная точка входа."
+      }
+    ]
+  },
+  {
+    "question": "Что даёт инкапсуляция через public API при рефакторинге внутренностей слайса?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Пока index.ts отдаёт те же имена, внешний код не ломается при перестановке файлов внутри",
+        "correct": true,
+        "explanation": "Контракт стабилен, реализация свободна — в этом и смысл фасада."
+      },
+      {
+        "text": "TypeScript автоматически запрещает менять внутренние файлы",
+        "correct": false,
+        "explanation": "TS ничего не запрещает сам по себе; стабильность даёт дисциплина импортов через index.ts."
+      },
+      {
+        "text": "Внутренние файлы становятся недоступны даже внутри самого слайса",
+        "correct": false,
+        "explanation": "Внутри слайса сегменты свободно импортируют друг друга; ограничение — для внешних потребителей."
+      },
+      {
+        "text": "Vite перестаёт бандлить неэкспортированные файлы",
+        "correct": false,
+        "explanation": "Tree-shaking — отдельный механизм; речь про архитектурную границу, а не про сборку."
+      }
+    ]
+  },
+  {
+    "question": "Слайс entities/user хочет использовать entities/product. Как правильно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Не импортировать сосед напрямую — поднять композицию на слой выше (widget/feature)",
+        "correct": true,
+        "explanation": "Слайсы одного слоя изолированы; знание про обе сущности живёт слоем выше."
+      },
+      {
+        "text": "Импортировать '@/entities/product' прямо из entities/user",
+        "correct": false,
+        "explanation": "Это cross-import внутри слоя — запрещён, ведёт к жёсткой связи и циклам."
+      },
+      {
+        "text": "Скопировать нужные типы product внутрь user",
+        "correct": false,
+        "explanation": "Дублирование — не решение; появится рассинхрон. Композиция поднимается выше."
+      },
+      {
+        "text": "Переместить оба слайса в shared",
+        "correct": false,
+        "explanation": "shared — для переиспользуемого кода без предметной области, а user/product именно про домен."
+      }
+    ]
+  },
+  {
+    "question": "Почему глубокие импорты повышают риск циклических зависимостей?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чем больше «дверей» у слайса, тем больше входящих рёбер в графе и выше шанс замкнуть цикл",
+        "correct": true,
+        "explanation": "Public API сводит связи к одной точке; deep import множит рёбра и запутывает граф."
+      },
+      {
+        "text": "Глубокие импорты медленнее выполняются в рантайме",
+        "correct": false,
+        "explanation": "Скорость импорта ни при чём — проблема структурная, в графе зависимостей."
+      },
+      {
+        "text": "TypeScript дублирует типы при глубоком импорте",
+        "correct": false,
+        "explanation": "Дублирования типов не происходит; проблема — в разрастании связей."
+      },
+      {
+        "text": "Глубокие импорты отключают tree-shaking полностью",
+        "correct": false,
+        "explanation": "Tree-shaking не отключается; риск — именно циклы из-за множества связей."
+      }
+    ]
+  },
+  {
+    "question": "Как в index.ts реэкспортировать ТОЛЬКО тип User из ./model/types?",
+    "type": "single",
+    "options": [
+      {
+        "text": "export type { User } from './model/types'",
+        "correct": true,
+        "explanation": "type-only реэкспорт отдаёт наружу только тип и полностью стирается при сборке."
+      },
+      {
+        "text": "import { User } from './model/types'",
+        "correct": false,
+        "explanation": "Это импорт внутрь index.ts, наружу User так не попадёт — нужен export."
+      },
+      {
+        "text": "export default User from './model/types'",
+        "correct": false,
+        "explanation": "Такого синтаксиса нет; реэкспорт делается через export { ... } from."
+      },
+      {
+        "text": "export * as User from './model/types'",
+        "correct": false,
+        "explanation": "Это создаст namespace User из всего модуля, а не реэкспорт одного типа."
+      }
+    ]
+  },
+  {
+    "question": "Какие слои НЕ делятся на слайсы, а сразу состоят из сегментов?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "shared",
+        "correct": true,
+        "explanation": "shared не про предметную область, поэтому делится сразу на ui/api/lib и т.д."
+      },
+      {
+        "text": "app",
+        "correct": true,
+        "explanation": "app — инициализация приложения, слайсов там нет, только сегменты."
+      },
+      {
+        "text": "entities",
+        "correct": false,
+        "explanation": "entities делится на слайсы по сущностям: user, product, order…"
+      },
+      {
+        "text": "features",
+        "correct": false,
+        "explanation": "features делится на слайсы по пользовательским сценариям."
+      }
+    ]
+  },
+  {
+    "question": "Что из перечисленного можно проверить статически, не запуская код?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Наличие index.ts у слайса",
+        "correct": true,
+        "explanation": "Это факт о структуре файлов — виден без исполнения."
+      },
+      {
+        "text": "Реэкспортирует ли index.ts нужное имя",
+        "correct": true,
+        "explanation": "Достаточно разобрать export-строки файла."
+      },
+      {
+        "text": "Есть ли у внешнего импорта путь глубже, чем слайс",
+        "correct": true,
+        "explanation": "Анализ строки import по пути — ровно то, что делают FSD-линтеры."
+      },
+      {
+        "text": "Правильный ли текст отрисует UserCard на конкретных данных",
+        "correct": false,
+        "explanation": "Это поведение в рантайме; архитектурные проверки его не касаются."
+      }
+    ]
+  }
+]

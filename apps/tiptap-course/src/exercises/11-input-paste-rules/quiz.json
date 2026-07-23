@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Что запускает срабатывание input rule?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Вставка контента через Ctrl+V",
+        "correct": false,
+        "explanation": "За вставку отвечают paste rules, а не input rules."
+      },
+      {
+        "text": "Набор текста с клавиатуры, совпадающий с заданным паттерном",
+        "correct": true,
+        "explanation": "Input rules реагируют именно на посимвольный ввод, проверяя совпадение с regex после каждого напечатанного символа."
+      },
+      {
+        "text": "Клик по кнопке тулбара",
+        "correct": false,
+        "explanation": "Клики по кнопкам вызывают обычные команды через chain(), не input rules."
+      },
+      {
+        "text": "Программный вызов editor.commands.setContent()",
+        "correct": false,
+        "explanation": "Программная установка контента не проходит через механизм input rules — они срабатывают только на живой ввод пользователя."
+      }
+    ]
+  },
+  {
+    "question": "Какая фабрика функций используется для превращения текстового блока в заголовок при вводе '## '?",
+    "type": "single",
+    "options": [
+      {
+        "text": "wrappingInputRule",
+        "correct": false,
+        "explanation": "wrappingInputRule оборачивает блок в новый узел (например, список), а не меняет тип самого текстового блока."
+      },
+      {
+        "text": "textblockTypeInputRule",
+        "correct": true,
+        "explanation": "textblockTypeInputRule предназначена именно для смены типа текущего текстового блока — параграф в заголовок."
+      },
+      {
+        "text": "markInputRule",
+        "correct": false,
+        "explanation": "markInputRule применяет marks (инлайн-оформление), а не меняет тип блочного узла."
+      },
+      {
+        "text": "nodeInputRule",
+        "correct": false,
+        "explanation": "nodeInputRule вставляет новый узел на месте совпадения, а не меняет тип текущего блока."
+      }
+    ]
+  },
+  {
+    "question": "Какая фабрика используется для оборачивания текущего блока в новый узел (например, параграф → элемент списка)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "wrappingInputRule",
+        "correct": true,
+        "explanation": "wrappingInputRule создаёт обёртку вокруг текущего блока — именно так, например, '- ' превращает параграф в элемент списка."
+      },
+      {
+        "text": "textInputRule",
+        "correct": false,
+        "explanation": "textInputRule просто заменяет текст на другой текст, не создавая структурной обёртки."
+      },
+      {
+        "text": "textblockTypeInputRule",
+        "correct": false,
+        "explanation": "textblockTypeInputRule меняет ТИП блока целиком, а не оборачивает его в дополнительный узел."
+      },
+      {
+        "text": "markInputRule",
+        "correct": false,
+        "explanation": "markInputRule работает с marks (инлайн-форматирование), а не со структурными обёртками блоков."
+      }
+    ]
+  },
+  {
+    "question": "В чём принципиальная разница между input rule и paste rule?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Input rule реагирует на набор текста с клавиатуры, paste rule — на вставку контента",
+        "correct": true,
+        "explanation": "Это ключевое отличие по триггеру срабатывания — печать посимвольно vs операция вставки."
+      },
+      {
+        "text": "Input rule работает только с marks, paste rule — только с nodes",
+        "correct": false,
+        "explanation": "Оба механизма могут работать и с marks, и с nodes — есть фабрики обоих типов для обеих категорий (markInputRule/markPasteRule, nodeInputRule/nodePasteRule)."
+      },
+      {
+        "text": "Paste rule работает только в Chrome, input rule — во всех браузерах",
+        "correct": false,
+        "explanation": "Оба механизма кроссбраузерны и не привязаны к конкретному браузеру."
+      },
+      {
+        "text": "Разницы нет, это два имени одного и того же механизма",
+        "correct": false,
+        "explanation": "Это разные механизмы с разными триггерами и, соответственно, разными фабриками (addInputRules vs addPasteRules)."
+      }
+    ]
+  },
+  {
+    "question": "Почему для автоссылок при наборе текста и при вставке текста может понадобиться реализовать ОБА механизма — и input rule, и paste rule?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Потому что один input rule автоматически покрывает оба сценария",
+        "correct": false,
+        "explanation": "Это неверно — input rule реагирует только на посимвольный набор, вставка через paste НЕ проходит через input rules."
+      },
+      {
+        "text": "Потому что пользователь может как напечатать URL вручную, так и вставить его из буфера обмена — это два разных сценария взаимодействия",
+        "correct": true,
+        "explanation": "Именно поэтому autolink в @tiptap/extension-link по факту использует и input-, и paste-механизмы для полного покрытия обоих UX-сценариев."
+      },
+      {
+        "text": "Потому что paste rule работает только на мобильных устройствах",
+        "correct": false,
+        "explanation": "paste rule работает одинаково на всех платформах, где доступна операция вставки."
+      },
+      {
+        "text": "Это не так — один и тот же rule автоматически применяется и к вводу, и к вставке без дополнительной настройки",
+        "correct": false,
+        "explanation": "Каждый механизм регистрируется отдельно через addInputRules/addPasteRules — совместного автоматического поведения нет."
+      }
+    ]
+  },
+  {
+    "question": "Зачем в regex для textblockTypeInputRule/wrappingInputRule обычно ставят символ ^ в начале?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это обязательный синтаксис TypeScript для регулярных выражений",
+        "correct": false,
+        "explanation": "^ — это обычный regex-якорь начала строки, не специфичный синтаксис TypeScript."
+      },
+      {
+        "text": "Чтобы правило срабатывало только когда паттерн находится в начале текстового блока, а не в произвольном месте",
+        "correct": true,
+        "explanation": "Без ^ правило могло бы сработать и в середине текста, что обычно не соответствует ожидаемому UX (например, '## ' должно работать только в начале строки)."
+      },
+      {
+        "text": "^ ускоряет проверку регулярного выражения",
+        "correct": false,
+        "explanation": "Дело не в производительности, а в семантике — ограничении места срабатывания."
+      },
+      {
+        "text": "Без ^ правило вообще не будет работать",
+        "correct": false,
+        "explanation": "Без ^ правило будет работать, но менее предсказуемо — сработает в любом месте текста, а не только в начале блока."
+      }
+    ]
+  },
+  {
+    "question": "Что содержит параметр match в getAttributes функции внутри markInputRule/markPasteRule?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Результат совпадения регулярного выражения (аналог результата String.match)",
+        "correct": true,
+        "explanation": "match — это ExtendedRegExpMatchArray, из которого можно извлечь захваченные группы для формирования атрибутов (например, URL для href)."
+      },
+      {
+        "text": "Текущий объект editor",
+        "correct": false,
+        "explanation": "Для доступа к editor внутри extension обычно используется this.editor, а не параметр match."
+      },
+      {
+        "text": "DOM-элемент, на который был совершён клик",
+        "correct": false,
+        "explanation": "match не связан с DOM-событиями клика — это чисто результат regex-совпадения."
+      },
+      {
+        "text": "Список всех marks, применённых к текущему выделению",
+        "correct": false,
+        "explanation": "match содержит информацию именно о совпадении текста с regex, а не о примененных marks."
+      }
+    ]
+  },
+  {
+    "question": "Какой низкоуровневый класс используется, когда готовых фабрик (markInputRule, wrappingInputRule и т.д.) недостаточно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "new InputRule({ find, handler })",
+        "correct": true,
+        "explanation": "Низкоуровневый класс InputRule даёт полный контроль над трансформацией через собственный handler, работающий напрямую с транзакцией."
+      },
+      {
+        "text": "new CustomRule({ find, apply })",
+        "correct": false,
+        "explanation": "Такого класса в публичном API Tiptap не существует."
+      },
+      {
+        "text": "new RawInputRule({ pattern, callback })",
+        "correct": false,
+        "explanation": "Такого класса в публичном API Tiptap не существует — правильное имя именно InputRule с параметрами find/handler."
+      },
+      {
+        "text": "Extension.create({ inputRule: {...} })",
+        "correct": false,
+        "explanation": "Такого поля 'inputRule' в конфигурации Extension не существует — правильный метод addInputRules(), возвращающий массив InputRule."
+      }
+    ]
+  },
+  {
+    "question": "Что получает handler низкоуровневого InputRule?",
+    "type": "single",
+    "options": [
+      {
+        "text": "state (текущее состояние ProseMirror), range (диапазон совпадения) и match (результат regex)",
+        "correct": true,
+        "explanation": "Эти три параметра дают полный контроль: state.tr позволяет сформировать транзакцию, range указывает границы замены, match — данные совпадения."
+      },
+      {
+        "text": "Только строку совпавшего текста без дополнительного контекста",
+        "correct": false,
+        "explanation": "handler получает гораздо более богатый контекст — полное состояние редактора и точный диапазон, а не просто строку."
+      },
+      {
+        "text": "editor и command напрямую как готовую цепочку chain()",
+        "correct": false,
+        "explanation": "handler работает на более низком уровне — напрямую с ProseMirror state/transaction, а не через высокоуровневый chain() API."
+      },
+      {
+        "text": "Событие клавиатуры (KeyboardEvent)",
+        "correct": false,
+        "explanation": "InputRule не оперирует сырыми KeyboardEvent — это абстракция более высокого уровня ProseMirror, работающая с состоянием документа."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений об input rules и paste rules верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Оба механизма регистрируются через отдельные методы конфигурации extension: addInputRules и addPasteRules соответственно",
+        "correct": true,
+        "explanation": "Это две независимые точки расширения в конфигурации Node/Mark/Extension."
+      },
+      {
+        "text": "Встроенные markdown-подобные преобразования StarterKit (## → heading, ** → bold) реализованы именно через input rules",
+        "correct": true,
+        "explanation": "Это стандартный механизм, используемый самим StarterKit для markdown-подобного UX."
+      },
+      {
+        "text": "Paste rules могут срабатывать только на весь вставляемый текст целиком, но не на его часть",
+        "correct": false,
+        "explanation": "Paste rules (как и input rules) используют regex с флагом global и могут находить и обрабатывать несколько совпадений внутри вставляемого фрагмента."
+      },
+      {
+        "text": "Оба механизма опираются на регулярные выражения для определения момента срабатывания",
+        "correct": true,
+        "explanation": "И input rules, и paste rules используют поле find с регулярным выражением как основной механизм сопоставления."
+      }
+    ]
+  }
+]

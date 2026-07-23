@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Как правильно передать динамическое значение (например, поисковый запрос) в ProseMirror-плагин извне?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Через глобальную переменную в замыкании JS",
+        "correct": false,
+        "explanation": "Такой подход не синхронизирован с транзакциями/историей и легко приводит к рассинхронизации состояния."
+      },
+      {
+        "text": "Через editor.view.dispatch(editor.state.tr.setMeta(pluginKey, payload))",
+        "correct": true,
+        "explanation": "setMeta — единственный официально поддерживаемый способ передать данные в состояние плагина через транзакцию."
+      },
+      {
+        "text": "Через прямое присвоение pluginKey.state = newValue",
+        "correct": false,
+        "explanation": "Состояние плагина read-only снаружи напрямую — изменять его можно только через apply() в ответ на транзакцию с соответствующим meta."
+      },
+      {
+        "text": "Через localStorage браузера",
+        "correct": false,
+        "explanation": "localStorage — избыточный и медленный канал для внутриприложенческой передачи состояния между React и ProseMirror-плагином."
+      }
+    ]
+  },
+  {
+    "question": "Что определяют методы init и apply в поле state конфигурации Plugin?",
+    "type": "single",
+    "options": [
+      {
+        "text": "init задаёт начальное состояние плагина, apply вычисляет новое состояние на основе транзакции и предыдущего состояния",
+        "correct": true,
+        "explanation": "Это стандартный паттерн ProseMirror для плагинов с собственным состоянием, синхронизированным с историей транзакций."
+      },
+      {
+        "text": "init вызывается на каждую транзакцию, apply — только один раз при создании",
+        "correct": false,
+        "explanation": "Порядок перепутан: init вызывается один раз при инициализации, apply — на каждую транзакцию."
+      },
+      {
+        "text": "init нужен только для декораций, apply — только для команд",
+        "correct": false,
+        "explanation": "Оба метода относятся именно к состоянию плагина в целом, не привязаны конкретно к decorations или commands."
+      },
+      {
+        "text": "Это необязательные методы, без них плагин не может иметь props.decorations",
+        "correct": false,
+        "explanation": "decorations как функция от текущего EditorState может обходиться и без собственного state плагина — но для ДИНАМИЧЕСКОГО состояния (как поисковый запрос) state{init,apply} обычно необходим."
+      }
+    ]
+  },
+  {
+    "question": "Как прочитать текущее состояние конкретного плагина внутри props.decorations(state)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "pluginKey.getState(state)",
+        "correct": true,
+        "explanation": "PluginKey.getState принимает EditorState и возвращает состояние именно этого плагина."
+      },
+      {
+        "text": "state.plugins.find(p => p.key === pluginKey)",
+        "correct": false,
+        "explanation": "Такой способ не является официальным публичным API для доступа к состоянию плагина."
+      },
+      {
+        "text": "editor.storage[pluginKey]",
+        "correct": false,
+        "explanation": "storage относится к Extension/Node/Mark verhoeven слою Tiptap, а не к состоянию низкоуровневого ProseMirror Plugin напрямую."
+      },
+      {
+        "text": "pluginKey.state",
+        "correct": false,
+        "explanation": "У PluginKey нет прямого свойства state — оно доступно только через метод getState(editorState)."
+      }
+    ]
+  },
+  {
+    "question": "Какая команда устанавливает выделение на конкретный диапазон позиций документа?",
+    "type": "single",
+    "options": [
+      {
+        "text": "editor.commands.setTextSelection({ from, to })",
+        "correct": true,
+        "explanation": "setTextSelection принимает либо число (позиция курсора), либо объект { from, to } для выделения диапазона."
+      },
+      {
+        "text": "editor.commands.focus({ from, to })",
+        "correct": false,
+        "explanation": "focus() управляет фокусом и может принимать позицию, но именно диапазонное выделение задаётся через setTextSelection."
+      },
+      {
+        "text": "editor.commands.selectRange(from, to)",
+        "correct": false,
+        "explanation": "Такой команды с таким именем в стандартном API Tiptap нет."
+      },
+      {
+        "text": "editor.view.select(from, to)",
+        "correct": false,
+        "explanation": "На EditorView нет такого метода select с подобной сигнатурой."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт при вызове editor.commands.setTextSelection(pos), если pos больше размера документа?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Курсор автоматически установится в конец документа без ошибок",
+        "correct": false,
+        "explanation": "ProseMirror не делает автоматическое ограничение (clamping) позиции — переданная за пределы документа позиция приведёт к ошибке."
+      },
+      {
+        "text": "Возникнет ошибка, так как позиции ProseMirror строго ограничены размером документа",
+        "correct": true,
+        "explanation": "Необходимо самостоятельно проверять границы (например, Math.min(pos, doc.content.size)) перед установкой выделения."
+      },
+      {
+        "text": "Ничего не произойдёт, вызов будет молча проигнорирован",
+        "correct": false,
+        "explanation": "Это не тихая операция — при выходе за границы возникает ошибка, а не безмолвное игнорирование."
+      },
+      {
+        "text": "Документ автоматически расширится новым пустым параграфом, чтобы вместить позицию",
+        "correct": false,
+        "explanation": "ProseMirror не расширяет документ автоматически под произвольную запрошенную позицию курсора."
+      }
+    ]
+  },
+  {
+    "question": "Какой вид Decoration используется для добавления произвольного DOM-элемента (например, ручки drag handle) рядом с определённой позицией, не оборачивая существующий контент?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Decoration.inline",
+        "correct": false,
+        "explanation": "Decoration.inline применяет атрибуты к существующему диапазону текста, а не вставляет новый произвольный DOM-элемент."
+      },
+      {
+        "text": "Decoration.widget",
+        "correct": true,
+        "explanation": "Decoration.widget вставляет произвольный DOM-узел в указанную позицию, не оборачивая и не изменяя существующий контент."
+      },
+      {
+        "text": "Decoration.node",
+        "correct": false,
+        "explanation": "Decoration.node применяет атрибуты ко всему узлу целиком, а не вставляет отдельный дополнительный DOM-элемент."
+      },
+      {
+        "text": "Decoration.mark",
+        "correct": false,
+        "explanation": "Такого статического метода в API Decoration не существует — марки применяются через inline decoration с атрибутами."
+      }
+    ]
+  },
+  {
+    "question": "Через какой механизм плагина можно обработать событие drop при drag & drop блоков?",
+    "type": "single",
+    "options": [
+      {
+        "text": "props.handleDOMEvents с ключом drop",
+        "correct": true,
+        "explanation": "handleDOMEvents позволяет перехватывать произвольные DOM-события (dragstart, dragover, drop и др.) на уровне EditorView."
+      },
+      {
+        "text": "addKeyboardShortcuts с записью 'drop'",
+        "correct": false,
+        "explanation": "addKeyboardShortcuts предназначен для клавиатурных комбинаций, а не для событий drag & drop."
+      },
+      {
+        "text": "onDrop callback в useEditor",
+        "correct": false,
+        "explanation": "Такого специального колбэка в опциях useEditor не существует — обработка идёт на уровне ProseMirror-плагина через handleDOMEvents."
+      },
+      {
+        "text": "Decoration.widget автоматически обрабатывает drop без дополнительной настройки",
+        "correct": false,
+        "explanation": "Decoration.widget отвечает только за визуальное добавление DOM-элемента, обработка событий — отдельная забота через handleDOMEvents."
+      }
+    ]
+  },
+  {
+    "question": "Почему хранение поискового запроса в обычной внешней JS-переменной (не через state плагина) считается плохой практикой?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это технически невозможно — TypeScript запретит такой код",
+        "correct": false,
+        "explanation": "Технически это возможно и скомпилируется — проблема архитектурная, а не связана с ошибкой типов."
+      },
+      {
+        "text": "Такое состояние не синхронизировано с транзакциями/undo и может рассинхронизироваться с реальным состоянием документа",
+        "correct": true,
+        "explanation": "Официальный state{init,apply} гарантированно синхронизирован с потоком транзакций ProseMirror, обычная переменная — нет."
+      },
+      {
+        "text": "Внешние переменные автоматически сбрасываются при каждом рендере React",
+        "correct": false,
+        "explanation": "Обычная переменная модуля не привязана к жизненному циклу React-компонента и не сбрасывается сама по себе — проблема в другом."
+      },
+      {
+        "text": "ProseMirror физически блокирует чтение внешних переменных внутри props.decorations",
+        "correct": false,
+        "explanation": "Технически прочитать внешнюю переменную можно — проблема в отсутствии синхронизации с транзакционной моделью, а не в физическом запрете."
+      }
+    ]
+  },
+  {
+    "question": "Какой метод используется для обхода всех заголовков документа при построении оглавления?",
+    "type": "single",
+    "options": [
+      {
+        "text": "editor.state.doc.descendants((node, pos) => {...}), проверяя node.type.name === 'heading'",
+        "correct": true,
+        "explanation": "descendants — стандартный способ обхода всех узлов документа с их позициями, с последующей фильтрацией по типу узла."
+      },
+      {
+        "text": "editor.schema.nodes.heading.getAll()",
+        "correct": false,
+        "explanation": "У NodeType нет метода getAll(), возвращающего все инстансы этой ноды в текущем документе — схема описывает ТИПЫ, а не конкретные экземпляры в документе."
+      },
+      {
+        "text": "editor.commands.findHeadings()",
+        "correct": false,
+        "explanation": "Такой готовой команды в стандартном API Tiptap не существует."
+      },
+      {
+        "text": "document.querySelectorAll('h1, h2, h3')",
+        "correct": false,
+        "explanation": "Это работает с реальным DOM, а не с моделью документа ProseMirror — надёжнее обходить именно editor.state.doc, а не полагаться на DOM-структуру."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений о продвинутых техниках Tiptap верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "scrollIntoView() можно комбинировать в цепочке с setTextSelection для прокрутки к найденной позиции",
+        "correct": true,
+        "explanation": "Это стандартный паттерн для навигации по документу (например, из оглавления) — сначала выделение, потом прокрутка к нему."
+      },
+      {
+        "text": "Полноценный drag & drop с поддержкой вложенных структур значительно сложнее наивной реализации через dragstart/drop",
+        "correct": true,
+        "explanation": "Нужно учитывать вложенность (списки внутри списков), визуальные индикаторы, отмену операции и многое другое — это выходит за рамки простого примера."
+      },
+      {
+        "text": "PluginKey нужен только для decorations и не имеет отношения к собственному состоянию плагина",
+        "correct": false,
+        "explanation": "PluginKey используется для доступа к ЛЮБОМУ состоянию плагина (не только decorations) через getState(), а также как идентификатор для setMeta."
+      },
+      {
+        "text": "editor.commands.selectAll() выделяет весь документ целиком",
+        "correct": true,
+        "explanation": "Это готовая встроенная команда, эквивалентная программному созданию выделения от начала до конца документа."
+      }
+    ]
+  }
+]

@@ -63,18 +63,34 @@ my-company-plugin/
 
 Распространение: через npm (приватный registry), git-репозиторий или внутренний marketplace. Команда устанавливает плагин -- и все получают одинаковый набор инструментов.
 
-## Контроль MCP через managed-mcp.json
+## Контроль MCP в организации
 
-Организация может ограничить, какие MCP-серверы доступны разработчикам:
+Есть два разных механизма, и их легко перепутать.
+
+**1. `managed-mcp.json`** -- раздаёт фиксированный набор серверов и запрещает добавлять свои. Лежит по системному пути (`/Library/Application Support/ClaudeCode/` на macOS, `/etc/claude-code/` на Linux), формат -- как у проектного `.mcp.json`:
 
 ```json
-// managed-mcp.json
+// /etc/claude-code/managed-mcp.json
 {
-  "allowedServers": ["github", "jira", "internal-docs"],
-  "blockedServers": ["*"],
-  "requireApproval": true
+  "mcpServers": {
+    "github": { "type": "http", "url": "https://api.githubcopilot.com/mcp/" }
+  }
 }
 ```
+
+Пустой `{ "mcpServers": {} }` отключает MCP полностью.
+
+**2. `allowedMcpServers` / `deniedMcpServers`** -- фильтруют то, что пользователь настроил сам. Живут в settings.json, значения -- объекты с `serverUrl`, `serverCommand` или `serverName`:
+
+```json
+{
+  "allowManagedMcpServersOnly": true,
+  "allowedMcpServers": [{ "serverUrl": "https://api.githubcopilot.com/*" }],
+  "deniedMcpServers": [{ "serverName": "dangerous-server" }]
+}
+```
+
+Без `allowManagedMcpServersOnly: true` пользователь может расширить белый список в своих настройках. Denylist сливается всегда и перебивает allowlist.
 
 Зачем: безопасность (не все серверы доверенные), стоимость (каждый MCP-вызов -- токены), compliance (данные не должны утекать через сторонние серверы).
 

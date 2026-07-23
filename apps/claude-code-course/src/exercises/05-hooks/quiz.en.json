@@ -1,209 +1,339 @@
 [
   {
-    "question": "What are Hooks in Claude Code?",
+    "question": "What is the fundamental difference between an instruction in CLAUDE.md and a hook?",
     "type": "single",
     "options": [
       {
-        "text": "Git hooks for pre-commit checks",
+        "text": "Hooks are faster, and CLAUDE.md is slower",
         "correct": false,
-        "explanation": "Git hooks run on git operations, not on Claude Code actions."
+        "explanation": "Speed has nothing to do with it. The key difference is determinism: a hook guarantees execution, CLAUDE.md does not"
       },
       {
-        "text": "React hooks for state management",
-        "correct": false,
-        "explanation": "React hooks are for component state, not Claude Code."
-      },
-      {
-        "text": "CSS hooks for styling components",
-        "correct": false,
-        "explanation": "This refers to React CSS hooks, not Claude Code Hooks."
-      },
-      {
-        "text": "Event handlers that intercept and modify Claude's actions before and after execution",
+        "text": "CLAUDE.md is a recommendation the agent might forget; a hook is code that executes automatically",
         "correct": true,
-        "explanation": "Correct: Hooks work like middleware — they can block, modify, or react to tool usage."
+        "explanation": "Exactly right: CLAUDE.md is advice for the agent, while a hook is deterministic automation that always fires on the specified event"
+      },
+      {
+        "text": "CLAUDE.md only works locally, while hooks only work on the server",
+        "correct": false,
+        "explanation": "Both mechanisms work locally. The difference is that a hook is code, while CLAUDE.md is a text instruction for the agent"
+      },
+      {
+        "text": "There's no difference -- they're two ways of writing the same thing",
+        "correct": false,
+        "explanation": "The difference is fundamental: CLAUDE.md is interpreted by the LLM (it can forget), while a hook is executed by the system (guaranteed)"
       }
     ]
   },
   {
-    "question": "What are the two types of Hooks?",
+    "question": "Which event should you use to block a dangerous command BEFORE it executes?",
     "type": "single",
     "options": [
       {
-        "text": "Intercept and Modify",
+        "text": "Stop",
         "correct": false,
-        "explanation": "These are descriptions of what hooks do, not their names."
-      },
-      {
-        "text": "OnToolCall and OnToolResult",
-        "correct": false,
-        "explanation": "These names do not exist in Claude Code."
-      },
-      {
-        "text": "PreToolUse and PostToolUse",
-        "correct": true,
-        "explanation": "Correct: PreToolUse triggers before a tool is used, PostToolUse triggers after."
-      },
-      {
-        "text": "BeforeExecute and AfterExecute",
-        "correct": false,
-        "explanation": "These names do not exist in Claude Code."
-      }
-    ]
-  },
-  {
-    "question": "Which hook can block a dangerous command?",
-    "type": "single",
-    "options": [
-      {
-        "text": "Neither can block",
-        "correct": false,
-        "explanation": "PreToolUse can block actions by returning decision: 'block'."
-      },
-      {
-        "text": "Both can block",
-        "correct": false,
-        "explanation": "Only PreToolUse can block actions."
+        "explanation": "Stop fires when Claude has finished its response -- all tools have already run"
       },
       {
         "text": "PreToolUse",
         "correct": true,
-        "explanation": "Correct: PreToolUse triggers before the tool is used and can return decision: 'block'."
+        "explanation": "PreToolUse fires before a tool is called -- this is where you can check and block dangerous actions"
       },
       {
         "text": "PostToolUse",
         "correct": false,
-        "explanation": "PostToolUse triggers after the tool has already executed — it is too late to block."
+        "explanation": "PostToolUse fires after a tool has run -- too late to block it"
+      },
+      {
+        "text": "SessionStart",
+        "correct": false,
+        "explanation": "SessionStart fires at the start of a session, not when a specific tool is called"
       }
     ]
   },
   {
-    "question": "How do you specify hooks when launching Claude Code?",
+    "question": "What does exit code 2 mean in a hook script?",
     "type": "single",
     "options": [
       {
-        "text": "claude --plugins hooks",
+        "text": "Allow -- the tool runs normally",
         "correct": false,
-        "explanation": "There is no --plugins flag for hooks."
+        "explanation": "Exit code 0 is used to allow, not 2"
       },
       {
-        "text": "Hooks are always loaded automatically",
+        "text": "Ask the user for confirmation",
         "correct": false,
-        "explanation": "Hooks must be explicitly specified via --hooks or settings.json."
+        "explanation": "To request confirmation, you need to return JSON with permissionDecision: 'ask', not exit code 2"
       },
       {
-        "text": "claude --middleware hooks.js",
-        "correct": false,
-        "explanation": "There is no --middleware flag in Claude Code."
-      },
-      {
-        "text": "claude --hooks claude-code-hooks.js",
+        "text": "Deny -- the tool will NOT run",
         "correct": true,
-        "explanation": "Correct: use the --hooks flag followed by the path to the hooks file."
+        "explanation": "Exit code 2 means deny -- the tool is blocked by the hook and does not run"
+      },
+      {
+        "text": "Hook error -- retry the attempt",
+        "correct": false,
+        "explanation": "Exit code 2 is not an error, it's a deliberate block. Hook errors usually have other nonzero codes"
       }
     ]
   },
   {
-    "question": "What does PostToolUse have access to that PreToolUse does not?",
+    "question": "You have a hook that runs prettier after every edit. Which event and matcher are correct?",
     "type": "single",
     "options": [
       {
-        "text": "The tool execution result (exitCode, content)",
+        "text": "Stop with matcher \"Edit\"",
+        "correct": false,
+        "explanation": "Stop fires when Claude finishes its entire response, not after each tool call. If there were 5 Edits, prettier would run once at the end, not after each one"
+      },
+      {
+        "text": "PostToolUse with matcher \"Edit|Write\"",
         "correct": true,
-        "explanation": "Correct: PostToolUse receives the result object with exitCode and content."
+        "explanation": "PostToolUse fires after the tool runs, and the matcher Edit|Write catches both types of file editing"
       },
       {
-        "text": "The conversation history",
+        "text": "PreToolUse with matcher \"Edit|Write\"",
         "correct": false,
-        "explanation": "Hooks work with a single tool action, not the full conversation."
+        "explanation": "PreToolUse fires before execution. Formatting a file before it's changed makes no sense"
       },
       {
-        "text": "The user's prompt",
+        "text": "PostToolUse with matcher \".*\"",
         "correct": false,
-        "explanation": "Neither hook has direct access to the user's prompt."
-      },
-      {
-        "text": "The list of all available tools",
-        "correct": false,
-        "explanation": "Neither hook has access to the list of all tools."
+        "explanation": "Matcher .* fires on ANY tool (Read, Grep, Bash...), but prettier is only needed after file edits"
       }
     ]
   },
   {
-    "question": "Which hook is better for logging all Claude Code actions?",
+    "question": "How can a hook add contextual information to Claude (e.g., a warning about a file)?",
     "type": "single",
     "options": [
       {
-        "text": "Only PostToolUse",
-        "correct": false,
-        "explanation": "PostToolUse can log, but will not capture blocked actions."
-      },
-      {
-        "text": "Hooks cannot log",
-        "correct": false,
-        "explanation": "Hooks can write logs to files or external services."
-      },
-      {
-        "text": "Only PreToolUse",
-        "correct": false,
-        "explanation": "PreToolUse can log, but will not capture the result."
-      },
-      {
-        "text": "Both — PreToolUse logs the action, PostToolUse logs the result",
+        "text": "Return JSON with the additionalContext field on stdout",
         "correct": true,
-        "explanation": "Correct: using both gives a complete picture of what happened."
+        "explanation": "additionalContext is a special field that injects text directly into Claude's context"
+      },
+      {
+        "text": "Use exit code 3",
+        "correct": false,
+        "explanation": "Only exit code 0 (allow) and 2 (deny) are defined. Context is passed via JSON on stdout"
+      },
+      {
+        "text": "Write to CLAUDE.md",
+        "correct": false,
+        "explanation": "A hook shouldn't modify CLAUDE.md -- it's a static configuration file, not a channel for dynamic messages"
+      },
+      {
+        "text": "Via the CLAUDE_CONTEXT environment variable",
+        "correct": false,
+        "explanation": "No such variable exists. Context is passed via JSON on stdout with the additionalContext field"
       }
     ]
   },
   {
-    "question": "What return value blocks a tool in PreToolUse?",
+    "question": "Which five types of hooks does Claude Code support?",
     "type": "single",
     "options": [
       {
-        "text": "{ decision: 'deny' }",
+        "text": "validate, transform, block, notify",
         "correct": false,
-        "explanation": "'deny' is not a valid value — use 'block'."
+        "explanation": "These describe actions hooks can perform, not their types. The types are: command, http, mcp_tool, prompt, agent"
       },
       {
-        "text": "{ decision: 'block', errorMessage: 'reason' }",
+        "text": "pre, post, start, stop",
+        "correct": false,
+        "explanation": "These are event names (PreToolUse, PostToolUse...), not hook types. The types are: command, http, mcp_tool, prompt, agent"
+      },
+      {
+        "text": "command, http, mcp_tool, prompt, agent",
         "correct": true,
-        "explanation": "Correct: 'block' prevents the tool from executing, and errorMessage explains why."
+        "explanation": "command runs a shell command, http sends an HTTP request, mcp_tool calls a tool on a connected MCP server, prompt sends a prompt to the LLM, agent launches a subagent (experimental)"
       },
       {
-        "text": "{ blocked: true }",
+        "text": "bash, python, node, http",
         "correct": false,
-        "explanation": "This is not the correct format for HookResult."
-      },
-      {
-        "text": "return false",
-        "correct": false,
-        "explanation": "Hooks must return a HookResult object, not a boolean."
+        "explanation": "Hook types aren't tied to programming languages. They are command (any shell command), http, mcp_tool, prompt, and agent"
       }
     ]
   },
   {
-    "question": "What is the priority order of CLAUDE.md levels?",
+    "question": "What happens if a hook has no timeout and hangs?",
     "type": "single",
     "options": [
       {
-        "text": "All levels have equal priority",
+        "text": "Claude Code will skip the hook and continue working",
         "correct": false,
-        "explanation": "Levels have different priorities — higher levels override lower ones."
+        "explanation": "Claude Code waits for the hook to finish. Without a timeout, the wait can be indefinitely long"
       },
       {
-        "text": "Project > User > Subdirectory > Managed Policy",
+        "text": "Nothing bad happens -- the hook runs in a separate thread",
         "correct": false,
-        "explanation": "Managed Policy has the highest priority, not the lowest."
+        "explanation": "A hook can block tool execution. A hung hook means a blocked agent"
       },
       {
-        "text": "Subdirectory > Project > User > Managed Policy",
-        "correct": false,
-        "explanation": "This is the reverse of the actual priority order."
-      },
-      {
-        "text": "Managed Policy > User > Project > Subdirectory",
+        "text": "Claude Code can't continue working until the process is forcibly terminated",
         "correct": true,
-        "explanation": "Correct: Managed Policy cannot be overridden, then User, Project, and Subdirectory."
+        "explanation": "Without a timeout, a hung process blocks the entire workflow. Always specify a timeout for hooks"
+      },
+      {
+        "text": "The hook automatically terminates after 30 seconds (default timeout)",
+        "correct": false,
+        "explanation": "The default timeout depends on the implementation, but relying on it is risky. Always specify a timeout explicitly"
+      }
+    ]
+  },
+  {
+    "question": "You want Claude Code to automatically load project context when a session starts. Which event should you use?",
+    "type": "single",
+    "options": [
+      {
+        "text": "CwdChanged",
+        "correct": false,
+        "explanation": "CwdChanged fires on a directory change, not at session start. Use SessionStart for initial loading"
+      },
+      {
+        "text": "UserPromptSubmit",
+        "correct": false,
+        "explanation": "UserPromptSubmit fires on every user message. For one-time initialization, use SessionStart"
+      },
+      {
+        "text": "PreToolUse",
+        "correct": false,
+        "explanation": "PreToolUse fires before every tool call -- too frequent for initial loading"
+      },
+      {
+        "text": "SessionStart",
+        "correct": true,
+        "explanation": "SessionStart fires at the beginning of a session -- the ideal moment for loading context, checking the environment, and initialization"
+      }
+    ]
+  },
+  {
+    "question": "A hook script ends like this:\n\ngrep 'TODO' file.txt\nexit 0\n\nBut grep finds no matches. What will the exit code be?",
+    "type": "single",
+    "options": [
+      {
+        "text": "It depends on the shell configuration",
+        "correct": false,
+        "explanation": "An explicit exit 0 works the same way in all shells -- it overrides the return code of the last command"
+      },
+      {
+        "text": "0 -- because exit 0 on the last line overrides grep's return code",
+        "correct": true,
+        "explanation": "An explicit exit 0 at the end of the script guarantees a zero return code, regardless of grep's result"
+      },
+      {
+        "text": "2 -- the hook treats this as a block",
+        "correct": false,
+        "explanation": "The exit code is determined by the last command with exit, not by intermediate ones. exit 0 guarantees allow"
+      },
+      {
+        "text": "1 -- because grep found no matches",
+        "correct": false,
+        "explanation": "grep would return 1, but it's followed by an explicit exit 0, which determines the final code"
+      }
+    ]
+  },
+  {
+    "question": "You need to protect the .env file from being edited by the agent. Which approach is correct?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A PostToolUse hook that reverts changes to .env",
+        "correct": false,
+        "explanation": "PostToolUse fires after the edit -- the file will already have been changed. Better to block beforehand (PreToolUse)"
+      },
+      {
+        "text": "A PreToolUse hook on Edit|Write that checks the file path and returns exit 2 for .env",
+        "correct": true,
+        "explanation": "PreToolUse intercepts the edit attempt before it happens. Checking the file path in the script + exit 2 to block is a reliable defense"
+      },
+      {
+        "text": "Remove write permissions on the .env file",
+        "correct": false,
+        "explanation": "Claude Code runs commands as the current user, who usually has permission on their own files. Also, this isn't a solution within Claude Code -- it's a workaround"
+      },
+      {
+        "text": "Write in CLAUDE.md: 'Don't edit .env files'",
+        "correct": false,
+        "explanation": "CLAUDE.md is a recommendation, the agent can ignore it. A hook is a guarantee of blocking"
+      }
+    ]
+  },
+  {
+    "question": "How do you correctly combine a fast check and a deep check within one matcher?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Use a single prompt hook with the instruction 'first check quickly, then deeply'",
+        "correct": false,
+        "explanation": "A prompt hook is expensive. A fast check via command filters out 90% of cases without the LLM, saving time and cost"
+      },
+      {
+        "text": "Specify two hooks in the array: first a command for the quick check, then a prompt for deep analysis",
+        "correct": true,
+        "explanation": "An array of hooks runs sequentially: a fast command filters out obvious cases, while a prompt does deep analysis for the rest"
+      },
+      {
+        "text": "This is impossible -- one matcher supports only one hook",
+        "correct": false,
+        "explanation": "Hooks are an array; you can specify multiple hooks for a single matcher"
+      },
+      {
+        "text": "Create two separate matchers with different hooks",
+        "correct": false,
+        "explanation": "Possible, but less convenient. One matcher with two hooks is a cleaner architecture for multi-level validation"
+      }
+    ]
+  },
+  {
+    "question": "A hook returns the JSON: {\"hookSpecificOutput\":{\"permissionDecision\":\"ask\"}}. What happens?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The tool will be blocked",
+        "correct": false,
+        "explanation": "Blocking requires permissionDecision: 'deny'. 'ask' asks the user to decide"
+      },
+      {
+        "text": "Claude Code will ask the user whether to allow the tool to run",
+        "correct": true,
+        "explanation": "permissionDecision: 'ask' passes the decision to the user -- a confirmation prompt appears"
+      },
+      {
+        "text": "The tool will be allowed",
+        "correct": false,
+        "explanation": "Allowing requires permissionDecision: 'allow'. 'ask' requests confirmation from the user"
+      },
+      {
+        "text": "An error will occur -- 'ask' is not a valid value",
+        "correct": false,
+        "explanation": "'ask' is a valid value alongside 'allow' and 'deny'. It requests a decision from the user"
+      }
+    ]
+  },
+  {
+    "question": "Where should project-specific hooks be configured?",
+    "type": "single",
+    "options": [
+      {
+        "text": "In the project's .claude/settings.json",
+        "correct": true,
+        "explanation": "Project hooks are configured in .claude/settings.json within the repository and add to the global hooks"
+      },
+      {
+        "text": "In package.json under the 'claude' section",
+        "correct": false,
+        "explanation": "Claude Code doesn't use package.json for configuration. Hooks are configured in .claude/settings.json"
+      },
+      {
+        "text": "Only in ~/.claude/settings.json",
+        "correct": false,
+        "explanation": "~/.claude/settings.json is the global configuration for all projects. Project hooks should be in the project's .claude/settings.json"
+      },
+      {
+        "text": "In CLAUDE.md",
+        "correct": false,
+        "explanation": "CLAUDE.md contains instructions for the agent, not hook configuration. Hooks are configured in settings.json"
       }
     ]
   }

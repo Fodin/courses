@@ -1,0 +1,210 @@
+[
+  {
+    "question": "В shared/lib/orderTotals.ts обнаружена функция calculateOrderTotal(order: Order), импортирующая тип Order из entities/order. Что здесь не так?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ничего, shared может импортировать типы откуда угодно",
+        "correct": false,
+        "explanation": "shared — самый нижний слой, он не может зависеть от entities: это импорт вверх по слоям."
+      },
+      {
+        "text": "Доменная логика оказалась в shared, да ещё и с импортом вверх по слоям — её место в entities/order",
+        "correct": true,
+        "explanation": "Функция знает про конкретную сущность Order — значит, это доменная логика entities, а не shared."
+      },
+      {
+        "text": "Функцию нужно переименовать, чтобы не было конфликта имён",
+        "correct": false,
+        "explanation": "Проблема не в имени, а в неверном расположении по слоям."
+      },
+      {
+        "text": "Ошибка только в том, что файл называется orderTotals, а не order-totals",
+        "correct": false,
+        "explanation": "Именование файла не относится к сути нарушения — оно архитектурное, а не стилистическое."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих признаков указывают на антипаттерн «god-slice» / раздутый public API? (несколько ответов)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "index.ts использует export * from './ui' и export * from './model'",
+        "correct": true,
+        "explanation": "Wildcard-реэкспорт вытаскивает наружу вообще всё содержимое сегмента, включая приватное."
+      },
+      {
+        "text": "index.ts экспортирует внутренний хелпер, который нигде за пределами слайса не используется",
+        "correct": true,
+        "explanation": "Экспорт без реальной внешней надобности — раздувание контракта слайса."
+      },
+      {
+        "text": "index.ts реэкспортирует ровно два имени: тип сущности и один компонент",
+        "correct": false,
+        "explanation": "Это нормальный, узкий public API — то, к чему нужно стремиться, а не антипаттерн."
+      },
+      {
+        "text": "index.ts использует type-only реэкспорт export type { User } from './model/types'",
+        "correct": false,
+        "explanation": "Type-only реэкспорт — хорошая практика, стирается при сборке и явно помечает контракт."
+      }
+    ]
+  },
+  {
+    "question": "features/wishlist и features/add-to-cart — два слайса одного слоя features. add-to-cart напрямую импортирует функцию из wishlist. Как правильно исправить эту связь?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Оставить как есть — features могут свободно импортировать друг друга",
+        "correct": false,
+        "explanation": "Слайсы одного слоя не должны знать друг о друге — это горизонтальная связь и риск цикла."
+      },
+      {
+        "text": "Перенести wishlist в entities, чтобы add-to-cart мог его импортировать сверху вниз",
+        "correct": false,
+        "explanation": "wishlist — это пользовательское действие (feature), а не сущность данных; перенос слоя не решает проблему изоляции."
+      },
+      {
+        "text": "Поднять композицию на слой выше — пусть widget знает про обе фичи и связывает их",
+        "correct": true,
+        "explanation": "Именно так устраняется cross-import между слайсами одного слоя: композиция уходит на widgets."
+      },
+      {
+        "text": "Импортировать wishlist глубоким импортом вместо public API",
+        "correct": false,
+        "explanation": "Это не решает архитектурную проблему cross-import, а добавляет ещё и deep import."
+      }
+    ]
+  },
+  {
+    "question": "Что из перечисленного является «глубоким импортом» (deep import)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "import { Product } from '@/entities/product'",
+        "correct": false,
+        "explanation": "Импорт до корня слайса — через его public API, это норма."
+      },
+      {
+        "text": "import { ProductCard } from '@/entities/product/ui/ProductCard'",
+        "correct": true,
+        "explanation": "Путь заходит во внутренний сегмент ui/ в обход index.ts слайса — классический deep import."
+      },
+      {
+        "text": "import { Button } from '@/shared/ui/Button'",
+        "correct": false,
+        "explanation": "shared не делится на слайсы, у него нет единого index.ts — прямой путь до сегмента здесь нормален."
+      },
+      {
+        "text": "import type { Product } from '@/entities/product'",
+        "correct": false,
+        "explanation": "Type-only импорт через public API — тоже нормальный способ, deep import тут ни при чём."
+      }
+    ]
+  },
+  {
+    "question": "index.ts фичи содержит: import { isInWishlist } from '@/features/wishlist'; export function handleAddToCart(...) { if (isInWishlist(...)) {...}; return addItem(...) }; export * from './ui'. Какие проблемы здесь есть? (несколько ответов)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Бизнес-логика написана прямо в барреле вместо сегмента model/",
+        "correct": true,
+        "explanation": "index.ts должен быть тонким фасадом с реэкспортами, а не местом для функций с логикой."
+      },
+      {
+        "text": "export * from './ui' может утащить наружу больше, чем задумано",
+        "correct": true,
+        "explanation": "Wildcard-реэкспорт — раздувание public API, даже если сейчас в ui/ лежит один компонент."
+      },
+      {
+        "text": "Импорт isInWishlist из features/wishlist — cross-import соседней фичи того же слоя",
+        "correct": true,
+        "explanation": "features/wishlist и features/add-to-cart — соседи одного слоя, прямая связь между ними запрещена."
+      },
+      {
+        "text": "Использование addItem вместо add() — ошибка именования API",
+        "correct": false,
+        "explanation": "Имя функции — вопрос стиля, а не архитектурное нарушение FSD."
+      }
+    ]
+  },
+  {
+    "question": "В капстоуне вы собираете вертикаль pages → widgets → features → entities → shared. В каком порядке разумнее всего строить слайсы с нуля?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сначала pages, чтобы сразу видеть результат, а остальное — по ходу дела",
+        "correct": false,
+        "explanation": "Так неизбежно возникают временные deep import'ы — нижних слоёв ещё нет, а страница уже пытается их использовать."
+      },
+      {
+        "text": "Снизу вверх: сначала entities с public API, затем features поверх неё, затем widgets, затем pages",
+        "correct": true,
+        "explanation": "Каждый следующий слой опирается на уже готовый public API нижнего — так не возникает обратных или временных связей."
+      },
+      {
+        "text": "Порядок не имеет значения, если в конце все index.ts заполнены",
+        "correct": false,
+        "explanation": "Порядок сборки влияет на то, не появятся ли по пути временные нарушения изоляции и глубокие импорты."
+      },
+      {
+        "text": "Сначала shared, потом сразу pages — entities и features дособрать в последнюю очередь",
+        "correct": false,
+        "explanation": "pages без готовых features/entities не сможет собраться без deep import — это тот же порядок «сверху вниз»."
+      }
+    ]
+  },
+  {
+    "question": "В задании 15.2 нужно «сузить» public API entities/product, при этом internalCache должен остаться внутри слайса и продолжать использоваться. Что это значит на практике?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Удалить файл model/internalCache.ts целиком",
+        "correct": false,
+        "explanation": "Файл остаётся — сокращается не код слайса, а то, что видно снаружи через index.ts."
+      },
+      {
+        "text": "Убрать реэкспорт internalCache из index.ts, оставив сам файл нетронутым",
+        "correct": true,
+        "explanation": "Приватность в FSD обеспечивается тем, что сегмент не реэкспортируется наружу, а не удалением кода."
+      },
+      {
+        "text": "Переименовать internalCache в privateCache, чтобы было понятно, что он приватный",
+        "correct": false,
+        "explanation": "Приватность определяется отсутствием реэкспорта в index.ts, а не именем файла."
+      },
+      {
+        "text": "Перенести internalCache в отдельный слайс entities/product-cache",
+        "correct": false,
+        "explanation": "Избыточно: внутренний кэш слайса не обязан становиться отдельной сущностью, достаточно не экспортировать его."
+      }
+    ]
+  },
+  {
+    "question": "Виджет widgets/comments-panel собирается поверх фичи features/add-comment, которая, в свою очередь, использует entities/comment. Какие импорты будут корректными с точки зрения FSD? (несколько ответов)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "widgets/comments-panel импортирует submitComment и CommentForm из '@/features/add-comment'",
+        "correct": true,
+        "explanation": "Импорт вниз по слоям (widgets → features) через public API фичи — корректно."
+      },
+      {
+        "text": "features/add-comment/model/addComment.ts импортирует тип Comment из '@/entities/comment'",
+        "correct": true,
+        "explanation": "Импорт вниз (features → entities) через public API сущности — корректно."
+      },
+      {
+        "text": "entities/comment импортирует CommentForm из '@/features/add-comment'",
+        "correct": false,
+        "explanation": "Это импорт вверх по слоям (entities → features) — запрещённое направление."
+      },
+      {
+        "text": "widgets/comments-panel импортирует submitComment из '@/features/add-comment/model/addComment'",
+        "correct": false,
+        "explanation": "Путь заходит во внутренний сегмент model/ фичи в обход её index.ts — deep import."
+      }
+    ]
+  }
+]

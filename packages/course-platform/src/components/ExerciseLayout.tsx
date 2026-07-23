@@ -56,6 +56,7 @@ export function ExerciseLayout({ config }: ExerciseLayoutProps) {
                 <div key={task.id} className={taskStyles.taskWrapper}>
                   <button onClick={() => changeTask(task.id)} className={buttonClass}>
                     {t('task.title')} {task.id}
+                    {task.badge ?? ''}
                   </button>
                   <input
                     type="checkbox"

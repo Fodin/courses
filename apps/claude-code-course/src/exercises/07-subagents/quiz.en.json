@@ -1,209 +1,339 @@
 [
   {
-    "question": "What are Subagents in Claude Code?",
+    "question": "What core problem do subagents in Claude Code solve?",
     "type": "single",
     "options": [
       {
-        "text": "Specialized agents that run in parallel to handle specific tasks",
+        "text": "The cost problem -- subagents are free",
+        "correct": false,
+        "explanation": "Subagents also consume tokens. Their value is in context isolation, not cost savings"
+      },
+      {
+        "text": "The speed problem -- subagents work faster than the main agent",
+        "correct": false,
+        "explanation": "Subagents aren't faster. Their key advantage is context isolation, not speed"
+      },
+      {
+        "text": "The context window overflow problem -- each subagent works in an isolated context",
         "correct": true,
-        "explanation": "Correct: subagents are Claude agents delegated by the main agent to work on independent tasks in parallel."
+        "explanation": "A subagent reads files in its own context, produces a brief report, and returns it to the main agent. The main agent's context stays clean"
       },
       {
-        "text": "Background processes for running commands",
+        "text": "The security problem -- subagents have no access to files",
         "correct": false,
-        "explanation": "Background processes are shell features. Subagents are full Claude agents with their own context."
-      },
-      {
-        "text": "MCP servers for external integrations",
-        "correct": false,
-        "explanation": "MCP servers are external tools. Subagents are built-in Claude Code feature."
-      },
-      {
-        "text": "Git branches for parallel development",
-        "correct": false,
-        "explanation": "Git branches are version control, not Claude Code subagents."
+        "explanation": "Subagents do have access to files (via the specified tools). The problem they solve is context overflow"
       }
     ]
   },
   {
-    "question": "When should you use subagents?",
-    "type": "multiple",
-    "options": [
-      {
-        "text": "For simple one-line commands like ls or grep",
-        "correct": false,
-        "explanation": "Simple commands do not need subagent overhead — use Bash directly."
-      },
-      {
-        "text": "When tasks require different context or expertise",
-        "correct": true,
-        "explanation": "Correct: subagents can specialize in different areas."
-      },
-      {
-        "text": "When tasks are independent and can run in parallel",
-        "correct": true,
-        "explanation": "Correct: independent tasks benefit most from parallel execution."
-      },
-      {
-        "text": "When tasks depend on each other",
-        "correct": false,
-        "explanation": "Dependent tasks must run sequentially — subagents cannot help here."
-      }
-    ]
-  },
-  {
-    "question": "What context do subagents have access to?",
+    "question": "Where are subagent files described?",
     "type": "single",
     "options": [
       {
-        "text": "The results of other subagents",
+        "text": "In CLAUDE.md under the ## Agents section",
         "correct": false,
-        "explanation": "Subagents cannot see each other's results — they work independently."
+        "explanation": "CLAUDE.md contains instructions for the agent. Subagents are described in separate files in .claude/agents/"
       },
       {
-        "text": "Only their specific task description and project files",
+        "text": "In the .claude/agents/ directory as markdown files",
         "correct": true,
-        "explanation": "Correct: subagents work in isolated contexts with only their task and file access."
+        "explanation": "Each subagent is a .md file in .claude/agents/ with YAML frontmatter and markdown instructions"
       },
       {
-        "text": "The user's direct input",
+        "text": "In .claude/.mcp.json",
         "correct": false,
-        "explanation": "Subagents do not receive direct user input — communication goes through the main agent."
+        "explanation": ".mcp.json is the configuration for MCP servers, not subagents"
       },
       {
-        "text": "The full conversation between the user and the main agent",
+        "text": "In .claude/settings.json under the agents section",
         "correct": false,
-        "explanation": "Subagents only receive their specific task description, not the full conversation."
+        "explanation": "settings.json contains settings and hooks, not subagent descriptions. Subagents are separate .md files in .claude/agents/"
       }
     ]
   },
   {
-    "question": "How do subagents improve performance?",
+    "question": "Which tool set is correct for a code-review subagent?",
     "type": "single",
     "options": [
       {
-        "text": "By running tasks in parallel instead of sequentially",
+        "text": "tools: [\"Read\", \"Glob\", \"Grep\", \"Edit\", \"Write\"] -- with edit rights",
+        "correct": false,
+        "explanation": "A reviewer shouldn't change code -- it analyzes and returns a report. Extra permissions increase the risk of accidental changes"
+      },
+      {
+        "text": "tools: [\"Read\", \"Glob\", \"Grep\", \"Edit\", \"Write\", \"Bash\"] -- full access",
+        "correct": false,
+        "explanation": "Full access for a reviewer violates the principle of least privilege. Read-only tools are enough for a reviewer"
+      },
+      {
+        "text": "tools: [\"Read\", \"Glob\", \"Grep\"] -- read only",
         "correct": true,
-        "explanation": "Correct: three 10-minute tasks take ~10 minutes total with subagents, not 30."
+        "explanation": "A reviewer should only read code and return a report. Principle of least privilege: don't grant write access to someone who shouldn't write"
       },
       {
-        "text": "By using a faster model",
+        "text": "Tools don't need to be specified -- the subagent inherits all the main agent's tools",
         "correct": false,
-        "explanation": "Subagents use the same model as the main agent."
-      },
-      {
-        "text": "By caching results from previous runs",
-        "correct": false,
-        "explanation": "Subagents do not cache results — they run fresh each time."
-      },
-      {
-        "text": "By using fewer tokens overall",
-        "correct": false,
-        "explanation": "Subagents may use more tokens due to duplicated context. The benefit is time, not tokens."
+        "explanation": "Tools must be specified explicitly. This is a key security mechanism -- restricting what the subagent can do"
       }
     ]
   },
   {
-    "question": "What happens when subagents complete their tasks?",
+    "question": "Which model should you choose for a subagent that just searches for files and gathers information?",
     "type": "single",
     "options": [
       {
-        "text": "Results are discarded after completion",
+        "text": "The model doesn't affect subagent cost",
         "correct": false,
-        "explanation": "Results are returned to the main agent, not discarded."
+        "explanation": "The model directly affects cost. Haiku is significantly cheaper than Sonnet, and Sonnet is cheaper than Opus"
       },
       {
-        "text": "Results are shown directly to the user",
+        "text": "Opus -- best quality for any task",
         "correct": false,
-        "explanation": "Results return to the main agent first, which then presents them to the user."
+        "explanation": "Opus is overkill for a simple search. Haiku does just as well, but at a much lower cost"
       },
       {
-        "text": "Results return to the main agent for aggregation",
+        "text": "Sonnet -- a universal choice",
+        "correct": false,
+        "explanation": "Sonnet is good for analytical tasks, but for simple file searches Haiku is more economical"
+      },
+      {
+        "text": "Haiku -- cheap and fast, sufficient for simple tasks",
         "correct": true,
-        "explanation": "Correct: the main agent reviews, combines, and presents subagent results."
-      },
-      {
-        "text": "Results are saved to files automatically",
-        "correct": false,
-        "explanation": "Subagents can save files, but results also return to the main agent."
+        "explanation": "For mechanical tasks (finding files, gathering information), Haiku delivers comparable quality at 20 times lower cost than Opus"
       }
     ]
   },
   {
-    "question": "Which is a good subagent task description?",
+    "question": "What does the description parameter in a subagent's frontmatter do?",
     "type": "single",
     "options": [
       {
-        "text": "Find all endpoints in src/api/ that handle user authentication, and document their request/response formats",
+        "text": "It defines the subagent's scope of file access",
+        "correct": false,
+        "explanation": "Access is defined by the tools parameter, not description. Description is for automatic delegation"
+      },
+      {
+        "text": "It's just a comment for the developer",
+        "correct": false,
+        "explanation": "Description is not a comment, but a functional parameter for automatic task delegation"
+      },
+      {
+        "text": "It determines when the main agent automatically delegates a task to this subagent",
         "correct": true,
-        "explanation": "Correct: specific scope, clear location, and defined output format."
+        "explanation": "description contains keywords and triggers that let the main agent recognize when a task fits this subagent"
       },
       {
-        "text": "Do everything related to the API",
+        "text": "It's displayed in the UI for the user",
         "correct": false,
-        "explanation": "Too broad — no clear scope or deliverable."
-      },
-      {
-        "text": "Fix all bugs",
-        "correct": false,
-        "explanation": "No scope, no location, no definition of done."
-      },
-      {
-        "text": "Look at the API",
-        "correct": false,
-        "explanation": "Too vague — the subagent will waste time figuring out what to do."
+        "explanation": "The primary function of description is to help the main agent decide when to delegate a task"
       }
     ]
   },
   {
-    "question": "What is a common mistake when using subagents?",
-    "type": "multiple",
-    "options": [
-      {
-        "text": "Creating too many subagents",
-        "correct": true,
-        "explanation": "Correct: overhead and cost outweigh parallelism benefits with too many."
-      },
-      {
-        "text": "Creating subagents for sequential tasks",
-        "correct": true,
-        "explanation": "Correct: sequential tasks cannot benefit from parallelism."
-      },
-      {
-        "text": "Giving vague task descriptions",
-        "correct": true,
-        "explanation": "Correct: vague descriptions waste subagent time and tokens."
-      },
-      {
-        "text": "Not aggregating results",
-        "correct": true,
-        "explanation": "Correct: raw subagent output is not user-friendly without aggregation."
-      }
-    ]
-  },
-  {
-    "question": "How do subagents differ from MCP servers?",
+    "question": "What is the difference between foreground and background subagents?",
     "type": "single",
     "options": [
       {
-        "text": "Subagents are for parallel task execution, MCP is for external tool integration",
+        "text": "Foreground has file access, background doesn't",
+        "correct": false,
+        "explanation": "Both types have the same tool access. The difference is in execution synchrony"
+      },
+      {
+        "text": "Foreground is more expensive because it uses a more powerful model",
+        "correct": false,
+        "explanation": "The model is determined by the model parameter, not the execution mode. Foreground and background can use any model"
+      },
+      {
+        "text": "Foreground works faster, background works slower",
+        "correct": false,
+        "explanation": "Task execution speed is the same. The difference is whether the main agent waits or continues working"
+      },
+      {
+        "text": "Foreground: the main agent waits for the result. Background: the subagent works in parallel while the main agent continues",
         "correct": true,
-        "explanation": "Correct: subagents run tasks within Claude Code, MCP connects to external services."
+        "explanation": "Foreground blocks the main agent until the result is received. Background allows parallel work"
+      }
+    ]
+  },
+  {
+    "question": "Why are Git Worktrees needed when working with subagents?",
+    "type": "single",
+    "options": [
+      {
+        "text": "To save disk space",
+        "correct": false,
+        "explanation": "A worktree creates a separate copy of files, which actually takes up additional space. The goal is isolation, not savings"
       },
       {
-        "text": "Subagents are faster than MCP servers",
-        "correct": false,
-        "explanation": "Speed is not the primary difference — they serve different purposes."
+        "text": "For filesystem isolation -- the subagent can freely change files without affecting the main copy",
+        "correct": true,
+        "explanation": "A worktree is a separate working copy of the repository. The subagent experiments in it, while the main code remains untouched"
       },
       {
-        "text": "Subagents are external processes",
+        "text": "To speed up file reads by the subagent",
         "correct": false,
-        "explanation": "Subagents run within Claude Code. MCP servers are external processes."
+        "explanation": "Worktrees don't affect read speed. Their purpose is isolating changes"
       },
       {
-        "text": "Subagents use HTTP, MCP uses stdio",
+        "text": "Worktrees are required for all subagents",
         "correct": false,
-        "explanation": "Both can use various transports. This is not a distinguishing factor."
+        "explanation": "Worktrees are only needed for subagents that edit files and whose changes need to be isolated. Read-only agents don't need them"
+      }
+    ]
+  },
+  {
+    "question": "You have a task: 'Study the authorization module, find bugs in the API controllers, and write tests.' How should you decompose it correctly?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Two subagents: one for reading, another for writing",
+        "correct": false,
+        "explanation": "Splitting by operation type (read/write) is less effective than splitting by task. Each subagent should handle one focused task"
+      },
+      {
+        "text": "No delegation needed -- the main agent can handle it alone",
+        "correct": false,
+        "explanation": "Studying the module, finding bugs, and writing tests involves dozens of files. The main agent's context would overflow. Subagents solve this problem"
+      },
+      {
+        "text": "One subagent with full permissions and a detailed instruction covering all three tasks",
+        "correct": false,
+        "explanation": "One subagent for three different tasks -- its context will overflow. Decomposition into focused subagents is more effective"
+      },
+      {
+        "text": "Three subagents: researcher to study, reviewer to find bugs, test-writer for tests",
+        "correct": true,
+        "explanation": "Each subagent gets a focused task. This is more effective than one subagent with a huge assignment -- the context doesn't overflow"
+      }
+    ]
+  },
+  {
+    "question": "Why is it important to specify a response format in a subagent's instructions?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A structured response saves the main agent's context, which doesn't have to spend it parsing an arbitrary format",
+        "correct": true,
+        "explanation": "The subagent's result is returned to the main agent. A clear format (file:line → description) is easy to parse and takes up less context"
+      },
+      {
+        "text": "A format is only needed for background subagents",
+        "correct": false,
+        "explanation": "The response format matters for any subagent -- both foreground and background. It's a matter of context savings and predictability"
+      },
+      {
+        "text": "Without a format the subagent can't return a response",
+        "correct": false,
+        "explanation": "The subagent will return a response regardless. But without a format, the response can be verbose and unstructured"
+      },
+      {
+        "text": "A response format is mandatory -- without it there will be an error",
+        "correct": false,
+        "explanation": "The format isn't technically mandatory, but it's very important for quality. Without it, the response is unpredictable"
+      }
+    ]
+  },
+  {
+    "question": "What does the context: fork parameter in a subagent's frontmatter mean?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The subagent gets a copy of the main agent's context and works in isolation -- changes don't affect the main agent",
+        "correct": true,
+        "explanation": "fork creates a copy (fork) of the current context. The subagent sees the conversation history, but its context is isolated from the main agent's"
+      },
+      {
+        "text": "The subagent runs in a separate operating system process",
+        "correct": false,
+        "explanation": "fork is about the conversation context (message history), not OS processes"
+      },
+      {
+        "text": "The subagent has no access to the conversation history",
+        "correct": false,
+        "explanation": "The opposite is true: fork provides a copy of the context. The subagent sees the history, but its work doesn't pollute the main agent's context"
+      },
+      {
+        "text": "The subagent creates a fork of the Git repository",
+        "correct": false,
+        "explanation": "context: fork refers to the conversation context, not Git. Worktrees are used for file isolation"
+      }
+    ]
+  },
+  {
+    "question": "Three researcher subagents (Haiku) are launched in parallel in the background. What happens?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Only one subagent can work in the background at a time",
+        "correct": false,
+        "explanation": "Multiple background subagents can be launched in parallel -- this is one of the primary patterns"
+      },
+      {
+        "text": "The main agent pauses until all three finish",
+        "correct": false,
+        "explanation": "That describes foreground mode. In background mode the main agent continues working in parallel"
+      },
+      {
+        "text": "Each explores its own part of the codebase simultaneously, and the main agent continues the dialogue with the user",
+        "correct": true,
+        "explanation": "Background subagents work in parallel. This is the most powerful pattern -- instead of reading 150 files sequentially, three agents work at the same time"
+      },
+      {
+        "text": "They work sequentially -- first the first one, then the second, then the third",
+        "correct": false,
+        "explanation": "Background subagents work in parallel, not sequentially. That's their key advantage"
+      }
+    ]
+  },
+  {
+    "question": "When is a worktree NOT needed for a subagent?",
+    "type": "single",
+    "options": [
+      {
+        "text": "When the project has fewer than 100 files",
+        "correct": false,
+        "explanation": "Project size doesn't determine whether a worktree is needed. What matters is whether the subagent will edit files"
+      },
+      {
+        "text": "When the subagent only reads files (read-only review or research)",
+        "correct": true,
+        "explanation": "A read-only subagent doesn't change files, so filesystem isolation isn't needed. Worktrees are only useful for subagents that edit code"
+      },
+      {
+        "text": "When the subagent uses the Haiku model",
+        "correct": false,
+        "explanation": "The model doesn't affect whether a worktree is needed. What matters is whether the subagent will change files"
+      },
+      {
+        "text": "A worktree is always needed for security",
+        "correct": false,
+        "explanation": "A worktree is only needed to isolate changes. Read-only subagents don't make changes, so a worktree is unnecessary for them"
+      }
+    ]
+  },
+  {
+    "question": "A debugger subagent needs to reproduce a bug by running tests. What's the minimal necessary set of tools?",
+    "type": "single",
+    "options": [
+      {
+        "text": "tools: [\"Bash\"] -- a terminal is enough",
+        "correct": false,
+        "explanation": "Without Read/Glob/Grep the debugger can't read the source code for analysis. Bash alone isn't enough"
+      },
+      {
+        "text": "tools: [\"Read\", \"Glob\", \"Grep\"] -- reading is enough",
+        "correct": false,
+        "explanation": "Without Bash the debugger can't run tests to reproduce the bug"
+      },
+      {
+        "text": "tools: [\"Read\", \"Glob\", \"Grep\", \"Bash\"] -- reading + a terminal to run tests",
+        "correct": true,
+        "explanation": "To reproduce a bug you need to read code (Read, Glob, Grep) and run tests (Bash). Edit/Write aren't needed if the debugger only diagnoses rather than fixes"
+      },
+      {
+        "text": "tools: [\"Read\", \"Glob\", \"Grep\", \"Edit\", \"Write\", \"Bash\"] -- the full set",
+        "correct": false,
+        "explanation": "If the debugger only diagnoses (rather than fixes), Edit/Write aren't needed. Principle of least privilege"
       }
     ]
   }

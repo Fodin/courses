@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Чем нода heading принципиально отличается от подхода 'отдельный extension на каждый уровень'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Heading — это единая нода с атрибутом level, а не 6 разных extensions (Heading1...Heading6)",
+        "correct": true,
+        "explanation": "Уровень заголовка хранится как attrs.level одной ноды heading, что упрощает схему и команды."
+      },
+      {
+        "text": "Heading в Tiptap вообще не поддерживает уровни",
+        "correct": false,
+        "explanation": "Уровни поддерживаются полностью, через атрибут level, ограничиваемый опцией levels."
+      },
+      {
+        "text": "Каждый уровень заголовка — это отдельная mark, а не node",
+        "correct": false,
+        "explanation": "Heading — это именно node (структурный блок), а не mark."
+      },
+      {
+        "text": "Уровень заголовка задаётся через CSS-класс, а не через данные документа",
+        "correct": false,
+        "explanation": "Уровень — часть данных документа (attrs.level), а не просто визуальный CSS-класс."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно проверить, что курсор находится именно в заголовке 2 уровня?",
+    "type": "single",
+    "options": [
+      {
+        "text": "editor.isActive('heading')",
+        "correct": false,
+        "explanation": "Это вернёт true для ЛЮБОГО уровня заголовка (H1-H6), а не только H2."
+      },
+      {
+        "text": "editor.isActive('heading', { level: 2 })",
+        "correct": true,
+        "explanation": "Передача атрибута level вторым аргументом уточняет проверку до конкретного уровня."
+      },
+      {
+        "text": "editor.isActive('h2')",
+        "correct": false,
+        "explanation": "Имя ноды — 'heading', а не 'h2' — такого имени не существует в схеме."
+      },
+      {
+        "text": "editor.getAttributes('heading') === 2",
+        "correct": false,
+        "explanation": "getAttributes возвращает объект атрибутов, а не число — сравнение с числом всегда будет false."
+      }
+    ]
+  },
+  {
+    "question": "Из каких нод состоит маркированный список в схеме Tiptap?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Одна нода bulletList, содержащая текст напрямую",
+        "correct": false,
+        "explanation": "bulletList не может содержать текст напрямую — только listItem."
+      },
+      {
+        "text": "bulletList → listItem → paragraph (вложенная структура из трёх уровней нод)",
+        "correct": true,
+        "explanation": "Список — это контейнер (bulletList), пункты (listItem), а внутри каждого пункта — блочный контент, обычно paragraph."
+      },
+      {
+        "text": "listItem без обёртки bulletList",
+        "correct": false,
+        "explanation": "listItem не может существовать без родительского bulletList или orderedList — того требует схема."
+      },
+      {
+        "text": "Один плоский массив текстовых строк",
+        "correct": false,
+        "explanation": "Списки — иерархическая структура нод, а не плоский массив строк."
+      }
+    ]
+  },
+  {
+    "question": "Какая команда вставляет горизонтальный разделитель (hr)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "editor.chain().focus().toggleHorizontalRule().run()",
+        "correct": false,
+        "explanation": "Такой toggle-команды не существует — HorizontalRule не toggle-нода."
+      },
+      {
+        "text": "editor.chain().focus().setHorizontalRule().run()",
+        "correct": true,
+        "explanation": "setHorizontalRule — команда вставки, каждый вызов добавляет новый узел-разделитель."
+      },
+      {
+        "text": "editor.chain().focus().insertHR().run()",
+        "correct": false,
+        "explanation": "Такого имени команды в API Tiptap не существует."
+      },
+      {
+        "text": "editor.chain().focus().addDivider().run()",
+        "correct": false,
+        "explanation": "Такого имени команды в API Tiptap не существует."
+      }
+    ]
+  },
+  {
+    "question": "Почему HorizontalRule реализован через set-команду, а не toggle?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Потому что это не переключаемое оформление текущего блока, а разовая вставка нового узла в позицию курсора",
+        "correct": true,
+        "explanation": "toggle имеет смысл для взаимоисключающих состояний блока (параграф↔заголовок), а hr — это независимая вставка, у которой нет понятия 'активного состояния текущего блока'."
+      },
+      {
+        "text": "Потому что toggle-команды работают только с marks, а не с nodes",
+        "correct": false,
+        "explanation": "Toggle-команды прекрасно применяются и к блочным nodes: toggleHeading, toggleBulletList, toggleBlockquote — все они блочные."
+      },
+      {
+        "text": "Это историческая случайность без технической причины",
+        "correct": false,
+        "explanation": "Есть чёткая техническая причина — семантика 'разовой вставки' против 'переключения типа блока'."
+      },
+      {
+        "text": "toggle-версия существует, но помечена как deprecated",
+        "correct": false,
+        "explanation": "toggle-версии для HorizontalRule никогда не существовало в публичном API."
+      }
+    ]
+  },
+  {
+    "question": "Как подключить блок кода с подсветкой синтаксиса вместо простого codeBlock из StarterKit?",
+    "type": "single",
+    "options": [
+      {
+        "text": "StarterKit.configure({ codeBlock: { lowlight: true } })",
+        "correct": false,
+        "explanation": "Встроенный codeBlock не поддерживает подсветку через свою конфигурацию — нужен отдельный extension."
+      },
+      {
+        "text": "Выключить встроенный (StarterKit.configure({ codeBlock: false })) и подключить CodeBlockLowLight отдельно",
+        "correct": true,
+        "explanation": "CodeBlockLowLight — отдельный extension с тем же именем ноды 'codeBlock', поэтому встроенный нужно явно выключить во избежание конфликта."
+      },
+      {
+        "text": "Просто добавить CodeBlockLowLight вторым элементом массива extensions рядом со StarterKit без выключения",
+        "correct": false,
+        "explanation": "Это вызовет конфликт имён — обе ноды называются codeBlock, нужно сначала выключить встроенную."
+      },
+      {
+        "text": "Подсветка синтаксиса недоступна в Tiptap в принципе",
+        "correct": false,
+        "explanation": "Подсветка полностью поддерживается через @tiptap/extension-code-block-lowlight."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт при нажатии Tab, когда курсор находится внутри пункта списка?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Фокус переходит на следующий элемент страницы (стандартное поведение Tab в браузере)",
+        "correct": false,
+        "explanation": "Внутри списка Tiptap перехватывает Tab через встроенные keyboard shortcuts, чтобы увеличить отступ, а не переключить фокус."
+      },
+      {
+        "text": "Текущий пункт списка становится вложенным (увеличивается отступ, sinkListItem)",
+        "correct": true,
+        "explanation": "Это встроенное поведение списков в StarterKit — Tab вызывает команду sinkListItem('listItem')."
+      },
+      {
+        "text": "В документ вставляется символ табуляции",
+        "correct": false,
+        "explanation": "Внутри списка Tab не вставляет символ табуляции — он управляет уровнем вложенности."
+      },
+      {
+        "text": "Список полностью удаляется",
+        "correct": false,
+        "explanation": "Такого разрушительного поведения нет — Tab только меняет вложенность."
+      }
+    ]
+  },
+  {
+    "question": "Что означает 'toggle-семантика' для блочных нод типа heading/blockquote/bulletList?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Повторный вызов той же toggle-команды на активном блоке возвращает его к обычному параграфу",
+        "correct": true,
+        "explanation": "Toggle для блочных нод переключает между 'этот тип блока' и обычным paragraph, а не накапливает состояние."
+      },
+      {
+        "text": "Toggle-команды для nodes не имеют состояния 'выключено', только 'включено'",
+        "correct": false,
+        "explanation": "У них обязательно есть оба состояния — иначе слово 'toggle' было бы бессмысленно."
+      },
+      {
+        "text": "Toggle работает только с одним конкретным блоком за раз, независимо от выделения",
+        "correct": false,
+        "explanation": "Toggle-команда применяется ко всем блокам, попадающим в текущее выделение, а не только к одному."
+      },
+      {
+        "text": "Это то же самое, что и toggle для marks — принципиальной разницы нет",
+        "correct": false,
+        "explanation": "Есть разница: marks могут комбинироваться друг с другом (bold+italic одновременно), а блочные ноды взаимоисключающие в рамках одной позиции."
+      }
+    ]
+  },
+  {
+    "question": "Может ли blockquote содержать несколько параграфов?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Нет, blockquote ограничен ровно одним параграфом текста",
+        "correct": false,
+        "explanation": "Схема blockquote в StarterKit допускает content: 'block+', то есть один или более блочных дочерних узлов, включая несколько параграфов."
+      },
+      {
+        "text": "Да, blockquote может содержать несколько параграфов и даже другие блочные ноды",
+        "correct": true,
+        "explanation": "blockquote — контейнерная нода, допускающая множественный блочный контент внутри себя."
+      },
+      {
+        "text": "Да, но только если явно передать multiline: true в конфигурацию",
+        "correct": false,
+        "explanation": "Такой опции не существует — множественное содержимое поддерживается по умолчанию."
+      },
+      {
+        "text": "Только если внутри используется HardBreak, а не отдельные параграфы",
+        "correct": false,
+        "explanation": "И отдельные параграфы, и HardBreak (Shift+Enter) внутри одного параграфа работают внутри blockquote."
+      }
+    ]
+  },
+  {
+    "question": "Какие из перечисленных команд являются toggle-командами (переключают состояние)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "toggleHeading({ level: 2 })",
+        "correct": true,
+        "explanation": "Повторный вызов на активном заголовке 2 уровня вернёт параграф."
+      },
+      {
+        "text": "toggleBulletList()",
+        "correct": true,
+        "explanation": "Повторный вызов на активном списке снимет его, вернув параграф."
+      },
+      {
+        "text": "setHorizontalRule()",
+        "correct": false,
+        "explanation": "Это команда вставки без toggle-семантики — каждый вызов создаёт новый узел."
+      },
+      {
+        "text": "toggleCodeBlock()",
+        "correct": true,
+        "explanation": "Повторный вызов на активном блоке кода вернёт параграф."
+      }
+    ]
+  }
+]

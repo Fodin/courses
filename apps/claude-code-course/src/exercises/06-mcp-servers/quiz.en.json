@@ -1,266 +1,313 @@
 [
   {
-    "question": "What is MCP (Model Context Protocol)?",
+    "question": "What is MCP in the context of Claude Code?",
     "type": "single",
     "options": [
       {
-        "text": "A new programming language for AI models",
+        "text": "A memory management system for the context window",
         "correct": false,
-        "explanation": "MCP is a protocol, not a programming language."
+        "explanation": "MCP stands for Model Context Protocol and is responsible for external integrations, not memory management"
       },
       {
-        "text": "An open standard for connecting AI applications to external data sources and tools",
+        "text": "A standard protocol for connecting external tools to an agent",
         "correct": true,
-        "explanation": "Correct: MCP is a universal protocol that allows any model to work with any data source."
+        "explanation": "Model Context Protocol is the standard through which Claude Code can interact with any external service: GitHub, databases, Figma, etc."
       },
       {
-        "text": "A testing framework for AI applications",
+        "text": "The format of Claude Code's configuration files",
         "correct": false,
-        "explanation": "MCP is not a testing framework."
+        "explanation": "MCP is a protocol for interacting with external tools, not a configuration file format"
       },
       {
-        "text": "A database for storing AI model weights",
+        "text": "An encryption mechanism for data between the agent and the server",
         "correct": false,
-        "explanation": "MCP is not a database — it is a communication protocol."
+        "explanation": "MCP is an integration protocol, not an encryption mechanism. Security is handled by other means"
       }
     ]
   },
   {
-    "question": "What are the three MCP primitives?",
+    "question": "Which MCP transport is used in most cases for local development?",
     "type": "single",
     "options": [
       {
-        "text": "Tools, Resources, Prompts",
+        "text": "HTTP -- a remote URL",
+        "correct": false,
+        "explanation": "HTTP is used for hosted/corporate servers, not for local development"
+      },
+      {
+        "text": "stdio -- a local process via stdin/stdout",
         "correct": true,
-        "explanation": "Correct: Tools are actions, Resources are data, Prompts are templates."
+        "explanation": "stdio is the simplest and most common transport. Claude Code launches the MCP server as a child process and communicates via stdin/stdout"
       },
       {
-        "text": "Request, Response, Error",
+        "text": "WebSocket -- a bidirectional stream",
         "correct": false,
-        "explanation": "These are HTTP concepts, not MCP primitives."
+        "explanation": "WebSocket (type: ws) is a full-fledged MCP transport, but a niche one: it's needed when the server pushes events itself. For local development this is unnecessary complexity"
       },
       {
-        "text": "Client, Server, Transport",
+        "text": "SSE -- Server-Sent Events",
         "correct": false,
-        "explanation": "These are architecture components, not MCP primitives."
-      },
-      {
-        "text": "Input, Output, Transform",
-        "correct": false,
-        "explanation": "These are generic data processing terms, not MCP primitives."
+        "explanation": "SSE is a remote transport, and it's also marked as deprecated. The documentation recommends using HTTP instead"
       }
     ]
   },
   {
-    "question": "What is the difference between Stdio and HTTP transport?",
-    "type": "multiple",
-    "options": [
-      {
-        "text": "Stdio is faster than HTTP",
-        "correct": false,
-        "explanation": "Speed is not the primary difference — the difference is in connectivity model."
-      },
-      {
-        "text": "Stdio is one-to-one, HTTP supports multiple clients",
-        "correct": true,
-        "explanation": "Correct: Stdio is a single connection, HTTP can handle many simultaneous sessions."
-      },
-      {
-        "text": "HTTP requires a server and port, Stdio does not",
-        "correct": true,
-        "explanation": "Correct: Stdio uses standard input/output, HTTP needs a server with a port."
-      },
-      {
-        "text": "Stdio works only locally, HTTP supports remote access",
-        "correct": true,
-        "explanation": "Correct: Stdio is for local connections, HTTP enables remote servers."
-      },
-      {
-        "text": "This is only possible in cloud solutions",
-        "correct": false,
-        "explanation": "This works both in cloud and on-premise environments."
-      }
-    ]
-  },
-  {
-    "question": "How do you configure MCP servers in Claude Code?",
+    "question": "What is the correct way to pass a GitHub token in an MCP server configuration?",
     "type": "single",
     "options": [
       {
-        "text": "In .mcp.json file",
+        "text": "Pass it as a command-line argument: \"args\": [\"--token\", \"ghp_abc123\"]",
+        "correct": false,
+        "explanation": "Hardcoding the token in arguments has the same leak problem. Use env with environment variables"
+      },
+      {
+        "text": "Write it in a separate .mcp-secrets.json file",
+        "correct": false,
+        "explanation": "No such file exists in MCP configuration. Use environment variables with $"
+      },
+      {
+        "text": "Hardcode it directly in .mcp.json: \"GITHUB_TOKEN\": \"ghp_abc123\"",
+        "correct": false,
+        "explanation": "A hardcoded token will leak when .mcp.json is committed to git. Always use environment variables"
+      },
+      {
+        "text": "Via an environment variable: \"GITHUB_TOKEN\": \"$GITHUB_TOKEN\"",
         "correct": true,
-        "explanation": "Correct: .mcp.json contains the MCP server configuration for Claude Code."
-      },
-      {
-        "text": "In CLAUDE.md file",
-        "correct": false,
-        "explanation": "CLAUDE.md is for instructions, not MCP configuration."
-      },
-      {
-        "text": "In package.json scripts",
-        "correct": false,
-        "explanation": "package.json is for npm scripts, not MCP configuration."
-      },
-      {
-        "text": "In .env file",
-        "correct": false,
-        "explanation": ".env is for environment variables, not MCP server configuration."
+        "explanation": "Values with $ are substituted from environment variables. The token is stored locally, not in the config"
       }
     ]
   },
   {
-    "question": "What should a tool return in case of an error?",
+    "question": "Which file is responsible for MCP server configuration at the project level?",
     "type": "single",
     "options": [
       {
-        "text": "Return null",
+        "text": "package.json in the mcp section",
         "correct": false,
-        "explanation": "Null is not a valid tool response format."
+        "explanation": "MCP servers are configured in .mcp.json, not in package.json"
       },
       {
-        "text": "Throw an exception",
-        "correct": false,
-        "explanation": "Throwing exceptions crashes the server. Return an error result instead."
-      },
-      {
-        "text": "Return { content: [...], isError: true }",
+        "text": ".mcp.json in the project root",
         "correct": true,
-        "explanation": "Correct: This tells the model that the tool failed and provides error details."
+        "explanation": "The project MCP configuration is stored in .mcp.json in the repository root and is usually committed, so the whole team gets the same set of servers"
       },
       {
-        "text": "Return an empty response",
+        "text": ".claude/settings.json",
         "correct": false,
-        "explanation": "Empty response gives no feedback to the model about what went wrong."
+        "explanation": "settings.json contains Claude Code settings (hooks, permissions), not MCP server configuration"
+      },
+      {
+        "text": "~/.claude/.mcp.json in the home directory",
+        "correct": false,
+        "explanation": "This path doesn't exist -- Claude Code doesn't read it. User-level servers are stored in ~/.claude.json under the mcpServers key"
       }
     ]
   },
   {
-    "question": "Why are clear tool descriptions important?",
+    "question": "The GITHUB_TOKEN variable is set like this: GITHUB_TOKEN=ghp_abc123 (without export). What happens when the MCP server starts?",
     "type": "single",
     "options": [
       {
-        "text": "For the model to understand when to use the tool",
+        "text": "The server will start, but the token will be an empty string",
+        "correct": false,
+        "explanation": "Technically true (the token will be empty), but the result is an authentication error, so the first option describes the consequences more accurately"
+      },
+      {
+        "text": "Claude Code will automatically add export",
+        "correct": false,
+        "explanation": "Claude Code doesn't modify the user's environment variables. You need to use export explicitly"
+      },
+      {
+        "text": "Everything will work fine",
+        "correct": false,
+        "explanation": "Without export, the variable isn't visible to child processes. The MCP server will get an empty value"
+      },
+      {
+        "text": "The MCP server won't see the variable -- authentication error",
         "correct": true,
-        "explanation": "Correct: the model reads tool descriptions to decide which tool to call."
-      },
-      {
-        "text": "For the server to start",
-        "correct": false,
-        "explanation": "The server starts regardless of description quality."
-      },
-      {
-        "text": "For the code to compile",
-        "correct": false,
-        "explanation": "Descriptions do not affect compilation."
-      },
-      {
-        "text": "For security purposes",
-        "correct": false,
-        "explanation": "Security is handled by validation, not descriptions."
+        "explanation": "Without export, the variable is only available in the current shell. The MCP server runs as a child process and won't inherit it"
       }
     ]
   },
   {
-    "question": "Which MCP primitive is best for providing API documentation to the model?",
+    "question": "The project and global configuration both contain an MCP server named 'db'. What happens?",
     "type": "single",
     "options": [
       {
-        "text": "Resource",
+        "text": "Both servers will start in parallel",
+        "correct": false,
+        "explanation": "The server name is a unique identifier. On a collision, the project configuration overrides the global one"
+      },
+      {
+        "text": "The project configuration will completely override the global one for this server",
         "correct": true,
-        "explanation": "Correct: Resources are designed for providing data that the model can read."
+        "explanation": "A same-named server in the project configuration takes priority and completely replaces the global setting"
       },
       {
-        "text": "None of the above",
+        "text": "The global configuration takes priority",
         "correct": false,
-        "explanation": "Resource is the correct choice for documentation."
+        "explanation": "The opposite is true: the project (more specific) configuration overrides the global one"
       },
       {
-        "text": "Prompt",
+        "text": "There will be a configuration conflict error",
         "correct": false,
-        "explanation": "Prompts are for interaction templates, not static data."
-      },
-      {
-        "text": "Tool",
-        "correct": false,
-        "explanation": "Tools are for actions. Documentation is passive data."
+        "explanation": "There won't be a conflict -- the project configuration simply overrides the global one for the same-named server"
       }
     ]
   },
   {
-    "question": "What is the MCP Inspector?",
+    "question": "You've connected 15 MCP servers at once. What problem might arise?",
     "type": "single",
     "options": [
       {
-        "text": "A production MCP server",
+        "text": "The MCP servers will conflict with each other",
         "correct": false,
-        "explanation": "MCP Inspector is a development tool, not for production."
+        "explanation": "Servers are isolated from each other. The problem isn't conflicts, but overloading Claude's context"
       },
       {
-        "text": "An MCP client for Claude Code",
-        "correct": false,
-        "explanation": "MCP Inspector is a standalone debugging tool, not a Claude Code client."
-      },
-      {
-        "text": "A linter for MCP code",
-        "correct": false,
-        "explanation": "MCP Inspector is not a linter."
-      },
-      {
-        "text": "A tool for debugging MCP servers",
+        "text": "Claude sees too many tools, spends context on their descriptions, and may pick the wrong tool",
         "correct": true,
-        "explanation": "Correct: MCP Inspector provides a UI for testing and debugging MCP servers."
+        "explanation": "Each MCP server adds tools to the context. 200+ tools slow things down, consume context window space, and increase the chance of choosing the wrong tool"
+      },
+      {
+        "text": "There won't be a problem -- the more servers, the better",
+        "correct": false,
+        "explanation": "More servers = more tools in the context = slower selection + context window consumption. Only connect what you need"
+      },
+      {
+        "text": "There's a limit -- 10 MCP servers, 15 won't start",
+        "correct": false,
+        "explanation": "There's no hard limit, but a large number of servers degrades quality of work due to context overload"
       }
     ]
   },
   {
-    "question": "Which of these are MCP security best practices?",
-    "type": "multiple",
+    "question": "What is Managed MCP used for in a corporate environment?",
+    "type": "single",
     "options": [
       {
-        "text": "Give the server maximum permissions for flexibility",
+        "text": "To automatically install all MCP servers on developers' machines",
         "correct": false,
-        "explanation": "This violates the principle of least privilege — give only necessary access."
+        "explanation": "Managed MCP manages access, not installation. Servers still need to be installed on each machine"
       },
       {
-        "text": "Log all actions for audit",
+        "text": "To control, via allowlist/denylist, which MCP servers developers may connect",
         "correct": true,
-        "explanation": "Correct: logging helps detect and investigate security incidents."
+        "explanation": "Managed MCP lets administrators control the available servers through allow/deny lists and centralized configuration"
       },
       {
-        "text": "Store secrets in environment variables",
-        "correct": true,
-        "explanation": "Correct: secrets should not be hardcoded in the server code."
+        "text": "To encrypt data between Claude Code and MCP servers",
+        "correct": false,
+        "explanation": "Managed MCP is about access management (which servers are allowed), not data encryption"
       },
       {
-        "text": "Validate all input with Zod schemas",
-        "correct": true,
-        "explanation": "Correct: input validation prevents injection and type errors."
+        "text": "To monitor MCP server performance",
+        "correct": false,
+        "explanation": "Managed MCP is an access-control mechanism (allowlist/denylist), not monitoring"
       }
     ]
   },
   {
-    "question": "What is a common mistake when creating MCP servers?",
-    "type": "multiple",
+    "question": "What three types of resources can an MCP server provide?",
+    "type": "single",
     "options": [
       {
-        "text": "No error handling",
-        "correct": true,
-        "explanation": "Correct: without error handling the model cannot recover from failures."
+        "text": "Read, Write, Execute",
+        "correct": false,
+        "explanation": "These are operation abstractions, not MCP resource types. The three types are: tools, resources, and prompts"
       },
       {
-        "text": "Too many tools",
+        "text": "Tools (functions), Resources (data), Prompts (templates)",
         "correct": true,
-        "explanation": "Correct: each tool adds context overhead — use only what is needed."
+        "explanation": "An MCP server provides tools to call, resources to read, and prompt templates"
       },
       {
-        "text": "Unclear tool descriptions",
-        "correct": true,
-        "explanation": "Correct: the model needs clear descriptions to use tools correctly."
+        "text": "Commands, Files, Logs",
+        "correct": false,
+        "explanation": "The MCP protocol defines three types: tools, resources, and prompts -- these are the standard categories"
       },
       {
-        "text": "Large responses without pagination",
+        "text": "Input, Output, Context",
+        "correct": false,
+        "explanation": "These are not MCP resource types. The protocol defines tools, resources, and prompts"
+      }
+    ]
+  },
+  {
+    "question": "You're building an MCP server for an internal company system. Which transport should you choose for shared access without installing it on every machine?",
+    "type": "single",
+    "options": [
+      {
+        "text": "stdio -- a local process",
+        "correct": false,
+        "explanation": "stdio requires installing a package on every machine. For shared access, HTTP is better"
+      },
+      {
+        "text": "HTTP -- a remote server accessible via URL",
         "correct": true,
-        "explanation": "Correct: large responses consume context and should be paginated."
+        "explanation": "The HTTP transport lets you deploy the MCP server centrally. Developers connect via URL without a local install"
+      },
+      {
+        "text": "It's impossible -- MCP only works locally",
+        "correct": false,
+        "explanation": "MCP supports remote transports: HTTP, WebSocket, and the deprecated SSE -- they don't require a local install"
+      },
+      {
+        "text": "SSE -- for any corporate scenario",
+        "correct": false,
+        "explanation": "SSE is marked as deprecated, and the documentation recommends HTTP instead. For shared access, HTTP is the right choice"
+      }
+    ]
+  },
+  {
+    "question": "What happens if the Python package for the MCP server isn't installed?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Claude Code will fail to start",
+        "correct": false,
+        "explanation": "Claude Code won't crash, but the MCP server won't start -- its tools simply won't be available"
+      },
+      {
+        "text": "The server will start, but with limited functionality",
+        "correct": false,
+        "explanation": "Without the installed package, the process won't start at all -- ModuleNotFoundError"
+      },
+      {
+        "text": "Claude Code will automatically install the package via pip",
+        "correct": false,
+        "explanation": "Claude Code doesn't automatically install Python packages. This needs to be done manually before use"
+      },
+      {
+        "text": "Claude Code won't see this server's tools -- it simply won't start",
+        "correct": true,
+        "explanation": "Unlike npx servers (which download automatically), Python servers must be installed manually. Without installation, the process won't start"
+      }
+    ]
+  },
+  {
+    "question": "Which MCP server lets Claude Code get up-to-date library documentation?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Context7",
+        "correct": true,
+        "explanation": "The Context7 MCP server provides access to up-to-date documentation and code examples for any library"
+      },
+      {
+        "text": "There's no such server -- Claude uses its training data",
+        "correct": false,
+        "explanation": "The Context7 MCP server is specifically designed to provide up-to-date library documentation"
+      },
+      {
+        "text": "Notion",
+        "correct": false,
+        "explanation": "The Notion MCP server works with your Notion documents, not with external library documentation"
+      },
+      {
+        "text": "GitHub",
+        "correct": false,
+        "explanation": "The GitHub MCP server works with PRs, issues, and repositories, not with library documentation"
       }
     ]
   }

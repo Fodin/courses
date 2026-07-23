@@ -130,28 +130,28 @@
     ]
   },
   {
-    "question": "Какие четыре типа хуков поддерживает Claude Code?",
+    "question": "Какие пять типов хуков поддерживает Claude Code?",
     "type": "single",
     "options": [
       {
         "text": "validate, transform, block, notify",
         "correct": false,
-        "explanation": "Это описания действий, которые хуки могут выполнять, но не их типы. Типы: command, prompt, http, agent"
+        "explanation": "Это описания действий, которые хуки могут выполнять, но не их типы. Типы: command, http, mcp_tool, prompt, agent"
       },
       {
         "text": "pre, post, start, stop",
         "correct": false,
-        "explanation": "Это названия событий (PreToolUse, PostToolUse...), а не типов хуков. Типы: command, prompt, http, agent"
+        "explanation": "Это названия событий (PreToolUse, PostToolUse...), а не типов хуков. Типы: command, http, mcp_tool, prompt, agent"
       },
       {
-        "text": "command, prompt, http, agent",
+        "text": "command, http, mcp_tool, prompt, agent",
         "correct": true,
-        "explanation": "command запускает shell-команду, prompt отправляет промпт LLM, http отправляет HTTP-запрос, agent запускает субагента"
+        "explanation": "command запускает shell-команду, http отправляет HTTP-запрос, mcp_tool вызывает инструмент на подключённом MCP-сервере, prompt отправляет промпт LLM, agent запускает субагента (экспериментальный)"
       },
       {
         "text": "bash, python, node, http",
         "correct": false,
-        "explanation": "Типы хуков не привязаны к языкам программирования. Это command (любая shell-команда), prompt, http и agent"
+        "explanation": "Типы хуков не привязаны к языкам программирования. Это command (любая shell-команда), http, mcp_tool, prompt и agent"
       }
     ]
   },

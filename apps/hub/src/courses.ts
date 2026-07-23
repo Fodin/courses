@@ -32,7 +32,10 @@ export interface CourseMeta {
 // starters/**/Task*.tsx. Ключи вида ../../<course>/... → первый сегмент = каталог курса.
 const levelFiles = import.meta.glob('../../*/src/exercises/*/README.md')
 const quizFiles = import.meta.glob('../../*/src/exercises/*/quiz.json')
-const taskFiles = import.meta.glob('../../*/starters/*/Task*.tsx')
+// query: '?raw' — заготовки-starters намеренно синтаксически неполные (TODO-плейсхолдеры)
+// и ломают dep-scan Vite, если их парсить как TSX. Нам нужны только имена файлов для
+// подсчёта заданий (countByCourse читает лишь ключи), поэтому берём их как raw-строки.
+const taskFiles = import.meta.glob('../../*/starters/*/Task*.tsx', { query: '?raw', import: 'default' })
 
 function countByCourse(glob: Record<string, unknown>): Record<string, number> {
   const acc: Record<string, number> = {}

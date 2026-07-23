@@ -1,150 +1,107 @@
-# Exercise 8. Agent Teams
+# Level 8: Multi-Agent Teams (Agent Teams)
 
-## Goal
+> ⚠️ **This feature is experimental and disabled by default.** Before trying the examples in this level, enable it with the environment variable `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` -- otherwise Claude simply won't create teammates, and it will look like nothing works.
+>
+> ```json
+> // ~/.claude/settings.json
+> {
+>   "env": { "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1" }
+> }
+> ```
+>
+> Like any experimental feature, the behavioral details may change.
 
-Learn to orchestrate multiple Claude Code agents working together on complex tasks.
+## 🎯 Why Agent Teams Are Needed
 
-## Theory
+Imagine a construction site. One foreman can lay bricks, run wiring, and weld pipes -- but that would take months. Hire a crew of specialists instead, and each takes on their own part, and the house goes up in weeks. Agent Teams is the same idea: several Claude Code sessions work in parallel, each in its own context.
 
-### What Are Agent Teams
+The key difference from subagents: subagents are "go find out and report back." Teams are "let's discuss together, split the work, and coordinate."
 
-Agent Teams is a Claude Code feature that allows multiple agents to work together on complex tasks. Unlike subagents (which are delegated by a single agent), teams involve explicit coordination between agents.
-
-```
-┌─────────────────────────────────────────────┐
-│               Orchestrator                   │
-│                                              │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐   │
-│  │ Developer│  │  Reviewer │  │   QA     │   │
-│  │  Agent   │  │   Agent   │  │  Agent   │   │
-│  └──────────┘  └──────────┘  └──────────┘   │
-└─────────────────────────────────────────────┘
-```
-
-### Agent Roles
-
-Each agent in a team can have a specialized role:
-
-- **Developer** — writes code, implements features
-- **Reviewer** — reviews code, checks quality
-- **QA** — writes and runs tests
-- **Architect** — designs solutions, makes decisions
-- **Researcher** — gathers information, studies APIs
-
-### Orchestration Patterns
-
-#### 1. Sequential Pipeline
-
-```
-Researcher → Architect → Developer → Reviewer → QA
+```mermaid
+graph LR
+    You[You] --> Lead[Lead agent]
+    Lead --> T1[Teammate: UX]
+    Lead --> T2[Teammate: Architecture]
+    Lead --> T3[Teammate: Testing]
+    T1 -.->|share findings| T2
+    T2 -.->|share findings| T3
 ```
 
-Each agent works on the output of the previous one. Good for quality-focused workflows.
+## 🔥 Architecture: Lead + Teammates
 
-#### 2. Parallel Work + Review
+The Lead agent is the coordinator. It receives the task, breaks it into parts, and hands them out to teammates. Each teammate works in a **separate context window** and can communicate with the others directly.
 
-```
-Developer A ──┐
-              ├──▶ Reviewer
-Developer B ──┘
-```
-
-Multiple developers work in parallel, then a reviewer checks everything.
-
-#### 3. Iterative Refinement
-
-```
-Developer → Reviewer → Developer → Reviewer → Done
-              ↑___________↓
-                feedback loop
+```text
+# Launching a team in natural language
+> I need to add a notification system. Create a team:
+  one teammate designs the API, another writes DB migrations,
+  a third builds React components.
 ```
 
-Agents iterate back and forth until quality standards are met.
+The Lead will create the teammates itself, assign tasks, and collect the results. You can switch between teammates in the terminal to watch their progress or give instructions directly.
 
-### Agent Communication
+## 📌 Usage Patterns
 
-Agents communicate through:
-- **Shared files** — agents read/write to the same codebase
-- **Handoff messages** — structured messages between agents
-- **Shared context** — common CLAUDE.md and project settings
+### Parallel Code Review
 
-### Team Configuration
+Three agents review one PR from different angles:
 
-```json
-{
-  "agentTeams": {
-    "feature-team": {
-      "orchestrator": {
-        "prompt": "You manage a team of 3 agents. Coordinate their work."
-      },
-      "agents": [
-        {
-          "name": "developer",
-          "prompt": "You are a senior developer. Write clean, tested code."
-        },
-        {
-          "name": "reviewer",
-          "prompt": "You are a code reviewer. Check for quality and security."
-        },
-        {
-          "name": "qa",
-          "prompt": "You are a QA engineer. Write comprehensive tests."
-        }
-      ]
-    }
-  }
-}
+- **Security:** SQL injection, XSS, secret leaks
+- **Architecture:** SOLID, coupling, dependencies
+- **Style:** consistency, naming, documentation
+
+### Competing Hypotheses
+
+A bug reproduces intermittently? Launch several agents with different hypotheses:
+
+```text
+> We have a race condition in the payment module. Create a team:
+  one investigates the task queue,
+  another checks DB locks,
+  a third analyzes concurrent API requests.
 ```
 
-### Handoff Protocol
+### Distributed Research
 
-When one agent passes work to another:
+A large codebase, and you need to understand "how everything is organized here":
 
-```markdown
-## Handoff from Developer to Reviewer
-
-### What was done
-- Implemented user authentication module
-- Added JWT token generation
-- Created login/logout endpoints
-
-### What needs review
-- src/auth/login.ts
-- src/auth/jwt.ts
-- src/api/auth-routes.ts
-
-### Known issues
-- Password validation could be stricter
+```text
+> Create a team to analyze the monorepo:
+  one explores the frontend, another the backend,
+  a third the infrastructure and CI/CD.
 ```
 
-## Task
+## ⚠️ Common Beginner Mistakes
 
-1. **Create an agent team** for a feature development workflow:
-   - Developer agent writes code
-   - Reviewer agent checks quality
-   - QA agent writes tests
+### 🐛 A Team for a Simple Task
 
-2. **Implement a feature** using the team:
-   - Define the feature requirements
-   - Let the orchestrator delegate work
-   - Ensure each agent does its role
+```text
+# ❌ Bad: overhead outweighs the benefit
+> Create a team of 3 agents to fix a typo in the README
+```
 
-3. **Test different orchestration patterns**:
-   - Sequential pipeline
-   - Parallel development + review
-   - Iterative refinement
+Each teammate is a separate session with its own context. For simple tasks, use regular mode or a subagent.
 
-4. **Compare quality** of team output vs. single-agent output
+### 🐛 No Clear Roles
 
-## Verification Criteria
+```text
+# ❌ Bad: agents will duplicate work
+> Create a team, have everyone check the code
 
-- [ ] Agent team is properly configured
-- [ ] Each agent has a clear role and prompt
-- [ ] Agents communicate through handoffs
-- [ ] Orchestrator delegates work effectively
-- [ ] Final output is higher quality than single-agent
+# ✅ Good: everyone knows their zone
+> Create a team: one checks security,
+  another performance, a third tests
+```
 
-## Additional Materials
+## 💡 When Teams Make Sense
 
-- [Claude Code Agent Teams Documentation](https://docs.anthropic.com/en/docs/claude-code/agent-teams)
-- [Multi-Agent Patterns](https://docs.anthropic.com/en/docs/build-with-claude/patterns/multi-agent)
+| Situation | Recommendation |
+|----------|-------------|
+| Simple task, small project | Regular mode |
+| A focused task without coordination | Subagent |
+| A complex task requiring coordination | **Agent Team** |
+| Large codebase, parallel analysis | **Agent Team** |
+
+## 📌 Monitoring
+
+The Lead agent tracks token consumption for each teammate. Watch `cost.total_cost_usd` in the status -- teams consume resources multiplied by the number of participants. Display modes (`streaming`, `summary`, `results`) let you control the volume of output from each teammate.

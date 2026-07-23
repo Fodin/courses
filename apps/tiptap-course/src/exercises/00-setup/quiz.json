@@ -1,0 +1,314 @@
+[
+  {
+    "question": "Что означает термин «headless-редактор» применительно к Tiptap?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Редактор, который работает без JavaScript",
+        "correct": false,
+        "explanation": "Headless не про JavaScript — Tiptap полностью на JS/TS и без него работать не может."
+      },
+      {
+        "text": "Редактор без встроенного UI: логика отдельно, интерфейс рисует разработчик",
+        "correct": true,
+        "explanation": "Именно так. Tiptap не навязывает готовый тулбар или стили — вы получаете модель документа и команды, а весь UI собираете сами."
+      },
+      {
+        "text": "Редактор, который нельзя использовать в браузере",
+        "correct": false,
+        "explanation": "Tiptap создан именно для браузера — редактирует contenteditable-DOM."
+      },
+      {
+        "text": "Редактор без поддержки заголовков и списков",
+        "correct": false,
+        "explanation": "Поддержка заголовков, списков и многого другого есть — просто через extensions, а не 'из коробки' без настройки."
+      }
+    ]
+  },
+  {
+    "question": "На какой библиотеке построен Tiptap?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Slate.js",
+        "correct": false,
+        "explanation": "Slate.js — отдельный, независимый от Tiptap фреймворк для редакторов."
+      },
+      {
+        "text": "Draft.js",
+        "correct": false,
+        "explanation": "Draft.js — редактор от Facebook, никак не связан с Tiptap."
+      },
+      {
+        "text": "ProseMirror",
+        "correct": true,
+        "explanation": "Tiptap — это дружелюбная обёртка над ProseMirror Марейна Хабера, добавляющая удобный API и систему extensions."
+      },
+      {
+        "text": "Quill",
+        "correct": false,
+        "explanation": "Quill — самостоятельный редактор с собственной архитектурой, не имеющий отношения к Tiptap."
+      }
+    ]
+  },
+  {
+    "question": "Какие два элемента обязательны для минимальной интеграции Tiptap с React?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "useEditor",
+        "correct": true,
+        "explanation": "useEditor создаёт и держит инстанс Editor между рендерами React-компонента."
+      },
+      {
+        "text": "EditorContent",
+        "correct": true,
+        "explanation": "EditorContent рендерит contenteditable-DOM и синхронизирует его с состоянием editor."
+      },
+      {
+        "text": "useState для хранения HTML",
+        "correct": false,
+        "explanation": "Хранить HTML в useState не обязательно — Tiptap сам управляет состоянием документа внутри Editor."
+      },
+      {
+        "text": "ReactDOM.render",
+        "correct": false,
+        "explanation": "ReactDOM.render — устаревший способ монтирования React 18 приложения, не относится к Tiptap напрямую."
+      }
+    ]
+  },
+  {
+    "question": "Чему изначально равен editor, возвращаемый из useEditor, в самый первый рендер компонента?",
+    "type": "single",
+    "options": [
+      {
+        "text": "undefined",
+        "correct": false,
+        "explanation": "Tiptap явно возвращает null, а не undefined, пока Editor не создан."
+      },
+      {
+        "text": "null",
+        "correct": true,
+        "explanation": "Editor создаётся асинхронно после монтирования, поэтому в первый рендер useEditor вернёт null."
+      },
+      {
+        "text": "Пустой объект Editor с методами-заглушками",
+        "correct": false,
+        "explanation": "Заглушек нет — до готовности editor это буквально null, и обращение к его методам вызовет ошибку."
+      },
+      {
+        "text": "Editor всегда готов сразу, значение никогда не бывает null",
+        "correct": false,
+        "explanation": "Это неверно — именно из-за асинхронного создания нужно защищаться проверкой на null."
+      }
+    ]
+  },
+  {
+    "question": "Какие три extensions минимально необходимы для работы редактора без StarterKit?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Document",
+        "correct": true,
+        "explanation": "Document — корневой узел документа, без него ProseMirror не знает, с чего начинать дерево."
+      },
+      {
+        "text": "Paragraph",
+        "correct": true,
+        "explanation": "Paragraph — базовый блочный узел для текста."
+      },
+      {
+        "text": "Text",
+        "correct": true,
+        "explanation": "Text — leaf-нода, хранящая непосредственно символы текста."
+      },
+      {
+        "text": "Bold",
+        "correct": false,
+        "explanation": "Bold — mark, а не обязательный базовый узел; без него редактор всё равно заработает (просто без жирного текста)."
+      }
+    ]
+  },
+  {
+    "question": "Что делает StarterKit?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Добавляет тулбар с кнопками форматирования",
+        "correct": false,
+        "explanation": "StarterKit не рисует никакого UI — только логику узлов и марок. Тулбар вы строите сами."
+      },
+      {
+        "text": "Подключает набор самых востребованных extensions одним импортом",
+        "correct": true,
+        "explanation": "StarterKit — это пакет-агрегатор: Document, Paragraph, Text, Bold, Italic, Heading, списки и другие популярные extensions."
+      },
+      {
+        "text": "Заменяет @tiptap/react",
+        "correct": false,
+        "explanation": "StarterKit не заменяет react-биндинг — это лишь набор extensions, используемый вместе с useEditor."
+      },
+      {
+        "text": "Включает поддержку совместного редактирования (collaboration)",
+        "correct": false,
+        "explanation": "Collaboration — отдельное расширение (@tiptap/extension-collaboration), в StarterKit его нет."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно вызвать команду toggleBold из обработчика клика на кнопке?",
+    "type": "single",
+    "options": [
+      {
+        "text": "editor.toggleBold()",
+        "correct": false,
+        "explanation": "Такого метода нет напрямую на объекте editor — команды вызываются через chain() или commands."
+      },
+      {
+        "text": "editor.chain().focus().toggleBold().run()",
+        "correct": true,
+        "explanation": "Это стандартный паттерн: chain() начинает цепочку команд, focus() возвращает фокус в редактор, toggleBold() переключает жирность, run() выполняет транзакцию."
+      },
+      {
+        "text": "editor.dispatch('toggleBold')",
+        "correct": false,
+        "explanation": "dispatch применяется к ProseMirror-транзакциям на низком уровне, а не к Tiptap-командам напрямую."
+      },
+      {
+        "text": "new Bold(editor).toggle()",
+        "correct": false,
+        "explanation": "Марки не создаются вручную таким образом — используется система команд редактора."
+      }
+    ]
+  },
+  {
+    "question": "Зачем в цепочке команд вызывать .focus() перед .toggleBold()?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это просто стилистическое соглашение, реального эффекта не имеет",
+        "correct": false,
+        "explanation": "Эффект реальный — без фокуса команда может не применяться туда, где ожидает пользователь, и клавиатурный ввод не продолжится в редакторе."
+      },
+      {
+        "text": "Чтобы после клика на кнопку тулбара фокус вернулся в редактор, и пользователь мог продолжать печатать",
+        "correct": true,
+        "explanation": "Клик по кнопке снимает фокус с contenteditable-области; .focus() возвращает его обратно в редактор."
+      },
+      {
+        "text": "Без .focus() toggleBold() выбросит исключение",
+        "correct": false,
+        "explanation": "Исключения не будет — но без фокуса командная цепочка может работать не так, как ожидается визуально."
+      },
+      {
+        "text": ".focus() обязателен только для мобильных браузеров",
+        "correct": false,
+        "explanation": "Это актуально для всех платформ, не только мобильных."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если забыть отрендерить <EditorContent editor={editor} />?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Редактор будет работать невидимо в фоне",
+        "correct": false,
+        "explanation": "Без EditorContent никакой DOM-узел вообще не создаётся — редактора не существует визуально."
+      },
+      {
+        "text": "На странице не появится ни одного contenteditable-элемента, редактировать будет нечего",
+        "correct": true,
+        "explanation": "EditorContent — единственный компонент, который монтирует DOM-представление документа. Без него useEditor создаёт лишь модель данных, но UI не появляется."
+      },
+      {
+        "text": "Приложение упадёт с ошибкой при сборке",
+        "correct": false,
+        "explanation": "Ошибки сборки не будет — TypeScript это не проверяет, ошибка будет чисто визуальная/логическая (ничего не отображается)."
+      },
+      {
+        "text": "StarterKit автоматически создаст свой DOM-элемент",
+        "correct": false,
+        "explanation": "StarterKit — это набор extensions, а не компонент, он не рендерит DOM самостоятельно."
+      }
+    ]
+  },
+  {
+    "question": "Почему не стоит создавать массив extensions заново в теле компонента на каждый рендер без необходимости?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Это вызовет утечку памяти в браузере",
+        "correct": false,
+        "explanation": "Прямой утечки памяти это не создаёт — проблема в другом."
+      },
+      {
+        "text": "useEditor не поддерживает массивы, только объекты",
+        "correct": false,
+        "explanation": "extensions — это всегда массив, поддержка есть."
+      },
+      {
+        "text": "Новый массив на каждый рендер может привести к лишним ре-конфигурациям и потере производительности",
+        "correct": true,
+        "explanation": "Хотя useEditor умный и не пересоздаёт Editor целиком без явных причин, стабильная ссылка на конфигурацию (через вынесение за компонент или useMemo) — хорошая практика."
+      },
+      {
+        "text": "React выбросит предупреждение 'Too many re-renders'",
+        "correct": false,
+        "explanation": "Такого специфичного предупреждения из-за extensions не возникает."
+      }
+    ]
+  },
+  {
+    "question": "Какой пакет содержит реэкспорт state/view/model/transform ProseMirror для Tiptap?",
+    "type": "single",
+    "options": [
+      {
+        "text": "@tiptap/core",
+        "correct": false,
+        "explanation": "@tiptap/core — это ядро с классом Editor и системой extensions, а не реэкспорт ProseMirror-пакетов."
+      },
+      {
+        "text": "@tiptap/pm",
+        "correct": true,
+        "explanation": "@tiptap/pm реэкспортирует prosemirror-state, prosemirror-view, prosemirror-model и prosemirror-transform, чтобы не подключать их отдельно и избежать версионных конфликтов."
+      },
+      {
+        "text": "@tiptap/react",
+        "correct": false,
+        "explanation": "@tiptap/react содержит только React-биндинг: useEditor и EditorContent."
+      },
+      {
+        "text": "@tiptap/starter-kit",
+        "correct": false,
+        "explanation": "StarterKit — это набор extensions, не реэкспорт ProseMirror."
+      }
+    ]
+  },
+  {
+    "question": "Документ в Tiptap представлен как...",
+    "type": "single",
+    "options": [
+      {
+        "text": "Обычная HTML-строка, которая парсится заново при каждом изменении",
+        "correct": false,
+        "explanation": "HTML используется только как формат ввода/вывода (сериализация), но не как внутреннее представление."
+      },
+      {
+        "text": "Дерево узлов ProseMirror, изменяемое через транзакции",
+        "correct": true,
+        "explanation": "Внутри документ — это структурированное дерево (аналог DOM, но собственное), а изменения применяются как транзакции, которые затем рендерятся в реальный DOM."
+      },
+      {
+        "text": "Массив строк, разделённых переводами строк",
+        "correct": false,
+        "explanation": "Это слишком примитивная модель — она не смогла бы описать вложенные списки, marks и произвольные атрибуты узлов."
+      },
+      {
+        "text": "React-компонент дерева виртуального DOM",
+        "correct": false,
+        "explanation": "Модель документа Tiptap не совпадает с виртуальным DOM React — это отдельная структура ProseMirror."
+      }
+    ]
+  }
+]

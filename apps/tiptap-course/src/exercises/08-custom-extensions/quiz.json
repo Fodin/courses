@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Какой конструктор используется для создания extension, не добавляющего собственную ноду или mark в схему?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Node.create()",
+        "correct": false,
+        "explanation": "Node.create() предназначен для создания новых структурных узлов схемы — параграфов, кастомных блоков и т.д."
+      },
+      {
+        "text": "Extension.create()",
+        "correct": true,
+        "explanation": "Extension.create() — для 'чистой' функциональности без своего узла в схеме: горячие клавиши, плагины, глобальные атрибуты, история."
+      },
+      {
+        "text": "Mark.create()",
+        "correct": false,
+        "explanation": "Mark.create() предназначен для создания новых marks (инлайн-оформления)."
+      },
+      {
+        "text": "Plugin.create()",
+        "correct": false,
+        "explanation": "Такого конструктора в публичном API Tiptap не существует."
+      }
+    ]
+  },
+  {
+    "question": "Что обязательно должно быть указано при создании любого extension?",
+    "type": "single",
+    "options": [
+      {
+        "text": "addOptions()",
+        "correct": false,
+        "explanation": "addOptions — не обязательный метод, extension может не иметь настраиваемых опций вовсе."
+      },
+      {
+        "text": "Уникальное поле name",
+        "correct": true,
+        "explanation": "name обязателен для любого Extension/Node/Mark и должен быть уникальным среди зарегистрированных extensions."
+      },
+      {
+        "text": "addStorage()",
+        "correct": false,
+        "explanation": "addStorage — опциональный метод, нужен только если extension должен хранить изменяемое состояние."
+      },
+      {
+        "text": "addCommands()",
+        "correct": false,
+        "explanation": "Команды нужны не всем extensions — многие extensions полезны и без собственных команд (например, глобальные атрибуты)."
+      }
+    ]
+  },
+  {
+    "question": "В чём принципиальная разница между options и storage у extension?",
+    "type": "single",
+    "options": [
+      {
+        "text": "options — статичная конфигурация, задаваемая при подключении через .configure(); storage — изменяемое состояние, обновляемое во время работы",
+        "correct": true,
+        "explanation": "Это ключевое разделение ответственности: настройки vs runtime-состояние."
+      },
+      {
+        "text": "options хранит числа, storage — только строки",
+        "correct": false,
+        "explanation": "Оба поля могут хранить данные любого типа — разница не в типах данных, а в назначении и изменяемости."
+      },
+      {
+        "text": "storage доступен только внутри extension, а options — только снаружи через editor",
+        "correct": false,
+        "explanation": "Оба доступны и внутри extension (через this.options/this.storage), и снаружи через editor.extensionManager/editor.storage."
+      },
+      {
+        "text": "Разницы нет, это синонимы одного и того же механизма",
+        "correct": false,
+        "explanation": "Есть чёткое смысловое разделение: конфигурация vs runtime-состояние."
+      }
+    ]
+  },
+  {
+    "question": "Как прочитать текущее значение storage extension с именем 'wordCount' снаружи, из React-компонента?",
+    "type": "single",
+    "options": [
+      {
+        "text": "editor.storage.wordCount",
+        "correct": true,
+        "explanation": "editor.storage — объект, где ключ — имя extension, значение — то, что вернул его addStorage() (с учётом последующих изменений)."
+      },
+      {
+        "text": "editor.options.wordCount",
+        "correct": false,
+        "explanation": "editor.options — не то место, где хранится storage конкретных extensions."
+      },
+      {
+        "text": "editor.extensions.wordCount.storage",
+        "correct": false,
+        "explanation": "На editor нет свойства extensions в таком формате — нужно обращаться именно к editor.storage."
+      },
+      {
+        "text": "WordCount.storage (статически, через сам класс extension)",
+        "correct": false,
+        "explanation": "storage привязан к конкретному инстансу editor, а не к статическому объекту-конструктору extension."
+      }
+    ]
+  },
+  {
+    "question": "Обновится ли React-компонент автоматически при изменении editor.storage.someExtension.value?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Да, storage — реактивный объект, как useState",
+        "correct": false,
+        "explanation": "storage — обычный изменяемый JS-объект, не связанный с реактивностью React напрямую."
+      },
+      {
+        "text": "Нет, storage не реактивен — нужно вручную синхронизировать его с React state через onUpdate",
+        "correct": true,
+        "explanation": "Как и с getHTML()/getJSON() на уровне 1, для UI-реактивности нужен паттерн onUpdate + useState."
+      },
+      {
+        "text": "Да, но только если storage объявлен как useState внутри extension",
+        "correct": false,
+        "explanation": "Extension'ы не используют React-хуки внутри себя — это чистый JS/TS слой, отдельный от React."
+      },
+      {
+        "text": "Нет, storage вообще нельзя прочитать из React-компонента",
+        "correct": false,
+        "explanation": "Прочитать можно в любой момент через editor.storage — вопрос именно в автоматическом обновлении UI при изменении."
+      }
+    ]
+  },
+  {
+    "question": "Для чего используется addGlobalAttributes?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чтобы добавить один и тот же атрибут сразу нескольким существующим типам нод, не переопределяя каждую из них по отдельности",
+        "correct": true,
+        "explanation": "Это удобный способ добавить сквозной атрибут (например, id или data-testid) сразу группе нод одним extension."
+      },
+      {
+        "text": "Чтобы задать CSS-класс, применяемый ко всему редактору целиком",
+        "correct": false,
+        "explanation": "addGlobalAttributes работает на уровне атрибутов конкретных нод/marks в схеме, а не общего класса контейнера редактора."
+      },
+      {
+        "text": "Чтобы регистрировать глобальные горячие клавиши уровня всего приложения, а не только редактора",
+        "correct": false,
+        "explanation": "За горячие клавиши отвечает addKeyboardShortcuts (уровень 12), а не addGlobalAttributes."
+      },
+      {
+        "text": "Чтобы объявить общие опции, доступные сразу всем extensions редактора",
+        "correct": false,
+        "explanation": "Опции каждого extension изолированы через собственный addOptions — addGlobalAttributes не про это."
+      }
+    ]
+  },
+  {
+    "question": "В спецификации addGlobalAttributes, что делает поле types?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Определяет допустимые TypeScript-типы значения атрибута",
+        "correct": false,
+        "explanation": "types здесь — это НЕ TypeScript-типы данных, а список ИМЁН нод/marks, к которым применяется этот набор атрибутов."
+      },
+      {
+        "text": "Список имён нод/marks, к которым нужно добавить описанные атрибуты",
+        "correct": true,
+        "explanation": "Например, types: ['paragraph', 'heading'] означает, что атрибут будет добавлен и параграфам, и заголовкам."
+      },
+      {
+        "text": "Список допустимых значений самого атрибута (enum)",
+        "correct": false,
+        "explanation": "Для этого используется поле attributes с конкретным default/parseHTML/renderHTML, а не types."
+      },
+      {
+        "text": "Определяет, будет ли атрибут строкой или числом",
+        "correct": false,
+        "explanation": "Тип значения атрибута задаётся косвенно через parseHTML/renderHTML логику, а не через отдельное поле types."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если renderHTML атрибута всегда возвращает { id: attributes.id }, даже когда attributes.id равен null?",
+    "type": "single",
+    "options": [
+      {
+        "text": "В HTML появится пустой или буквальный 'null' атрибут id для всех узлов, даже тех, кому он не назначен явно",
+        "correct": true,
+        "explanation": "Без условной проверки (if (!attributes.id) return {}) renderHTML будет добавлять атрибут id всегда, засоряя разметку ненужными значениями."
+      },
+      {
+        "text": "Tiptap автоматически отфильтрует null-значения без явной проверки",
+        "correct": false,
+        "explanation": "Такой автоматической фильтрации нет — фильтрация null должна быть явно реализована в renderHTML."
+      },
+      {
+        "text": "Будет выброшена ошибка компиляции TypeScript",
+        "correct": false,
+        "explanation": "Это не ошибка типов — просто нежелательное поведение в рантайме."
+      },
+      {
+        "text": "Ничего не изменится, так как renderHTML вызывается только при явном присвоении атрибута",
+        "correct": false,
+        "explanation": "renderHTML вызывается при сериализации КАЖДОГО узла соответствующего типа, включая те, где атрибут не задан (там attributes.id будет null/default)."
+      }
+    ]
+  },
+  {
+    "question": "Какой хук жизненного цикла extension вызывается при каждом изменении документа?",
+    "type": "single",
+    "options": [
+      {
+        "text": "onCreate()",
+        "correct": false,
+        "explanation": "onCreate вызывается один раз, когда редактор создан — не на каждое изменение."
+      },
+      {
+        "text": "onUpdate()",
+        "correct": true,
+        "explanation": "onUpdate внутри extension работает аналогично одноимённой опции useEditor — срабатывает при каждом изменении контента документа."
+      },
+      {
+        "text": "onDestroy()",
+        "correct": false,
+        "explanation": "onDestroy вызывается при уничтожении редактора, а не при обычных изменениях контента."
+      },
+      {
+        "text": "onSelectionUpdate()",
+        "correct": false,
+        "explanation": "onSelectionUpdate реагирует именно на изменение выделения/позиции курсора, а не на изменение содержимого документа."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений о кастомных Extension верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Extension без собственной ноды/mark всё равно может влиять на весь документ через addGlobalAttributes",
+        "correct": true,
+        "explanation": "Именно так — addGlobalAttributes не требует создания новой ноды, а расширяет существующие."
+      },
+      {
+        "text": "Внутри методов extension доступен this.editor для обращения к текущему инстансу редактора",
+        "correct": true,
+        "explanation": "this.editor — стандартный способ получить доступ к редактору из методов жизненного цикла и опций extension."
+      },
+      {
+        "text": "Один и тот же extension нельзя сконфигурировать по-разному в разных useEditor одновременно на странице",
+        "correct": false,
+        "explanation": "Наоборот, .configure() создаёт независимую настроенную версию extension — разные редакторы на странице могут использовать разные конфигурации одного и того же extension."
+      },
+      {
+        "text": "addOptions и addStorage могут присутствовать в одном и том же extension одновременно",
+        "correct": true,
+        "explanation": "Extension может одновременно иметь и статичные опции конфигурации, и изменяемое runtime-состояние — это независимые механизмы."
+      }
+    ]
+  }
+]

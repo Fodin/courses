@@ -1,0 +1,210 @@
+[
+  {
+    "question": "Чем feature принципиально отличается от entity в FSD?",
+    "type": "single",
+    "options": [
+      {
+        "text": "entity — вопрос «что это» (данные), feature — вопрос «что пользователь делает» (сценарий)",
+        "correct": true,
+        "explanation": "Именно так: User/Product/Order — сущности, login/add-to-cart — сценарии над ними."
+      },
+      {
+        "text": "feature — это просто более крупный по размеру слайс, чем entity",
+        "correct": false,
+        "explanation": "Размер файлов ни при чём — различие в смысловой роли слайса, а не в объёме кода."
+      },
+      {
+        "text": "entity может содержать UI, а feature — только чистые функции",
+        "correct": false,
+        "explanation": "У обоих слоёв могут быть и UI, и логика; разница не в наличии интерфейса."
+      },
+      {
+        "text": "feature всегда лежит выше widgets в стеке слоёв",
+        "correct": false,
+        "explanation": "Наоборот: widgets стоит выше features в порядке app→pages→widgets→features→entities→shared."
+      }
+    ]
+  },
+  {
+    "question": "features/add-to-cart импортирует entities/cart. Это нормально?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Нет, features не может зависеть от entities",
+        "correct": false,
+        "explanation": "Может и должна: entities лежит ниже features, импорт вниз разрешён."
+      },
+      {
+        "text": "Да, это импорт вниз по стеку — features может опираться на entities через их public API",
+        "correct": true,
+        "explanation": "features(3) → entities(4): движение вниз по рангу слоёв, разрешённое направление."
+      },
+      {
+        "text": "Да, но только если entities/cart тоже импортирует features/add-to-cart в ответ",
+        "correct": false,
+        "explanation": "Взаимный импорт создал бы цикл — это как раз то, чего нужно избегать."
+      },
+      {
+        "text": "Нет, entities может использоваться только внутри widgets",
+        "correct": false,
+        "explanation": "entities доступна любому слою ниже неё же по рангу — features, widgets, pages, app."
+      }
+    ]
+  },
+  {
+    "question": "features/toggle-favorite импортирует константу CARD_WIDTH из widgets/product-card. Что здесь не так?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ничего, widgets и features могут свободно делиться константами",
+        "correct": false,
+        "explanation": "Нет: widgets стоит выше features, и импорт из widgets в features — это импорт вверх."
+      },
+      {
+        "text": "Это импорт вверх по стеку: widgets стоит выше features, а слои импортируют только вниз",
+        "correct": true,
+        "explanation": "rank(widgets) < rank(features) — импорт из вышестоящего слоя запрещён линтером архитектуры."
+      },
+      {
+        "text": "Проблема только в том, что константа не экспортирована через index.ts",
+        "correct": false,
+        "explanation": "Даже через public API такой импорт остаётся нарушением — дело в направлении слоёв, а не в глубине пути."
+      },
+      {
+        "text": "Проблема в том, что CARD_WIDTH — не camelCase",
+        "correct": false,
+        "explanation": "Именование констант не связано с архитектурным нарушением направления импорта."
+      }
+    ]
+  },
+  {
+    "question": "features/login импортирует validateEmail напрямую из features/register. Как правильно поступить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Оставить как есть — обеим фичам всё равно нужна одна и та же функция",
+        "correct": false,
+        "explanation": "Cross-import соседних фич создаёт жёсткую связь и риск цикла — так делать нельзя."
+      },
+      {
+        "text": "Скопировать функцию validateEmail внутрь features/login",
+        "correct": false,
+        "explanation": "Дублирование кода — источник рассинхрона; лучше иметь один источник истины."
+      },
+      {
+        "text": "Вынести общую функцию в shared/lib (или entities, если она доменная) и импортировать оттуда обе фичи",
+        "correct": true,
+        "explanation": "Общий переиспользуемый код опускается на слой ниже — так исчезает горизонтальная связь между фичами."
+      },
+      {
+        "text": "Переместить features/register внутрь features/login как подпапку",
+        "correct": false,
+        "explanation": "Слияние двух разных сценариев в один слайс не решает проблему архитектурных границ."
+      }
+    ]
+  },
+  {
+    "question": "Какие из перечисленных импортов ВНУТРИ файла features/checkout/model/checkout.ts корректны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "import { cartStore } from '@/entities/cart'",
+        "correct": true,
+        "explanation": "entities лежит ниже features, импорт через public API — разрешён."
+      },
+      {
+        "text": "import { formatPrice } from '@/shared/lib'",
+        "correct": true,
+        "explanation": "shared — самый нижний слой, доступен откуда угодно через public API."
+      },
+      {
+        "text": "import { OrderSummary } from '@/widgets/order-summary'",
+        "correct": false,
+        "explanation": "widgets стоит выше features — это импорт вверх, запрещён."
+      },
+      {
+        "text": "import { applyPromo } from '@/features/loyalty-points'",
+        "correct": false,
+        "explanation": "Это cross-import соседней фичи того же слоя — тоже запрещён."
+      }
+    ]
+  },
+  {
+    "question": "Виджету нужны данные, которые фича хочет получить «сверху». Как решить это архитектурно правильно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Фича импортирует нужное напрямую из виджета",
+        "correct": false,
+        "explanation": "Это и есть нарушение — импорт вверх по слоям, которого нужно избежать."
+      },
+      {
+        "text": "Развернуть зависимость: виджет передаёт данные фиче явным пропом",
+        "correct": true,
+        "explanation": "Именно так восстанавливается правильное направление: widgets → features, а не наоборот."
+      },
+      {
+        "text": "Вынести и виджет, и фичу в общий слой pages",
+        "correct": false,
+        "explanation": "Перемещение слайсов не решает проблему направления связи между конкретными сущностями."
+      },
+      {
+        "text": "Обернуть импорт в try/catch, чтобы линтер не заметил",
+        "correct": false,
+        "explanation": "Обход проверки не убирает архитектурную проблему — связь остаётся нарушением направления слоёв."
+      }
+    ]
+  },
+  {
+    "question": "У фичи features/login нет index.ts — потребитель импортирует login прямо из '@/features/login/model/login'. Что нужно сделать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Оставить как есть, если login — единственная функция в слайсе",
+        "correct": false,
+        "explanation": "Даже единственная функция должна проходить через public API — это контракт слайса, а не формальность."
+      },
+      {
+        "text": "Создать index.ts с реэкспортом login и переключить потребителя на импорт из '@/features/login'",
+        "correct": true,
+        "explanation": "Так фича закрывается public API, а потребитель зависит от стабильного контракта, а не от внутренней структуры."
+      },
+      {
+        "text": "Переименовать model/login.ts в index.ts",
+        "correct": false,
+        "explanation": "index.ts должен быть тонким реэкспортом-фасадом, а не содержать саму реализацию логики."
+      },
+      {
+        "text": "Ничего не менять — глубокий импорт из своего же слайса не считается нарушением у потребителя",
+        "correct": false,
+        "explanation": "Это чужой слайс для потребителя (widgets/header), поэтому глубокий импорт мимо index.ts — deep import."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих ситуаций линтер архитектуры считает нарушением (на этом уровне)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "features/apply-promo импортирует @/entities/cart",
+        "correct": false,
+        "explanation": "entities ниже features — импорт вниз, это разрешённая связь."
+      },
+      {
+        "text": "features/checkout импортирует @/pages/cart",
+        "correct": true,
+        "explanation": "pages стоит выше features — импорт вверх, запрещён."
+      },
+      {
+        "text": "features/register импортирует @/features/login",
+        "correct": true,
+        "explanation": "Это cross-import двух слайсов одного слоя features — запрещён."
+      },
+      {
+        "text": "features/login импортирует @/shared/api",
+        "correct": false,
+        "explanation": "shared доступен любому слою — это разрешённый импорт вниз."
+      }
+    ]
+  }
+]

@@ -244,23 +244,97 @@ MCP-сервер -- это мост между агентом и внешней 
 - Увеличивает стоимость (каждый вызов -- токены)
 - Потенциально нарушает compliance (данные могут утечь через сторонний сервер)
 
-### managed-mcp.json
+### Два разных механизма
+
+Здесь легко запутаться, потому что задачи похожи, а решают их разные файлы:
+
+| Механизм | Что делает | Где живёт |
+|---|---|---|
+| `managed-mcp.json` | **Раздаёт** фиксированный набор серверов и забирает у пользователя право добавлять свои | Системный путь (не settings.json) |
+| `allowedMcpServers` / `deniedMcpServers` | **Фильтруют** то, что пользователь уже настроил сам | Любой settings.json |
+
+Аналогия: `managed-mcp.json` -- это корпоративный ноутбук с предустановленным софтом и без прав администратора. Allow/deny-списки -- это антивирус, который разрешает ставить своё, но блокирует известное плохое.
+
+### managed-mcp.json -- фиксированный набор
+
+Файл лежит **не** в settings.json, а по системному пути:
+
+| Платформа | Путь |
+|---|---|
+| macOS | `/Library/Application Support/ClaudeCode/managed-mcp.json` |
+| Linux / WSL | `/etc/claude-code/managed-mcp.json` |
+| Windows | `C:\Program Files\ClaudeCode\managed-mcp.json` |
+
+Формат -- **тот же, что у проектного `.mcp.json`**, то есть ключ `mcpServers`:
 
 ```json
 {
-  "allowedServers": [
-    "github",
-    "jira",
-    "internal-docs-server"
-  ],
-  "blockedServers": ["*"],
-  "requireApproval": true
+  "mcpServers": {
+    "github": {
+      "type": "http",
+      "url": "https://api.githubcopilot.com/mcp/"
+    },
+    "company-internal": {
+      "type": "stdio",
+      "command": "/usr/local/bin/company-mcp-server",
+      "args": ["--config", "/etc/company/mcp-config.json"]
+    }
+  }
 }
 ```
 
-- **`allowedServers`** -- белый список разрешённых серверов
-- **`blockedServers: ["*"]`** -- всё, что не в белом списке, заблокировано
-- **`requireApproval`** -- новые серверы требуют одобрения администратора
+Если файл развёрнут, Claude Code грузит **только** эти серверы. Попытка добавить свой падает с ошибкой:
+
+```
+Cannot add MCP server: enterprise MCP configuration is active
+and has exclusive control over MCP servers
+```
+
+Отключить MCP в организации целиком -- это пустая карта:
+
+```json
+{ "mcpServers": {} }
+```
+
+⚠️ Файл читается любым пользователем машины -- **не** кладите в `env` ключи и токены. Для персональных кредов используйте `${VAR}`-подстановку или OAuth.
+
+### allowedMcpServers / deniedMcpServers -- фильтры
+
+Эти настройки живут в settings.json и работают со списком объектов, а не строк. Сервер опознаётся по URL, по команде или по имени:
+
+```json
+{
+  "allowManagedMcpServersOnly": true,
+  "allowedMcpServers": [
+    { "serverUrl": "https://api.githubcopilot.com/*" },
+    { "serverCommand": ["npx", "-y", "@modelcontextprotocol/server-filesystem", "."] }
+  ],
+  "deniedMcpServers": [
+    { "serverName": "dangerous-server" },
+    { "serverUrl": "https://*.untrusted.example.com/*" }
+  ]
+}
+```
+
+Порядок проверки при загрузке сервера:
+
+```mermaid
+flowchart LR
+    A["Сервер настроен"] --> B["Слияние списков"]
+    B --> C["Denylist?"]
+    C -->|совпал| D["Заблокирован"]
+    C -->|нет| E["Allowlist"]
+    E --> F["Загружен"]
+```
+
+Denylist сильнее всего -- совпадение в нём не перебивается ничем.
+
+Две тонкости, на которых обжигаются:
+
+- **`allowedMcpServers` не задан** и **задан как `[]`** -- разные вещи. Не задан = разрешено всё. Пустой массив = запрещено всё.
+- Без `allowManagedMcpServersOnly: true` allowlist'ы **сливаются со всех источников**, включая личный `~/.claude/settings.json`. То есть пользователь спокойно расширит ваш белый список себе. Denylist сливается всегда, при любых настройках.
+
+⚠️ `serverName` -- это ярлык, который пользователь назначил сам. Любой сервер можно назвать `github`. Для реального контроля используйте `serverUrl` или `serverCommand`.
 
 ---
 

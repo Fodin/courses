@@ -1,0 +1,258 @@
+[
+  {
+    "question": "Что представляет собой StarterKit?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Отдельное расширение с собственной логикой рендеринга",
+        "correct": false,
+        "explanation": "У StarterKit нет собственной логики рендеринга — это агрегатор, объединяющий готовые extensions."
+      },
+      {
+        "text": "Бандл из готового набора extensions для базовой функциональности редактора",
+        "correct": true,
+        "explanation": "StarterKit объединяет самые нужные ноды, marks и функциональность (history, dropcursor и др.) одним импортом."
+      },
+      {
+        "text": "Шаблон React-компонента с готовым UI тулбара",
+        "correct": false,
+        "explanation": "StarterKit не содержит никакого UI — Tiptap headless, UI вы строите сами."
+      },
+      {
+        "text": "CSS-тема оформления редактора",
+        "correct": false,
+        "explanation": "StarterKit не имеет отношения к стилям — это набор логики (extensions), а не CSS."
+      }
+    ]
+  },
+  {
+    "question": "Как отключить codeBlock внутри StarterKit?",
+    "type": "single",
+    "options": [
+      {
+        "text": "StarterKit.configure({ codeBlock: false })",
+        "correct": true,
+        "explanation": "Передача false как значения для имени вложенного extension полностью отключает его."
+      },
+      {
+        "text": "StarterKit.remove('codeBlock')",
+        "correct": false,
+        "explanation": "Такого метода remove() в API StarterKit не существует."
+      },
+      {
+        "text": "StarterKit.configure({ disable: ['codeBlock'] })",
+        "correct": false,
+        "explanation": "Синтаксис неверный — нужно передавать имя extension как ключ со значением false, а не массив в поле disable."
+      },
+      {
+        "text": "import StarterKit from '@tiptap/starter-kit/no-codeblock'",
+        "correct": false,
+        "explanation": "Такого отдельного импорта не существует — конфигурация делается через .configure()."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если подключить StarterKit и отдельный Heading extension одновременно без выключения встроенного?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Tiptap автоматически объединит их конфигурации",
+        "correct": false,
+        "explanation": "Автоматического слияния нет — при совпадении имени extension возникнет конфликт/предупреждение."
+      },
+      {
+        "text": "Возникнет конфликт из-за дублирующегося имени ноды 'heading'",
+        "correct": true,
+        "explanation": "Оба extension регистрируют ноду с именем heading — нужно сначала выключить встроенный через StarterKit.configure({ heading: false })."
+      },
+      {
+        "text": "Второй Heading будет проигнорирован без ошибок",
+        "correct": false,
+        "explanation": "Tiptap не игнорирует конфликт молча — при регистрации двух extensions с одинаковым именем возникнет явная проблема/предупреждение."
+      },
+      {
+        "text": "Приложение не соберётся на этапе TypeScript-компиляции",
+        "correct": false,
+        "explanation": "Это не ошибка типов — конфликт имён обнаруживается во время выполнения (runtime), не на этапе tsc."
+      }
+    ]
+  },
+  {
+    "question": "Какие extensions входят в StarterKit по умолчанию (Tiptap v3)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Bold, Italic, Strike",
+        "correct": true,
+        "explanation": "Это базовые marks форматирования, входящие в StarterKit."
+      },
+      {
+        "text": "UndoRedo (undo/redo)",
+        "correct": true,
+        "explanation": "UndoRedo отвечает за отмену/повтор действий и включена по умолчанию (в v3 переименована из History)."
+      },
+      {
+        "text": "Link",
+        "correct": true,
+        "explanation": "В Tiptap v3 Link тоже включён в StarterKit по умолчанию — раньше (в v2) его нужно было подключать отдельно."
+      },
+      {
+        "text": "Table",
+        "correct": false,
+        "explanation": "Таблицы подключаются отдельными пакетами (@tiptap/extension-table и связанные), их нет в StarterKit."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно ограничить уровни заголовков только H1 и H2?",
+    "type": "single",
+    "options": [
+      {
+        "text": "StarterKit.configure({ levels: [1, 2] })",
+        "correct": false,
+        "explanation": "levels — опция самого Heading extension, её нужно вложить внутрь ключа heading."
+      },
+      {
+        "text": "StarterKit.configure({ heading: { levels: [1, 2] } })",
+        "correct": true,
+        "explanation": "Опции вложенного extension передаются как объект под его именем-ключом внутри configure()."
+      },
+      {
+        "text": "StarterKit.configure({ heading: [1, 2] })",
+        "correct": false,
+        "explanation": "Значением должен быть объект опций ({ levels: [...] }), а не голый массив."
+      },
+      {
+        "text": "Heading.configure({ levels: [1, 2] }) без StarterKit",
+        "correct": false,
+        "explanation": "Технически можно использовать Heading отдельно, но тогда нужно явно выключить heading внутри StarterKit, иначе будет конфликт имён."
+      }
+    ]
+  },
+  {
+    "question": "Как посмотреть список реально подключённых к editor extensions?",
+    "type": "single",
+    "options": [
+      {
+        "text": "editor.options.extensions",
+        "correct": false,
+        "explanation": "options.extensions хранит исходный конфиг, переданный в useEditor, но не итоговый обработанный список (с учётом раскрытия StarterKit на отдельные extensions)."
+      },
+      {
+        "text": "editor.extensionManager.extensions",
+        "correct": true,
+        "explanation": "extensionManager.extensions — это итоговый развёрнутый список всех активных extensions (включая те, что были внутри StarterKit)."
+      },
+      {
+        "text": "StarterKit.list()",
+        "correct": false,
+        "explanation": "У StarterKit нет статического метода list() — список активных extensions хранится на созданном editor."
+      },
+      {
+        "text": "console.log(editor) выведет полный список автоматически",
+        "correct": false,
+        "explanation": "Прямой console.log editor покажет большой внутренний объект, но не даст готового удобного списка имён — для этого нужно обратиться к extensionManager."
+      }
+    ]
+  },
+  {
+    "question": "Для чего используется .extend() у extension?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чтобы полностью удалить extension из редактора",
+        "correct": false,
+        "explanation": "Для удаления/выключения используется configure({ имя: false }), а не extend()."
+      },
+      {
+        "text": "Чтобы создать новую версию extension с изменённым поведением, наследуя большую часть логики оригинала",
+        "correct": true,
+        "explanation": ".extend() позволяет переопределить отдельные части extension (например, renderHTML), не переписывая всё с нуля."
+      },
+      {
+        "text": "Чтобы добавить extension в StarterKit постоянно, на уровне пакета",
+        "correct": false,
+        "explanation": "extend() работает локально в вашем коде и не модифицирует сам пакет @tiptap/starter-kit."
+      },
+      {
+        "text": "Чтобы применить конфигурацию из другого редактора",
+        "correct": false,
+        "explanation": "extend() не связан с переносом конфигурации между разными инстансами editor."
+      }
+    ]
+  },
+  {
+    "question": "Какие extensions НЕ входят в StarterKit и требуют отдельной установки?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Placeholder",
+        "correct": true,
+        "explanation": "Placeholder (плейсхолдер для пустого редактора) подключается отдельным пакетом @tiptap/extension-placeholder."
+      },
+      {
+        "text": "CharacterCount",
+        "correct": true,
+        "explanation": "Счётчик символов — отдельный пакет @tiptap/extension-character-count."
+      },
+      { "text": "Bold", "correct": false, "explanation": "Bold входит в StarterKit по умолчанию." },
+      {
+        "text": "Paragraph",
+        "correct": false,
+        "explanation": "Paragraph — один из трёх базовых обязательных extensions, входящих в StarterKit."
+      }
+    ]
+  },
+  {
+    "question": "Зачем может понадобиться выключить undoRedo через StarterKit.configure({ undoRedo: false })?",
+    "type": "single",
+    "options": [
+      {
+        "text": "UndoRedo замедляет работу редактора на больших документах и её всегда стоит отключать",
+        "correct": false,
+        "explanation": "UndoRedo сама по себе не является узким местом производительности в типичных сценариях — это не общая рекомендация."
+      },
+      {
+        "text": "Когда используется своя собственная история изменений, например через Collaboration/Y.js",
+        "correct": true,
+        "explanation": "При совместном редактировании история версий обычно управляется через Y.js/CRDT, и встроенная ProseMirror-история (undoRedo) может конфликтовать или быть избыточной."
+      },
+      {
+        "text": "UndoRedo обязательно нужно выключать при использовании CodeBlock",
+        "correct": false,
+        "explanation": "UndoRedo и CodeBlock никак не связаны и не конфликтуют друг с другом."
+      },
+      {
+        "text": "Без выключения undoRedo перестаёт работать toggleBold",
+        "correct": false,
+        "explanation": "UndoRedo не влияет на работу marks вроде bold — это независимые extensions."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт при вызове editor.chain().focus().toggleHeading({ level: 3 }).run(), если StarterKit сконфигурирован как heading: { levels: [1, 2] }?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Будет выброшено исключение TypeError во время выполнения",
+        "correct": false,
+        "explanation": "Исключения не будет — команда просто не выполнится (или TypeScript может даже не позволить передать недопустимый level, в зависимости от типизации)."
+      },
+      {
+        "text": "Заголовок 3 уровня не будет применён, так как такой уровень не разрешён конфигурацией",
+        "correct": true,
+        "explanation": "Ограничение levels определяет допустимые значения — попытка применить неразрешённый уровень не приведёт к изменению документа."
+      },
+      {
+        "text": "Будет создан заголовок 1 уровня как ближайший разрешённый",
+        "correct": false,
+        "explanation": "Tiptap не делает автоматический fallback на ближайший допустимый уровень — команда просто не выполняется."
+      },
+      {
+        "text": "levels ограничивает только рендеринг, но команда всё равно создаст h3 в данных документа",
+        "correct": false,
+        "explanation": "Ограничение действует и на уровне схемы/команд, а не только на визуальное отображение."
+      }
+    ]
+  }
+]

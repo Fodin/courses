@@ -1,0 +1,262 @@
+[
+  {
+    "question": "В чём разница между BubbleMenu и FloatingMenu?",
+    "type": "single",
+    "options": [
+      {
+        "text": "BubbleMenu появляется при выделении текста, FloatingMenu — на пустой строке",
+        "correct": true,
+        "explanation": "Это стандартное разделение ответственности между двумя паттернами: контекстное форматирование vs вставка блоков на пустом месте."
+      },
+      {
+        "text": "BubbleMenu работает только на мобильных устройствах, FloatingMenu — только на десктопе",
+        "correct": false,
+        "explanation": "Оба компонента кроссплатформенны и не привязаны к типу устройства."
+      },
+      {
+        "text": "Функционально идентичны, отличаются только названием",
+        "correct": false,
+        "explanation": "У них разное поведение показа по умолчанию — это не просто синонимы."
+      },
+      {
+        "text": "FloatingMenu показывает только marks, BubbleMenu — только nodes",
+        "correct": false,
+        "explanation": "Оба компонента могут содержать произвольные кнопки для любых команд — marks, nodes, что угодно."
+      }
+    ]
+  },
+  {
+    "question": "Откуда импортируются React-компоненты BubbleMenu и FloatingMenu в Tiptap v3?",
+    "type": "single",
+    "options": [
+      {
+        "text": "@tiptap/react",
+        "correct": false,
+        "explanation": "Основной пакет @tiptap/react больше не экспортирует их напрямую в v3 — сделано отдельное разделение зависимостей."
+      },
+      {
+        "text": "@tiptap/react/menus",
+        "correct": true,
+        "explanation": "В v3 они вынесены в отдельный подпакет @tiptap/react/menus, чтобы floating-ui оставался опциональной зависимостью для тех, кто их не использует."
+      },
+      {
+        "text": "@tiptap/extension-bubble-menu/react",
+        "correct": false,
+        "explanation": "@tiptap/extension-bubble-menu содержит низкоуровневую (не React) реализацию — React-компонент находится именно в @tiptap/react/menus."
+      },
+      {
+        "text": "@floating-ui/react",
+        "correct": false,
+        "explanation": "Это отдельная общая библиотека floating-ui, а не Tiptap-специфичный компонент."
+      }
+    ]
+  },
+  {
+    "question": "Какую библиотеку использует Tiptap v3 для позиционирования BubbleMenu/FloatingMenu (пришедшую на смену tippy.js из v2)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Popper.js",
+        "correct": false,
+        "explanation": "Popper.js — предшественник floating-ui, но именно floating-ui используется в текущей v3 реализации."
+      },
+      {
+        "text": "floating-ui",
+        "correct": true,
+        "explanation": "Это одно из объявленных breaking changes v3 — замена tippy.js на floating-ui для более надёжного и производительного позиционирования."
+      },
+      {
+        "text": "react-popper",
+        "correct": false,
+        "explanation": "react-popper не используется в реализации Tiptap v3 меню."
+      },
+      {
+        "text": "Собственная реализация позиционирования без внешних библиотек",
+        "correct": false,
+        "explanation": "Tiptap полагается именно на floating-ui, а не пишет позиционирование с нуля."
+      }
+    ]
+  },
+  {
+    "question": "Почему BubbleMenu/FloatingMenu нужно оборачивать в условный рендер {editor && ...}?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Потому что editor может быть null на первом рендере (создаётся асинхронно)",
+        "correct": true,
+        "explanation": "Это та же причина, что и для EditorContent — useEditor возвращает null до готовности редактора."
+      },
+      {
+        "text": "Потому что BubbleMenu требует минимум секунду задержки после монтирования",
+        "correct": false,
+        "explanation": "Никакой искусственной задержки не требуется — проблема именно в возможном null значении editor."
+      },
+      {
+        "text": "Это не обязательно, TypeScript сам обработает null автоматически",
+        "correct": false,
+        "explanation": "TypeScript не 'обрабатывает' null автоматически в рантайме — без явной проверки компонент получит editor: null и это может привести к ошибке или некорректному поведению."
+      },
+      {
+        "text": "Обязательно только в режиме StrictMode",
+        "correct": false,
+        "explanation": "Это общее правило независимо от StrictMode — editor асинхронно создаётся в любом режиме."
+      }
+    ]
+  },
+  {
+    "question": "Какой проп позволяет полностью переопределить условие показа BubbleMenu?",
+    "type": "single",
+    "options": [
+      {
+        "text": "visible",
+        "correct": false,
+        "explanation": "Такого пропа в API компонентов нет — управление показом осуществляется через shouldShow."
+      },
+      {
+        "text": "shouldShow",
+        "correct": true,
+        "explanation": "shouldShow принимает функцию, возвращающую boolean, и даёт полный контроль над условием отображения меню."
+      },
+      {
+        "text": "isOpen",
+        "correct": false,
+        "explanation": "Такого пропа в API BubbleMenu/FloatingMenu не существует."
+      },
+      {
+        "text": "displayCondition",
+        "correct": false,
+        "explanation": "Правильное имя пропа — shouldShow, а не displayCondition."
+      }
+    ]
+  },
+  {
+    "question": "Что получает функция shouldShow в качестве аргумента?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Объект с editor, state, from, to и другими полями текущего контекста",
+        "correct": true,
+        "explanation": "Это даёт доступ ко всей нужной информации для принятия решения: активные ноды/marks через editor.isActive, границы выделения через from/to."
+      },
+      {
+        "text": "Только булево значение — есть ли сейчас выделение",
+        "correct": false,
+        "explanation": "Передаётся гораздо более полный объект контекста, а не одно булево значение."
+      },
+      {
+        "text": "DOM-событие клика",
+        "correct": false,
+        "explanation": "shouldShow не привязана к конкретному DOM-событию — вызывается при изменениях состояния/выделения редактора."
+      },
+      {
+        "text": "Массив всех activated marks",
+        "correct": false,
+        "explanation": "Передаётся более широкий контекст (editor, state и т.д.), из которого можно САМОСТОЯТЕЛЬНО получить активные marks через editor.isActive."
+      }
+    ]
+  },
+  {
+    "question": "Что по умолчанию определяет, показывается ли FloatingMenu (без кастомного shouldShow)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "FloatingMenu показывается всегда, независимо от содержимого строки",
+        "correct": false,
+        "explanation": "По умолчанию у FloatingMenu есть встроенная логика — показ только на пустом текстовом блоке."
+      },
+      {
+        "text": "Курсор находится на пустом текстовом блоке (пустом параграфе)",
+        "correct": true,
+        "explanation": "Это встроенное поведение по умолчанию — 'предложить вставить блок, когда нечего редактировать на текущей строке'."
+      },
+      {
+        "text": "Пользователь выделил хотя бы один символ текста",
+        "correct": false,
+        "explanation": "Это описание условия показа BubbleMenu, а не FloatingMenu по умолчанию."
+      },
+      {
+        "text": "Документ полностью пуст",
+        "correct": false,
+        "explanation": "FloatingMenu показывается на ЛЮБОЙ пустой строке, а не только когда весь документ пуст."
+      }
+    ]
+  },
+  {
+    "question": "Как настроить предпочтительное положение (сверху/снизу) BubbleMenu относительно выделения?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Через проп options, пробрасываемый в floating-ui: options={{ placement: 'top' }}",
+        "correct": true,
+        "explanation": "options напрямую передаётся в floating-ui, поддерживающий placement, offset, flip и другие настройки позиционирования."
+      },
+      {
+        "text": "Через CSS-свойство position: top напрямую на компоненте",
+        "correct": false,
+        "explanation": "Позиционирование управляется через floating-ui логику, а не через простое CSS position — ручное позиционирование конфликтовало бы с автоматическим."
+      },
+      {
+        "text": "placement нельзя настроить, только положение по умолчанию",
+        "correct": false,
+        "explanation": "placement и другие параметры floating-ui полностью настраиваемы через проп options."
+      },
+      {
+        "text": "Через отдельный компонент BubbleMenuPlacement",
+        "correct": false,
+        "explanation": "Такого отдельного компонента не существует — настройка через options на самом BubbleMenu."
+      }
+    ]
+  },
+  {
+    "question": "Можно ли использовать BubbleMenu и FloatingMenu одновременно в одном редакторе?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Нет, разрешено только одно меню на редактор",
+        "correct": false,
+        "explanation": "Оба компонента независимы и прекрасно работают одновременно, поскольку у них разные (обычно взаимоисключающие) условия показа."
+      },
+      {
+        "text": "Да — BubbleMenu будет показываться при выделении текста, FloatingMenu — на пустых строках, они не конфликтуют",
+        "correct": true,
+        "explanation": "Это стандартный паттерн Notion-подобных редакторов: оба меню сосуществуют, обслуживая разные сценарии."
+      },
+      {
+        "text": "Да, но только если оба используют один и тот же shouldShow",
+        "correct": false,
+        "explanation": "У них могут (и обычно должны) быть разные условия показа — в этом весь смысл их сосуществования."
+      },
+      {
+        "text": "Только в режиме разработки, в продакшене работает лишь одно",
+        "correct": false,
+        "explanation": "Оба компонента полностью пригодны к продакшен-использованию одновременно."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений о BubbleMenu/FloatingMenu верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Внутри них можно переиспользовать тот же компонент кнопок (Toolbar), что и в статичной панели инструментов",
+        "correct": true,
+        "explanation": "BubbleMenu/FloatingMenu — просто позиционированные контейнеры; внутри них можно рендерить любые React-компоненты, включая переиспользуемый Toolbar."
+      },
+      {
+        "text": "Оба компонента требуют передачи editor как пропа (или доступны через Tiptap-контекст в новом API)",
+        "correct": true,
+        "explanation": "editor нужен компоненту для отслеживания состояния/выделения и вызова команд."
+      },
+      {
+        "text": "shouldShow может использоваться, чтобы полностью скрыть меню внутри блоков кода",
+        "correct": true,
+        "explanation": "Это распространённый практический сценарий — не показывать форматирование там, где оно неприменимо (codeBlock: marks:'')."
+      },
+      {
+        "text": "BubbleMenu и FloatingMenu полностью заменяют необходимость в addKeyboardShortcuts",
+        "correct": false,
+        "explanation": "Это разные, дополняющие друг друга механизмы — горячие клавиши работают независимо от того, показаны ли контекстные меню."
+      }
+    ]
+  }
+]

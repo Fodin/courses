@@ -8,6 +8,8 @@ export interface TaskEntry {
   id: string
   component: ReactElement
   solution: ReactElement
+  /** Необязательная метка рядом с номером задания на кнопке, напр. '*' для сложного. */
+  badge?: string
 }
 
 export interface LevelConfig {

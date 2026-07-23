@@ -1,0 +1,210 @@
+[
+  {
+    "question": "На какие единицы делится слой shared в FSD?",
+    "type": "single",
+    "options": [
+      {
+        "text": "На слайсы — так же, как entities и features",
+        "correct": false,
+        "explanation": "У shared нет слайсов: код здесь не относится к предметной области, делить его по бизнес-смыслу нечем."
+      },
+      {
+        "text": "На сегменты (ui, api, lib, config), без слайсов",
+        "correct": true,
+        "explanation": "shared не про домен, поэтому делится сразу на сегменты по роду кода, а не на разделы предметной области."
+      },
+      {
+        "text": "На страницы, как pages",
+        "correct": false,
+        "explanation": "Страницы — это слой pages, к shared отношения не имеет."
+      },
+      {
+        "text": "shared вообще не делится на части — один общий файл",
+        "correct": false,
+        "explanation": "shared делится на сегменты ui/api/lib/config — каждый со своим public API."
+      }
+    ]
+  },
+  {
+    "question": "Какой из перечисленных фрагментов кода правильно положить в shared?",
+    "type": "single",
+    "options": [
+      {
+        "text": "formatUserLabel(user: User): string — форматирует подпись пользователя с учётом роли",
+        "correct": false,
+        "explanation": "Функция знает о конкретной сущности User и её бизнес-поле role — это доменная логика, место в entities/user."
+      },
+      {
+        "text": "UserCard — компонент, рендерящий карточку конкретного пользователя",
+        "correct": false,
+        "explanation": "Компонент знает про сущность User — это entities/user/ui, а не shared/ui."
+      },
+      {
+        "text": "capitalize(value: string): string — делает первую букву строки заглавной",
+        "correct": true,
+        "explanation": "Функция не знает ничего о домене продукта и одинаково полезна в любом приложении — классический shared/lib."
+      },
+      {
+        "text": "getUserById(id): Promise<User> — запрашивает пользователя с бэкенда",
+        "correct": false,
+        "explanation": "Функция знает о конкретном ресурсе /users и сущности User — это entities/user/api, а не shared/api."
+      }
+    ]
+  },
+  {
+    "question": "Какой практический тест помогает решить, класть код в shared или нет?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Если код короче 10 строк — можно в shared",
+        "correct": false,
+        "explanation": "Размер кода не связан с архитектурным решением о слое."
+      },
+      {
+        "text": "Если файл лежит в папке components — значит shared",
+        "correct": false,
+        "explanation": "Название папки ничего не говорит о наличии бизнес-смысла в коде."
+      },
+      {
+        "text": "Если код одинаково пригодился бы в совершенно другом продукте (блог, игра, CRM) — это shared",
+        "correct": true,
+        "explanation": "Тест на бизнес-смысл: если код не завязан на конкретный домен продукта, ему место в shared."
+      },
+      {
+        "text": "Если функцию вызывают больше одного раза — значит shared",
+        "correct": false,
+        "explanation": "Частота использования не отменяет наличие бизнес-смысла: доменный код можно переиспользовать и через public API entities."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих сегментов относятся к shared? (выберите все верные)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "ui — переиспользуемые компоненты дизайн-системы",
+        "correct": true,
+        "explanation": "Кнопки, инпуты, модалки без знания о домене — типичный shared/ui."
+      },
+      {
+        "text": "lib — хуки и утилиты без бизнес-смысла",
+        "correct": true,
+        "explanation": "useDebounce, capitalize, formatDate — generic-хелперы, место которым в shared/lib."
+      },
+      {
+        "text": "config — константы и переменные окружения",
+        "correct": true,
+        "explanation": "API_BASE_URL и подобные общие настройки корректно живут в shared/config."
+      },
+      {
+        "text": "model — состояние и типы конкретной бизнес-сущности",
+        "correct": false,
+        "explanation": "model с доменными типами и состоянием — это сегмент слайса entities/features, а не shared."
+      }
+    ]
+  },
+  {
+    "question": "Правильный способ импортировать компонент Button из shared/ui снаружи:",
+    "type": "single",
+    "options": [
+      {
+        "text": "import { Button } from '@/shared/ui/Button'",
+        "correct": false,
+        "explanation": "Это глубокий импорт мимо public API сегмента — обходит index.ts."
+      },
+      {
+        "text": "import { Button } from '@/shared/ui'",
+        "correct": true,
+        "explanation": "Импорт до корня сегмента, через его index.ts — корректный public API."
+      },
+      {
+        "text": "import Button from 'shared/ui/components/Button/index'",
+        "correct": false,
+        "explanation": "Прямой путь до внутреннего файла, минуя публичный вход сегмента."
+      },
+      {
+        "text": "import { Button } from '@/shared'",
+        "correct": false,
+        "explanation": "У shared в целом нет единого index.ts — есть отдельные public API у каждого сегмента (ui, lib и т.д.)."
+      }
+    ]
+  },
+  {
+    "question": "Почему движок автоматических проверок (и линтеры вроде steiger) НЕ ловят глубокий импорт вида '@/shared/lib/useDebounce'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Потому что shared разрешено импортировать из любого слоя как угодно глубоко — правило про public API слайсов на shared/app не распространяется",
+        "correct": true,
+        "explanation": "У shared нет слайсов в привычном смысле, поэтому проверка «чужой слайс — только через index.ts» на него не действует; дисциплина здесь держится на код-ревью и отдельных правилах линтера."
+      },
+      {
+        "text": "Потому что это вообще не считается нарушением архитектуры",
+        "correct": false,
+        "explanation": "Формально это всё равно плохая практика — просто её не ловит именно правило про изоляцию слайсов."
+      },
+      {
+        "text": "Потому что useDebounce — исключение из всех правил FSD",
+        "correct": false,
+        "explanation": "Дело не в конкретной функции, а в том, что shared в принципе не имеет слайсовой изоляции."
+      },
+      {
+        "text": "Потому что shared не участвует в проверках вообще",
+        "correct": false,
+        "explanation": "Проверки на shared действуют (например, importsRespectLayers), просто не действует конкретно правило про deep import между слайсами."
+      }
+    ]
+  },
+  {
+    "question": "В проекте нашли файл shared/user/model/types.ts с интерфейсом User. Что с этим делать?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Оставить как есть — раз тип общий для всего приложения, ему место в shared",
+        "correct": false,
+        "explanation": "«Используется во многих местах» не равно «нет бизнес-смысла». User — конкретная сущность продукта."
+      },
+      {
+        "text": "Перенести в entities/user, собрать ему public API и переключить импорты на @/entities/user",
+        "correct": true,
+        "explanation": "User — доменная сущность, её место в entities. Переиспользовать её можно и оттуда — через public API слайса."
+      },
+      {
+        "text": "Переименовать папку в shared/entities/user, оставив на месте",
+        "correct": false,
+        "explanation": "Переименование не меняет того факта, что код физически остаётся в слое shared, откуда нельзя импортировать вверх по слоям."
+      },
+      {
+        "text": "Продублировать тип в каждом слайсе, который его использует",
+        "correct": false,
+        "explanation": "Дублирование только ухудшает ситуацию; правильное решение — один источник истины в entities/user с public API."
+      }
+    ]
+  },
+  {
+    "question": "entities/user/lib/formatUserLabel.ts импортирует capitalize из '@/shared/lib'. Это нормально?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Нет, entities не должен зависеть от shared — это тоже cross-layer нарушение",
+        "correct": false,
+        "explanation": "Нарушением был бы импорт в обратную сторону (shared → entities). entities вправе опираться на shared — это нижестоящий, более общий слой."
+      },
+      {
+        "text": "Да, entities стоит выше shared по рангу слоёв и вправе импортировать из него через его public API",
+        "correct": true,
+        "explanation": "Порядок слоёв: app → pages → widgets → features → entities → shared. Каждый слой может опираться на нижестоящие, включая shared, если делает это через их index.ts."
+      },
+      {
+        "text": "Нет, потому что capitalize нужно продублировать внутри entities/user, чтобы не зависеть от shared",
+        "correct": false,
+        "explanation": "Дублирование generic-кода — антипаттерн; правильно переиспользовать его из shared через public API."
+      },
+      {
+        "text": "Только если shared/lib/index.ts помечен как @x-экспорт",
+        "correct": false,
+        "explanation": "@x-нотация нужна для управляемых cross-import между слайсами одного слоя, а не для обычного импорта из shared."
+      }
+    ]
+  }
+]

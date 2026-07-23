@@ -1,0 +1,210 @@
+[
+  {
+    "question": "Чем Steiger принципиально отличается от обычного ESLint?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Steiger проверяет форматирование кода (отступы, кавычки)",
+        "correct": false,
+        "explanation": "Форматирование — задача Prettier/ESLint, не Steiger."
+      },
+      {
+        "text": "Steiger анализирует файловую структуру и связи между файлами, а не синтаксис внутри одного файла",
+        "correct": true,
+        "explanation": "ESLint смотрит внутрь файла, Steiger — на архитектуру проекта: слои, слайсы, импорты между ними."
+      },
+      {
+        "text": "Steiger заменяет TypeScript-компилятор",
+        "correct": false,
+        "explanation": "Проверка типов — задача tsc, Steiger её не выполняет."
+      },
+      {
+        "text": "Steiger нужен только для тестов",
+        "correct": false,
+        "explanation": "Steiger не связан с юнит- или e2e-тестированием."
+      }
+    ]
+  },
+  {
+    "question": "Какой командой запускается проверка структуры проекта через Steiger?",
+    "type": "single",
+    "options": [
+      {
+        "text": "npx eslint ./src --fsd",
+        "correct": false,
+        "explanation": "Такого флага у ESLint нет; Steiger — отдельный инструмент."
+      },
+      {
+        "text": "npm run lint:architecture",
+        "correct": false,
+        "explanation": "Это может быть алиасом в package.json, но сама команда — не встроенная в Steiger."
+      },
+      {
+        "text": "npx steiger ./src",
+        "correct": true,
+        "explanation": "Именно так запускается проверка каталога через CLI пакета steiger."
+      },
+      {
+        "text": "npx tsc --checkArchitecture",
+        "correct": false,
+        "explanation": "У TypeScript-компилятора нет флага для проверки архитектуры FSD."
+      }
+    ]
+  },
+  {
+    "question": "Какие из перечисленных пакетов реально относятся к экосистеме проверки FSD? (несколько ответов)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "steiger — ядро линтера структуры",
+        "correct": true,
+        "explanation": "Базовый CLI-пакет, который запускает проверки."
+      },
+      {
+        "text": "@feature-sliced/steiger-plugin — правила именно для Feature-Sliced Design",
+        "correct": true,
+        "explanation": "Плагин с правилами fsd/forbidden-imports, fsd/public-api и т.д."
+      },
+      {
+        "text": "@feature-sliced/eslint-config — конфиг ESLint, дублирующий часть правил в редакторе",
+        "correct": true,
+        "explanation": "Позволяет увидеть нарушение прямо в IDE до запуска Steiger."
+      },
+      {
+        "text": "webpack-fsd-plugin — обязательный плагин для сборки FSD-проектов",
+        "correct": false,
+        "explanation": "Такого обязательного плагина в экосистеме FSD нет; сборка не завязана на архитектуру напрямую."
+      }
+    ]
+  },
+  {
+    "question": "Файл `src/entities/product/model/store.ts` импортирует `@/features/add-to-cart`. Какое правило это нарушает?",
+    "type": "single",
+    "options": [
+      {
+        "text": "fsd/insignificant-slice",
+        "correct": false,
+        "explanation": "Это правило про слайсы без ссылок, а не про направление импорта."
+      },
+      {
+        "text": "fsd/no-reserved-folder-names",
+        "correct": false,
+        "explanation": "Это про имена подпапок сегментов, здесь речь не о них."
+      },
+      {
+        "text": "fsd/no-higher-level-imports",
+        "correct": true,
+        "explanation": "entities ниже features, импорт из более высокого слоя запрещён — это движение вверх по графу."
+      },
+      {
+        "text": "fsd/public-api",
+        "correct": false,
+        "explanation": "Импорт идёт из корня фичи (публичного API), проблема именно в направлении, а не в обходе index.ts."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно починить нарушение fsd/public-api, когда `pages/checkout` импортирует `entities/cart/ui/CartItem` напрямую?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Переписать импорт через относительный путь с несколькими '../../'",
+        "correct": false,
+        "explanation": "Это тот же обход публичного контракта, просто менее заметный — правило всё равно нарушено."
+      },
+      {
+        "text": "Добавить реэкспорт CartItem в index.ts слайса cart и импортировать из корня слайса",
+        "correct": true,
+        "explanation": "Так публичный контракт слайса остаётся единой точкой входа, а внутренности можно менять свободно."
+      },
+      {
+        "text": "Скопировать компонент CartItem в pages/checkout",
+        "correct": false,
+        "explanation": "Дублирование кода не решает проблему архитектуры и создаёт рассинхронизацию."
+      },
+      {
+        "text": "Отключить правило fsd/public-api глобально в конфиге",
+        "correct": false,
+        "explanation": "Отключение правила скрывает симптом, а не устраняет причину нарушения контракта слайса."
+      }
+    ]
+  },
+  {
+    "question": "Что означает предупреждение правила fsd/insignificant-slice?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Слайс содержит слишком много файлов",
+        "correct": false,
+        "explanation": "Правило не про размер слайса, а про количество ссылок на него."
+      },
+      {
+        "text": "На слайс нет ссылок или есть лишь одна — стоит проверить, нужен ли он как отдельный слайс",
+        "correct": true,
+        "explanation": "Такой слайс может быть мёртвым кодом или излишним дроблением, которое стоит пересмотреть."
+      },
+      {
+        "text": "Слайс не имеет сегмента ui",
+        "correct": false,
+        "explanation": "Отсутствие конкретного сегмента не проверяется этим правилом."
+      },
+      {
+        "text": "Слайс не покрыт тестами",
+        "correct": false,
+        "explanation": "Steiger не анализирует тестовое покрытие."
+      }
+    ]
+  },
+  {
+    "question": "Почему `@x`-нотацию стоит использовать редко, а не как стандартный способ обхода cross-import?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Потому что @x работает только в JavaScript, но не в TypeScript",
+        "correct": false,
+        "explanation": "@x — соглашение об организации кода, оно не зависит от языка."
+      },
+      {
+        "text": "Потому что обилие @x-мостов сигнализирует, что границы слайсов выбраны неудачно и их стоит пересмотреть",
+        "correct": true,
+        "explanation": "@x — осознанное точечное исключение; если таких мостов много, вероятно, слайсы стоило спроектировать иначе."
+      },
+      {
+        "text": "Потому что @x автоматически удаляется линтером при сборке",
+        "correct": false,
+        "explanation": "Steiger не изменяет код, только анализирует его."
+      },
+      {
+        "text": "Потому что @x нельзя использовать вместе со Steiger",
+        "correct": false,
+        "explanation": "Steiger как раз понимает @x-нотацию и не считает такие импорты нарушением cross-import."
+      }
+    ]
+  },
+  {
+    "question": "Какие утверждения про интеграцию линтера FSD в CI верны? (несколько ответов)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Проверка `npx steiger ./src` в CI превращает архитектурное правило в обязательный гейт, а не пожелание",
+        "correct": true,
+        "explanation": "PR с нарушением структуры не сможет пройти пайплайн, независимо от внимательности ревьюера."
+      },
+      {
+        "text": "Локального запуска Steiger разработчиком «по памяти» достаточно, CI не нужен",
+        "correct": false,
+        "explanation": "Локальный запуск легко забыть; только шаг в CI гарантированно защищает main."
+      },
+      {
+        "text": "ESLint-плагин FSD полезен для мгновенной обратной связи в редакторе, но не заменяет отдельный шаг Steiger в CI",
+        "correct": true,
+        "explanation": "IDE-подсказку можно не заметить или проигнорировать; финальный барьер — обязательная команда в пайплайне."
+      },
+      {
+        "text": "Если линтер мешает в конкретном месте, правило стоит отключить точечно и явно, зафиксировав причину",
+        "correct": true,
+        "explanation": "Осознанное, задокументированное исключение в steiger.config.js лучше, чем тихое игнорирование ошибок."
+      }
+    ]
+  }
+]

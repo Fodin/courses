@@ -1,0 +1,210 @@
+[
+  {
+    "question": "Какую основную проблему решает FSD по сравнению с раскладкой components/utils/hooks?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Группирует код по смыслу (слои и слайсы), делая зависимости предсказуемыми",
+        "correct": true,
+        "explanation": "FSD отвечает на вопрос «где живёт фича» и задаёт однонаправленные зависимости."
+      },
+      {
+        "text": "Ускоряет сборку проекта за счёт меньшего числа файлов",
+        "correct": false,
+        "explanation": "FSD про организацию и границы, а не про скорость бандлера."
+      },
+      {
+        "text": "Заставляет использовать TypeScript вместо JavaScript",
+        "correct": false,
+        "explanation": "FSD не зависит от языка; это методология структуры, а не выбор типизации."
+      },
+      {
+        "text": "Автоматически пишет тесты для компонентов",
+        "correct": false,
+        "explanation": "Тесты FSD не генерирует — она задаёт раскладку и правила импортов."
+      }
+    ]
+  },
+  {
+    "question": "Сколько измерений (осей) вводит FSD для организации кода?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Два: папки и файлы",
+        "correct": false,
+        "explanation": "Это обычная файловая раскладка, а не измерения FSD."
+      },
+      {
+        "text": "Три: слои, слайсы, сегменты",
+        "correct": true,
+        "explanation": "Слои (ответственность), слайсы (предметная область), сегменты (техническое назначение)."
+      },
+      {
+        "text": "Четыре: слои, слайсы, сегменты, процессы",
+        "correct": false,
+        "explanation": "`processes` — устаревший слой из v1; осей всё равно три."
+      },
+      {
+        "text": "Одно: только слои",
+        "correct": false,
+        "explanation": "Слои — лишь одна из трёх осей FSD."
+      }
+    ]
+  },
+  {
+    "question": "В каком порядке идут слои FSD сверху вниз?",
+    "type": "single",
+    "options": [
+      {
+        "text": "shared → entities → features → widgets → pages → app",
+        "correct": false,
+        "explanation": "Это порядок снизу вверх; «сверху» — самый высокоуровневый слой app."
+      },
+      {
+        "text": "app → pages → widgets → features → entities → shared",
+        "correct": true,
+        "explanation": "От самого высокоуровневого (app) к самому переиспользуемому (shared)."
+      },
+      {
+        "text": "app → features → pages → entities → widgets → shared",
+        "correct": false,
+        "explanation": "Порядок перепутан: widgets выше features, а pages выше widgets."
+      },
+      {
+        "text": "pages → app → widgets → entities → features → shared",
+        "correct": false,
+        "explanation": "app — самый верхний слой, он не может стоять после pages."
+      }
+    ]
+  },
+  {
+    "question": "Что означает правило однонаправленности импортов?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Модуль слоя может импортировать только нижележащие слои",
+        "correct": true,
+        "explanation": "Зависимости текут строго вниз — граф остаётся ацикличным по построению."
+      },
+      {
+        "text": "Каждый файл импортирует не более одного другого файла",
+        "correct": false,
+        "explanation": "Ограничения на количество импортов нет; правило про направление по слоям."
+      },
+      {
+        "text": "Импорты разрешены только внутри одного слоя",
+        "correct": false,
+        "explanation": "Наоборот: внутри слоя слайсы изолированы, а импортировать можно нижние слои."
+      },
+      {
+        "text": "Все импорты должны идти через shared",
+        "correct": false,
+        "explanation": "shared — нижний слой, но не обязательный посредник для всех связей."
+      }
+    ]
+  },
+  {
+    "question": "Может ли `entities/user` напрямую импортировать `entities/product`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Нет — это cross-import между слайсами одного слоя, он запрещён",
+        "correct": true,
+        "explanation": "Слайсы одного слоя изолированы; композиция поднимается на слой выше или идёт через @x."
+      },
+      {
+        "text": "Да — сущности одного слоя свободно импортируют друг друга",
+        "correct": false,
+        "explanation": "Именно этого FSD не допускает: слайсы одного слоя не знают друг о друге."
+      },
+      {
+        "text": "Да, но только типы",
+        "correct": false,
+        "explanation": "Даже для типов прямой cross-import не годится — для этого есть @x-нотация."
+      },
+      {
+        "text": "Только если оба лежат в shared",
+        "correct": false,
+        "explanation": "Сущности не место в shared; вопрос про entities."
+      }
+    ]
+  },
+  {
+    "question": "Что произошло со слоем `processes` в FSD v2?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Он признан устаревшим и удалён",
+        "correct": true,
+        "explanation": "В v2 processes убран; его функции разошлись по pages/features/widgets."
+      },
+      {
+        "text": "Он стал главным слоем вместо app",
+        "correct": false,
+        "explanation": "Верхний слой — app; processes не повышали, а удалили."
+      },
+      {
+        "text": "Его переименовали в segments",
+        "correct": false,
+        "explanation": "Сегменты — это ось технического назначения, а не бывший слой."
+      },
+      {
+        "text": "Ничего, он по-прежнему обязателен",
+        "correct": false,
+        "explanation": "В актуальной v2 этого слоя нет."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно прочитать путь `src/features/add-to-cart/ui/AddButton.tsx`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Слой features → слайс add-to-cart → сегмент ui → файл AddButton",
+        "correct": true,
+        "explanation": "Путь читается по трём осям: слой / слайс / сегмент / файл."
+      },
+      {
+        "text": "Компонент AddButton из библиотеки features",
+        "correct": false,
+        "explanation": "features — это слой FSD, а не сторонняя библиотека."
+      },
+      {
+        "text": "Страница add-to-cart в разделе features",
+        "correct": false,
+        "explanation": "Страницы живут в слое pages; здесь это слайс-фича."
+      },
+      {
+        "text": "Утилита ui внутри папки add-to-cart",
+        "correct": false,
+        "explanation": "ui — это сегмент (техническое назначение), а не утилита."
+      }
+    ]
+  },
+  {
+    "question": "Почему «просто разложить код по папкам как в FSD» недостаточно?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Без правил однонаправленности и public API это лишь косметика",
+        "correct": true,
+        "explanation": "Ценность FSD — в правилах импортов и границах слайсов, а не в названиях папок."
+      },
+      {
+        "text": "Папки FSD нельзя создать вручную, нужен генератор",
+        "correct": false,
+        "explanation": "Папки создаются как угодно; суть в правилах, а не в способе их создания."
+      },
+      {
+        "text": "FSD требует ровно шесть файлов в каждом слайсе",
+        "correct": false,
+        "explanation": "Такого требования нет; число файлов произвольно."
+      },
+      {
+        "text": "Папки обязаны называться по-английски заглавными буквами",
+        "correct": false,
+        "explanation": "Именование сегментов принято kebab-case строчными; дело не в регистре."
+      }
+    ]
+  }
+]

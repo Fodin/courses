@@ -1,0 +1,210 @@
+[
+  {
+    "question": "В каком порядке слои FSD выстроены от самого специфичного к самому общему?",
+    "type": "single",
+    "options": [
+      {
+        "text": "shared → entities → features → widgets → pages → app",
+        "correct": false,
+        "explanation": "Это порядок наоборот — от общего к специфичному, а не от специфичного к общему."
+      },
+      {
+        "text": "app → pages → widgets → features → entities → shared",
+        "correct": true,
+        "explanation": "Именно так: app самый специфичный (знает про всё приложение), shared — самый общий (не знает про домен вообще)."
+      },
+      {
+        "text": "entities → features → shared → widgets → pages → app",
+        "correct": false,
+        "explanation": "shared не может стоять между entities и widgets — он всегда крайний, самый общий слой."
+      },
+      {
+        "text": "pages → app → widgets → entities → features → shared",
+        "correct": false,
+        "explanation": "app всегда выше pages, а entities всегда выше features в этом направлении — порядок нарушен."
+      }
+    ]
+  },
+  {
+    "question": "Файл `entities/order/model/pricing.ts` импортирует функцию из `features/promo-code`. Что это?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Нормальный импорт — entities и features часто работают вместе",
+        "correct": false,
+        "explanation": "Совместная работа не отменяет правило направления: entities не должна знать про features."
+      },
+      {
+        "text": "Импорт вверх — entities стоит ниже features, такой импорт запрещён",
+        "correct": true,
+        "explanation": "features абстрактнее entities (ближе к сценарию), поэтому entities → features — импорт вверх по стеку."
+      },
+      {
+        "text": "Cross-import слайсов одного слоя",
+        "correct": false,
+        "explanation": "entities и features — разные слои, а не два слайса одного слоя."
+      },
+      {
+        "text": "Глубокий импорт в обход public API",
+        "correct": false,
+        "explanation": "Проблема здесь не в глубине пути, а в самом направлении: entities не может зависеть от features вообще."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно устранить ситуацию, когда `entities` тянет значение из `features`?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Скопировать нужную функцию из features прямо в entities",
+        "correct": false,
+        "explanation": "Дублирование кода не решает архитектурную проблему и приводит к рассинхрону логики."
+      },
+      {
+        "text": "Переместить всю сущность в слой features",
+        "correct": false,
+        "explanation": "Сущность останется нужна и другим фичам — перенос не масштабируется, а решение локальное."
+      },
+      {
+        "text": "Передать нужное значение в функцию entities параметром вместо импорта из features",
+        "correct": true,
+        "explanation": "Инверсия зависимости: тот, кто выше по стеку (features), вычисляет значение и передаёт его вниз параметром."
+      },
+      {
+        "text": "Обернуть импорт в динамический `import()`, чтобы он не считался нарушением",
+        "correct": false,
+        "explanation": "Динамический импорт не меняет направление зависимости — правило нарушается независимо от синтаксиса импорта."
+      }
+    ]
+  },
+  {
+    "question": "Виджет `widgets/order-summary` импортирует функцию `getCurrentUser` из `pages/checkout`. Как это исправить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Виджет принимает пользователя пропом, а страница передаёт его при рендере виджета",
+        "correct": true,
+        "explanation": "pages стоит выше widgets и может передавать данные вниз — это и есть правильное направление композиции."
+      },
+      {
+        "text": "Переместить `getCurrentUser` в widgets, чтобы функция была рядом",
+        "correct": false,
+        "explanation": "Перемещение функции не решает вопрос — важно, откуда берутся данные о текущем пользователе на странице."
+      },
+      {
+        "text": "Ничего менять не нужно — widgets и pages могут импортировать друг друга свободно",
+        "correct": false,
+        "explanation": "widgets стоит ниже pages, импорт из pages в widgets — нарушение направления."
+      },
+      {
+        "text": "Вынести `getCurrentUser` в shared, чтобы оба слоя могли его импортировать",
+        "correct": false,
+        "explanation": "shared — для кода без бизнес-домена; логика получения текущего пользователя страницы туда не относится."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих импортов нарушают правило направления слоёв?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "features/like-button импортирует entities/product",
+        "correct": false,
+        "explanation": "features стоит выше entities — импорт вниз, это разрешено."
+      },
+      {
+        "text": "entities/user импортирует widgets/user-panel",
+        "correct": true,
+        "explanation": "widgets гораздо выше entities — это грубый импорт вверх."
+      },
+      {
+        "text": "shared/ui/Button импортирует entities/cart",
+        "correct": true,
+        "explanation": "shared — самый нижний слой; любой импорт домена оттуда наверх запрещён."
+      },
+      {
+        "text": "pages/catalog импортирует widgets/product-card",
+        "correct": false,
+        "explanation": "pages стоит выше widgets — импорт вниз, это разрешено и типично для сборки страницы."
+      }
+    ]
+  },
+  {
+    "question": "`entities/user` импортирует `entities/product` напрямую, чтобы показать любимый товар пользователя. В чём проблема?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Проблемы нет — обе сущности в одном слое, значит могут общаться",
+        "correct": false,
+        "explanation": "Одинаковый слой не отменяет изоляцию: слайсы одного слоя не должны знать друг о друге напрямую."
+      },
+      {
+        "text": "Это cross-import слайсов одного слоя — жёстко склеивает две независимые сущности и рискует циклом",
+        "correct": true,
+        "explanation": "Композицию двух сущностей нужно поднимать выше — в widget или feature, который знает про обе."
+      },
+      {
+        "text": "Проблема в том, что product импортируется без type-only синтаксиса",
+        "correct": false,
+        "explanation": "Дело не в type-only, а в самом факте прямой связи между слайсами одного слоя."
+      },
+      {
+        "text": "Проблема в том, что у product нет сегмента api/",
+        "correct": false,
+        "explanation": "Наличие сегментов у product не связано с нарушением — вопрос именно в cross-import."
+      }
+    ]
+  },
+  {
+    "question": "Компонент `AddToCartButton`, вызывающий `cartStore.add`, лежит в `shared/ui`. Почему это неправильно, и как исправить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Всё верно, кнопки — это всегда shared, вне зависимости от того, что они делают",
+        "correct": false,
+        "explanation": "Технический тип элемента (кнопка) не определяет слой — определяет наличие бизнес-логики внутри."
+      },
+      {
+        "text": "Компонент знает про cartStore (домен) — его место в features/add-to-cart, где импорт entities уже легален",
+        "correct": true,
+        "explanation": "shared — код без бизнес-смысла. Как только компонент завязан на сущность, это уже features."
+      },
+      {
+        "text": "Ошибка в том, что cartStore не экспортирован из public API entities/cart",
+        "correct": false,
+        "explanation": "Даже если public API настроен верно, сам факт зависимости shared от entities остаётся нарушением."
+      },
+      {
+        "text": "Компонент нужно оставить в shared, но обернуть вызов cartStore.add в try/catch",
+        "correct": false,
+        "explanation": "Обработка ошибок не меняет архитектурную проблему — зависимость shared от домена остаётся."
+      }
+    ]
+  },
+  {
+    "question": "Что из перечисленного движок заданий проверяет статически, без выполнения кода?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Импортирует ли файл слой с меньшим рангом, чем у себя (импорт вверх)",
+        "correct": true,
+        "explanation": "Это чистый анализ путей файлов и разрешённых import-specifier'ов, без запуска кода."
+      },
+      {
+        "text": "Импортирует ли файл слайс того же слоя, но с другим именем (cross-import)",
+        "correct": true,
+        "explanation": "Слой и слайс файла определяются по пути, а не по рантайм-поведению."
+      },
+      {
+        "text": "Правильно ли на экране визуально отображается кнопка после клика",
+        "correct": false,
+        "explanation": "Это поведение в рантайме — движок его не проверяет, анализ ограничен структурой и импортами."
+      },
+      {
+        "text": "Существует ли реэкспорт нужного имени в index.ts слайса",
+        "correct": true,
+        "explanation": "Экспорт-строки файла разбираются статически — так же, как и импорты."
+      }
+    ]
+  }
+]

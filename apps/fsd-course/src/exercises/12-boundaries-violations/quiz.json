@@ -1,0 +1,210 @@
+[
+  {
+    "question": "entities/user импортирует константу из widgets/user-panel. Что это за нарушение?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Cross-import слайсов одного слоя",
+        "correct": false,
+        "explanation": "entities и widgets — разные слои, поэтому дело не в соседних слайсах одного слоя."
+      },
+      {
+        "text": "Импорт вверх по слоям",
+        "correct": true,
+        "explanation": "widgets выше entities в иерархии слоёв, а зависимости должны течь только вниз."
+      },
+      {
+        "text": "Домен в shared",
+        "correct": false,
+        "explanation": "Здесь ни один из файлов не лежит в shared — вопрос не про это."
+      },
+      {
+        "text": "Это нормальный импорт, нарушения нет",
+        "correct": false,
+        "explanation": "Импорт из вышестоящего слоя в нижестоящий запрещён — это классическое нарушение направления."
+      }
+    ]
+  },
+  {
+    "question": "Чем плохо, если shared/lib начинает содержать interface Order?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "shared перестаёт быть безопасным для импорта откуда угодно — он обрастает доменной логикой",
+        "correct": true,
+        "explanation": "shared задумывался как слой без предметной области; доменный тип ломает это свойство."
+      },
+      {
+        "text": "Появляется риск, что shared незаметно станет зависеть от изменений бизнес-логики заказов",
+        "correct": true,
+        "explanation": "Как только Order меняется по бизнес-причинам, это тянет правки в файл, который формально «инфраструктурный»."
+      },
+      {
+        "text": "TypeScript откажется собирать проект",
+        "correct": false,
+        "explanation": "Это не ошибка компиляции — проблема архитектурная, а не синтаксическая."
+      },
+      {
+        "text": "Такой interface физически нельзя реэкспортировать из entities/order",
+        "correct": false,
+        "explanation": "Технически реэкспорт возможен; проблема в том, что домену не место в shared, а не в невозможности реэкспорта."
+      }
+    ]
+  },
+  {
+    "question": "features/checkout импортирует @/entities/order/model/types вместо @/entities/order. Какая проверка это поймает?",
+    "type": "single",
+    "options": [
+      {
+        "text": "sliceHasSegments",
+        "correct": false,
+        "explanation": "Эта проверка смотрит на наличие сегментов в слайсе, а не на путь импорта."
+      },
+      {
+        "text": "noDeepImport",
+        "correct": true,
+        "explanation": "Импорт лезет во внутренний сегмент model/ чужого слайса в обход его index.ts — ровно то, что ловит noDeepImport."
+      },
+      {
+        "text": "fileExists",
+        "correct": false,
+        "explanation": "fileExists проверяет только присутствие файла в песочнице, а не корректность пути импорта."
+      },
+      {
+        "text": "sliceHasSegments и fileExists вместе",
+        "correct": false,
+        "explanation": "Ни одна из этих проверок не анализирует путь импорта — нужен именно noDeepImport."
+      }
+    ]
+  },
+  {
+    "question": "features/auth импортирует ProfileForm из '@/features/profile' — то есть через public API соседа. Это нарушение?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Да — слайсы одного слоя не должны знать друг о друге, даже через index.ts",
+        "correct": true,
+        "explanation": "Проблема не в глубине импорта, а в самом факте связи между равноправными слайсами одного слоя."
+      },
+      {
+        "text": "Нет, раз импорт идёт через index.ts — значит, всё корректно",
+        "correct": false,
+        "explanation": "Public API решает проблему deep import, но не отменяет запрет на cross-import слайсов одного слоя."
+      },
+      {
+        "text": "Нет, потому что auth и profile оба относятся к пользователю",
+        "correct": false,
+        "explanation": "Смысловая близость слайсов не отменяет правило изоляции — решение поднимается на слой выше."
+      },
+      {
+        "text": "Да, но только если ProfileForm — тип, а не значение",
+        "correct": false,
+        "explanation": "Правило не зависит от того, тип это или значение — cross-import слайсов одного слоя запрещён в любом виде."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно исправить cross-import между features/auth и features/profile, если LoginForm реально нуждается в данных обоих слайсов?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Оставить импорт, но пометить его комментарием // временно",
+        "correct": false,
+        "explanation": "Комментарий не убирает архитектурную проблему — граф зависимостей остаётся нарушенным."
+      },
+      {
+        "text": "Поднять композицию на widget или page, которые знают про оба слайса и сами их соединяют",
+        "correct": true,
+        "explanation": "Слайсы одного слоя изолированы, а знание о нескольких из них — задача вышестоящего слоя."
+      },
+      {
+        "text": "Скопировать ProfileForm внутрь features/auth",
+        "correct": false,
+        "explanation": "Дублирование типа приводит к рассинхрону при следующем изменении оригинала."
+      },
+      {
+        "text": "Перенести оба слайса в entities",
+        "correct": false,
+        "explanation": "auth и profile — про пользовательские сценарии (features), а не про данные (entities); перенос слоя не решает проблему изоляции."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих путей импорта являются нарушением границ FSD? (несколько вариантов)",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "import { Order } from '@/entities/order/model/types' — из widgets",
+        "correct": true,
+        "explanation": "Глубокий импорт во внутренний сегмент чужого слайса мимо index.ts."
+      },
+      {
+        "text": "import { Button } from '@/shared/ui' — из features",
+        "correct": false,
+        "explanation": "shared/ui — легальная точка входа сегмента shared, доступная с любого слоя."
+      },
+      {
+        "text": "import { authForm } from '@/pages/login/model/form' — из features/auth",
+        "correct": true,
+        "explanation": "pages выше features — это импорт вверх по слоям, запрещённый."
+      },
+      {
+        "text": "import type { User } from '@/entities/user' — из widgets/user-panel",
+        "correct": false,
+        "explanation": "Импорт вниз через public API сущности — корректный путь."
+      }
+    ]
+  },
+  {
+    "question": "Почему при переносе Discount из shared в entities/discount мало просто добавить новый файл — старый в shared тоже нужно поправить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Иначе останутся два независимых определения Discount, и часть кода продолжит зависеть от неправильного места",
+        "correct": true,
+        "explanation": "Половинчатый перенос — источник путаницы: непонятно, какое определение считать актуальным, а старые импорты не исчезают сами."
+      },
+      {
+        "text": "TypeScript запрещает существование двух файлов с одноимённым интерфейсом в проекте",
+        "correct": false,
+        "explanation": "TypeScript такого не запрещает — интерфейсы в разных модулях независимы. Проблема архитектурная, не синтаксическая."
+      },
+      {
+        "text": "Движок проверок физически не даст сохранить старый файл",
+        "correct": false,
+        "explanation": "Движок не запрещает содержимое файла — он лишь проверяет результат по заданным правилам, не блокируя сохранение."
+      },
+      {
+        "text": "Это не нужно — старый файл в shared можно оставить как есть",
+        "correct": false,
+        "explanation": "Тогда домен фактически продолжает жить в shared, а перенос становится формальностью без пользы."
+      }
+    ]
+  },
+  {
+    "question": "У entities/product пустой index.ts, а widgets/product-card импортирует Product напрямую из entities/product/model/types. В каком порядке лучше чинить?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Сначала переключить импорт в виджете, потом (когда-нибудь) заполнить index.ts",
+        "correct": false,
+        "explanation": "Так импорт в виджете временно сломается — не из чего будет импортировать до заполнения index.ts."
+      },
+      {
+        "text": "Порядок не важен, главное сделать оба изменения",
+        "correct": false,
+        "explanation": "Порядок важен для промежуточной консистентности проекта, даже если итоговый результат одинаков."
+      },
+      {
+        "text": "Сначала заполнить index.ts сущности реэкспортом Product, потом переключить импорт виджета на public API",
+        "correct": true,
+        "explanation": "Так на каждом шаге есть рабочий источник импорта: сначала появляется public API, потом на него переключается потребитель."
+      },
+      {
+        "text": "Удалить widgets/product-card целиком и написать заново",
+        "correct": false,
+        "explanation": "Излишняя мера — проблема решается точечным исправлением двух файлов, без удаления виджета."
+      }
+    ]
+  }
+]

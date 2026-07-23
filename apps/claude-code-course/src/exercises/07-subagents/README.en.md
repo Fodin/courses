@@ -1,110 +1,182 @@
-# Exercise 7. Subagents
+# Level 7: Subagents -- Delegating Tasks
 
-## Goal
+## 🎯 The Context Window Problem
 
-Learn to use Subagents in Claude Code — the ability to delegate tasks to specialized agents running in parallel.
+Claude Code has a limit on context size. When the agent explores a large codebase, the context fills up with the files it has read, and by the end of the task the agent "forgets" the beginning of the conversation. Subagents solve this problem -- each one works **in an isolated context**, like a separate employee with their own notebook.
 
-## Theory
-
-### What Are Subagents
-
-Subagents are specialized Claude agents that run in parallel to handle specific tasks. The main agent delegates work to subagents, which then work independently and return results.
-
-```
-Main Agent (orchestrator)
-├── Subagent 1: "Research the API"
-├── Subagent 2: "Write tests for the module"
-└── Subagent 3: "Refactor the utility"
+```mermaid
+flowchart LR
+    Main["Main agent"] --> R["Research agent"]
+    Main --> Rev["Review agent"]
+    Main --> D["Debug agent"]
+    R -->|"report"| Main
+    Rev -->|"report"| Main
+    D -->|"report"| Main
 ```
 
-### Why Subagents?
+Analogy: you're a team lead. Instead of reading 200 files yourself, you tell an intern: "Study the authorization module and tell me how it works." The intern comes back with a brief report -- you save your own context.
 
-**Without subagents:** the main agent does everything sequentially. If a task takes 10 minutes, you wait 10 minutes.
+---
 
-**With subagents:** tasks run in parallel. Three 10-minute tasks take ~10 minutes total (not 30).
+## 🔥 Subagent Files
 
-### When to Use Subagents
+Subagents are described as markdown files in the `.claude/agents/` directory:
 
-| Scenario | Subagent? |
-|---|---|
-| Independent tasks that can run in parallel | Yes |
-| Tasks that require different context | Yes |
-| Tasks that need to share state | No |
-| Tasks that depend on each other | No |
-| Simple one-line commands | No (use Bash) |
+```
+.claude/
+  agents/
+    code-reviewer.md
+    research.md
+    debugger.md
+```
 
-### Creating Subagents
-
-#### Via CLAUDE.md
+### Subagent File Structure
 
 ```markdown
-## Subagents
-- api-explorer: research and document external APIs
-- test-writer: write and run tests for modules
-- code-reviewer: review code for quality and security
+---
+name: code-reviewer
+description: Code review -- looks for bugs, performance issues, and style problems
+tools: ["Read", "Glob", "Grep"]
+model: sonnet
+---
+
+You are an experienced code reviewer. Analyze the changes and find:
+1. Bugs and potential errors
+2. Performance issues
+3. Violations of the project's style
+
+Return a structured report specifying files and line numbers.
 ```
 
-#### Via Prompt
+---
 
-```
-Use subagents to:
-1. Research the Stripe API documentation
-2. Write tests for the payment module
-3. Review the authentication code
-```
+## 🔥 Frontmatter Parameters
 
-### Subagent Context
+| Parameter | What it does | Example |
+|---|---|---|
+| `name` | The subagent's name | `code-reviewer` |
+| `description` | When to invoke it (for auto-delegation) | `Code review...` |
+| `tools` | Available tools | `["Read", "Glob", "Grep"]` |
+| `model` | The model to use | `haiku`, `sonnet`, `opus` |
+| `context` | Context mode | `fork` (isolation) |
+| `hooks` | The subagent's own hooks | A hooks object |
 
-Each subagent receives:
-- **System prompt** — from CLAUDE.md and project settings
-- **Task description** — what the main agent asked it to do
-- **File access** — can read and edit files
-- **Tool access** — same tools as the main agent (Read, Edit, Bash, etc.)
+### Restricting Tools -- the Key to Security
 
-### Subagent Isolation
+```markdown
+# Read-only agent -- can't change code
+tools: ["Read", "Glob", "Grep"]
 
-Subagents work in **isolated contexts**:
-- They do not see each other's work
-- They do not see the main agent's full conversation
-- They only know their specific task
+# Agent with edit permission
+tools: ["Read", "Glob", "Grep", "Edit", "Write"]
 
-### Results Aggregation
-
-When subagents complete, results return to the main agent:
-
-```
-Subagent 1 result ──┐
-Subagent 2 result ──┼──▶ Main Agent aggregates and decides
-Subagent 3 result ──┘
+# Agent with terminal access
+tools: ["Read", "Glob", "Grep", "Bash"]
 ```
 
-The main agent can:
-- Use results directly
-- Combine results into a single output
-- Delegate follow-up tasks based on results
+---
 
-## Task
+## 🔥 Subagent Patterns
 
-1. **Create a project** with at least 3 independent tasks:
-   - Research a topic (e.g., API documentation)
-   - Write code (e.g., a utility module)
-   - Write tests for existing code
+### Code Reviewer (read-only)
+```markdown
+---
+name: reviewer
+description: Review changes
+tools: ["Read", "Glob", "Grep"]
+model: sonnet
+---
+Find bugs, vulnerabilities, and style issues in the changed files.
+```
 
-2. **Delegate tasks to subagents** via prompt or CLAUDE.md
+### Research Agent (codebase exploration)
+```markdown
+---
+name: researcher
+description: Codebase exploration
+tools: ["Read", "Glob", "Grep"]
+model: haiku
+---
+Study the specified module and return a brief description of its architecture.
+```
 
-3. **Verify that subagents work in parallel** — check that total time is close to the longest task, not the sum of all tasks
+### Debugger (focused debugging)
+```markdown
+---
+name: debugger
+description: Debugging errors
+tools: ["Read", "Glob", "Grep", "Bash"]
+model: sonnet
+---
+Reproduce the bug, find the cause, and propose a fix.
+```
 
-4. **Aggregate results** — have the main agent combine subagent outputs into a single report
+---
 
-## Verification Criteria
+## 🔥 Choosing a Model
 
-- [ ] Subagents are properly configured
-- [ ] Tasks run in parallel (not sequentially)
-- [ ] Subagents work in isolated contexts
-- [ ] Results are correctly aggregated
-- [ ] Subagents do not interfere with each other
+| Model | Cost | When to use |
+|---|---|---|
+| **Haiku** | Cheap | Simple tasks: finding files, gathering information |
+| **Sonnet** | Medium | Reviews, analysis, routine tasks |
+| **Opus** | Expensive | Complex architecture, non-trivial debugging |
 
-## Additional Materials
+💡 Rule of thumb: start with Haiku, upgrade the model only if quality is insufficient.
 
-- [Claude Code Subagents Documentation](https://docs.anthropic.com/en/docs/claude-code/subagents)
-- [Subagents Examples](https://github.com/anthropics/claude-code-examples)
+---
+
+## 🔥 Foreground vs. Background
+
+**Foreground** -- the subagent works, the main agent waits for the result:
+```
+"Run code-reviewer to check my changes"
+```
+
+**Background** -- the subagent works in parallel, the main agent continues:
+```
+"Run researcher in the background to study the auth module,
+while we keep working on the API"
+```
+
+Background subagents are useful for **parallel research**: launching 3 agents to study different modules at the same time.
+
+---
+
+## 🔥 Worktrees -- Filesystem Isolation
+
+For experiments, a subagent can work in a separate **worktree** -- an isolated copy of the repository:
+
+```bash
+# Git worktree -- a separate working copy based on the same repository
+git worktree add ../my-repo-experiment feature-branch
+```
+
+A subagent in a worktree can freely change files without affecting the main copy. If the experiment succeeds, the changes are merged. If not, the worktree is removed.
+
+---
+
+## ⚠️ Common Beginner Mistakes
+
+### 🐛 A Subagent with Full Permissions
+
+```markdown
+❌  tools: ["Read", "Glob", "Grep", "Edit", "Write", "Bash"]
+```
+
+A read-only task with write permissions is a recipe for accidental changes. Grant the minimum necessary permissions.
+
+### 🐛 Opus for Trivial Tasks
+
+```markdown
+❌  model: opus  # For a simple file search
+✅  model: haiku  # Haiku does just as well, but 20 times cheaper
+```
+
+### 🐛 A Huge Description Instead of Focus
+
+```markdown
+❌  Study the entire project, all dependencies, architecture, tests, and documentation
+✅  Find all files where AuthService is used and describe its public API
+```
+
+The more precise the task, the better the result. A subagent with a vague assignment will waste context.

@@ -1,193 +1,114 @@
-# Exercise 9. Agent SDK
+# Level 9: Claude Agent SDK
 
-## Goal
+## 🎯 What is the Agent SDK
 
-Learn to use the Anthropic Agent SDK to build custom automation tools and CI/CD integrations.
+If Claude Code is a pilot who flies the plane themselves, the Agent SDK is the autopilot that your program controls. You get the same tools (Read, Edit, Bash, Grep...), the same agent loop and context -- but you call all of it from code.
 
-## Theory
-
-### What is Agent SDK
-
-Agent SDK is a programmatic interface to Claude Code. It allows you to run Claude Code as a library from your own code, enabling custom automation, CI/CD pipelines, and integration with other tools.
-
+```mermaid
+graph LR
+    YourCode[Your code] -->|query| SDK[Agent SDK]
+    SDK --> Tools[Read, Edit, Bash, Grep...]
+    SDK --> Loop[Agent Loop]
+    SDK --> Context[Project context]
+    Loop -->|results| YourCode
 ```
-Your Code ──▶ Agent SDK ──▶ Claude Code Engine ──▶ Results
-```
 
-### Client SDK vs Agent SDK
+## 🔥 Agent SDK vs. Client SDK
 
-| Feature | Client SDK | Agent SDK |
+These are **different** things, and they're often confused:
+
+| | Agent SDK | Client SDK (Anthropic SDK) |
 |---|---|---|
-| Purpose | Chatbots, text generation | Code automation, CI/CD |
-| Model | Claude API | Claude Code with tools |
-| Tools | No built-in tools | Read, Edit, Bash, Grep, etc. |
-| Agent loop | No | Yes |
-| File access | No | Yes |
-| Use case | Conversational AI | Automated development |
+| What it does | Runs an autonomous agent | Sends messages to the API |
+| Tools | Built-in (Read, Edit, Bash...) | You write your own |
+| Agent loop | Built in | You implement it yourself |
+| Context | CLAUDE.md, project, git | Only what you pass in |
+| Analogy | Hire a developer | Call a consultant |
 
-**Analogy:**
-- **Client SDK** — calling a consultant for advice
-- **Agent SDK** — hiring a specialist who studies your project, writes code, and tests it
+## 📌 Basic Example
 
-### Installation
+```typescript
+import { query, ClaudeAgentOptions } from '@anthropic-ai/claude-agent-sdk'
+
+const options: ClaudeAgentOptions = {
+  allowedTools: ['Read', 'Edit', 'Bash', 'Glob', 'Grep'],
+  maxTurns: 10
+}
+
+// Streaming responses
+for await (const message of query({
+  prompt: 'Find and fix the bug in auth.ts',
+  options
+})) {
+  if (message.type === 'text') {
+    process.stdout.write(message.content)
+  }
+}
+```
+
+## 🔥 Custom Tools
+
+You can define your own tools, extending the agent's capabilities:
+
+```typescript
+const tools = [{
+  name: 'deploy',
+  description: 'Deploy service to staging',
+  parameters: {
+    service: { type: 'string', description: 'Service name' },
+    version: { type: 'string', description: 'Version tag' }
+  },
+  execute: async ({ service, version }) => {
+    const result = await deployToStaging(service, version)
+    return { status: result.status, url: result.url }
+  }
+}]
+```
+
+## 📌 Key Capabilities
+
+- **Sessions (resume):** save `session_id` and continue work between calls
+- **Hooks from code:** `PreToolUse` and `PostToolUse` for validation and auditing
+- **Programmatic subagents:** launch nested agents to decompose tasks
+- **Cost tracking:** `cost.total_cost_usd` for monitoring spend
+- **Structured outputs:** get results in JSON format
+
+## 💡 CI/CD Integration
+
+The Agent SDK is a great fit for automation:
 
 ```bash
-npm install @anthropic-ai/claude-agent-sdk
+# In a pipeline: automatic code review
+claude -p "Review the changes in this PR for security issues" \
+  --allowedTools Read,Grep,Glob \
+  --output-format json
 ```
 
-### Basic Usage
+## ⚠️ Common Beginner Mistakes
+
+### 🐛 Confusing the SDKs
 
 ```typescript
-import { query } from "@anthropic-ai/claude-agent-sdk";
+// ❌ This is the Client SDK — no agent loop, no tools
+import Anthropic from '@anthropic-ai/sdk'
+const client = new Anthropic()
+await client.messages.create({ model: 'claude-opus-4-8', messages: [...] })
 
-const response = await query({
-  prompt: "Fix all TypeScript errors in src/",
-  model: "claude-sonnet-4-20250514",
-  maxTurns: 10,
-});
-
-for await (const chunk of response) {
-  console.log(chunk);
-}
+// ✅ This is the Agent SDK — a full-fledged agent
+import { query } from '@anthropic-ai/claude-agent-sdk'
+for await (const msg of query({ prompt: '...' })) { ... }
 ```
 
-### Parameters
-
-| Parameter | Description |
-|---|---|
-| `prompt` | Task for the agent |
-| `model` | Model to use |
-| `maxTurns` | Maximum agent loop iterations |
-| `allowedTools` | List of tools the agent can use |
-| `disallowedTools` | List of tools the agent cannot use |
-| `workspace` | Working directory |
-| `sessionKey` | Session ID for resuming |
-
-### Session Management
+### 🐛 Overly Broad Permissions
 
 ```typescript
-// Start a session
-const response = await query({
-  prompt: "Analyze the codebase",
-  maxTurns: 5,
-});
+// ❌ The agent can do anything
+const options = { allowedTools: ['Bash'] } // rm -rf ?
 
-let sessionId: string | undefined;
-for await (const chunk of response) {
-  if (chunk.type === "session_update") {
-    sessionId = chunk.sessionId;
-  }
-}
-
-// Resume the session
-const resumed = await query({
-  prompt: "Now fix the issues you found",
-  sessionKey: sessionId,
-  maxTurns: 10,
-});
+// ✅ The minimal necessary tools
+const options = { allowedTools: ['Read', 'Grep', 'Glob'] }
 ```
 
-### Tool Control
+## 📌 Hosting
 
-```typescript
-// Allow only specific tools
-const response = await query({
-  prompt: "Review the code",
-  allowedTools: ["Read", "Grep", "Glob"],
-  maxTurns: 5,
-});
-
-// Block dangerous tools
-const response = await query({
-  prompt: "Analyze the project",
-  disallowedTools: ["Bash"],
-  maxTurns: 5,
-});
-```
-
-### Hooks in Agent SDK
-
-```typescript
-import { query } from "@anthropic-ai/claude-agent-sdk";
-
-const response = await query({
-  prompt: "Fix all TypeScript errors",
-  hooks: {
-    PreToolUse: async (hookInput) => {
-      // Block dangerous commands
-      if (hookInput.tool.input.includes("rm -rf")) {
-        return { decision: "block", errorMessage: "Dangerous command" };
-      }
-      return { decision: "allow" };
-    },
-    PostToolUse: async (hookInput) => {
-      // Log tool results
-      console.log(`Tool ${hookInput.tool.name} completed`);
-      return hookInput.result;
-    },
-  },
-});
-```
-
-### Structured Output
-
-```typescript
-const response = await query({
-  prompt: "Find all security issues in the codebase. Return as JSON.",
-  outputFormat: "json",
-  maxTurns: 10,
-});
-```
-
-### Cost Tracking
-
-```typescript
-const response = await query({
-  prompt: "Refactor src/utils/",
-});
-
-let totalCost = 0;
-for await (const chunk of response) {
-  if (chunk.type === "cost") {
-    totalCost += chunk.cost;
-  }
-}
-console.log(`Total cost: $${totalCost.toFixed(4)}`);
-```
-
-### Deployment Options
-
-- **Self-hosted** — run on your own server
-- **Amazon Bedrock** — AWS integration
-- **Google Vertex AI** — GCP integration
-- **Direct** — direct API access
-
-## Task
-
-1. **Create a CI/CD script** using Agent SDK:
-   - Run code review on pull requests
-   - Check for security issues
-   - Generate a report
-
-2. **Implement tool restrictions** for safety:
-   - Allow only read-only tools in CI
-   - Block dangerous Bash commands
-
-3. **Add cost tracking** to monitor spending
-
-4. **Create a session-based workflow**:
-   - First session: analyze the codebase
-   - Second session: fix issues found in the first
-
-## Verification Criteria
-
-- [ ] Agent SDK is installed and configured
-- [ ] CI/CD script works correctly
-- [ ] Tool restrictions are enforced
-- [ ] Cost tracking reports accurate numbers
-- [ ] Session resumption works
-
-## Additional Materials
-
-- [Agent SDK Documentation](https://docs.anthropic.com/en/docs/claude-code/sdk)
-- [Agent SDK Examples](https://github.com/anthropics/claude-code-examples)
+The Agent SDK runs on various platforms: a self-hosted server, Amazon Bedrock, Google Vertex AI. The choice depends on your security, latency, and cost requirements.

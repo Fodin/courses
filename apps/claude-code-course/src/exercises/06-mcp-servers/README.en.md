@@ -1,190 +1,173 @@
-# Exercise 6. MCP Servers
+# Level 6: MCP Servers -- External Integrations
 
-## Goal
+## 🎯 What is MCP
 
-Learn to create and use MCP (Model Context Protocol) servers to extend Claude Code capabilities with custom tools.
+Model Context Protocol (MCP) is a standard for connecting **external tools** to an agent. Think of Claude Code as a smartphone: out of the box it can make calls and send messages, while MCP servers are apps from a store that add new capabilities: working with GitHub, databases, Figma, Notion, and anything else.
 
-## Theory
-
-### What is MCP
-
-MCP (Model Context Protocol) is an open standard for connecting AI applications to external data sources and tools. Think of it as **USB-C for AI** — a universal connector that allows any model to work with any data source.
-
-```
-Claude Code ←→ MCP Client ←→ MCP Server ←→ External API/Tool
-```
-
-### Why MCP?
-
-Without MCP, each integration requires custom code:
-
-```
-Claude → Custom integration → Service A
-Claude → Custom integration → Service B
-Claude → Custom integration → Service C
+```mermaid
+flowchart LR
+    CC["Claude Code"] --> GH["GitHub MCP"]
+    CC --> DB["Database MCP"]
+    CC --> FG["Figma MCP"]
+    CC --> NT["Notion MCP"]
+    GH --> API1["GitHub API"]
+    DB --> API2["PostgreSQL"]
+    FG --> API3["Figma API"]
+    NT --> API4["Notion API"]
 ```
 
-With MCP, one universal protocol:
+Without MCP: Claude Code can work with files, the terminal, and Git.
+With MCP: Claude Code gets access to **any** external service.
 
-```
-Claude ←→ MCP Client ←→ MCP Server A (Service A)
-                       ←→ MCP Server B (Service B)
-                       ←→ MCP Server C (Service C)
-```
+---
 
-### MCP Server Types
+## 🔥 Four Transports
 
-#### Stdio Server
+| Transport | `type` | How it works | When to use |
+|---|---|---|---|
+| **stdio** | `stdio` | A local process, communicating via stdin/stdout | Most cases |
+| **HTTP** | `http` | A remote URL, request-response | Hosted servers, corporate |
+| **WebSocket** | `ws` | A persistent bidirectional connection | The server pushes events itself |
+| **SSE** | `sse` | ⚠️ **Deprecated** | Don't use in new configurations |
 
-Communication via standard input/output. Simplest option for local development.
+In 90% of cases you'll use **stdio** -- Claude Code launches a process locally and communicates with it via stdin/stdout.
 
-```typescript
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+⚠️ **SSE is marked as deprecated.** The documentation explicitly recommends HTTP instead. If you see `"type": "sse"` in someone else's config, that's legacy -- migrate to `http` when possible.
 
-const server = new McpServer({
-  name: "my-server",
-  version: "1.0.0"
-});
+WebSocket is needed in a narrow case: the server must push events itself, without being asked. If the server just responds to requests, use HTTP -- it supports OAuth and the `claude mcp add --transport` flag, while WebSocket supports neither.
 
-server.tool(
-  "search-db",
-  { query: z.string().describe("Search query") },
-  async ({ query }) => {
-    const results = await searchDatabase(query);
-    return {
-      content: [{ type: "text", text: JSON.stringify(results) }]
-    };
-  }
-);
+---
 
-const transport = new StdioServerTransport();
-await server.connect(transport);
-```
+## 🔥 Configuration
 
-#### HTTP Server
-
-Communication via HTTP. Suitable for remote servers and multi-user access.
-
-```typescript
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-
-const server = new McpServer({
-  name: "my-remote-server",
-  version: "1.0.0"
-});
-
-// ... register tools and resources ...
-
-const app = express();
-app.post("/mcp", async (req, res) => {
-  const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: () => crypto.randomUUID(),
-  });
-  await server.connect(transport);
-  await transport.handleRequest(req, res, req.body);
-});
-```
-
-### MCP in Claude Code
-
-MCP servers are configured in `.mcp.json`:
+MCP servers are configured in the `.mcp.json` file:
 
 ```json
 {
   "mcpServers": {
-    "my-server": {
-      "command": "node",
-      "args": ["/path/to/server.js"],
+    "github": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["@modelcontextprotocol/server-github"],
       "env": {
-        "API_KEY": "your-key"
+        "GITHUB_TOKEN": "$GITHUB_TOKEN"
       }
     }
   }
 }
 ```
 
-### Tool Registration
+### Configuration Scopes
 
-```typescript
-server.tool(
-  "tool-name",
-  "Tool description for the model",
-  {
-    param1: z.string().describe("Parameter description"),
-    param2: z.number().optional().describe("Optional parameter"),
-  },
-  async ({ param1, param2 }) => {
-    // Tool logic
-    return {
-      content: [
-        { type: "text", text: "Result text" },
-        { type: "image", data: base64Image, mimeType: "image/png" },
-      ],
-    };
+| Scope | Location | Goes into git? |
+|---|---|---|
+| **project** | `.mcp.json` in the **project root** | Yes, that's its purpose |
+| **user / local** | `~/.claude.json` | No |
+
+The project's `.mcp.json` lives in the repository root and gets committed -- the whole team gets the same set of servers. On first run, Claude Code will ask for confirmation before using servers from someone else's repository.
+
+⚠️ A common mistake is looking for the config at `~/.claude/.mcp.json`. That path **does not exist**, Claude Code doesn't read it. User-level servers live in `~/.claude.json` under the `mcpServers` key, and the correct way to add them is with the command:
+
+```bash
+claude mcp add --scope user github npx @modelcontextprotocol/server-github
+```
+
+---
+
+## 🔥 Environment Variables
+
+Values with `$` are substituted from the environment, not hardcoded:
+
+```json
+{
+  "mcpServers": {
+    "database": {
+      "type": "stdio",
+      "command": "python",
+      "args": ["-m", "mcp_server_db"],
+      "env": {
+        "DATABASE_URL": "$DATABASE_URL",
+        "DB_USER": "$DB_USER",
+        "DB_PASSWORD": "$DB_PASSWORD"
+      }
+    }
   }
-);
+}
 ```
 
-### Resource Registration
+💡 Never hardcode tokens and passwords in `.mcp.json` -- use environment variables.
 
-```typescript
-server.resource(
-  "config",
-  "file://config.json",
-  async (uri) => ({
-    contents: [{
-      uri: uri.href,
-      mimeType: "application/json",
-      text: JSON.stringify(config),
-    }],
-  })
-);
+---
+
+## 🔥 Popular MCP Servers
+
+| Server | What it provides |
+|---|---|
+| **GitHub** | Working with PRs, issues, code review |
+| **PostgreSQL / MySQL** | Database queries |
+| **Grafana** | Metrics, dashboards, alerts |
+| **Figma** | Design tokens, components |
+| **Notion** | Documentation, tasks |
+| **Slack** | Messages, channels |
+| **Context7** | Up-to-date library documentation |
+
+---
+
+## 🔥 Authentication
+
+Three approaches to MCP server authentication:
+
+**1. Environment variables (stdio):**
+```json
+{ "env": { "API_KEY": "$MY_API_KEY" } }
 ```
 
-### Prompt Registration
+**2. OAuth (for hosted servers):**
+Claude Code supports an OAuth flow for remote MCP servers -- tokens refresh automatically.
 
-```typescript
-server.prompt(
-  "review",
-  { code: z.string().describe("Code to review") },
-  ({ code }) => ({
-    messages: [{
-      role: "user",
-      content: {
-        type: "text",
-        text: `Review this code:\n\n${code}`,
-      },
-    }],
-  })
-);
+**3. Fixed tokens:**
+Passed via headers or environment variables.
+
+---
+
+## 📌 Managed MCP for Organizations
+
+In a corporate environment, administrators manage which MCP servers are available:
+
+- **Allowlist** -- only approved servers can connect
+- **Denylist** -- prohibited servers are blocked
+- Centralized configuration through the Admin Console
+
+---
+
+## ⚠️ Common Beginner Mistakes
+
+### 🐛 A Token Right in the Config
+
+```json
+❌  { "env": { "GITHUB_TOKEN": "ghp_abc123secret" } }
+✅  { "env": { "GITHUB_TOKEN": "$GITHUB_TOKEN" } }
 ```
 
-## Task
+The config gets into git -- the token will leak. Always use environment variables.
 
-1. **Create an MCP server** with at least 2 tools:
-   - A tool that fetches data from an API (e.g., weather, currency rates)
-   - A tool that works with files (e.g., search, analyze)
+### 🐛 Forgot to Install the Package
 
-2. **Configure the server** in `.mcp.json` and connect to Claude Code
+```bash
+# ❌ MCP server not found
+# Error: Cannot find module '@modelcontextprotocol/server-github'
 
-3. **Test the tools** through Claude Code — make sure the agent can use them
+# ✅ For npx servers, the package downloads automatically,
+# but Python servers need explicit installation:
+pip install mcp-server-db
+```
 
-4. **Add a resource** that provides static context (e.g., documentation, configuration)
+### 🐛 Didn't Export the Environment Variable
 
-## Verification Criteria
+```bash
+# ❌ The variable isn't visible to child processes
+GITHUB_TOKEN=ghp_abc123
 
-- [ ] MCP server starts without errors
-- [ ] Tools are visible in Claude Code
-- [ ] Tools return correct results
-- [ ] Tool parameters are properly validated
-- [ ] Tool descriptions are clear and informative
-- [ ] `.mcp.json` is correctly configured
-- [ ] Error handling is implemented
-
-## Additional Materials
-
-- [MCP Specification](https://modelcontextprotocol.io/specification)
-- [MCP TypeScript SDK](https://github.com/modelcontextprotocol/typescript-sdk)
-- [MCP Server Examples](https://github.com/modelcontextprotocol/servers)
+# ✅ export makes the variable available to the MCP server
+export GITHUB_TOKEN=ghp_abc123
+```

@@ -1,147 +1,207 @@
-# Exercise 5. Hooks
+# Level 5: Hooks -- Deterministic Automation
 
-## Goal
+## 🎯 The Problem: Recommendation vs. Guarantee
 
-Learn to use Hooks in Claude Code — the mechanism for intercepting and modifying Claude's actions before and after execution.
-
-## Theory
-
-### What are Hooks
-
-Hooks are event handlers that allow you to intercept Claude's actions and modify them before execution or react to results after execution.
-
-**Analogy:** Hooks in Claude Code are like middleware in Express.js. The request passes through the middleware chain, where each one can modify, block, or log it.
+CLAUDE.md is an instruction for the agent. But the agent can forget, misinterpret, or ignore it in a complex context. A hook is **code that runs automatically** on specific events. The difference is like a "Wash your hands" sign versus an automatic soap dispenser at the entrance to an operating room.
 
 ```
-User prompt → [PreToolUse hook] → Tool execution → [PostToolUse hook] → Response
+CLAUDE.md: "Please format the code after editing"  -- recommendation
+PostToolUse(Edit) hook: prettier --write $file      -- guarantee
 ```
 
-### Two Types of Hooks
+---
 
-#### PreToolUse
+## 🔥 Hook Configuration
 
-Triggered **before** a tool is used. Can block the action.
-
-```javascript
-// claude-code-hooks.js
-export async function preToolUse(hookInput) {
-  const { tool } = hookInput;
-
-  // Block dangerous commands
-  if (tool.name === 'Bash') {
-    const dangerousPatterns = ['rm -rf', 'drop database', 'curl | sh'];
-    for (const pattern of dangerousPatterns) {
-      if (tool.input.includes(pattern)) {
-        return {
-          decision: 'block',
-          errorMessage: `Command blocked for security reasons: ${pattern}`,
-        };
-      }
-    }
-  }
-
-  return { decision: 'allow' };
-}
-```
-
-#### PostToolUse
-
-Triggered **after** a tool is used. Can modify context or add to the result.
-
-```javascript
-export async function postToolUse(hookInput) {
-  const { tool, result } = hookInput;
-
-  if (tool.name === 'Bash' && result.exitCode !== 0) {
-    // Add instructions for debugging failed commands
-    return {
-      ...result,
-      content: result.content + '\nNOTE: Command failed. Check the error above.',
-    };
-  }
-
-  return result;
-}
-```
-
-### Hook Configuration
-
-Hooks are specified when launching Claude Code:
-
-```bash
-claude --hooks claude-code-hooks.js
-```
-
-Or in `.claude/settings.json`:
+Hooks are configured in `settings.json` (`.claude/settings.json` for a project or `~/.claude/settings.json` globally):
 
 ```json
 {
   "hooks": {
-    "PreToolUse": "./claude-code-hooks.js",
-    "PostToolUse": "./claude-code-hooks.js"
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/validate.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
   }
 }
 ```
 
-### HookInput and HookResult
+---
 
-**PreToolUse:**
+## 🔥 Five Types of Hooks
 
-```typescript
-interface HookInput {
-  tool: {
-    name: string;
-    input: string;
-  };
-}
+| Type | What it does | When to use |
+|---|---|---|
+| **command** | Runs a shell command | Formatting, validation, notifications |
+| **http** | Sends an HTTP request | External webhooks, auditing |
+| **mcp_tool** | Calls a tool on a connected MCP server | Integration with an external system without a wrapper script |
+| **prompt** | Sends a prompt to the LLM for analysis | Deep security analysis |
+| **agent** | Launches a subagent | Complex multi-step verification |
 
-interface HookResult {
-  decision: 'allow' | 'block';
-  errorMessage?: string; // required when blocking
+`command` covers the vast majority of tasks. `mcp_tool` is useful when the action you need already exists as a tool on an MCP server -- no need to write a shell wrapper. `agent` is marked experimental and may change.
+
+---
+
+## 🔥 Lifecycle Events
+
+```mermaid
+flowchart LR
+    A["SessionStart"] --> B["UserPromptSubmit"]
+    B --> C["PreToolUse"]
+    C --> D["Tool"]
+    D --> E["PostToolUse"]
+    E --> F["Stop"]
+    F --> G["SessionEnd"]
+```
+
+**Core events:**
+
+| Event | When it fires |
+|---|---|
+| `PreToolUse` | Before a tool is called (Edit, Bash, Write...) |
+| `PostToolUse` | After a tool **successfully** completes |
+| `PostToolUseFailure` | After a **failed** tool call |
+| `UserPromptSubmit` | The user submitted a message |
+| `Stop` | Claude finished a response |
+| `SubagentStart` / `SubagentStop` | Subagent lifecycle |
+| `SessionStart` / `SessionEnd` | Start and end of a session |
+
+These are the events you start with, but there are more than thirty in total. It's useful to know that at least these also exist:
+
+| Event | When it fires |
+|---|---|
+| `PermissionRequest` / `PermissionDenied` | A permission request appears / a call is denied |
+| `PreCompact` / `PostCompact` | Before and after context compaction |
+| `InstructionsLoaded` | CLAUDE.md or a `.claude/rules/` file is loaded |
+| `FileChanged` | A tracked file changed on disk |
+| `CwdChanged` | The working directory changed (e.g., the agent ran `cd`) |
+| `TaskCreated` / `TaskCompleted` | A task was created / marked complete |
+| `WorktreeCreate` / `WorktreeRemove` | Creation and removal of a worktree |
+
+The point is that hooks cover almost the entire lifecycle, not just tool calls. See the docs for the full, ever-growing list.
+
+---
+
+## 🔥 Matchers and Filtering
+
+A matcher is a regex that determines **which tool** the hook fires for:
+
+```json
+{
+  "matcher": "Edit|Write",
+  "hooks": [{ "type": "command", "command": "prettier --write $FILE" }]
 }
 ```
 
-**PostToolUse:**
-
-```typescript
-interface HookInput {
-  tool: {
-    name: string;
-    input: string;
-  };
-  result: {
-    exitCode: number;
-    content: string;
-  };
+```json
+{
+  "matcher": "Bash",
+  "hooks": [{ "type": "command", "command": "bash .claude/hooks/audit-bash.sh" }]
 }
 ```
 
-## Task
+### The `if` Field -- a Filter Before the Process Starts
 
-1. **Create a PreToolUse hook** that blocks dangerous Bash commands:
-   - `rm -rf /` or `rm -rf /*`
-   - `curl ... | sh` or `wget ... | sh`
-   - `DROP DATABASE`, `DROP TABLE`
-   - `sudo` commands
-   - Commands redirecting to `/dev/sda` or other devices
+`matcher` selects by tool name, but often you need more precision: not "any Bash", but "only `git push`". That's what the `if` field is for, using permission-rule syntax:
 
-2. **Create a PostToolUse hook** that adds context to failed test results:
-   - If tests fail, add a link to the test documentation
-   - If linting fails, add a link to ESLint rules
+```json
+{
+  "matcher": "Bash",
+  "if": "Bash(git push*)",
+  "hooks": [{ "type": "command", "command": "bash .claude/hooks/guard-push.sh" }]
+}
+```
 
-3. **Test the hooks:**
-   - Ask Claude to run a dangerous command — make sure it is blocked
-   - Intentionally break a test and run it — check that additional information is added
+The difference from filtering inside the script is fundamental: if `if` doesn't match, the process **never starts at all**. For a hook on every Bash call, this is a significant saving.
 
-## Verification Criteria
+⚠️ `if` is only evaluated on tool-related events (`PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `PermissionRequest`, `PermissionDenied`). On any other event, a hook with `if` set will never fire.
 
-- [ ] PreToolUse hook blocks dangerous commands
-- [ ] PostToolUse hook adds context to errors
-- [ ] Hooks do not interfere with normal Claude Code operation
-- [ ] Hook code is in a separate file (`claude-code-hooks.js`)
-- [ ] Hook tests are documented
+When the `if` filter isn't enough, parse the input inside the script -- it arrives as JSON on stdin:
 
-## Additional Materials
+```bash
+#!/bin/bash
+input=$(cat)
+command=$(echo "$input" | jq -r '.tool_input.command')
 
-- [Claude Code Hooks Documentation](https://docs.anthropic.com/en/docs/claude-code/hooks)
-- [Hooks Examples on GitHub](https://github.com/anthropics/claude-code-hooks)
+# Block dangerous git commands
+if [[ "$command" =~ git\ (push|reset|rebase) ]]; then
+  echo '{"hookSpecificOutput":{"permissionDecision":"deny"}}'
+  exit 0
+fi
+exit 0  # Allow everything else
+```
+
+---
+
+## 🔥 Exit Codes and Flow Control
+
+| Exit code | Meaning |
+|---|---|
+| `0` | Allow -- the tool runs |
+| `2` | Deny -- the tool does NOT run |
+
+A hook can also return JSON with `additionalContext` -- this injects context directly into Claude:
+
+```bash
+echo '{"additionalContext": "Warning: this file contains sensitive data. Do not log its contents."}'
+exit 0
+```
+
+---
+
+## 📌 Practical Patterns
+
+**Auto-format after editing:**
+```json
+{ "matcher": "Edit|Write", "hooks": [{ "type": "command", "command": "prettier --write $FILE" }] }
+```
+
+**Protecting critical files:**
+```json
+{ "matcher": "Edit|Write", "hooks": [{ "type": "command", "command": "bash .claude/hooks/protect-files.sh" }] }
+```
+
+**Reloading the environment on directory change:**
+```json
+{ "matcher": "CwdChanged", "hooks": [{ "type": "command", "command": "bash .claude/hooks/reload-env.sh" }] }
+```
+
+---
+
+## ⚠️ Common Beginner Mistakes
+
+### 🐛 A Hook Without a Timeout
+
+```json
+❌  { "type": "command", "command": "npm test" }
+✅  { "type": "command", "command": "npm test", "timeout": 60 }
+```
+
+Without a timeout, a hung process will block the entire session.
+
+### 🐛 Forgotten Exit Code
+
+```bash
+# ❌ The script doesn't return a code -- behavior is unpredictable
+echo "checked"
+
+# ✅ Explicit exit code
+echo "checked"
+exit 0
+```
+
+### 🐛 A Hook on Everything
+
+```json
+❌  { "matcher": ".*", "hooks": [{ "type": "command", "command": "heavy-check.sh" }] }
+```
+
+A hook on every tool will slow work down. Use precise matchers.

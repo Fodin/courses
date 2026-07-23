@@ -92,7 +92,7 @@ claude -p "Review the changes in this PR for security issues" \
 // ❌ Это Client SDK — нет agent loop, нет инструментов
 import Anthropic from '@anthropic-ai/sdk'
 const client = new Anthropic()
-await client.messages.create({ model: 'claude-opus-4-6', messages: [...] })
+await client.messages.create({ model: 'claude-opus-4-8', messages: [...] })
 
 // ✅ Это Agent SDK — полноценный агент
 import { query } from '@anthropic-ai/claude-agent-sdk'

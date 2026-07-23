@@ -289,7 +289,7 @@ Agent SDK работает на разных платформах: self-hosted �
 import Anthropic from '@anthropic-ai/sdk'
 const client = new Anthropic()
 const response = await client.messages.create({
-  model: 'claude-opus-4-6',
+  model: 'claude-opus-4-8',
   messages: [{ role: 'user', content: 'Fix the bug in auth.ts' }]
 })
 // Claude даст текстовый совет, но не откроет файл и не исправит код

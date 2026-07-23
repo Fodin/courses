@@ -1,289 +1,270 @@
-# Exercise 8. Agent Teams — Extended Guide
+# Level 8: Multi-Agent Teams (Agent Teams)
 
-## What Are Agent Teams?
+> ⚠️ **Experimental feature, disabled by default.**
+>
+> Without the environment variable `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1`, no team gets created at session start, no service directories are written, and Claude won't create teammates or even suggest them. Everything described below simply won't work -- and it will look as if you made a mistake in the wording of your request.
+>
+> ```json
+> // ~/.claude/settings.json
+> {
+>   "env": { "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1" }
+> }
+> ```
+>
+> The behavior of this experimental feature may change between versions, so check the documentation.
 
-Agent Teams allow multiple Claude Code agents to work together on complex tasks with explicit coordination. Unlike subagents (delegated by a single agent), teams involve structured roles and communication between agents.
+## Introduction
 
-## Architecture
+Imagine you're managing an apartment renovation. You could hire a single all-around handyman: they'll hang wallpaper, do the wiring, and lay tile. But that would take three months. Or you could hire a crew: an electrician, a tiler, and a painter work in parallel, coordinated by a foreman. The result: three weeks instead of three months.
 
-```
-┌─────────────────────────────────────────────────┐
-│                  Orchestrator                    │
-│  (coordinates work, manages handoffs, decides)   │
-│                                                  │
-│    ┌──────────┐  ┌──────────┐  ┌──────────┐     │
-│    │Developer │  │ Reviewer │  │   QA     │     │
-│    │  Agent   │  │  Agent   │  │  Agent   │     │
-│    │          │  │          │  │          │     │
-│    │ Context A│  │ Context B│  │ Context C│     │
-│    └──────────┘  └──────────┘  └──────────┘     │
-└─────────────────────────────────────────────────┘
-```
+Agent Teams in Claude Code is that same crew. Several Claude Code sessions work simultaneously, each in its own context window, each with its own specialization. The Lead agent coordinates the work, like a foreman on a construction site.
 
-### Key Properties
+🔥 **Key idea:** Agent Teams isn't just "more agents." It's **coordinated parallel work** with information exchange between participants.
 
-1. **Specialized roles** — each agent has expertise in a specific area
-2. **Explicit coordination** — orchestrator manages the workflow
-3. **Structured handoffs** — clear communication between agents
-4. **Quality through review** — multiple eyes on the work
+---
 
-## Orchestration Patterns
+## Agent Teams Architecture
 
-### 1. Sequential Pipeline
+### The Lead Agent and Teammates
 
-```
-Researcher → Architect → Developer → Reviewer → QA
-```
+When you create a team, one session becomes the **Lead**, and the rest become **Teammates**. Each has its own role:
 
-**When to use:**
-- Complex features requiring thorough research
-- Projects where quality is more important than speed
-- Tasks where each step builds on the previous
-
-**Pros:**
-- High quality output
-- Each stage validateses the previous
-- Clear responsibility
-
-**Cons:**
-- Slowest pattern
-- Most expensive (many agent turns)
-- Bottleneck at each stage
-
-### 2. Parallel Development + Review
-
-```
-Developer A (feature 1) ──┐
-                          ├──▶ Reviewer
-Developer B (feature 2) ──┘
+```mermaid
+graph LR
+    You[You] --> Lead[Lead agent<br/>coordination]
+    Lead --> T1[Teammate 1<br/>API Design]
+    Lead --> T2[Teammate 2<br/>Database]
+    Lead --> T3[Teammate 3<br/>Frontend]
+    T1 -.->|messages| T2
+    T2 -.->|messages| T3
+    T1 -.->|messages| T3
 ```
 
-**When to use:**
-- Multiple independent features
-- Tight deadline
-- Need both speed and quality
+**The Lead agent** is responsible for:
+- Breaking the task down into subtasks
+- Assigning work to teammates
+- Synthesizing results
+- Delivering the final report to you
 
-**Pros:**
-- Faster than sequential
-- Still has review
-- Good use of parallelism
+**Teammates** are responsible for:
+- Executing their assigned task
+- Sharing findings with other teammates
+- Claiming tasks from the shared list
 
-**Cons:**
-- Reviewer can become bottleneck
-- Features may have inconsistencies
-- More complex coordination
+### Difference from Subagents
 
-### 3. Iterative Refinement
+These two mechanisms are often confused, but they solve different problems:
 
-```
-Developer → Reviewer → Developer → Reviewer → Done
-              ↑____________↓
-               feedback loop
-```
+| Property | Subagents | Agent Teams |
+|----------------|-----------|-------------|
+| Communication | Only with the main agent | Directly with each other |
+| Context | Within the parent's session | A separate context window |
+| Coordination | None (isolated tasks) | A shared task list, claiming |
+| Use case | "Go find out and report back" | "Let's solve this together" |
 
-**When to use:**
-- Critical code (security, infrastructure)
-- Complex refactoring
-- Learning/mentoring scenarios
+💡 **The tipping point:** if you're running parallel subagents and they start hitting context limits, or they need to share findings with each other -- it's time to move to Agent Teams.
 
-**Pros:**
-- Highest quality
-- Developer learns from feedback
-- Catches subtle bugs
+---
 
-**Cons:**
-- Most expensive
-- Can loop indefinitely
-- Needs exit criteria
+## Creating a Team
 
-### 4. Hub and Spoke
+A team is created via natural language. You describe the task and the desired composition:
 
-```
-         ┌─── Developer A
-         ├─── Developer B
-Orchestrator ─── Developer C
-         ├─── QA
-         └─── Reviewer
+```text
+> I'm designing a CLI tool for tracking TODO comments
+  in a codebase. Create a team to research it from different angles:
+  one teammate handles UX, another handles technical architecture,
+  a third plays devil's advocate.
 ```
 
-**When to use:**
-- Large projects with many components
-- Need centralized decision-making
-- Components have dependencies
+Claude will create a Lead agent, which will:
+1. Analyze the task
+2. Create teammates with the described roles
+3. Form a task list
+4. Begin coordination
 
-## Agent Roles in Detail
+### Managing the Team
 
-### Developer
+You manage the team through the Lead agent using natural language:
 
-```markdown
-You are a senior software developer.
-- Write clean, well-documented code
-- Follow project conventions from CLAUDE.md
-- Write tests for your code
-- Handle errors properly
+```text
+> Lead, have the architecture teammate also check
+  whether AST parsing could be used instead of regex
+
+> Show the current status of all teammates
 ```
 
-### Reviewer
+You can switch between teammates in the terminal to watch each one's progress or give instructions directly, bypassing the Lead.
 
-```markdown
-You are a code reviewer.
-- Check for code quality and security
-- Look for bugs and edge cases
-- Suggest improvements
-- Verify that tests are adequate
+---
+
+## Usage Patterns
+
+### 1. Parallel Code Review
+
+One PR is reviewed by three agents at once:
+
+```text
+> Do a code review of PR #142 with a team of three reviewers:
+  1. Security: SQL injection, XSS, secret leaks, CSRF
+  2. Architecture: SOLID, module coupling, dependencies
+  3. Quality: tests, edge cases, documentation
 ```
 
-### QA Engineer
+Each reviewer works independently but sees the others' findings. If the security reviewer finds a suspicious pattern, the architecture reviewer can assess how deeply the problem runs through the system.
 
-```markdown
-You are a QA engineer.
-- Write comprehensive tests
-- Cover edge cases and error paths
-- Ensure test names are descriptive
-- Run tests and fix failures
+### 2. Competing Hypotheses
+
+A bug reproduces intermittently. Instead of testing hypotheses one after another, we run them in parallel:
+
+```text
+> We have a race condition: payments sometimes duplicate.
+  Create a team with three hypotheses:
+  1. The problem is in the task queue -- check idempotency
+  2. The problem is in DB locks -- check isolation levels
+  3. The problem is in the API -- check for repeated client requests
 ```
 
-### Architect
+Each teammate investigates its own hypothesis. If one finds evidence, the others can switch to verifying the discovered cause.
 
-```markdown
-You are a software architect.
-- Design the overall solution
-- Make technology choices
-- Define interfaces and contracts
-- Consider scalability and maintainability
+### 3. Distributed Research
+
+You need to quickly get up to speed on an unfamiliar codebase:
+
+```text
+> We just got access to a monorepo (200k lines).
+  Create a team to research it:
+  1. Frontend: React app, routing, state management
+  2. Backend: API, business logic, authorization
+  3. Infra: CI/CD, deployment, monitoring, configuration
+  Each will prepare a brief report on their area.
 ```
 
-### Researcher
+### 4. Feature Development
 
-```markdown
-You are a technical researcher.
-- Study API documentation
-- Compare approaches
-- Document findings
-- Recommend best practices
+Developing a large feature with decomposition:
+
+```text
+> We're adding a notification system. Create a team:
+  1. API developer: REST endpoints, WebSocket, schemas
+  2. DB engineer: migrations, indexes, queues
+  3. Frontend developer: components, real-time updates
 ```
 
-## Handoff Protocol
+---
 
-### Good Handoff
+## Quality Gates and Monitoring
 
-```markdown
-## Handoff: Developer → Reviewer
+### Automatic Result Verification
 
-### Completed work
-- src/auth/login.ts — login endpoint with JWT
-- src/auth/jwt.ts — token generation and validation
-- src/api/auth-routes.ts — route definitions
+Hooks (`PreToolUse`, `PostToolUse`) also work in the context of teams. You can configure automatic checks:
 
-### What to focus on
-- JWT expiration logic (line 45 in jwt.ts)
-- Error handling in login endpoint
-- Input validation on request body
+- **PostToolUse on Edit:** a linter checks every change
+- **PreToolUse on Bash:** blocking dangerous commands
+- **After completion:** an automatic test run
 
-### Known limitations
-- Does not handle refresh tokens yet
-- Rate limiting not implemented
-```
+### Token Usage Tracking
 
-### Bad Handoff
-
-```markdown
-## Handoff
-Done with auth. Review it.
-```
-
-## Team Configuration
+Each teammate consumes tokens independently. A team of 3 agents can use 3+ times more than a single agent. Monitoring is mandatory:
 
 ```json
 {
-  "agentTeams": {
-    "feature-team": {
-      "orchestrator": {
-        "prompt": "You manage a team. Delegate work based on expertise."
-      },
-      "agents": [
-        {
-          "name": "developer",
-          "role": "Writes code",
-          "prompt": "You are a senior developer..."
-        },
-        {
-          "name": "reviewer",
-          "role": "Reviews code",
-          "prompt": "You are a code reviewer..."
-        },
-        {
-          "name": "qa",
-          "role": "Tests code",
-          "prompt": "You are a QA engineer..."
-        }
-      ],
-      "workflow": "sequential",
-      "maxIterations": 3
+  "cost": {
+    "total_cost_usd": 0.45,
+    "breakdown": {
+      "lead": 0.08,
+      "teammate_security": 0.15,
+      "teammate_architecture": 0.12,
+      "teammate_quality": 0.10
     }
   }
 }
 ```
 
-## Best Practices
+### Display Modes
 
-### 1. Clear Role Definitions
+Control the volume of output:
+- **streaming** -- see each teammate's work in real time
+- **summary** -- periodic summaries from the Lead
+- **results** -- only the final results
 
-Each agent should know exactly what to do:
+---
 
+## When Teams Make Sense and When They Don't
+
+### ✅ Use Teams When:
+
+- **The task is decomposable** into independent subtasks
+- **The codebase is large** -- a single agent doesn't have enough context
+- **Coordination is needed** -- the results of one subtask affect others
+- **Time is critical** -- parallel work saves hours
+- **Different expertise is needed** -- security + performance + UX
+
+### ❌ Don't Use Teams When:
+
+- **The task is simple** -- coordination overhead outweighs the benefit
+- **The project is small** -- a single agent will handle it faster
+- **There's a sequential dependency** -- each step depends on the previous one
+- **Budget is limited** -- each teammate consumes tokens
+
+---
+
+## ⚠️ Common Beginner Mistakes
+
+### 🐛 1. A Team That's Too Large
+
+```text
+# ❌ Bad: 7 agents for a task that needs 2
+> Create a team of 7 specialists to refactor some utilities
 ```
-Good: "You are a senior React developer specializing in forms"
-Bad: "You write code"
+
+> **Why this is a mistake:** coordination among 7 agents creates enormous overhead. Everyone exchanges messages with everyone, and the Lead spends tokens on synthesis. The optimal team size is 2-4 teammates.
+
+```text
+# ✅ Good: the minimal sufficient team
+> Create a team of 2 agents: one refactors module A,
+  the other module B. Then they review each other's work.
 ```
 
-### 2. Structured Handoffs
+### 🐛 2. Vague Roles
 
-Include what was done, what needs attention, and known issues.
-
-### 3. Exit Criteria
-
-Define when the team is done:
-
-```markdown
-Done when:
-- [ ] All tests pass
-- [ ] Reviewer approves
-- [ ] No security issues
-- [ ] Code follows project conventions
+```text
+# ❌ Bad: agents will duplicate work
+> Create a team, have all three check the code's security
 ```
 
-### 4. Limit Iterations
+> **Why this is a mistake:** without clear zones of responsibility, teammates will do the same thing. You pay for three agents and get the result of one.
 
-Prevent infinite loops:
-
-```json
-{
-  "maxIterations": 3
-}
+```text
+# ✅ Good: everyone knows their zone
+> Create a team for an audit:
+  1. Input data: validation, sanitization, SQL injection
+  2. Authentication: tokens, sessions, CORS
+  3. Dependencies: CVEs, outdated packages, licenses
 ```
 
-### 5. Monitor Costs
+### 🐛 3. Ignoring Cost
 
-Agent teams consume many tokens. Monitor usage:
+> **Why this is a mistake:** a team of 4 agents working for an hour can cost 4-5 times more than a single agent. Always assess whether parallelization is justified by the time saved.
 
-- Each agent turn costs tokens
-- Review cycles multiply costs
-- Large teams = more overhead
+---
 
-## Common Mistakes
+## 📌 Best Practices
 
-1. **Undefined roles** — agents step on each other's toes
-2. **No handoff structure** — information is lost between agents
-3. **Infinite review loops** — no exit criteria
-4. **Too many agents** — overhead outweighs benefits
-5. **No orchestrator** — agents work without coordination
+1. **Start small** -- try a team of 2 teammates, then scale up
+2. **Clear roles** -- every teammate should know its zone of responsibility
+3. **Verifiable criteria** -- give each teammate concrete deliverables
+4. **Monitor spending** -- track token usage for each teammate
+5. **Use display modes** -- `summary` for long-running tasks, `streaming` for debugging
+6. **Switch in** -- don't be afraid to give teammates instructions directly through the terminal
 
-## Agent Teams vs Subagents
+---
 
-| Feature | Agent Teams | Subagents |
-|---|---|---|
-| Coordination | Explicit orchestrator | Delegated by main agent |
-| Communication | Structured handoffs | Results returned to main |
-| Roles | Specialized per agent | Same capabilities |
-| Use case | Complex multi-step workflows | Parallel independent tasks |
-| Cost | Higher (many turns) | Moderate |
+## 📌 Summary
+
+- 🔥 Agent Teams is coordinated parallel work by several Claude Code sessions
+- 📌 The Lead agent coordinates, teammates execute and communicate directly
+- 💡 Main patterns: parallel review, competing hypotheses, distributed research
+- ⚠️ Teams make sense for complex tasks; for simple ones, the overhead outweighs the benefit
+- ✅ Optimal team size: 2-4 teammates with clear roles
+- 📌 Always monitor token usage -- every teammate costs money

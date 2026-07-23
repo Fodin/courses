@@ -1,105 +1,110 @@
 [
   {
-    "question": "How does Agent SDK differ from Client SDK (Anthropic SDK)?",
+    "question": "How does the Agent SDK differ from the Client SDK (Anthropic SDK)?",
     "type": "single",
     "options": [
       {
-        "text": "Agent SDK is cheaper than Client SDK",
+        "text": "The Agent SDK only works in the browser, the Client SDK on the server",
         "correct": false,
-        "explanation": "Agent SDK is usually more expensive because the agent performs many iterations and tool calls."
+        "explanation": "The Agent SDK runs on the server (Node.js, Python), since it needs access to the filesystem and terminal"
       },
       {
-        "text": "Agent SDK is a new version of Client SDK",
+        "text": "The Agent SDK is cheaper than the Client SDK",
         "correct": false,
-        "explanation": "These are different products for different tasks. Client SDK is for chatbots and text generation, Agent SDK is for development automation."
+        "explanation": "The Agent SDK is usually more expensive, because the agent performs many iterations and tool calls"
       },
       {
-        "text": "Agent SDK works only in the browser, Client SDK runs on the server",
+        "text": "The Agent SDK is a new version of the Client SDK",
         "correct": false,
-        "explanation": "Agent SDK runs on the server (Node.js, Python) because it needs filesystem and terminal access."
+        "explanation": "These are different products for different tasks. The Client SDK is for chatbots and text generation, the Agent SDK is for development automation"
       },
       {
-        "text": "Agent SDK launches an autonomous agent with built-in tools and an agent loop",
+        "text": "The Agent SDK runs an autonomous agent with built-in tools and an agent loop",
         "correct": true,
-        "explanation": "Correct: Agent SDK provides a full agent that reads files, edits code, and runs commands. Client SDK is a messaging API."
+        "explanation": "Correct: the Agent SDK provides a full-fledged agent that reads files, edits code, and runs commands itself. The Client SDK is an API for exchanging messages"
       }
     ]
   },
   {
-    "question": "Which import is used for Agent SDK in TypeScript?",
+    "question": "Which import is used for the Agent SDK in TypeScript?",
     "type": "single",
     "options": [
       {
-        "text": "import { query } from '@anthropic-ai/claude-agent-sdk'",
-        "correct": true,
-        "explanation": "Correct: Agent SDK exports the query function from @anthropic-ai/claude-agent-sdk."
-      },
-      {
-        "text": "import ClaudeCode from 'claude-code'",
+        "text": "import Anthropic from '@anthropic-ai/sdk'",
         "correct": false,
-        "explanation": "This is not a real Agent SDK package."
+        "explanation": "This is the Client SDK import, not the Agent SDK"
       },
       {
         "text": "import { Agent } from '@anthropic-ai/agent'",
         "correct": false,
-        "explanation": "Incorrect package name. Agent SDK is @anthropic-ai/claude-agent-sdk."
+        "explanation": "Wrong package name. The Agent SDK is @anthropic-ai/claude-agent-sdk"
       },
       {
-        "text": "import Anthropic from '@anthropic-ai/sdk'",
+        "text": "import { query } from '@anthropic-ai/claude-agent-sdk'",
+        "correct": true,
+        "explanation": "Correct: the Agent SDK exports the query function from the @anthropic-ai/claude-agent-sdk package"
+      },
+      {
+        "text": "import ClaudeCode from 'claude-code'",
         "correct": false,
-        "explanation": "This is the Client SDK import, not Agent SDK."
+        "explanation": "This is not an actual Agent SDK package"
       }
     ]
   },
   {
-    "question": "What is the purpose of the maxTurns parameter?",
+    "question": "What is the maxTurns parameter for?",
     "type": "single",
     "options": [
       {
-        "text": "Defines the number of parallel agents",
-        "correct": false,
-        "explanation": "Parallel agents use Agent Teams, not maxTurns."
+        "text": "Sets the maximum number of agent loop iterations",
+        "correct": true,
+        "explanation": "Correct: maxTurns prevents the agent from running indefinitely. Each turn is one iteration of the 'think → use a tool → evaluate result' cycle"
       },
       {
-        "text": "Limits the number of files the agent can read",
+        "text": "Determines the number of parallel agents",
         "correct": false,
-        "explanation": "maxTurns is not related to file count — it limits agent iteration count."
+        "explanation": "Agent Teams are used for parallel agents, not maxTurns"
       },
       {
         "text": "Limits the number of characters in the response",
         "correct": false,
-        "explanation": "maxTurns limits the number of agent loop iterations, not response length."
+        "explanation": "maxTurns limits the number of agent loop iterations, not the response length"
       },
       {
-        "text": "Sets the maximum number of agent loop iterations",
-        "correct": true,
-        "explanation": "Correct: maxTurns prevents the agent from running indefinitely. Each turn is one iteration of the 'think → use tool → evaluate result' cycle."
+        "text": "Limits the number of files the agent can read",
+        "correct": false,
+        "explanation": "maxTurns isn't related to the number of files -- it's a limit on the agent's work iterations"
       }
     ]
   },
   {
-    "question": "Why is it dangerous to give the agent unrestricted Bash access in CI/CD?",
+    "question": "Why is it dangerous to give an agent in CI/CD only the Bash tool without restrictions?",
     "type": "multiple",
     "options": [
       {
-        "text": "The agent can run destructive commands (rm -rf, drop database)",
-        "correct": true,
-        "explanation": "Correct: without restrictions the agent can accidentally or erroneously run dangerous commands."
-      },
-      {
-        "text": "The agent can download and run malicious code (curl | sh)",
-        "correct": true,
-        "explanation": "Correct: unrestricted Bash allows downloading and executing arbitrary code."
-      },
-      {
-        "text": "It violates the principle of least privilege",
-        "correct": false,
-        "explanation": "Correct: agents should only be given tools necessary for the specific task."
-      },
-      {
         "text": "Bash commands consume more tokens than other tools",
         "correct": false,
-        "explanation": "Token consumption does not depend on tool type — it depends on input/output volume."
+        "explanation": "Token consumption doesn't depend on the tool type -- it depends on input/output volume"
+      },
+      {
+        "text": "The agent could run destructive commands (rm -rf, drop database)",
+        "correct": true,
+        "explanation": "Correct: without restrictions, the agent could accidentally or mistakenly run a dangerous command"
+      },
+      {
+        "text": "This approach is outdated and no longer used",
+        "correct": false,
+        "explanation": "This approach is actively used in modern systems."
+      },
+      {
+        "text": "The agent could download and run malicious code (curl | sh)",
+        "correct": true,
+        "explanation": "Correct: unrestricted Bash allows downloading and running arbitrary code"
+      },
+      {
+        "text": "This violates the principle of least privilege",
+        "correct": true,
+        "explanation": "Correct: the agent should only be given the tools necessary for the specific task"
       }
     ]
   },
@@ -108,50 +113,50 @@
     "type": "single",
     "options": [
       {
-        "text": "Create a new Agent SDK instance with the --continue flag",
-        "correct": false,
-        "explanation": "--continue is a CLI flag. The programmatic API uses session_id."
-      },
-      {
-        "text": "Sessions cannot be continued — each query() call starts from scratch",
-        "correct": false,
-        "explanation": "Agent SDK supports sessions: save the session_id and pass it on the next call."
-      },
-      {
-        "text": "Save the session_id and pass it in the next query() call",
-        "correct": true,
-        "explanation": "Correct: Agent SDK supports resume — pass the session_id to continue working in the same context."
-      },
-      {
         "text": "Pass the entire previous conversation as part of the prompt",
         "correct": false,
-        "explanation": "This is the Client SDK approach. Agent SDK has a built-in session mechanism."
+        "explanation": "That's the Client SDK approach. The Agent SDK has a built-in session mechanism"
+      },
+      {
+        "text": "Save the session_id and pass it in the next call to query()",
+        "correct": true,
+        "explanation": "Correct: the Agent SDK supports resume -- pass the session_id to continue working in the same context"
+      },
+      {
+        "text": "Sessions can't be continued -- every call to query() starts from scratch",
+        "correct": false,
+        "explanation": "The Agent SDK supports sessions: save the session_id and pass it in the next call"
+      },
+      {
+        "text": "Create a new Agent SDK instance with the --continue flag",
+        "correct": false,
+        "explanation": "--continue is a CLI-mode flag. In the programmatic API, session_id is used"
       }
     ]
   },
   {
-    "question": "Which hook intercepts an agent's action BEFORE execution?",
+    "question": "Which hook intercepts the agent's action BEFORE it executes?",
     "type": "single",
     "options": [
       {
         "text": "BeforeExecute",
         "correct": false,
-        "explanation": "This hook does not exist in Agent SDK. Use PreToolUse."
-      },
-      {
-        "text": "PreToolUse",
-        "correct": true,
-        "explanation": "Correct: PreToolUse is called before the tool is used. You can block the action by returning { decision: 'block' }."
-      },
-      {
-        "text": "PostToolUse",
-        "correct": false,
-        "explanation": "PostToolUse fires after the tool executes, when the result is already obtained."
+        "explanation": "No such hook exists in the Agent SDK. PreToolUse is used"
       },
       {
         "text": "OnToolCall",
         "correct": false,
-        "explanation": "This hook does not exist in Agent SDK. Use PreToolUse and PostToolUse."
+        "explanation": "No such hook exists in the Agent SDK. PreToolUse and PostToolUse are used"
+      },
+      {
+        "text": "PreToolUse",
+        "correct": true,
+        "explanation": "Correct: PreToolUse is called before a tool is used. You can block the action by returning { decision: 'block' }"
+      },
+      {
+        "text": "PostToolUse",
+        "correct": false,
+        "explanation": "PostToolUse fires after a tool has run, once the result is already available"
       }
     ]
   },
@@ -160,154 +165,159 @@
     "type": "single",
     "options": [
       {
-        "text": "Grep — search file contents",
+        "text": "Grep -- searching file content",
         "correct": false,
-        "explanation": "Grep is a built-in search tool."
+        "explanation": "Grep is a built-in search tool"
       },
       {
-        "text": "Deploy — deploy to server",
+        "text": "Deploy -- deploying to a server",
         "correct": true,
-        "explanation": "Correct: Deploy is not a built-in tool. Use a custom tool or Bash for deployment."
+        "explanation": "Correct: Deploy is not a built-in tool. To deploy, you need to create a custom tool or use Bash"
       },
       {
-        "text": "WebSearch — internet search",
+        "text": "WebSearch -- searching the internet",
         "correct": false,
-        "explanation": "WebSearch is a built-in tool for internet searches."
+        "explanation": "WebSearch is a built-in tool for finding information online"
       },
       {
-        "text": "Read — file reading",
+        "text": "Read -- reading files",
         "correct": false,
-        "explanation": "Read is a built-in tool for reading files."
+        "explanation": "Read is a built-in tool for reading files"
       }
     ]
   },
   {
-    "question": "You are writing a CI script for automated code review. Which tool set should you choose?",
+    "question": "You're writing a CI script for automatic code review. Which set of tools should you choose?",
     "type": "single",
     "options": [
       {
-        "text": "Read, Edit, Bash — so the agent can fix issues",
-        "correct": false,
-        "explanation": "In code review the agent should only analyze, not modify code. Fixes are a separate task."
-      },
-      {
-        "text": "Bash — universal tool, covers everything",
-        "correct": false,
-        "explanation": "Bash in CI without restrictions is dangerous. Read, Grep, Glob are sufficient and safer."
-      },
-      {
-        "text": "All available tools — let the agent decide",
-        "correct": false,
-        "explanation": "This violates the principle of least privilege. In CI the agent should have minimum necessary permissions."
-      },
-      {
-        "text": "Read, Grep, Glob — read-only and search only",
+        "text": "Read, Grep, Glob -- read-only and search",
         "correct": true,
-        "explanation": "Correct: for code review, read-only tools are sufficient. Principle of least privilege — do not give the agent unnecessary capabilities."
+        "explanation": "Correct: read-only tools are enough for code review. Principle of least privilege -- don't give the agent unnecessary capabilities"
+      },
+      {
+        "text": "Bash -- a universal tool, covers everything",
+        "correct": false,
+        "explanation": "Unrestricted Bash in CI is dangerous. Read, Grep, Glob are enough for review -- safer and more controllable"
+      },
+      {
+        "text": "Read, Edit, Bash -- so the agent can also fix what it finds",
+        "correct": false,
+        "explanation": "In code review, the agent should only analyze, not change code. Fixes are a separate task"
+      },
+      {
+        "text": "All available tools -- let the agent decide",
+        "correct": false,
+        "explanation": "This violates the principle of least privilege. In CI, the agent should have the minimum necessary permissions"
       }
     ]
   },
   {
-    "question": "What is structured output (JSON format) used for in Agent SDK?",
+    "question": "What is structured output (JSON format) used for in the Agent SDK?",
     "type": "single",
     "options": [
       {
-        "text": "For programmatic parsing of results — e.g., creating tickets from found issues",
+        "text": "For programmatically parsing results -- e.g., creating tickets from found issues",
         "correct": true,
-        "explanation": "Correct: structured output allows parsing agent results and integrating them into your processes — ticket creation, notifications, reports."
+        "explanation": "Correct: structured output lets you parse the agent's results and integrate them into your workflows -- creating tickets, notifications, reports"
       },
       {
-        "text": "For pretty display of results in the terminal",
+        "text": "The JSON format is mandatory for the Agent SDK",
         "correct": false,
-        "explanation": "JSON format is for programmatic processing, not display."
+        "explanation": "Structured output is an optional setting. By default the agent returns text"
       },
       {
-        "text": "For speeding up the agent",
+        "text": "For nicely displaying results in the terminal",
         "correct": false,
-        "explanation": "Output format does not affect agent speed."
+        "explanation": "The JSON format is intended for programmatic processing, not display"
       },
       {
-        "text": "JSON format is mandatory for Agent SDK",
+        "text": "To speed up the agent's work",
         "correct": false,
-        "explanation": "Structured output is optional. By default the agent returns text."
+        "explanation": "The output format doesn't affect the agent's speed"
       }
     ]
   },
   {
-    "question": "On which platforms can you deploy an Agent SDK application?",
+    "question": "On which platforms can you deploy an application using the Agent SDK?",
     "type": "multiple",
     "options": [
       {
-        "text": "Google Vertex AI",
-        "correct": true,
-        "explanation": "Correct: integration with GCP ecosystem."
-      },
-      {
         "text": "Amazon Bedrock",
         "correct": true,
-        "explanation": "Correct: integration with AWS ecosystem, billing through AWS."
+        "explanation": "Correct: integration with the AWS ecosystem, billing through AWS"
       },
       {
-        "text": "Self-hosted server",
-        "correct": true,
-        "explanation": "Correct: full control over infrastructure and data."
-      },
-      {
-        "text": "Only in the terminal on a local machine",
+        "text": "Only in a terminal on a local machine",
         "correct": false,
-        "explanation": "Agent SDK is designed for programmatic use and can run on servers, in the cloud, and in CI/CD."
+        "explanation": "The Agent SDK is meant for programmatic use and can run on servers, in the cloud, and in CI/CD"
+      },
+      {
+        "text": "A self-hosted server",
+        "correct": true,
+        "explanation": "Correct: full control over infrastructure and data"
+      },
+      {
+        "text": "Google Vertex AI",
+        "correct": true,
+        "explanation": "Correct: integration with the GCP ecosystem"
+      },
+      {
+        "text": "None of the listed options are correct",
+        "correct": false,
+        "explanation": "Some of the listed options are indeed correct."
       }
     ]
   },
   {
-    "question": "Which analogy best describes the difference between Client SDK and Agent SDK?",
+    "question": "Which analogy best describes the difference between the Client SDK and the Agent SDK?",
     "type": "single",
     "options": [
       {
-        "text": "Client SDK is for frontend, Agent SDK is for backend",
-        "correct": false,
-        "explanation": "Both SDKs run on the backend. Client SDK is used for chatbots and generation, Agent SDK for development automation."
-      },
-      {
         "text": "Client SDK is calling a consultant, Agent SDK is hiring a specialist",
         "correct": true,
-        "explanation": "Correct: a consultant (Client SDK) answers questions, while a specialist (Agent SDK) studies your project, writes code, and tests the result."
+        "explanation": "Correct: a consultant (Client SDK) answers questions, while a specialist (Agent SDK) studies the project, writes code, and verifies the result themselves"
       },
       {
-        "text": "Client SDK is Python, Agent SDK is TypeScript",
+        "text": "Client SDK is for frontend, Agent SDK is for backend",
         "correct": false,
-        "explanation": "Both SDKs are available in Python and TypeScript. The difference is the interaction model, not the language."
+        "explanation": "Both SDKs run on the backend. The Client SDK is used for chatbots and generation, the Agent SDK for development automation"
       },
       {
         "text": "Client SDK is a calculator, Agent SDK is a computer",
         "correct": false,
-        "explanation": "A calculator undersells Client SDK. The correct analogy reflects autonomy difference."
+        "explanation": "A calculator oversimplifies the Client SDK's capabilities. The right analogy reflects the difference in autonomy"
+      },
+      {
+        "text": "Client SDK is Python, Agent SDK is TypeScript",
+        "correct": false,
+        "explanation": "Both SDKs are available in Python and TypeScript. The difference is in the interaction model, not the language"
       }
     ]
   },
   {
-    "question": "Why is cost tracking needed when using Agent SDK in production?",
+    "question": "Why is cost tracking needed when using the Agent SDK in production?",
     "type": "multiple",
     "options": [
       {
-        "text": "To speed up the agent",
+        "text": "To speed up the agent's work",
         "correct": false,
-        "explanation": "Cost tracking is monitoring — it does not affect agent speed."
+        "explanation": "Cost tracking is monitoring -- it doesn't affect the agent's speed"
       },
       {
-        "text": "To budget for AI automation",
-        "correct": false,
-        "explanation": "Correct: cost tracking provides data for forecasting scaling expenses."
-      },
-      {
-        "text": "To prevent uncontrolled spending if the agent loops",
+        "text": "To plan a budget for AI automation",
         "correct": true,
-        "explanation": "Correct: without monitoring, an agent can loop on an unsolvable task and spend hundreds of dollars."
+        "explanation": "Correct: cost tracking provides data for forecasting scaling costs"
       },
       {
-        "text": "To optimize prompts for lower cost",
+        "text": "To optimize prompts to reduce cost",
         "correct": true,
-        "explanation": "Correct: knowing the cost of each run allows optimizing prompts and tool sets."
+        "explanation": "Correct: knowing the cost of each run, you can optimize prompts and the tool set"
+      },
+      {
+        "text": "To prevent uncontrolled spending if the agent gets stuck looping",
+        "correct": true,
+        "explanation": "Correct: without monitoring, an agent could get stuck looping on an unsolvable task and burn hundreds of dollars"
       }
     ]
   }

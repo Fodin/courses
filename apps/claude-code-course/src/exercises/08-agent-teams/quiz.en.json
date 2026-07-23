@@ -1,235 +1,79 @@
 [
   {
-    "question": "What are Agent Teams in Claude Code?",
+    "question": "How do Agent Teams differ from subagents?",
     "type": "single",
     "options": [
       {
-        "text": "Git contributors to a repository",
+        "text": "Subagents are legacy functionality, replaced by Agent Teams",
         "correct": false,
-        "explanation": "Git contributors are people, not AI agents."
+        "explanation": "Subagents aren't legacy -- they're a different tool for different tasks. For focused, isolated tasks, subagents are preferable"
       },
       {
-        "text": "A group of MCP servers working together",
+        "text": "Agent Teams work faster than subagents on any task",
         "correct": false,
-        "explanation": "MCP servers are external tools. Agent Teams are Claude Code agents."
+        "explanation": "Not always: for simple isolated tasks, subagents are more efficient because there's no coordination overhead"
       },
       {
-        "text": "Multiple subagents running in parallel",
+        "text": "Agent Teams use fewer tokens than subagents",
         "correct": false,
-        "explanation": "Subagents are delegated by a single agent. Agent Teams have explicit coordination."
+        "explanation": "The opposite: each teammate is a separate session with its own context, which increases token consumption"
       },
       {
-        "text": "Multiple agents working together with explicit coordination and specialized roles",
+        "text": "Teammates work in separate context windows and can communicate with each other directly",
         "correct": true,
-        "explanation": "Correct: Agent Teams involve structured roles, orchestrator, and handoffs between agents."
+        "explanation": "Correct: unlike subagents, which only report to the main agent, teammates share a task list and exchange findings with each other"
       }
     ]
   },
   {
-    "question": "What is the role of the Orchestrator?",
+    "question": "What is the role of the Lead agent in a team?",
     "type": "single",
     "options": [
       {
-        "text": "Coordinates work, manages handoffs, and delegates tasks based on expertise",
+        "text": "It distributes tokens among teammates",
+        "correct": false,
+        "explanation": "Each teammate uses tokens independently. The Lead doesn't manage their budget"
+      },
+      {
+        "text": "It coordinates teammates: breaks down the task, assigns work, synthesizes results",
         "correct": true,
-        "explanation": "Correct: the orchestrator is the team manager."
+        "explanation": "Correct: the Lead is a coordinator, like a foreman on a construction site. It organizes the work and collects results"
       },
       {
-        "text": "Runs tests on the final output",
+        "text": "It performs the most complex part of the task",
         "correct": false,
-        "explanation": "That is the QA agent's role."
+        "explanation": "The Lead agent coordinates the work, rather than doing the most complex part. Teammates do the work"
       },
       {
-        "text": "Writes the most complex code",
+        "text": "It reviews the code written by teammates before applying it",
         "correct": false,
-        "explanation": "The orchestrator coordinates work, not writes code."
-      },
-      {
-        "text": "Reviews all code before it goes to the user",
-        "correct": false,
-        "explanation": "That is the Reviewer's role. The orchestrator coordinates."
+        "explanation": "The Lead can do this, but its primary role is coordination, not code review"
       }
     ]
   },
   {
-    "question": "Which orchestration pattern is best for maximum quality?",
+    "question": "Which pattern best fits an intermittently reproducible bug?",
     "type": "single",
     "options": [
       {
-        "text": "Sequential Pipeline",
+        "text": "Distributed research",
         "correct": false,
-        "explanation": "Sequential is good for quality but Iterative Refinement is better."
+        "explanation": "Distributed research is for studying a codebase, not for debugging a specific bug"
       },
       {
-        "text": "Iterative Refinement",
+        "text": "Parallel code review",
+        "correct": false,
+        "explanation": "Code review checks code quality, but isn't aimed at investigating a specific bug from multiple angles"
+      },
+      {
+        "text": "Competing hypotheses -- several agents investigate different hypotheses in parallel",
         "correct": true,
-        "explanation": "Correct: iterative refinement catches the most bugs through repeated review cycles."
+        "explanation": "Correct: each teammate checks its own hypothesis about the cause of the bug. Whoever finds it first, the others switch to verification"
       },
       {
-        "text": "Parallel Development + Review",
+        "text": "A single agent with retries",
         "correct": false,
-        "explanation": "This balances speed and quality, not maximum quality."
-      },
-      {
-        "text": "Hub and Spoke",
-        "correct": false,
-        "explanation": "Hub and Spoke is good for coordination, not specifically for quality."
-      }
-    ]
-  },
-  {
-    "question": "What should a good handoff include?",
-    "type": "multiple",
-    "options": [
-      {
-        "text": "What was completed",
-        "correct": true,
-        "explanation": "Correct: the receiving agent needs to know what was done."
-      },
-      {
-        "text": "The full conversation history",
-        "correct": false,
-        "explanation": "Handoffs should be concise summaries, not full history."
-      },
-      {
-        "text": "Known limitations or issues",
-        "correct": true,
-        "explanation": "Correct: the receiving agent should know about caveats."
-      },
-      {
-        "text": "What needs special attention",
-        "correct": true,
-        "explanation": "Correct: focus areas help the receiving agent do its job."
-      }
-    ]
-  },
-  {
-    "question": "Why is it important to limit iterations in an Agent Team?",
-    "type": "single",
-    "options": [
-      {
-        "text": "To ensure agents use the correct model",
-        "correct": false,
-        "explanation": "Model selection is separate from iteration limits."
-      },
-      {
-        "text": "To prevent infinite review loops and control costs",
-        "correct": true,
-        "explanation": "Correct: without limits, agents can loop indefinitely, consuming many tokens."
-      },
-      {
-        "text": "To prevent agents from communicating",
-        "correct": false,
-        "explanation": "Iteration limits control the number of cycles, not communication."
-      },
-      {
-        "text": "To make agents work faster",
-        "correct": false,
-        "explanation": "Iteration limits do not affect speed — they affect total work done."
-      }
-    ]
-  },
-  {
-    "question": "What is a common mistake when setting up Agent Teams?",
-    "type": "multiple",
-    "options": [
-      {
-        "text": "Too many agents for a simple task",
-        "correct": true,
-        "explanation": "Correct: overhead outweighs benefits for simple tasks."
-      },
-      {
-        "text": "No handoff structure",
-        "correct": true,
-        "explanation": "Correct: information is lost between agents without structured handoffs."
-      },
-      {
-        "text": "Undefined agent roles",
-        "correct": true,
-        "explanation": "Correct: without clear roles, agents step on each other's toes."
-      },
-      {
-        "text": "No exit criteria",
-        "correct": true,
-        "explanation": "Correct: without exit criteria, teams can work indefinitely."
-      }
-    ]
-  },
-  {
-    "question": "How do Agent Teams differ from Subagents?",
-    "type": "single",
-    "options": [
-      {
-        "text": "Subagents have more tools than Agent Teams",
-        "correct": false,
-        "explanation": "Both have the same tool access."
-      },
-      {
-        "text": "Agent Teams use a different model",
-        "correct": false,
-        "explanation": "Both use the same Claude model."
-      },
-      {
-        "text": "Agent Teams have explicit coordination, Subagents are delegated by a single agent",
-        "correct": true,
-        "explanation": "Correct: teams have orchestrator and handoffs; subagents just return results to the main agent."
-      },
-      {
-        "text": "Agent Teams are faster than Subagents",
-        "correct": false,
-        "explanation": "Speed depends on the workflow, not the feature type."
-      }
-    ]
-  },
-  {
-    "question": "Which agent role is responsible for writing tests?",
-    "type": "single",
-    "options": [
-      {
-        "text": "Developer",
-        "correct": false,
-        "explanation": "Developers write code. Tests are the QA agent's responsibility."
-      },
-      {
-        "text": "Architect",
-        "correct": false,
-        "explanation": "Architects design solutions. They do not write tests."
-      },
-      {
-        "text": "QA Engineer",
-        "correct": true,
-        "explanation": "Correct: the QA Engineer writes and runs comprehensive tests."
-      },
-      {
-        "text": "Reviewer",
-        "correct": false,
-        "explanation": "Reviewers check quality. They do not write tests."
-      }
-    ]
-  },
-  {
-    "question": "What is the main cost concern with Agent Teams?",
-    "type": "single",
-    "options": [
-      {
-        "text": "Agent Teams require additional server infrastructure",
-        "correct": false,
-        "explanation": "Agent Teams run within Claude Code — no extra infrastructure needed."
-      },
-      {
-        "text": "Agent Teams store data permanently",
-        "correct": false,
-        "explanation": "Agent Teams do not store data beyond the session."
-      },
-      {
-        "text": "Agent Teams need separate API keys for each agent",
-        "correct": false,
-        "explanation": "All agents share the same API key."
-      },
-      {
-        "text": "Each agent turn consumes tokens, and review cycles multiply costs",
-        "correct": true,
-        "explanation": "Correct: multiple agents with multiple turns = many token consumptions."
+        "explanation": "Retry is repeating an operation, not parallel hypothesis investigation"
       }
     ]
   },
@@ -238,24 +82,232 @@
     "type": "multiple",
     "options": [
       {
-        "text": "When speed is more important than quality",
+        "text": "When the task is fully sequential -- each step depends on the previous one",
         "correct": true,
-        "explanation": "Correct: teams add latency due to coordination."
+        "explanation": "Correct: if the work can't be parallelized, a team offers no advantage over a single agent"
       },
       {
-        "text": "For simple one-file changes",
-        "correct": true,
-        "explanation": "Correct: overhead outweighs benefits for simple tasks."
-      },
-      {
-        "text": "When you have a tight budget",
-        "correct": true,
-        "explanation": "Correct: teams consume many more tokens than a single agent."
-      },
-      {
-        "text": "For complex multi-step workflows",
+        "text": "When the token budget is limited and the task is simple",
         "correct": false,
-        "explanation": "This is exactly when you SHOULD use Agent Teams."
+        "explanation": "Correct: each teammate consumes tokens independently, which isn't justified for simple tasks"
+      },
+      {
+        "text": "For a parallel security audit of a large project",
+        "correct": false,
+        "explanation": "This is actually a good use case for Teams: different security aspects are checked in parallel"
+      },
+      {
+        "text": "For fixing a typo in the documentation",
+        "correct": true,
+        "explanation": "Correct: team coordination overhead isn't justified for a trivial task"
+      }
+    ]
+  },
+  {
+    "question": "What is the optimal team size for most tasks?",
+    "type": "single",
+    "options": [
+      {
+        "text": "1 teammate -- minimal overhead",
+        "correct": false,
+        "explanation": "1 teammate + Lead is effectively a subagent. A proper team needs at least 2 teammates"
+      },
+      {
+        "text": "5-7 teammates for maximum coverage",
+        "correct": false,
+        "explanation": "Too many: coordination overhead among 7 participants outweighs the benefit of parallelism"
+      },
+      {
+        "text": "Depends on the number of files in the project",
+        "correct": false,
+        "explanation": "Team size depends on how the task is decomposed, not on the number of files"
+      },
+      {
+        "text": "2-4 teammates with clear roles",
+        "correct": true,
+        "explanation": "Correct: 2-4 teammates is the optimal balance between parallelism and coordination overhead"
+      }
+    ]
+  },
+  {
+    "question": "What is a claim in the context of Agent Teams?",
+    "type": "single",
+    "options": [
+      {
+        "text": "A teammate requests additional tokens from the Lead",
+        "correct": false,
+        "explanation": "Claim isn't related to the token budget -- it's a mechanism for selecting tasks"
+      },
+      {
+        "text": "A teammate reports a conflict with another teammate",
+        "correct": false,
+        "explanation": "Claim is a mechanism for distributing work, not conflicts"
+      },
+      {
+        "text": "The Lead agent forcibly assigns a task to a specific teammate",
+        "correct": false,
+        "explanation": "Claim is when a teammate takes a task from the shared list itself, rather than receiving a forced assignment"
+      },
+      {
+        "text": "A teammate takes a task from the shared list and commits to completing it",
+        "correct": true,
+        "explanation": "Correct: teammates see a shared task list and choose which to take themselves, avoiding duplicate work"
+      }
+    ]
+  },
+  {
+    "question": "You launched a team of 3 teammates for code review. The security teammate found a SQL injection. What might happen next?",
+    "type": "single",
+    "options": [
+      {
+        "text": "The team automatically stops until you decide",
+        "correct": false,
+        "explanation": "The team continues working -- one teammate's finding doesn't stop the others"
+      },
+      {
+        "text": "The found vulnerability gets fixed automatically",
+        "correct": false,
+        "explanation": "A code review team analyzes code, but automatic fixing is a separate task"
+      },
+      {
+        "text": "Other teammates see the finding and can assess how deeply the problem runs through the system",
+        "correct": true,
+        "explanation": "Correct: teammates share information. The architecture teammate can assess the scope of the problem, and the quality teammate can check test coverage"
+      },
+      {
+        "text": "Only the Lead learns about the finding, other teammates continue their own work",
+        "correct": false,
+        "explanation": "In Agent Teams, teammates can share findings directly, not only through the Lead"
+      }
+    ]
+  },
+  {
+    "question": "Which display mode is best for a long-running task where you don't need to see every action of the teammates?",
+    "type": "single",
+    "options": [
+      {
+        "text": "streaming -- see everything in real time",
+        "correct": false,
+        "explanation": "Streaming is useful for debugging, but for long-running tasks it creates information noise"
+      },
+      {
+        "text": "results -- only the final result",
+        "correct": false,
+        "explanation": "Results works if you're willing to wait for the finale without intermediate information. For long-running tasks, summary is better so you can course-correct in time"
+      },
+      {
+        "text": "summary -- periodic summaries from the Lead",
+        "correct": true,
+        "explanation": "Correct: summary gives an overview of progress without excessive detail, optimal for long-running tasks"
+      },
+      {
+        "text": "verbose -- maximum detail",
+        "correct": false,
+        "explanation": "No such mode exists. Available modes are streaming, summary, and results"
+      }
+    ]
+  },
+  {
+    "question": "Which of the following is a good use case for the Distributed Research pattern?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Quickly getting up to speed on an unfamiliar 200k-line monorepo",
+        "correct": true,
+        "explanation": "Correct: each teammate researches its own area (frontend, backend, infra) and prepares a report. Parallelism saves time"
+      },
+      {
+        "text": "Writing unit tests for a single module",
+        "correct": false,
+        "explanation": "A single module is a single task -- there's no point in distributing it"
+      },
+      {
+        "text": "Fixing a specific bug in a single file",
+        "correct": false,
+        "explanation": "For a specific bug in a single file, one agent is sufficient"
+      },
+      {
+        "text": "Updating the project's dependencies",
+        "correct": false,
+        "explanation": "Updating dependencies is a sequential task that doesn't parallelize well"
+      }
+    ]
+  },
+  {
+    "question": "Why do vague roles in a team lead to problems?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Teammates duplicate each other's work",
+        "correct": true,
+        "explanation": "Correct: without clear zones of responsibility, agents may check the same thing"
+      },
+      {
+        "text": "Tokens are spent without any additional benefit",
+        "correct": true,
+        "explanation": "Correct: you pay for several agents but get the result of one"
+      },
+      {
+        "text": "Teammates start conflicting and blocking each other",
+        "correct": false,
+        "explanation": "Teammates don't block each other -- they work in separate contexts. The problem is duplication, not conflicts"
+      },
+      {
+        "text": "The Lead agent can't synthesize results without clear roles",
+        "correct": false,
+        "explanation": "The Lead can still synthesize, but the result's quality will be lower due to duplication"
+      }
+    ]
+  },
+  {
+    "question": "When is it time to move from subagents to Agent Teams?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Parallel subagents are hitting context limits",
+        "correct": true,
+        "explanation": "Correct: each teammate in Agent Teams has its own context window, which removes this limitation"
+      },
+      {
+        "text": "Subagents need to share information with each other",
+        "correct": true,
+        "explanation": "Correct: subagents can only communicate with the main agent, while teammates communicate with each other directly"
+      },
+      {
+        "text": "The task requires a single shared context",
+        "correct": false,
+        "explanation": "If a single shared context is needed, a single agent is better. Agent Teams is for tasks that can be decomposed"
+      },
+      {
+        "text": "You need to save on tokens",
+        "correct": false,
+        "explanation": "Agent Teams consume more tokens due to coordination and separate contexts"
+      }
+    ]
+  },
+  {
+    "question": "You want to run a parallel code review of a PR. Which role distribution is most effective?",
+    "type": "single",
+    "options": [
+      {
+        "text": "One teammate reads the code, a second runs tests, a third writes comments",
+        "correct": false,
+        "explanation": "This is a sequential dependency, not parallel work -- read first, then comment"
+      },
+      {
+        "text": "Each teammate reviews the whole PR, but from a different angle: security, architecture, quality",
+        "correct": true,
+        "explanation": "Correct: thematic distribution lets each teammate thoroughly check its own aspect across the whole PR"
+      },
+      {
+        "text": "All three teammates check the whole PR the same way, then compare results",
+        "correct": false,
+        "explanation": "This triples the work. Thematic separation gives three different perspectives instead of three identical ones"
+      },
+      {
+        "text": "Each teammate checks a separate file from the PR",
+        "correct": false,
+        "explanation": "Splitting by file doesn't offer any advantage -- a single file may contain both security bugs and architectural issues"
       }
     ]
   }

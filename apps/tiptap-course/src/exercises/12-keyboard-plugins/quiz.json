@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Что означает алиас 'Mod' в keyboard shortcut, например 'Mod-Shift-x'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ctrl на всех платформах без исключений",
+        "correct": false,
+        "explanation": "На macOS Mod соответствует Cmd, а не Ctrl — это кроссплатформенный алиас, а не фиксированная клавиша."
+      },
+      {
+        "text": "Кроссплатформенный алиас: Ctrl на Windows/Linux, Cmd на macOS",
+        "correct": true,
+        "explanation": "Использование Mod вместо явного Ctrl/Cmd избавляет от необходимости писать отдельную логику под разные ОС."
+      },
+      {
+        "text": "Alt на всех платформах",
+        "correct": false,
+        "explanation": "Mod не соответствует Alt ни на одной из платформ — это именно Ctrl/Cmd."
+      },
+      {
+        "text": "Специальная модальная клавиша, доступная только в Tiptap",
+        "correct": false,
+        "explanation": "Mod — это просто программный алиас существующих системных модификаторов, а не отдельная физическая клавиша."
+      }
+    ]
+  },
+  {
+    "question": "Что должен вернуть обработчик внутри addKeyboardShortcuts, чтобы событие считалось обработанным?",
+    "type": "single",
+    "options": [
+      {
+        "text": "true (или truthy значение, например результат run())",
+        "correct": true,
+        "explanation": "Возврат true 'проглатывает' событие — браузер не обрабатывает его дальше стандартным образом."
+      },
+      {
+        "text": "undefined всегда, независимо от результата",
+        "correct": false,
+        "explanation": "undefined означает, что событие НЕ обработано и должно продолжить стандартную обработку — обычно это не то, что нужно, когда команда реально сработала."
+      },
+      {
+        "text": "Объект { handled: true }",
+        "correct": false,
+        "explanation": "API ожидает простое boolean-значение, а не объект-обёртку."
+      },
+      {
+        "text": "Строку с названием команды",
+        "correct": false,
+        "explanation": "Возвращаемое значение — boolean, а не строка."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если два extensions регистрируют один и тот же keyboard shortcut?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Оба обработчика будут вызваны последовательно",
+        "correct": false,
+        "explanation": "Вызывается не оба — срабатывает только один, согласно порядку разрешения конфликтов."
+      },
+      {
+        "text": "Сработает тот, что зарегистрирован позже в списке extensions",
+        "correct": true,
+        "explanation": "Порядок extensions в массиве влияет на приоритет — 'последний' в списке extensions выигрывает при конфликте одинаковых shortcuts."
+      },
+      {
+        "text": "Tiptap выбросит ошибку инициализации редактора",
+        "correct": false,
+        "explanation": "Конфликт не приводит к ошибке — просто один из обработчиков 'побеждает' по порядку регистрации."
+      },
+      {
+        "text": "Ни один обработчик не сработает вообще",
+        "correct": false,
+        "explanation": "Один обработчик всё же сработает — просто не оба одновременно."
+      }
+    ]
+  },
+  {
+    "question": "Из какого пакета импортируются низкоуровневые Plugin и PluginKey ProseMirror в контексте Tiptap?",
+    "type": "single",
+    "options": [
+      {
+        "text": "@tiptap/core",
+        "correct": false,
+        "explanation": "@tiptap/core содержит высокоуровневый API Tiptap (Editor, Extension, Node, Mark), а не сами классы ProseMirror Plugin/PluginKey."
+      },
+      {
+        "text": "@tiptap/pm/state",
+        "correct": true,
+        "explanation": "@tiptap/pm реэкспортирует пакеты ProseMirror, включая prosemirror-state с классами Plugin и PluginKey — доступны как @tiptap/pm/state."
+      },
+      {
+        "text": "@tiptap/react",
+        "correct": false,
+        "explanation": "@tiptap/react содержит только React-биндинг (useEditor, EditorContent), не низкоуровневые классы ProseMirror."
+      },
+      {
+        "text": "@tiptap/extensions",
+        "correct": false,
+        "explanation": "@tiptap/extensions содержит готовые утилитарные extensions (Placeholder, CharacterCount и др.), а не базовые классы ProseMirror."
+      }
+    ]
+  },
+  {
+    "question": "Что такое decoration в терминологии ProseMirror/Tiptap?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Постоянный элемент форматирования, хранящийся в документе, как mark",
+        "correct": false,
+        "explanation": "Это описание mark, а не decoration — decoration принципиально НЕ хранится в документе."
+      },
+      {
+        "text": "Визуальное изменение отображения, существующее только в runtime view и не сохраняющееся в данных документа",
+        "correct": true,
+        "explanation": "Decoration — это способ визуально что-то подсветить/изменить, не трогая сами данные, которые вернёт getJSON()/getHTML()."
+      },
+      {
+        "text": "CSS-тема оформления всего редактора",
+        "correct": false,
+        "explanation": "Decoration применяется точечно к конкретным диапазонам документа, а не является общей темой редактора."
+      },
+      {
+        "text": "Синоним для custom Node",
+        "correct": false,
+        "explanation": "Decoration и Node — принципиально разные механизмы: node — часть структуры документа, decoration — только визуальный слой поверх неё."
+      }
+    ]
+  },
+  {
+    "question": "Появится ли CSS-класс, добавленный через Decoration.inline, в результате editor.getHTML()?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Да, decorations сериализуются вместе с остальным HTML",
+        "correct": false,
+        "explanation": "Decorations существуют только в представлении (DOM view), не являются частью модели документа и не попадают в getHTML()/getJSON()."
+      },
+      {
+        "text": "Нет, decorations — это чисто визуальный слой поверх документа, не часть его данных",
+        "correct": true,
+        "explanation": "Именно поэтому decorations идеальны для временной/вычисляемой подсветки — они не 'засоряют' сохраняемые данные документа."
+      },
+      {
+        "text": "Да, но только если явно вызвать editor.commands.persistDecorations()",
+        "correct": false,
+        "explanation": "Такого метода в API Tiptap не существует — decorations принципиально невозможно 'сохранить' в документ этим путём."
+      },
+      {
+        "text": "Зависит от того, использован ли Decoration.inline или Decoration.node",
+        "correct": false,
+        "explanation": "Оба типа decoration (inline и node) одинаково не попадают в сериализованные данные документа."
+      }
+    ]
+  },
+  {
+    "question": "Какой метод используется для обхода всех узлов документа с их позициями при построении decorations?",
+    "type": "single",
+    "options": [
+      {
+        "text": "state.doc.descendants((node, pos) => {...})",
+        "correct": true,
+        "explanation": "descendants — стандартный способ ProseMirror пройтись по всем узлам документа (включая вложенные), получая и сам узел, и его позицию."
+      },
+      {
+        "text": "state.doc.forEach((node) => {...})",
+        "correct": false,
+        "explanation": "forEach проходит только по прямым дочерним узлам, а не рекурсивно по всему дереву, как descendants."
+      },
+      {
+        "text": "editor.getJSON().map((node) => {...})",
+        "correct": false,
+        "explanation": "getJSON() возвращает единый объект документа, а не массив — и не даёт позиций узлов, нужных для decorations."
+      },
+      {
+        "text": "editor.schema.nodes.forEach((type) => {...})",
+        "correct": false,
+        "explanation": "Это обход ТИПОВ узлов схемы, а не конкретных узлов документа с их содержимым и позициями."
+      }
+    ]
+  },
+  {
+    "question": "Когда лучше выбрать mark, а не decoration, для визуального форматирования?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Когда форматирование должно сохраняться и восстанавливаться при следующей загрузке документа",
+        "correct": true,
+        "explanation": "Mark — часть данных документа и переживает сохранение/загрузку, в отличие от decoration, которая пересчитывается заново из текущего содержимого."
+      },
+      {
+        "text": "Когда форматирование временное и вычисляется на лету (например, подсветка результатов поиска)",
+        "correct": false,
+        "explanation": "Для временного/вычисляемого форматирования как раз лучше подходит decoration, а не mark."
+      },
+      {
+        "text": "Всегда — decoration вообще не рекомендуется использовать в реальных проектах",
+        "correct": false,
+        "explanation": "Decoration — полноценный, широко используемый инструмент для правильных сценариев (подсветка, индикаторы, временные визуальные эффекты)."
+      },
+      {
+        "text": "Разницы нет, выбор произвольный",
+        "correct": false,
+        "explanation": "Выбор между mark и decoration должен основываться на том, должно ли форматирование быть частью сохраняемых данных."
+      }
+    ]
+  },
+  {
+    "question": "Как получить актуальное состояние конкретного ProseMirror-плагина по его PluginKey?",
+    "type": "single",
+    "options": [
+      {
+        "text": "myPluginKey.getState(editor.state)",
+        "correct": true,
+        "explanation": "PluginKey предоставляет метод getState, принимающий текущий EditorState и возвращающий состояние конкретно этого плагина."
+      },
+      {
+        "text": "editor.plugins.get('myPlugin').state",
+        "correct": false,
+        "explanation": "На editor нет такого публичного свойства plugins с подобным API — используется именно PluginKey.getState()."
+      },
+      {
+        "text": "editor.storage.myPlugin",
+        "correct": false,
+        "explanation": "storage — механизм Extension/Node/Mark для их собственного состояния, а не для чтения состояния низкоуровневого ProseMirror Plugin."
+      },
+      {
+        "text": "Состояние плагина недоступно снаружи самого плагина",
+        "correct": false,
+        "explanation": "Именно для внешнего доступа и предназначен PluginKey — без него получить состояние плагина действительно было бы неудобно."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих сценариев уместно реализовать через addProseMirrorPlugins, а не через обычные команды/input rules?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Подсветка результатов полнотекстового поиска по документу",
+        "correct": true,
+        "explanation": "Это классический случай decoration через ProseMirror-плагин — временная, вычисляемая подсветка без изменения документа."
+      },
+      {
+        "text": "Обработка низкоуровневых DOM-событий (handleClick, handleKeyDown) с доступом к точной позиции документа",
+        "correct": true,
+        "explanation": "props плагина (handleClick, handleKeyDown и др.) дают доступ, недоступный через обычный командный API."
+      },
+      {
+        "text": "Переключение bold на выделенном тексте по клику на кнопку",
+        "correct": false,
+        "explanation": "Для этого достаточно обычной команды toggleBold() через chain() — создавать отдельный ProseMirror-плагин избыточно."
+      },
+      {
+        "text": "Отслеживание и визуальная индикация длинных строк текста без изменения самого текста",
+        "correct": true,
+        "explanation": "Именно такой сценарий — из задания 12.3 — идеально подходит для decorations через ProseMirror-плагин."
+      }
+    ]
+  }
+]

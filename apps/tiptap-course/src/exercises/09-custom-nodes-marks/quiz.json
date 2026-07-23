@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Какой метод определяет, как Tiptap распознаёт существующий HTML и превращает его в mark/node при импорте или вставке?",
+    "type": "single",
+    "options": [
+      {
+        "text": "renderHTML()",
+        "correct": false,
+        "explanation": "renderHTML отвечает за обратный процесс — сериализацию узла/mark В HTML, а не за распознавание существующего HTML."
+      },
+      {
+        "text": "parseHTML()",
+        "correct": true,
+        "explanation": "parseHTML возвращает массив правил (например, { tag: 'mark' }), по которым Tiptap ищет совпадения при парсинге входящего HTML."
+      },
+      {
+        "text": "addAttributes()",
+        "correct": false,
+        "explanation": "addAttributes описывает атрибуты узла/mark, но не сам факт его распознавания по тегу."
+      },
+      {
+        "text": "addCommands()",
+        "correct": false,
+        "explanation": "addCommands определяет команды для программного изменения документа, не связано с парсингом HTML."
+      }
+    ]
+  },
+  {
+    "question": "Что означает 0 (число ноль) в возвращаемом значении renderHTML, например ['div', {}, 0]?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Индекс дочернего элемента в массиве атрибутов",
+        "correct": false,
+        "explanation": "Это не индекс — это специальный маркер ProseMirror DOM-спецификации."
+      },
+      {
+        "text": "'Дырка' (content hole) — место, куда будет вставлен дочерний контент узла",
+        "correct": true,
+        "explanation": "0 в такой позиции — соглашение ProseMirror: сюда рендерится содержимое ноды/mark (её дочерние узлы)."
+      },
+      {
+        "text": "Указывает, что у узла нет атрибутов",
+        "correct": false,
+        "explanation": "За отсутствие атрибутов отвечал бы пустой объект {}, а не число 0 в третьей позиции массива."
+      },
+      {
+        "text": "Технический артефакт, который можно опустить без последствий",
+        "correct": false,
+        "explanation": "Опущение 0 у узлов с дочерним контентом приведёт к тому, что этот контент не будет отображаться — это обязательный маркер для контейнерных нод/marks."
+      }
+    ]
+  },
+  {
+    "question": "Для чего используется mergeAttributes из @tiptap/core?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чтобы объединить объекты HTML-атрибутов, корректно обрабатывая специальные случаи вроде объединения class",
+        "correct": true,
+        "explanation": "mergeAttributes аккуратно сливает несколько источников атрибутов (например, из HTMLAttributes опции и заданные вручную), не перезаписывая, а конкатенируя классы."
+      },
+      {
+        "text": "Чтобы объединить несколько extensions в один",
+        "correct": false,
+        "explanation": "mergeAttributes работает на уровне HTML-атрибутов, а не на уровне слияния целых extensions."
+      },
+      {
+        "text": "Чтобы преобразовать JSON-документ в HTML",
+        "correct": false,
+        "explanation": "За сериализацию всего документа отвечает editor.getHTML(), а не mergeAttributes."
+      },
+      {
+        "text": "Чтобы объединить несколько marks в один",
+        "correct": false,
+        "explanation": "mergeAttributes работает с объектами атрибутов, а не напрямую с marks как сущностями."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если в renderHTML не передать HTMLAttributes в результат?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Ничего — HTMLAttributes используются только внутри Tiptap, но не влияют на итоговый HTML",
+        "correct": false,
+        "explanation": "HTMLAttributes как раз и содержат данные, которые должны попасть в итоговый HTML (в том числе кастомные атрибуты из addAttributes)."
+      },
+      {
+        "text": "Атрибуты узла/mark (включая заданные через addAttributes) потеряются при сериализации в HTML",
+        "correct": true,
+        "explanation": "Если не включить HTMLAttributes в возвращаемый renderHTML массив, вся информация об атрибутах будет потеряна при экспорте."
+      },
+      {
+        "text": "TypeScript выдаст ошибку компиляции",
+        "correct": false,
+        "explanation": "Это не ошибка типов — код скомпилируется, но приведёт к потере данных в рантайме."
+      },
+      {
+        "text": "Tiptap автоматически подставит атрибуты из значения по умолчанию",
+        "correct": false,
+        "explanation": "Автоматической подстановки не происходит — ответственность за включение HTMLAttributes лежит на разработчике extension."
+      }
+    ]
+  },
+  {
+    "question": "Что обязательно нужно указать для block-ноды, чтобы она могла быть вставлена внутрь doc (content: 'block+')?",
+    "type": "single",
+    "options": [
+      {
+        "text": "group: 'block'",
+        "correct": true,
+        "explanation": "Именно принадлежность к группе 'block' делает ноду подходящей для content-выражений, ссылающихся на эту группу (см. уровень 7)."
+      },
+      {
+        "text": "atom: true",
+        "correct": false,
+        "explanation": "atom относится к неделимости узла (курсор не входит внутрь), а не к его принадлежности к группе block."
+      },
+      {
+        "text": "inline: true",
+        "correct": false,
+        "explanation": "inline: true — это, наоборот, признак ИНЛАЙН-ноды, что противоположно требованиям group: 'block'."
+      },
+      {
+        "text": "topNode: true",
+        "correct": false,
+        "explanation": "topNode: true используется для обозначения корневого узла документа (обычно только у doc), а не для обычных block-нод."
+      }
+    ]
+  },
+  {
+    "question": "Какие два флага делают ноду 'атомарным инлайн-виджетом' (нельзя войти курсором, течёт внутри строки текста)?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "inline: true",
+        "correct": true,
+        "explanation": "inline: true заставляет ноду вести себя как часть строки текста, а не начинать новый блок."
+      },
+      {
+        "text": "atom: true",
+        "correct": true,
+        "explanation": "atom: true делает ноду неделимой — курсор не заходит внутрь неё, только огибает целиком."
+      },
+      {
+        "text": "group: 'block'",
+        "correct": false,
+        "explanation": "group: 'block' сделал бы ноду именно блочной — это противоположно желаемому поведению инлайн-виджета."
+      },
+      {
+        "text": "content: 'inline*'",
+        "correct": false,
+        "explanation": "У атомарной ноды без редактируемого содержимого обычно вообще нет content — контент не имеет смысла для неделимого узла."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт при нажатии Backspace сразу после atom-ноды (например, бейджа)?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Символ внутри бейджа удалится по одному, как в обычном тексте",
+        "correct": false,
+        "explanation": "У atom-ноды нет отдельных 'символов' для посимвольного удаления — она воспринимается как единое целое."
+      },
+      {
+        "text": "Вся нода удалится целиком одним нажатием",
+        "correct": true,
+        "explanation": "Это стандартное и ожидаемое поведение atom-нод — они удаляются как единый неделимый блок."
+      },
+      {
+        "text": "Backspace будет проигнорирован рядом с atom-нодой",
+        "correct": false,
+        "explanation": "Backspace продолжает работать штатно — просто удаляет всю ноду целиком, а не её 'часть'."
+      },
+      {
+        "text": "Возникнет ошибка ProseMirror о невозможности редактирования",
+        "correct": false,
+        "explanation": "Никакой ошибки не возникает — это полностью штатная, предусмотренная схемой ситуация."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно определить команду setHighlight(color) для кастомного mark с именем 'highlight'?",
+    "type": "single",
+    "options": [
+      {
+        "text": "setHighlight: (color) => ({ commands }) => commands.setMark(this.name, { color })",
+        "correct": true,
+        "explanation": "setMark — встроенная низкоуровневая команда, применяющая произвольный mark по имени с заданными атрибутами; this.name внутри addCommands ссылается на имя текущего extension."
+      },
+      {
+        "text": "setHighlight: (color) => ({ commands }) => commands.setNode('highlight', { color })",
+        "correct": false,
+        "explanation": "setNode предназначен для block-нод, а не для marks — для marks используется setMark/toggleMark/unsetMark."
+      },
+      {
+        "text": "setHighlight: (color) => ({ commands }) => commands.insertContent({ type: 'highlight', attrs: { color } })",
+        "correct": false,
+        "explanation": "insertContent используется для вставки новых узлов (обычно nodes), а не для применения mark к уже существующему выделению."
+      },
+      {
+        "text": "setHighlight не может быть реализован как кастомная команда — только через готовый extension-highlight",
+        "correct": false,
+        "explanation": "Кастомные команды прекрасно реализуются через addCommands в любом собственном Mark.create/Node.create."
+      }
+    ]
+  },
+  {
+    "question": "Зачем в addAttributes нужен keepOnSplit?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Определяет, сохраняется ли значение атрибута при разделении узла на два (например, Enter в середине заголовка)",
+        "correct": true,
+        "explanation": "keepOnSplit контролирует, унаследует ли новый узел, образованный разделением, значение атрибута исходного узла."
+      },
+      {
+        "text": "Определяет, разрешено ли редактировать значение атрибута через UI",
+        "correct": false,
+        "explanation": "Ограничения на редактирование через UI реализуются на уровне вашего собственного React-компонента, а не через keepOnSplit."
+      },
+      {
+        "text": "Отвечает за то, сериализуется ли атрибут в HTML",
+        "correct": false,
+        "explanation": "За это отвечает поле rendered, а не keepOnSplit."
+      },
+      {
+        "text": "Определяет минимальное и максимальное значение атрибута",
+        "correct": false,
+        "explanation": "Валидация диапазона значений не входит в назначение keepOnSplit."
+      }
+    ]
+  },
+  {
+    "question": "Какие из следующих утверждений о addAttributes верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "default задаёт значение атрибута, применяемое, если оно не указано явно",
+        "correct": true,
+        "explanation": "Это стандартное поведение default в спецификации атрибута."
+      },
+      {
+        "text": "parseHTML определяет, как значение атрибута извлекается из существующего HTML-элемента при импорте",
+        "correct": true,
+        "explanation": "parseHTML получает DOM-элемент и должен вернуть значение атрибута (или null/undefined)."
+      },
+      {
+        "text": "rendered: false означает, что атрибут хранится в документе, но не попадает в итоговый HTML при renderHTML",
+        "correct": true,
+        "explanation": "Это удобно для внутренних, не предназначенных для экспорта данных атрибутов."
+      },
+      {
+        "text": "Атрибуты, заданные через addAttributes, недоступны для чтения через editor.getAttributes()",
+        "correct": false,
+        "explanation": "Наоборот — именно так и читаются текущие значения атрибутов активного узла/mark: editor.getAttributes(name)."
+      }
+    ]
+  }
+]

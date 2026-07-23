@@ -1,0 +1,262 @@
+[
+  {
+    "question": "Какой метод вернёт содержимое редактора в виде HTML-строки?",
+    "type": "single",
+    "options": [
+      {
+        "text": "editor.getJSON()",
+        "correct": false,
+        "explanation": "getJSON() возвращает объектное представление документа в формате ProseMirror JSON, а не строку HTML."
+      },
+      {
+        "text": "editor.getHTML()",
+        "correct": true,
+        "explanation": "getHTML() сериализует текущее дерево документа в HTML-строку."
+      },
+      {
+        "text": "editor.toString()",
+        "correct": false,
+        "explanation": "Такого метода в API Tiptap Editor нет."
+      },
+      {
+        "text": "editor.innerHTML",
+        "correct": false,
+        "explanation": "innerHTML — это свойство DOM-элементов, а не API Tiptap Editor."
+      }
+    ]
+  },
+  {
+    "question": "Когда вызывается колбэк onUpdate?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Только один раз, сразу после создания редактора",
+        "correct": false,
+        "explanation": "Это описание onCreate, а не onUpdate — onCreate срабатывает один раз при готовности редактора."
+      },
+      {
+        "text": "После каждой транзакции, которая меняет содержимое документа",
+        "correct": true,
+        "explanation": "onUpdate вызывается на любое изменение контента: ввод текста, удаление, форматирование и т.д."
+      },
+      {
+        "text": "При каждом изменении выделения текста, даже без изменения контента",
+        "correct": false,
+        "explanation": "Для этого есть отдельный колбэк onSelectionUpdate — onUpdate реагирует именно на изменение контента."
+      },
+      {
+        "text": "Каждые 500 мс по таймеру",
+        "correct": false,
+        "explanation": "onUpdate не связан с таймерами — это событийная подписка на транзакции."
+      }
+    ]
+  },
+  {
+    "question": "Почему не стоит вызывать editor.getHTML() напрямую внутри JSX для отображения превью?",
+    "type": "single",
+    "options": [
+      {
+        "text": "getHTML() — асинхронный метод и вернёт Promise",
+        "correct": false,
+        "explanation": "getHTML() полностью синхронный — проблема не в этом."
+      },
+      {
+        "text": "React не узнает об изменении и не перерендерит компонент вовремя, значение будет 'застывшим'",
+        "correct": true,
+        "explanation": "editor — не reactive-объект сам по себе; чтобы React перерендерил превью, нужно хранить значение в state и обновлять его через onUpdate."
+      },
+      {
+        "text": "getHTML() каждый раз изменяет документ редактора",
+        "correct": false,
+        "explanation": "getHTML() — это чтение, оно не мутирует документ."
+      },
+      {
+        "text": "Такой вызов запрещён TypeScript-типами",
+        "correct": false,
+        "explanation": "Типы это разрешают — проблема сугубо в реактивности React, а не в типизации."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно переключить editable-состояние уже созданного редактора?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Изменить пропс editable в useEditor и дождаться ре-рендера",
+        "correct": false,
+        "explanation": "editable в useEditor влияет только на создание редактора — повторные вызовы с новым значением не переключают существующий инстанс."
+      },
+      {
+        "text": "Вызвать editor.setEditable(newValue)",
+        "correct": true,
+        "explanation": "setEditable — единственный официальный способ динамически переключить editable уже созданного Editor."
+      },
+      {
+        "text": "Пересоздать редактор через key={isEditable}",
+        "correct": false,
+        "explanation": "Технически сработает, но это избыточно дорого — полное пересоздание Editor вместо простого переключения флага."
+      },
+      {
+        "text": "editor.options.editable = newValue напрямую",
+        "correct": false,
+        "explanation": "Прямая мутация внутренних options не приведёт к синхронизации ProseMirror view — нужен официальный метод setEditable."
+      }
+    ]
+  },
+  {
+    "question": "Какое свойство editor стоит использовать, чтобы проверить, пуст ли документ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "editor.getHTML() === ''",
+        "correct": false,
+        "explanation": "Пустой документ обычно сериализуется не в пустую строку, а в '<p></p>' — сравнение со строкой ненадёжно."
+      },
+      {
+        "text": "editor.isEmpty",
+        "correct": true,
+        "explanation": "isEmpty — специально предназначенное булево свойство, которое корректно учитывает структуру пустого документа."
+      },
+      {
+        "text": "editor.getJSON().content.length === 0",
+        "correct": false,
+        "explanation": "Технически может сработать в некоторых случаях, но это ненадёжно (например, пустой параграф — это уже один элемент в content) — используйте isEmpty."
+      },
+      {
+        "text": "editor.state === null",
+        "correct": false,
+        "explanation": "editor.state (ProseMirror EditorState) никогда не null для созданного редактора, независимо от того, пуст документ или нет."
+      }
+    ]
+  },
+  {
+    "question": "Какой метод корректнее использовать для подсчёта количества символов текста, исключая HTML-теги?",
+    "type": "single",
+    "options": [
+      {
+        "text": "editor.getHTML().length",
+        "correct": false,
+        "explanation": "Это посчитает и длину HTML-тегов (<p>, <strong> и т.д.), что даст неверное число символов."
+      },
+      {
+        "text": "editor.getText().length",
+        "correct": true,
+        "explanation": "getText() возвращает только текстовое содержимое без разметки — правильный способ считать 'реальные' символы."
+      },
+      {
+        "text": "editor.getJSON().length",
+        "correct": false,
+        "explanation": "getJSON() возвращает объект, а не строку — у него нет осмысленного .length для подсчёта символов."
+      },
+      {
+        "text": "editor.state.doc.textContent.length сработает иначе, чем getText()",
+        "correct": false,
+        "explanation": "На практике editor.state.doc.textContent даёт похожий результат, но официальный публичный API для этого — именно getText()."
+      }
+    ]
+  },
+  {
+    "question": "Что делает опция autofocus: 'end' в useEditor?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Устанавливает курсор в начало документа при монтировании",
+        "correct": false,
+        "explanation": "За начало документа отвечает autofocus: 'start' (или просто true)."
+      },
+      {
+        "text": "Устанавливает курсор в конец документа при монтировании",
+        "correct": true,
+        "explanation": "'end' — специальное значение, которое ставит фокус и курсор в самый конец документа сразу после создания редактора."
+      },
+      {
+        "text": "Отключает автофокус полностью",
+        "correct": false,
+        "explanation": "Для отключения используется autofocus: false (или опция не указывается вовсе)."
+      },
+      {
+        "text": "Работает только вместе с editable: false",
+        "correct": false,
+        "explanation": "autofocus никак не завязан на editable — они независимы."
+      }
+    ]
+  },
+  {
+    "question": "В каком случае обновление content-пропса у уже смонтированного useEditor изменит документ?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Всегда — content реактивен, как обычный React-пропс",
+        "correct": false,
+        "explanation": "content не реактивен по умолчанию: изменение content после инициализации useEditor не обновляет документ автоматически."
+      },
+      {
+        "text": "Никогда автоматически — нужно вызывать editor.commands.setContent() вручную",
+        "correct": true,
+        "explanation": "content используется только при инициализации. Чтобы обновить документ программно после создания редактора, используется команда setContent (подробно — на уровне 6)."
+      },
+      {
+        "text": "Только если editable: true",
+        "correct": false,
+        "explanation": "editable не влияет на реактивность content — content всё равно не реактивен независимо от этого флага."
+      },
+      {
+        "text": "Только при использовании StarterKit",
+        "correct": false,
+        "explanation": "Поведение content одинаково независимо от набора extensions."
+      }
+    ]
+  },
+  {
+    "question": "Какие из перечисленных утверждений об editor.isFocused верны?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "Показывает, находится ли фокус ввода сейчас внутри contenteditable-области редактора",
+        "correct": true,
+        "explanation": "Именно это и отслеживает isFocused — полезно, например, чтобы скрывать/показывать тулбар."
+      },
+      {
+        "text": "Меняется при клике вне редактора (blur)",
+        "correct": true,
+        "explanation": "При потере фокуса (blur) isFocused станет false."
+      },
+      {
+        "text": "Всегда true после autofocus: true",
+        "correct": false,
+        "explanation": "isFocused может стать false позже, если пользователь кликнет в другое место — это не 'замороженное' начальное значение."
+      },
+      {
+        "text": "Определяет, можно ли редактировать документ",
+        "correct": false,
+        "explanation": "За это отвечает editor.isEditable, а не isFocused — это два разных, независимых свойства."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если в onUpdate вызвать setState с новым HTML на каждое изменение, но не обернуть это в проверку изменений?",
+    "type": "single",
+    "options": [
+      {
+        "text": "React будет выбрасывать ошибку 'Maximum update depth exceeded'",
+        "correct": false,
+        "explanation": "onUpdate вызывается только при реальных изменениях документа (ввод пользователя), а не в цикле — бесконечного ре-рендера не возникнет."
+      },
+      {
+        "text": "Компонент будет перерендериваться при каждом изменении текста — это ожидаемое и корректное поведение для реактивного превью",
+        "correct": true,
+        "explanation": "Именно так и должен работать паттерн 'onUpdate + useState' для реактивного вывода содержимого — лишней проблемы здесь нет."
+      },
+      {
+        "text": "Редактор потеряет фокус на каждое обновление state",
+        "correct": false,
+        "explanation": "Обновление внешнего React state не сбрасывает фокус внутри contenteditable-области Tiptap — это разные DOM-деревья/состояния."
+      },
+      {
+        "text": "Это вызовет утечку памяти из-за неотписанных подписок",
+        "correct": false,
+        "explanation": "onUpdate управляется самим Tiptap и корректно очищается при размонтировании useEditor — утечки не возникает."
+      }
+    ]
+  }
+]

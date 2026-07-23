@@ -1,0 +1,49 @@
+{
+  "name": "@courses/tiptap-course",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "format": "prettier --write \"src/**/*.{ts,tsx,css,json,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json,md}\""
+  },
+  "dependencies": {
+    "@courses/platform": "*",
+    "@tiptap/core": "3.27.4",
+    "@tiptap/extension-bubble-menu": "^3.27.4",
+    "@tiptap/extension-character-count": "^3.27.4",
+    "@tiptap/extension-collaboration": "^3.27.4",
+    "@tiptap/extension-collaboration-caret": "^3.27.4",
+    "@tiptap/extension-floating-menu": "^3.27.4",
+    "@tiptap/extension-link": "^3.27.4",
+    "@tiptap/extension-placeholder": "^3.27.4",
+    "@tiptap/pm": "3.27.4",
+    "@tiptap/react": "^3.27.4",
+    "@tiptap/starter-kit": "^3.27.4",
+    "@tiptap/suggestion": "^3.27.4",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "y-webrtc": "^10.3.0",
+    "yjs": "^13.6.31"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^25.5.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^6.0.1",
+    "eslint": "^9.17.0",
+    "eslint-import-resolver-typescript": "^4.4.4",
+    "eslint-plugin-import-x": "^4.16.2",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "globals": "^15.14.0",
+    "prettier": "^3.8.1",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.18.2",
+    "vite": "^8.0.1"
+  }
+}

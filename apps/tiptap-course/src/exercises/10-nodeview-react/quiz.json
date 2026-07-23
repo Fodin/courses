@@ -1,0 +1,262 @@
+[
+  {
+    "question": "В чём главное ограничение renderHTML(), которое решает NodeView?",
+    "type": "single",
+    "options": [
+      {
+        "text": "renderHTML() не поддерживает атрибуты",
+        "correct": false,
+        "explanation": "renderHTML() прекрасно поддерживает атрибуты через HTMLAttributes — проблема не в этом."
+      },
+      {
+        "text": "renderHTML() описывает только статичную разметку без интерактивности (нет своего состояния, обработчиков событий)",
+        "correct": true,
+        "explanation": "Для интерактивных, 'живых' React-компонентов внутри документа нужен именно NodeView, а не статичный HTML-рендер."
+      },
+      {
+        "text": "renderHTML() работает только для marks, не для nodes",
+        "correct": false,
+        "explanation": "renderHTML() используется и для nodes, и для marks одинаково."
+      },
+      {
+        "text": "renderHTML() нельзя использовать вместе с parseHTML()",
+        "correct": false,
+        "explanation": "Наоборот, эти методы обычно используются в паре — один для импорта, другой для экспорта."
+      }
+    ]
+  },
+  {
+    "question": "Какая функция подключает React-компонент как NodeView для ноды?",
+    "type": "single",
+    "options": [
+      {
+        "text": "ReactNodeViewRenderer(Component)",
+        "correct": true,
+        "explanation": "Вызывается внутри addNodeView() и возвращает NodeViewRenderer, монтирующий переданный React-компонент."
+      },
+      {
+        "text": "useNodeView(Component)",
+        "correct": false,
+        "explanation": "Такого хука в публичном API @tiptap/react не существует."
+      },
+      {
+        "text": "createReactNode(Component)",
+        "correct": false,
+        "explanation": "Такой функции в API Tiptap не существует."
+      },
+      {
+        "text": "Node.reactView(Component)",
+        "correct": false,
+        "explanation": "Это не метод конструктора Node — правильный способ через отдельную функцию ReactNodeViewRenderer внутри addNodeView."
+      }
+    ]
+  },
+  {
+    "question": "В каком методе спецификации ноды подключается ReactNodeViewRenderer?",
+    "type": "single",
+    "options": [
+      {
+        "text": "renderHTML()",
+        "correct": false,
+        "explanation": "renderHTML отвечает за статичную сериализацию, не за подключение NodeView."
+      },
+      {
+        "text": "addNodeView()",
+        "correct": true,
+        "explanation": "addNodeView() — специальный метод спецификации ноды, возвращающий NodeViewRenderer, включая тот, что создаётся через ReactNodeViewRenderer."
+      },
+      {
+        "text": "addOptions()",
+        "correct": false,
+        "explanation": "addOptions предназначен для конфигурации, а не для подключения кастомного рендера."
+      },
+      {
+        "text": "parseHTML()",
+        "correct": false,
+        "explanation": "parseHTML отвечает за распознавание входящего HTML, а не за подключение React-компонента для рендера."
+      }
+    ]
+  },
+  {
+    "question": "Какой компонент обязательно должен быть корневым элементом NodeView-компонента?",
+    "type": "single",
+    "options": [
+      {
+        "text": "NodeViewContent",
+        "correct": false,
+        "explanation": "NodeViewContent — это 'дырка' для дочернего редактируемого контента, а не корневая обёртка всего NodeView."
+      },
+      {
+        "text": "NodeViewWrapper",
+        "correct": true,
+        "explanation": "NodeViewWrapper синхронизирует React-дерево с DOM-узлом, который ожидает ProseMirror, и должен быть корнем NodeView-компонента."
+      },
+      {
+        "text": "EditorContent",
+        "correct": false,
+        "explanation": "EditorContent — это компонент верхнего уровня всего редактора, а не отдельного NodeView."
+      },
+      {
+        "text": "Никакой специальный компонент не требуется, подойдёт обычный div",
+        "correct": false,
+        "explanation": "Без NodeViewWrapper ProseMirror не сможет корректно отслеживать позицию и границы узла."
+      }
+    ]
+  },
+  {
+    "question": "Как правильно изменить атрибут узла изнутри NodeView-компонента?",
+    "type": "single",
+    "options": [
+      {
+        "text": "node.attrs.count = newValue напрямую",
+        "correct": false,
+        "explanation": "Прямая мутация node.attrs не создаёт транзакцию — ProseMirror не узнает об изменении, и это может привести к рассинхронизации."
+      },
+      {
+        "text": "updateAttributes({ count: newValue })",
+        "correct": true,
+        "explanation": "updateAttributes — проп, передаваемый в NodeView-компонент, который корректно создаёт транзакцию для изменения атрибутов узла."
+      },
+      {
+        "text": "editor.setContent({ ...node, attrs: { count: newValue } })",
+        "correct": false,
+        "explanation": "Это избыточный и некорректный способ — полная замена документа для изменения одного атрибута одного узла."
+      },
+      {
+        "text": "useState внутри NodeView-компонента, без синхронизации с документом",
+        "correct": false,
+        "explanation": "Такой подход хранил бы значение только в React state, не сохраняя его в самом документе — при пересоздании NodeView оно бы терялось."
+      }
+    ]
+  },
+  {
+    "question": "Для чего нужен NodeViewContent?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Чтобы отобразить статичный, нередактируемый текст внутри NodeView",
+        "correct": false,
+        "explanation": "Для статичного контента достаточно обычной React-разметки — NodeViewContent предназначен именно для РЕДАКТИРУЕМОГО содержимого."
+      },
+      {
+        "text": "Чтобы указать 'дырку', куда ProseMirror монтирует свой стандартный редактируемый DOM для дочернего контента ноды",
+        "correct": true,
+        "explanation": "Это прямой аналог '0' (content hole) в renderHTML, но адаптированный для React NodeView."
+      },
+      {
+        "text": "Чтобы стилизовать NodeView через CSS-in-JS",
+        "correct": false,
+        "explanation": "NodeViewContent не связан со стилизацией напрямую — это структурный компонент для дочернего редактируемого контента."
+      },
+      {
+        "text": "Чтобы подключить внешний iframe внутрь узла",
+        "correct": false,
+        "explanation": "NodeViewContent — это часть механизма редактируемого текста ProseMirror, не связанная с iframe."
+      }
+    ]
+  },
+  {
+    "question": "Может ли NodeView-компонент содержать одновременно статичную React-разметку и NodeViewContent?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Нет, NodeViewContent должен занимать весь компонент целиком",
+        "correct": false,
+        "explanation": "Можно свободно комбинировать статичные части (например, заголовок) с NodeViewContent (редактируемая часть) в одном компоненте."
+      },
+      {
+        "text": "Да — например, статичный заголовок карточки снаружи NodeViewContent, а редактируемый текст внутри него",
+        "correct": true,
+        "explanation": "Это стандартный паттерн для карточек, todo-элементов и других композитных интерактивных блоков."
+      },
+      {
+        "text": "Нет, для каждой статичной части нужен отдельный NodeView",
+        "correct": false,
+        "explanation": "Один NodeView-компонент вполне может комбинировать статичные и редактируемые части внутри себя."
+      },
+      {
+        "text": "Да, но только если оба обёрнуты в отдельные NodeViewWrapper",
+        "correct": false,
+        "explanation": "NodeViewWrapper должен быть только один — корневой элемент всего компонента, а не у каждой внутренней части."
+      }
+    ]
+  },
+  {
+    "question": "Что произойдёт, если нода с content: 'inline*' не использует NodeViewContent в своём React-компоненте?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Дочерний контент ноды не будет отображаться/монтироваться внутри NodeView",
+        "correct": true,
+        "explanation": "Без NodeViewContent React-компонент не 'знает', куда именно поместить редактируемый дочерний контент — визуально он не появится."
+      },
+      {
+        "text": "Ничего, ProseMirror сам найдёт подходящее место для контента",
+        "correct": false,
+        "explanation": "ProseMirror не делает автоматических предположений — место для дочернего контента нужно указать явно через NodeViewContent."
+      },
+      {
+        "text": "Будет выброшено исключение при монтировании компонента",
+        "correct": false,
+        "explanation": "Явного исключения не произойдёт — просто контент не будет виден в интерфейсе."
+      },
+      {
+        "text": "content-выражение автоматически изменится на пустое",
+        "correct": false,
+        "explanation": "content в схеме не меняется динамически из-за отсутствия NodeViewContent в UI-компоненте — это разные слои (схема vs представление)."
+      }
+    ]
+  },
+  {
+    "question": "Какие пропсы доступны в NodeViewProps, переданных в React NodeView-компонент?",
+    "type": "multiple",
+    "options": [
+      {
+        "text": "node — сам узел ProseMirror с его текущими атрибутами",
+        "correct": true,
+        "explanation": "node.attrs даёт доступ к текущим значениям атрибутов узла."
+      },
+      {
+        "text": "updateAttributes — функция для изменения атрибутов узла через транзакцию",
+        "correct": true,
+        "explanation": "Стандартный способ изменения состояния узла изнутри NodeView."
+      },
+      {
+        "text": "deleteNode — функция для удаления узла из документа",
+        "correct": true,
+        "explanation": "Позволяет программно убрать текущий узел без ручной работы с позициями транзакции."
+      },
+      {
+        "text": "setGlobalState — функция для изменения состояния всего приложения React",
+        "correct": false,
+        "explanation": "Такого пропса не существует — NodeViewProps касаются конкретного узла, а не глобального состояния приложения."
+      }
+    ]
+  },
+  {
+    "question": "Можно ли использовать локальный useState внутри NodeView-компонента, не связанный с атрибутами документа?",
+    "type": "single",
+    "options": [
+      {
+        "text": "Нет, всё состояние NodeView обязано храниться в атрибутах узла",
+        "correct": false,
+        "explanation": "Локальный чисто UI-стейт (например, временная подсветка или открытость dropdown) вполне уместен как обычный React useState, без сохранения в документе."
+      },
+      {
+        "text": "Да, для чисто локального UI-состояния (например, кратковременной анимации), не влияющего на сохраняемый документ, можно использовать обычный useState",
+        "correct": true,
+        "explanation": "Это нормальная практика: не всё, что происходит в NodeView, обязано быть частью персистентного документа."
+      },
+      {
+        "text": "Да, но только если этот useState синхронизирован с updateAttributes на каждое изменение",
+        "correct": false,
+        "explanation": "Обязательной синхронизации с документом не требуется — иначе временное UI-состояние стало бы частью сохраняемых данных без необходимости."
+      },
+      {
+        "text": "Нет, React-хуки нельзя использовать внутри NodeView-компонентов вообще",
+        "correct": false,
+        "explanation": "NodeView-компонент — это обычный React-компонент, поддерживающий любые хуки, включая useState/useEffect."
+      }
+    ]
+  }
+]
